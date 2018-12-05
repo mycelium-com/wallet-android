@@ -1432,6 +1432,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       public PublicKey findPublicKeyByAddress(Address address) {
          PublicKey publicKey = getPublicKeyForAddress(address);
          if (publicKey != null) {
+            if (address.getType() == AddressType.P2SH_P2WPKH
+                    || address.getType() == AddressType.P2WPKH) {
+               return new PublicKey(publicKey.getPubKeyCompressed());
+            }
             return publicKey;
          }
          // something unexpected happened - the account might be in a undefined state

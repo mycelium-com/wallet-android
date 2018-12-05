@@ -277,6 +277,9 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface arg0, int arg1) {
             Log.d(TAG, "Entering onClick delete");
+            if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
+               localTraderManager.unsetLocalTraderAccount();
+            }
             if (hasPrivateData) {
                Long satoshis = getPotentialBalance(accountToDelete);
                AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());

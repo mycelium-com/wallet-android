@@ -314,6 +314,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             break;
          case PRIVACY:
             result = getAddress(destinationAddress.getType());
+            if (result == null) {
+               return getAddress();
+            }
             break;
          default:
             throw new IllegalStateException();
@@ -349,6 +352,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             break;
          case PRIVACY:
             result = getAddress(maxedOn);
+            if (result == null) {
+               return getAddress();
+            }
             break;
          default:
             throw new IllegalStateException();
@@ -358,16 +364,27 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
-      if (getPublicKey().equals(publicKey)) {
-         return getPrivateKey(cipher);
+      if (getPublicKey().equals(publicKey) || new PublicKey(publicKey.getPubKeyCompressed()).equals(publicKey)) {
+         InMemoryPrivateKey privateKey = getPrivateKey(cipher);
+         if (publicKey.isCompressed()) {
+            return new InMemoryPrivateKey(privateKey.getPrivateKeyBytes(), true);
+         } else {
+            return privateKey;
+         }
       }
+
       return null;
    }
 
    @Override
    protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
       if (_addressList.contains(address)) {
-         return getPrivateKey(cipher);
+         InMemoryPrivateKey privateKey = getPrivateKey(cipher);
+         if (address.getType() == AddressType.P2SH_P2WPKH || address.getType() == AddressType.P2WPKH) {
+            return new InMemoryPrivateKey(privateKey.getPrivateKeyBytes(), true);
+         } else {
+            return privateKey;
+         }
       } else {
          return null;
       }
