@@ -27,7 +27,7 @@ import kotlin.experimental.and
 
 
 class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
-    private val pubKeyCompressed: ByteArray by lazy { compressPublicKey(publicKeyBytes) }
+    val pubKeyCompressed: ByteArray by lazy { compressPublicKey(publicKeyBytes) }
     val publicKeyHash: ByteArray by lazy { HashUtils.addressHash(publicKeyBytes) }
     val pubKeyHashCompressed: ByteArray by lazy { HashUtils.addressHash(pubKeyCompressed) }
     val Q: Point by lazy { Parameters.curve.decodePoint(publicKeyBytes) }
