@@ -34,19 +34,21 @@
 
 package com.mycelium.wallet.colu;
 
-import android.util.ArrayMap;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -65,6 +67,7 @@ import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
@@ -72,6 +75,7 @@ import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
+import java.lang.reflect.Type;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -97,6 +101,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
+   private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteColuAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
@@ -134,19 +139,22 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                  null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            byte[] addressBytes = cursor.getBlob(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
             ColuMain coinType = ColuUtils.getColuCoin(coinId);
              PublicKey publicKey = null;
-             BtcLegacyAddress address = null;
              if (cursor.getBlob(5) != null) {
                  publicKey = new PublicKey(cursor.getBlob(5));
-             } else {
-                 address = new BtcLegacyAddress(coinType, addressBytes);
              }
-             list.add(new ColuAccountContext(id, coinType, publicKey, address
+            Type type = new TypeToken<Collection<String>>(){}.getType();
+            Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+            Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
+            for (String addressString : addressStringsList) {
+               Address address = Address.fromString(addressString);
+               addresses.put(address.getType(), new BtcLegacyAddress(coinType, address.getAllAddressBytes()));
+            }
+            list.add(new ColuAccountContext(id, coinType, publicKey, addresses
                      , isArchived, blockHeight));
          }
       } finally {
@@ -171,9 +179,11 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
-         if (context.getAddress() != null) {
-            _insertOrReplaceSingleAddressAccount.bindBlob(2, context.getAddress().getBytes());
+         List<String> addresses = new ArrayList<>();
+         for (BtcAddress address: context.getAddress().values()){
+            addresses.add(address.toString());
          }
+         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
          ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -1062,28 +1072,18 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   cursor.close();
                }
             }
-            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER, blockheight INTEGER, addressType BLOB);");
+            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
             SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
             for (SingleAddressAccountContext context : list) {
                statement.bindBlob(1, uuidToBytes(context.getId()));
-               ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getAddresses());
-                  statement.bindBlob(2, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
+               List<String> addresses = new ArrayList<>();
+               for (Address address: context.getAddresses().values()){
+                  addresses.add(address.toString());
                }
-
+               statement.bindString(2, gson.toJson(addresses));
                statement.bindLong(3, context.isArchived() ? 1 : 0);
                statement.bindLong(4, context.getBlockHeight());
-
-               byteStream = new ByteArrayOutputStream();
-               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-                  objectOutputStream.writeObject(context.getDefaultAddressType());
-                  statement.bindBlob(5, byteStream.toByteArray());
-               } catch (IOException ignore) {
-                  // should never happen
-               }
+               statement.bindString(5, gson.toJson(context.getDefaultAddressType()));
 
                statement.executeInsert();
             }
@@ -1093,6 +1093,18 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          if(oldVersion < 6) {
             db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins()) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
          }
          if(oldVersion < 7) {
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");

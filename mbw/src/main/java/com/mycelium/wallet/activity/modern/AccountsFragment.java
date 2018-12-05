@@ -370,7 +370,7 @@ public class AccountsFragment extends Fragment {
                                  walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
                                          , (ColuMain) linkedColuAccount.getCoinType()));
                               } else {
-                                 walletManager.createAccounts(new AddressColuConfig(context.getAddress()
+                                 walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
                                          , (ColuMain) linkedColuAccount.getCoinType()));
                               }
                            } else {
@@ -394,7 +394,7 @@ public class AccountsFragment extends Fragment {
                                        walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
                                                , (ColuMain) accountToDelete.getCoinType()));
                                    } else {
-                                       walletManager.createAccounts(new AddressColuConfig(context.getAddress()
+                                       walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
                                                , (ColuMain) accountToDelete.getCoinType()));
                                    }
                                } else {
