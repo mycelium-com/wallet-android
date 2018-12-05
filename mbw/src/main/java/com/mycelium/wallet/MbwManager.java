@@ -1151,7 +1151,7 @@ public class MbwManager {
 
         // If nothing is selected, or selected is archived, pick the first one
         if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            if (_walletManager.getActiveAccounts().isEmpty()) {
+            if (_walletManager.getActiveAccounts(WalletAccount.Type.BTCBIP44).isEmpty()) {
                 // That case should never happen, because we prevent users from archiving all of their
                 // accounts.
                 // We had a bug that allowed it, and the app will crash always after restart.
