@@ -342,6 +342,7 @@ public class MbwManager {
             _coluManager = coluMgr;
             if(_coluManager.isPresent()) {
                 addExtraAccounts(_coluManager.get());
+                _eventBus.post(new ExtraAccountsChanged());
             }
         }
     }
