@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
@@ -251,22 +252,30 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     }
 
     override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // This implementation is empty since this account is read only and cannot create,
+        // sign and broadcast transactions
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // This implementation is empty since this account is read only and cannot create,
+        // sign and broadcast transactions
     }
 
     override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // This implementation is empty since this account is read only and cannot create,
+        // sign and broadcast transactions
     }
 
     override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // This implementation is empty since this account is read only and cannot create,
+        // sign and broadcast transactions
+        return BroadcastResult.REJECTED
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {
-        return 0
+        return FeeEstimatorBuilder().setLegacyInputs(2)
+                .setLegacyOutputs(4)
+                .createFeeEstimator()
+                .estimateTransactionSize()
     }
 }

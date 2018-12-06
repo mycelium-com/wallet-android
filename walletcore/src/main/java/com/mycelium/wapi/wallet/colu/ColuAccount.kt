@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
+import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
@@ -155,7 +156,10 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {
-        return 0
+        return FeeEstimatorBuilder().setLegacyInputs(2)
+                .setLegacyOutputs(4)
+                .createFeeEstimator()
+                .estimateTransactionSize()
     }
 
 }
