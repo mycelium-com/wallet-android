@@ -1757,5 +1757,14 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          return null;
       }
    }
+
+   @Override
+   public int getTypicalEstimatedTransactionSize() {
+      FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder();
+      FeeEstimator estimator = estimatorBuilder.setLegacyInputs(1)
+                 .setLegacyOutputs(2)
+                 .createFeeEstimator();
+      return estimator.estimateTransactionSize();
+   }
 }
 

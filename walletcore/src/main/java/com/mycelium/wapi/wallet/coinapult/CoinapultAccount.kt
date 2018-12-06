@@ -21,7 +21,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
-
     override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
         val history = ArrayList<CoinapultTransaction>()
         checkNotArchived()
@@ -192,5 +191,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 //        }
         _isSynchronizing = false
         return true
+    }
+
+    override fun getTypicalEstimatedTransactionSize(): Int {
+        return 0
     }
 }

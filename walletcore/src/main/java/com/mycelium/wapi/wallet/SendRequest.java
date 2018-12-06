@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
 
-public class SendRequest<T extends GenericTransaction> implements Serializable {
+public abstract class SendRequest<T extends GenericTransaction> implements Serializable {
 
     /**
      * The blockchain network that this request is going to transact
@@ -32,4 +32,6 @@ public class SendRequest<T extends GenericTransaction> implements Serializable {
         this.type = type;
         fee = type.getFeeValue();
     }
+
+    public abstract int getEstimatedTransactionSize();
 }

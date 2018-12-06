@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.btc;
 
+import com.mrd.bitlib.FeeEstimator;
+import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -44,5 +46,21 @@ public class BtcSendRequest extends SendRequest<BtcTransaction> implements Seria
 
     public void setTransaction(Transaction tx) {
         this.tx = new BtcTransaction(this.type, tx);
+    }
+
+    @Override
+    public int getEstimatedTransactionSize() {
+        FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder();
+        FeeEstimator estimator;
+        if (unsignedTx != null) {
+            estimator = estimatorBuilder.setArrayOfInputs(unsignedTx.getFundingOutputs())
+                    .setArrayOfOutputs(unsignedTx.getOutputs())
+                    .createFeeEstimator();
+        } else {
+            estimator = estimatorBuilder.setLegacyInputs(1)
+                    .setLegacyOutputs(2)
+                    .createFeeEstimator();
+        }
+        return estimator.estimateTransactionSize();
     }
 }

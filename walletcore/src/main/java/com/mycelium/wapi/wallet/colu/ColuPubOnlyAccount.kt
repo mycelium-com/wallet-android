@@ -265,4 +265,8 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+    override fun getTypicalEstimatedTransactionSize(): Int {
+        return 0
+    }
 }

@@ -165,6 +165,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public int getTypicalEstimatedTransactionSize() {
+        return 0;
+    }
+
+    @Override
     public SendRequest getSendToRequest(FiatAddress destination, Value amount) {
         return null;
     }

@@ -608,18 +608,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private int estimateTxSize() {
-        FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder();
-        FeeEstimator estimator;
-        if (_unsigned != null) {
-            estimator = estimatorBuilder.setArrayOfInputs(_unsigned.getFundingOutputs())
-                    .setArrayOfOutputs(_unsigned.getOutputs())
-                    .createFeeEstimator();
+        if (sendRequest != null) {
+            return sendRequest.getEstimatedTransactionSize();
         } else {
-            estimator = estimatorBuilder.setLegacyInputs(1)
-                    .setLegacyOutputs(2)
-                    .createFeeEstimator();
+            return _account.getTypicalEstimatedTransactionSize();
         }
-        return estimator.estimateTransactionSize();
     }
 
     //TODO: fee from other bitcoin account if colu

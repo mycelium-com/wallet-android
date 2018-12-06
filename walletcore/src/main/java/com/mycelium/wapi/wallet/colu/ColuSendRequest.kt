@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.SendRequest
 import com.mycelium.wapi.wallet.WalletAccount
@@ -24,5 +25,18 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcLegacyAddress, 
         this.tx = ColuTransaction(tx.id, this.type, Value.zeroValue(type), Value.zeroValue(type)
                 , 0, tx, 0, false
                 , listOf(), listOf())
+    }
+
+    override fun getEstimatedTransactionSize(): Int {
+        if (baseTransaction != null) {
+            return baseTransaction?.txRawSize!!
+        } else {
+            var estimatorBuilder = FeeEstimatorBuilder()
+            val estimator = estimatorBuilder.setLegacyInputs(2)
+                    .setLegacyOutputs(4)
+                    .createFeeEstimator()
+            return estimator.estimateTransactionSize()
+
+        }
     }
 }

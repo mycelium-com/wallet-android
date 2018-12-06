@@ -202,6 +202,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public int getTypicalEstimatedTransactionSize() {
+        return 0;
+    }
+
+    @Override
     public SendRequest getSendToRequest(EthAddress destination, Value amount) {
         return EthSendRequest.to(destination, amount);
     }

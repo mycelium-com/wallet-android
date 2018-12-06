@@ -29,4 +29,8 @@ public class EthSendRequest extends SendRequest<EthTransaction> {
         return destination;
     }
 
+    @Override
+    public int getEstimatedTransactionSize() {
+        return 0;
+    }
 }

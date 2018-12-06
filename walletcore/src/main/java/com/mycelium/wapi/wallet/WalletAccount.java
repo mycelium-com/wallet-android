@@ -185,6 +185,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     FeeEstimationsGeneric getFeeEstimations();
 
+    int getTypicalEstimatedTransactionSize();
     /**
      * Class representing a receiver of funds
      */

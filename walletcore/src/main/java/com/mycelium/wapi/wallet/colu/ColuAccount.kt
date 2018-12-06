@@ -154,4 +154,8 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
         return list
     }
 
+    override fun getTypicalEstimatedTransactionSize(): Int {
+        return 0
+    }
+
 }

@@ -8,5 +8,8 @@ import com.mycelium.wapi.wallet.colu.ColuTransaction
 
 class CoinapultSendRequest(currency: Currency, val destination: BtcAddress, val amount: Value)
     : SendRequest<CoinapultTransaction>(currency) {
+    override fun getEstimatedTransactionSize(): Int {
+        return 0
+    }
 
 }
