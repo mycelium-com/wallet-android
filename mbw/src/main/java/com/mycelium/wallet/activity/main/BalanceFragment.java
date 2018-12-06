@@ -325,6 +325,9 @@ public class BalanceFragment extends Fragment {
       }
       // show fiat value (if balance is in btc)
       setFiatValue(R.id.tvSendingFiat, balance.pendingSending, true);
+
+      // set exchange item
+      exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
    }
 
    private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
