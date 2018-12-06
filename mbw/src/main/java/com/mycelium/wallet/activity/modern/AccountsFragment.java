@@ -408,12 +408,14 @@ public class AccountsFragment extends Fragment {
                if (accountToDelete instanceof ColuAccount) {
                   ColuManager coluManager = _mbwManager.getColuManager();
                   coluManager.deleteAccount((ColuAccount) accountToDelete);
+                  eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                } else {
                   //Check if this SingleAddress account is related with ColuAccount
                   WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                   if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                      ColuManager coluManager = _mbwManager.getColuManager();
                      coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                     eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                      _storage.deleteAccountMetadata(linkedColuAccount.getId());
                   } else {
                      try {
