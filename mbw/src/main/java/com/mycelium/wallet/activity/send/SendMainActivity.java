@@ -627,17 +627,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         return 2 * coluDustOutputSize + ColuUtils.METADATA_OUTPUT_SIZE;
     }
 
-//    private boolean checkFee(boolean rescan) {
-//        ColuAccount coluAccount = (ColuAccount) _account;
-//
-//        long fundingAmountShouldHave = /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) + */getAmountForColuTxOutputs();
-//        if (fundingAmountShouldHave < TransactionUtils.MINIMUM_OUTPUT_VALUE)
-//            fundingAmountShouldHave = TransactionUtils.MINIMUM_OUTPUT_VALUE;
-
-//        long spendableAmount =  coluAccount.getSatoshiBtcOnlyAmount();
-//        return spendableAmount >= (fundingAmountShouldHave);
-//    }
-
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted
     private Value getValueToSend() {
