@@ -37,6 +37,7 @@ public class HDAccountTest {
         Wapi fakeWapi = mock(Wapi.class);
         WapiLogger fakeLogger = mock(WapiLogger.class);
         when(fakeWapi.getLogger()).thenReturn(fakeLogger);
+        LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
         SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);

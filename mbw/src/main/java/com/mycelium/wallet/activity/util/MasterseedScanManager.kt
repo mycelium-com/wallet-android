@@ -57,7 +57,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
         this.password = null
     }
 
-    constructor(context: Context, network: NetworkParameters, words: Array<String>, password: String, eventBus: Bus) : super(context, network, eventBus) {
+    constructor(context: Context, network: NetworkParameters, words: Array<String>, password: String?, eventBus: Bus) : super(context, network, eventBus) {
         this.words = words.clone()
         this.password = password
     }
@@ -71,7 +71,7 @@ class MasterseedScanManager : AbstractAccountScanManager {
                 passphrase = waitForPassphrase()
             }
             if (passphrase.isPresent) {
-                this.masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
+                masterSeed = Bip39.generateSeedFromWordList(words, passphrase.get())
             } else {
                 return false
             }
@@ -84,6 +84,11 @@ class MasterseedScanManager : AbstractAccountScanManager {
         //todo: caching of intermediary path sections
         val root = HdKeyNode.fromSeed(masterSeed!!.bip32Seed, derivationType)
         return Optional.of(root.createChildNode(keyPath))
+    }
+
+    override fun upgradeAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, uuid: UUID): Boolean {
+        // This is not needed for in-wallet accounts
+        return false
     }
 
     override fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int): UUID {

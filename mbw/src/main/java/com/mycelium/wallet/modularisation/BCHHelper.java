@@ -44,39 +44,7 @@ public class BCHHelper {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
         final boolean moduleBCHInstalled = Utils.isAppInstalled(context, bchModule.getModulePackage());
-        if (!sharedPreferences.getBoolean(BCH_FIRST_UPDATE, false) && !moduleBCHInstalled) {
-            View view = LayoutInflater.from(context).inflate(R.layout.dialog_first_modulization, null);
-            ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_modulization_title)));
-            ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.first_modulization_message)));
-            final AlertDialog dialog = new AlertDialog.Builder(context, R.style.MyceliumModern_Dialog)
-                    .setView(view)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            sharedPreferences.edit().putBoolean(BCH_FIRST_UPDATE, true)
-                                    .apply();
-                        }
-                    })
-                    .create();
-            view.findViewById(R.id.install).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                    installIntent.setData(Uri.parse("https://play.google.com/store/apps/details?id="
-                            + bchModule.getModulePackage()
-                    ));
-                    context.startActivity(installIntent);
-                    dialog.dismiss();
-                }
-            });
-            view.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
-        } else if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
+        if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_module_installed, null);
             ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_bch_installed_title)));
             ((TextView) view.findViewById(R.id.content)).setText(Html.fromHtml(context.getString(R.string.to_get_your_bitcoin_cash_retrieved)));

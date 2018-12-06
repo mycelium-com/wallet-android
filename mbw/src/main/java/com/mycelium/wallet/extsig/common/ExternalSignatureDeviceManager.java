@@ -40,10 +40,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.GeneratedMessage;
+import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.UnsignedTransaction;
@@ -51,39 +52,37 @@ import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.*;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.ExtSigDeviceConnectionException;
-import com.satoshilabs.trezor.protobuf.TrezorMessage;
-import com.satoshilabs.trezor.protobuf.TrezorMessage.SignTx;
-import com.satoshilabs.trezor.protobuf.TrezorMessage.TxRequest;
-import com.satoshilabs.trezor.protobuf.TrezorType;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx;
+import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest;
+import com.satoshilabs.trezor.lib.protobuf.TrezorType;
 import com.squareup.otto.Bus;
-
 import org.bitcoinj.core.ScriptException;
-import org.bitcoinj.script.*;
+import org.bitcoinj.script.ScriptBuilder;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.mycelium.wallet.Constants.TAG;
+import static com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS;
+import static com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING;
+import static com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT;
 import static org.bitcoinj.core.NetworkParameters.ID_MAINNET;
 import static org.bitcoinj.core.NetworkParameters.ID_TESTNET;
 
@@ -91,11 +90,37 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    protected final int PRIME_DERIVATION_FLAG = 0x80000000;
 
    private ExternalSignatureDevice externalSignatureDevice = null;
-   private TrezorMessage.Features features;
+   private volatile TrezorMessage.Features features;
 
    protected final LinkedBlockingQueue<String> pinMatrixEntry = new LinkedBlockingQueue<String>(1);
 
    public static class OnButtonRequest {
+   }
+
+   public static class OnStatusUpdate {
+      private int outputIndex;
+
+      private CurrentStatus status;
+      OnStatusUpdate(int outputIndex, CurrentStatus status) {
+         this.outputIndex = outputIndex;
+         this.status = status;
+      }
+
+      public enum CurrentStatus {
+         SHOW_CHANGE_ADDRESS,
+         CONFIRM_OUTPUT,
+         CONFIRM_CHANGE,
+         SIGN_TRANSACTION,
+         WARNING
+      }
+
+      public int getOutputIndex() {
+         return outputIndex;
+      }
+
+      public CurrentStatus getStatus() {
+         return status;
+      }
    }
 
    public static class OnPinMatrixRequest {
@@ -168,6 +193,18 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
+   public String getModelName() {
+      switch (features.getModel()) {
+         case "K1-14AM":
+            return "KeepKey";
+         case "1":
+            return "Trezor One";
+         case "T":
+            return "Trezor Model T";
+      }
+      throw new IllegalStateException("Unsupported model");
+   }
+
    @Override
    protected boolean onBeforeScan() {
       return initialize();
@@ -192,14 +229,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          Message resp = getSignatureDevice().send(req);
          if (resp instanceof TrezorMessage.Features) {
             final TrezorMessage.Features f = (TrezorMessage.Features) resp;
-
-            // remember the features
-            getMainThreadHandler().post(new Runnable() {
-               @Override
-               public void run() {
-                  features = f;
-               }
-            });
+            features = f;
 
             return true;
          } else if (resp == null) {
@@ -211,6 +241,17 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       return false;
    }
 
+   @Nullable
+   private Address getChangeAddress(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
+      for (TransactionOutput output : unsigned.getOutputs()) {
+         Address address = output.script.getAddress(getNetwork());
+         if (forAccount.isOwnInternalAddress(address)) {
+            return address;
+         }
+      }
+      return null;
+   }
+
    // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
    @Override
    public Transaction getSignedTransaction(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
@@ -218,8 +259,48 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       if (!initialize()) {
          return null;
       }
+      if (features == null) {
+         return null;
+      }
 
       setState(Status.readyToScan, getCurrentAccountState());
+
+       getMainThreadHandler().post(new Runnable() {
+           @Override
+           public void run() {
+               getEventBus().post(new OnStatusUpdate(0, WARNING));
+           }
+       });
+
+      // Trezor model T does not support showing "Transferring between accounts" message. We must show user change
+      // address before signing
+      Address changeAddress = getChangeAddress(unsigned, forAccount);
+      boolean changeWouldBeShown = ExternalSignatureDeviceManagerKt.showChange(unsigned, getNetwork(), forAccount);
+      if (features.getModel().equals("T") && changeAddress != null && changeWouldBeShown) {
+         TrezorMessage.GetAddress.Builder getAddressBuilder = TrezorMessage.GetAddress.newBuilder();
+         if (changeAddress.getType() == AddressType.P2SH_P2WPKH) {
+            getAddressBuilder.setScriptType(TrezorType.InputScriptType.SPENDP2SHWITNESS);
+         } else if (changeAddress.getType() == AddressType.P2WPKH) {
+            getAddressBuilder.setScriptType(TrezorType.InputScriptType.SPENDWITNESS);
+         } else if (changeAddress.getType() == AddressType.P2PKH) {
+            getAddressBuilder.setScriptType(TrezorType.InputScriptType.SPENDADDRESS);
+         } else {
+            postErrorMessage("Unknown script type");
+            return null;
+         }
+         getAddressBuilder.setCoinName(getNetwork().getCoinName())
+                 .setShowDisplay(true);
+         int purpose = BipDerivationType.Companion.getDerivationTypeByAddress(changeAddress).getPurpose();
+         new GetAddressSetter(getAddressBuilder)
+                 .setAddressN(purpose, forAccount.getAccountIndex(), forAccount.getAddressId(changeAddress).get());
+         getMainThreadHandler().post(new Runnable() {
+            @Override
+            public void run() {
+               getEventBus().post(new OnStatusUpdate(0, SHOW_CHANGE_ADDRESS));
+            }
+         });
+         filterMessages(getSignatureDevice().send(getAddressBuilder.build()));
+      }
 
       // send initial signing-request
       SignTx signTx = SignTx.newBuilder()
@@ -243,7 +324,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       while (true) {
          // check for common response and handle them
          try {
-            response = filterMessages(response);
+            response = filterMessages(response, unsigned, forAccount);
          } catch (ExtSigDeviceConnectionException ex) {
             postErrorMessage(ex.getMessage());
             return null;
@@ -278,7 +359,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
 
          Transaction currentTx;
          if (txRequestDetailsType.hasTxHash()) {
-            // trezor requested information about a related tx - get it from the account accountBacking
+            // trezor requested information about a related tx - get it from the account backing
             Sha256Hash requestHash = Sha256Hash.of(txRequestDetailsType.getTxHash().toByteArray());
             currentTx = TransactionEx.toTransaction(forAccount.getTransaction(requestHash));
          } else {
@@ -307,6 +388,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                        .setPrevHash(prevHash)
                        .setPrevIndex(ak_input.outPoint.index)
                        .setSequence(ak_input.sequence)
+                       .setAmount(ak_input.getValue())
                        .setScriptSig(scriptSig);
 
                // get the bip32 path for the address, so that trezor knows with what key to sign it
@@ -317,10 +399,13 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   BipDerivationType derivationType;
                   if (fundingUtxoScript instanceof ScriptOutputP2SH) {
                      derivationType = BipDerivationType.BIP49;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDP2SHWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
                      derivationType = BipDerivationType.BIP84;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDWITNESS);
                   } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
                      derivationType = BipDerivationType.BIP44;
+                     txInputBuilder.setScriptType(TrezorType.InputScriptType.SPENDADDRESS);
                   } else {
                      postErrorMessage("Unhandled funding " + fundingUtxoScript);
                      return null;
@@ -366,7 +451,7 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
                   Address address = ak_output.script.getAddress(getNetwork());
                   TrezorType.TxOutputType.Builder txOutput = TrezorType.TxOutputType.newBuilder()
                           .setAmount(ak_output.value)
-                          .setScriptType(mapScriptType(ak_output.script));
+                          .setScriptType(mapScriptType(ak_output.script, forAccount.isOwnInternalAddress(address)));
 
                   Optional<Integer[]> addId = forAccount.getAddressId(address);
                   BipDerivationType derivationType = BipDerivationType.Companion.getDerivationTypeByAddress(address);
@@ -401,7 +486,8 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       Transaction ret;
       try {
          ret = Transaction.fromByteReader(new ByteReader(signedTx.toBytes()));
-         checkSignedTransaction(unsigned, signedTx);
+         // TODO: 13.10.18 add this check back in and make it work with segwit.
+         //checkSignedTransaction(unsigned, signedTx);
       } catch (Transaction.TransactionParsingException e) {
          postErrorMessage("Trezor TX not valid.");
          Log.e("trezor", "Trezor TX not valid " + e.getMessage(), e);
@@ -430,14 +516,15 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
-   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script) {
-      if (script instanceof ScriptOutputStandard) {
-         return TrezorType.OutputScriptType.PAYTOADDRESS;
-      } else if (script instanceof ScriptOutputP2SH) {
-         return TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
-      } else {
-         throw new RuntimeException("unknown script type");
+   private TrezorType.OutputScriptType mapScriptType(ScriptOutput script, boolean isChange) {
+      if (isChange) {
+         if (script instanceof ScriptOutputP2SH) {
+            return TrezorType.OutputScriptType.PAYTOP2SHWITNESS;
+         } else if (script instanceof ScriptOutputP2WPKH) {
+            return TrezorType.OutputScriptType.PAYTOWITNESS;
+         }
       }
+      return TrezorType.OutputScriptType.PAYTOADDRESS;
    }
 
    @Override
@@ -468,6 +555,19 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       }
    }
 
+   @Override
+   public boolean upgradeAccount(@NonNull List<? extends HdKeyNode> accountRoots, @NonNull WalletManager walletManager,
+                                 @NonNull UUID uuid) {
+      WalletAccount account = walletManager.getAccount(uuid);
+      if (account instanceof HDAccountExternalSignature) {
+         HDAccountExternalSignature hdAccount = (HDAccountExternalSignature) account;
+         /* TODO - fix upgrading signature account creation.
+         return walletManager.upgradeExtSigAccount(accountRoots, hdAccount);
+         */
+      }
+      return false;
+   }
+
    @NonNull
    @Override
    public UUID createOnTheFlyAccount(@NonNull List<? extends HdKeyNode> accountRoots, @NonNull WalletManager walletManager, int accountIndex) {
@@ -480,7 +580,9 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
          }
       }
       if (account == null) {
-         account = walletManager.createAccounts(new ExternalSignaturesAccountConfig(accountRoots, this, accountIndex)).get(0);
+         /* TODO - fix external signature account creation.
+         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
+         */
       }
       return account;
    }
@@ -491,59 +593,16 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
    }
 
    private Message filterMessages(final Message msg) {
+      return filterMessages(msg, null, null);
+   }
+
+   private Message filterMessages(final Message msg, UnsignedTransaction transaction, HDAccount forAccount) {
       if (msg instanceof TrezorMessage.ButtonRequest) {
-         getMainThreadHandler().post(new Runnable() {
-            @Override
-            public void run() {
-               getEventBus().post(new OnButtonRequest());
-            }
-         });
-
-         TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
-               .build();
-         return filterMessages(getSignatureDevice().send(txButtonAck));
-
+         return processButtonRequest(msg, transaction, forAccount);
       } else if (msg instanceof TrezorMessage.PinMatrixRequest) {
-         getMainThreadHandler().post(new Runnable() {
-            @Override
-            public void run() {
-               getEventBus().post(new OnPinMatrixRequest());
-            }
-         });
-         String pin;
-         try {
-            // wait for the user to enter the pin
-            pin = pinMatrixEntry.take();
-         } catch (InterruptedException e) {
-            pin = "";
-         }
-
-         TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
-               .setPin(pin)
-               .build();
-
-         // send the Pin Response and (if everything is okay) get the response for the
-         // previous requested action
-         return filterMessages(getSignatureDevice().send(txPinAck));
+         return processPinMatrixRequest(transaction, forAccount);
       } else if (msg instanceof TrezorMessage.PassphraseRequest) {
-         // get the user to enter a passphrase
-         Optional<String> passphrase = waitForPassphrase();
-
-         GeneratedMessage response;
-         if (!passphrase.isPresent()) {
-            // user has not provided a password - reset session on trezor and cancel
-            response = TrezorMessage.ClearSession.newBuilder().build();
-            getSignatureDevice().send(response);
-            return null;
-         } else {
-            response = TrezorMessage.PassphraseAck.newBuilder()
-                  .setPassphrase(passphrase.get())
-                  .build();
-
-            // send the Passphrase Response and get the response for the
-            // previous requested action
-            return filterMessages(getSignatureDevice().send(response));
-         }
+         return processPassphraseRequest(transaction, forAccount);
       } else if (msg instanceof TrezorMessage.Failure) {
          final TrezorMessage.Failure errMsg = (TrezorMessage.Failure) msg;
          if (postErrorMessage(errMsg.getMessage(), errMsg.getCode())) {
@@ -552,8 +611,94 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
             throw new RuntimeException("Trezor error:" + errMsg.getCode().toString() + "; " + errMsg.getMessage());
          }
       }
-
+      if (msg instanceof TxRequest && ((TxRequest) msg).getRequestType() == TXOUTPUT) {
+         final int outputIndex = ((TxRequest) msg).getDetails().getRequestIndex();
+         final Address address = transaction.getOutputs()[outputIndex].script.getAddress(getNetwork());
+         if (forAccount.isOwnInternalAddress(address)) {
+            getMainThreadHandler().post(new Runnable() {
+               @Override
+               public void run() {
+                  getEventBus().post(new OnStatusUpdate(outputIndex, OnStatusUpdate.CurrentStatus.CONFIRM_CHANGE));
+               }
+            });
+         } else {
+            getMainThreadHandler().post(new Runnable() {
+               @Override
+               public void run() {
+                  getEventBus().post(new OnStatusUpdate(outputIndex, OnStatusUpdate.CurrentStatus.CONFIRM_OUTPUT));
+               }
+            });
+         }
+      }
       return msg;
+   }
+
+   private Message processPassphraseRequest(UnsignedTransaction transaction, HDAccount account) {
+      // get the user to enter a passphrase
+      Optional<String> passphrase = waitForPassphrase();
+
+      GeneratedMessageV3 response;
+      if (!passphrase.isPresent()) {
+         // user has not provided a password - reset session on trezor and cancel
+         response = TrezorMessage.ClearSession.newBuilder().build();
+         getSignatureDevice().send(response);
+         return null;
+      } else {
+         response = TrezorMessage.PassphraseAck.newBuilder()
+               .setPassphrase(passphrase.get())
+               .build();
+
+         // send the Passphrase Response and get the response for the
+         // previous requested action
+         return filterMessages(getSignatureDevice().send(response), transaction, account);
+      }
+   }
+
+   private Message processPinMatrixRequest(UnsignedTransaction transaction, HDAccount account) {
+      getMainThreadHandler().post(new Runnable() {
+         @Override
+         public void run() {
+            getEventBus().post(new OnPinMatrixRequest());
+         }
+      });
+      String pin;
+      try {
+         // wait for the user to enter the pin
+         pin = pinMatrixEntry.take();
+      } catch (InterruptedException e) {
+         pin = "";
+      }
+
+      TrezorMessage.PinMatrixAck txPinAck = TrezorMessage.PinMatrixAck.newBuilder()
+            .setPin(pin)
+            .build();
+
+      // send the Pin Response and (if everything is okay) get the response for the
+      // previous requested action
+      return filterMessages(getSignatureDevice().send(txPinAck), transaction, account);
+   }
+
+   private Message processButtonRequest(Message message, UnsignedTransaction transaction, HDAccount account) {
+
+      getMainThreadHandler().post(new Runnable() {
+         @Override
+         public void run() {
+            getEventBus().post(new OnButtonRequest());
+         }
+      });
+
+      if (TrezorType.ButtonRequestType.ButtonRequest_SignTx == ((TrezorMessage.ButtonRequest) message).getCode()) {
+         getMainThreadHandler().post(new Runnable() {
+            @Override
+            public void run() {
+               getEventBus().post(new OnStatusUpdate(0, OnStatusUpdate.CurrentStatus.SIGN_TRANSACTION));
+            }
+         });
+      }
+
+      TrezorMessage.ButtonAck txButtonAck = TrezorMessage.ButtonAck.newBuilder()
+            .build();
+      return filterMessages(getSignatureDevice().send(txButtonAck), transaction, account);
    }
 
    public TrezorMessage.Features getFeatures() {
@@ -601,6 +746,19 @@ public abstract class ExternalSignatureDeviceManager extends AbstractAccountScan
       @Override
       public void addAddressN(Integer addressPath) {
          txInput.addAddressN(addressPath);
+      }
+   }
+
+   private class GetAddressSetter extends AddressSetter {
+      final private TrezorMessage.GetAddress.Builder getAddress;
+
+      private GetAddressSetter(TrezorMessage.GetAddress.Builder getAddress) {
+         this.getAddress = getAddress;
+      }
+
+      @Override
+      public void addAddressN(Integer addressPath) {
+         getAddress.addAddressN(addressPath);
       }
    }
 }

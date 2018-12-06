@@ -45,6 +45,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -102,7 +103,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -165,6 +166,7 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import kotlin.jvm.Synchronized;
 
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.params.RegTestParams;
@@ -231,11 +233,12 @@ public class MbwManager {
         return _instance;
     }
 
-    private final Bus _eventBus;
+    private static final Bus _eventBus = new Bus();
     private final ExternalSignatureDeviceManager _trezorManager;
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
     private Handler _torHandler;
@@ -245,7 +248,7 @@ public class MbwManager {
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
 
-    private AddressType defaultAddressType;
+    private static final AddressType defaultAddressType = AddressType.P2SH_P2WPKH;
     private ChangeAddressMode changeAddressMode;
     private MinerFee _minerFee;
     private boolean _keyManagementLocked;
@@ -289,8 +292,12 @@ public class MbwManager {
         configuration = new WalletConfiguration(preferences, getNetwork());
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
-        _eventBus = new Bus();
-        _eventBus.register(this);
+        mainLoopHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                _eventBus.register(MbwManager.this);
+            }
+        });
 
         // init tor - if needed
         try {
@@ -298,6 +305,8 @@ public class MbwManager {
         } catch (IllegalArgumentException ex) {
             setTorMode(ServerEndpointType.Types.ONLY_HTTPS);
         }
+
+        migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
         configuration.setServerListChangedListener(_wapi);
@@ -318,8 +327,6 @@ public class MbwManager {
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-        defaultAddressType = AddressType.valueOf(preferences.getString(Constants.DEFAULT_ADDRESS_MODE,
-                AddressType.P2SH_P2WPKH.name()));
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
         changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
@@ -331,7 +338,7 @@ public class MbwManager {
 
         _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
-        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus), _eventBus);
+        _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
         //TODO: get it through coluManager instead ?
@@ -346,7 +353,7 @@ public class MbwManager {
             }
         }
 
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getNetwork(), getMetadataStorage());
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
             _exchangeRateManager,
             fiatCurrencies,
@@ -371,7 +378,7 @@ public class MbwManager {
         contentResolver = createContentResolver(getNetwork());
         _gebHelper = new GEBHelper(_applicationContext);
 
-        _eventTranslator = new EventTranslator(new Handler(), _eventBus);
+        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
 
         _walletManager.addObserver(_eventTranslator);
@@ -504,11 +511,6 @@ public class MbwManager {
         _environment.getLtEndpoints().setTorManager(this._torManager);
     }
 
-    public void setDefaultAddressType(AddressType addressType) {
-        defaultAddressType = addressType;
-        getEditor().putString(Constants.DEFAULT_ADDRESS_MODE, addressType.name()).apply();
-    }
-
     public AddressType getDefaultAddressType() {
         return defaultAddressType;
     }
@@ -630,11 +632,14 @@ public class MbwManager {
             }
         });
 
+        /* TODO - turn on externalSignatureProviderProxy. it is now not used
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
             getTrezorManager(),
             getKeepKeyManager(),
             getLedgerManager()
         );
+
+        */
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
@@ -680,9 +685,10 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
-        ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
 
-        walletManager.add(new ColuModule(networkParameters, publicPrivateKeyStore
+        SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking, new AndroidRandomSource());
+        ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
+        walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -778,6 +784,14 @@ public class MbwManager {
         return result;
     }
 
+    @Synchronized
+    private LoadingProgressTracker getMigrationProgressTracker() {
+        if (migrationProgressTracker == null) {
+            migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
+        }
+        return migrationProgressTracker;
+    }
+
     public GenericAssetInfo getFiatCurrency() {
         return _currencySwitcher.getCurrentFiatCurrency();
     }
@@ -810,7 +824,7 @@ public class MbwManager {
         for (GenericAssetInfo currency : currencies) {
             data.add(currency.getSymbol());
         }
-       getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
+        getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
    }
 
     public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
@@ -1136,7 +1150,7 @@ public class MbwManager {
         _cachedEncryptionParameters = null;
     }
 
-    public Bus getEventBus() {
+    public static Bus getEventBus() {
         return _eventBus;
     }
 

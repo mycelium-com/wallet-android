@@ -61,13 +61,13 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getCurrentlyReceivingAmount() = model.receivingAmount
 
-    fun getRequestedAmount() = model.amountData
+    fun getRequestedAmount() = model.amount
 
     fun getReceivingAddress() = model.receivingAddress
 
-    fun getRequestedAmountFormatted() = Transformations.map(model.amountData) {
+    fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            getFormattedValue(it!!)
+            it.toString()
         } else {
             ""
         }
@@ -77,7 +77,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
-            "~ " + getFormattedValue(it!!)
+            "~ " + Utils.getFiatValueAsString(it!!.value, mbwManager.currencySwitcher.exchangeRatePrice) + " USD" //todo: make method in Utils
         } else {
             ""
         }
@@ -92,7 +92,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun shareRequest() {
         val s = Intent(Intent.ACTION_SEND)
         s.type = "text/plain"
-        if (Value.isNullOrZero(model.amountData.value)) {
+        if (Value.isNullOrZero(model.amount.value)) {
             s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
             s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
             context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
@@ -106,7 +106,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun copyToClipboard() {
-        val text = if (Value.isNullOrZero(model.amountData.value)) {
+        val text = if (Value.isNullOrZero(model.amount.value)) {
             model.receivingAddress.value.toString()
         } else {
             getPaymentUri()
@@ -120,12 +120,12 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun onEnterClick(activity: AppCompatActivity) {
-        val amount = model.amountData
+        val amount = model.amount
         if (Value.isNullOrZero(amount.value)) {
             GetAmountActivity.callMeToReceive(activity, Value.zeroValue(mbwManager.selectedAccount.coinType),
                     GET_AMOUNT_RESULT_CODE, model.account.coinType)
         } else {
-            // call the amountData activity with the exact amountData, so that the user sees the same amountData he had entered
+            // call the amount activity with the exact amount, so that the user sees the same amount he had entered
             // it in non-BTC
             GetAmountActivity.callMeToReceive(activity, amount.value,
                     GET_AMOUNT_RESULT_CODE, model.account.coinType)

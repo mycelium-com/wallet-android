@@ -111,6 +111,7 @@ public class ColdStorageSummaryActivity extends Activity {
          ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
+
          final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
          P2PKH.setVisibility(View.VISIBLE);
          final TextView P2SH = findViewById(R.id.tvAddressP2SH);

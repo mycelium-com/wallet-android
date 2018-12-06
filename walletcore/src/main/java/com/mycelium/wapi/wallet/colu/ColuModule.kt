@@ -1,20 +1,15 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.colu.coins.ColuMain
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin
-import com.mycelium.wapi.wallet.colu.coins.MTCoin
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin
-import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest
-import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
-import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
+import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -44,9 +39,9 @@ class ColuModule(val networkParameters: NetworkParameters,
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         for (context in contexts) {
             try {
-                val address = context.publicKey?.getAllSupportedAddresses(networkParameters)?.get(AddressType.P2PKH)
-                        ?: context.address!!.address
-                val accountKey = publicPrivateKeyStore.getPrivateKey(address, AesKeyCipher.defaultKeyCipher())
+                val addresses = context.publicKey?.getAllSupportedBtcAddresses(context.coinType, networkParameters)
+                        ?: context.address
+                val accountKey = getPrivateKey(addresses)
                 val account = if (accountKey == null) {
                     ColuPubOnlyAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
@@ -59,6 +54,19 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result[account.id] = account
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+        return result
+    }
+
+    private fun getPrivateKey(addresses: Map<AddressType, BtcAddress>?): InMemoryPrivateKey? {
+        var result: InMemoryPrivateKey? = null
+        addresses?.let {
+            for (address in it.values) {
+                val privateKey = publicPrivateKeyStore.getPrivateKey(address.address, AesKeyCipher.defaultKeyCipher())
+                if (privateKey != null) {
+                    result = privateKey
+                }
             }
         }
         return result
@@ -90,20 +98,21 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result = ColuPubOnlyAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
-        } else if(config is AddressColuConfig) {
+        } else if (config is AddressColuConfig) {
             val coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
-                val context = ColuAccountContext(id, type, null, config.address
+                val context = ColuAccountContext(id, type, null, mapOf(config.address.type to config.address)
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuPubOnlyAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
-
-        val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
-        result!!.label = createLabel(baseName, result!!.id)
+        result?.let {
+            val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+            it.label = createLabel(baseName, it.id)
+        }
         return result
     }
 
@@ -131,4 +140,12 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
         return false
     }
+}
+
+fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: NetworkParameters): Map<AddressType, BtcAddress> {
+    val result = mutableMapOf<AddressType, BtcAddress>()
+    for (allSupportedAddress in getAllSupportedAddresses(networkParameters)) {
+        result[allSupportedAddress.key] = BtcLegacyAddress(coin, allSupportedAddress.value.allAddressBytes)
+    }
+    return result
 }

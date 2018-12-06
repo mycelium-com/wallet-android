@@ -35,7 +35,7 @@
 package com.mycelium.wallet.event;
 
 import android.os.Handler;
-import com.mycelium.wallet.exchange.ExchangeRateManager;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.manager.State;

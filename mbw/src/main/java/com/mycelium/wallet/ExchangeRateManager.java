@@ -32,22 +32,22 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet.exchange;
+package com.mycelium.wallet;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.exchange.CoinmarketcapApi;
+import com.mycelium.wallet.exchange.GetExchangeRate;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
-import com.mycelium.wallet.external.changelly.ChangellyService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
@@ -56,6 +56,7 @@ import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -66,21 +67,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import retrofit.RetrofitError;
-// TODO remove com.mycelium.wapi.wallet.currency.ExchangeRateProvider after refactoring
-public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.wapi.wallet.currency.ExchangeRateProvider {
-    private static final int MAX_RATE_AGE_MS = 5 * 1000 * 60; /// 5 minutes
-    private static final int MIN_RATE_AGE_MS = 5 * 1000; /// 5 seconds
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
+// import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
+
+public class ExchangeRateManager implements ExchangeRateProvider {
+    private static final long MAX_RATE_AGE_MS = TimeUnit.MINUTES.toMillis(5);
+    private static final long MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5);
     private static final String EXCHANGE_DATA = "wapi_exchange_rates";
     public static final String BTC = "BTC";
 
     private static final Pattern EXCHANGE_RATE_PATTERN;
-    public static final String CHANGELLY_MARKET = "Changelly";
-    public static final String RMC_MARKET = "Coinmarketcap";
-    public static final String DEFAULT_EXCHANGE = "Bitstamp";
+    private static final String CHANGELLY_MARKET = "Changelly";
+    private static final String RMC_MARKET = "Coinmarketcap";
+    private static final String DEFAULT_EXCHANGE = "Bitstamp";
 
     static {
         String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -89,9 +97,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
 
     public interface Observer {
         void refreshingExchangeRatesSucceeded();
-
         void refreshingExchangeRatesFailed();
-
         void exchangeSourceChanged();
     }
 
@@ -111,12 +117,9 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
     // value hardcoded for now, but in future we need get from somewhere
     private static final float MSS_RATE = 3125f;
 
-    private NetworkParameters networkParameters;
     private MetadataStorage storage;
-    private Receiver changellyReceiver;
 
-    public ExchangeRateManager(Context applicationContext, Wapi api, NetworkParameters networkParameters, MetadataStorage storage) {
-        this.networkParameters = networkParameters;
+    ExchangeRateManager(Context applicationContext, Wapi api, MetadataStorage storage) {
         _applicationContext = applicationContext;
         _api = api;
         _latestRates = null;
@@ -126,13 +129,9 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
-        applicationContext.startService(new Intent(applicationContext, ChangellyService.class)
-                .setAction(ChangellyService.ACTION_GET_EXCHANGE_AMOUNT)
-                .putExtra(ChangellyService.FROM, ChangellyService.BCH)
-                .putExtra(ChangellyService.TO, ChangellyService.BTC)
-                .putExtra(ChangellyService.AMOUNT, 1.0));
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(changellyReceiver = new Receiver()
-                , new IntentFilter(ChangellyService.INFO_EXCH_AMOUNT));
+        ChangellyAPIService.retrofit.create(ChangellyAPIService.class)
+                .getExchangeAmount(BCH, BTC, 1)
+                .enqueue(new GetOfferCallback());
     }
 
     public synchronized void subscribe(Observer subscriber) {
@@ -153,7 +152,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
             }
 
             try {
-                List<QueryExchangeRatesResponse> responses = new ArrayList<QueryExchangeRatesResponse>();
+                List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
                 for (String currency : selectedCurrencies) {
                     responses.add(_api.queryExchangeRates(new QueryExchangeRatesRequest(Wapi.VERSION, currency)).getResult());
@@ -203,7 +202,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
     }
 
     private List<QueryExchangeRatesResponse> localValues(List<String> selectedCurrencies,
-                                                                Map<String, String> savedExchangeRates) {
+                                                         Map<String, String> savedExchangeRates) {
         List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
         for (String currency : selectedCurrencies) {
@@ -230,7 +229,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
                 }
             }
 
-            responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[exchangeRates.size()])));
+            responses.add(new QueryExchangeRatesResponse(currency, exchangeRates.toArray(new ExchangeRate[0])));
         }
 
         return responses;
@@ -274,11 +273,11 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
     }
 
     private synchronized void setLatestRates(List<QueryExchangeRatesResponse> latestRates) {
-        _latestRates = new HashMap<String, QueryExchangeRatesResponse>();
+        _latestRates = new HashMap<>();
         for (QueryExchangeRatesResponse response : latestRates) {
             _latestRates.put(response.currency, response);
 
-            for (ExchangeRate rate : response.exchangeRates) {
+            for(ExchangeRate rate : response.exchangeRates) {
                 storage.storeExchangeRate(BTC, rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
@@ -306,7 +305,7 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
      * first time the app is running
      */
     public synchronized List<String> getExchangeSourceNames() {
-        List<String> result = new LinkedList<String>();
+        List<String> result = new LinkedList<>();
         //check whether we have any rates
         if (_latestRates.isEmpty()) return result;
         QueryExchangeRatesResponse latestRates = _latestRates.values().iterator().next();
@@ -315,7 +314,6 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
                 result.add(r.name);
             }
         }
-
         return result;
     }
 
@@ -376,16 +374,6 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
         return getExchangeRate(currency, _currentExchangeSourceName);
     }
 
-    @Override
-    public ExchangeRate getExchangeRate(GenericAssetInfo currency, String source){
-        return getExchangeRate(currency.getSymbol(), source);
-    }
-
-    @Override
-    public ExchangeRate getExchangeRate(GenericAssetInfo currency) {
-        return getExchangeRate(currency.getSymbol(), _currentExchangeSourceName);
-    }
-
     private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
         double rate = r.price;
         if ("RMC".equals(injectCurrency)) {
@@ -430,34 +418,20 @@ public class ExchangeRateManager implements ExchangeRateProvider, com.mycelium.w
         requestRefresh();
     }
 
-    class Receiver extends BroadcastReceiver {
-        private Receiver() {
-        }  // prevents instantiation
+    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+        @Override
+        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+                               @NonNull Response<ChangellyAnswerDouble> response) {
+            ChangellyAnswerDouble result = response.body();
+            if(result != null) {
+                rateBchBtc = (float) result.result;
+                storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
+            }
+        }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String from, to;
-            double amount;
-
-            switch (intent.getAction()) {
-                case ChangellyService.INFO_EXCH_AMOUNT:
-                    from = intent.getStringExtra(ChangellyService.FROM);
-                    to = intent.getStringExtra(ChangellyService.TO);
-                    double fromAmount = intent.getDoubleExtra(ChangellyService.FROM_AMOUNT, 0);
-                    amount = intent.getDoubleExtra(ChangellyService.AMOUNT, 0);
-                    if (from != null && to != null) {
-                        try {
-                            if (to.equalsIgnoreCase(ChangellyService.BTC)
-                                    && from.equalsIgnoreCase(ChangellyService.BCH)
-                                    && fromAmount == 1) {
-                                rateBchBtc = (float) amount;
-                                storage.storeExchangeRate("BCH", "BTC", CHANGELLY_MARKET, String.valueOf(rateBchBtc));
-                            }
-                        } catch (NumberFormatException ignore) {
-                        }
-                    }
-                    break;
-            }
+        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
+            Toast.makeText(_applicationContext, "Service unavailable", Toast.LENGTH_SHORT).show();
         }
     }
 

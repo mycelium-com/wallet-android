@@ -38,8 +38,8 @@ import android.content.Context;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.Trezor;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.Trezor;
 import com.squareup.otto.Bus;
 
 public class TrezorManager extends ExternalSignatureDeviceManager {

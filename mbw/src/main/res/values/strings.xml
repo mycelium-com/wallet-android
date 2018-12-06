@@ -481,11 +481,11 @@
     <string name="cs_private_key_description">You are using a private key with the following Bitcoin address:</string>
     <string name="cs_address_description">You have scanned a Bitcoin address. You can view the balance but not spend from it.</string>
     <plurals name="contains_keys">
-        <item quantity="one">Contains one private key.</item>
+        <item quantity="one">Contains %1$d private key.</item>
         <item quantity="other">Contains %1$d private keys.</item>
     </plurals>
     <plurals name="contains_addresses">
-        <item quantity="one">Contains one address.</item>
+        <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
     <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
@@ -665,10 +665,13 @@
     <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Import Account</string>
     <string name="ext_sig_select_account_to_import">Select account to import</string>
-    <string name="ext_sig_verify_transaction_on_device">Verify and confirm the\ntransaction on your device</string>
+    <string name="ext_sig_verify_transaction_on_device">Verify and confirm the transaction on your device.</string>
+    <string name="ext_sig_verify_transaction_values">Check values calculation explanation here.</string>
     <string name="ext_sig_amount">Amount:</string>
     <string name="ext_sig_to">To:</string>
+    <string name="ext_sig_change_to">Change to:</string>
     <string name="ext_sig_fee">Fee:</string>
+    <string name="ext_sig_sending">You are sending:</string>
     <string name="ext_sig_total">Total:</string>
     <string name="ext_sig_please_plug_in">Please plugin your device</string>
     <string name="ext_sig_next_unused_account_info">This option will import the next unused account from this device. It will only show up in other wallets if you send funds to it.</string>
@@ -1172,8 +1175,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
     <string name="bch_module_description">Use BCH module to retrieve your BCH and exchange it to BTC</string>
-    <string name="first_modulization_title">Congratulations!</string>
-    <string name="first_modulization_message"><![CDATA[You just got a new modular multiblockain version of Mycelium Wallet!<br><br>Due to high demand, we have released Bitcoin Cash (BCH) module first.<br><br>Now you can get your Bitcoin <font color="#f08c18">Cash</font> and instantly and securely exchange it to BTC.<br><br>To do so, you need to install the Bitcoin <font color="#f08c18">Cash</font> module or you can do it later from Settings -> Bitcoin Cash module section.]]></string>
     <string name="install_bch_module">Install Bitcoin Cash module</string>
     <string name="continue_without_bch">Continue without BCH</string>
     <string name="bch_module_change"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> module has been %s!]]></string>
@@ -1263,6 +1264,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
     <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
+    <string name="what_is_address_type">What is address type?</string>
+    <string name="what_is_address_type_description">There are three Bitcoin address formats:\n\nP2PKH - Legacy, starting with a \"%1$s\"\nP2SH - SegWit compatible, starting with a \"%2$s\". Set by default\nBech32 - Segwit native, starting with \"%3$s\"\n\nUse either P2SH or Bech32 to receive funds if you would like to send low-fee SegWit transactions in the future.\n\nBech32 is the newest and most cost-effective standard, but is not yet widely adopted, which may reduce your privacy since using it makes your transaction more unique.</string>
     <string name="pref_language">Language</string>
     <string name="version">version</string>
     <string name="updates">Updates</string>
@@ -1291,19 +1294,48 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
-    <string name="address_type">Address type:</string>
-    <string name="normal_p2sh">Normal (P2SH)</string>
-    <string name="native_segwit_bech_32">Native Segwit (Bech 32)</string>
+    <string name="default_address_type_desc">Setup change address preferences</string>
+    <string name="address_type">Address type</string>
+    <string name="receive_option_p2pkh">Legacy (P2PKH)</string>
+    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
+    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
+    <string name="segwit_change_mode_title">SegWit change mode</string>
+    <string name="segwit_change_mode_description">Select the way SegWit transactions change will be handled</string>
+    <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (legacy compatible)</string>
+    <string name="change_settings_bech32">Bech32 (native SegWit)</string>
+    <string name="change_settings_privacy_guard_mode">Privacy guard mode (default)</string>
     <string name="block_explorer">Block explorer</string>
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
     <string name="set_default">Set as default</string>
     <string name="bech_next">Tap for Bech32</string>
     <string name="p2sh_next">Tap for P2SH</string>
-    <string name="p2sh">P2SH</string>
-    <string name="bech">Bech32</string>
     <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
+    <string name="p2sh">SegWit compatible (P2SH)</string>
+    <string name="bech">SegWit native (Bech32)</string>
+    <string name="bech_description">Native SegWit address will be used for change. Latest Bitcoin standard, always the smallest fee possible, might affect privacy due to Bech32 addresses still haven\'t been used widely.</string>
+    <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
+    <string name="p2sh_p2wpkh_description">Legacy compatible SegWit address will be used for change. Has no privacy issues.</string>
+    <string name="privacy_guard">Privacy guard (default)</string>
+    <string name="privacy_guard_description">With "mixed mode" accounts hiding change address will be even more effective. As most of the transactions have only one output we mask your output type according to destination address type. Transaction fee might be a bit higher.</string>
+    <string name="starting_application">Starting application</string>
+    <string name="migrating_accounts">Migrating accounts</string>
+    <string name="loading_accounts">Loading accounts</string>
+    <string name="migrating_n_of_m_hd">Migrating HD accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_hd">Loading HD accounts: %1$s of %2$s</string>
+    <string name="migrating_n_of_m_sa">Migrating SA accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_sa">Loading SA accounts: %1$s of %2$s</string>
+    <string name="mixed_mode_explanation"><![CDATA[Unfortunately %1$s firmware does not support Mycelium mixed-spending mode.<br><br>Usually when you sign transaction on your hardware device it shows you just one output - destination address. In case of mixed-spending mode you will have to sign two outputs: one destination address and the other - change address.<br><br>You are still in control of the process and hardware wallet will show that the change goes to your account.<br><br>For more information please check this <a href=\"https://github.com/mycelium-com/wallet-android/issues/483\">Github issue</a>]]></string>
+    <string name="transferToAccountN">Transfer to Account #%d</string>
+    <string name="check_change_address"><![CDATA[Unfortunately, <b>Trezor model T</b> does not support checking if address belongs to your wallet, but it can generate a new address from your master seed and show it on the screen. For more information about this Trezor issue please check <a href=\"https://github.com/trezor/trezor-core/issues/380\">Trezor\'s GitHub</a>.<br><br>Please verify your address on the Trezor screen and compare it with the one in the summary section. It will be used as the change address which you have to confirm as a separate output later on.]]></string>
+    <string name="confirm_output_on_device"><![CDATA[Please confirm output on your %3$s.<br><br><b>Value:</b><br>%1$s<br><b>Destination Address:</b><br>%2$s<br>]]></string>
+    <string name="confirm_change_on_device"><![CDATA[Please confirm <b>change</b> output on your %3$s.<br><br><b>Value:</b><br>%1$s<br><b>Change Address:</b><br>%2$s]]></string>
+    <string name="ext_sig_you_sending_title">Summary explanation</string>
+    <string name="ext_sig_you_sending_message"><![CDATA[<b>Amount</b> - the value selected to be sent to the destination address.<br><b>Fee</b> - selected miner fee value.<br><b>You are sending</b> - the value, which will be really sent from your wallet.<br>You are sending:<br>  Amount %1$s<br>  + Fee %2$s<br>  = %3$s<br><b>Change</b> - the change value which will be sent back to your change address.<br><b>Total</b> - the value to be shown on your <b>%6$s</b> screen.<br>Total:<br>  You are sending %3$s<br>  + Change %4$s<br>  = %5$s]]></string>
+    <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
+    <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
+    <string name="account_upgraded">Account %d just received SegWit support</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

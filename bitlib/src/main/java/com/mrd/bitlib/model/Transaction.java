@@ -60,11 +60,22 @@ public class Transaction implements Serializable {
     private transient int _txSize = -1;
 
     public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
-        TransactionInput inputs[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
+        TransactionInput[] inputs = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
         int idx = 0;
         for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
-            inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
-                    unsignedTransaction.getDefaultSequenceNumber(), u.value);
+            if (unsignedTransaction.isSegWitOutput(idx)) {
+                byte[] segWitScriptBytes = unsignedTransaction.getInputs()[idx].script.getScriptBytes();
+                try {
+                    inputs[idx] = new TransactionInput(u.outPoint, ScriptInput.fromScriptBytes(segWitScriptBytes),
+                            unsignedTransaction.getDefaultSequenceNumber(), u.value);
+                } catch (Script.ScriptParsingException e) {
+                    //Should never happen
+                }
+            } else {
+                inputs[idx] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()),
+                        unsignedTransaction.getDefaultSequenceNumber(), u.value);
+            }
+            idx++;
         }
         return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }
@@ -255,6 +266,8 @@ public class Transaction implements Serializable {
         this.lockTime = copyFrom.lockTime;
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
+        this.id = copyFrom.id;
+        this._unmalleableHash = copyFrom._unmalleableHash;
     }
 
     // we already know the hash of this transaction, dont recompute it
@@ -286,15 +299,15 @@ public class Transaction implements Serializable {
         ByteWriter writer = new ByteWriter(1024);
         if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
             writer.putIntLE(version);
-            writer.putBytes(getPrevOutsHash().getBytes());
-            writer.putBytes(getSequenceHash().getBytes());
+            writer.putSha256Hash(getPrevOutsHash());
+            writer.putSha256Hash(getSequenceHash());
             inputs[i].outPoint.hashPrev(writer);
             byte[] scriptCode = inputs[i].getScriptCode();
             writer.put((byte) (scriptCode.length & 0xFF));
             writer.putBytes(scriptCode);
             writer.putLongLE(inputs[i].getValue());
             writer.putIntLE(inputs[i].sequence);
-            writer.putBytes(getOutputsHash().getBytes());
+            writer.putSha256Hash(getOutputsHash());
             writer.putIntLE(lockTime);
             int hashType = 1;
             writer.putIntLE(hashType);

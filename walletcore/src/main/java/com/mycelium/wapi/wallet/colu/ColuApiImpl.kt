@@ -80,20 +80,23 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
 
     override fun getCoinTypes(address: Address): List<ColuMain> {
         val assetsList = mutableListOf<ColuMain>()
-        val addressInfo = coluClient.getBalance(address)
-        if (addressInfo != null) {
-            if (addressInfo.utxos != null) {
-                for (utxo in addressInfo.utxos) {
-                    // adding utxo to list of txid list request
-                    for (txidAsset in utxo.assets) {
-                        for (coin in ColuUtils.allColuCoins()) {
-                            if (txidAsset.assetId == coin.id) {
-                                assetsList.add(coin)
+        try {
+            val addressInfo = coluClient.getBalance(address)
+            if (addressInfo != null) {
+                if (addressInfo.utxos != null) {
+                    for (utxo in addressInfo.utxos) {
+                        // adding utxo to list of txid list request
+                        for (txidAsset in utxo.assets) {
+                            for (coin in ColuUtils.allColuCoins()) {
+                                if (txidAsset.assetId == coin.id) {
+                                    assetsList.add(coin)
+                                }
                             }
                         }
                     }
                 }
             }
+        } catch (ignore: IOException) {
         }
         return assetsList
     }

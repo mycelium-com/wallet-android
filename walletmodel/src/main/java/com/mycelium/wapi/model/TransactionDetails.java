@@ -45,6 +45,10 @@ public class TransactionDetails implements Comparable<TransactionDetails>, Seria
    public final Item[] inputs;
    public final Item[] outputs;
 
+   /**
+    *
+    * @param rawSize - Vsize for segwit and original segwit for other transactions
+    */
    public TransactionDetails(Sha256Hash hash, int height, int time, Item[] inputs, Item[] outputs, int rawSize) {
       this.hash = hash;
       this.height = height;

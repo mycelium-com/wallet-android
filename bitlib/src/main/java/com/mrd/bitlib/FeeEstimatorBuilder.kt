@@ -31,9 +31,7 @@ class FeeEstimatorBuilder {
         return this
     }
 
-    fun addChangeOutput(address: Address): FeeEstimatorBuilder = addChangeOutput(address.type)
-
-    fun addChangeOutput(addressType: AddressType): FeeEstimatorBuilder {
+    fun addOutput(addressType: AddressType): FeeEstimatorBuilder {
         when (addressType) {
             AddressType.P2PKH -> legacyOutputs++
             AddressType.P2WPKH -> bechOutputs++

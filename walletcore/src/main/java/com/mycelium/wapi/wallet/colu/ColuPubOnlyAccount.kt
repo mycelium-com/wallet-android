@@ -37,7 +37,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
         if (context.publicKey != null) {
             addressList = convert(context.publicKey, type as ColuMain)
         } else {
-            addressList = mapOf(context.address!!.address.type to context.address)
+            addressList = context.address?: mapOf()
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         cachedBalance = calculateBalance(accountBacking.getTransactions(0, 2000))

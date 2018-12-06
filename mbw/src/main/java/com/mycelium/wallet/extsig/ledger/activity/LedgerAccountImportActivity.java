@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.util.Pin;
@@ -50,6 +49,7 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
+import com.mycelium.wapi.wallet.manager.Config;
 import com.squareup.otto.Subscribe;
 import nordpol.android.TagDispatcher;
 
@@ -106,10 +106,10 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity {
             MbwManager mbwManager = MbwManager.getInstance(LedgerAccountImportActivity.this);
 
             UUID acc = mbwManager.getWalletManager(false)
-                  .createAccounts(new ExternalSignaturesAccountConfig(
-                        item.xPub,
-                        (LedgerManager) masterseedScanManager,
-                        item.accountHdKeysPaths.iterator().next().getLastIndex())).get(0);
+                    .createAccounts(new ExternalSignaturesAccountConfig(
+                            item.publicKeyNodes,
+                            (LedgerManager) masterseedScanManager,
+                            item.accountHdKeysPaths.iterator().next().getLastIndex())).get(0);
 
             // Mark this account as backup warning ignored
             mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);

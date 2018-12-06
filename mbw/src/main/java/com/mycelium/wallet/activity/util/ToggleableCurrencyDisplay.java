@@ -57,172 +57,172 @@ import com.squareup.otto.Subscribe;
 
 
 public class ToggleableCurrencyDisplay extends LinearLayout {
-   protected Bus eventBus = null;
-   protected CurrencySwitcher currencySwitcher;
+    protected Bus eventBus = null;
+    protected CurrencySwitcher currencySwitcher;
 
-   protected TextView tvCurrency;
-   protected TextView tvValue;
+    protected TextView tvCurrency;
+    protected TextView tvValue;
 
-   protected Value currentValue;
+    protected Value currentValue;
 
-   protected boolean fiatOnly = false;
-   protected boolean hideOnNoExchangeRate = false;
-   private int precision = -1;
+    protected boolean fiatOnly = false;
+    protected boolean hideOnNoExchangeRate = false;
+    private int precision = -1;
 
-   public ToggleableCurrencyDisplay(Context context, AttributeSet attrs) {
-      super(context, attrs);
-      init(context);
-      parseXML(context, attrs);
-   }
+    public ToggleableCurrencyDisplay(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+        parseXML(context, attrs);
+    }
 
-   public ToggleableCurrencyDisplay(Context context, AttributeSet attrs, int defStyle) {
-      super(context, attrs, defStyle);
-      init(context);
-      parseXML(context, attrs);
-   }
+    public ToggleableCurrencyDisplay(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(context);
+        parseXML(context, attrs);
+    }
 
-   public ToggleableCurrencyDisplay(Context context) {
-      super(context);
-      init(context);
-   }
+    public ToggleableCurrencyDisplay(Context context) {
+        super(context);
+        init(context);
+    }
 
-   void parseXML(Context context, AttributeSet attrs) {
-      TypedArray a = context.obtainStyledAttributes(attrs,
-            R.styleable.ToggleableCurrencyButton);
+    void parseXML(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs,
+                R.styleable.ToggleableCurrencyButton);
 
-      final int N = a.getIndexCount();
-      for (int i = 0; i < N; ++i) {
-         int attr = a.getIndex(i);
-         switch (attr) {
-            case R.styleable.ToggleableCurrencyButton_fiatOnly:
-               setFiatOnly(a.getBoolean(attr, false));
-               break;
-            case R.styleable.ToggleableCurrencyButton_textSize:
-               setTextSize(a.getDimensionPixelSize(attr, 12));
-               break;
-            case R.styleable.ToggleableCurrencyButton_textColor:
-               setTextColor(a.getColor(attr, getResources().getColor(R.color.lightgrey)));
-               break;
-            case R.styleable.ToggleableCurrencyButton_hideOnNoExchangeRate:
-               hideOnNoExchangeRate = a.getBoolean(attr, false);
-            case R.styleable.ToggleableCurrencyButton_precision:
-               precision = a.getInteger(attr, -1);
-         }
-      }
-      a.recycle();
+        final int N = a.getIndexCount();
+        for (int i = 0; i < N; ++i) {
+            int attr = a.getIndex(i);
+            switch (attr) {
+                case R.styleable.ToggleableCurrencyButton_fiatOnly:
+                    setFiatOnly(a.getBoolean(attr, false));
+                    break;
+                case R.styleable.ToggleableCurrencyButton_textSize:
+                    setTextSize(a.getDimensionPixelSize(attr, 12));
+                    break;
+                case R.styleable.ToggleableCurrencyButton_textColor:
+                    setTextColor(a.getColor(attr, getResources().getColor(R.color.lightgrey)));
+                    break;
+                case R.styleable.ToggleableCurrencyButton_hideOnNoExchangeRate:
+                    hideOnNoExchangeRate = a.getBoolean(attr, false);
+                case R.styleable.ToggleableCurrencyButton_precision:
+                    precision = a.getInteger(attr, -1);
+            }
+        }
+        a.recycle();
 
-   }
+    }
 
-   protected void init(Context context) {
-      LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    protected void init(Context context) {
+        LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-      View view = mInflater.inflate(R.layout.toggleable_currency_display, this, true);
+        View view = mInflater.inflate(R.layout.toggleable_currency_display, this, true);
 
-      tvCurrency = view.findViewById(R.id.tvCurrency);
-      tvValue = view.findViewById(R.id.tvDisplayValue);
-   }
+        tvCurrency = view.findViewById(R.id.tvCurrency);
+        tvValue = view.findViewById(R.id.tvDisplayValue);
+    }
 
-   private void setTextSize(int size) {
-      tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-      tvValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
-   }
+    private void setTextSize(int size) {
+        tvCurrency.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+        tvValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+    }
 
-   private void setTextColor(int color) {
-      tvCurrency.setTextColor(color);
-      tvValue.setTextColor(color);
-   }
+    private void setTextColor(int color) {
+        tvCurrency.setTextColor(color);
+        tvValue.setTextColor(color);
+    }
 
-   protected void updateUi() {
-      Preconditions.checkNotNull(currencySwitcher);
+    protected void updateUi() {
+        Preconditions.checkNotNull(currencySwitcher);
 
-      if (fiatOnly) {
-         showFiat();
-      } else {
-         // Switch to BTC if no fiat fx rate is available
-         if (!currencySwitcher.isFiatExchangeRateAvailable()
-                 && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
-                 && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
-            currencySwitcher.setCurrency(BitcoinMain.get());
-         }
+        if (fiatOnly) {
+            showFiat();
+        } else {
+            // Switch to BTC if no fiat fx rate is available
+            if (!currencySwitcher.isFiatExchangeRateAvailable()
+                    && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
+                    && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
+                currencySwitcher.setCurrency(BitcoinMain.get());
+            }
 
-         setVisibility(VISIBLE);
+            setVisibility(VISIBLE);
 
-         tvValue.setText(currentValue != null ? ValueExtentionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
-         String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
-         tvCurrency.setText(currentCurrency);
-      }
-   }
+            tvValue.setText(currentValue != null ? ValueExtentionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
+            String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
+            tvCurrency.setText(currentCurrency);
+        }
+    }
 
-   protected void showFiat() {
-      if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()) {
-         // hide everything
-         setVisibility(GONE);
-      } else {
-         setVisibility(VISIBLE);
+    protected void showFiat() {
+        if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable()) {
+            // hide everything
+            setVisibility(GONE);
+        } else {
+            setVisibility(VISIBLE);
 
-         // convert to the target fiat currency, if needed
-         Value value = currencySwitcher.getAsFiatValue(currentValue);
+            // convert to the target fiat currency, if needed
+            Value value = currencySwitcher.getAsFiatValue(currentValue);
 
-         tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency().getSymbol());
-         tvValue.setText(value != null ? ValueExtentionsKt.toString(value) : null);
-      }
-   }
+            tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency().getSymbol());
+            tvValue.setText(value != null ? ValueExtentionsKt.toString(value) : null);
+        }
+    }
 
-   public void setEventBus(Bus eventBus) {
-      this.eventBus = eventBus;
-   }
+    public void setEventBus(Bus eventBus) {
+        this.eventBus = eventBus;
+    }
 
-   private boolean isAddedToBus = false;
-   @Override
-   protected void onAttachedToWindow() {
-      super.onAttachedToWindow();
-      if(eventBus != null) {
-         isAddedToBus = true;
-         eventBus.register(this);
-      }
-      if(currencySwitcher != null) {
-         updateUi();
-      }
-   }
+    private boolean isAddedToBus = false;
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if(eventBus != null) {
+            isAddedToBus = true;
+            eventBus.register(this);
+        }
+        if(currencySwitcher != null) {
+            updateUi();
+        }
+    }
 
-   @Override
-   protected void onDetachedFromWindow() {
-      super.onDetachedFromWindow();
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
 
-      // unregister from the event bus
-      if (eventBus != null && isAddedToBus) {
-         eventBus.unregister(this);
-         isAddedToBus = false;
-      }
-   }
+        // unregister from the event bus
+        if (eventBus != null && isAddedToBus) {
+            eventBus.unregister(this);
+            isAddedToBus = false;
+        }
+    }
 
-   public void setCurrencySwitcher(CurrencySwitcher currencySwitcher) {
-      this.currencySwitcher = currencySwitcher;
-      updateUi();
-   }
+    public void setCurrencySwitcher(CurrencySwitcher currencySwitcher) {
+        this.currencySwitcher = currencySwitcher;
+        updateUi();
+    }
 
-   public void setValue(Value value) {
-      this.currentValue = value;
-      updateUi();
-   }
+    public void setValue(Value value) {
+        this.currentValue = value;
+        updateUi();
+    }
 
-   public void setValue(ValueSum sum) {
-      this.currentValue = currencySwitcher.getValue(sum);
-      updateUi();
-   }
+    public void setValue(ValueSum sum) {
+        this.currentValue = currencySwitcher.getValue(sum);
+        updateUi();
+    }
 
-   public void setFiatOnly(boolean fiatOnly) {
-      this.fiatOnly = fiatOnly;
-   }
+    public void setFiatOnly(boolean fiatOnly) {
+        this.fiatOnly = fiatOnly;
+    }
 
-   @Subscribe
-   public void onExchangeRateChange(ExchangeRatesRefreshed event) {
-      updateUi();
-   }
+    @Subscribe
+    public void onExchangeRateChange(ExchangeRatesRefreshed event) {
+        updateUi();
+    }
 
-   @Subscribe
-   public void onSelectedCurrencyChange(SelectedCurrencyChanged event) {
-      updateUi();
-   }
+    @Subscribe
+    public void onSelectedCurrencyChange(SelectedCurrencyChanged event) {
+        updateUi();
+    }
 
 }

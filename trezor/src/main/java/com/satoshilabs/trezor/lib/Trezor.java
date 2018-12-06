@@ -1,4 +1,4 @@
-package com.satoshilabs.trezor;
+package com.satoshilabs.trezor.lib;
 
 import android.content.Context;
 
@@ -14,7 +14,6 @@ public class Trezor extends ExternalSignatureDevice {
    public Trezor(Context context) {
       super(context);
    }
-
 
    @Override
    UsbDeviceId getUsbId() {

@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
 
 open class HDPubOnlyAccount(
         context: HDAccountContext,
-        keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         backing: Bip44AccountBacking,
         wapi: Wapi

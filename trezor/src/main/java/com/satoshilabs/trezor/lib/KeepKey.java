@@ -1,4 +1,4 @@
-package com.satoshilabs.trezor;
+package com.satoshilabs.trezor.lib;
 
 import android.content.Context;
 

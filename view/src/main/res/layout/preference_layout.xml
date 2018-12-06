@@ -16,9 +16,11 @@
     <ImageView
         android:id="@android:id/icon"
         android:layout_width="24dp"
-        android:layout_height="wrap_content"
+        android:layout_height="24dp"
+        android:tint="@color/white"
         android:layout_gravity="center"
-        android:scaleType="center" />
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside" />
 
     <LinearLayout
         android:layout_width="0dip"

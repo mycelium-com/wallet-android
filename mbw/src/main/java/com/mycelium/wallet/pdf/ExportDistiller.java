@@ -454,9 +454,9 @@ public class ExportDistiller {
             String a2 = address.toString().substring(address.toString().length() / 2);
             writer.addQrCode(2.4, fromTopAddressesColumn - 0.25, 3.5, "bitcoin:" + address);
             fromTopAddressesColumn += 4.0F;
-            writer.addText(2, fromTopAddressesColumn, 12, a2);
-            fromTopAddressesColumn += 0.5F;
             writer.addText(2, fromTopAddressesColumn, 12, a1);
+            fromTopAddressesColumn += 0.5F;
+            writer.addText(2, fromTopAddressesColumn, 12, a2);
             fromTopAddressesColumn += 1.0F;
         }
 

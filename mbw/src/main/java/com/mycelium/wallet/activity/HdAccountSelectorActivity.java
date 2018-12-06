@@ -143,7 +143,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
    @Override
    protected void onPause() {
-      MbwManager.getInstance(getApplicationContext()).getEventBus().unregister(this);
+      MbwManager.getInstance(this).getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -154,7 +154,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
             txtStatus.setText(String.format(getString(R.string.account_found), Iterables.getLast(accounts).name));
             findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
          }
-      }else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
+      } else if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.done) {
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
@@ -202,7 +202,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected class HdAccountWrapper implements Serializable {
       public UUID id;
       public Collection<HdKeyPath> accountHdKeysPaths;
-      public List<HdKeyNode> xPub;
+      public List<HdKeyNode> publicKeyNodes;
       public String name;
 
       @Override
@@ -286,7 +286,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       } else {
          acc.name = String.format(getString(R.string.account_number), path.getLastIndex() + 1);
       }
-      acc.xPub = event.account.accountsRoots;
+      acc.publicKeyNodes = event.account.accountsRoots;
       if (!accounts.contains(acc)) {
          accountsAdapter.add(acc);
          updateUi();

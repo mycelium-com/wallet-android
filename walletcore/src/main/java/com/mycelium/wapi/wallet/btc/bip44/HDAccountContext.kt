@@ -32,7 +32,7 @@ class HDAccountContext @JvmOverloads constructor(
         private var isArchived: Boolean,
         private var blockHeight: Int = 0,
         private var lastDiscovery: Long = 0,
-        val indexesMap: Map<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
+        val indexesMap: MutableMap<BipDerivationType, AccountIndexesContext> = createNewIndexesContexts(BipDerivationType.values().asIterable()),
         val accountType: Int = ACCOUNT_TYPE_FROM_MASTERSEED,
         val accountSubId: Int = 0,
         defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
@@ -163,7 +163,9 @@ class HDAccountContext @JvmOverloads constructor(
         const val ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY = 5
 
         private fun createNewIndexesContexts(derivationTypes: Iterable<BipDerivationType>) =
-                derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }.toMap()
+                derivationTypes.map { it to AccountIndexesContext(-1, -1, 0) }
+                        .toMap()
+                        .toMutableMap()
     }
 }
 
