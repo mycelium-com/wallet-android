@@ -1039,7 +1039,7 @@ public class SendMainActivity extends Activity {
                                 UnsignedTransaction fundingTransaction = fundColuAccount.createUnsignedTransaction(receivers, feePerKb);
                                 Transaction signedFundingTransaction = fundColuAccount.signTransaction(fundingTransaction, AesKeyCipher.defaultKeyCipher());
                                 WalletAccount.BroadcastResult broadcastResult = fundColuAccount.broadcastTransaction(signedFundingTransaction);
-                                if (broadcastResult != WalletAccount.BroadcastResult.SUCCESS) {
+                                if (broadcastResult.getResultType() != WalletAccount.BroadcastResultType.SUCCESS) {
                                     return createEmptyColuBroadcastJson();
                                 }
 

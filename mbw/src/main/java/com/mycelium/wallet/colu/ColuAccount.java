@@ -690,9 +690,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     @Override
     public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
         if (manager.broadcastTransaction(transaction)) {
-            return BroadcastResult.SUCCESS;
+            return new BroadcastResult(BroadcastResultType.SUCCESS);
         } else {
-            return BroadcastResult.REJECTED;
+            return new BroadcastResult(BroadcastResultType.REJECTED);
         }
     }
 
