@@ -35,8 +35,6 @@
 package com.mycelium.wallet.activity.util;
 
 
-import com.mrd.bitlib.model.Address;
-import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 
@@ -57,7 +55,7 @@ public class BlockExplorer {
        this.baseTransactionUrlTor = baseTransactionUrlTor;
     }
 
-    public String getUrl(Address address, boolean isTor){
+    public String getUrl(GenericAddress address, boolean isTor){
        if(isTor){
           return baseAddressUrlTor + address.toString();
        }
