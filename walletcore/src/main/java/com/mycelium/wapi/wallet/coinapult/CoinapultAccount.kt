@@ -196,4 +196,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getTypicalEstimatedTransactionSize(): Int {
         return 0
     }
+
+    override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
+        return mutableListOf()
+    }
 }

@@ -91,6 +91,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -1765,6 +1766,20 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  .setLegacyOutputs(2)
                  .createFeeEstimator();
       return estimator.estimateTransactionSize();
+   }
+
+   @Override
+   public List<GenericTransaction.GenericOutput> getUnspentOutputs() {
+      List<TransactionOutputSummary> outputSummaryList = getUnspentTransactionOutputSummary();
+      List<GenericTransaction.GenericOutput> result = new ArrayList<>();
+      for(TransactionOutputSummary output : outputSummaryList) {
+         GenericAddress addr = (output.address.getType() == AddressType.P2WPKH) ?
+                 new SegwitAddress(getCoinType(), (com.mrd.bitlib.model.SegwitAddress) output.address) :
+                 new BtcLegacyAddress(getCoinType(),
+                         output.address.getAllAddressBytes());
+         result.add(new GenericTransaction.GenericOutput(addr, Value.valueOf(getCoinType(), output.value)));
+      }
+      return result;
    }
 }
 

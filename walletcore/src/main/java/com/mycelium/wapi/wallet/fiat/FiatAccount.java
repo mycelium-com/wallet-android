@@ -5,6 +5,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -172,6 +173,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     @Override
     public SendRequest getSendToRequest(FiatAddress destination, Value amount) {
         return null;
+    }
+
+    @Override
+    public List<GenericTransaction.GenericOutput> getUnspentOutputs() {
+        return new ArrayList<>();
     }
 
     @Override

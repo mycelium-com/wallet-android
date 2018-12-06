@@ -212,6 +212,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public List<GenericTransaction.GenericOutput> getUnspentOutputs() {
+        return new ArrayList<>();
+    }
+
+    @Override
     public String getLabel() {
         return label;
     }

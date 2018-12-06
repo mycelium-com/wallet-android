@@ -156,10 +156,15 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {
+        // Colu transaction is a typical bitcoin transaction containing additional inputs and OP_RETURN data
+        // Typical Colu transaction has 2 inputs and 4 outputs
         return FeeEstimatorBuilder().setLegacyInputs(2)
                 .setLegacyOutputs(4)
                 .createFeeEstimator()
                 .estimateTransactionSize()
     }
 
+    override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
+        return mutableListOf()
+    }
 }

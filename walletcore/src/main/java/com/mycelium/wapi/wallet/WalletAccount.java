@@ -70,6 +70,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     SendRequest<T> getSendToRequest(A destination, Value amount);
 
+    List<GenericTransaction.GenericOutput> getUnspentOutputs();
+
     String getLabel();
 
     void setLabel(String label);
