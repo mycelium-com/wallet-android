@@ -149,8 +149,8 @@ public class RecordRowBuilder {
             // We don't show anything if the account is archived
             holder.tvBalance.setVisibility(View.GONE);
             holder.backupMissing.setVisibility(View.GONE);
-            if (model.accountType.isAssignableFrom(Bip44BCHAccount.class)
-                    || model.accountType.isAssignableFrom(SingleAddressBCHAccount.class)) {
+            if (model.accountType.isInstance(Bip44BCHAccount.class)
+                    || model.accountType.isInstance(SingleAddressBCHAccount.class)) {
                 holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
                 holder.tvAccountType.setVisibility(View.VISIBLE);
             } else {
