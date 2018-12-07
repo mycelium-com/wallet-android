@@ -125,6 +125,12 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     fun getAccount(id: UUID): WalletAccount<*, *>? = accounts[id]
 
+    /**
+     * @param accounts - list of any accounts
+     * @return only active accounts
+     */
+    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { !it.isArchived }
+
     @JvmOverloads
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*, *>> = listOf()) {
         if (!isNetworkConnected) {
