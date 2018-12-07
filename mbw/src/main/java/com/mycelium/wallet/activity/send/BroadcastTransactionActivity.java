@@ -71,7 +71,7 @@ public class BroadcastTransactionActivity extends Activity {
    private Transaction _transaction;
    private String _fiatValue;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
-   private WalletAccount.BroadcastResult _broadcastResultTypes;
+   private WalletAccount.BroadcastResult broadcastResult;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
            , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
@@ -143,7 +143,7 @@ public class BroadcastTransactionActivity extends Activity {
 
          @Override
          protected void onPostExecute(WalletAccount.BroadcastResult result) {
-            _broadcastResultTypes = result;
+            broadcastResult = result;
             showResult();
          }
       };
@@ -153,7 +153,7 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    private void showResult() {
-      switch (_broadcastResultTypes.getResultType()) {
+      switch (broadcastResult.getResultType()) {
          case SUCCESS:
             // Toast success and finish
             Toast.makeText(this, getResources().getString(R.string.transaction_sent),
@@ -226,7 +226,7 @@ public class BroadcastTransactionActivity extends Activity {
             });
             break;
          case REJECT_NONSTANDARD:
-            String message = String.format(getString(R.string.transaction_not_sent_nonstandard), _broadcastResultTypes.getErrorMessage());
+            String message = String.format(getString(R.string.transaction_not_sent_nonstandard), broadcastResult.getErrorMessage());
             Utils.setClipboardString(HexUtils.toHex(_transaction.toBytes()), this);
             Utils.showSimpleMessageDialog(this, message, new Runnable() {
                @Override
