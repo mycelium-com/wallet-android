@@ -21,6 +21,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
+    var accountLabel: String = ""
+
     override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
         val history = ArrayList<CoinapultTransaction>()
         checkNotArchived()
@@ -33,11 +35,11 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun getLabel(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return accountLabel
     }
 
     override fun setLabel(label: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accountLabel = label.toString()
     }
 
     val uuid: UUID = CoinapultUtils.getGuidForAsset(currency, accountKey.publicKey.publicKeyBytes)
@@ -167,7 +169,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
             }
         } catch (e: Exception) {
         }
-        val balance = api.getBalance(currency);
+        val balance = api.getBalance(currency)
         if (balance != null && balance != cachedBalance) {
             cachedBalance = balance
             listener?.balanceUpdated(this)
