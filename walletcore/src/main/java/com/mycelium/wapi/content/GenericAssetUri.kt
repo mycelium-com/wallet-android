@@ -7,3 +7,5 @@ import java.io.Serializable
 
 abstract class GenericAssetUri(val address: GenericAddress?, val value: Value?, val label: String?)
     : Serializable
+
+class PrivateKeyUri(val keyString: String, label: String?) : GenericAssetUri(null, null, label)
