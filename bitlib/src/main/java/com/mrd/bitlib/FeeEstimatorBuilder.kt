@@ -54,7 +54,7 @@ class FeeEstimatorBuilder {
             setArrayOfInputs(inputsList.toList().toTypedArray())
 
     fun setArrayOfInputs(inputsArray: Array<UnspentTransactionOutput>): FeeEstimatorBuilder {
-        legacyInputs = inputsArray.filter { it.script is ScriptOutputStandard }.count()
+        legacyInputs = inputsArray.filter { it.script is ScriptOutputP2PKH }.count()
         p2shSegwitInputs = inputsArray.filter { it.script is ScriptOutputP2SH }.count()
         bechInputs = inputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
         return this
@@ -63,9 +63,14 @@ class FeeEstimatorBuilder {
     fun setArrayOfOutputs(inputsList: Iterable<TransactionOutput>) =
             setArrayOfOutputs(inputsList.toList().toTypedArray())
 
+    /**
+     * This method is used to set outputs for fee calculation.
+     * @param outputsArray is nullable. If it's null 2 legacy outputs used as this is biggest possible fee, which
+     * should be calculated by default for our wallet.
+     */
     fun setArrayOfOutputs(outputsArray: Array<TransactionOutput>?): FeeEstimatorBuilder {
         if (outputsArray != null) {
-            legacyOutputs = outputsArray.filter { it.script is ScriptOutputStandard }.count()
+            legacyOutputs = outputsArray.filter { it.script is ScriptOutputP2PKH }.count()
             p2shOutputs = outputsArray.filter { it.script is ScriptOutputP2SH }.count()
             bechOutputs = outputsArray.filter { it.script is ScriptOutputP2WPKH }.count()
         } else {

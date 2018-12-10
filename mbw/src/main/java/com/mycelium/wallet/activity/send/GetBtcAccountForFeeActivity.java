@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.send.model.AccountForFee;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;
@@ -48,7 +49,8 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
 
         List<AddressBookManager.Entry> entries = new ArrayList<>();
         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
+        Collection<WalletAccount> uniqueAccountsList = Utils.getUniqueAccounts(_mbwManager.getWalletManager(false).getActiveAccounts());
+        for (WalletAccount account : Utils.sortAccounts(uniqueAccountsList, _mbwManager.getMetadataStorage())) {
             Optional<Address> receivingAddress = account.getReceivingAddress();
             if (receivingAddress.isPresent() && account.canSpend()
                     && !account.getReceivingAddress().equals(selectedAccount.getReceivingAddress())

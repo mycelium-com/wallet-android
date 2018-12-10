@@ -13,6 +13,8 @@
     </data>
 
 
+    <!--We use viewModel.privateDataSelected ? @id/rb_key_y : @id/rb_key_y as we need to select this button in case
+        of type change, and if we wouldn't provide alternatives update wouldn't be executed.-->
     <RadioGroup
         android:id="@+id/rg_key_types"
         android:layout_width="wrap_content"

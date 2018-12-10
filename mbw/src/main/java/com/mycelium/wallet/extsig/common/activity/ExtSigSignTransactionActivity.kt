@@ -148,11 +148,13 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             val toAddress = Joiner.on(",\n").join(toAddresses)
             amountString = "${CoinUtil.valueString(amountSending, false)} BTC"
             val fee = _unsigned.calculateFee()
-            totalString = "${CoinUtil.valueString(amountSending + fee + changeValue, false)} BTC"
+            val showChange = showChange(_unsigned, _mbwManager.network, _account as HDAccount)
+            val totalAmount = amountSending + fee + if (showChange) { changeValue } else { 0 }
+            totalString = "${CoinUtil.valueString(totalAmount, false)} BTC"
             changeString = "${CoinUtil.valueString(changeValue, false)} BTC"
             feeString = "${CoinUtil.valueString(fee, false)} BTC"
 
-            if ((changeAddress != "") && showChange(_unsigned, _mbwManager.network, _account as HDAccount)) {
+            if ((changeAddress != "") && showChange) {
                 showChangeProperties(changeAddress, amountSending, fee)
             }
 
@@ -165,7 +167,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     private fun showChangeProperties(changeAddress: String, amountSending: Long, fee: Long) {
         // Address for change. Required as nor KeepKey, nor Trezor supports
-        val model = extSigManager.features.model
+        val model = extSigManager.features?.model
         when {
             listOf("K1-14AM", "1").contains(model) -> {
                 val accountIndex = (_account as HDAccount).accountIndex

@@ -48,6 +48,8 @@
     <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
+    <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_not_sent_small_fee">Failed to broadcast transaction. Fee is too small. Please try setting a higher one.</string>
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export account keys</string>
@@ -182,6 +184,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
@@ -1262,8 +1265,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
     <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
-    <string name="what_is_address_type">What is address type?</string>
-    <string name="what_is_address_type_description">There are three Bitcoin address formats:\n\nP2PKH - Legacy, starting with a \"%1$s\"\nP2SH - SegWit compatible, starting with a \"%2$s\". Set by default\nBech32 - Segwit native, starting with \"%3$s\"\n\nUse either P2SH or Bech32 to receive funds if you would like to send low-fee SegWit transactions in the future.\n\nBech32 is the newest and most cost-effective standard, but is not yet widely adopted, which may reduce your privacy since using it makes your transaction more unique.</string>
+    <string name="what_is_address_type">What is an address type?</string>
+    <string name="what_is_address_type_description"><![CDATA[There are three Bitcoin address formats:<p><b>P2PKH – Legacy</b>, starting with \"%1$s\".</p><p><b>P2SH – SegWit compatible</b>, starting with \"%2$s\". This is the default.</p><p><b>Bech32 – SegWit native</b>, starting with \"%3$s\".</p><p>Use either <b>P2SH</b> or <b>Bech32</b> to receive funds if you would like to send low-fee SegWit transactions in the future.</p><p>Bech32 is the newest and most cost-effective standard, but it is not yet widely adopted, so not everybody can send bitcoins to it. Since Bech32 is not yet widely used, it might be a bit easier for blockchain analysts to discover your cash flow.</p>]]></string>
     <string name="pref_language">Language</string>
     <string name="version">version</string>
     <string name="updates">Updates</string>
@@ -1298,8 +1301,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
     <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
-    <string name="segwit_change_mode_title">SegWit change mode</string>
-    <string name="segwit_change_mode_description">Select the way SegWit transactions change will be handled</string>
+    <string name="segwit_change_mode_title">Transaction change handling</string>
+    <string name="segwit_change_mode_description">Select the way transaction change will be handled</string>
+    <string name="change_address_description">In Bitcoin you always spend the full amount you received in an earlier transaction. To pay exact amounts, you send the amount that exceeds what you are paying to a new address in your wallet. That is the change address.\n\nAn outside observer usually cannot see if a transaction was sending the amount you paid or the amount you sent to yourself as change.</string>
     <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (legacy compatible)</string>
     <string name="change_settings_bech32">Bech32 (native SegWit)</string>
     <string name="change_settings_privacy_guard_mode">Privacy guard mode (default)</string>
@@ -1311,11 +1315,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_next">Tap for P2SH</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
-    <string name="bech_description">Native SegWit address will be used for change. Latest Bitcoin standard, always the smallest fee possible, might affect privacy due to Bech32 addresses still haven\'t been used widely.</string>
-    <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
-    <string name="p2sh_p2wpkh_description">Legacy compatible SegWit address will be used for change. Has no privacy issues.</string>
-    <string name="privacy_guard">Privacy guard (default)</string>
-    <string name="privacy_guard_description">With "mixed mode" accounts hiding change address will be even more effective. As most of the transactions have only one output we mask your output type according to destination address type. Transaction fee might be a bit higher.</string>
+    <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>
+    <string name="p2sh_p2wpkh">Segwit compatible (P2SH)</string>
+    <string name="p2sh_p2wpkh_description">All change will be returned to a legacy compatible SegWit address (P2SH). There are no additional privacy implications. This option has slightly higher fees than SegWit native.</string>
+    <string name="privacy_guard">Privacy Guard (default)</string>
+    <string name="privacy_guard_description">All change will be returned to the address type of the receiver, making it more difficult for blockchain analytics to identify which is the receiving address and which is the change address. These transactions cost 20 to 30 percent more in fees when sending to non-Bech32 addresses.</string>
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
@@ -1333,6 +1337,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
     <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
     <string name="account_upgraded">Account %d just received SegWit support</string>
+    <string name="hardware_account_create">Creating new hadrware wallet account</string>
+    <string name="please_wait_hardware">Please wait</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

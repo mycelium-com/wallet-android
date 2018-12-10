@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class WapiResponse<T> {
    @JsonProperty
    private int errorCode;
+   private String errorMessage;
    @JsonProperty
    private T r;
 
@@ -38,8 +39,18 @@ public class WapiResponse<T> {
       this.r = result;
    }
 
+   public WapiResponse(int errorCode, String errorMessage, T result) {
+      this.errorCode = errorCode;
+      this.errorMessage = errorMessage;
+      this.r = result;
+   }
+
    public int getErrorCode() {
       return errorCode;
+   }
+
+   public String getErrorMessage() {
+      return errorMessage;
    }
 
    public T getResult() throws WapiException {

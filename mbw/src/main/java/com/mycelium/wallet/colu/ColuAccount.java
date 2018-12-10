@@ -40,6 +40,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -619,9 +620,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
         Optional<String> privateKey = Optional.absent();
         if (canSpend()) {
             privateKey = Optional.of(accountKey.getBase58EncodedPrivateKey(manager.getNetwork()));
+
         }
-        Optional<String> pubKey = Optional.of(address.toString());
-        return new Data(privateKey, pubKey);
+        return new Data(privateKey, Collections.singletonMap(BipDerivationType.BIP44, address.toString()));
     }
 
     @Override
@@ -689,9 +690,9 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     @Override
     public BroadcastResult broadcastTransaction(com.mrd.bitlib.model.Transaction transaction) {
         if (manager.broadcastTransaction(transaction)) {
-            return BroadcastResult.SUCCESS;
+            return new BroadcastResult(BroadcastResultType.SUCCESS);
         } else {
-            return BroadcastResult.REJECTED;
+            return new BroadcastResult(BroadcastResultType.REJECTED);
         }
     }
 

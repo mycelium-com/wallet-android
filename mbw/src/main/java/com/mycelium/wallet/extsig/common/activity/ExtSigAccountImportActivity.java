@@ -34,7 +34,15 @@
 
 package com.mycelium.wallet.extsig.common.activity;
 
+import android.app.LoaderManager;
+import android.app.ProgressDialog;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -51,33 +59,79 @@ import java.util.List;
 import java.util.UUID;
 
 
-public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorActivity {
+public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorActivity implements LoaderManager.LoaderCallbacks<UUID> {
+
+   private static final String ITEM_WRAPPER = "ITEM_WRAPPER";
+
    @Override
    protected AdapterView.OnItemClickListener accountClickListener() {
       return new AdapterView.OnItemClickListener() {
          @Override
          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            HdAccountWrapper item = (HdAccountWrapper) adapterView.getItemAtPosition(i);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(ITEM_WRAPPER,(HdAccountWrapper) adapterView.getItemAtPosition(i));
+            getLoaderManager().initLoader(1, bundle, ExtSigAccountImportActivity.this).forceLoad();
 
-            // create the new account and get the uuid of it
-            MbwManager mbwManager = MbwManager.getInstance(ExtSigAccountImportActivity.this);
-
-            UUID acc = mbwManager.getWalletManager(false)
-                  .createExternalSignatureAccount(
-                        item.publicKeyNodes,
-                        (ExternalSignatureDeviceManager) masterseedScanManager,
-                        item.accountHdKeysPaths.iterator().next().getLastIndex()
-                  );
-
-            // Mark this account as backup warning ignored
-            mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
-
-            Intent result = new Intent();
-            result.putExtra("account", acc);
-            setResult(RESULT_OK, result);
-            finish();
+            ProgressDialog dialog = new ProgressDialog(ExtSigAccountImportActivity.this);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setTitle(getString(R.string.hardware_account_create));
+            dialog.setMessage(getString(R.string.please_wait_hardware));
+            dialog.show();
          }
       };
+   }
+
+
+   @NonNull
+   @Override
+   public Loader onCreateLoader(int i, @Nullable Bundle bundle) {
+      return new AccountCreationLoader(getApplicationContext(),
+              (HdAccountWrapper) bundle.getSerializable(ITEM_WRAPPER), (ExternalSignatureDeviceManager) masterseedScanManager);
+   }
+
+   @Override
+   public void onLoadFinished(@NonNull Loader loader, UUID uuid) {
+      Intent result = new Intent();
+      result.putExtra("account", uuid);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   @Override
+   public void onLoaderReset(@NonNull Loader loader) { }
+
+   public static class AccountCreationLoader extends AsyncTaskLoader<UUID> {
+
+      private HdAccountWrapper item;
+      private final ExternalSignatureDeviceManager masterseedScanManager;
+
+      AccountCreationLoader(@NonNull Context context, HdAccountWrapper item, ExternalSignatureDeviceManager masterseedScanManager) {
+         super(context);
+         this.item = item;
+         this.masterseedScanManager = masterseedScanManager;
+      }
+
+      @Nullable
+      @Override
+      public UUID loadInBackground() {
+
+         // create the new account and get the uuid of it
+         MbwManager mbwManager = MbwManager.getInstance(getContext());
+
+         UUID acc = mbwManager.getWalletManager(false)
+                 .createExternalSignatureAccount(
+                         item.publicKeyNodes,
+                         masterseedScanManager ,
+                         item.accountHdKeysPaths.iterator().next().getLastIndex()
+                 );
+
+         // Mark this account as backup warning ignored
+         mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
+
+         return acc;
+      }
+
    }
 
    @Override
@@ -95,7 +149,7 @@ public abstract class ExtSigAccountImportActivity extends ExtSigAccountSelectorA
       setContentView(R.layout.activity_instant_ext_sig);
       ((TextView) findViewById(R.id.tvCaption)).setText(getString(R.string.ext_sig_import_account_caption));
       ((TextView) findViewById(R.id.tvSelectAccount)).setText(getString(R.string.ext_sig_select_account_to_import));
-      ((TextView) findViewById(R.id.btNextAccount)).setVisibility(View.VISIBLE);
+      findViewById(R.id.btNextAccount).setVisibility(View.VISIBLE);
 
       findViewById(R.id.btNextAccount).setOnClickListener(new View.OnClickListener() {
          @Override

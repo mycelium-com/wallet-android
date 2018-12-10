@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.Html
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -44,6 +45,8 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
         this.addressType.value = addressType.value // this is required to update UI
     }
 
+    fun getAvailableAddressTypesCount() = (account as AbstractAccount).availableAddressTypes.size
+
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
                 mbwManager.bitcoinDenomination.toString())
 
@@ -61,7 +64,7 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
         val dialog = AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog)
                 .setTitle(activity.resources.getString(R.string.what_is_address_type))
-                .setMessage(dialogMessage)
+                .setMessage(Html.fromHtml(dialogMessage))
                 .setPositiveButton(R.string.button_ok, null)
                 .create()
 

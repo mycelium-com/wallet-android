@@ -277,6 +277,9 @@ public class AccountsFragment extends Fragment {
       deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface arg0, int arg1) {
             Log.d(TAG, "Entering onClick delete");
+            if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
+               localTraderManager.unsetLocalTraderAccount();
+            }
             if (hasPrivateData) {
                Long satoshis = getPotentialBalance(accountToDelete);
                AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
@@ -405,12 +408,14 @@ public class AccountsFragment extends Fragment {
                if (accountToDelete instanceof ColuAccount) {
                   ColuManager coluManager = _mbwManager.getColuManager();
                   coluManager.deleteAccount((ColuAccount) accountToDelete);
+                  eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                } else {
                   //Check if this SingleAddress account is related with ColuAccount
                   WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, _mbwManager.getColuManager().getAccounts().values());
                   if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
                      ColuManager coluManager = _mbwManager.getColuManager();
                      coluManager.deleteAccount((ColuAccount) linkedColuAccount);
+                     eventBus.post(new ExtraAccountsChanged()); // do we need to pass UUID ?
                      _storage.deleteAccountMetadata(linkedColuAccount.getId());
                   } else {
                      try {

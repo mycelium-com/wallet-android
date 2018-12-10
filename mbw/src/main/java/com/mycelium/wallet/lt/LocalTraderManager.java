@@ -80,8 +80,6 @@ public class LocalTraderManager {
    final private LtApi api;
    final private MbwManager mbwManager;
    final private Set<LocalTraderEventSubscriber> subscribers;
-   final private Thread executer;
-   final private Geocoder geocoder;
    private LtSession session;
    final private List<Request> requestList;
    private boolean isLoggedIn;
@@ -101,11 +99,6 @@ public class LocalTraderManager {
    private String localTraderPrivateKeyString;
    private UUID localTraderAccountId;
    private InMemoryPrivateKey localTraderPrivateKey;
-
-
-   public Geocoder getGeocoder() {
-      return geocoder;
-   }
 
    public LocalTraderManager(Context context, TradeSessionDb db, LtApi api, MbwManager mbwManager) {
       notificationsEnabled = true;
@@ -150,14 +143,12 @@ public class LocalTraderManager {
       lastTraderSynchronization = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, 0);
       lastTraderNotification = preferences.getLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, 0);
 
-      executer = new Thread(new Executor());
-      executer.setDaemon(true);
-      executer.start();
+      Thread thread = new Thread(new Executor());
+      thread.setDaemon(true);
+      thread.start();
 
       traderChangeMonitor = new TraderChangeMonitor(this, this.api);
       tradeSessionChangeMonitor = new TradeSessionChangeMonitor(this, this.api);
-
-      geocoder = new FallBackGeocoder(this.mbwManager);
    }
 
    public void subscribe(LocalTraderEventSubscriber listener) {
@@ -233,10 +224,8 @@ public class LocalTraderManager {
    }
 
    private class Executor implements Runnable, LocalManagerApiContext {
-
       @Override
       public void run() {
-
          String currentSessionLanguage = null;
 
          while (true) {
@@ -275,7 +264,6 @@ public class LocalTraderManager {
             }
             request.execute(this, api, session.id, subscribers);
          }
-
       }
 
       private boolean renewSession() {
@@ -507,7 +495,6 @@ public class LocalTraderManager {
       for (TradeSession remoteItem : remoteList) {
          db.insert(remoteItem);
       }
-
    }
 
    private synchronized void updateSingleTradeSession(TradeSession item) {
@@ -576,14 +563,14 @@ public class LocalTraderManager {
       localTraderPrivateKey = null;
       localTraderPrivateKeyString = null;
       nickname = null;
-      SharedPreferences.Editor editor = getEditor();
-      editor.remove(Constants.LOCAL_TRADER_KEY_SETTING);
-      editor.remove(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING);
-      editor.remove(Constants.LOCAL_TRADER_ADDRESS_SETTING);
-      editor.remove(Constants.LOCAL_TRADER_NICKNAME_SETTING);
       setLastTraderSynchronization(0);
       db.deleteAll();
-      editor.commit();
+      getEditor()
+              .remove(Constants.LOCAL_TRADER_KEY_SETTING)
+              .remove(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING)
+              .remove(Constants.LOCAL_TRADER_ADDRESS_SETTING)
+              .remove(Constants.LOCAL_TRADER_NICKNAME_SETTING)
+              .apply();
    }
 
    public void setLocalTraderData(UUID accountId, InMemoryPrivateKey privateKey, Address address, String nickname) {
@@ -598,14 +585,14 @@ public class LocalTraderManager {
             .putString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, accountId.toString())
             .putString(Constants.LOCAL_TRADER_ADDRESS_SETTING, address.toString())
             .putString(Constants.LOCAL_TRADER_NICKNAME_SETTING, nickname)
-            .commit();
+            .apply();
    }
 
    public synchronized void setLastTraderSynchronization(long timestamp) {
       lastTraderSynchronization = timestamp;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, timestamp);
-      editor.commit();
+      getEditor()
+              .putLong(Constants.LOCAL_TRADER_LAST_TRADER_SYNCHRONIZATION_SETTING, timestamp)
+              .apply();
    }
 
    public synchronized long getLastTraderSynchronization() {
@@ -617,9 +604,9 @@ public class LocalTraderManager {
          return false;
       }
       lastTraderNotification = timestamp;
-      SharedPreferences.Editor editor = getEditor();
-      editor.putLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, timestamp);
-      editor.commit();
+      getEditor()
+              .putLong(Constants.LOCAL_TRADER_LAST_TRADER_NOTIFICATION_SETTING, timestamp)
+              .apply();
       Log.i(TAG, "Updated trader notification timestamp to: " + timestamp);
       if (needsTraderSynchronization()) {
          notifyTraderActivity(lastTraderNotification);
@@ -641,7 +628,7 @@ public class LocalTraderManager {
             .putFloat(Constants.LOCAL_TRADER_LONGITUDE_SETTING, (float) location.longitude)
             .putString(Constants.LOCAL_TRADER_LOCATION_NAME_SETTING, location.name)
             .putString(Constants.LOCAL_TRADER_LOCATION_COUNTRY_CODE_SETTING, location.countryCode)
-            .commit();
+            .apply();
    }
 
    public GpsLocationEx getUserLocation() {
@@ -649,10 +636,10 @@ public class LocalTraderManager {
    }
 
    public void setLocalTraderEnabled(boolean enabled) {
-      SharedPreferences.Editor editor = getEditor();
       localTraderEnabled = enabled;
-      editor.putBoolean(Constants.LT_ENABLED, enabled);
-      editor.commit();
+      getEditor()
+              .putBoolean(Constants.LT_ENABLED, enabled)
+              .apply();
    }
 
    public boolean isLocalTraderEnabled() {
@@ -660,10 +647,10 @@ public class LocalTraderManager {
    }
 
    public void setPlaySoundOnTradeNotification(boolean enabled) {
-      SharedPreferences.Editor editor = getEditor();
       playSoundOnTradeNotification = enabled;
-      editor.putBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, enabled);
-      editor.commit();
+      getEditor()
+              .putBoolean(Constants.LOCAL_TRADER_PLAY_SOUND_ON_TRADE_NOTIFICATION_SETTING, enabled)
+              .apply();
    }
 
    public boolean getPlaySoundOnTradeNotification() {
@@ -681,10 +668,10 @@ public class LocalTraderManager {
    }
 
    public void setUseMiles(boolean enabled) {
-      SharedPreferences.Editor editor = getEditor();
       usemiles = enabled;
-      editor.putBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, enabled);
-      editor.commit();
+      getEditor()
+              .putBoolean(Constants.LOCAL_TRADER_USE_MILES_SETTING, enabled)
+              .apply();
    }
 
    public boolean useMiles() {
@@ -747,13 +734,12 @@ public class LocalTraderManager {
     * @param regId registration ID
     */
    private synchronized void storeGcmRegistrationId(String regId) {
-      final SharedPreferences prefs = getGcmPreferences();
       int appVersion = getAppVersion();
       Log.i(TAG, "Saving regId on app version " + appVersion);
-      SharedPreferences.Editor editor = prefs.edit();
-      editor.putString("gcmid", regId);
-      editor.putInt("appVersion", appVersion);
-      editor.apply();
+      getGcmPreferences().edit()
+              .putString("gcmid", regId)
+              .putInt("appVersion", appVersion)
+              .apply();
    }
 
    /**
