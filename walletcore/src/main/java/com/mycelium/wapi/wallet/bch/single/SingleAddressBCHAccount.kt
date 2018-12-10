@@ -5,7 +5,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.Reference
+import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.BtcTransaction

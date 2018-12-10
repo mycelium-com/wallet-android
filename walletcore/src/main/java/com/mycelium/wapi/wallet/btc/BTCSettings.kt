@@ -1,7 +1,7 @@
-package com.mycelium.wapi.wallet
+package com.mycelium.wapi.wallet.btc
 
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
+import com.mycelium.wapi.wallet.CurrencySettings
 
 data class BTCSettings(
         var defaultAddressType: AddressType,

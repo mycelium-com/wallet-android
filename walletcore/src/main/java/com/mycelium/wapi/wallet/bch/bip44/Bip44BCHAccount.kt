@@ -11,7 +11,7 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.Reference
+import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest

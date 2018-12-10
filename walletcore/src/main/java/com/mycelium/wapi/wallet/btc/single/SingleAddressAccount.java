@@ -41,7 +41,7 @@ import com.mycelium.wapi.wallet.GenericInput;
 import com.mycelium.wapi.wallet.InputSigner;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.Reference;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
