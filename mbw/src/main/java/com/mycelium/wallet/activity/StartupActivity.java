@@ -79,7 +79,7 @@ import com.mycelium.wallet.content.actions.PrivateKeyAction;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.content.btc.PrivateKeyUri;
+import com.mycelium.wapi.content.PrivateKeyUri;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
