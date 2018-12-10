@@ -180,10 +180,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
          List<String> addresses = new ArrayList<>();
-         for (BtcAddress address: context.getAddress().values()){
-            addresses.add(address.toString());
+         if(context.getAddress() != null) {
+            for (BtcAddress address : context.getAddress().values()) {
+               addresses.add(address.toString());
+            }
+            _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          }
-         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
          ByteArrayOutputStream byteStream = new ByteArrayOutputStream();

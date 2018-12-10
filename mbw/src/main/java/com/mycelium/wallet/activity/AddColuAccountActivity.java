@@ -190,7 +190,7 @@ public class AddColuAccountActivity extends Activity {
                     .createAccounts(new PrivateColuConfig(key, coluAsset,AesKeyCipher.defaultKeyCipher())).get(0);
             return uuid;
          } catch (Exception e) {
-            Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage());
+            Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage(), e);
             return null;
          }
       }
