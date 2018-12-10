@@ -154,11 +154,11 @@ class WapiClientElectrumX(
                 // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
                 // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
                 val errorMessageGroups = errorRegex.matchEntire(firstError.message)?.groups
-                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR + 1, null)
+                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val errorCode = errorMessageGroups[1]?.value?.toInt()
-                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR + 2, null)
+                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val errorMessage = errorMessageGroups[2]?.value
-                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR + 3, null)
+                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val error = Wapi.ElectrumxError.getErrorByCode(errorCode)
                 Pair(error.errorCode, errorMessage)
             }

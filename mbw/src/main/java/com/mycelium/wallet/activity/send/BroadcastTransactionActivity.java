@@ -245,6 +245,15 @@ public class BroadcastTransactionActivity extends Activity {
                }
             });
             break;
+         default:
+            // Transaction rejected, display message and exit
+            Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_double_spending_message, new Runnable() {
+               @Override
+               public void run() {
+                  BroadcastTransactionActivity.this.finish();
+               }
+            });
+            break;
       }
    }
 
