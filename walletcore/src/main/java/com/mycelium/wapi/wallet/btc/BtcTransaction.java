@@ -16,21 +16,21 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class BtcTransaction implements GenericTransaction, Serializable {
-    final CryptoCurrency type;
-    final Sha256Hash hash;
-    final Transaction tx;
-    final Value valueSent;
-    final Value valueReceived;
-    final Value value;
-    private int timestamp;
-    final ArrayList<GenericInput> inputs;
-    final ArrayList<GenericOutput> outputs;
-    private int confirmations;
-    final int rawSize;
-    private final boolean isQueuedOutgoing;
-    public final Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
+    protected CryptoCurrency type;
+    protected Sha256Hash hash;
+    private Transaction tx;
+    protected Value valueSent;
+    protected Value valueReceived;
+    protected Value value;
+    protected int timestamp;
+    protected ArrayList<GenericInput> inputs;
+    protected ArrayList<GenericOutput> outputs;
+    protected int confirmations;
+    protected int rawSize;
+    protected boolean isQueuedOutgoing;
+    public  Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
-    final Value fee;
+    protected Value fee;
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction) {
         this.type = type;
@@ -69,6 +69,8 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.rawSize = rawSize;
         this.fee = fee;
     }
+
+    public BtcTransaction(){}
 
     @Override
     public boolean isQueuedOutgoing() {

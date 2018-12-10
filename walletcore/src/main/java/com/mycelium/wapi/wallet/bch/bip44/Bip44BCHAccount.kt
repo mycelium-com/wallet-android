@@ -7,15 +7,16 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.bch.coins.BchCoin
+import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
@@ -26,9 +27,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 
@@ -49,7 +47,7 @@ open class Bip44BCHAccount(
     }
 
     override fun getCoinType(): CryptoCurrency {
-        return BchTest
+        return if (network.isProdnet) BchMain else BchTest
     }
 
     override fun getTransactionSummary(txid: Sha256Hash): TransactionSummary? {
@@ -101,8 +99,44 @@ open class Bip44BCHAccount(
         }
     }
 
+    private fun getBchTransaction(ts :  TransactionSummary): BchTransaction?{
+        checkNotArchived()
+
+        var satoshisReceived: Long = 0
+        var satoshisSent: Long = 0
+
+        if (ts.isIncoming){
+            satoshisReceived = ts.value.longValue
+        } else {
+            satoshisSent = ts.value.longValue
+        }
+
+        val outputs = ArrayList<GenericTransaction.GenericOutput>()
+        outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(coinType, ts.destinationAddress.get().allAddressBytes),
+                Value.valueOf(coinType, satoshisSent)))
+
+        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
+        for (input in ts.toAddresses) {
+            inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(coinType, input.allAddressBytes),
+                        Value.valueOf(coinType, satoshisReceived)))
+        }
+
+        val isQueuedOutgoing = ts.isQueuedOutgoing
+        return BchTransaction(coinType, ts.txid, satoshisSent, satoshisReceived, ts.time.toInt(),
+                ts.confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx[ts.txid], 0,
+                 Value.valueOf(if (network.isProdnet) BchMain else BchTest, Math.abs(satoshisReceived - satoshisSent)))
+    }
+
     override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
-        TODO("not implemented") //spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
+        val result = mutableListOf<BtcTransaction>()
+        val transactions = spvBalanceFetcher.retrieveTransactionsSummaryByUnrelatedAccountId(id.toString(), receivingSince!!)
+        for (transaction in transactions) {
+            val tmp = getBchTransaction(transaction)
+            if (tmp != null){
+                result.add(tmp)
+            }
+        }
+        return result
     }
 
     override fun isVisible(): Boolean {

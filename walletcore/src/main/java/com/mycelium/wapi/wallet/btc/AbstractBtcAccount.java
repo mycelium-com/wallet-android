@@ -1462,7 +1462,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
-   private HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
+   protected HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
 
    public abstract boolean isSynchronizing();
 
