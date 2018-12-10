@@ -15,7 +15,7 @@ import com.mycelium.wapi.wallet.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount

@@ -47,7 +47,7 @@ import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;

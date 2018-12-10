@@ -18,7 +18,7 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit

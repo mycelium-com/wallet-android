@@ -4,27 +4,19 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.model.TransactionDetails
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.Reference
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bch.coins.BchTest
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue
 
 import java.util.UUID
 

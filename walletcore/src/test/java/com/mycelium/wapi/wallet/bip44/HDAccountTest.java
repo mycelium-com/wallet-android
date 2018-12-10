@@ -8,12 +8,12 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
-import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import org.junit.Before;
 import org.junit.Test;
 

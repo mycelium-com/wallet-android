@@ -2,13 +2,12 @@ package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 
 class HDAccountExternalSignature(
         context: HDAccountContext,

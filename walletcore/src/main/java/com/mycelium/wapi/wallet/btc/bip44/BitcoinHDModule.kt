@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.Currency
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
