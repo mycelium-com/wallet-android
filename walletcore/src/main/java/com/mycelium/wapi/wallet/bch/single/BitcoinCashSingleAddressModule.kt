@@ -86,7 +86,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
     private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher): WalletAccount<*, *>? {
         val publicKey = privateKey.publicKey
         for (address in publicKey.getAllSupportedAddresses(networkParameters).values) {
-            publicPrivateKeyStore.setPrivateKey(address, privateKey, cipher)
+            publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, privateKey, cipher)
         }
         return createAccount(publicKey)
     }
