@@ -119,6 +119,9 @@ import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.content.colu.mss.MSSUriParser;
+import com.mycelium.wapi.content.colu.mt.MTUriParser;
+import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BTCSettings;
@@ -400,6 +403,9 @@ public class MbwManager {
     private ContentResolver createContentResolver(NetworkParameters network) {
         ContentResolver result = new ContentResolver();
         result.add(new BitcoinUriParser(network));
+        result.add(new MTUriParser(network));
+        result.add(new MSSUriParser(network));
+        result.add(new RMCUriParser(network));
         return result;
     }
 
