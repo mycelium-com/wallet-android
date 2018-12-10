@@ -47,6 +47,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -54,13 +55,17 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.bip44.Bip44Account;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * CreateTrader{1|2|3}Activity are a sort of Trader Account Creation Wizard.
+ * You start at 1, go to 2, finish at 3.
+ */
 public class CreateTrader2Activity extends Activity {
 
    public static void callMe(Activity currentActivity) {
@@ -85,8 +90,8 @@ public class CreateTrader2Activity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _spAddress = (Spinner) findViewById(R.id.spAddress);
-      _btUse = (Button) findViewById(R.id.btUse);
+      _spAddress = findViewById(R.id.spAddress);
+      _btUse = findViewById(R.id.btUse);
 
       _btUse.setOnClickListener(new OnClickListener() {
 
@@ -106,15 +111,15 @@ public class CreateTrader2Activity extends Activity {
       });
 
       // Populate account chooser, you can also choose archived accounts
-      _accounts = new LinkedList<UUID>();
-      List<String> choices = new LinkedList<String>();
+      _accounts = new LinkedList<>();
+      List<String> choices = new LinkedList<>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (UUID accountId : walletManager.getAccountIds()) {
+      for (UUID accountId : walletManager.getUniqueIds()) {
          WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;
          }
-         if (account instanceof Bip44Account && !account.isDerivedFromInternalMasterseed()) {
+         if (account instanceof HDAccount && !account.isDerivedFromInternalMasterseed()) {
             continue;
          }
          if (!Utils.isAllowedForLocalTrader(account)) {
@@ -129,7 +134,7 @@ public class CreateTrader2Activity extends Activity {
          _accounts.add(accountId);
       }
 
-      ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, choices);
+      ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
       dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       _spAddress.setAdapter(dataAdapter);
 
@@ -147,11 +152,9 @@ public class CreateTrader2Activity extends Activity {
       if (account instanceof SingleAddressAccount) {
          Address address = ((SingleAddressAccount) account).getAddress();
          String addressString = address.toString();
-         StringBuilder sb = new StringBuilder();
-         sb.append(addressString.substring(0, 6));
-         sb.append("...");
-         sb.append(addressString.substring(addressString.length() - 6));
-         return sb.toString();
+         return addressString.substring(0, 6) +
+                 "..." +
+                 addressString.substring(addressString.length() - 6);
       } else {
          // We only get here if the user actively chose to have an empty account name
          // We default to the string representation of the account it
@@ -238,7 +241,7 @@ public class CreateTrader2Activity extends Activity {
          // We are already registered with this key
          InMemoryPrivateKey privateKey = Preconditions.checkNotNull(getSelectedPrivateKey());
          UUID accountId = Preconditions.checkNotNull(getSelectedAccount());
-         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork()), nickname);
+         _ltManager.setLocalTraderData(accountId, privateKey, privateKey.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH), nickname);
          setResult(RESULT_OK);
          finish();
       }

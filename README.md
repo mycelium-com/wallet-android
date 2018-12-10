@@ -73,8 +73,16 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
 * Build Mycelium using Docker
 
-        $ docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x :bitcoincashj:core:test
+        $ docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
+            ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x :bitcoincashj:core:test \
+            && sudo chown -R $USER:$USER . \
+            && ./collectApks.sh
 
+  If this step complains about the ndk not being available, check your `local.properties` and comment out everything.
+  
+  (As maintainer you want to run a slightly different command: `docker run --rm --volume $(pwd):/project --volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest --workdir /project mycelium-wallet ./gradlew clean test :mbw:assBtctRel :modulespvbch:assBtctRel :mbw:assProdRel :modulespvbch:assProdRel :mbw:assBtctDeb :modulespvbch:assBtctDeb :mbw:assProdDeb :modulespvbch:assProdDeb -PenforceReleaseSigning -x :bitcoincashj:core:test`
+  to build all debug and release variants of both mbw and the bch module, with the release signing keys being enforced and mounted in docker.)
+  
   After this step succeeds, the mbw apk is in `mbw/builds/outputs/apk`.
 
 * Retrieve Google Play Mycelium APK from your phone
@@ -144,10 +152,17 @@ Authors
  - Dmitry Murashchik
  - Constantin Vennekel
  - [Leo Wandersleb](https://github.com/Giszmo)
- - Daniel Krawisz
- - Jerome Rousselot
- - Elvis Kurtnebiev
+ - [Daniel Krawisz](https://github.com/DanielKrawisz)
+ - [Jerome Rousselot](https://github.com/jeromerousselot)
+ - [Nelson Melina](https://github.com/DaLN)
+ - [Elvis Kurtnebiev](https://github.com/xElvis89x)
  - [Sergey Dolgopolov](https://github.com/itserg)
+ - [Sergey Lappo](https://github.com/sergeylappo)
+ - Alexander Makarov
+ - [Nadia Poletova](https://github.com/poletova-n)
+ - [Kristina Tezieva](https://github.com/agneslovelace)
+ - [Nuru Nabiyev](https://github.com/NuruNabiyev)
+ 
 
 Credits
 =======

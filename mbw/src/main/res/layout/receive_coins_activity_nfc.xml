@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/receive_coins_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="com.mycelium.wallet.Utils" />
+
+        <variable
+            name="activity"
+            type="android.support.v7.app.AppCompatActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel" />
+    </data>
+
+    <ImageView
+        android:id="@+id/ivNfc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="@{viewModel.isNfcAvailable() ? View.VISIBLE : View.GONE}"
+        android:src="@drawable/nfc_logo"
+        android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/nfc_payment_request_hint) }"
+        android:paddingEnd="20dp"
+        android:layout_gravity="center_vertical|end"
+        android:contentDescription="@string/nfc_payment_request_hint" />
+</layout>

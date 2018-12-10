@@ -45,6 +45,7 @@ import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SpinnerPrivateUri;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -79,8 +80,6 @@ public class Record implements Serializable, Comparable<Record> {
 
       public static Tag fromInt(int integer) {
          switch (integer) {
-         case 0:
-            return Tag.UNKNOWN;
          case 1:
             return Tag.ACTIVE;
          case 2:
@@ -92,8 +91,14 @@ public class Record implements Serializable, Comparable<Record> {
    }
 
    public enum Source {
-      UNKNOWN(0), VERSION_1(1), CREATED_PRIVATE_KEY(2), IMPORTED_BITCOIN_ADDRESS(3), IMPORTED_SPIA_PRIVATE_KEY(4), IMPORTED_MINI_PRIVATE_KEY(
-            5), IMPORTED_SEED_PRIVATE_KEY(6), IMPORTED_BITCOIN_SPINNER_PRIVATE_KEY(7);
+      UNKNOWN(0),
+      VERSION_1(1),
+      CREATED_PRIVATE_KEY(2),
+      IMPORTED_BITCOIN_ADDRESS(3),
+      IMPORTED_SPIA_PRIVATE_KEY(4),
+      IMPORTED_MINI_PRIVATE_KEY(5),
+      IMPORTED_SEED_PRIVATE_KEY(6),
+      IMPORTED_BITCOIN_SPINNER_PRIVATE_KEY(7);
 
       private final int _index;
 
@@ -130,7 +135,7 @@ public class Record implements Serializable, Comparable<Record> {
     * Constructor used when creating a new record from a private key
     */
    private Record(InMemoryPrivateKey key, Source source, NetworkParameters network) {
-      this(key, key.getPublicKey().toAddress(network), System.currentTimeMillis(), source,
+      this(key, key.getPublicKey().toAddress(network, AddressType.P2PKH), System.currentTimeMillis(), source,
             Tag.ACTIVE, BackupState.UNKNOWN);
    }
 
@@ -204,18 +209,15 @@ public class Record implements Serializable, Comparable<Record> {
       String tagString = Integer.toString(tag.toInt());
       String backupStateString = Integer.toString(backupState.toInt());
 
-      StringBuilder sb = new StringBuilder();
-      sb.append(versionString).append('|');
-      sb.append(timestampString).append('|');
-      sb.append(addressString).append('|');
-      sb.append(addressBytesHex).append('|');
-      sb.append(privateKeyBytesHex).append('|');
-      sb.append(publicKeyBytesHex).append('|');
-      sb.append(sourceString).append('|');
-      sb.append(tagString).append('|');
-      sb.append(backupStateString);
-
-      return sb.toString();
+      return versionString + '|' +
+              timestampString + '|' +
+              addressString + '|' +
+              addressBytesHex + '|' +
+              privateKeyBytesHex + '|' +
+              publicKeyBytesHex + '|' +
+              sourceString + '|' +
+              tagString + '|' +
+              backupStateString;
    }
 
    public static Record fromSerializedString(String serialized) {

@@ -17,38 +17,37 @@
 package com.mycelium.wapi.wallet;
 
 import com.mycelium.wapi.api.lib.FeeEstimation;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface WalletManagerBacking extends SecureKeyValueStoreBacking {
-   void beginTransaction();
+    void beginTransaction();
 
-   void setTransactionSuccessful();
+    void setTransactionSuccessful();
 
-   void endTransaction();
+    void endTransaction();
 
-   void createBip44AccountContext(Bip44AccountContext context);
+    void createBip44AccountContext(HDAccountContext context);
 
-   void upgradeBip44AccountContext(Bip44AccountContext context);
+    void upgradeBip44AccountContext(HDAccountContext context);
 
-   List<Bip44AccountContext> loadBip44AccountContexts();
+    List<HDAccountContext> loadBip44AccountContexts();
 
-   Bip44AccountBacking getBip44AccountBacking(UUID accountId);
+    Bip44AccountBacking getBip44AccountBacking(UUID accountId);
 
-   void deleteBip44AccountContext(UUID accountId);
+    void deleteBip44AccountContext(UUID accountId);
 
-   void createSingleAddressAccountContext(SingleAddressAccountContext context);
+    void createSingleAddressAccountContext(SingleAddressAccountContext context);
 
-   List<SingleAddressAccountContext> loadSingleAddressAccountContexts();
+    List<SingleAddressAccountContext> loadSingleAddressAccountContexts();
 
-   SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
+    SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
-   void deleteSingleAddressAccountContext(UUID accountId);
+    void deleteSingleAddressAccountContext(UUID accountId);
+    void saveLastFeeEstimation(FeeEstimation feeEstimation);
 
-   void saveLastFeeEstimation(FeeEstimation feeEstimation);
-
-   FeeEstimation loadLastFeeEstimation();
+    FeeEstimation loadLastFeeEstimation();
 }

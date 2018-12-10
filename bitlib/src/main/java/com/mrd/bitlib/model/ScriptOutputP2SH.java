@@ -54,13 +54,14 @@ public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
     * 
     * @return The raw p2sh address that this output is for.
     */
-   public byte[] getP2SHAddressBytes() {
+   @Override
+   public byte[] getAddressBytes() {
       return _p2shAddressBytes;
    }
 
    @Override
    public Address getAddress(NetworkParameters network) {
-      byte[] addressBytes = getP2SHAddressBytes();
+      byte[] addressBytes = getAddressBytes();
       return Address.fromP2SHBytes(addressBytes, network);
    }
 }

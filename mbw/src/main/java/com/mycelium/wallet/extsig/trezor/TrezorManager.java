@@ -37,9 +37,9 @@ package com.mycelium.wallet.extsig.trezor;
 import android.content.Context;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wapi.wallet.bip44.Bip44AccountContext;
-import com.satoshilabs.trezor.ExternalSignatureDevice;
-import com.satoshilabs.trezor.Trezor;
+import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
+import com.satoshilabs.trezor.lib.Trezor;
 import com.squareup.otto.Bus;
 
 public class TrezorManager extends ExternalSignatureDeviceManager {
@@ -49,12 +49,12 @@ public class TrezorManager extends ExternalSignatureDeviceManager {
 
    @Override
    protected ExternalSignatureDevice createDevice() {
-      return new Trezor(context);
+      return new Trezor(getContext());
    }
 
    @Override
    public int getBIP44AccountType() {
-      return Bip44AccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
+      return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR;
    }
 
 

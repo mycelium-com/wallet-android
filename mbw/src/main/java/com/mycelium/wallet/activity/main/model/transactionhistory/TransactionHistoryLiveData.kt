@@ -6,6 +6,7 @@ import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
 import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.WalletAccount
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
@@ -15,9 +16,10 @@ import kotlin.collections.ArrayList
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<TransactionSummary>>() {
+class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummary>>() {
+    @Volatile
     private var account = mbwManager.selectedAccount!!
-    private var historyList: MutableList<TransactionSummary> = ArrayList()
+    private var historyList = mutableSetOf<TransactionSummary>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
     private var syncProgressTaskWR: WeakReference<AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>>>? = null
@@ -30,14 +32,16 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
         startHistoryUpdate()
     }
 
-    fun appendList(list: List<TransactionSummary>) {
-        historyList.addAll(list)
-        value = historyList
+    fun appendList(list: List<TransactionSummary>, updateForAccount: WalletAccount) {
+        if (updateForAccount === account) {
+            historyList.addAll(list)
+            value = historyList
+        }
     }
 
     override fun onActive() {
         super.onActive()
-        mbwManager.eventBus.register(this)
+        MbwManager.getEventBus().register(this)
         if (account !== mbwManager.selectedAccount) {
             account = mbwManager.selectedAccount
             updateValue(ArrayList())
@@ -46,7 +50,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
     }
 
     override fun onInactive() {
-        mbwManager.eventBus.unregister(this)
+        MbwManager.getEventBus().unregister(this)
     }
 
     private fun startHistoryUpdate(): AsyncTask<Void, MutableList<TransactionSummary>, MutableList<TransactionSummary>> =
@@ -76,7 +80,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<List<Tra
     }
 
     private fun updateValue(newValue: MutableList<TransactionSummary>) {
-        historyList = newValue
+        historyList = newValue.toMutableSet()
         value = historyList
     }
 

@@ -1,8 +1,9 @@
 package com.mycelium.wapi.api
 
+import com.google.common.collect.Sets
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
@@ -10,7 +11,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timerTask
 
-class ConnectionManager(private val connectionsCount: Int, private var endpoints: Array<TcpEndpoint>,
+class ConnectionManager(private val connectionsCount: Int, internal var endpoints: Array<TcpEndpoint>,
                         val logger: WapiLogger) {
     @Volatile
     private var maintenanceTimer: Timer? = null
@@ -65,7 +66,7 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
     }
 
     fun subscribe(subscription: Subscription) {
-        launch {
+        GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             val client = getClient()
             client.subscribe(subscription)
             jsonRpcTcpClientsList.put(client)
@@ -213,17 +214,13 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
         val currentTime = System.currentTimeMillis()
 
         // If app is inactive we should just stop all disconnected clients to not to drain battery.
-        val deadClients = (if (currentMode == ConnectionManagerMode.ACTIVE) {
-            maintenancedClientsList.filter { currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL }
-        } else {
-            maintenancedClientsList.filter { !it.isConnected.get() }
-        }).toMutableList()
-
-        deadClients.addAll(if (currentMode == ConnectionManagerMode.ACTIVE) {
-            jsonRpcTcpClientsList.filter { currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL }
-        } else {
-            jsonRpcTcpClientsList.filter { !it.isConnected.get() }
-        })
+        val deadClients = (maintenancedClientsList + jsonRpcTcpClientsList).filter {
+            if (currentMode == ConnectionManagerMode.ACTIVE) {
+                currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL
+            } else {
+                !it.isConnected.get()
+            }
+        }
 
         deadClients.forEach {
             it.stop()
@@ -246,7 +243,12 @@ class ConnectionManager(private val connectionsCount: Int, private var endpoints
     }
 
     fun changeEndpoints(newEndpoints: Array<TcpEndpoint>) {
-        if(newEndpoints.toSet() != endpoints.toSet()) {
+        if(newEndpoints.isEmpty()) {
+            return
+        }
+        val newSet = newEndpoints.toSet()
+        val oldSet = endpoints.toSet()
+        if(Sets.symmetricDifference(oldSet, newSet).size != 0) {
             endpoints = newEndpoints
             if (maintenancedClientsList.isNotEmpty()) {
                 removeDeadClients()

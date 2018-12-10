@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
+
+        <variable
+            name="activity"
+            type="android.support.v4.app.FragmentActivity" />
+    </data>
+
+    <merge>
+
+        <com.mycelium.wallet.activity.util.QrImageView
+            android:id="@+id/ivQR"
+            android:layout_width="@dimen/balance_qrcode"
+            android:layout_height="@dimen/balance_qrcode"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/white"
+            android:onClick="@{_ -> viewModel.qrClickReaction(activity)}"
+            android:contentDescription="@string/qr_code"
+            android:longClickable="false" />
+    </merge>
+</layout>

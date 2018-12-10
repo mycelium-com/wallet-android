@@ -13,7 +13,7 @@ import com.mycelium.wallet.activity.send.event.SelectListener;
 
 public class SelectableRecyclerView extends RecyclerView {
     private SelectListener selectListener;
-    private int itemWidth;
+    private int itemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
     private int padding;
     private int scrollX;
 
@@ -87,14 +87,16 @@ public class SelectableRecyclerView extends RecyclerView {
 
     private int oldWidth = 0;
 
+    public void setItemWidth(int itemWidthPx) {
+        itemWidth = itemWidthPx;
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (changed && oldWidth != getWidth()) {
-            itemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
             padding = (getWidth() - itemWidth) / 2;
             if(getAdapter() != null) {
-                getAdapter().notifyDataSetChanged();
                 scrollListToPosition(getSelectedItem());
             }
             oldWidth = getWidth();

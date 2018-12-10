@@ -40,6 +40,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
@@ -48,45 +49,46 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.List;
 
 public class PackageRemovedReceiver extends BroadcastReceiver {
+    public static void register(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        context.registerReceiver(new PackageRemovedReceiver(), filter);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
             String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
-            String tsmModuleName = BuildConfig.appIdTsm;
+            String gebModuleName = BuildConfig.appIdGeb;
 
+            int moduleString;
+            boolean restartOnChange;
             if (packageName.equals(spvModuleName)) {
-                switch (intent.getAction()) {
-                    case Intent.ACTION_PACKAGE_ADDED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.bch_module_change, R.string.installed, true);
-                        }
-                        break;
-                    case Intent.ACTION_PACKAGE_REPLACED:
-                        handlePackageChange(context, R.string.bch_module_change, R.string.updated, true);
-                        break;
-                    case Intent.ACTION_PACKAGE_REMOVED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.bch_module_change, R.string.removed, true);
-                        }
-                }
+                moduleString = R.string.bch_module_change;
+                restartOnChange = true;
+            } else if (packageName.equals(gebModuleName)) {
+                moduleString = R.string.geb_module_change;
+                restartOnChange = false;
+            } else {
+                return;
             }
-
-            if (packageName.equals(tsmModuleName)) {
-                switch (intent.getAction()) {
-                    case Intent.ACTION_PACKAGE_ADDED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.tsm_module_change, R.string.installed, false);
-                        }
-                        break;
-                    case Intent.ACTION_PACKAGE_REPLACED:
-                        handlePackageChange(context, R.string.tsm_module_change, R.string.updated, false);
-                        break;
-                    case Intent.ACTION_PACKAGE_REMOVED:
-                        if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                            handlePackageChange(context, R.string.tsm_module_change, R.string.removed, false);
-                        }
-                }
+            switch (intent.getAction()) {
+                case Intent.ACTION_PACKAGE_ADDED:
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        handlePackageChange(context, moduleString, R.string.installed, restartOnChange);
+                    }
+                    break;
+                case Intent.ACTION_PACKAGE_REPLACED:
+                    handlePackageChange(context, moduleString, R.string.updated, restartOnChange);
+                    break;
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        handlePackageChange(context, moduleString, R.string.removed, restartOnChange);
+                    }
             }
         }
     }
@@ -102,11 +104,11 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
     }
 
     private void showNotification(Context context, String warningHeader, boolean restartRequired) {
-        Intent newIntent = new Intent(context, RestartPopupActivity.class);
-        newIntent.putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader);
-        newIntent.putExtra(RestartPopupActivity.RESTART_REQUIRED, restartRequired);
-        newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(newIntent);
+        Intent intent = new Intent(context, RestartPopupActivity.class)
+                .putExtra(RestartPopupActivity.RESTART_WARNING_HEADER, warningHeader)
+                .putExtra(RestartPopupActivity.RESTART_REQUIRED, restartRequired)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     private boolean isAppOnForeground(Context context) {

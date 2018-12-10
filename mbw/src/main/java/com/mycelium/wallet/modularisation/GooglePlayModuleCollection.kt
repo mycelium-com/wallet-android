@@ -12,14 +12,14 @@ import com.mycelium.wapi.wallet.WalletAccount
 object GooglePlayModuleCollection {
     @JvmStatic
     fun getModules(context: Context): Map<String, Module> =
-            hashMapOf("bch" to Module(WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44)
-                    , context.getString(R.string.bitcoin_cash_module)
-                    , context.getString(R.string.bitcoin_cash_module_short)
-                    , context.getString(R.string.bch_module_description)),
-                    "tsm" to Module(BuildConfig.appIdTsm,
-                            context.getString(R.string.trading_strategies_module),
-                            context.getString(R.string.trading_strategies_module_short),
-                            context.getString(R.string.trading_strategies_module_desc)))
+            hashMapOf("bch" to Module(WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44),
+                    context.getString(R.string.bitcoin_cash_module),
+                    context.getString(R.string.bitcoin_cash_module_short),
+                    context.getString(R.string.bch_module_description))/*,
+                    "geb" to Module(BuildConfig.appIdGeb,
+                            context.getString(R.string.get_extra_btc_module),
+                            context.getString(R.string.get_extra_btc_module_short),
+                            context.getString(R.string.get_extra_btc_module_desc))*/)
 
     @JvmStatic
     fun getModuleByPackage(context: Context, packageName: String) =

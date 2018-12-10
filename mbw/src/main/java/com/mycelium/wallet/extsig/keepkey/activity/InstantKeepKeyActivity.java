@@ -48,7 +48,6 @@ import com.mycelium.wapi.wallet.AccountScanManager;
 import com.squareup.otto.Subscribe;
 
 public class InstantKeepKeyActivity extends InstantExtSigActivity {
-
    public static void callMe(Activity currentActivity, int requestCode) {
       Intent intent = new Intent(currentActivity, InstantKeepKeyActivity.class);
       currentActivity.startActivityForResult(intent, requestCode);
@@ -61,7 +60,6 @@ public class InstantKeepKeyActivity extends InstantExtSigActivity {
       ((TextView)findViewById(R.id.tvCaption)).setText(R.string.keepkey_cold_storage_header);
       ((TextView)findViewById(R.id.tvDeviceType)).setText(R.string.keepkey_name);
    }
-
 
    @Override
    protected AbstractAccountScanManager initMasterseedManager() {
@@ -99,6 +97,4 @@ public class InstantKeepKeyActivity extends InstantExtSigActivity {
    public void onPassphraseRequest(AccountScanManager.OnPassphraseRequest event){
       super.onPassphraseRequest(event);
    }
-
-
 }

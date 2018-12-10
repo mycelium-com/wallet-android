@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.12.0.10" versioncode="2120010">
+        <change>Full SegWit support with bech32, hardware wallets and mixed-spending improved privacy.</change>
+        <change>Hardware wallets compatibility improved.</change>
+        <change>NOTE! Unrelated HD accounts won't get SegWit upgrade because they do not have the necessary keys to generate SegWit addresses according to Bitcoin standards.</change>
+        <change>Due to BCH hard fork and software upgrade necessity BCH module and its exchange for BTC have been disabled. Your BCH funds are safe. We will notify when BCH upgrade is finished.</change>
+    </release>
+    <release version="2.11.1.20" versioncode="2110120">
+        <change>Unconfirmed transaction in chronologic order</change>
+        <change>Bugs fixed</change>
+    </release>
+    <release version="2.11.1.19" versioncode="2110119">
+        <change>Hotfix: Updating server list caused crashes</change>
+    </release>
     <release version="2.11.1.17" versioncode="2110117">
         <change>Speed improvements</change>
         <change>Bugs fixed</change>

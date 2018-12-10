@@ -64,15 +64,15 @@ public class HdKeyNodeTest {
     @Test
     public void reproduceVectorsTest() {
         for (TestVector tv : TEST_VECTORS) {
-            HdKeyNode childNode = HdKeyNode.fromSeed(tv.seed).createChildNode(tv.derivation);
-            assertEquals(tv.xpriv, childNode.serialize(productionNetwork));
-            assertEquals(tv.xpub, childNode.getPublicNode().serialize(productionNetwork));
+            HdKeyNode childNode = HdKeyNode.fromSeed(tv.seed, null).createChildNode(tv.derivation);
+            assertEquals(tv.xpriv, childNode.serialize(productionNetwork, BipDerivationType.BIP44));
+            assertEquals(tv.xpub, childNode.getPublicNode().serialize(productionNetwork, BipDerivationType.BIP44));
         }
     }
 
     @Test
     public void failOnHardenedChildOfXpubTest() {
-        HdKeyNode rootXpub = HdKeyNode.fromSeed(TEST_VECTORS[0].seed).getPublicNode();
+        HdKeyNode rootXpub = HdKeyNode.fromSeed(TEST_VECTORS[0].seed, null).getPublicNode();
         String[] paths = {"m/0'", "m/3/4/5'/6"};
         for (String path : paths) {
             try {
@@ -86,7 +86,7 @@ public class HdKeyNodeTest {
 
     @Test
     public void failOnPrivChildFromXpubTest() {
-        HdKeyNode rootXpub = HdKeyNode.fromSeed(TEST_VECTORS[0].seed).getPublicNode();
+        HdKeyNode rootXpub = HdKeyNode.fromSeed(TEST_VECTORS[0].seed, null).getPublicNode();
         String[] paths = {"m", "m/0", "m/3/4/5/6"};
         for (String path : paths) {
             try {
@@ -102,8 +102,8 @@ public class HdKeyNodeTest {
     public void createChildNodeIntTest() {
         TestVector tv = TEST_VECTORS[3];
         assertEquals("m/0'/1/2'", tv.derivation.toString());
-        HdKeyNode node = HdKeyNode.fromSeed(tv.seed).createHardenedChildNode(0).createChildNode(1).createHardenedChildNode(2);
-        assertEquals(tv.xpriv, node.serialize(productionNetwork));
+        HdKeyNode node = HdKeyNode.fromSeed(tv.seed, null).createHardenedChildNode(0).createChildNode(1).createHardenedChildNode(2);
+        assertEquals(tv.xpriv, node.serialize(productionNetwork, BipDerivationType.BIP44));
     }
 
     private static class TestVector {

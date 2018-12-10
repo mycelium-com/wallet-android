@@ -16,8 +16,10 @@
 
 package com.mrd.bitlib.model;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.primitives.UnsignedInteger;
-import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.TransactionInput.TransactionInputParsingException;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
 import com.mrd.bitlib.util.ByteReader;
@@ -25,8 +27,10 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Transaction represents a raw Bitcoin transaction. In other words, it contains only the information found in the
@@ -41,7 +45,6 @@ public class Transaction implements Serializable {
     private static final long ONE_uBTC_IN_SATOSHIS = 100;
     private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
     public static final long MAX_MINER_FEE_PER_KB = 200L * ONE_mBTC_IN_SATOSHIS; // 20000sat/B
-    private final boolean isSegwit;
 
     public int version;
     public final TransactionInput[] inputs;
@@ -49,19 +52,33 @@ public class Transaction implements Serializable {
     public int lockTime;
 
     private Sha256Hash _hash;
+    private Sha256Hash id;
     private Sha256Hash _unmalleableHash;
 
     // cache for some getters that need to do some work and might get called often
     private transient Boolean _rbfAble = null;
     private transient int _txSize = -1;
 
-    public static Transaction fromUnsignedTransaction(StandardTransactionBuilder.UnsignedTransaction unsignedTransaction) {
-        TransactionInput inputs[] = new TransactionInput[unsignedTransaction.getFundingOutputs().length];
-        int idx = 0;
-        for (UnspentTransactionOutput u : unsignedTransaction.getFundingOutputs()) {
-            inputs[idx++] = new TransactionInput(u.outPoint, new ScriptInput(u.script.getScriptBytes()));
+    public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
+        UnspentTransactionOutput[] fundingOutputs = unsignedTransaction.getFundingOutputs();
+        TransactionInput[] inputs = new TransactionInput[fundingOutputs.length];
+        for (int idx = 0; idx < fundingOutputs.length; idx++) {
+            UnspentTransactionOutput u = fundingOutputs[idx];
+            ScriptInput script;
+            if (unsignedTransaction.isSegWitOutput(idx)) {
+                byte[] segWitScriptBytes = unsignedTransaction.getInputs()[idx].script.getScriptBytes();
+                try {
+                    script = ScriptInput.fromScriptBytes(segWitScriptBytes);
+                } catch (Script.ScriptParsingException e) {
+                    //Should never happen
+                    throw new Error("Parsing segWitScriptBytes failed");
+                }
+            } else {
+                script = new ScriptInput(u.script.getScriptBytes());
+            }
+            inputs[idx] = new TransactionInput(u.outPoint, script, unsignedTransaction.getDefaultSequenceNumber(), u.value);
         }
-        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), 0, false);
+        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }
 
     public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
@@ -101,7 +118,7 @@ public class Transaction implements Serializable {
             }
 
             int lockTime = reader.getIntLE();
-            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash, useSegwit);
+            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
         } catch (InsufficientBytesException e) {
             throw new TransactionParsingException(e.getMessage());
         }
@@ -110,7 +127,7 @@ public class Transaction implements Serializable {
     private static void parseWitness(ByteReader reader, TransactionInput[] inputs) throws InsufficientBytesException {
         for (TransactionInput input : inputs) {
             long stackSize = reader.getCompactInt();
-            TransactionWitness witness = new TransactionWitness((int) stackSize);
+            InputWitness witness = new InputWitness((int) stackSize);
             input.setWitness(witness);
             for (int y = 0; y < stackSize; y++) {
                 long pushSize = reader.getCompactInt();
@@ -149,15 +166,6 @@ public class Transaction implements Serializable {
             }
         }
         return inputs;
-    }
-
-    public boolean hasWitness() {
-        for (TransactionInput input : inputs) {
-            if (input.hasWitness()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static byte peekByte(ByteReader reader) throws InsufficientBytesException {
@@ -206,6 +214,7 @@ public class Transaction implements Serializable {
      */
     public void toByteWriter(ByteWriter writer, boolean asSegwit) {
         writer.putIntLE(version);
+        boolean isSegwit = isSegwit();
         boolean isSegWitMode = asSegwit && (isSegwit);
         if (isSegWitMode) {
             writer.putCompactInt(0); //marker
@@ -239,17 +248,16 @@ public class Transaction implements Serializable {
         }
     }
 
-    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, boolean isSegwit) {
-        this(version, inputs, outputs, lockTime, -1, isSegwit);
+    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
+        this(version, inputs, outputs, lockTime, -1);
     }
 
-    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize, boolean isSegwit) {
+    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
         this.version = version;
         this.inputs = inputs;
         this.outputs = outputs;
         this.lockTime = lockTime;
         this._txSize = txSize;
-        this.isSegwit = isSegwit;
     }
 
     public Transaction(Transaction copyFrom) {
@@ -259,23 +267,24 @@ public class Transaction implements Serializable {
         this.lockTime = copyFrom.lockTime;
         this._txSize = copyFrom._txSize;
         this._hash = copyFrom._hash;
-        this.isSegwit = copyFrom.isSegwit;
+        this.id = copyFrom.id;
+        this._unmalleableHash = copyFrom._unmalleableHash;
     }
 
     // we already know the hash of this transaction, dont recompute it
     protected Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
-                          int txSize, Sha256Hash knownTransactionHash, boolean isSegwit) {
-        this(version, inputs, outputs, lockTime, txSize, isSegwit);
+                          int txSize, Sha256Hash knownTransactionHash) {
+        this(version, inputs, outputs, lockTime, txSize);
         this._hash = knownTransactionHash;
     }
 
     public Sha256Hash getId() {
-        if (_hash == null) {
+        if (id == null) {
             ByteWriter writer = new ByteWriter(2000);
             toByteWriter(writer, false);
-            _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
+            id = HashUtils.doubleSha256(writer.toBytes()).reverse();
         }
-        return _hash;
+        return id;
     }
 
     public Sha256Hash getHash() {
@@ -285,6 +294,58 @@ public class Transaction implements Serializable {
             _hash = HashUtils.doubleSha256(writer.toBytes()).reverse();
         }
         return _hash;
+    }
+
+    public Sha256Hash getTxDigestHash(int i) {
+        ByteWriter writer = new ByteWriter(1024);
+        if (inputs[i].script instanceof ScriptInputP2WSH || inputs[i].script instanceof  ScriptInputP2WPKH) {
+            writer.putIntLE(version);
+            writer.putSha256Hash(getPrevOutsHash());
+            writer.putSha256Hash(getSequenceHash());
+            inputs[i].outPoint.hashPrev(writer);
+            byte[] scriptCode = inputs[i].getScriptCode();
+            writer.put((byte) (scriptCode.length & 0xFF));
+            writer.putBytes(scriptCode);
+            writer.putLongLE(inputs[i].getValue());
+            writer.putIntLE(inputs[i].sequence);
+            writer.putSha256Hash(getOutputsHash());
+            writer.putIntLE(lockTime);
+        } else {
+            toByteWriter(writer, false);
+        }
+        // We also have to write a hash type.
+        int hashType = 1;
+        writer.putIntLE(hashType);
+        // Note that this is NOT reversed to ensure it will be signed
+        // correctly. If it were to be printed out
+        // however then we would expect that it is IS reversed.
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getPrevOutsHash() {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionInput input : inputs) {
+            input.outPoint.hashPrev(writer);
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getOutputsHash() {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionOutput output : outputs) {
+            writer.putLongLE(output.value);
+            writer.put((byte) (output.script.getScriptBytes().length & 0xFF));
+            writer.putBytes(output.script.getScriptBytes());
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
+    }
+
+    private Sha256Hash getSequenceHash()  {
+        ByteWriter writer = new ByteWriter(1024);
+        for (TransactionInput input : inputs) {
+            writer.putIntLE(input.sequence);
+        }
+        return HashUtils.doubleSha256(writer.toBytes());
     }
 
     /**
@@ -317,6 +378,20 @@ public class Transaction implements Serializable {
             _rbfAble = (getMinSequenceNumber().compareTo(UnsignedInteger.MAX_VALUE.minus(UnsignedInteger.ONE)) < 0);
         }
         return _rbfAble;
+    }
+
+
+
+    /**
+     * @return true if transaction is SegWit, else false
+     */
+    public boolean isSegwit() {
+        return Iterables.any(Arrays.asList(inputs), new Predicate<TransactionInput>() {
+            @Override
+            public boolean apply(@Nullable TransactionInput transactionInput) {
+                return transactionInput != null && transactionInput.hasWitness();
+            }
+        });
     }
 
     /**

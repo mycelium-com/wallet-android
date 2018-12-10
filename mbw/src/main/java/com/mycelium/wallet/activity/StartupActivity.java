@@ -39,16 +39,22 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -71,13 +77,14 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.event.MigrationStatusChanged;
+import com.mycelium.wallet.event.MigrationPercentChanged;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -86,6 +93,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
@@ -96,6 +104,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private static final int IMPORT_WORDLIST = 0;
 
    private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
+   private static final String LAST_STARTUP_TIME = "startupTme";
 
    private boolean _hasClipboardExportedPrivateKeys;
    private boolean hasClipboardExportedPublicKeys;
@@ -103,26 +112,45 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
    private ProgressDialog _progress;
+   private Bus eventBus;
+   @BindView(R.id.progressBar)
+   ProgressBar progressBar;
+   @BindView(R.id.status)
+   TextView status;
+   private SharedPreferences sharedPreferences;
+   private long lastStartupTime;
+   private boolean isFirstRun;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
+      isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
+              getApplicationContext()).getInt("ckChangeLog_last_version_code", -1) == -1);
+      lastStartupTime = sharedPreferences.getLong(LAST_STARTUP_TIME, TimeUnit.SECONDS.toMillis(10));
       _progress = new ProgressDialog(this);
       setContentView(R.layout.startup_activity);
+      ButterKnife.bind(this);
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-      // Do slightly delayed initialization so we get a chance of displaying the
-      // splash before doing heavy initialization
-      new Handler().postDelayed(delayedInitialization, 200);
    }
 
    @Override
-   public void onPause() {
+   protected void onStart() {
+      super.onStart();
+      eventBus = MbwManager.getEventBus();
+      eventBus.register(this);
+      new Thread(delayedInitialization).start();
+   }
+
+   @Override
+   public void onStop() {
       _progress.dismiss();
       if (_pinDialog != null) {
          _pinDialog.dismiss();
       }
-      super.onPause();
+      eventBus.unregister(this);
+      super.onStop();
    }
 
    @Override
@@ -133,15 +161,39 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       super.onDestroy();
    }
 
+   @Subscribe
+   public void onMigrationProgressChanged(MigrationPercentChanged migrationPercent) {
+      progressBar.setProgress(migrationPercent.getPercent());
+   }
+
+   @Subscribe
+   public void onMigrationCommentChanged(MigrationStatusChanged migrationStatusChanged) {
+      status.setText(StartupActivityHelperKt.format(migrationStatusChanged.getNewStatus(), getApplicationContext()));
+   }
+
    private Runnable delayedInitialization = new Runnable() {
       @Override
       public void run() {
+         if (lastStartupTime > TimeUnit.SECONDS.toMillis(5) && !isFirstRun) {
+            new Handler(getMainLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  progressBar.setVisibility(View.VISIBLE);
+                  status.setVisibility(View.VISIBLE);
+               }
+            });
+         }
          long startTime = System.currentTimeMillis();
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
          //in case this is a fresh startup, import backup or create new seed
          if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
-            initMasterSeed();
+            new Handler(getMainLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  initMasterSeed();
+               }
+            });
             return;
          }
 
@@ -151,11 +203,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-         // Check if we have lingering exported private keys, we want to warn
-         // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
-
          // Calculate how much time we spent initializing, and do a delayed
          // finish so we display the splash a minimum amount of time
          long timeSpent = System.currentTimeMillis() - startTime;
@@ -163,36 +210,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (remainingTime < 0) {
             remainingTime = 0;
          }
-         new Handler().postDelayed(delayedFinish, remainingTime);
+         new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
+         sharedPreferences.edit()
+                 .putLong(LAST_STARTUP_TIME, timeSpent)
+                 .apply();
       }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
-      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
-         // do we have a public key on the clipboard?
-         try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
    };
 
    private void initMasterSeed() {
@@ -304,6 +326,12 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
+
+         // Check if we have lingering exported private keys, we want to warn
+         // the user if that is the case
+         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+
          if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys(false);
          }
@@ -312,6 +340,33 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          }
          else {
             normalStartup();
+         }
+      }
+
+      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
+         // do we have a private key on the clipboard?
+         try {
+            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key.isPresent()) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
+         }
+      }
+
+      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
+         // do we have a public key on the clipboard?
+         try {
+            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+               return true;
+            }
+            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
+            return true;
+         } catch (HdKeyNode.KeyGenerationException ex) {
+            return false;
          }
       }
    };

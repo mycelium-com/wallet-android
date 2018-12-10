@@ -47,7 +47,6 @@ public class TrezorSignTransactionActivity
       extends ExtSigSignTransactionActivity
       implements MasterseedPasswordSetter {
 
-
    @Override
    protected ExternalSignatureDeviceManager getExtSigManager() {
       return MbwManager.getInstance(this).getTrezorManager();
@@ -69,6 +68,12 @@ public class TrezorSignTransactionActivity
       super.onScanError(event);
    }
 
+   @Override
+   @Subscribe
+   public void onStatusUpdate(ExternalSignatureDeviceManager.OnStatusUpdate event) {
+       super.onStatusUpdate(event);
+   }
+
    @Subscribe
    public void onPinMatrixRequest(ExternalSignatureDeviceManager.OnPinMatrixRequest event) {
       super.onPinMatrixRequest(event);
@@ -79,11 +84,8 @@ public class TrezorSignTransactionActivity
       super.onButtonRequest(event);
    }
 
-
    @Subscribe
    public void onStatusChanged(AccountScanManager.OnStatusChanged event) {
       super.onStatusChanged(event);
    }
-
-
 }

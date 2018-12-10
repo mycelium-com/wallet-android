@@ -44,13 +44,17 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 public class SetTradeAddress extends Activity {
 
@@ -83,7 +87,13 @@ public class SetTradeAddress extends Activity {
       Preconditions.checkNotNull(_tradeSession);
       Preconditions.checkNotNull(_tradeSession.id);
       WalletAccount account = _mbwManager.getSelectedAccount();
-      _address = account.getReceivingAddress().get();
+      if (account instanceof SingleAddressAccount) {
+         _address = ((SingleAddressAccount) account).getAddress(AddressType.P2PKH);
+      } else if (account instanceof HDAccount) {
+         _address = ((HDAccount) account).getReceivingAddress(AddressType.P2PKH);
+      } else  {
+         _address = account.getReceivingAddress().get();
+      }
       // Set label if applicable
       TextView addressLabel = (TextView) findViewById(R.id.tvAddressLabel);
       String label = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());

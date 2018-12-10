@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
@@ -94,8 +95,10 @@ public class CreateKeyActivity extends Activity {
          @Override
          protected void onPostExecute(InMemoryPrivateKey pk) {
             key = pk;
-            Address address = key.getPublicKey().toAddress(manager.getNetwork());
-            ((AddressLabel) findViewById(R.id.tvAddress)).setAddress(address);
+            Address addressP2SH = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH);
+            Address addressBech = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2WPKH);
+            ((AddressLabel) findViewById(R.id.tvAddressP2SH)).setAddress(addressP2SH);
+            ((AddressLabel) findViewById(R.id.tvAddressBech)).setAddress(addressBech);
             findViewById(R.id.btShuffle).setEnabled(true);
             findViewById(R.id.btUse).setEnabled(true);
          }

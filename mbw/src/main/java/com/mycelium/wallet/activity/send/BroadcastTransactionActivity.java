@@ -45,10 +45,15 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
@@ -66,7 +71,7 @@ public class BroadcastTransactionActivity extends Activity {
    private Transaction _transaction;
    private String _fiatValue;
    private AsyncTask<Void, Integer, WalletAccount.BroadcastResult> _broadcastingTask;
-   private WalletAccount.BroadcastResult _broadcastResult;
+   private WalletAccount.BroadcastResult broadcastResult;
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage
            , Transaction signed, String transactionLabel, String fiatValue, int requestCode) {
@@ -125,20 +130,20 @@ public class BroadcastTransactionActivity extends Activity {
          @Override
          protected WalletAccount.BroadcastResult doInBackground(Void... args) {
             if (!Utils.isConnected(BroadcastTransactionActivity.this)) {
-               return WalletAccount.BroadcastResult.NO_SERVER_CONNECTION;
+               return new WalletAccount.BroadcastResult(WalletAccount.BroadcastResultType.NO_SERVER_CONNECTION);
             }
             if (CommunicationManager.getInstance().getPairedModules()
                     .contains(GooglePlayModuleCollection.getModules(getApplicationContext()).get("btc"))) {
                   Intent intent = IntentContract.BroadcastTransaction.createIntent(_transaction.toBytes());
                   WalletApplication.sendToSpv(intent, _mbwManager.getSelectedAccount().getType());
-                  return WalletAccount.BroadcastResult.SUCCESS;
+               return new WalletAccount.BroadcastResult(WalletAccount.BroadcastResultType.SUCCESS);
              }
              return _account.broadcastTransaction(_transaction);
          }
 
          @Override
          protected void onPostExecute(WalletAccount.BroadcastResult result) {
-            _broadcastResult = result;
+            broadcastResult = result;
             showResult();
          }
       };
@@ -148,57 +153,98 @@ public class BroadcastTransactionActivity extends Activity {
    }
 
    private void showResult() {
-      if (_broadcastResult == WalletAccount.BroadcastResult.REJECTED) {
-         // Transaction rejected, display message and exit
-         Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
-            @Override
-            public void run() {
-               BroadcastTransactionActivity.this.finish();
+      switch (broadcastResult.getResultType()) {
+         case SUCCESS:
+            // Toast success and finish
+            Toast.makeText(this, getResources().getString(R.string.transaction_sent),
+                    Toast.LENGTH_LONG).show();
+
+            setResultOkay();
+            finish();
+            break;
+         case REJECTED:
+            // Transaction rejected, display message and exit
+            Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_message, new Runnable() {
+               @Override
+               public void run() {
+                  BroadcastTransactionActivity.this.finish();
+               }
+            });
+            break;
+         case NO_SERVER_CONNECTION:
+            if (_isColdStorage) {
+               // When doing cold storage spending we do not offer to queue the transaction
+               Utils.showSimpleMessageDialog(this, R.string.transaction_not_sent, new Runnable() {
+                  @Override
+                  public void run() {
+                     BroadcastTransactionActivity.this.setResult(RESULT_CANCELED);
+                     BroadcastTransactionActivity.this.finish();
+                  }
+               });
+            } else {
+               // Offer the user to queue the transaction
+               new AlertDialog
+                       .Builder(this)
+                       .setTitle(R.string.no_server_connection)
+                       .setMessage(R.string.queue_transaction_message)
+                       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                          public void onClick(DialogInterface arg0, int arg1) {
+                             _account.queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
+                             setResultOkay();
+                             BroadcastTransactionActivity.this.finish();
+                          }
+                       })
+                       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                          public void onClick(DialogInterface arg0, int arg1) {
+                             setResult(RESULT_CANCELED);
+                             BroadcastTransactionActivity.this.finish();
+                          }
+                       })
+                       .show();
+
             }
-         });
-      } else if (_broadcastResult == WalletAccount.BroadcastResult.NO_SERVER_CONNECTION) {
-         if (_isColdStorage) {
-            // When doing cold storage spending we do not offer to queue the transaction
-            Utils.showSimpleMessageDialog(this, R.string.transaction_not_sent, new Runnable() {
+            break;
+         case REJECT_MALFORMED:
+            // Transaction rejected, display message and exit
+            Utils.setClipboardString(HexUtils.toHex(_transaction.toBytes()), this);
+            Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_malformed, new Runnable() {
+               @Override
+               public void run() {
+                  BroadcastTransactionActivity.this.finish();
+               }
+            });
+            break;
+         case REJECT_DUPLICATE:
+            // Transaction rejected, display message and exit
+            Utils.showSimpleMessageDialog(this, R.string.transaction_rejected_double_spending_message, new Runnable() {
+               @Override
+               public void run() {
+                  BroadcastTransactionActivity.this.finish();
+               }
+            });
+            break;
+         case REJECT_NONSTANDARD:
+            String message = String.format(getString(R.string.transaction_not_sent_nonstandard), broadcastResult.getErrorMessage());
+            Utils.setClipboardString(HexUtils.toHex(_transaction.toBytes()), this);
+            Utils.showSimpleMessageDialog(this, message, new Runnable() {
                @Override
                public void run() {
                   BroadcastTransactionActivity.this.setResult(RESULT_CANCELED);
                   BroadcastTransactionActivity.this.finish();
                }
             });
-         } else {
-            // Offer the user to queue the transaction
-            new AlertDialog
-                    .Builder(this)
-                    .setTitle(R.string.no_server_connection)
-                    .setMessage(R.string.queue_transaction_message)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                       public void onClick(DialogInterface arg0, int arg1) {
-                          _account.queueTransaction(TransactionEx.fromUnconfirmedTransaction(_transaction));
-                          setResultOkay();
-                          BroadcastTransactionActivity.this.finish();
-                       }
-                    })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                       public void onClick(DialogInterface arg0, int arg1) {
-                          setResult(RESULT_CANCELED);
-                          BroadcastTransactionActivity.this.finish();
-                       }
-                    })
-                    .show();
-
-         }
-      } else if (_broadcastResult == WalletAccount.BroadcastResult.SUCCESS) {
-         // Toast success and finish
-         Toast.makeText(this, getResources().getString(R.string.transaction_sent),
-               Toast.LENGTH_LONG).show();
-
-         setResultOkay();
-         finish();
-      } else {
-         throw new RuntimeException();
+            break;
+         case REJECT_INSUFFICIENT_FEE:
+            Utils.showSimpleMessageDialog(this, R.string.transaction_not_sent_small_fee, new Runnable() {
+               @Override
+               public void run() {
+                  BroadcastTransactionActivity.this.setResult(RESULT_CANCELED);
+                  BroadcastTransactionActivity.this.finish();
+               }
+            });
+            break;
       }
    }
 

@@ -80,6 +80,7 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class AddressBookFragment extends Fragment {
 
@@ -297,7 +298,9 @@ public class AddressBookFragment extends Fragment {
          return;
       }
       boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKeyForAddress(mSelectedAddress);
-      ReceiveCoinsActivity.callMe(getActivity(), mSelectedAddress, hasPrivateKey);
+      UUID tempAccount = _mbwManager.createOnTheFlyAccount(mSelectedAddress);
+      ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
+              hasPrivateKey, false, true);
       finishActionMode();
    }
 

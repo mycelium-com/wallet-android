@@ -21,7 +21,7 @@ import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnsignedTransaction;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutputList;
@@ -32,6 +32,7 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.List;
@@ -40,7 +41,37 @@ import java.util.UUID;
 public interface WalletAccount {
    void checkAmount(Receiver receiver, long kbMinerFee, CurrencyValue enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
-   enum BroadcastResult { SUCCESS, REJECTED, NO_SERVER_CONNECTION}
+   class BroadcastResult {
+      private String errorMessage = null;
+      private final BroadcastResultType resultType;
+
+      public BroadcastResult(BroadcastResultType resultType){
+         this.resultType = resultType;
+      }
+      public BroadcastResult(String errorMessage, BroadcastResultType resultType){
+         this.errorMessage = errorMessage;
+         this.resultType = resultType;
+      }
+
+      public String getErrorMessage() {
+         return errorMessage;
+      }
+
+      public BroadcastResultType getResultType() {
+         return resultType;
+      }
+   }
+
+   enum BroadcastResultType {
+      SUCCESS,
+      REJECTED,
+      NO_SERVER_CONNECTION,
+
+      REJECT_MALFORMED,
+      REJECT_DUPLICATE,
+      REJECT_NONSTANDARD,
+      REJECT_INSUFFICIENT_FEE
+   }
 
    enum Type {
       BTCSINGLEADDRESS, BTCBIP44,
@@ -298,6 +329,11 @@ public interface WalletAccount {
     * Determine the maximum spendable amount you can send in a transaction
     */
    ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
+
+   /**
+    * Determine the maximum spendable amount you can send in a transaction, with considering destination address type.
+    */
+   ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse, @Nullable Address destinationAddress);
 
    /**
     * Determine whether the provided encryption key is valid for this wallet account.

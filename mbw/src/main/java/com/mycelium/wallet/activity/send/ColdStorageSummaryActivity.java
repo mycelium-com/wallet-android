@@ -47,10 +47,12 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.model.Balance;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.UUID;
@@ -78,7 +80,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
-      if (_mbwManager.getWalletManager(true).getAccountIds().contains(accountId)) {
+      if (_mbwManager.getWalletManager(true).getUniqueIds().contains(accountId)) {
          _account = _mbwManager.getWalletManager(true).getAccount(accountId);
       } else {
          //this can happen if we were in background for long time and then came back
@@ -103,9 +105,33 @@ public class ColdStorageSummaryActivity extends Activity {
          ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_address_description);
       }
 
-      // Address
-      Optional<Address> receivingAddress = _account.getReceivingAddress();
-      ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+      if (!(_account instanceof AbstractAccount)) {
+         // Address
+         Optional<Address> receivingAddress = _account.getReceivingAddress();
+         ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+      } else {
+         findViewById(R.id.tvAddress).setVisibility(View.GONE);
+
+         AbstractAccount account = (AbstractAccount) _account;
+         Address p2pkhAddress = account.getReceivingAddress(AddressType.P2PKH);
+         if (p2pkhAddress != null) {
+            final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
+            P2PKH.setVisibility(View.VISIBLE);
+            P2PKH.setText(p2pkhAddress.toMultiLineString());
+         }
+         Address p2shAddress = account.getReceivingAddress(AddressType.P2SH_P2WPKH);
+         if (p2shAddress != null) {
+            final TextView P2SH = findViewById(R.id.tvAddressP2SH);
+            P2SH.setVisibility(View.VISIBLE);
+            P2SH.setText(p2shAddress.toMultiLineString());
+         }
+         Address p2wpkhAddress = account.getReceivingAddress(AddressType.P2WPKH);
+         if (p2wpkhAddress != null) {
+            final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
+            P2WPKH.setVisibility(View.VISIBLE);
+            P2WPKH.setText(p2wpkhAddress.toMultiLineString());
+         }
+      }
 
       // Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendableBalance()));

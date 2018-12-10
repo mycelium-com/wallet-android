@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/export_as_qr_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.ExportAsQrViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="@{viewModel.hasPrivateData() ? View.VISIBLE : View.GONE}">
+
+        <TextView
+            android:id="@+id/pub_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/public_key" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/swSelectData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onCheckedChanged="@{(button, bool)->viewModel.updateData(bool)}"
+            android:theme="@style/Switch" />
+
+        <TextView
+            android:id="@+id/prv_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/private_key_s" />
+
+    </LinearLayout>
+</layout>

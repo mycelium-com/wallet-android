@@ -17,6 +17,7 @@
     <dimen name="margin_medium">8dp</dimen>
     <dimen name="margin_large">16dp</dimen>
     <dimen name="item_dob_width">120dp</dimen>
+    <dimen name="item_addr_width">170dp</dimen>
     <dimen name="recycler_item_rectangle_height">8dp</dimen>
     <dimen name="recycler_item_triangle_height">16dp</dimen>
     <dimen name="margin_small">4dp</dimen>

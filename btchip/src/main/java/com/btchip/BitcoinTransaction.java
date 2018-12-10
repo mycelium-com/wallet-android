@@ -25,6 +25,7 @@ import com.btchip.utils.VarintUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 public class BitcoinTransaction {
@@ -34,6 +35,7 @@ public class BitcoinTransaction {
       private byte[] prevOut;
       private byte[] script;
       private byte[] sequence;
+      private boolean isSegwit;
 
       public BitcoinInput(ByteArrayInputStream data) throws BTChipException {
          try {
@@ -49,29 +51,7 @@ public class BitcoinTransaction {
          }
       }
 
-      public BitcoinInput() {
-         prevOut = new byte[0];
-         script = new byte[0];
-         sequence = new byte[0];
-      }
-
-      public void serialize(ByteArrayOutputStream output) throws BTChipException {
-         BufferUtils.writeBuffer(output, prevOut);
-         VarintUtils.write(output, script.length);
-         BufferUtils.writeBuffer(output, script);
-         BufferUtils.writeBuffer(output, sequence);
-      }
-
-      public byte[] serializeOutputs() throws BTChipException {
-         ByteArrayOutputStream output = new ByteArrayOutputStream();
-         VarintUtils.write(output, outputs.size());
-         for (BitcoinOutput outputItem : outputs) {
-            outputItem.serialize(output);
-         }
-         return output.toByteArray();
-      }
-
-      public byte[] getPrevOut() {
+      byte[] getPrevOut() {
          return prevOut;
       }
 
@@ -79,20 +59,20 @@ public class BitcoinTransaction {
          return script;
       }
 
-      public byte[] getSequence() {
+      byte[] getSequence() {
          return sequence;
-      }
-
-      public void setPrevOut(byte[] prevOut) {
-         this.prevOut = prevOut;
       }
 
       public void setScript(byte[] script) {
          this.script = script;
       }
 
-      public void setSequence(byte[] sequence) {
-         this.sequence = sequence;
+      public boolean isSegwit() {
+         return isSegwit;
+      }
+
+      public void setSegwit(boolean segwit) {
+         isSegwit = segwit;
       }
 
       public String toString() {
@@ -109,7 +89,7 @@ public class BitcoinTransaction {
       private byte[] amount;
       private byte[] script;
 
-      public BitcoinOutput(ByteArrayInputStream data) throws BTChipException {
+      BitcoinOutput(ByteArrayInputStream data) throws BTChipException {
          try {
             amount = new byte[8];
             data.read(amount);
@@ -119,17 +99,6 @@ public class BitcoinTransaction {
          } catch (Exception e) {
             throw new BTChipException("Invalid encoding", e);
          }
-      }
-
-      public BitcoinOutput() {
-         amount = new byte[0];
-         script = new byte[0];
-      }
-
-      public void serialize(ByteArrayOutputStream output) throws BTChipException {
-         BufferUtils.writeBuffer(output, amount);
-         VarintUtils.write(output, script.length);
-         BufferUtils.writeBuffer(output, script);
       }
 
       public byte[] getAmount() {
@@ -148,6 +117,12 @@ public class BitcoinTransaction {
          this.script = script;
       }
 
+      public void serialize(ByteArrayOutputStream output) throws BTChipException {
+         BufferUtils.writeBuffer(output, amount);
+         VarintUtils.write(output, script.length);
+         BufferUtils.writeBuffer(output, script);
+      }
+
       public String toString() {
          StringBuffer buffer = new StringBuffer();
          buffer.append("Amount ").append(Dump.dump(amount)).append('\r').append('\n');
@@ -160,16 +135,24 @@ public class BitcoinTransaction {
    private Vector<BitcoinInput> inputs;
    private Vector<BitcoinOutput> outputs;
    private byte[] lockTime;
+   private boolean witness = false;
+   private byte[] witnessScript;
 
-   public static final byte DEFAULT_VERSION[] = {(byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00};
-   public static final byte DEFAULT_SEQUENCE[] = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
+   static final byte DEFAULT_VERSION[] = {(byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+   static final byte DEFAULT_SEQUENCE[] = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
 
    public BitcoinTransaction(ByteArrayInputStream data) throws BTChipException {
-      inputs = new Vector<BitcoinInput>();
-      outputs = new Vector<BitcoinOutput>();
+      inputs = new Vector<>();
+      outputs = new Vector<>();
       try {
          version = new byte[4];
          data.read(version);
+         data.mark(0);
+         if (data.read() == 0 && data.read() != 0 ) {
+            witness = true;
+         } else {
+            data.reset();
+         }
          long numberItems = VarintUtils.read(data);
          for (long i = 0; i < numberItems; i++) {
             inputs.add(new BitcoinInput(data));
@@ -178,6 +161,9 @@ public class BitcoinTransaction {
          for (long i = 0; i < numberItems; i++) {
             outputs.add(new BitcoinOutput(data));
          }
+         if (witness) {
+            readWitnessScript(data);
+         }
          lockTime = new byte[4];
          data.read(lockTime);
       } catch (Exception e) {
@@ -185,26 +171,31 @@ public class BitcoinTransaction {
       }
    }
 
-   public BitcoinTransaction() {
-      version = new byte[0];
-      inputs = new Vector<BitcoinInput>();
-      outputs = new Vector<BitcoinOutput>();
-      lockTime = new byte[0];
+   private void readWitnessScript(ByteArrayInputStream data) throws IOException {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      for (long i = 0; i < inputs.size(); i++) {
+         byte stackSize = (byte) data.read();
+         outputStream.write(stackSize);
+         if (stackSize != 0) {
+            inputs.elementAt((int) i).setSegwit(true);
+         }
+         for (int y = 0; y < stackSize; y++) {
+            byte pushSize = (byte) data.read();
+            outputStream.write(pushSize);
+            byte[] push = new byte[pushSize];
+            data.read(push);
+            outputStream.write(push);
+         }
+      }
+      witnessScript = outputStream.toByteArray();
    }
 
-   public byte[] serialize(boolean skipOutputLockTime) throws BTChipException {
+
+   public byte[] serializeOutputs() throws BTChipException {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
-      BufferUtils.writeBuffer(output, version);
-      VarintUtils.write(output, inputs.size());
-      for (BitcoinInput input : inputs) {
-         input.serialize(output);
-      }
-      if (!skipOutputLockTime) {
-         VarintUtils.write(output, outputs.size());
-         for (BitcoinOutput outputItem : outputs) {
-            outputItem.serialize(output);
-         }
-         BufferUtils.writeBuffer(output, lockTime);
+      VarintUtils.write(output, outputs.size());
+      for (BitcoinOutput outputItem : outputs) {
+         outputItem.serialize(output);
       }
       return output.toByteArray();
    }
@@ -221,24 +212,12 @@ public class BitcoinTransaction {
       return outputs;
    }
 
-   public byte[] getLockTime() {
+   byte[] getLockTime() {
       return lockTime;
    }
 
    public void setVersion(byte[] version) {
       this.version = version;
-   }
-
-   public void addInput(BitcoinInput input) {
-      this.inputs.add(input);
-   }
-
-   public void addOutput(BitcoinOutput output) {
-      this.outputs.add(output);
-   }
-
-   public void setLockTime(byte[] lockTime) {
-      this.lockTime = lockTime;
    }
 
    public String toString() {
@@ -257,6 +236,9 @@ public class BitcoinTransaction {
          index++;
       }
       buffer.append("LockTime ").append(Dump.dump(lockTime)).append('\r').append('\n');
+      if (witness) {
+         buffer.append("Witness script ").append(Dump.dump(witnessScript)).append('\r').append('\n');
+      }
       return buffer.toString();
    }
 

@@ -8,10 +8,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwEnvironment;
@@ -39,17 +41,9 @@ import com.mycelium.wapi.api.request.GetTransactionsRequest;
 import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
-import com.mycelium.wapi.wallet.AbstractAccount;
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.AccountProvider;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import com.mycelium.wapi.wallet.single.PublicPrivateKeyStore;
@@ -310,7 +304,7 @@ public class ColuManager implements AccountProvider {
         //TODO: migrate assets list from metadataStorage to backing as a cache table
         //TODO: auto-discover assets at load time by querying ColoredCoins servers instead on relying on local data
         loadSingleAddressAccounts();
-        Iterable<String> assetsId = Splitter.on(",").split(metadataStorage.getColuAssetIds());
+        Iterable<String> assetsId = metadataStorage.getColuAssetIds();
         for (String assetId : assetsId) {
             if (!Strings.isNullOrEmpty(assetId)) {
                 ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
@@ -360,7 +354,7 @@ public class ColuManager implements AccountProvider {
      */
     private CreatedAccountInfo createSingleAddressAccount(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
         PublicKey publicKey = privateKey.getPublicKey();
-        Address address = publicKey.toAddress(_network);
+        Address address = publicKey.toAddress(_network, AddressType.P2PKH);
         PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
         store.setPrivateKey(address, privateKey, cipher);
         return createSingleAddressAccount(address);
@@ -377,7 +371,8 @@ public class ColuManager implements AccountProvider {
         createdAccountInfo.id = SingleAddressAccount.calculateId(address);
         _backing.beginTransaction();
         try {
-            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id, address, false, 0);
+            SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id,
+                    ImmutableMap.of(address.getType(), address), false, 0);
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
@@ -510,7 +505,7 @@ public class ColuManager implements AccountProvider {
 
             if (accountKey == null) {
                 account = new ColuAccount(
-                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(AddressType.P2PKH),
                         coluAsset);
             } else {
                 account = new ColuAccount(
@@ -567,11 +562,12 @@ public class ColuManager implements AccountProvider {
         for (SingleAddressAccountContext context : contexts) {
             PublicPrivateKeyStore store = new PublicPrivateKeyStore(_secureKeyValueStore);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
-            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi());
+            SingleAddressAccount account = new SingleAddressAccount(context, store, _network, accountBacking, getWapi(),
+                    new Reference<>(ChangeAddressMode.PRIVACY), false);
             addAccount(account);
 
             for(ColuAccount coluAccount : coluAccounts.values()) {
-                if (coluAccount.getAddress().equals(account.getAddress())) {
+                if (coluAccount.getAddress().equals(account.getAddress(AddressType.P2PKH))) {
                     coluAccount.setLinkedAccount(account);
                     String accountLabel = metadataStorage.getLabelByAccount(coluAccount.getId());
                     metadataStorage.storeAccountLabel(account.getId(), accountLabel + " Bitcoin");
@@ -621,12 +617,12 @@ public class ColuManager implements AccountProvider {
     // enables account associated with asset
     public UUID enableAsset(ColuAccount.ColuAsset coluAsset, InMemoryPrivateKey key) {
         //Make check to ensure the address is not in use
-        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork()))) {
+        if (key != null && isAddressInUse(key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH))) {
             return null;
         }
 
         if (key != null) {
-            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork()).getAllAddressBytes());
+            UUID uuid = ColuAccount.getGuidForAsset(coluAsset, key.getPublicKey().toAddress(getNetwork(), AddressType.P2PKH).getAllAddressBytes());
 
             if (coluAccounts.containsKey(uuid)) {
                 return uuid;

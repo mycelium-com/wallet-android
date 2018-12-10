@@ -206,7 +206,6 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
        */
       @Override
       public void run() {
-
          if (_oomDetected) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
@@ -260,9 +259,18 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    private static String replaceInvalidFileNameChars(String name) {
-      return name.replace(':', '.').replace(' ', '-').replace('\\', '-').replace('/', '-').replace('*', '-')
-            .replace('?', '-').replace('"', '-').replace('\'', '-').replace('<', '-').replace('>', '-')
-            .replace('|', '-');
+      return name
+              .replace(':', '.')
+              .replace(' ', '-')
+              .replace('\\', '-')
+              .replace('/', '-')
+              .replace('*', '-')
+              .replace('?', '-')
+              .replace('"', '-')
+              .replace('\'', '-')
+              .replace('<', '-')
+              .replace('>', '-')
+              .replace('|', '-');
    }
 
    private String getFullExportFilePath() {
@@ -271,6 +279,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    private void startTask() {
       findViewById(R.id.btSharePdf).setEnabled(false);
+      findViewById(R.id.btVerify).setEnabled(false);
       KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource(),
             _mbwManager.getDeviceScryptParameters());
       CreateMrdBackupTask task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
@@ -282,6 +291,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    private void enableSharing() {
       findViewById(R.id.btSharePdf).setEnabled(true);
+      findViewById(R.id.btVerify).setEnabled(true);
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_document_ready);
    }
 

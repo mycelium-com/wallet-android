@@ -34,10 +34,39 @@ public interface Wapi {
    int ERROR_CODE_INVALID_ARGUMENT = 5;
    int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
 
+    /**
+     * This codes are used to identify Bitcoind errors which are passed through electrumx.
+     * https://github.com/bitcoin/bitcoin/blob/bcffd8743e7f9cf286e641a0df8df25241a9238c/src/consensus/validation.h#L16
+     */
+    enum ElectrumxError {
+        REJECT_MALFORMED(0x01, 101),
+        REJECT_DUPLICATE(0x12, 102),
+        REJECT_NONSTANDARD(0x40, 103),
+        REJECT_INSUFFICIENT_FEE(0x42, 104);
+        private int externalErrorCode;
+        private int errorCode;
+
+        ElectrumxError(int externalErrorCode, int errorCode) {
+            this.externalErrorCode = externalErrorCode;
+            this.errorCode = errorCode;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
+
+        static ElectrumxError getErrorByCode(int errorCode) {
+            for (ElectrumxError error : ElectrumxError.values()) {
+                if (error.externalErrorCode == errorCode) {
+                    return error;
+                }
+            }
+            throw new IllegalArgumentException("");
+        }
+    }
+
    String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
 
-
-   int MAX_TRANSACTION_INVENTORY_LIMIT = 1000;
    /**
     * Get the logger configured for this {@link Wapi}
     *
