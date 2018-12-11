@@ -25,7 +25,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 
 /**
- * A store for public and private keys by address
+ * A store for public and private keys by address' bytes
  */
 public class PublicPrivateKeyStore {
 

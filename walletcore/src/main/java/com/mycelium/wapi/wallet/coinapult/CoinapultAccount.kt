@@ -21,6 +21,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
 
+    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+        return accountKey
+    }
+
     var accountLabel: String = ""
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {

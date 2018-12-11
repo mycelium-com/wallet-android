@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.eth;
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
@@ -204,6 +205,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     @Override
     public int getTypicalEstimatedTransactionSize() {
         return 0;
+    }
+
+    @Override
+    public InMemoryPrivateKey getPrivateKey(KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+        return null;
     }
 
     @Override
