@@ -29,17 +29,17 @@ import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.BTCSettings;
+import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.Reference;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
@@ -62,7 +62,6 @@ import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthAccount;
-import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthTransaction;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
@@ -72,9 +71,6 @@ import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.params.RegTestParams;
-import org.bitcoinj.params.TestNet3Params;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
@@ -235,16 +231,16 @@ class WalletConsole {
 //            sendColuWithFundingAccount(coluAccount, coluSAAccount, hdAccount2);
 
 
-            EthAccount ethAccount1 = new EthAccount();
+            WalletAccount ethAccount1 = new EthAccount();
             walletManager.addAccount(ethAccount1);
 
-            EthAccount ethAccount2 = new EthAccount();
+            WalletAccount ethAccount2 = new EthAccount();
             walletManager.addAccount(ethAccount2);
 
             System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
             System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
 
-            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest((EthAddress) ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000));
+            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest(ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000));
 
             ethAccount1.completeAndSignTx(sendRequest, AesKeyCipher.defaultKeyCipher());
             ethAccount1.broadcastTx(sendRequest.tx);

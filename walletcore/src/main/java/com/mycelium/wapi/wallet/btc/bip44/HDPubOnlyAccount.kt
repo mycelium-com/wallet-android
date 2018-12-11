@@ -4,8 +4,8 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
-import com.mycelium.wapi.wallet.Reference
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.Reference
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 
 
 open class HDPubOnlyAccount(

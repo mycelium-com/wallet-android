@@ -6,9 +6,9 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.Reference
+import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -101,7 +101,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
     private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher): WalletAccount<*, *>? {
         val publicKey = privateKey.publicKey
         for (address in publicKey.getAllSupportedAddresses(networkParameters).values) {
-            publicPrivateKeyStore.setPrivateKey(address, privateKey, cipher)
+            publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, privateKey, cipher)
         }
         return createAccount(publicKey)
     }
@@ -109,7 +109,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is SingleAddressAccount) {
-            publicPrivateKeyStore.forgetPrivateKey(walletAccount.address, keyCipher);
+            publicPrivateKeyStore.forgetPrivateKey(walletAccount.address.allAddressBytes, keyCipher);
             backing.deleteSingleAddressAccountContext(walletAccount.id)
             return true
         }

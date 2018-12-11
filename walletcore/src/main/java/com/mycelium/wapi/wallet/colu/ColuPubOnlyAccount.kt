@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.FeeEstimatorBuilder
+import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
@@ -283,5 +284,10 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
 
     override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
         return mutableListOf()
+    }
+
+    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey? {
+        // This is not spendable account so it does not contain private key
+        return null
     }
 }

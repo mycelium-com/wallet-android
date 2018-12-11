@@ -20,11 +20,12 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 
 /**
- * A store for public and private keys by address
+ * A store for public and private keys by address' bytes
  */
 public class PublicPrivateKeyStore {
 
@@ -38,20 +39,28 @@ public class PublicPrivateKeyStore {
       return _secureStorage.isValidEncryptionKey(userCipher);
    }
 
-   public boolean hasPrivateKey(Address address) {
-      return _secureStorage.hasCiphertextValue(address.getAllAddressBytes());
+   public boolean hasPrivateKey(byte[] addressBytes) {
+      return _secureStorage.hasCiphertextValue(addressBytes);
    }
 
-   public void setPrivateKey(Address address, InMemoryPrivateKey privateKey, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+   public boolean hasPrivateKey(GenericAddress address) {
+      return hasPrivateKey(address.getBytes());
+   }
+
+   public void setPrivateKey(byte[] addressBytes, InMemoryPrivateKey privateKey, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       // Store the private key encrypted
-      _secureStorage.encryptAndStoreValue(address.getAllAddressBytes(), privateKey.getPrivateKeyBytes(), cipher);
+      _secureStorage.encryptAndStoreValue(addressBytes, privateKey.getPrivateKeyBytes(), cipher);
       // Store the public key in plaintext
-      _secureStorage.storePlaintextValue(address.getAllAddressBytes(), privateKey.getPublicKey().getPublicKeyBytes());
+      _secureStorage.storePlaintextValue(addressBytes, privateKey.getPublicKey().getPublicKeyBytes());
    }
 
-   public InMemoryPrivateKey getPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      byte[] pri = _secureStorage.getDecryptedValue(address.getAllAddressBytes(), cipher);
-      byte[] pub = _secureStorage.getPlaintextValue(address.getAllAddressBytes());
+   public void setPrivateKey(GenericAddress address, InMemoryPrivateKey privateKey, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      setPrivateKey(address.getBytes(), privateKey, cipher);
+   }
+
+   public InMemoryPrivateKey getPrivateKey(byte[] addressBytes, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      byte[] pri = _secureStorage.getDecryptedValue(addressBytes, cipher);
+      byte[] pub = _secureStorage.getPlaintextValue(addressBytes);
       if (pri == null || pub == null) {
          return null;
       }
@@ -59,17 +68,28 @@ public class PublicPrivateKeyStore {
       return new InMemoryPrivateKey(pri, pub);
    }
 
-   public PublicKey getPublicKey(Address address) {
-      byte[] value = _secureStorage.getPlaintextValue(address.getAllAddressBytes());
+   public InMemoryPrivateKey getPrivateKey(GenericAddress address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      return getPrivateKey(address.getBytes(), cipher);
+   }
+
+   public PublicKey getPublicKey(byte[] addressBytes) {
+      byte[] value = _secureStorage.getPlaintextValue(addressBytes);
       if (value == null) {
          return null;
       }
       return new PublicKey(value);
    }
 
+   public PublicKey getPublicKey(GenericAddress address) {
+      return getPublicKey(address.getBytes());
+   }
 
-   public void forgetPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
-      _secureStorage.deleteEncryptedValue(address.getAllAddressBytes(), cipher);
+   public void forgetPrivateKey(byte[] addressBytes, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      _secureStorage.deleteEncryptedValue(addressBytes, cipher);
+   }
+
+   public void forgetPrivateKey(GenericAddress address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
+      forgetPrivateKey(address.getBytes(), cipher);
    }
 
 

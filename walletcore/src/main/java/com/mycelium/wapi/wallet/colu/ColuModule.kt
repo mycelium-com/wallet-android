@@ -63,7 +63,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         var result: InMemoryPrivateKey? = null
         addresses?.let {
             for (address in it.values) {
-                val privateKey = publicPrivateKeyStore.getPrivateKey(address.address, AesKeyCipher.defaultKeyCipher())
+                val privateKey = publicPrivateKeyStore.getPrivateKey(address, AesKeyCipher.defaultKeyCipher())
                 if (privateKey != null) {
                     result = privateKey
                 }
@@ -85,7 +85,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 backing.createAccountContext(context)
                 result = ColuAccount(context, config.privateKey, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
-                publicPrivateKeyStore.setPrivateKey(address, config.privateKey, config.cipher)
+                publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
         } else if (config is PublicColuConfig) {
             val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
@@ -134,7 +134,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is ColuPubOnlyAccount) {
-            publicPrivateKeyStore.forgetPrivateKey(Address(walletAccount.receiveAddress.getBytes()), keyCipher)
+            publicPrivateKeyStore.forgetPrivateKey(walletAccount.receiveAddress.getBytes(), keyCipher)
             backing.deleteAccountContext(walletAccount.id)
             return true
         }

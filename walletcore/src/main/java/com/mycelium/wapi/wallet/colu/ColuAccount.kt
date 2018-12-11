@@ -29,6 +29,10 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     : ColuPubOnlyAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
 
+    override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
+        return privateKey
+    }
+
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
         return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)
     }

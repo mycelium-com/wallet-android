@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet;
 
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.StandardTransactionBuilder;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -188,6 +189,12 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     FeeEstimationsGeneric getFeeEstimations();
 
     int getTypicalEstimatedTransactionSize();
+
+    /**
+     * Returns the private key used by the account to sign transactions
+     */
+    InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
+
     /**
      * Class representing a receiver of funds
      */

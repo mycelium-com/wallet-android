@@ -41,13 +41,13 @@ import com.mycelium.wapi.wallet.GenericInput;
 import com.mycelium.wapi.wallet.InputSigner;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.Reference;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
@@ -91,7 +91,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             if (allPossibleAddresses.size() != _context.getAddresses().size()) {
                for (Address address : allPossibleAddresses.values()) {
                   if (!address.equals(_context.getAddresses().get(address.getType()))) {
-                     _keyStore.setPrivateKey(address, privateKey, AesKeyCipher.defaultKeyCipher());
+                     _keyStore.setPrivateKey(address.getAllAddressBytes(), privateKey, AesKeyCipher.defaultKeyCipher());
                   }
                }
                _context.setAddresses(allPossibleAddresses);
@@ -252,7 +252,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    public boolean canSpend() {
-      return _keyStore.hasPrivateKey(getAddress());
+      return _keyStore.hasPrivateKey(getAddress().getAllAddressBytes());
    }
 
    @Override
@@ -420,21 +420,21 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
       for (Address address : getPublicKey().getAllSupportedAddresses(_network).values()) {
-         _keyStore.forgetPrivateKey(address, cipher);
+         _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
       }
    }
 
    public InMemoryPrivateKey getPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
-      return _keyStore.getPrivateKey(getAddress(), cipher);
+      return _keyStore.getPrivateKey(getAddress().getAllAddressBytes(), cipher);
    }
 
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
-      _keyStore.setPrivateKey(getAddress(), privateKey, cipher);
+      _keyStore.setPrivateKey(getAddress().getAllAddressBytes(), privateKey, cipher);
       persistAddresses();
    }
 
    public PublicKey getPublicKey() {
-      return _keyStore.getPublicKey(getAddress());
+      return _keyStore.getPublicKey(getAddress().getAllAddressBytes());
    }
 
    /**
@@ -458,7 +458,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
       if (canSpend()) {
          try {
-            privKey = Optional.of(_keyStore.getPrivateKey(getAddress(), cipher).getBase58EncodedPrivateKey(getNetwork()));
+            privKey = Optional.of(_keyStore.getPrivateKey(getAddress().getAllAddressBytes(), cipher).getBase58EncodedPrivateKey(getNetwork()));
          } catch (InvalidKeyCipher ignore) {
          }
       }

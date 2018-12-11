@@ -18,7 +18,7 @@ import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -764,5 +764,11 @@ open class HDAccount(
                 invalidKeyCipher.printStackTrace()
             }
         }
+    }
+
+    @Throws(InvalidKeyCipher::class)
+    override fun getPrivateKey(cipher: KeyCipher): InMemoryPrivateKey? {
+        // This method should NOT be called for HD account since it has more than one private key
+        throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
 }
