@@ -6,7 +6,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.Value
 
 
-class BitcoinUri(address: GenericAddress?, value: Value?, label: String?, override val callbackURL: String = "")
+class BitcoinUri(address: GenericAddress?, value: Value?, label: String?, override val callbackURL: String? = null)
     : GenericAssetUri(address, value, label), WithCallback {
     companion object {
         @JvmStatic
