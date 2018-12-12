@@ -54,6 +54,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 
@@ -188,7 +189,7 @@ public class TransactionDetailsActivity extends Activity {
       ll.addView(getValue(item.getValue().getValue(), address));
       AddressLabel adrLabel = new AddressLabel(this);
       adrLabel.setColuMode(coluMode);
-      adrLabel.setAddress(Address.fromString(item.getAddress().toString()));
+      adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
       ll.addView(adrLabel);
 
       ll.setPadding(10, 10, 10, 10);

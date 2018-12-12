@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -46,9 +47,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
@@ -99,7 +99,7 @@ public class HDSigningActivity extends Activity {
 
       // Add address chunks
       AddressLabel addressLabel = new AddressLabel(this);
-      addressLabel.setAddress(address);
+      addressLabel.setAddress(AddressUtils.fromAddress(address));
       ll.addView(addressLabel);
       //Make address clickable
       addressLabel.setOnClickListener(_signingClickListener);

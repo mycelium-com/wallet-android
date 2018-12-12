@@ -40,12 +40,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wapi.wallet.AddressUtils;
 
 public class CreateKeyActivity extends Activity {
    private MbwManager manager;
@@ -97,8 +99,8 @@ public class CreateKeyActivity extends Activity {
             key = pk;
             Address addressP2SH = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH);
             Address addressBech = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2WPKH);
-            ((AddressLabel) findViewById(R.id.tvAddressP2SH)).setAddress(addressP2SH);
-            ((AddressLabel) findViewById(R.id.tvAddressBech)).setAddress(addressBech);
+            ((AddressLabel) findViewById(R.id.tvAddressP2SH)).setAddress(AddressUtils.fromAddress(addressP2SH));
+            ((AddressLabel) findViewById(R.id.tvAddressBech)).setAddress(AddressUtils.fromAddress(addressBech));
             findViewById(R.id.btShuffle).setEnabled(true);
             findViewById(R.id.btUse).setEnabled(true);
          }

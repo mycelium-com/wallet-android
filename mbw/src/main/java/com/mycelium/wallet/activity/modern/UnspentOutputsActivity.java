@@ -45,12 +45,9 @@ import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
-import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,13 +73,7 @@ public class UnspentOutputsActivity extends Activity {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
 
-      List<TransactionOutputSummary> outputs = new ArrayList<>();
-      if(account instanceof  WalletBtcAccount) {
-         outputs = ((WalletBtcAccount) account).getUnspentTransactionOutputSummary();
-      }
-      else if (account instanceof ColuAccount) {
-         outputs = ((ColuAccount) account).getUnspentTransactionOutputSummary();
-      }
+      List<GenericTransaction.GenericOutput> outputs = account.getUnspentOutputs();
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
@@ -90,7 +81,7 @@ public class UnspentOutputsActivity extends Activity {
          findViewById(R.id.tvNoOutputs).setVisibility(View.GONE);
       }
 
-      for (TransactionOutputSummary item : outputs) {
+      for (GenericTransaction.GenericOutput item : outputs) {
          outputView.addView(getItemView(item));
       }
       if (!(outputs.size()<=5)) {
@@ -99,7 +90,7 @@ public class UnspentOutputsActivity extends Activity {
       }
    }
 
-   private View getItemView(TransactionOutputSummary item) {
+   private View getItemView(GenericTransaction.GenericOutput item) {
       // Create vertical linear layout for address
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);
@@ -107,10 +98,10 @@ public class UnspentOutputsActivity extends Activity {
       ll.setPadding(10, 10, 10, 10);
 
       // Add BTC value
-      ll.addView(getValue(item.value));
+      ll.addView(getValue(item.getValue().value));
 
       AddressLabel addressLabel = new AddressLabel(this);
-      addressLabel.setAddress(item.address);
+      addressLabel.setAddress(item.getAddress());
       ll.addView(addressLabel);
 
       return ll;
