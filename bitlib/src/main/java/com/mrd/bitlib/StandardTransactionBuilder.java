@@ -112,7 +112,7 @@ public class StandardTransactionBuilder {
             script = new ScriptOutputP2SH(sendTo.getTypeSpecificBytes());
             break;
          case P2PKH:
-            script = new ScriptOutputStandard(sendTo.getTypeSpecificBytes());
+            script = new ScriptOutputP2PKH(sendTo.getTypeSpecificBytes());
             break;
          case P2WPKH:
             script = new ScriptOutputP2WPKH(sendTo.getTypeSpecificBytes());
@@ -349,31 +349,6 @@ public class StandardTransactionBuilder {
       return sum;
    }
 
-   /**
-    * Estimate the size of a transaction by taking the number of inputs and outputs into account. This allows us to
-    * give a good estimate of the final transaction size, and determine whether out fee size is large enough.
-    *
-    * @param inputsTotal  the number of inputs of the transaction
-    * @param outputsTotal the number of outputs of a transaction
-    * @param segwitInputs  the number of segwit inputs of the transaction
-    * @return The estimated transaction size in bytes
-    */
-   public static int estimateTransactionSize(int inputsTotal, int outputsTotal, int segwitInputs) {
-      int totalOutputsSize = OUTPUT_SIZE * outputsTotal;
-
-      int estimateExceptInputs = 0;
-      estimateExceptInputs += 4; // Version info
-      estimateExceptInputs += CompactInt.toBytes(inputsTotal).length; // num input encoding. Usually 1. >253 inputs -> 3
-      estimateExceptInputs += CompactInt.toBytes(outputsTotal).length; // num output encoding. Usually 1. >253 outputs -> 3
-      estimateExceptInputs += totalOutputsSize;
-      estimateExceptInputs += 4; // nLockTime
-
-      int estimateWithSignatures = estimateExceptInputs + MAX_INPUT_SIZE * inputsTotal;
-      int estimateWithoutWitness = estimateExceptInputs + MAX_SEGWIT_INPUT_SIZE * segwitInputs + MAX_INPUT_SIZE * (inputsTotal - segwitInputs);
-
-      return (estimateWithoutWitness * 3 + estimateWithSignatures) / 4;
-   }
-
    private interface CoinSelector {
       List<UnspentTransactionOutput> getFundings();
       long getFee();
@@ -436,7 +411,7 @@ public class StandardTransactionBuilder {
          int minHeight = Integer.MAX_VALUE;
          UnspentTransactionOutput oldest = null;
          for (UnspentTransactionOutput output : unspent) {
-            if (!(output.script instanceof ScriptOutputStandard) && !(output.script instanceof ScriptOutputP2SH)
+            if (!(output.script instanceof ScriptOutputP2PKH) && !(output.script instanceof ScriptOutputP2SH)
                     && !(output.script instanceof ScriptOutputP2WPKH)) {
                // only look for certain scripts
                continue;

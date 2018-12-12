@@ -151,9 +151,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun broadcastTx(tx: CoinapultTransaction): BroadcastResult {
         return try {
             api.broadcast(tx.value.valueAsBigDecimal, tx.value.getType() as Currency, tx.address!!)
-            BroadcastResult.SUCCESS
+            BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
-            BroadcastResult.REJECTED
+            BroadcastResult(BroadcastResultType.REJECTED)
         }
     }
 

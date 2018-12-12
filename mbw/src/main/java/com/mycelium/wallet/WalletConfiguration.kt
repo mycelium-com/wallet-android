@@ -9,8 +9,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import com.mycelium.wapi.api.ServerListChangedListener
-import kotlinx.coroutines.experimental.launch
 import java.io.IOException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 interface  MyceliumNodesApi {
     @GET("/nodes-b.json")
@@ -40,7 +43,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
-        launch {
+        GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val resp = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)

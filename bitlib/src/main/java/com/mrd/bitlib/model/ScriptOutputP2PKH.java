@@ -21,17 +21,17 @@ import java.io.Serializable;
 /**
  * "standard" as in "pay to public key hash"
  */
-public class ScriptOutputStandard extends ScriptOutput implements Serializable {
+public class ScriptOutputP2PKH extends ScriptOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
    private byte[] _addressBytes;
 
-   protected ScriptOutputStandard(byte[][] chunks, byte[] scriptBytes) {
+   protected ScriptOutputP2PKH(byte[][] chunks, byte[] scriptBytes) {
       super(scriptBytes);
       _addressBytes = chunks[2];
    }
 
-   protected static boolean isScriptOutputStandard(byte[][] chunks) {
+   protected static boolean isScriptOutputP2PKH(byte[][] chunks) {
       if (chunks.length != 5 && chunks.length != 6) {
          return false;
       }
@@ -57,7 +57,7 @@ public class ScriptOutputStandard extends ScriptOutput implements Serializable {
       return true;
    }
 
-   public ScriptOutputStandard(byte[] addressBytes) {
+   public ScriptOutputP2PKH(byte[] addressBytes) {
       //todo check length for type specfic length 20?
       super(scriptEncodeChunks(new byte[][] { { (byte) OP_DUP }, { (byte) OP_HASH160 }, addressBytes,
             { (byte) OP_EQUALVERIFY }, { (byte) OP_CHECKSIG } }));

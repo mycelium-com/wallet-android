@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.google.common.base.CharMatcher
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.model.Address
 import com.mycelium.modularizationtools.CommunicationManager
 import com.mycelium.modularizationtools.ModuleMessageReceiver
@@ -187,7 +188,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             return
                         }
                         try {
-                            val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicData.get()
+                            val publicKeyB58 = account.getExportData(AesKeyCipher.defaultKeyCipher()).publicDataMap!!.get(BipDerivationType.BIP44)
                             val service = IntentContract.SendUnrelatedPublicKeyToSPV.createIntent(accountGuid,
                                     publicKeyB58, accountType)
                             WalletApplication.sendToSpv(service, Bip44BCHAccount::class.java)

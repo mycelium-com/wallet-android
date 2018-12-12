@@ -14,6 +14,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
@@ -75,7 +76,7 @@ class BroadcastDialog : DialogFragment() {
             if (Utils.isConnected(context)) {
                 task?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             } else {
-                task?.listener?.invoke(BroadcastResult.NO_SERVER_CONNECTION)
+                task?.listener?.invoke(BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION))
             }
         } else {
             dismiss()
@@ -98,7 +99,7 @@ class BroadcastDialog : DialogFragment() {
                 return account.broadcastTx(transaction)
             } catch (e: TransactionBroadcastException) {
                 Log.e("BroadcastDialog", "", e)
-                return BroadcastResult.REJECTED
+                return BroadcastResult(BroadcastResultType.REJECTED)
             }
         }
 
@@ -108,17 +109,17 @@ class BroadcastDialog : DialogFragment() {
     }
 
     private fun handleResult(broadcastResult: BroadcastResult) {
-        if (broadcastResult == BroadcastResult.REJECTED_DOUBLE_SPENDING) {
+        if (broadcastResult.resultType == BroadcastResultType.REJECT_DUPLICATE) {
             // Transaction rejected, display message and exit
             Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_double_spending_message) {
                 returnResult(broadcastResult)
             }
-        } else if (broadcastResult == BroadcastResult.REJECTED) {
+        } else if (broadcastResult.resultType == BroadcastResultType.REJECTED) {
             // Transaction rejected, display message and exit
             Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                 returnResult(broadcastResult)
             }
-        } else if (broadcastResult == BroadcastResult.NO_SERVER_CONNECTION) {
+        } else if (broadcastResult.resultType == BroadcastResultType.NO_SERVER_CONNECTION) {
             if (isCold) {
                 // When doing cold storage spending we do not offer to queue the transaction
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
@@ -139,7 +140,7 @@ class BroadcastDialog : DialogFragment() {
                         .show()
 
             }
-        } else if (broadcastResult == BroadcastResult.SUCCESS) {
+        } else if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             // Toast success and finish
             Toast.makeText(activity, resources.getString(R.string.transaction_sent),
                     Toast.LENGTH_LONG).show()

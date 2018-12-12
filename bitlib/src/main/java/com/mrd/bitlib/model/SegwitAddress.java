@@ -28,13 +28,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
+/**
+ * Most of the file logic was taken from here https://github.com/sipa/bech32/pull/40
+ */
 public class SegwitAddress extends Address implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final byte version;
     private final byte[] program;
-    private final String hrp;
-    private final boolean isProdnet;
+    private final String humanReadablePart;
 
     public static class SegwitAddressException extends Exception {
         SegwitAddressException(Exception e) {
@@ -49,15 +51,10 @@ public class SegwitAddress extends Address implements Serializable {
     public SegwitAddress(NetworkParameters networkParameters, final int version, final byte[] program)
             throws SegwitAddressException {
         super(program);
-        isProdnet = networkParameters.isProdnet();
-        hrp = isProdnet() ? "BC" : "TB";
+        humanReadablePart = networkParameters.isProdnet() ? "BC" : "TB";
         this.version = (byte) (version & 0xff);
         this.program = program;
         verify(this);
-    }
-
-    public boolean isProdnet(){
-        return isProdnet;
     }
 
     @Override
@@ -132,7 +129,7 @@ public class SegwitAddress extends Address implements Serializable {
         } catch (SegwitAddressException e) {
             return false;
         }
-        return hrp.equalsIgnoreCase(network.isProdnet() ? "bc" : "tb");
+        return humanReadablePart.equalsIgnoreCase(network.isProdnet() ? "bc" : "tb");
     }
 
     /**
@@ -206,7 +203,7 @@ public class SegwitAddress extends Address implements Serializable {
     @Override
     public String toString() {
         try {
-            return encode(hrp, version, program);
+            return encode(humanReadablePart, version, program);
         } catch (SegwitAddressException e) {
             throw new IllegalStateException(e.getMessage());
         }

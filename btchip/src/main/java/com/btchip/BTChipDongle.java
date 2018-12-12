@@ -30,7 +30,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 public class BTChipDongle implements BTChipConstants {
-
    public enum OperationMode {
       WALLET(0x01),
       RELAXED_WALLET(0x02),
@@ -483,15 +482,17 @@ public class BTChipDongle implements BTChipConstants {
       }
       // Locktime
       byte[] response = exchangeApdu(BTCHIP_CLA, BTCHIP_INS_GET_TRUSTED_INPUT, (byte) 0x80, (byte) 0x00, transaction.getLockTime(), OK);
-      ByteArrayOutputStream sequenceBuf = new ByteArrayOutputStream();
-      BufferUtils.writeUint32LE(sequenceBuf, sequence);
-      return new BTChipInput(response, sequenceBuf.toByteArray(),true, false);
+      return new BTChipInput(response, toUint32LEBytes(sequence),true, false);
    }
 
    public BTChipInput createInput(byte[] value, int sequence, boolean trusted, boolean segwit) {
-      ByteArrayOutputStream sequenceBuf = new ByteArrayOutputStream();
-      BufferUtils.writeUint32LE(sequenceBuf, sequence);
-      return new BTChipInput(value, sequenceBuf.toByteArray(), trusted, segwit);
+      return new BTChipInput(value, toUint32LEBytes(sequence), trusted, segwit);
+   }
+
+   private byte[] toUint32LEBytes(int value) {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      BufferUtils.writeUint32LE(outputStream, value);
+      return outputStream.toByteArray();
    }
 
    public void startUntrustedTransction(boolean newTransaction, long inputIndex, BTChipInput[] usedInputList, byte[] redeemScript) throws BTChipException {

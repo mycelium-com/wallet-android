@@ -48,12 +48,11 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        accountLabel.value =
-                when (account) {
-                    is Bip44BCHAccount, is SingleAddressBCHAccount ->
-                        context.getString(R.string.bitcoin_cash) + " - " + label
-                    else -> label
-                }
+        accountLabel.value = when (account) {
+            is Bip44BCHAccount, is SingleAddressBCHAccount ->
+                context.getString(R.string.bitcoin_cash) + " - " + label
+            else -> label
+        }
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {

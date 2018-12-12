@@ -114,6 +114,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
+
         private fun bipAccountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
 
@@ -130,6 +131,18 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         override fun onPostExecute(result: List<AccountsGroupModel>) {
             accountsList = result
             updateList()
+        }
+
+        private fun addTitleGroup(titleId: Int, accountsGroupsList: MutableList<AccountsGroupModel>,
+                                  accountsModelsList: List<AccountViewModel>) {
+            addGroup(titleId, accountsGroupsList,GROUP_TITLE_TYPE, accountsModelsList)
+        }
+
+        private fun addGroup(titleId: Int, accountsGroupsList: MutableList<AccountsGroupModel>,
+                             type: AccountListItem.Type, list: List<AccountViewModel>) {
+            if (list.isNotEmpty()) {
+                accountsGroupsList.add(AccountsGroupModel(titleId, type, list))
+            }
         }
     }
 

@@ -482,20 +482,20 @@ public class LtApiClient implements LtApi {
 
    @Override
    public LtResponse<GeocoderSearchResults> searchGeocoder(UUID sessionId, String query, int maxResults) {
-      LtRequest r = new LtRequest(Function.SEARCH_GEOCODER);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.addQueryParameter(Param.QUERY, query);
-      r.addQueryParameter(Param.MAX_RESULTS, String.valueOf(maxResults));
+      LtRequest r = new LtRequest(Function.SEARCH_GEOCODER)
+              .addQueryParameter(Param.SESSION_ID, sessionId.toString())
+              .addQueryParameter(Param.QUERY, query)
+              .addQueryParameter(Param.MAX_RESULTS, String.valueOf(maxResults));
       return sendRequest(r, new TypeReference<LtResponse<GeocoderSearchResults>>() {
       });
    }
 
    @Override
    public LtResponse<GeocoderSearchResults> reverseGeocoder(UUID sessionId, double lat, double lon) {
-      LtRequest r = new LtRequest(Function.REVERSE_GEOCODER);
-      r.addQueryParameter(Param.SESSION_ID, sessionId.toString());
-      r.addQueryParameter(Param.LATITUDE, String.valueOf(lat));
-      r.addQueryParameter(Param.LONGITUDE, String.valueOf(lon));
+      LtRequest r = new LtRequest(Function.REVERSE_GEOCODER)
+              .addQueryParameter(Param.SESSION_ID, sessionId.toString())
+              .addQueryParameter(Param.LATITUDE, String.valueOf(lat))
+              .addQueryParameter(Param.LONGITUDE, String.valueOf(lon));
       return sendRequest(r, new TypeReference<LtResponse<GeocoderSearchResults>>() {
       });
    }

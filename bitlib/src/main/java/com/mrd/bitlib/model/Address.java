@@ -293,7 +293,7 @@ public class Address implements Serializable, Comparable<Address> {
          if (isP2SH(getNetwork())) {
             scriptBytes = new ScriptOutputP2SH(getTypeSpecificBytes()).getScriptBytes();
          } else {
-            scriptBytes = new ScriptOutputStandard(getTypeSpecificBytes()).getScriptBytes();
+            scriptBytes = new ScriptOutputP2PKH(getTypeSpecificBytes()).getScriptBytes();
          }
          scriptHash = HashUtils.sha256(scriptBytes).reverse();
       }

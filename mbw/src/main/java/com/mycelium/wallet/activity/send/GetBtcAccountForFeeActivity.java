@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;

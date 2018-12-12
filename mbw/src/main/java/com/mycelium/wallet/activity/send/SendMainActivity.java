@@ -108,6 +108,7 @@ import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -1304,7 +1305,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @Override
     public void broadcastResult(BroadcastResult broadcastResult) {
         Intent result = new Intent();
-        if (broadcastResult == BroadcastResult.SUCCESS) {
+        if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
                 _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getHash(), _transactionLabel);
             }
@@ -1316,7 +1317,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
         }
 
-        setResult(broadcastResult == BroadcastResult.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
+        setResult(broadcastResult.getResultType() == BroadcastResultType.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
         finish();
     }
 

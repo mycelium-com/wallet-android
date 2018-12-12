@@ -3,7 +3,10 @@ package com.mycelium.wallet
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class NetworkChangedReceiver : BroadcastReceiver() {
     // We receive this event on wallet start, but this would start heavy init, which we don't want to.

@@ -3,7 +3,7 @@ package com.mycelium.wapi.api
 import com.google.common.collect.Sets
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
@@ -66,7 +66,7 @@ class ConnectionManager(private val connectionsCount: Int, internal var endpoint
     }
 
     fun subscribe(subscription: Subscription) {
-        launch {
+        GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             val client = getClient()
             client.subscribe(subscription)
             jsonRpcTcpClientsList.put(client)
