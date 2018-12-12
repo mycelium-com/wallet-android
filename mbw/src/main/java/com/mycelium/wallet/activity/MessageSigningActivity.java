@@ -49,11 +49,13 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.HDSigningActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 /*
 todo HD: root seeds will for now not support signing directly. only support single addresses.
@@ -81,8 +83,14 @@ public class MessageSigningActivity extends Activity {
 
     public static void callMe(Context currentActivity, WalletAccount focusedAccount) {
         try {
-            InMemoryPrivateKey key = focusedAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-            callMe(currentActivity, key, focusedAccount.getReceiveAddress());
+            if (focusedAccount instanceof HDAccount) {
+                Intent intent = new Intent(currentActivity, HDSigningActivity.class);
+                intent.putExtra("account", focusedAccount.getId());
+                currentActivity.startActivity(intent);
+            } else {
+                InMemoryPrivateKey key = focusedAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                callMe(currentActivity, key, focusedAccount.getReceiveAddress());
+            }
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
         }

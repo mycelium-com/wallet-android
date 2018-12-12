@@ -912,14 +912,7 @@ public class AccountsFragment extends Fragment {
             }
             WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
 
-            if (_focusedAccount instanceof HDAccount) {
-               Intent intent = new Intent(getActivity(), HDSigningActivity.class);
-               intent.putExtra("account", _focusedAccount.getId());
-               startActivity(intent);
-            } else {
-               MessageSigningActivity.callMe(getActivity(), _focusedAccount);
-            }
-
+            MessageSigningActivity.callMe(getActivity(), _focusedAccount);
          }
       });
    }
