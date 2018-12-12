@@ -75,14 +75,6 @@ public class UnspentOutputsActivity extends Activity {
 
       List<GenericTransaction.GenericOutput> outputs = account.getUnspentOutputs();
 
-//      List<TransactionOutputSummary> outputs = new ArrayList<>();
-//      if(account instanceof  WalletBtcAccount) {
-//         outputs = ((WalletBtcAccount) account).getUnspentTransactionOutputSummary();
-//      }
-//      else if (account instanceof ColuAccount) {
-//         outputs = ((ColuAccount) account).getUnspentTransactionOutputSummary();
-//      }
-
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
       } else {
@@ -107,9 +99,6 @@ public class UnspentOutputsActivity extends Activity {
 
       // Add BTC value
       ll.addView(getValue(item.getValue().value));
-
-//      AddressLabel addressLabel = new AddressLabel(this);
-//      addressLabel.setAddress(item.address);
 
       AddressLabel addressLabel = new AddressLabel(this);
       addressLabel.setAddress(item.getAddress());
