@@ -25,6 +25,7 @@ import com.btchip.utils.VarintUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 public class BitcoinTransaction {
@@ -161,22 +162,7 @@ public class BitcoinTransaction {
             outputs.add(new BitcoinOutput(data));
          }
          if (witness) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            for (long i = 0; i < inputs.size(); i++) {
-               byte stackSize = (byte) data.read();
-               outputStream.write(stackSize);
-               if (stackSize != 0) {
-                  inputs.elementAt((int) i).setSegwit(true);
-               }
-               for (int y = 0; y < stackSize; y++) {
-                  byte pushSize = (byte) data.read();
-                  outputStream.write(pushSize);
-                  byte[] push = new byte[pushSize];
-                  data.read(push);
-                  outputStream.write(push);
-               }
-            }
-            witnessScript = outputStream.toByteArray();
+            readWitnessScript(data);
          }
          lockTime = new byte[4];
          data.read(lockTime);
@@ -185,6 +171,24 @@ public class BitcoinTransaction {
       }
    }
 
+   private void readWitnessScript(ByteArrayInputStream data) throws IOException {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      for (long i = 0; i < inputs.size(); i++) {
+         byte stackSize = (byte) data.read();
+         outputStream.write(stackSize);
+         if (stackSize != 0) {
+            inputs.elementAt((int) i).setSegwit(true);
+         }
+         for (int y = 0; y < stackSize; y++) {
+            byte pushSize = (byte) data.read();
+            outputStream.write(pushSize);
+            byte[] push = new byte[pushSize];
+            data.read(push);
+            outputStream.write(push);
+         }
+      }
+      witnessScript = outputStream.toByteArray();
+   }
 
 
    public byte[] serializeOutputs() throws BTChipException {

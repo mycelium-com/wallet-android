@@ -72,15 +72,25 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
                                NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference) {
+      this(context, keyStore, network, backing, wapi, changeAddressModeReference, true);
+   }
+
+   public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
+                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               Reference<ChangeAddressMode> changeAddressModeReference, boolean shouldPersistAddress) {
       super(backing, network, wapi);
       this.changeAddressModeReference = changeAddressModeReference;
       _backing = backing;
       _context = context;
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
-      persistAddresses();
-      _addressList.addAll(context.getAddresses().values());
-      _cachedBalance = _context.isArchived() ? new BalanceSatoshis(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending) : calculateLocalBalance();
+      if (shouldPersistAddress) {
+          persistAddresses();
+      }
+       _addressList.addAll(context.getAddresses().values());
+       _cachedBalance = _context.isArchived()
+               ? new BalanceSatoshis(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
+               : calculateLocalBalance();
    }
 
    private void persistAddresses() {
@@ -326,6 +336,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             break;
          case PRIVACY:
             result = getAddress(destinationAddress.getType());
+            if (result == null) {
+               return getAddress();
+            }
             break;
          default:
             throw new IllegalStateException();
@@ -361,6 +374,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             break;
          case PRIVACY:
             result = getAddress(maxedOn);
+            if (result == null) {
+               return getAddress();
+            }
             break;
          default:
             throw new IllegalStateException();
@@ -370,16 +386,27 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    protected InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher) throws InvalidKeyCipher {
-      if (getPublicKey().equals(publicKey)) {
-         return getPrivateKey(cipher);
+      if (getPublicKey().equals(publicKey) || new PublicKey(publicKey.getPubKeyCompressed()).equals(publicKey)) {
+         InMemoryPrivateKey privateKey = getPrivateKey(cipher);
+         if (publicKey.isCompressed()) {
+            return new InMemoryPrivateKey(privateKey.getPrivateKeyBytes(), true);
+         } else {
+            return privateKey;
+         }
       }
+
       return null;
    }
 
    @Override
    protected InMemoryPrivateKey getPrivateKeyForAddress(Address address, KeyCipher cipher) throws InvalidKeyCipher {
       if (_addressList.contains(address)) {
-         return getPrivateKey(cipher);
+         InMemoryPrivateKey privateKey = getPrivateKey(cipher);
+         if (address.getType() == AddressType.P2SH_P2WPKH || address.getType() == AddressType.P2WPKH) {
+            return new InMemoryPrivateKey(privateKey.getPrivateKeyBytes(), true);
+         } else {
+            return privateKey;
+         }
       } else {
          return null;
       }
@@ -428,9 +455,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       return _keyStore.getPrivateKey(getAddress().getAllAddressBytes(), cipher);
    }
 
+   /**
+    * This method is used for Colu account, so method should NEVER persist addresses as only P2PKH addresses are used for Colu
+    */
    public void setPrivateKey(InMemoryPrivateKey privateKey, KeyCipher cipher) throws InvalidKeyCipher {
       _keyStore.setPrivateKey(getAddress().getAllAddressBytes(), privateKey, cipher);
-      persistAddresses();
    }
 
    public PublicKey getPublicKey() {
@@ -455,16 +484,20 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public Data getExportData(KeyCipher cipher) {
       Optional<String> privKey = Optional.absent();
-
+      Map<BipDerivationType, String> publicDataMap = new HashMap<>();
       if (canSpend()) {
          try {
-            privKey = Optional.of(_keyStore.getPrivateKey(getAddress().getAllAddressBytes(), cipher).getBase58EncodedPrivateKey(getNetwork()));
+            InMemoryPrivateKey privateKey = _keyStore.getPrivateKey(getAddress().getAllAddressBytes(), cipher);
+            privKey = Optional.of(privateKey.getBase58EncodedPrivateKey(getNetwork()));
          } catch (InvalidKeyCipher ignore) {
          }
       }
 
-      Optional<String> pubKey = Optional.of(getAddress().toString());
-      return new Data(privKey, pubKey);
+      for (AddressType type : getAvailableAddressTypes()) {
+         publicDataMap.put(BipDerivationType.Companion.getDerivationTypeByAddressType(type),
+                 getAddress(type).toString());
+      }
+      return new Data(privKey, publicDataMap);
    }
 
    @Override

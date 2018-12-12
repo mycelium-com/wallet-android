@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
@@ -83,7 +84,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
         transactionStorage.add(tx);
 
-        return BroadcastResult.SUCCESS;
+        return new BroadcastResult(BroadcastResultType.SUCCESS);
     }
 
     @Override

@@ -74,6 +74,7 @@ import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
@@ -655,40 +656,28 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     */
    @Override
    public synchronized boolean broadcastOutgoingTransactions() {
-      checkNotArchived();
-      List<Sha256Hash> broadcastedIds = new LinkedList<>();
-      Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
+       checkNotArchived();
+       List<Sha256Hash> broadcastedIds = new LinkedList<>();
+       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
-      for (byte[] rawTransaction : transactions.values()) {
-         Transaction transaction;
-         try {
-            transaction = Transaction.fromBytes(rawTransaction);
-         } catch (TransactionParsingException e) {
-            _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
-            return  false;
-         }
-         BroadcastResult result = broadcastTransaction(transaction);
-         if (result == BroadcastResult.SUCCESS) {
-            broadcastedIds.add(transaction.getId());
-            _backing.removeOutgoingTransaction(transaction.getId());
-         } /* else {
-            // DW: commented this section out, because we changed how we treat outgoing tx
-            // keep it, even if it got rejected and let the user delete it themself
-            if (result == BroadcastResult.REJECTED) {
-               // invalid tx
-               // keep it in the outgoing queue - the user needs to manually delete it
-               // todo: get reason for rejection and display it
-               //_backing.deleteTransaction(tex.txid);
-            } else {
-               // No connection --> retry next sync
-            }
-
-         }*/
-      }
-      if (!broadcastedIds.isEmpty()) {
-         onTransactionsBroadcasted(broadcastedIds);
-      }
-      return true;
+       for (byte[] rawTransaction : transactions.values()) {
+           Transaction transaction;
+           try {
+               transaction = Transaction.fromBytes(rawTransaction);
+           } catch (TransactionParsingException e) {
+               _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+               return  false;
+           }
+           BroadcastResult result = broadcastTransaction(transaction);
+           if (result.getResultType() == BroadcastResultType.SUCCESS) {
+               broadcastedIds.add(transaction.getId());
+               _backing.removeOutgoingTransaction(transaction.getId());
+           }
+       }
+       if (!broadcastedIds.isEmpty()) {
+           onTransactionsBroadcasted(broadcastedIds);
+       }
+       return true;
    }
 
    @Override
@@ -698,36 +687,45 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public synchronized BroadcastResult broadcastTransaction(Transaction transaction) {
-      checkNotArchived();
-      try {
-         WapiResponse<BroadcastTransactionResponse> response = _wapi.broadcastTransaction(
-               new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()));
-         if (response.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
-            if (response.getResult().success) {
-               markTransactionAsSpent(TransactionEx.fromUnconfirmedTransaction(transaction));
-               postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
-               return BroadcastResult.SUCCESS;
-            } else {
-               // This transaction was rejected must be double spend or
-               // malleability, delete it locally.
-               _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+       checkNotArchived();
+       try {
+           WapiResponse<BroadcastTransactionResponse> response = _wapi.broadcastTransaction(
+                   new BroadcastTransactionRequest(Wapi.VERSION, transaction.toBytes()));
+           int errorCode = response.getErrorCode();
+           if (errorCode == Wapi.ERROR_CODE_SUCCESS) {
+               if (response.getResult().success) {
+                   markTransactionAsSpent(TransactionEx.fromUnconfirmedTransaction(transaction));
+                   postEvent(Event.BROADCASTED_TRANSACTION_ACCEPTED);
+                   return new BroadcastResult(BroadcastResultType.SUCCESS);
+               } else {
+                   // This transaction was rejected must be double spend or
+                   // malleability, delete it locally.
+                   _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+                   postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
+                   return new BroadcastResult(BroadcastResultType.REJECT_DUPLICATE);
+               }
+           } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+               postEvent(Event.SERVER_CONNECTION_ERROR);
+               _logger.logError("Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
+               return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
+           } else if(errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.getErrorCode()) {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_MALFORMED);
+           } else if(errorCode == Wapi.ElectrumxError.REJECT_DUPLICATE.getErrorCode()) {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_DUPLICATE);
+           } else if(errorCode == Wapi.ElectrumxError.REJECT_NONSTANDARD.getErrorCode()) {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_NONSTANDARD);
+           } else if(errorCode == Wapi.ElectrumxError.REJECT_INSUFFICIENT_FEE.getErrorCode()) {
+               return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_INSUFFICIENT_FEE);
+           } else {
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               return BroadcastResult.REJECTED_DOUBLE_SPENDING;
-            }
-         } else if (response.getErrorCode() == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
-            postEvent(Event.SERVER_CONNECTION_ERROR);
-            _logger.logError("Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
-            return BroadcastResult.NO_SERVER_CONNECTION;
-         } else {
-            postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-            _logger.logError("Server connection failed with error: " + response.getErrorCode());
-            return BroadcastResult.REJECTED;
-         }
-      } catch (WapiException e) {
-         postEvent(Event.SERVER_CONNECTION_ERROR);
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-         return BroadcastResult.NO_SERVER_CONNECTION;
-      }
+               _logger.logError("Server connection failed with error: " + errorCode);
+               return new BroadcastResult(BroadcastResultType.REJECTED);
+           }
+       } catch (WapiException e) {
+           postEvent(Event.SERVER_CONNECTION_ERROR);
+           _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+           return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
+       }
    }
 
    protected void checkNotArchived() {
@@ -1471,6 +1469,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       public PublicKey findPublicKeyByAddress(Address address) {
          PublicKey publicKey = getPublicKeyForAddress(address);
          if (publicKey != null) {
+            if (address.getType() == AddressType.P2SH_P2WPKH
+                    || address.getType() == AddressType.P2WPKH) {
+               return new PublicKey(publicKey.getPubKeyCompressed());
+            }
             return publicKey;
          }
          // something unexpected happened - the account might be in a undefined state

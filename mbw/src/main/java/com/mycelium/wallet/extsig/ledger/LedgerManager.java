@@ -502,7 +502,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          derivationType = BipDerivationType.BIP49;
       } else if (fundingUtxoScript instanceof ScriptOutputP2WPKH) {
          derivationType = BipDerivationType.BIP84;
-      } else if (fundingUtxoScript instanceof ScriptOutputStandard) {
+      } else if (fundingUtxoScript instanceof ScriptOutputP2PKH) {
          derivationType = BipDerivationType.BIP44;
       } else {
          postErrorMessage("Unhandled funding " + fundingUtxoScript);

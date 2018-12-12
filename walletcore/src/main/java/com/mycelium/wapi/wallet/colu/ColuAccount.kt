@@ -2,11 +2,9 @@ package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.FeeEstimatorBuilder
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.model.ScriptOutput
-import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.*
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -101,9 +99,9 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
 
     override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
         return if (tx.tx != null && coluClient.broadcastTx(tx.tx) != null) {
-            BroadcastResult.SUCCESS
+            BroadcastResult(BroadcastResultType.SUCCESS)
         } else {
-            BroadcastResult.REJECTED
+            BroadcastResult(BroadcastResultType.REJECTED)
         }
     }
 
@@ -120,12 +118,18 @@ class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKe
     }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
-        var key = Optional.absent<String>()
+        var privKey = Optional.absent<String>()
+        val publicDataMap = HashMap<BipDerivationType, String>()
         if (canSpend()) {
-            key = Optional.of(this.privateKey.getBase58EncodedPrivateKey(networkParameters))
+            try {
+                privKey = Optional.of(this.privateKey.getBase58EncodedPrivateKey(networkParameters))
+            } catch (ignore: KeyCipher.InvalidKeyCipher) {
+            }
+
         }
-        val pubKey = Optional.of(receiveAddress.toString())
-        return ExportableAccount.Data(key, pubKey)
+        publicDataMap[BipDerivationType.getDerivationTypeByAddressType(AddressType.P2PKH)] = receiveAddress.toString()
+        return ExportableAccount.Data(privKey, publicDataMap)
+
     }
 
     fun getUnspentTransactionOutputSummary(): List<TransactionOutputSummary> {

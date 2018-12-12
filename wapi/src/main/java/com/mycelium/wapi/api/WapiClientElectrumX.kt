@@ -18,10 +18,10 @@ import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -138,8 +138,14 @@ class WapiClientElectrumX(
             val txHex = HexUtils.toHex(request.rawTransaction)
             val responseList = connectionManager.broadcast(BROADCAST_METHOD, RpcParams.listParams(txHex))
             if (responseList.all { it.hasError }) {
-                responseList.filter { it.hasError }.forEach{ response -> logger.logError(response.error?.toString()) }
-                return WapiResponse(BroadcastTransactionResponse(false, null))
+                responseList.forEach{ response -> logger.logError(response.error?.toString()) }
+                // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
+                // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
+                val errorRegex = Regex("the transaction was rejected by network rules.\\n\\n([0-9]*): (.*)\\n.*")
+                val errorCode = errorRegex.matchEntire(responseList[0].error!!.message)!!.groups[1]!!.value.toInt()
+                val errorMessage = errorRegex.matchEntire(responseList[0].error!!.message)!!.groups[2]?.value
+                val error = Wapi.ElectrumxError.getErrorByCode(errorCode)
+                return WapiResponse<BroadcastTransactionResponse>(error.errorCode, errorMessage, null)
             }
             val txId = responseList.filter { !it.hasError }[0].getResult(String::class.java)!!
             return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
@@ -247,7 +253,7 @@ class WapiClientElectrumX(
     }
 
     private fun <A, B>List<A>.pFlatMap(f: suspend (A) -> List<B>): List<B> = runBlocking {
-        map { async(CommonPool) { f(it) } }
+        map { async(Dispatchers.Default) { f(it) } }
                 .flatMap { it.await() }
     }
 

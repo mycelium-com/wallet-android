@@ -19,7 +19,7 @@ open class ExportAsQrViewModel(val context: Application) : AndroidViewModel(cont
             throw IllegalStateException("This method should be called only once.")
         }
         model = ExportAsQrModel(context, accountData)
-        model.accountDataString.value = accountData.publicData.get()
+        model.accountDataString.value = accountData.publicDataMap!!.values.first()
 
         updateData(false)
     }

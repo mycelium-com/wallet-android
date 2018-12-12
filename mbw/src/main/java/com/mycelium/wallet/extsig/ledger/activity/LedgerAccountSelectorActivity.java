@@ -42,10 +42,13 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.HdAccountSelectorActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
 
@@ -136,6 +139,16 @@ public abstract class LedgerAccountSelectorActivity extends HdAccountSelectorAct
    @Subscribe
    public void onAccountFound(AccountScanManager.OnAccountFound event){
       super.onAccountFound(event);
+      WalletManager walletManager = MbwManager.getInstance(getApplicationContext()).getWalletManager(false);
+      if (walletManager.hasAccount(event.account.accountId)) {
+         boolean upgraded = masterseedScanManager.upgradeAccount(event.account.accountsRoots,
+                 walletManager, event.account.accountId);
+         if (upgraded) {
+            // If it's migrated it's 100% that it's HD
+            int accountIndex = ((HDAccount) walletManager.getAccount(event.account.accountId)).getAccountIndex();
+            new Toaster(this).toast(getString(R.string.account_upgraded, accountIndex + 1), false);
+         }
+      }
    }
 
    @Subscribe

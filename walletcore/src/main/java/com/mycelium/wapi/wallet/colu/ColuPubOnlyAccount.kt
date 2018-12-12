@@ -270,7 +270,7 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
     override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
         // This implementation is empty since this account is read only and cannot create,
         // sign and broadcast transactions
-        return BroadcastResult.REJECTED
+        return BroadcastResult(BroadcastResultType.REJECTED)
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {

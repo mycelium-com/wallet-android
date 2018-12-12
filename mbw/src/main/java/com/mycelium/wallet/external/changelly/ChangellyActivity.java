@@ -192,6 +192,7 @@ public class ChangellyActivity extends AppCompatActivity {
             public void onResponse(Call<ChangellyAPIService.ChangellyAnswerListString> call, Response<ChangellyAPIService.ChangellyAnswerListString> response) {
                 if (response.body() == null || response.body().result == null) {
                     toast("Can't load currencies.");
+                    return;
                 }
                 Log.d(TAG, "currencies=" + response.body().result);
                 Collections.sort(response.body().result);
