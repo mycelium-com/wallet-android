@@ -64,17 +64,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
-import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
-import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.*;
@@ -120,7 +115,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
@@ -137,7 +131,6 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
@@ -372,7 +365,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         //_amountToSend = Value.valueOf(_mbwManager.getNetwork().isProdnet()? BitcoinMain.get() : BitcoinTest.get(), 0);
 
         // May be null
-        _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
+        _receivingAddress = (GenericAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
@@ -393,8 +386,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
             setAmountToSend((Value) savedInstanceState.getSerializable(AMOUNT));
-            Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
-            _receivingAddress = AddressUtils.fromAddress(address);
+            _receivingAddress = (GenericAddress) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             _bitcoinUri = (BitcoinUri) savedInstanceState.getSerializable(BITCOIN_URI);
             _coluAssetUri = (ColuAssetUri) savedInstanceState.getSerializable(RMC_URI);
