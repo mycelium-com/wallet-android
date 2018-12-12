@@ -40,12 +40,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 import java.util.List;
@@ -107,18 +111,18 @@ public class HDSigningActivity extends Activity {
 
       @Override
       public void onClick(View v) {
-//         AddressLabel addressLabel = (AddressLabel) v;
-//         if (addressLabel.getAddress() == null) {
-//            return;
-//         }
-//         HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
-//         InMemoryPrivateKey key;
-//         try {
-//            key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());
-//         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-//            throw new RuntimeException(invalidKeyCipher);
-//         }
-//         MessageSigningActivity.callMe(HDSigningActivity.this, key, addressLabel.getAddress().getType());
+         AddressLabel addressLabel = (AddressLabel) v;
+         if (addressLabel.getAddress() == null) {
+            return;
+         }
+         HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
+         InMemoryPrivateKey key;
+         try {
+            key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());
+         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+         }
+         MessageSigningActivity.callMe(HDSigningActivity.this, key, addressLabel.getAddress().getType());
       }
    }
 }
