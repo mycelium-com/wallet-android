@@ -911,20 +911,15 @@ public class AccountsFragment extends Fragment {
                return;
             }
             WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-            if (_focusedAccount instanceof CoinapultAccount) {
-               InMemoryPrivateKey accountKey = ((CoinapultModule) walletManager.getModuleById("coinapult module")).getAccountKey();
-               MessageSigningActivity.callMe(getActivity(), accountKey, AddressType.P2SH_P2WPKH);
-            } else if (_focusedAccount instanceof SingleAddressAccount) {
-               MessageSigningActivity.callMe(getActivity(), (SingleAddressAccount) _focusedAccount,
-                       ((SingleAddressAccount) _focusedAccount).getAddress().getType());
-            } else if(_focusedAccount instanceof ColuAccount){
-               MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
-                       AddressType.P2PKH);
-            } else {
+
+            if (_focusedAccount instanceof HDAccount) {
                Intent intent = new Intent(getActivity(), HDSigningActivity.class);
                intent.putExtra("account", _focusedAccount.getId());
                startActivity(intent);
+            } else {
+               MessageSigningActivity.callMe(getActivity(), _focusedAccount);
             }
+
          }
       });
    }
