@@ -234,6 +234,10 @@ public class AccountsFragment extends Fragment {
             if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
             }
+            if (account.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+                setNameForUpgradeAccount(account);
+            }
             eventBus.post(new ExtraAccountsChanged());
             eventBus.post(new AccountChanged(accountid));
          }
@@ -554,6 +558,21 @@ public class AccountsFragment extends Fragment {
       }
       setLabelOnAccount(account, defaultName, false);
    }
+
+    private void setNameForUpgradeAccount(WalletAccount account) {
+        // special case for sa upgrade accounts
+        List<UUID> uuidList = walletManager.getAccountVirtualIds((SingleAddressAccount) account);
+        String oldName = "";
+        // delete all previous records associated with virtual ids but keep name
+        for (UUID uuid : uuidList) {
+            if (!_storage.getLabelByAccount(uuid).isEmpty()) {
+                oldName = _storage.getLabelByAccount(uuid);
+            }
+            _storage.deleteAccountMetadata(uuid);
+        }
+        // store single id with an old name
+        _storage.storeAccountLabel(account.getId(), oldName);
+    }
 
    private void update() {
       if (!isAdded()) {
