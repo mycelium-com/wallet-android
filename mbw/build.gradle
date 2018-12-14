@@ -34,9 +34,6 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "com.android.support:support-annotations:$androidSupportVersion"
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     implementation project(includePrefix + ':coinapult')
@@ -198,7 +195,8 @@ android {
             debuggable true
         }
     }
-    flavorDimensions "flavor"
+
+    flavorDimensions "default"
 
     productFlavors {
         prodnet {

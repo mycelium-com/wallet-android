@@ -1,18 +1,10 @@
 package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.bch.coins.BchMain
-import com.mycelium.wapi.wallet.bch.coins.BchTest
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.colu.coins.*
-import com.mycelium.wapi.wallet.eth.coins.EthMain
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
@@ -28,7 +20,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
-    private val _lastFeeEstimations = backing.loadLastFeeEstimation();
+    private val _lastFeeEstimations = backing.loadLastFeeEstimation()
     private val _logger = wapi.logger
 
     var isNetworkConnected: Boolean = false
@@ -108,7 +100,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     @TestOnly
     fun addAccount(account: WalletAccount<*,*>) {
-        accounts[account.id] = account;
+        accounts[account.id] = account
     }
 
     fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
