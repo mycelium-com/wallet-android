@@ -146,6 +146,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       _allowZeroConfSpending = allowZeroConfSpending;
    }
 
+   @Override
+   public boolean isExchangeable(){
+      return true;
+   }
+
    /**
     * set the event handler for this account
     *

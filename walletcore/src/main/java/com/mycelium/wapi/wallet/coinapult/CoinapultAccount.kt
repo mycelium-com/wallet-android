@@ -20,6 +20,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
+    override fun isExchangeable(): Boolean {
+        return true
+    }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return accountKey
