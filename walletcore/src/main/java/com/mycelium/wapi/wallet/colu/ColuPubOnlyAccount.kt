@@ -25,6 +25,9 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
+    override fun isExchangeable(): Boolean {
+        return false
+    }
 
     protected var uuid: UUID
     var coluLabel: String? = null

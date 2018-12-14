@@ -109,6 +109,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public boolean isExchangeable() {
+        return false;
+    }
+
+    @Override
     public EthTransaction getTx(Sha256Hash transactionId) {
         return null;
     }

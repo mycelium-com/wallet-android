@@ -64,7 +64,9 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
-            items.add(new Item(account, VIEW_TYPE_ITEM));
+            if(account.isExchangeable()) {
+                items.add(new Item(account, VIEW_TYPE_ITEM));
+            }
         }
         items.add(new Item(null, VIEW_TYPE_PADDING));
     }
@@ -126,8 +128,8 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
             CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
             viewHolder.itemTextView.setText(ValueExtentionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
-            if (((WalletBtcAccount)(item.account)).getReceivingAddress().isPresent()) {
-                viewHolder.valueTextView.setText(((WalletBtcAccount)(item.account)).getReceivingAddress().get().toString());
+            if (item.account.getReceiveAddress() != null) {
+                viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());
             }
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
