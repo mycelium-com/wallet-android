@@ -41,9 +41,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
-    override fun getIcon(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getIcon() = R.drawable.ic_launcher
 
     private val eventBus: Bus = MbwManager.getEventBus()
 

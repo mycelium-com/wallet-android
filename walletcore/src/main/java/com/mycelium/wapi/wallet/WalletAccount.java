@@ -52,6 +52,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     boolean isMineAddress(GenericAddress address);
 
+    boolean isExchangeable();
+
     T getTx(Sha256Hash transactionId);
 
     List<T> getTransactions(int offset, int limit);

@@ -67,6 +67,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public boolean isExchangeable() {
+        return false;
+    }
+
+    @Override
     public FiatTransaction getTx(Sha256Hash transactionId) {
         return null;
     }

@@ -25,7 +25,6 @@ class RMCUriParser(override val network: NetworkParameters) : ColuAssetUriParser
             uri = URI.create("rmc://$schemeSpecific")
 
             return parseParameters(uri, if (network.isProdnet) RMCCoin else RMCCoinTest)
-
         } catch (e: Exception) {
         }
         return null
