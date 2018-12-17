@@ -63,6 +63,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -95,7 +96,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
@@ -419,8 +419,9 @@ public class TransactionHistoryFragment extends Fragment {
                   //hasDetails|canCoinapult|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(true); //hasDetails
-                     checkNotNull(menu.findItem(R.id.miShowCoinapultDebug)).setVisible(false); //canCoinapult
+                     checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(!(record instanceof CoinapultTransaction)); //hasDetails
+                     checkNotNull(menu.findItem(R.id.miShowCoinapultDebug))
+                             .setVisible(record instanceof CoinapultTransaction); //canCoinapult
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.getInputs().isEmpty()); //hasAddressBook
                      if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                          || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
@@ -450,29 +451,28 @@ public class TransactionHistoryFragment extends Fragment {
                      if (itemId == R.id.miShowCoinapultDebug) {
                         if (record instanceof CoinapultTransaction) {
                            final CoinapultTransaction summary = (CoinapultTransaction) record;
-//                           new AlertDialog.Builder(_context)
-//                                 .setMessage(summary.input.toString())
-//                                 .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                       Utils.setClipboardString(
-//                                             summary.input.toString(),
-//                                             TransactionHistoryFragment.this.getActivity());
-//                                       Toast.makeText(
-//                                             TransactionHistoryFragment.this.getActivity(),
-//                                             R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
-//                                             .show();
-//
-//                                       dialog.dismiss();
-//                                    }
-//                                 })
-//                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-//                                    @Override
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                       dialog.dismiss();
-//                                    }
-//                                 })
-//                                 .show();
+                           new AlertDialog.Builder(_context)
+                                   .setMessage(summary.getDebugInfo())
+                                   .setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         Utils.setClipboardString(summary.getDebugInfo(),
+                                                 TransactionHistoryFragment.this.getActivity());
+                                         Toast.makeText(
+                                                 TransactionHistoryFragment.this.getActivity(),
+                                                 R.string.copied_to_clipboard, Toast.LENGTH_SHORT)
+                                                 .show();
+
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                      @Override
+                                      public void onClick(DialogInterface dialog, int which) {
+                                         dialog.dismiss();
+                                      }
+                                   })
+                                   .show();
                         }
                         return true;
                      }

@@ -77,6 +77,9 @@ import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -176,8 +179,14 @@ public class AddressBookFragment extends Fragment {
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-         if (account.getReceiveAddress() != null) {
-            if (account.canSpend() && selectedAccount.getCoinType().equals(account.getCoinType())) {
+         if (account.getReceiveAddress() != null && selectedAccount != account) {
+            if(selectedAccount instanceof CoinapultAccount
+                    && (account instanceof CoinapultAccount || account.getCoinType() == BitcoinMain.get() || account.getCoinType() == BitcoinTest.get())) {
+               entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
+            } else if((selectedAccount.getCoinType().equals(BitcoinMain.get()) || selectedAccount.getCoinType().equals(BitcoinTest.get()))
+                    && account instanceof CoinapultAccount) {
+               entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
+            } else if (selectedAccount.getCoinType().equals(account.getCoinType())) {
                entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
          }

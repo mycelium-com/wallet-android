@@ -232,11 +232,10 @@ public class CoinapultClient {
          IOException, CoinapultExceptionECC {
       String endpoint = "/api/account/create";
       if (options == null) {
-         options = new HashMap<String, String>();
+         options = new HashMap<>();
       }
 
-      JsonParser result = receiveECC(sendECCRequest(SignedJson.class, endpoint,
-            options, true));
+      JsonParser result = receiveECC(sendECCRequest(SignedJson.class, endpoint, options, true));
       AccountNew.JsonNew parsed = result.parse(AccountNew.JsonNew.class);
       if (parsed.success != null) {
          if (!parsed.success.equals(sha256(eccPubPEM))) {
@@ -267,8 +266,7 @@ public class CoinapultClient {
       options.put("agree", agree ? "1" : "0");
       options.put("hash", sha256(eccPubPEM));
 
-      JsonParser result = receiveECC(sendECCRequest(SignedJson.class, endpoint,
-            options, true));
+      JsonParser result = receiveECC(sendECCRequest(SignedJson.class, endpoint, options, true));
       return result.parse(AccountNew.Json.class);
    }
 
