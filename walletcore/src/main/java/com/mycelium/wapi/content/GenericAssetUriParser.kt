@@ -26,6 +26,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         if (addressString != null && addressString.isNotEmpty()) {
             address = AddressUtils.from(coinType, addressString.trim { it <= ' ' })
         }
+
         val params = URLEncodedUtils.parse(uri, "UTF-8")
 
         var amount: Value? = null
@@ -56,7 +57,10 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
 
         // Check if the supplied "address" is actually an encrypted private key
         if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
-            return PrivateKeyUri(addressString, label)
+            if(coinType == BitcoinMain.get() || coinType == BitcoinTest.get()){
+                return PrivateKeyUri(addressString, label, "bitcoin")
+            }
+            return PrivateKeyUri(addressString, label, coinType.symbol.decapitalize())
         }
 
         // Payment Uri

@@ -409,7 +409,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             GenericAssetUri uri;
             if (genericUri == null) {
                 uri = BitcoinUri.from(_receivingAddress,
-                        getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
+                        getValueToSend() == null ? null : getValueToSend(), _transactionLabel, null);
             } else {
                 uri = genericUri;
             }

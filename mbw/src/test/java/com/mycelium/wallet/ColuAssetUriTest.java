@@ -40,39 +40,39 @@ public class ColuAssetUriTest {
 
         // rmc mainnet
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN", RMCCoin.INSTANCE, productionNetwork,
-                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null, "rmc")));
+                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null)));
         // mass testnet
         testParse("mss:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", MASSCoinTest.INSTANCE, testNetwork,
-                Optional.of(new MSSUri(AddressUtils.from(MASSCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, "mss")));
+                Optional.of(new MSSUri(AddressUtils.from(MASSCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null)));
         // mycelium token testnet with ignored extra
         testParse("mt:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?foo=bla", MTCoinTest.INSTANCE, testNetwork,
-                Optional.of(new MTUri(AddressUtils.from(MTCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, "mt")));
+                Optional.of(new MTUri(AddressUtils.from(MTCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null)));
         // mycelium token testnet with non-standard :// url part
         testParse("mt://mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", MTCoinTest.INSTANCE, testNetwork,
-                Optional.of(new MTUri(AddressUtils.from(MTCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, "mt")));
+                Optional.of(new MTUri(AddressUtils.from(MTCoinTest.INSTANCE, "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null)));
     }
 
     @Test
     public void parseIntAmount() {
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=123456", RMCCoin.INSTANCE, productionNetwork,
-                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), null, "rmc")));
+                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), null)));
     }
 
     @Test
     public void parseFloatAmount() {
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=123.456", RMCCoin.INSTANCE, productionNetwork,
-                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), null, "rmc")));
+                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), null)));
     }
 
     @Test
     public void parseWithLabel() {
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=123.456&label=Hello World", RMCCoin.INSTANCE, productionNetwork,
-                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), "Hello World", "rmc")));
+                Optional.of(new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 123456L), "Hello World")));
     }
 
     @Test
     public void parseFailsWithUnknownToken() {
-        testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", BitcoinTest.get(), testNetwork,
+        testParse("bitc:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", BitcoinTest.get(), testNetwork,
                 Optional.<ColuAssetUri>absent());
     }
 
@@ -84,9 +84,9 @@ public class ColuAssetUriTest {
 
     @Test
     public void fromAddress() throws Exception {
-        ColuAssetUri actual = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null, "rmc");
-        ColuAssetUri expected = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null, "rmc");
-        assertEquals(expected.toString(), actual.toString());
+        ColuAssetUri actual = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null);
+        ColuAssetUri expected = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null);
+        assertEquals(expected, actual);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -119,8 +119,14 @@ public class ColuAssetUriTest {
             }
         }
         if (parser != null) {
-            Optional<? extends GenericAssetUri> actual = Optional.of(parser.parse(url));
-            assertEquals(expected.toString(), actual.toString());
+            GenericAssetUri actual = parser.parse(url);
+
+            if (actual != null){
+                assertEquals(expected, Optional.of(actual));
+            } else {
+                assertEquals(expected, Optional.absent());
+            }
+
         } else {
             assert false;
         }
