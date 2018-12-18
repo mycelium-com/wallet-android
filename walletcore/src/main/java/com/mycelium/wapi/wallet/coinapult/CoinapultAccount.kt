@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.coinapult
 
+import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
@@ -134,7 +135,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
         if (request is CoinapultSendRequest) {
-
+            request.tx = CoinapultTransaction(Sha256Hash.ZERO_HASH, request.amount, false
+                    , 0, "", 0, request.destination)
+            request.isCompleted = true
         } else {
             TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
         }
@@ -162,8 +165,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-    override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun checkAmount(receiver: WalletAccount.Receiver, kbMinerFee: Long, enteredAmount: Value?) {
+        if (cachedBalance.confirmed.isLessThan(enteredAmount)) {
+            throw StandardTransactionBuilder.InsufficientFundsException(receiver.amount, kbMinerFee)
+        }
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {

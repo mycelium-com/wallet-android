@@ -11,5 +11,4 @@ class CoinapultSendRequest(currency: Currency, val destination: BtcAddress, val 
     override fun getEstimatedTransactionSize(): Int {
         return 0
     }
-
 }

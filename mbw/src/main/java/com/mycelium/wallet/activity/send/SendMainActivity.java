@@ -91,7 +91,6 @@ import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.content.ColuAssetUri;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
@@ -112,7 +111,6 @@ import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -758,7 +756,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                                         super.onPostExecute(aBoolean);
                                         progress.dismiss();
                                         if (aBoolean) {
-                                            _account.synchronize(SyncMode.FAST_SYNC_CURRENT_ACCOUNT);
+                                            _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
                                             Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
                                             SendMainActivity.this.finish();
                                         } else {

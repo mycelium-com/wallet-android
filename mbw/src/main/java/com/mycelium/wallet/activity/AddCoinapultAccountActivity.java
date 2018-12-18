@@ -197,8 +197,9 @@ public class AddCoinapultAccountActivity extends Activity {
       @Override
       protected UUID doInBackground(Void... params) {
          _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT, true);
-         _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(Currency.BTC));
-         List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(currency));
+         String email = mail.isPresent() ? mail.get() : null;
+         _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(Currency.BTC, email));
+         List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new CoinapultConfig(currency, email));
          return accounts.size() > 0 ? accounts.get(0) : null;
 //         coinapultManager = _mbwManager.getCoinapultManager();
 //         try {

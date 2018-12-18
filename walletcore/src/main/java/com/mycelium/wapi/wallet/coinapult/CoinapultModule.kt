@@ -38,13 +38,14 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         var result: WalletAccount<*, *>? = null
         if (config is CoinapultConfig) {
             val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
+            api.activate(config.mail)
             val address = api.getAddress(config.currency, null)
-            val context = CoinapultAccountContext(id
-                    , address!!
-                    , false, config.currency)
-            backing.createAccountContext(context)
-            result = CoinapultAccount(context, accountKey
-                    , api, backing.getAccountBacking(id), networkParameters, config.currency, listener)
+            if (address != null) {
+                val context = CoinapultAccountContext(id, address, false, config.currency)
+                backing.createAccountContext(context)
+                result = CoinapultAccount(context, accountKey
+                        , api, backing.getAccountBacking(id), networkParameters, config.currency, listener)
+            }
         }
 
         val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
