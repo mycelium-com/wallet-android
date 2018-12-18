@@ -91,7 +91,6 @@ import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AnimationUtils;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
-import com.mycelium.wallet.content.ColuAssetUri;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
@@ -411,7 +410,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             GenericAssetUri uri;
             if (genericUri == null) {
                 uri = BitcoinUri.from(_receivingAddress,
-                        getValueToSend() == null ? null : getValueToSend().getValue(), _transactionLabel, null);
+                        getValueToSend() == null ? null : getValueToSend(), _transactionLabel, null);
             } else {
                 uri = genericUri;
             }
