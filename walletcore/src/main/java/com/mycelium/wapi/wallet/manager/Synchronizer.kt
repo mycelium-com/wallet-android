@@ -12,7 +12,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
         walletManager.walletListener?.syncStarted()
 
         try {
-            synchronized(walletManager.getAccounts()) {
+            synchronized(walletManager.getActiveAccounts()) {
                 if (walletManager.isNetworkConnected) {
 //                    if (!syncMode.ignoreMinerFeeFetch && (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
 //                        // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
