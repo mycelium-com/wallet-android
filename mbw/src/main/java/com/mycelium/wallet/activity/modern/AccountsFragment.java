@@ -636,7 +636,7 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-              && !isBch) {
+              && !isBch && !(account instanceof HDAccountExternalSignature)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
