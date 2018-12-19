@@ -42,7 +42,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -56,7 +55,6 @@ import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
-import com.mycelium.lt.location.Geocoder;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
@@ -693,18 +691,6 @@ public class LocalTraderManager {
       }
       if (getGcmRegistrationId() == null) {
          // Get the GCM ID in a background thread
-         new Thread(new Runnable() {
-            @Override
-            public void run() {
-               GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-               try {
-                  String regId = gcm.register(LocalTraderManager.GCM_SENDER_ID);
-                  storeGcmRegistrationId(regId);
-               } catch (IOException e) {
-                  Log.w(TAG, "IO exception while getting GCM ID:" + e.getMessage());
-               }
-            }
-         }).start();
       }
    }
 

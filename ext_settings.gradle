@@ -1,6 +1,7 @@
 // keep that file in sync with ext_settings.gradle in the internal big repository
 ext {
     guavaArtifact = 'com.google.guava:guava:23.0-android'
+    // TODO: databinding deterministic builds should be fixed in 3.4 Canary8
     androidBuildArtifact = 'com.android.tools.build:gradle:3.2.1'
     slf4jVersion = '1.7.2'
     androidCompileSdkVersion = 28
