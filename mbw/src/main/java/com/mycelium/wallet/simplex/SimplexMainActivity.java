@@ -130,14 +130,13 @@ public class SimplexMainActivity extends Activity {
             setLayout(SimplexUITypes.WebView);
             startActivity(browserIntent);
         } else {
-            Handler handler = new Handler(getMainLooper());
             String message = getString(R.string.gp_required);
-            SimplexError error = new SimplexError(handler, message);
+            SimplexError error = new SimplexError(new Handler(getMainLooper()), message);
             displayError(error);
         }
     }
 
-    /** Simplex App Auth logic End **/
+    /* Simplex App Auth logic End **/
 
 
     /**

@@ -32,14 +32,13 @@ class SimplexServer {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                Handler handler = new Handler(context.getMainLooper());
                 String message;
                 if (!Utils.isConnected(context)) {
                     message = context.getResources().getString(R.string.no_network_connection);
                 } else {
                     message = e.getMessage();
                 }
-                eventBus.post(new SimplexError(handler, message));
+                eventBus.post(new SimplexError(new Handler(context.getMainLooper()), message));
             }
 
             @Override
