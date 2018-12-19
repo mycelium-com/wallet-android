@@ -1078,7 +1078,7 @@ public class AccountsFragment extends Fragment {
 
    private void activate(WalletAccount account) {
       account.activateAccount();
-      WalletAccount linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
+      WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
       if (linkedAccount != null) {
          linkedAccount.activateAccount();
       }
@@ -1205,7 +1205,7 @@ public class AccountsFragment extends Fragment {
 
                  public void onClick(DialogInterface arg0, int arg1) {
                     account.archiveAccount();
-                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, getColuAccounts(walletManager));
+                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
                     if (linkedAccount != null) {
                        linkedAccount.archiveAccount();
                     }
@@ -1215,6 +1215,12 @@ public class AccountsFragment extends Fragment {
                     }
                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                     eventBus.post(new AccountChanged(account.getId()));
+                    if (linkedAccount != null){
+                       eventBus.post(new AccountChanged(linkedAccount.getId()));
+                    }
+                    if (correspondingBCHAccount != null){
+                       eventBus.post(new AccountChanged(correspondingBCHAccount.getId()));
+                    }
                     updateIncludingMenus();
                     _toaster.toast(R.string.archived, false);
                  }
