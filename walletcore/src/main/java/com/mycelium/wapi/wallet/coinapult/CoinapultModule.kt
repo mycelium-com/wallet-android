@@ -28,7 +28,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         backing.loadAccountContexts().forEach { context ->
             val id = CoinapultUtils.getGuidForAsset(context.currency, accountKey.publicKey.publicKeyBytes)
             val account = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
-                    , networkParameters, context.currency, listener)
+                    , backing, networkParameters, context.currency, listener)
             result[account.id] = account
         }
         return result
@@ -43,8 +43,8 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
             if (address != null) {
                 val context = CoinapultAccountContext(id, address, false, config.currency)
                 backing.createAccountContext(context)
-                result = CoinapultAccount(context, accountKey
-                        , api, backing.getAccountBacking(id), networkParameters, config.currency, listener)
+                result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
+                        , backing, networkParameters, config.currency, listener)
             }
         }
 

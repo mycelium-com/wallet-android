@@ -16,7 +16,8 @@ import java.util.*
 
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val api: CoinapultApi
-                       , val backing: AccountBacking<CoinapultTransaction>
+                       , val accountBacking: AccountBacking<CoinapultTransaction>
+                       , val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>
                        , val _network: NetworkParameters
                        , val currency: Currency
                        , val listener: AccountListener?)
@@ -34,7 +35,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
         val history = ArrayList<CoinapultTransaction>()
         checkNotArchived()
-        val list = backing.getTransactionsSince(receivingSince)
+        val list = accountBacking.getTransactionsSince(receivingSince)
         for (tex in list) {
             val tx = getTx(tex.txid)
             history.add(tx)
@@ -65,17 +66,18 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun isMineAddress(address: GenericAddress?): Boolean = receiveAddress == address
 
     override fun getTx(transactionId: Sha256Hash?): CoinapultTransaction {
-        return backing.getTx(transactionId)
+        return accountBacking.getTx(transactionId)
     }
 
     override fun getTransactions(offset: Int, limit: Int): List<CoinapultTransaction> {
-        return backing.getTransactions(offset, limit)
+        return accountBacking.getTransactions(offset, limit)
     }
 
     override fun isActive() = !context.isArchived()
 
     override fun archiveAccount() {
         context.setArchived(true)
+        backing.updateAccountContext(context)
     }
 
     override fun broadcastOutgoingTransactions(): Boolean {
@@ -93,6 +95,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun activateAccount() {
         context.setArchived(false)
+        backing.updateAccountContext(context)
     }
 
     override fun isDerivedFromInternalMasterseed(): Boolean = true
@@ -187,7 +190,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
             listener?.balanceUpdated(this)
         }
         val transactions = api.getTransactions(currency)
-        backing.putTransactions(transactions)
+        accountBacking.putTransactions(transactions)
 //        transactions?.forEach {
 //            if (it.state == "processing" || it.completeTime * 1000 > oneMinuteAgo) {
 //                if (!it.incoming) {

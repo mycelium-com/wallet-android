@@ -92,9 +92,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             }
 
             val other = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
-            walletManager.getCoinapultAccounts().forEach {
-                other.add(it)
-            }
+            other.addAll(walletManager.getCoinapultAccounts())
 
             if (walletManager.getActiveAccountsFrom(other).isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.active_other_accounts_name, GROUP_TITLE_TYPE,

@@ -667,12 +667,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btAddressBook)
     void onClickAddressBook() {
-        if(AccountManager.INSTANCE.getFillAccountStatus()) {
-            Intent intent = new Intent(this, GetFromAddressBookActivity.class);
-            startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
-        } else {
-            Toast.makeText(this,"Synchonizing...", LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(this, GetFromAddressBookActivity.class);
+        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE);
     }
 
     @OnClick(R.id.btManualEntry)
