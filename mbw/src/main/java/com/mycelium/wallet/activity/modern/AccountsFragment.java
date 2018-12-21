@@ -69,10 +69,8 @@ import android.widget.EditText;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -133,6 +131,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.mycelium.wallet.AccountManagerKt.getActiveHDAccounts;
+import static com.mycelium.wallet.AccountManagerKt.getActiveMasterseedAccounts;
 import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
 public class AccountsFragment extends Fragment {
@@ -631,7 +630,7 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
-              && AccountManager.INSTANCE.getBTCMasterSeedAccounts().size() > 1 && !isBch) {
+              && getActiveMasterseedAccounts(walletManager).size() > 1 && !isBch) {
 
          final HDAccount HDAccount = (HDAccount) account;
          BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById("BitcoinHD");
