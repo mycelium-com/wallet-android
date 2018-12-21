@@ -40,7 +40,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-public class GcmBroadcastReceiver extends BroadcastReceiver {
+public class FcmBroadcastReceiver extends BroadcastReceiver {
    @Override
    public void onReceive(Context context, Intent intent) {
       // Explicitly specify that FcmListenerService will handle the intent.
