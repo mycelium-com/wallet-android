@@ -92,6 +92,7 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -108,6 +109,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
@@ -700,18 +702,49 @@ public class Utils {
       return installed;
    }
 
+   private static boolean haveBackup(MbwManager mbwManager) {
+      WalletAccount account = mbwManager.getSelectedAccount();
+      MetadataStorage meta = mbwManager.getMetadataStorage();
+
+      // Then check if there are some SingleAddressAccounts with funds on it
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+         MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
+         return state == MetadataStorage.BackupState.NOT_VERIFIED;
+      }
+      return false;
+   }
+
    public static void pinProtectedBackup(final Activity activity) {
-      MbwManager manager = MbwManager.getInstance(activity);
+      final MbwManager manager = MbwManager.getInstance(activity);
       manager.runPinProtectedFunction(activity, new Runnable() {
 
          @Override
          public void run() {
-            Utils.backup(activity);
+            if(haveBackup(manager)){
+               AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+               builder.setMessage(R.string.did_backup).setCancelable(true)
+                       .setPositiveButton(R.string.verify_ex, new DialogInterface.OnClickListener() {
+                          public void onClick(DialogInterface dialog, int id) {
+                             dialog.dismiss();
+                             VerifyBackupActivity.callMe(activity);
+                          }
+                       }).setNegativeButton(R.string.need_backup, new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int id) {
+                     dialog.dismiss();
+                     Utils.backup(activity);
+                  }
+               });
+               AlertDialog alertDialog = builder.create();
+               alertDialog.show();
+            } else {
+               Utils.backup(activity);
+            }
          }
       });
    }
 
    private static void backup(final Activity parent) {
+
       AlertDialog.Builder builder = new AlertDialog.Builder(parent);
       builder.setMessage(R.string.backup_legacy_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
