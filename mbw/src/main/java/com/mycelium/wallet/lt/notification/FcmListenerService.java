@@ -39,7 +39,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -55,62 +54,67 @@ import com.mycelium.wallet.lt.activity.LtMainActivity;
 import java.util.Map;
 
 public class FcmListenerService extends FirebaseMessagingService {
-   private static final String TAG = "FcmListenerService";
+   private static final String TAG = "firebasenotificationlog";
    private static final String LT_CHANNEL_ID = "LT notification channel";
 
    @Override
-   public void onMessageReceived(RemoteMessage message){
-      String from = message.getFrom();
-      Map data = message.getData();
-      String key = message.getCollapseKey();
-      if (data == null) {
-         Log.i(TAG, "empty message received, ignoring");
-         return;
-      }
-      if (!data.isEmpty() && data.containsKey("collapse_key")) {
-         if (RemoteMessage. message.getMessageType() {
-            Log.i(TAG, "SEND ERROR: " + extras.toString());
-         } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-            Log.i(TAG, "DELETED: " + extras.toString());
-         } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-            Log.i(TAG, "Received: " + extras.toString());
+   public void onMessageReceived(RemoteMessage remoteMessage) {
+      Map data = remoteMessage.getData();
+      String messageType = remoteMessage.getMessageType();  // null for firebase
+      String key = remoteMessage.getCollapseKey();
+
+      Log.d(TAG, "Message type: " + messageType);
+      Log.d(TAG, "Message key: " + key);
+      Log.d(TAG, "Message data: " + data);
+
+      // Check if message contains a data payload.
+      if (data.size() > 0 && key != null) {
+         Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+//         if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+//            Log.d(TAG, "DELETED: " + data.toString());
+//         } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+//            Log.d(TAG, "DELETED: " + data.toString());
+//         } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
             if (LtApi.TRADE_ACTIVITY_NOTIFICATION_KEY.equals(key)) {
-               handleTradeActivityNotification(extras);
+               handleTradeActivityNotification(data);
             } else if (LtApi.AD_ACTIVITY_NOTIFICATION_KEY.equals(key)) {
-               handleAdActivityNotification(extras);
+               handleAdActivityNotification(data);
             }
-         }
+//         }
+      } else {
+         Log.d(TAG, "empty message received, ignoring");
       }
    }
 
    private void handleTradeActivityNotification(Map data) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
       if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
-         Log.w(TAG, "Local trader not enabled while getting trader activity notification");
+         Log.d(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
-      String trader = extras.getString("trader");
+      String trader = String.valueOf(data.get("trader"));
       if (!ltManager.getLocalTraderAddress().toString().equals(trader)) {
-         Log.w(TAG, "Local trader received notification for a different trader than the currently active");
+         Log.d(TAG, "Local trader received notification for a different trader than the currently active");
          return;
       }
       long lastChange;
       try {
-         String lastChangeString = extras.getString("lastChange");
+         String lastChangeString = String.valueOf(data.get("lastChange"));
          if (lastChangeString == null) {
-            Log.w(TAG, "Local trader received notification without lastChange");
+            Log.d(TAG, "Local trader received notification without lastChange");
             return;
          }
          lastChange = Long.parseLong(lastChangeString);
       } catch (NumberFormatException e) {
-         Log.w(TAG, "Local trader received notification invalid lastChange");
+         Log.d(TAG, "Local trader received notification invalid lastChange");
          return;
       }
       if (lastChange == 0) {
-         Log.w(TAG, "Local trader last change is zero");
+         Log.d(TAG, "Local trader last change is zero");
          return;
       }
-      String type = extras.getString("type");
+      String type = String.valueOf(data.get("type"));
 
       // Let local trader know what the latest trader change timestamp is
       if (ltManager.setLastTraderNotification(lastChange) && ltManager.areNotificationsEnabled()) {
@@ -119,24 +123,24 @@ public class FcmListenerService extends FirebaseMessagingService {
       }
    }
 
-   private void handleAdActivityNotification(Bundle extras) {
+   private void handleAdActivityNotification(Map data) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
       if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
-         Log.w(TAG, "Local trader not enabled while getting trader activity notification");
+         Log.d(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
-      String trader = extras.getString("trader");
+      String trader = String.valueOf(data.get("trader"));
       if (!ltManager.getLocalTraderAddress().toString().equals(trader)) {
-         Log.w(TAG, "Local trader received notification for a different trader than the currently active");
+         Log.d(TAG, "Local trader received notification for a different trader than the currently active");
          return;
       }
-      String type = extras.getString("type");
+      String type = String.valueOf(data.get("type"));
 
       if (ltManager.areNotificationsEnabled()) {
          showAdNotification(type);
       }
    }
-   
+
    private void showTradeNotification(String type, long lastChange) {
       Intent intent;
       if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)) {
@@ -168,7 +172,7 @@ public class FcmListenerService extends FirebaseMessagingService {
       ltManager.setLastNotificationSoundTimestamp(lastChange);
 
       // Vibrate
-      long[] pattern = { 500, 500 };
+      long[] pattern = {500, 500};
       builder.setVibrate(pattern);
 
       // Make a sound
@@ -188,7 +192,7 @@ public class FcmListenerService extends FirebaseMessagingService {
       Intent intent;
       if (LtApi.AD_TIME_OUT_NOTIFICATION_TYPE.equals(type)) {
          intent = PinProtectedActivity.createIntent(this,
-               LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
+                 LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
          );
       } else {
          // We don't know this type, so we ignore it
@@ -212,7 +216,7 @@ public class FcmListenerService extends FirebaseMessagingService {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
 
       // Vibrate
-      long[] pattern = { 500, 500 };
+      long[] pattern = {500, 500};
       builder.setVibrate(pattern);
 
       // Make a sound

@@ -67,6 +67,7 @@ dependencies {
     kapt 'com.jakewharton:butterknife-compiler:8.5.1'
     implementation 'com.squareup:otto:1.3.4'
     implementation "com.android.support:appcompat-v7:$androidSupportVersion"
+    implementation "com.android.support:support-compat:$androidSupportVersion"
     implementation "com.android.support:support-v4:$androidSupportVersion"
     implementation "com.android.support:animated-vector-drawable:$androidSupportVersion"
     implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
