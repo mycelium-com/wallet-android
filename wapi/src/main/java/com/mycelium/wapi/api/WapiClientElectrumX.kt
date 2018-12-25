@@ -151,7 +151,7 @@ class WapiClientElectrumX(
             val (errorCode, errorMessage) = if (firstError.code > 0) {
                 val electrumError = Wapi.ElectrumxError.getErrorByCode(firstError.code)
                 Pair(electrumError.errorCode, firstError.message)
-            }  else {
+            } else {
                 // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
                 // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
                 val errorMessageGroups = errorRegex.matchEntire(firstError.message)?.groups
