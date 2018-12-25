@@ -100,6 +100,8 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
          case SYNC_PROGRESS_UPDATED:
             postEvent(new SyncProgressUpdated(accountId));
             break;
+         case MALFORMED_OUTGOING_TRANSACTION_FOUND:
+            postEvent(new MalformedOutgoingTransactionFound());
          default:
             //unknown event
       }

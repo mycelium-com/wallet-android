@@ -78,6 +78,7 @@ import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.MalformedOutgoingTransactionFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -265,6 +266,11 @@ public class ModernMain extends AppCompatActivity {
       if (balanceRefreshTimer != null) {
          balanceRefreshTimer.cancel();
       }
+   }
+
+   @Subscribe
+   public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionFound event) {
+      Log.d("ModernMain","Outgoing");
    }
 
    @Override
