@@ -103,6 +103,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -635,7 +636,7 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-              && !isBch) {
+              && !isBch && !(account instanceof HDAccountExternalSignature)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
@@ -959,8 +960,8 @@ public class AccountsFragment extends Fragment {
                MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
                        AddressType.P2PKH);
             } else {
-               Intent intent = new Intent(getActivity(), HDSigningActivity.class);
-               intent.putExtra("account", _focusedAccount.getId());
+               Intent intent = new Intent(getActivity(), HDSigningActivity.class)
+                       .putExtra("account", _focusedAccount.getId());
                startActivity(intent);
             }
          }
@@ -1290,10 +1291,10 @@ public class AccountsFragment extends Fragment {
          CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.question_archive_account, accountName, valueString,
+         dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                  linkedAccountName, linkedValueString);
       } else {
-         dialogText = getString(R.string.question_archive_account_s, accountName, valueString);
+         dialogText = getString(R.string.question_archive_account, accountName, valueString);
       }
       return dialogText;
    }
