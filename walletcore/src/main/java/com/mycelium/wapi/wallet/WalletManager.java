@@ -1178,7 +1178,12 @@ public class WalletManager {
         //New collection should be created to prevent concurrent modification of iterator
         Map<UUID, WalletAccount> walletAccounts = new HashMap<>(_walletAccounts);
         Map<UUID, WalletAccount> extraAccounts = new HashMap<>(_extraAccounts);
-        return Iterables.concat(walletAccounts.values(), extraAccounts.values());
+
+        // Get result set by removing account duplicates from source lists
+        Iterable<WalletAccount> walletAccountsSet = new HashSet<>(walletAccounts.values());
+        Iterable<WalletAccount> extraAccountsSet = new HashSet<>(extraAccounts.values());
+
+        return Iterables.concat(walletAccountsSet, extraAccountsSet);
     }
 
     private class AccountEventManager implements AbstractAccount.EventHandler {
