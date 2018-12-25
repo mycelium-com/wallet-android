@@ -64,7 +64,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1181,8 +1180,8 @@ public class WalletManager {
         Map<UUID, WalletAccount> extraAccounts = new HashMap<>(_extraAccounts);
 
         // Get result set by removing account duplicates from source lists
-        Iterable<WalletAccount> walletAccountsSet = new LinkedHashSet<>(walletAccounts.values());
-        Iterable<WalletAccount> extraAccountsSet = new LinkedHashSet<>(extraAccounts.values());
+        Iterable<WalletAccount> walletAccountsSet = new HashSet<>(walletAccounts.values());
+        Iterable<WalletAccount> extraAccountsSet = new HashSet<>(extraAccounts.values());
 
         return Iterables.concat(walletAccountsSet, extraAccountsSet);
     }
