@@ -709,7 +709,7 @@ public class Utils {
       // Then check if there are some SingleAddressAccounts with funds on it
       if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
-         return state == MetadataStorage.BackupState.NOT_VERIFIED;
+         return state == MetadataStorage.BackupState.NOT_VERIFIED || state == MetadataStorage.BackupState.VERIFIED;
       }
       return false;
    }
@@ -717,40 +717,38 @@ public class Utils {
    public static void pinProtectedBackup(final Activity activity) {
       final MbwManager manager = MbwManager.getInstance(activity);
       manager.runPinProtectedFunction(activity, new Runnable() {
-
          @Override
          public void run() {
-            if(haveBackup(manager)){
-               AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-               builder.setMessage(R.string.did_backup).setCancelable(true)
-                       .setPositiveButton(R.string.verify_ex, new DialogInterface.OnClickListener() {
-                          public void onClick(DialogInterface dialog, int id) {
-                             dialog.dismiss();
-                             VerifyBackupActivity.callMe(activity);
-                          }
-                       }).setNegativeButton(R.string.need_backup, new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                     dialog.dismiss();
-                     Utils.backup(activity);
-                  }
-               });
-               AlertDialog alertDialog = builder.create();
-               alertDialog.show();
-            } else {
-               Utils.backup(activity);
-            }
+             Utils.backup(activity);
          }
       });
    }
 
    private static void backup(final Activity parent) {
 
-      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+      final MbwManager manager = MbwManager.getInstance(parent);
+      final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
       builder.setMessage(R.string.backup_legacy_warning).setCancelable(true)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  BackupToPdfActivity.callMe(parent);
+                  if (haveBackup(manager)) {
+                     AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+                     builder.setMessage(R.string.did_backup).setCancelable(true)
+                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                   dialog.dismiss();
+                                   BackupToPdfActivity.callMe(parent);
+                                }
+                             }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                           dialog.dismiss();
+                        }
+                     });
+                     AlertDialog alertDialog = builder.create();
+                     alertDialog.show();
+                  } else {
+                     BackupToPdfActivity.callMe(parent);
+                  }
                }
             }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
          public void onClick(DialogInterface dialog, int id) {
