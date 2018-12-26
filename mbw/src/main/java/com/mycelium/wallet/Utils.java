@@ -92,7 +92,6 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
-import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
@@ -108,8 +107,8 @@ import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
@@ -125,8 +124,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -724,38 +721,36 @@ public class Utils {
       });
    }
 
-    private static void backup(final Activity parent) {
-        final MbwManager manager = MbwManager.getInstance(parent);
-        new AlertDialog.Builder(parent)
-                .setMessage(R.string.backup_legacy_warning).setCancelable(true)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (haveBackup(manager)) {
-                            new AlertDialog.Builder(parent)
-                                    .setMessage(R.string.did_backup).setCancelable(true)
-                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            dialog.dismiss();
-                                            BackupToPdfActivity.callMe(parent);
-                                        }
-                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .create()
-                            .show();
-                        } else {
-                            BackupToPdfActivity.callMe(parent);
-                        }
+   private static void backup(final Activity parent) {
+      final MbwManager manager = MbwManager.getInstance(parent);
+      new AlertDialog.Builder(parent)
+              .setMessage(R.string.backup_legacy_warning).setCancelable(true)
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    if (haveBackup(manager)) {
+                       secondaryBackup(parent);
+                    } else {
+                       BackupToPdfActivity.callMe(parent);
                     }
-                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-        })
-        .create()
-        .show();
-    }
+                 }
+              })
+              .setNegativeButton(R.string.no, null)
+              .create()
+              .show();
+   }
+
+   private static void secondaryBackup(final Activity parent) {
+      new AlertDialog.Builder(parent)
+              .setMessage(R.string.did_backup).setCancelable(true)
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    BackupToPdfActivity.callMe(parent);
+                 }
+              })
+              .setNegativeButton(R.string.cancel, null)
+              .create()
+              .show();
+   }
 
    public static void exportSelectedAccount(final Activity parent) {
       final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
@@ -772,10 +767,7 @@ public class Utils {
                           account);
 
                }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-         }
-      });
+            }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
    }
