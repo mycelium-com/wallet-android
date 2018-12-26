@@ -605,6 +605,8 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       List<Sha256Hash> broadcastedIds = new LinkedList<>();
       Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
+      int malformedTransactionsCount = 0;
+
       for (byte[] rawTransaction : transactions.values()) {
          Transaction transaction;
          try {
@@ -618,9 +620,14 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             broadcastedIds.add(transaction.getId());
             _backing.removeOutgoingTransaction(transaction.getId());
          } else if (result.getResultType() == BroadcastResultType.REJECT_MALFORMED) {
-            postEvent(Event.MALFORMED_OUTGOING_TRANSACTIONS_FOUND);
+            malformedTransactionsCount++;
          }
       }
+
+      if (malformedTransactionsCount > 0) {
+         postEvent(Event.MALFORMED_OUTGOING_TRANSACTIONS_FOUND);
+      }
+
       if (!broadcastedIds.isEmpty()) {
          onTransactionsBroadcasted(broadcastedIds);
       }
@@ -786,6 +793,15 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
       updateLocalBalance(); //will still need a new sync besides re-calculating
       return true;
+   }
+
+   @Override
+   public void removeAllQueuedTransactions() {
+      Map<Sha256Hash, byte[]> outgoingTransactions = _backing.getOutgoingTransactions();
+
+      for(Sha256Hash key : outgoingTransactions.keySet()) {
+         cancelQueuedTransaction(key);
+      }
    }
 
    @Override
