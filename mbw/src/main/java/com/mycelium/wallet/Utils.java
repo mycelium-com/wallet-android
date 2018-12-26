@@ -724,39 +724,38 @@ public class Utils {
       });
    }
 
-   private static void backup(final Activity parent) {
-
-      final MbwManager manager = MbwManager.getInstance(parent);
-      final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.backup_legacy_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  if (haveBackup(manager)) {
-                     AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-                     builder.setMessage(R.string.did_backup).setCancelable(true)
-                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+    private static void backup(final Activity parent) {
+        final MbwManager manager = MbwManager.getInstance(parent);
+        new AlertDialog.Builder(parent)
+                .setMessage(R.string.backup_legacy_warning).setCancelable(true)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (haveBackup(manager)) {
+                            new AlertDialog.Builder(parent)
+                                    .setMessage(R.string.did_backup).setCancelable(true)
+                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.dismiss();
+                                            BackupToPdfActivity.callMe(parent);
+                                        }
+                                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                   dialog.dismiss();
-                                   BackupToPdfActivity.callMe(parent);
+                                    dialog.dismiss();
                                 }
-                             }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                           dialog.dismiss();
+                            })
+                            .create()
+                            .show();
+                        } else {
+                            BackupToPdfActivity.callMe(parent);
                         }
-                     });
-                     AlertDialog alertDialog = builder.create();
-                     alertDialog.show();
-                  } else {
-                     BackupToPdfActivity.callMe(parent);
-                  }
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-         }
-      });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
-   }
+                    }
+                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        })
+        .create()
+        .show();
+    }
 
    public static void exportSelectedAccount(final Activity parent) {
       final WalletAccount account = MbwManager.getInstance(parent).getSelectedAccount();
