@@ -1704,6 +1704,6 @@ public class WalletManager {
         /**
          * Malformed outgoing transaction detected
          */
-        MALFORMED_OUTGOING_TRANSACTION_FOUND
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
     }
 }

@@ -78,7 +78,7 @@ import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
-import com.mycelium.wallet.event.MalformedOutgoingTransactionFound;
+import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -97,7 +97,6 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -269,7 +268,7 @@ public class ModernMain extends AppCompatActivity {
    }
 
    @Subscribe
-   public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionFound event) {
+   public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionsFound event) {
       Log.d("ModernMain","Outgoing");
    }
 

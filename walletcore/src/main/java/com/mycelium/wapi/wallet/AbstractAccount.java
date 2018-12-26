@@ -618,7 +618,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             broadcastedIds.add(transaction.getId());
             _backing.removeOutgoingTransaction(transaction.getId());
          } else if (result.getResultType() == BroadcastResultType.REJECT_MALFORMED) {
-            postEvent(Event.MALFORMED_OUTGOING_TRANSACTION_FOUND);
+            postEvent(Event.MALFORMED_OUTGOING_TRANSACTIONS_FOUND);
          }
       }
       if (!broadcastedIds.isEmpty()) {
