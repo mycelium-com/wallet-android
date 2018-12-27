@@ -272,28 +272,21 @@ public class ModernMain extends AppCompatActivity {
    public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionsFound event) {
       final MalformedOutgoingTransactionsFound ev = event;
       if (_mbwManager.isShowQueuedTransactionsRemovalAlert()) {
-         // Whatever result the user choose, the confirmation dialog will not be shown
+         // Whatever option the user choose, the confirmation dialog will not be shown
          // until the next application start
          _mbwManager.setShowQueuedTransactionsRemovalAlert(false);
 
-         AlertDialog.Builder confirmDialog = new AlertDialog.Builder(this);
-         confirmDialog.setTitle("Failed transactions removal");
-         confirmDialog.setMessage("A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now? ");
-         confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface arg0, int arg1) {
-               WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.account);
-               account.removeAllQueuedTransactions();
-            }
-         });
-
-         confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-         });
-
-         confirmDialog.show();
+          new AlertDialog.Builder(this)
+                  .setTitle(R.string.failed_transaction_removal_title)
+                  .setMessage(R.string.failed_transaction_removal_message)
+                  .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface arg0, int arg1) {
+                          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
+                          account.removeAllQueuedTransactions();
+                      }
+                  })
+                  .setNegativeButton(R.string.no, null)
+                  .show();
       }
    }
 
