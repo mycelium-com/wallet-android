@@ -672,6 +672,11 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
    }
 
    @Override
+   public void removeAllQueuedTransactions() {
+
+   }
+
+   @Override
    public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
       return getCurrencyBasedBalance().confirmed;
    }
