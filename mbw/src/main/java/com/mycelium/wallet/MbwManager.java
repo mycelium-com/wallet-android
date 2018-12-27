@@ -142,6 +142,8 @@ public class MbwManager {
     private ScheduledFuture<?> pinOkTimeoutHandle;
     private int failedPinCount = 0;
 
+    private volatile boolean showQueuedTransactionsRemovalAlert = true;
+
     private final CurrencySwitcher _currencySwitcher;
     private boolean startUpPinUnlocked = false;
     private boolean randomizePinPad;
@@ -1443,5 +1445,13 @@ public class MbwManager {
         } catch (Exception ex) {
             return "";
         }
+    }
+
+    public boolean isShowQueuedTransactionsRemovalAlert() {
+        return showQueuedTransactionsRemovalAlert;
+    }
+
+    public void setShowQueuedTransactionsRemovalAlert(boolean showQueuedTransactionsRemovalAlert) {
+        this.showQueuedTransactionsRemovalAlert = showQueuedTransactionsRemovalAlert;
     }
 }

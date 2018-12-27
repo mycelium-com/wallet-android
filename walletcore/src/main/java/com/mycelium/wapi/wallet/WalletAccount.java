@@ -326,6 +326,11 @@ public interface WalletAccount {
    boolean deleteTransaction(Sha256Hash transactionId);
 
    /**
+    * Remove all queued transactions
+    */
+   void removeAllQueuedTransactions();
+
+   /**
     * Determine the maximum spendable amount you can send in a transaction
     */
    ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse);
