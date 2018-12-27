@@ -335,7 +335,7 @@ public class ChangellyActivity extends AppCompatActivity {
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         String destination = walletAccount.getReceivingAddress().get().toString();
-        if(walletAccount instanceof CoinapultAccount){
+        if (walletAccount instanceof CoinapultAccount) {
             destination = walletAccount.getReceivingAddress().get().toString();
         } else {
             AbstractAccount account = (AbstractAccount) walletAccount;
