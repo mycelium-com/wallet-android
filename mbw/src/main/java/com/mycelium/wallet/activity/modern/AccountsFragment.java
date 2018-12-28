@@ -103,6 +103,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -224,7 +225,6 @@ public class AccountsFragment extends Fragment {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
@@ -233,6 +233,10 @@ public class AccountsFragment extends Fragment {
             updateIncludingMenus();
             if (account.getType() != WalletAccount.Type.COLU && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
                setNameForNewAccount(account);
+            }
+            if (account.getType() == WalletAccount.Type.BTCSINGLEADDRESS
+                    && intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+                setNameForUpgradeAccount(account);
             }
             eventBus.post(new ExtraAccountsChanged());
             eventBus.post(new AccountChanged(accountid));
@@ -555,6 +559,21 @@ public class AccountsFragment extends Fragment {
       setLabelOnAccount(account, defaultName, false);
    }
 
+    private void setNameForUpgradeAccount(WalletAccount account) {
+        // special case for sa upgrade accounts
+        List<UUID> uuidList = walletManager.getAccountVirtualIds((SingleAddressAccount) account);
+        String oldName = "";
+        // delete all previous records associated with virtual ids but keep name
+        for (UUID uuid : uuidList) {
+            if (!_storage.getLabelByAccount(uuid).isEmpty()) {
+                oldName = _storage.getLabelByAccount(uuid);
+            }
+            _storage.deleteAccountMetadata(uuid);
+        }
+        // store single id with an old name
+        _storage.storeAccountLabel(account.getId(), oldName);
+    }
+
    private void update() {
       if (!isAdded()) {
          return;
@@ -616,7 +635,7 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-              && !isBch) {
+              && !isBch && !(account instanceof HDAccountExternalSignature)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
@@ -940,8 +959,8 @@ public class AccountsFragment extends Fragment {
                MessageSigningActivity.callMe(getActivity(), ((ColuAccount) _focusedAccount).getPrivateKey(),
                        AddressType.P2PKH);
             } else {
-               Intent intent = new Intent(getActivity(), HDSigningActivity.class);
-               intent.putExtra("account", _focusedAccount.getId());
+               Intent intent = new Intent(getActivity(), HDSigningActivity.class)
+                       .putExtra("account", _focusedAccount.getId());
                startActivity(intent);
             }
          }
@@ -1271,10 +1290,10 @@ public class AccountsFragment extends Fragment {
          CurrencyBasedBalance linkedBalance = linkedAccount.getCurrencyBasedBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.question_archive_account, accountName, valueString,
+         dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                  linkedAccountName, linkedValueString);
       } else {
-         dialogText = getString(R.string.question_archive_account_s, accountName, valueString);
+         dialogText = getString(R.string.question_archive_account, accountName, valueString);
       }
       return dialogText;
    }

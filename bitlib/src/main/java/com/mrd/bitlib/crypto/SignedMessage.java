@@ -286,5 +286,4 @@ public class SignedMessage implements Serializable {
          this.recId = recId;
       }
    }
-
 }
