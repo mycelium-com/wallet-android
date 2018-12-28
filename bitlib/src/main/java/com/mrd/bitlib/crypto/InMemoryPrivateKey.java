@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * Parts of this code was extracted from the Java cryptography library from
- * www.bouncycastle.org.
- */
 package com.mrd.bitlib.crypto;
 
 import com.mrd.bitlib.bitcoinj.Base58;
@@ -30,9 +25,13 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A Bitcoin private key that is kept in memory.
@@ -217,6 +216,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    }
 
    @Override
+   @NotNull
    public PublicKey getPublicKey() {
       return _publicKey;
    }
@@ -325,21 +325,21 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
          return t;
       }
 
-      private BigInteger bits2int(byte[] in)
-      {
-         BigInteger v = new BigInteger(1, in);
+      private BigInteger bits2int(byte[] in) {
          // Step H1/H2a, ignored as tlen === qlen (256 bit)
-         return v;
+         return new BigInteger(1, in);
       }
    }
 
    @Override
-   protected Signature generateSignature(Sha256Hash messageHash) {
+   @NotNull
+   protected Signature generateSignature(@NotNull Sha256Hash messageHash) {
       return generateSignatureInternal(messageHash, new DsaSignatureNonceGenDeterministic(messageHash, this));
    }
 
    @Override
-   protected Signature generateSignature(Sha256Hash messageHash, RandomSource randomSource) {
+   @NotNull
+   protected Signature generateSignature(@NotNull Sha256Hash messageHash, @NotNull RandomSource randomSource) {
       return generateSignatureInternal(messageHash, new DsaSignatureNonceGenRandom(randomSource));
    }
 
@@ -362,13 +362,11 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
 
          r = x.mod(n);
 
-         BigInteger d = _privateKey;
-
-         s = k.modInverse(n).multiply(e.add(d.multiply(r))).mod(n);
+         s = k.modInverse(n).multiply(e.add(_privateKey.multiply(r))).mod(n);
       } while (s.equals(BigInteger.ZERO));
 
       // Enforce low S value
-      if(s.compareTo(Parameters.MAX_SIG_S) == 1){
+      if(s.compareTo(Parameters.MAX_SIG_S) > 0){
          // If the signature is larger than MAX_SIG_S, inverse it
          s = Parameters.n.subtract(s);
       }
@@ -385,7 +383,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
       } else {
          // This happens if the most significant bit is set and we have an
          // extra leading zero to avoid a negative BigInteger
-         assert bytes.length == 33 && bytes[0] == 0;
+         checkState(bytes.length == 33 && bytes[0] == 0);
          System.arraycopy(bytes, 1, result, 0, bytes.length - 1);
       }
       return result;
