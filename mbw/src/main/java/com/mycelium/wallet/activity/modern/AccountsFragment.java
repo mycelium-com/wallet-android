@@ -225,7 +225,6 @@ public class AccountsFragment extends Fragment {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);

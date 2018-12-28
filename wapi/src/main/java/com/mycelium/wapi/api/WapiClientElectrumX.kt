@@ -144,28 +144,33 @@ class WapiClientElectrumX(
     }
 
     fun handleBroadcastResponse(responseList: List<RpcResponse>): WapiResponse<BroadcastTransactionResponse> {
-        if (responseList.all { it.hasError }) {
-            responseList.forEach { response -> logger.logError(response.error?.toString()) }
-            val firstError = responseList[0].error
-                    ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
-            val (errorCode, errorMessage) = if (firstError.code > 0) {
-                Pair(firstError.code, firstError.message)
-            } else {
-                // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
-                // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
-                val errorMessageGroups = errorRegex.matchEntire(firstError.message)?.groups
+        try {
+            if (responseList.all { it.hasError }) {
+                responseList.forEach { response -> logger.logError(response.error?.toString()) }
+                val firstError = responseList[0].error
                         ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
-                val errorCode = errorMessageGroups[1]?.value?.toInt()
-                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
-                val errorMessage = errorMessageGroups[2]?.value
-                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
-                val error = Wapi.ElectrumxError.getErrorByCode(errorCode)
-                Pair(error.errorCode, errorMessage)
+                val (errorCode, errorMessage) = if (firstError.code > 0) {
+                    val electrumError = Wapi.ElectrumxError.getErrorByCode(firstError.code)
+                    Pair(electrumError.errorCode, firstError.message)
+                } else {
+                    // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
+                    // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
+                    val errorMessageGroups = errorRegex.matchEntire(firstError.message)?.groups
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val errorCode = errorMessageGroups[1]?.value?.toInt()
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val errorMessage = errorMessageGroups[2]?.value
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val error = Wapi.ElectrumxError.getErrorByCode(errorCode)
+                    Pair(error.errorCode, errorMessage)
+                }
+                return WapiResponse<BroadcastTransactionResponse>(errorCode, errorMessage, null)
             }
-            return WapiResponse<BroadcastTransactionResponse>(errorCode, errorMessage, null)
+            val txId = responseList.filter { !it.hasError }[0].getResult(String::class.java)!!
+            return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
+        } catch (ex: Exception) {
+            return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
         }
-        val txId = responseList.filter { !it.hasError }[0].getResult(String::class.java)!!
-        return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
     }
 
     override fun checkTransactions(request: CheckTransactionsRequest): WapiResponse<CheckTransactionsResponse> {
