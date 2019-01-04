@@ -1220,11 +1220,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          }
          if (oldVersion < 6) {
             List<UUID> listForRemove = new ArrayList<>();
-            Cursor cursor = null;
-            try {
-               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-               cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
-                       null, null, null, null);
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
+                    null, null, null, null)) {
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   Type type = new TypeToken<Collection<String>>() {
@@ -1238,14 +1236,12 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                      }
                   }
                }
-            } finally {
-               if (cursor != null) {
-                  cursor.close();
-               }
             }
+            SQLiteStatement deleteSingleAddressAccount = db.compileStatement("DELETE FROM single WHERE id = ?");
             for (UUID uuid : listForRemove) {
                Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
-               deleteSingleAddressAccountContext(uuid);
+               deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
+               deleteSingleAddressAccount.execute();
             }
          }
       }
