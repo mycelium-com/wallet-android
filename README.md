@@ -202,4 +202,4 @@ Thanks to our numerous volunteer translators who provide high-quality translatio
 
 Thanks to Johannes Zweng for his testing and providing pull requests for fixes.
 
-Thanks to all beta testers to provide early feedback.
+Thanks to all beta testers for providing early feedback.
