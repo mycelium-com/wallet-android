@@ -495,11 +495,8 @@ public class WalletManager {
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
                 if (singleAddressAccount.getAvailableAddressTypes().size() > 1) {
-                    for (AddressType addressType: singleAddressAccount.getAvailableAddressTypes()) {
-                        Address address = singleAddressAccount.getAddress(addressType);
-                        UUID uuid = SingleAddressAccount.calculateId(address);
-                        _walletAccounts.remove(uuid);
-                    }
+                    // as remove() returns true we can remove all records with given account
+                    while (_walletAccounts.values().remove(account));
                     singleAddressAccount.forgetPrivateKey(cipher);
                     _backing.deleteSingleAddressAccountContext(id);
 
@@ -518,7 +515,8 @@ public class WalletManager {
                 hdAccount.clearBacking();
                 hdAccounts.remove(hdAccount);
                 _backing.deleteBip44AccountContext(id);
-                _walletAccounts.remove(id);
+                // as remove() returns true we can remove all records with given account
+                while (_walletAccounts.values().remove(hdAccount));
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestHdWalletAccountRemoval(((HDAccount) account).getAccountIndex());
                 }
@@ -1178,7 +1176,12 @@ public class WalletManager {
         //New collection should be created to prevent concurrent modification of iterator
         Map<UUID, WalletAccount> walletAccounts = new HashMap<>(_walletAccounts);
         Map<UUID, WalletAccount> extraAccounts = new HashMap<>(_extraAccounts);
-        return Iterables.concat(walletAccounts.values(), extraAccounts.values());
+
+        // Get result set by removing account duplicates from source lists
+        Iterable<WalletAccount> walletAccountsSet = new HashSet<>(walletAccounts.values());
+        Iterable<WalletAccount> extraAccountsSet = new HashSet<>(extraAccounts.values());
+
+        return Iterables.concat(walletAccountsSet, extraAccountsSet);
     }
 
     private class AccountEventManager implements AbstractAccount.EventHandler {
@@ -1308,28 +1311,8 @@ public class WalletManager {
         //if its unused, we can remove it from the manager
         synchronized (_walletAccounts) {
             hdAccounts.remove(account);
-            Bip39.MasterSeed masterSeed = null;
-            AesKeyCipher cipher = AesKeyCipher.defaultKeyCipher();
-            try {
-                masterSeed = getMasterSeed(cipher);
-            } catch (InvalidKeyCipher invalidKeyCipher) {
-                throw new IllegalStateException("Invalid cipher");
-            }
-            Map<BipDerivationType, HDAccountKeyManager> keyManagerMap = new ArrayMap<>();
-            for (BipDerivationType derivationType : BipDerivationType.values()) {
-                // Generate the root private key
-                HdKeyNode root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType);
-                try {
-                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, _network, account.getAccountIndex(),
-                            _secureKeyValueStore, cipher, derivationType));
-                } catch (InvalidKeyCipher invalidKeyCipher) {
-                    throw new IllegalStateException("Invalid cipher");
-                }
-            }
-            final List<UUID> uuidList = getAccountVirtualIds(keyManagerMap, account);
-            for (UUID uuid : uuidList) {
-                _walletAccounts.remove(uuid);
-            }
+            // as remove() returns true we can remove all records with given account
+            while (_walletAccounts.values().remove(account));
             _backing.deleteBip44AccountContext(account.getId());
 
             if (_btcToBchAccounts.containsKey(account.getId())) {
@@ -1694,6 +1677,10 @@ public class WalletManager {
         /**
          * Sync progress updated
          */
-        SYNC_PROGRESS_UPDATED
+        SYNC_PROGRESS_UPDATED,
+        /**
+         * Malformed outgoing transaction detected
+         */
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
     }
 }

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -82,12 +81,9 @@ public class SimplexMainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Register ourselves so that we can provide the initial value.
         _eventBus.register(this);
 
         if (this._simplexUIType == SimplexUITypes.WebView) {
-            Log.d("simplex", "onResume WebView");
             Intent i = new Intent(SimplexMainActivity.this, ModernMain.class);
             i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
@@ -97,8 +93,6 @@ public class SimplexMainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-
-        // Always unregister when an object no longer should be on the bus.
         _eventBus.unregister(this);
     }
 
@@ -108,23 +102,15 @@ public class SimplexMainActivity extends Activity {
         destroyCheckers();
     }
 
-    /**
-     * Simplex App Auth logic Start
-     **/
-
     private Runnable simplexAsync = new Runnable() {
         @Override
         public void run() {
-            Log.d("simplex", "get nonce...");
             _server.getNonceAsync(_eventBus, getApplicationContext());
         }
     };
 
     @Subscribe
     public void getNonceCallback(SimplexNonceResponse nonceResponse) {
-        Log.d("Simplex", "GetNonceCallback...");
-        Log.d("Simplex", "simplex nonce: " + nonceResponse.simplexNonce);
-        Log.d("Simplex", "google nonce: " + nonceResponse.googleNonce);
         _simplexNonce = nonceResponse;
         initChecker();
         //execute the lvl code here
@@ -139,25 +125,18 @@ public class SimplexMainActivity extends Activity {
                 signedData != null &&
                 signature != null;
         if (isReadyToTrade) {
-            Log.d("Simplex", "RedirectWebView...");
             String fullSiteUrl = String.format("%s?nonce=%s&wallet_address=%s&lvlcode=%s&lvlsignedData=%s&signature=%s", siteUrl, _simplexNonce.simplexNonce, _walletAddress, responseCode, signedData, signature);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullSiteUrl));
-            Log.d("webview post nonce", String.valueOf(_simplexNonce.simplexNonce));
-            Log.d("webview post wallet", _walletAddress);
-            Log.d("webview post lvlCode", String.valueOf(responseCode));
-            Log.d("webview post signedData", signedData);
-            Log.d("webview post signature", signature);
             setLayout(SimplexUITypes.WebView);
             startActivity(browserIntent);
         } else {
-            SimplexError error = new SimplexError();
-            error.activityHandler = new Handler(this.getMainLooper());
-            error.message = getString(R.string.gp_required);
+            String message = getString(R.string.gp_required);
+            SimplexError error = new SimplexError(new Handler(getMainLooper()), message);
             displayError(error);
         }
     }
 
-    /** Simplex App Auth logic End **/
+    /* Simplex App Auth logic End **/
 
 
     /**
@@ -171,22 +150,21 @@ public class SimplexMainActivity extends Activity {
                 findViewById(R.id.llSimplexLoadingProgress).setVisibility(View.GONE);
                 findViewById(R.id.llSimplexErrorWrapper).setVisibility(View.GONE);
                 break;
-
             case RetryLater:
                 findViewById(R.id.llSimplexValidationWait).setVisibility(View.GONE);
                 findViewById(R.id.llSimplexLoadingProgress).setVisibility(View.GONE);
                 findViewById(R.id.llSimplexErrorWrapper).setVisibility(View.VISIBLE);
-
+                break;
         }
     }
 
     public void displayError(final SimplexError error) {
-        Log.i("simplex", error.message);
         // Don't update UI if Activity is finishing.
-        if (isFinishing())
+        if (isFinishing()) {
             return;
+        }
 
-        error.activityHandler.post(new Runnable() {
+        error.handler.post(new Runnable() {
             public void run() {
                 //update the UI
                 TextView errorTextView = findViewById(R.id.tvSimplexError);
@@ -203,20 +181,21 @@ public class SimplexMainActivity extends Activity {
 
     @Subscribe
     public void displayRetryError(final SimplexError error) {
-        Log.i("simplex", error.message);
         // Don't update UI if Activity is finishing.
-        if (isFinishing())
+        if (isFinishing()) {
             return;
+        }
 
-        error.activityHandler.post(new Runnable() {
+        error.handler.post(new Runnable() {
             public void run() {
                 //update the UI
                 TextView errorTextView = findViewById(R.id.tvSimplexError);
                 String errorMessage;
-                if (error.message != null && !error.message.isEmpty())
+                if (error.message != null && !error.message.isEmpty()) {
                     errorMessage = generateDisplayErrorMessage(error.message);
-                else
+                } else {
                     errorMessage = generateDisplayErrorMessage("we have connectivity error");
+                }
 
                 errorTextView.setText(errorMessage);
                 setLayout(SimplexUITypes.RetryLater);
@@ -249,8 +228,7 @@ public class SimplexMainActivity extends Activity {
         RetryLater
     }
 
-    /** Activity UI logic End **/
-
+    /* Activity UI logic End */
 
     /**
      * LVL context start
@@ -271,10 +249,10 @@ public class SimplexMainActivity extends Activity {
     }
 
     private void destroyCheckers() {
-        if (_checker != null)
+        if (_checker != null) {
             _checker.onDestroy();
+        }
     }
 
-    /** LVL context end **/
-
+    /* LVL context end */
 }
