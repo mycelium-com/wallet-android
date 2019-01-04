@@ -1244,7 +1244,8 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                }
             }
             for (UUID uuid : listForRemove) {
-               db.delete("single", "id = ?", new String[]{uuidToBytes(uuid).toString()});
+               Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
+               deleteSingleAddressAccountContext(uuid);
             }
          }
       }
