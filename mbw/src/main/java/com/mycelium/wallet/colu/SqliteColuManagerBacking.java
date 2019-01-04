@@ -1031,7 +1031,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 6;
+      private static final int DATABASE_VERSION = 7;
       private Context context;
 
       OpenHelper(Context context) {
@@ -1218,20 +1218,20 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE bip44_new RENAME TO bip44");
             db.execSQL("DROP TABLE bip44_old");
          }
-         if (oldVersion < 6) {
+         if (oldVersion < 7) {
             List<UUID> listForRemove = new ArrayList<>();
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
             try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
                     null, null, null, null)) {
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-                  Type type = new TypeToken<Collection<String>>() {
-                  }.getType();
+                  listForRemove.add(id);
+                  Type type = new TypeToken<Collection<String>>() {}.getType();
                   Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
                   for (String addressString : addressStringsList) {
                      Address address = Address.fromString(addressString);
-                     if (address.getType() != AddressType.P2PKH) {
-                        listForRemove.add(id);
+                     if (address.getType() == AddressType.P2PKH) {
+                        listForRemove.remove(id);
                         break;
                      }
                   }
