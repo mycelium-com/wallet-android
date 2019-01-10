@@ -5,11 +5,11 @@ RUN dpkg --add-architecture i386 && \
     apt-get install -y software-properties-common && \
     apt-get update -y && \
     apt-get install -y wget \
-        openjdk-8-jre-headless=8u162-b12-1 \
-        openjdk-8-jre=8u162-b12-1 \
-        openjdk-8-jdk-headless=8u162-b12-1 \
-        openjdk-8-jdk=8u162-b12-1 \
-        git unzip && \
+            openjdk-8-jre-headless=8u162-b12-1 \
+            openjdk-8-jre=8u162-b12-1 \
+            openjdk-8-jdk-headless=8u162-b12-1 \
+            openjdk-8-jdk=8u162-b12-1 \
+            git unzip && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean
