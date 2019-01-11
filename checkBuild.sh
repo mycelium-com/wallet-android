@@ -36,6 +36,8 @@ You can monitor progress in ${workdir}progress.log\n" | tee ${workdir}progress.l
 cp -r . $workdir
 cd $workdir
 
+rm local.properties # this doesn't work in docker and shouldn't be needed outside of docker.
+
 java -jar apktool.jar d --output original $releaseFile.apk
 
 git config user.email "only@thistmprepo.com"
