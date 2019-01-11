@@ -38,7 +38,10 @@ cd $workdir
 
 java -jar apktool.jar d --output original $releaseFile.apk
 
+git config user.email "only@thistmprepo.com"
+git config user.name "only temporary"
 git stash
+git checkout $revision
 git submodule update --init --recursive
 
 # these files are either irrelevant (apktool.yml is created by the akp extractor) or not reproducible signature/meta data (CERT, MANIFEST)
