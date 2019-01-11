@@ -91,24 +91,18 @@ class ReceiveCoinsModel(
         val uri = StringBuilder(prefix).append(':')
         uri.append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
-            val value = when (accountDisplayType) {
-                AccountDisplayType.COLU_ACCOUNT -> amountData.value!!.value.toPlainString()
-                AccountDisplayType.COINAPULT_ACCOUNT -> {
-                    val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
-                            CurrencyValue.BTC, mbwManager.exchangeRateManager).value
-                    CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false)
-                }
-                else -> {
-                    val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
-                            account.accountDefaultCurrency, mbwManager.exchangeRateManager).value
-                    CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false)
-                }
-            }
-
-            if (value != null) {
-                uri.append("?amount=").append(value)
+            if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
+                uri.append("?amount=").append(amountData.value!!.value.toPlainString())
             } else {
-                Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
+                val currency = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) CurrencyValue.BTC else account.accountDefaultCurrency
+                val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
+                        currency, mbwManager.exchangeRateManager).value
+
+                if (value != null) {
+                    uri.append("?amount=").append(CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false))
+                } else {
+                    Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
+                }
             }
         }
         return uri.toString()
