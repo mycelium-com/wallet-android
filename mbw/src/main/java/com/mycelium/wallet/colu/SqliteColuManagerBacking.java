@@ -34,21 +34,22 @@
 
 package com.mycelium.wallet.colu;
 
-import android.util.ArrayMap;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
@@ -61,17 +62,16 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.WalletManagerBacking;
-import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -1031,7 +1031,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 5;
+      private static final int DATABASE_VERSION = 7;
       private Context context;
 
       OpenHelper(Context context) {
@@ -1217,6 +1217,32 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE bip44 RENAME TO bip44_old");
             db.execSQL("ALTER TABLE bip44_new RENAME TO bip44");
             db.execSQL("DROP TABLE bip44_old");
+         }
+         if (oldVersion < 7) {
+            List<UUID> listForRemove = new ArrayList<>();
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
+                    null, null, null, null)) {
+               while (cursor.moveToNext()) {
+                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+                  listForRemove.add(id);
+                  Type type = new TypeToken<Collection<String>>() {}.getType();
+                  Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+                  for (String addressString : addressStringsList) {
+                     Address address = Address.fromString(addressString);
+                     if (address.getType() == AddressType.P2PKH) {
+                        listForRemove.remove(id);
+                        break;
+                     }
+                  }
+               }
+            }
+            SQLiteStatement deleteSingleAddressAccount = db.compileStatement("DELETE FROM single WHERE id = ?");
+            for (UUID uuid : listForRemove) {
+               Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
+               deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
+               deleteSingleAddressAccount.execute();
+            }
          }
       }
 
