@@ -76,7 +76,10 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -576,14 +579,18 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
          try {
             switch(addressType) {
                case Unknown: {
-                  ColuManager coluManager = _mbwManager.getColuManager();
-                  List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
+                   if (address.getType() == AddressType.P2PKH) {
+                       ColuManager coluManager = _mbwManager.getColuManager();
+                       List<ColuAccount.ColuAsset> asset = new ArrayList<>(coluManager.getColuAddressAssets(this.address));
 
-                  if (asset.size() > 0) {
-                     acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
-                  } else {
-                     askUserForColorize = true;
-                  }
+                       if (asset.size() > 0) {
+                           acc = _mbwManager.getColuManager().enableReadOnlyAsset(asset.get(0), address);
+                       } else {
+                           askUserForColorize = true;
+                       }
+                   } else {
+                       acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+                   }
                }
                break;
                case SA:

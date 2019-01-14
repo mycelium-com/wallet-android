@@ -20,7 +20,6 @@ import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
 
 public interface Wapi {
-
    /**
     * The current version of the API
     */
@@ -81,7 +80,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"addresses":["msxh4zZoVwdRXfgmAYYo2MpNrJi4snrH6C","mfv9QuzUD7ZtnHxfpVX2859hs2ZHC8TG16","mpii6kiLM5HffaJdeD4Smnpv5eWo7qfKQ5"]}'
     *       https://144.76.165.115/wapitestnet/wapi/queryUnspentOutputs
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request);
 
    /**
@@ -90,7 +91,9 @@ public interface Wapi {
     *curl   -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"addresses":["mfd7QG4vn2U4U5BgnTuw7dmjKsutDxkK6b","mysJrGMsYht9u3gBvKHFcNJsVEmaEPhUGA","mvMyQXzaHk7Z6u3vsbzT7qmQJo225ma9g3"],"limit":1000}'
     *       https://144.76.165.115/wapitestnet/wapi/queryTransactionInventory
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<QueryTransactionInventoryResponse> queryTransactionInventory(QueryTransactionInventoryRequest request);
 
    /**
@@ -99,7 +102,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
     *       https://144.76.165.115/wapitestnet/wapi/getTransactions
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<GetTransactionsResponse> getTransactions(GetTransactionsRequest request);
 
    /**
@@ -108,7 +113,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"rawTransaction":"AQAAAAHqHGsQSIun5hjDDWm7iFMwm85xNLt+HBfI3LS3uQHnSQEAAABrSDBFAiEA6rlGk4wgIL3TvC2YHK4XiBW2vPYg82iCgnQi+YOUwqACIBpzVk756/07SRORT50iRZvEGUIn3Lh3bhaRE1aUMgZZASECDFl9wEYDCvB1cJY6MbsakfKQ9tbQhn0eH9C//RI2iE//////ApHwGgAAAAAAGXapFIzWtPXZR7lk8RtvE0FDMHaLtsLCiKyghgEAAAAAABl2qRSuzci59wapXUEzwDzqKV9nIaqwz4isAAAAAA=="}'
     *       https://144.76.165.115/wapitestnet/wapi/broadcastTransaction
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<BroadcastTransactionResponse> broadcastTransaction(BroadcastTransactionRequest request);
 
    /**
@@ -120,7 +127,9 @@ public interface Wapi {
     *curl   -k -X POST -H "Content-Type: application/json"
     *       -d '{"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
     *       https://144.76.165.115/wapitestnet/wapi/checkTransactions
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request);
 
    /**
@@ -166,7 +175,6 @@ public interface Wapi {
     * included in the next n-Blocks, in satoshis
     *
     * curl -k -X POST -H "Content-Type: application/json" -d '{}' https://144.76.165.115/wapitestnet/wapi/getMinerFeeEstimations
-    *
     */
    WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations();
 }
