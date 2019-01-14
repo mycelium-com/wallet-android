@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -42,6 +43,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,6 +69,7 @@ import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -78,6 +81,7 @@ import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
@@ -251,6 +255,28 @@ public class ModernMain extends AppCompatActivity {
    protected void stopBalanceRefreshTimer() {
       if (balanceRefreshTimer != null) {
          balanceRefreshTimer.cancel();
+      }
+   }
+
+   @Subscribe
+   public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionsFound event) {
+      final MalformedOutgoingTransactionsFound ev = event;
+      if (_mbwManager.isShowQueuedTransactionsRemovalAlert()) {
+         // Whatever option the user choose, the confirmation dialog will not be shown
+         // until the next application start
+         _mbwManager.setShowQueuedTransactionsRemovalAlert(false);
+
+          new AlertDialog.Builder(this)
+                  .setTitle(R.string.failed_transaction_removal_title)
+                  .setMessage(R.string.failed_transaction_removal_message)
+                  .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface arg0, int arg1) {
+                          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
+                          account.removeAllQueuedTransactions();
+                      }
+                  })
+                  .setNegativeButton(R.string.no, null)
+                  .show();
       }
    }
 

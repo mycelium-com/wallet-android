@@ -72,7 +72,7 @@ public class SignatureSValueTest {
       toSign = HashUtils.sha256(new byte[]{0x02});
       sig = pk.generateSignature(toSign, rnd);
       // Verify that the S parameter is below MAX_SIG_S
-      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      assertSmallS(sig);
       // Verify that the signature is valid
       assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
 
@@ -81,10 +81,9 @@ public class SignatureSValueTest {
       toSign = HashUtils.sha256(new byte[]{0x00});
       sig = pk.generateSignature(toSign, rnd);
       // Verify that the S parameter is below MAX_SIG_S
-      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      assertSmallS(sig);
       // Verify that the signature is valid
       assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
-
    }
 
    @Test
@@ -100,7 +99,7 @@ public class SignatureSValueTest {
       toSign = HashUtils.sha256(new byte[]{0x01});
       sig = pk.generateSignature(toSign);
       // Verify that the S parameter is below MAX_SIG_S
-      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      assertSmallS(sig);
       // Verify that the signature is valid
       assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
 
@@ -109,10 +108,13 @@ public class SignatureSValueTest {
       toSign = HashUtils.sha256(new byte[]{0x02});
       sig = pk.generateSignature(toSign);
       // Verify that the S parameter is below MAX_SIG_S
-      assertTrue(sig.s.compareTo(Parameters.MAX_SIG_S) == -1);
+      assertSmallS(sig);
       // Verify that the signature is valid
       assertTrue(Signatures.verifySignature(toSign.getBytes(), sig, pk.getPublicKey().getQ()));
+   }
 
+   private void assertSmallS(Signature sig) {
+      assertEquals(-1, sig.s.compareTo(Parameters.MAX_SIG_S));
    }
 
     @Test

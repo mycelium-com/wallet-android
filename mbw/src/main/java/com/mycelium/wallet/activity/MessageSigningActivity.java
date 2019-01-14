@@ -167,7 +167,6 @@ public class MessageSigningActivity extends Activity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
                 String body = String.format(TEMPLATE, messageText, address, base64Signature);
@@ -177,6 +176,5 @@ public class MessageSigningActivity extends Activity {
                 startActivity(Intent.createChooser(sharingIntent, getString(R.string.signed_message_share)));
             }
         });
-
     }
 }
