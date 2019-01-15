@@ -770,6 +770,8 @@ public class MbwManager {
         WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, environment.getNetwork(), _wapi, currenciesSettingsMap, getMetadataStorage()));
+
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }
