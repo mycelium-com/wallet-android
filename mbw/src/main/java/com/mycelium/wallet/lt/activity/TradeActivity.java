@@ -65,6 +65,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import com.google.common.base.Optional;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
@@ -106,6 +107,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -155,18 +157,18 @@ public class TradeActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _btRefresh = (Button) findViewById(R.id.btRefresh);
-      _btChangePrice = (Button) findViewById(R.id.btChangePrice);
-      _etMessage = (EditText) findViewById(R.id.etMessage);
-      _btSendMessage = (ImageButton) findViewById(R.id.btSendMessage);
-      _btAccept = (Button) findViewById(R.id.btAccept);
-      _btCashReceived = (Button) findViewById(R.id.btCashReceived);
-      _btAbort = (Button) findViewById(R.id.btAbort);
-      _tvStatus = (TextView) findViewById(R.id.tvStatus);
-      _tvOldStatus = (TextView) findViewById(R.id.tvOldStatus);
+      _btRefresh = findViewById(R.id.btRefresh);
+      _btChangePrice = findViewById(R.id.btChangePrice);
+      _etMessage = findViewById(R.id.etMessage);
+      _btSendMessage = findViewById(R.id.btSendMessage);
+      _btAccept = findViewById(R.id.btAccept);
+      _btCashReceived = findViewById(R.id.btCashReceived);
+      _btAbort = findViewById(R.id.btAbort);
+      _tvStatus = findViewById(R.id.tvStatus);
+      _tvOldStatus = findViewById(R.id.tvOldStatus);
       _flConfidence = findViewById(R.id.flConfidence);
-      _pbConfidence = (ProgressBar) findViewById(R.id.pbConfidence);
-      _tvConfidence = (TextView) findViewById(R.id.tvConfidence);
+      _pbConfidence = findViewById(R.id.pbConfidence);
+      _tvConfidence = findViewById(R.id.tvConfidence);
 
       _btRefresh.setOnClickListener(refreshClickListener);
       _btChangePrice.setOnClickListener(changePriceClickListener);
@@ -189,7 +191,7 @@ public class TradeActivity extends Activity {
 
       _chatAdapter = new ChatAdapter(this, new ArrayList<ChatEntry>());
 
-      _lvChat = (ListView) findViewById(R.id.lvChat);
+      _lvChat = findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
       //to follow urls
       _lvChat.setOnItemClickListener(chatItemClickListener);
@@ -238,10 +240,11 @@ public class TradeActivity extends Activity {
    }
 
    private ChatMessageEncryptionKey getChatMessageEncryptionKey() {
-      Preconditions.checkState(_tradeSession != null);
+      checkNotNull(_tradeSession);
       if (_key == null) {
          PublicKey foreignPublicKey = _tradeSession.isOwner ? _tradeSession.peerPublicKey
                : _tradeSession.ownerPublicKey;
+         checkNotNull(foreignPublicKey);
          _key = _ltManager.generateChatMessageEncryptionKey(foreignPublicKey, _tradeSession.id);
       }
       return _key;
@@ -361,7 +364,7 @@ public class TradeActivity extends Activity {
    }
 
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
-      Preconditions.checkNotNull(ts.buyerAddress);
+      checkNotNull(ts.buyerAddress);
       WalletAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
@@ -473,7 +476,7 @@ public class TradeActivity extends Activity {
       @Override
       public void onItemClick(AdapterView<?> adapter, View view, int arg2, long arg3) {
          if (view != null) {
-            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            TextView tvMessage = view.findViewById(R.id.tvMessage);
             if (tvMessage != null) {
                String text = tvMessage.getText().toString();
                Uri uri = getUriFromAnyText(text);
@@ -522,7 +525,7 @@ public class TradeActivity extends Activity {
       @Override
       public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
          if (view != null) {
-            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            TextView tvMessage = view.findViewById(R.id.tvMessage);
             if (tvMessage != null) {
                String text = tvMessage.getText().toString();
                //set the message to clipboard
@@ -716,14 +719,14 @@ public class TradeActivity extends Activity {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_chat_entry_row, null));
+            v = checkNotNull(vi.inflate(R.layout.lt_chat_entry_row, null));
          }
          ChatEntry o = getItem(position);
 
          addDateString(v, o);
 
          // Message text and color
-         TextView tvMessage = (TextView) v.findViewById(R.id.tvMessage);
+         TextView tvMessage = v.findViewById(R.id.tvMessage);
          String text;
          int color;
          // Message Color
@@ -759,8 +762,8 @@ public class TradeActivity extends Activity {
          tvMessage.setText(text);
          v.setBackgroundColor(color);
 
-         LinearLayout llExtra = (LinearLayout) v.findViewById(R.id.llExtra);
-         ImageView ivExtra = (ImageView) v.findViewById(R.id.ivExtra);
+         LinearLayout llExtra = v.findViewById(R.id.llExtra);
+         ImageView ivExtra = v.findViewById(R.id.ivExtra);
          if (o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
             llExtra.setVisibility(View.VISIBLE);
             ivExtra.setImageResource(R.drawable.lt_local_only_warning);
@@ -790,7 +793,7 @@ public class TradeActivity extends Activity {
        * @param chatEntry    the ChatEntry
        */
       private void addDateString(View chatEntryRow, ChatEntry chatEntry) {
-         TextView tvDate = (TextView) chatEntryRow.findViewById(R.id.tvDate);
+         TextView tvDate = chatEntryRow.findViewById(R.id.tvDate);
          long unixTime = chatEntry.time;
          if (unixTime > 0) {
             // we have a date

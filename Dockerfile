@@ -14,17 +14,11 @@ RUN dpkg --add-architecture i386 && \
     apt-get autoremove -y && \
     apt-get clean
 
-ENV ANDROID_SDK_FILENAME android-sdk_r27.0.3-linux.tgz
-ENV ANDROID_SDK_URL https://dl.google.com/android/${ANDROID_SDK_FILENAME}
-ENV ANDROID_API_LEVELS android-19,android-24,android-28
-ENV ANDROID_BUILD_TOOLS_VERSION 28.0.3
-ENV ANDROID_HOME /usr/local/android-sdk-linux
-ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-RUN cd /usr/local/ && \
-    wget -q ${ANDROID_SDK_URL} && \
-    tar -xzf ${ANDROID_SDK_FILENAME} && \
-    rm ${ANDROID_SDK_FILENAME}
-RUN echo y | android update sdk --no-ui -a --filter ${ANDROID_API_LEVELS}
-RUN echo y | android update sdk --no-ui -a --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository
-RUN echo y | android update sdk --no-ui -a --filter tools,platform-tools,build-tools-${ANDROID_BUILD_TOOLS_VERSION}
-RUN rm -rf ${ANDROID_HOME}/tools
+# download and install Android SDK
+ARG ANDROID_SDK_VERSION=4333796
+ENV ANDROID_HOME /opt/android-sdk
+RUN mkdir -p /opt/android-sdk && cd /opt/android-sdk && \
+    wget -q https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip && \
+    unzip *tools*linux*.zip && \
+    rm *tools*linux*.zip && \
+    yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
