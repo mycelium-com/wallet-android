@@ -25,6 +25,11 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
                               , val accountBacking: AccountBacking<ColuTransaction>
                               , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
                               , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
+
+    override fun removeAllQueuedTransactions() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun isExchangeable(): Boolean {
         return false
     }

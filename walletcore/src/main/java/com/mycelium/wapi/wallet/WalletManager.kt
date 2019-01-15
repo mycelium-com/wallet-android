@@ -305,6 +305,10 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         /**
          * Sync progress updated
          */
-        SYNC_PROGRESS_UPDATED
+        SYNC_PROGRESS_UPDATED,
+        /**
+         * Malformed outgoing transaction detected
+         */
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
     }
 }

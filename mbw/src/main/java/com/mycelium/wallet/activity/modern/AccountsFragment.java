@@ -98,10 +98,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
@@ -559,7 +556,7 @@ public class AccountsFragment extends Fragment {
 
     private void setNameForUpgradeAccount(WalletAccount account) {
         // special case for sa upgrade accounts
-        List<UUID> uuidList = walletManager.getAccountVirtualIds((SingleAddressAccount) account);
+        List<UUID> uuidList = walletManager.getAccountIds();
         String oldName = "";
         // delete all previous records associated with virtual ids but keep name
         for (UUID uuid : uuidList) {
