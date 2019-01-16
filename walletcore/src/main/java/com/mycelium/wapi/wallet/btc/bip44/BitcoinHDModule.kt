@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
@@ -179,6 +180,46 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 backing.endTransaction()
             }
 
+        } else if (config is ExternalSignaturesAccountConfig) {
+            val cfg = config
+            val accountIndex = cfg.accountIndex
+            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+            val derivationTypes = ArrayList<BipDerivationType>()
+
+            // get a subKeyStorage, to ensure that the data for this key does not get mixed up
+            // with other derived or imported keys.
+            val secureStorage = secureStore.createNewSubKeyStore()
+
+            for (hdKeyNode in cfg.hdKeyNodes) {
+                val derivationType = hdKeyNode.derivationType
+                derivationTypes.add(derivationType)
+                keyManagerMap[derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+                        networkParameters, accountIndex, secureStorage, derivationType)
+            }
+            val id = keyManagerMap[derivationTypes[0]]!!.accountId
+            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
+            val defaultAddressType = btcSettings.defaultAddressType
+
+            // Generate the context for the account
+            val context = HDAccountContext(id, accountIndex, false, cfg.provider.biP44AccountType,
+                    secureStorage.subId, derivationTypes, defaultAddressType)
+            backing.beginTransaction()
+            try {
+                backing.createBip44AccountContext(context)
+
+                // Get the accountBacking for the new account
+                val accountBacking = backing.getBip44AccountBacking(context.id)
+
+                // Create actual account
+                result = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        cfg.provider, btcSettings.changeAddressModeReference)
+
+                // Finally persist context and add account
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+            } finally {
+                backing.endTransaction()
+            }
         }
 
         accounts.put(result!!.id, result as HDAccount)

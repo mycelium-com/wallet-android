@@ -75,6 +75,7 @@ import com.mycelium.wallet.Constants.TAG
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING
 import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
 import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
 import org.bitcoinj.core.NetworkParameters.ID_MAINNET
 import org.bitcoinj.core.NetworkParameters.ID_TESTNET
@@ -497,8 +498,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
 
     override fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int) =
             accountRoots.firstOrNull { walletManager.hasAccount(it.uuid) }?.uuid
-                    ?: null!!/*TODO - fix external signature account creation
-                    walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex)!!*/
+                    ?: walletManager.createAccounts(ExternalSignaturesAccountConfig(
+                            accountRoots, this, accountIndex)).get(0);
 
     fun enterPin(pin: String) {
         pinMatrixEntry.clear()
