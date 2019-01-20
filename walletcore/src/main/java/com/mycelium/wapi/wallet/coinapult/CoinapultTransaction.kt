@@ -12,7 +12,6 @@ import java.io.Serializable
 
 class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming: Boolean, val completeTime: Long
                            , val state: String, var time: Long, val address: BtcAddress? = null) : GenericTransaction, Serializable {
-
     var debugInfo: String = ""
 
     override fun getType(): GenericAssetInfo = value.getType()
@@ -62,6 +61,10 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
     override fun getSent(): Value = if (!isIncoming) value else Value.zeroValue(value.getType())
 
     override fun getReceived(): Value = if (isIncoming) value else Value.zeroValue(value.getType())
+
+    override fun getTransferred(): Value {
+        return value
+    }
 
     override fun isIncoming(): Boolean = incoming
 

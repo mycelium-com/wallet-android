@@ -67,6 +67,10 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: 
 
     override fun getReceived(): Value = receive
 
+    override fun getTransferred(): Value {
+        return receive.subtract(_sent)
+    }
+
     override fun isIncoming() = received.subtract(sent).value > 0
 
     override fun getRawSize(): Int {

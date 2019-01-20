@@ -50,7 +50,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long valueSent, long valueReceived, int timestamp, int confirmations,
+                          long valueSent, long valueReceived, long value, int timestamp, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
@@ -59,7 +59,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.hash = tx.getId();
         this.valueSent = Value.valueOf(type, valueSent);
         this.valueReceived = Value.valueOf(type, valueReceived);
-        this.value = this.valueReceived.subtract(this.valueSent);
+        this.value = Value.valueOf(type, value);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
@@ -136,6 +136,11 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     @Override
     public Value getReceived() {
         return valueReceived;
+    }
+
+    @Override
+    public Value getTransferred() {
+        return value;
     }
 
     @Override
