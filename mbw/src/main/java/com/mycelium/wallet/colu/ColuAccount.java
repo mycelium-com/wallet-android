@@ -716,6 +716,11 @@ public class ColuAccount extends SynchronizeAbleWalletAccount implements Exporta
     }
 
     @Override
+    public void removeAllQueuedTransactions() {
+
+    }
+
+    @Override
     public ExactCurrencyValue calculateMaxSpendableAmount(long minerFeeToUse) {
         return getCurrencyBasedBalance().confirmed;
     }

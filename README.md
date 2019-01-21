@@ -73,17 +73,28 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
 * Build Mycelium using Docker
 
-        $ docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
+        $ mv local.properties local.properties.bak \
+            ; docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
             ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x :bitcoincashj:core:test \
-            && sudo chown -R $USER:$USER . \
             && ./collectApks.sh
-
-  If this step complains about the ndk not being available, check your `local.properties` and comment out everything.
+            ; sudo chown -R $USER:$USER . \
+            ; mv local.properties.bak local.properties
+            
+  What this line does: `local.properties` can break docker compiles. Move it out of the way. Run the
+  mycelium-wallet docker with gradle test and compilation for both mbw and modulespvbch (or skip the
+  latter). `collectApks.sh` copies all apks to `/tmp/release_mbw/` for easier handling. As docker
+  might run as a different user, its generated files will also be "not yours". Make them yours using
+  `chown` as super user. Last, restore whatever you had as `local.properties`.
   
-  (As maintainer you want to run a slightly different command: `docker run --rm --volume $(pwd):/project --volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest --workdir /project mycelium-wallet ./gradlew clean test :mbw:assBtctRel :modulespvbch:assBtctRel :mbw:assProdRel :modulespvbch:assProdRel :mbw:assBtctDeb :modulespvbch:assBtctDeb :mbw:assProdDeb :modulespvbch:assProdDeb -PenforceReleaseSigning -x :bitcoincashj:core:test`
-  to build all debug and release variants of both mbw and the bch module, with the release signing keys being enforced and mounted in docker.)
+  As maintainer with release keys you want to run a slightly different command:
+  Add these docker parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
+  Build all these targets `:mbw:assBtctRel :mbw:assProdRel :mbw:assBtctDeb :mbw:assProdDeb`
+  and these if needed `:modulespvbch:assBtctRel :modulespvbch:assProdRel :modulespvbch:assBtctDeb :modulespvbch:assProdDeb`
+  and to turn the missing release keys into an error, add this gradle option `-PenforceReleaseSigning`
   
-  After this step succeeds, the mbw apk is in `mbw/builds/outputs/apk`.
+  After this step succeeds, all apks are in `/tmp/release_mbw/`.
+  
+  Note: for those who use Docker Toolbox $(pwd) should be under your home user folder since this is the [only folder that is shared with VM](https://github.com/docker/kitematic/issues/2738).
 
 * Retrieve Google Play Mycelium APK from your phone
   Gets package path:
@@ -94,15 +105,22 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
   Retrieve file:
 
         $ adb pull /data/app/com.mycelium.wallet-1/base.apk mycelium-signed.apk
+        
+* Extract content from both apks you want to compare, using [ApkTool](https://ibotpeaches.github.io/Apktool/):
 
-* Compare signed apk with unsigned locally built apk using Signal's apkdiff
+        java -jar ~/path/to/apktool.jar d mbw-prodnet-release.apk
+        java -jar ~/path/to/apktool.jar d mycelium-signed.apk
 
-        python apkdiff.py mycelium-signed.apk mbw/build/outputs/apk/.....your-prodnet.apk
+* Compare signed apk with unsigned locally built apk using a diff tool such as meld
 
-* You might have to `sudo chown -R $USER:$USER .` as the docker user might create files that you have no access to under your normal user.
+        diff --brief --recursive  mbw-prodnet-release/ mycelium-signed/ | grep -v "META-INF/CERT.RSA\|META-INF/CERT.SF\|META-INF/MANIFEST.MF"
 
-This work is based on WhisperSystems Signal reproducible builds [1](https://whispersystems.org/blog/reproducible-android/) [2](https://github.com/WhisperSystems/Signal-Android/wiki/Reproducible-Builds)
-
+* The expected difference between these files are elements that depend on the signature, that only
+  the project's maintainer can reproduce:
+  
+  * `original/META-INF/CERT.RSA` 
+  * `original/META-INF/CERT.SF` 
+  * `original/META-INF/MANIFEST.MF` 
 
 Features
 ========

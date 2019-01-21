@@ -134,8 +134,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2120017
-        versionName '2.12.0.17'
+        versionCode 2120020
+        versionName '2.12.0.20'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -237,7 +237,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4432"}'
+                ElectrumServers = '{"tcp-tls://electrumx-b.mycelium.com:4432"}'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
