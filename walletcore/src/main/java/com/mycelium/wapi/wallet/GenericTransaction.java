@@ -60,6 +60,7 @@ public interface GenericTransaction extends Serializable {
 
     Value getSent();
     Value getReceived();
+    Value getTransferred();
     boolean isIncoming();
 
     int getRawSize();

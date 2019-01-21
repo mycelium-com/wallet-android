@@ -101,6 +101,11 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
+    public Value getTransferred() {
+        return null;
+    }
+
+    @Override
     public boolean isIncoming() {
         return false;
     }

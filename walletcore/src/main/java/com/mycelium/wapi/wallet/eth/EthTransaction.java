@@ -112,6 +112,11 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
+    public Value getTransferred() {
+        return null;
+    }
+
+    @Override
     public boolean isIncoming() {
         return false;
     }

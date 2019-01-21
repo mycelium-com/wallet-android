@@ -1658,12 +1658,16 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       long satoshisReceived = 0;
       long satoshisSent = 0;
+      long satoshisTransferred = 0;
+
       ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
          Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
-            satoshisReceived += output.value;
+            satoshisTransferred += output.value;
          }
+         satoshisReceived += output.value;
+
          if (address != null && address != Address.getNullAddress(_network)) {
             CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
             outputs.add(new GenericTransaction.GenericOutput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), output.value)));
@@ -1681,8 +1685,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                continue;
             }
             if (isMine(funding)) {
-               satoshisSent += funding.value;
+               satoshisTransferred -= funding.value;
             }
+            satoshisSent += funding.value;
+
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
             CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
             inputs.add(new GenericTransaction.GenericInput(new BtcLegacyAddress(currency, address.getAllAddressBytes()), Value.valueOf(getCoinType(), funding.value)));
@@ -1696,7 +1702,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
-      return new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, tex.time,
+      return new BtcTransaction(getCoinType(), tx, satoshisSent, satoshisReceived, satoshisTransferred, tex.time,
               confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tex.binary.length, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
    }
