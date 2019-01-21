@@ -78,6 +78,7 @@ import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
@@ -91,12 +92,12 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -264,6 +265,28 @@ public class ModernMain extends AppCompatActivity {
    protected void stopBalanceRefreshTimer() {
       if (balanceRefreshTimer != null) {
          balanceRefreshTimer.cancel();
+      }
+   }
+
+   @Subscribe
+   public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionsFound event) {
+      final MalformedOutgoingTransactionsFound ev = event;
+      if (_mbwManager.isShowQueuedTransactionsRemovalAlert()) {
+         // Whatever option the user choose, the confirmation dialog will not be shown
+         // until the next application start
+         _mbwManager.setShowQueuedTransactionsRemovalAlert(false);
+
+          new AlertDialog.Builder(this)
+                  .setTitle(R.string.failed_transaction_removal_title)
+                  .setMessage(R.string.failed_transaction_removal_message)
+                  .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface arg0, int arg1) {
+                          WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
+                          account.removeAllQueuedTransactions();
+                      }
+                  })
+                  .setNegativeButton(R.string.no, null)
+                  .show();
       }
    }
 

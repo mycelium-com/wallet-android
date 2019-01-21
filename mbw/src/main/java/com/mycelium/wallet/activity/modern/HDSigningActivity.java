@@ -54,9 +54,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class HDSigningActivity extends Activity {
-
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-
 
    private SigningClickListener _signingClickListener;
    private MbwManager _mbwManager;
@@ -76,8 +74,7 @@ public class HDSigningActivity extends Activity {
    }
 
    private void updateUi() {
-
-      LinearLayout addressView = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
+      LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
       HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
@@ -104,9 +101,7 @@ public class HDSigningActivity extends Activity {
       return ll;
    }
 
-
    private class SigningClickListener implements View.OnClickListener {
-
       @Override
       public void onClick(View v) {
          AddressLabel addressLabel = (AddressLabel) v;

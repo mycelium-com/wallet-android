@@ -161,7 +161,6 @@ public class MessageSigningActivity extends Activity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
                 Address address = privateKey.getPublicKey().toAddress(network, addressType);
@@ -172,6 +171,5 @@ public class MessageSigningActivity extends Activity {
                 startActivity(Intent.createChooser(sharingIntent, getString(R.string.signed_message_share)));
             }
         });
-
     }
 }
