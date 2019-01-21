@@ -101,6 +101,8 @@ import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

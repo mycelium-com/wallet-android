@@ -62,6 +62,7 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
+import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
@@ -1112,6 +1113,32 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          if(oldVersion < 7) {
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+         }
+         if (oldVersion < 7) {
+            List<UUID> listForRemove = new ArrayList<>();
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
+                    null, null, null, null)) {
+               while (cursor.moveToNext()) {
+                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+                  listForRemove.add(id);
+                  Type type = new TypeToken<Collection<String>>() {}.getType();
+                  Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+                  for (String addressString : addressStringsList) {
+                     Address address = Address.fromString(addressString);
+                     if (address.getType() == AddressType.P2PKH) {
+                        listForRemove.remove(id);
+                        break;
+                     }
+                  }
+               }
+            }
+            SQLiteStatement deleteSingleAddressAccount = db.compileStatement("DELETE FROM single WHERE id = ?");
+            for (UUID uuid : listForRemove) {
+               Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
+               deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
+               deleteSingleAddressAccount.execute();
+            }
          }
       }
 

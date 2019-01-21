@@ -316,11 +316,15 @@ public class ChangellyActivity extends AppCompatActivity {
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
         String destination = walletAccount.getReceivingAddress().get().toString();
-        AbstractAccount account = (AbstractAccount) walletAccount;
-        if (account.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-            destination = account.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
-        } else if (account.getReceivingAddress(AddressType.P2PKH) != null) {
-            destination = account.getReceivingAddress(AddressType.P2PKH).toString();
+        if (walletAccount instanceof CoinapultAccount) {
+            destination = walletAccount.getReceivingAddress().get().toString();
+        } else {
+            AbstractAccount account = (AbstractAccount) walletAccount;
+            if (account.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
+                destination = account.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
+            } else if (account.getReceivingAddress(AddressType.P2PKH) != null) {
+                destination = account.getReceivingAddress(AddressType.P2PKH).toString();
+            }
         }
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyAPIService.FROM, item.currency)

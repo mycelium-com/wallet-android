@@ -31,15 +31,7 @@ import com.mrd.bitlib.crypto.IPrivateKeyRing;
 import com.mrd.bitlib.crypto.IPublicKeyRing;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.OutputList;
-import com.mrd.bitlib.model.Script;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.ScriptOutputStrange;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
 import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.TransactionOutput;
@@ -665,24 +657,33 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
        List<Sha256Hash> broadcastedIds = new LinkedList<>();
        Map<Sha256Hash, byte[]> transactions = _backing.getOutgoingTransactions();
 
-       for (byte[] rawTransaction : transactions.values()) {
-           Transaction transaction;
-           try {
-               transaction = Transaction.fromBytes(rawTransaction);
-           } catch (TransactionParsingException e) {
-               _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
-               return  false;
-           }
-           BroadcastResult result = broadcastTransaction(transaction);
-           if (result.getResultType() == BroadcastResultType.SUCCESS) {
-               broadcastedIds.add(transaction.getId());
-               _backing.removeOutgoingTransaction(transaction.getId());
-           }
-       }
-       if (!broadcastedIds.isEmpty()) {
-           onTransactionsBroadcasted(broadcastedIds);
-       }
-       return true;
+      int malformedTransactionsCount = 0;
+
+      for (byte[] rawTransaction : transactions.values()) {
+         Transaction transaction;
+         try {
+            transaction = Transaction.fromBytes(rawTransaction);
+         } catch (TransactionParsingException e) {
+            _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+            return  false;
+         }
+         BroadcastResult result = broadcastTransaction(transaction);
+         if (result.getResultType() == BroadcastResultType.SUCCESS) {
+            broadcastedIds.add(transaction.getId());
+            _backing.removeOutgoingTransaction(transaction.getId());
+         } else if (result.getResultType() == BroadcastResultType.REJECT_MALFORMED) {
+            malformedTransactionsCount++;
+         }
+      }
+
+      if (malformedTransactionsCount > 0) {
+         postEvent(Event.MALFORMED_OUTGOING_TRANSACTIONS_FOUND);
+      }
+
+      if (!broadcastedIds.isEmpty()) {
+         onTransactionsBroadcasted(broadcastedIds);
+      }
+      return true;
    }
 
    @Override
@@ -829,6 +830,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       updateLocalBalance(); //will still need a new sync besides re-calculating
       return true;
+   }
+
+   @Override
+   public void removeAllQueuedTransactions() {
+      Map<Sha256Hash, byte[]> outgoingTransactions = _backing.getOutgoingTransactions();
+
+      for(Sha256Hash key : outgoingTransactions.keySet()) {
+         cancelQueuedTransaction(key);
+      }
    }
 
    @Override

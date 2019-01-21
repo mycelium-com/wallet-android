@@ -28,7 +28,6 @@ import java.math.BigInteger;
  * An elliptic curve
  */
 public class Curve implements Serializable {
-
    private static final long serialVersionUID = 1L;
 
    private FieldElement _a;
@@ -68,11 +67,12 @@ public class Curve implements Serializable {
    }
 
    public Point createPoint(BigInteger x, BigInteger y, boolean withCompression) {
+      //noinspection SuspiciousNameCombination
       return new Point(this, fromBigInteger(x), fromBigInteger(y), withCompression);
    }
 
    public Point decodePoint(byte[] encodedPoint) {
-      Point p = null;
+      Point p;
       // Switch on encoding type
       switch (encodedPoint[0]) {
       case 0x00:
@@ -128,5 +128,4 @@ public class Curve implements Serializable {
    public int hashCode() {
       return _a.hashCode() ^ _b.hashCode() ^ _q.hashCode();
    }
-
 }

@@ -43,7 +43,6 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.common.base.Preconditions;
 import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -56,7 +55,6 @@ import com.mycelium.lt.api.model.LtSession;
 import com.mycelium.lt.api.model.TradeSession;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.lt.api.params.LoginParameters;
-import com.mycelium.lt.location.Geocoder;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
@@ -67,6 +65,9 @@ import com.mycelium.wallet.persistence.TradeSessionDb;
 
 import java.io.IOException;
 import java.util.*;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class LocalTraderManager {
 
@@ -281,7 +282,7 @@ public class LocalTraderManager {
       }
 
       private boolean login() {
-         Preconditions.checkNotNull(session.id);
+         checkNotNull(session.id);
          // Sign session ID with private key
          InMemoryPrivateKey privateKey = getLocalTraderPrivateKey();
          if (privateKey == null) {
@@ -522,7 +523,7 @@ public class LocalTraderManager {
    }
 
    private boolean needsUpdate(TradeSession oldValue, TradeSession newValue) {
-      Preconditions.checkArgument(oldValue.id.equals(newValue.id));
+      checkArgument(oldValue.id.equals(newValue.id));
       return oldValue.lastChange < newValue.lastChange;
    }
 
@@ -553,7 +554,8 @@ public class LocalTraderManager {
    }
 
    public ChatMessageEncryptionKey generateChatMessageEncryptionKey(PublicKey foreignPublicKey, UUID tradeSessionId) {
-      return ChatMessageEncryptionKey.fromEcdh(foreignPublicKey, getLocalTraderPrivateKey(), tradeSessionId);
+      InMemoryPrivateKey myPrivateKey = checkNotNull(getLocalTraderPrivateKey());
+      return ChatMessageEncryptionKey.fromEcdh(foreignPublicKey, myPrivateKey, tradeSessionId);
    }
 
    public void unsetLocalTraderAccount() {
@@ -575,11 +577,11 @@ public class LocalTraderManager {
 
    public void setLocalTraderData(UUID accountId, InMemoryPrivateKey privateKey, Address address, String nickname) {
       session = null;
-      localTraderAddress = Preconditions.checkNotNull(address);
-      localTraderAccountId = Preconditions.checkNotNull(accountId);
-      localTraderPrivateKey = Preconditions.checkNotNull(privateKey);
+      localTraderAddress = checkNotNull(address);
+      localTraderAccountId = checkNotNull(accountId);
+      localTraderPrivateKey = checkNotNull(privateKey);
       localTraderPrivateKeyString = privateKey.getBase58EncodedPrivateKey(mbwManager.getNetwork());
-      this.nickname = Preconditions.checkNotNull(nickname);
+      this.nickname = checkNotNull(nickname);
       getEditor()
             .putString(Constants.LOCAL_TRADER_KEY_SETTING, localTraderPrivateKeyString)
             .putString(Constants.LOCAL_TRADER_ACCOUNT_ID_SETTING, accountId.toString())

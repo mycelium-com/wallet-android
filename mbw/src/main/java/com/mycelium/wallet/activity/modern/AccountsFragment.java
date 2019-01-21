@@ -83,15 +83,7 @@ import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.activity.view.DividerItemDecoration;
-import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.AccountListChanged;
-import com.mycelium.wallet.event.BalanceChanged;
-import com.mycelium.wallet.event.ExchangeSourceChanged;
-import com.mycelium.wallet.event.ReceivingAddressChanged;
-import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wallet.event.SyncProgressUpdated;
-import com.mycelium.wallet.event.SyncStarted;
-import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
@@ -106,10 +98,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
@@ -243,7 +232,6 @@ public class AccountsFragment extends Fragment {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
-            WalletManager walletManager = _mbwManager.getWalletManager(false);
             WalletAccount account = walletManager.getAccount(accountid);
             if (account.isActive()) {
                _mbwManager.setSelectedAccount(accountid);
@@ -255,6 +243,11 @@ public class AccountsFragment extends Fragment {
 
                setLabelOnAccount(account, account.getLabel(), false);
             }
+            if (account instanceof SingleAddressAccount
+                    && intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+                setNameForUpgradeAccount(account);
+            }
+            eventBus.post(new ExtraAccountsChanged());
             eventBus.post(new AccountChanged(accountid));
          }
       } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
@@ -542,6 +535,40 @@ public class AccountsFragment extends Fragment {
       }
    }
 
+   private void setNameForNewAccount(WalletAccount account) {
+      if (account == null || !isAdded()) {
+         return;
+      }
+      String baseName = Utils.getNameForNewAccount(account, getActivity());
+      //append counter if name already in use
+      String defaultName = baseName;
+      int num = 1;
+      while (_storage.getAccountByLabel(defaultName).isPresent()) {
+         defaultName = baseName + " (" + num++ + ')';
+      }
+      //we just put the default name into storage first, if there is none
+      //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
+      if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
+         _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
+      }
+      setLabelOnAccount(account, defaultName, false);
+   }
+
+    private void setNameForUpgradeAccount(WalletAccount account) {
+        // special case for sa upgrade accounts
+        List<UUID> uuidList = walletManager.getAccountIds();
+        String oldName = "";
+        // delete all previous records associated with virtual ids but keep name
+        for (UUID uuid : uuidList) {
+            if (!_storage.getLabelByAccount(uuid).isEmpty()) {
+                oldName = _storage.getLabelByAccount(uuid);
+            }
+            _storage.deleteAccountMetadata(uuid);
+        }
+        // store single id with an old name
+        _storage.storeAccountLabel(account.getId(), oldName);
+    }
+
    private void update() {
       if (!isAdded()) {
          return;
@@ -603,7 +630,7 @@ public class AccountsFragment extends Fragment {
       }
 
       if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-              && !isBch) {
+              && !isBch && !(account instanceof HDAccountExternalSignature)) {
          menus.add(R.menu.record_options_menu_sign);
       }
 
@@ -1247,10 +1274,10 @@ public class AccountsFragment extends Fragment {
          Balance linkedBalance = linkedAccount.getAccountBalance();
          String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
          String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.question_archive_account, accountName, valueString,
+         dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                  linkedAccountName, linkedValueString);
       } else {
-         dialogText = getString(R.string.question_archive_account_s, accountName, valueString);
+         dialogText = getString(R.string.question_archive_account, accountName, valueString);
       }
       return dialogText;
    }

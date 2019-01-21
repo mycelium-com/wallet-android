@@ -178,6 +178,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     boolean broadcastOutgoingTransactions();
 
+    void removeAllQueuedTransactions();
+
     /**
      * Determine the maximum spendable amount you can send in a transaction
      */

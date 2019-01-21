@@ -194,6 +194,10 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public void removeAllQueuedTransactions() {
+    }
+
+    @Override
     public Value calculateMaxSpendableAmount(long minerFeeToUse) {
         return Value.zeroValue(EthMain.INSTANCE);
     }

@@ -40,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
  * https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
  */
 public class HdKeyNode implements Serializable {
-
    public static final int HARDENED_MARKER = 0x80000000;
    private BipDerivationType derivationType;
 

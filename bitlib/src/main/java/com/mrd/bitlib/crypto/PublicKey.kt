@@ -25,7 +25,6 @@ import java.io.Serializable
 import java.util.Arrays
 import kotlin.experimental.and
 
-
 class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     val pubKeyCompressed: ByteArray by lazy { compressPublicKey(publicKeyBytes) }
     val publicKeyHash: ByteArray by lazy { HashUtils.addressHash(publicKeyBytes) }
@@ -105,7 +104,6 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         } else {
             Signatures.verifySignature(data.bytes, params, Q)
         }
-
     }
 
     // same as verifyStandardBitcoinSignature, but dont enforce the hash-type check
@@ -125,5 +123,4 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
                 AddressType.P2SH_P2WPKH
         )
     }
-
 }

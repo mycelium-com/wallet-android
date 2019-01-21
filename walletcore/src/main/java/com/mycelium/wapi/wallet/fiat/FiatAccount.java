@@ -157,6 +157,10 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public void removeAllQueuedTransactions() {
+    }
+
+    @Override
     public Value calculateMaxSpendableAmount(long minerFeeToUse) {
         return null;
     }
