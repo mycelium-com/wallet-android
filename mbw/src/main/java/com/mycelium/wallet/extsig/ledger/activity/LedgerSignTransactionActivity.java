@@ -48,6 +48,7 @@ import com.btchip.BTChipDongle.BTChipOutputKeycard;
 import com.btchip.BTChipDongle.UserConfirmation;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.*;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.CoinUtil;
@@ -57,6 +58,7 @@ import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
+import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 import nordpol.android.TagDispatcher;
@@ -132,8 +134,9 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          ArrayList<String> toAddresses = new ArrayList<String>(1);
 
          long totalSending = 0;
+         UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
 
-         for (TransactionOutput o : _unsigned.getOutputs()) {
+         for (TransactionOutput o : unsigned.getOutputs()) {
             Address toAddress;
             toAddress = o.script.getAddress(_mbwManager.getNetwork());
             Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
@@ -147,8 +150,8 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
          String toAddress = Joiner.on(",\n").join(toAddresses);
          String amount = CoinUtil.valueString(totalSending, false) + " BTC";
-         String total = CoinUtil.valueString(totalSending + _unsigned.calculateFee(), false) + " BTC";
-         String fee = CoinUtil.valueString(_unsigned.calculateFee(), false) + " BTC";
+         String total = CoinUtil.valueString(totalSending + unsigned.calculateFee(), false) + " BTC";
+         String fee = CoinUtil.valueString(unsigned.calculateFee(), false) + " BTC";
 
          ((TextView) findViewById(R.id.tvAmount)).setText(amount);
          ((TextView) findViewById(R.id.tvToAddress)).setText(toAddress);
@@ -190,7 +193,8 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    private void onUserConfirmationRequest2FA(BTChipOutput outputParam) {
       BTChipOutputKeycard output = (BTChipOutputKeycard) outputParam;
       ArrayList<String> toAddresses = new ArrayList<String>(1);
-      for (TransactionOutput o : _unsigned.getOutputs()) {
+      UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
+      for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          toAddress = o.script.getAddress(_mbwManager.getNetwork());
          Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
