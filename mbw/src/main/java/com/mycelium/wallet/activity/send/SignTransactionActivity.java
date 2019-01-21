@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -53,9 +52,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -67,7 +63,6 @@ public class SignTransactionActivity extends Activity {
    protected WalletAccount _account;
    protected boolean _isColdStorage;
    protected SendRequest _sendRequest;
-   protected UnsignedTransaction _unsigned;// TODO -remove
    private Transaction _transaction;
    private AsyncTask<Void, Integer, SendRequest> signingTask;
    private Value amountToSend;
