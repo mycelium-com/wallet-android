@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -289,6 +290,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     int feeFirstItemWidth;
     int addressFirstItemWidth;
+
+    private DialogFragment activityResultDialog;
 
     private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {
         {
@@ -1117,6 +1120,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         updateUi();
         super.onResume();
+
+        if(activityResultDialog != null) {
+            activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
+            activityResultDialog = null;
+        }
     }
 
     @Override
@@ -1265,9 +1273,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
                     }
                 } else {
-                    BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
-                    broadcastDialog.show(getSupportFragmentManager(), "broadcast");
-//                    BroadcastTransactionActivity.create(this, _account.getId(), _isColdStorage, sendRequest, _transactionLabel, ""/*getFiatValue()*/, BROADCAST_REQUEST_CODE);
+                    activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
                 }
             }
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
