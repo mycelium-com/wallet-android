@@ -58,8 +58,6 @@ public interface GenericTransaction extends Serializable {
     List<GenericInput> getInputs();
     List<GenericOutput> getOutputs();
 
-    Value getSent();
-    Value getReceived();
     Value getTransferred();
     boolean isIncoming();
 

@@ -294,4 +294,8 @@ public class Value implements Comparable<Value>, Serializable {
     public static boolean canCompare(@Nullable Value amount1, @Nullable Value amount2) {
         return amount1 != null && amount2 != null && amount1.isOfType(amount2);
     }
+
+    public Value abs() {
+        return new Value(type, Math.abs(value));
+    }
 }

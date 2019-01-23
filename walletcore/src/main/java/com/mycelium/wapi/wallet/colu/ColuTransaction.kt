@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.io.Serializable
 
 
-class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: Value, val receive: Value, var time: Long,
+class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
                       val tx: Transaction?, var confirmation: Int, val _isQueuedOutgoing: Boolean
                       , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
@@ -63,15 +63,9 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _sent: 
         return output
     }
 
-    override fun getSent(): Value = _sent
+    override fun getTransferred(): Value = _transferred
 
-    override fun getReceived(): Value = receive
-
-    override fun getTransferred(): Value {
-        return receive.subtract(_sent)
-    }
-
-    override fun isIncoming() = received.subtract(sent).value > 0
+    override fun isIncoming() = transferred.value > 0
 
     override fun getRawSize(): Int {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

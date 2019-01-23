@@ -13,15 +13,13 @@ import java.util.ArrayList;
 public class BchTransaction extends BtcTransaction {
 
     public BchTransaction(CryptoCurrency type, Sha256Hash txid,
-                          long valueSent, long valueReceived, int timestamp, int confirmations,
+                          long transferred, int timestamp, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
         this.type = type;
         this.hash = txid;
-        this.valueSent = Value.valueOf(type, valueSent);
-        this.valueReceived = Value.valueOf(type, valueReceived);
-        this.value = this.valueReceived.subtract(this.valueSent);
+        this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;

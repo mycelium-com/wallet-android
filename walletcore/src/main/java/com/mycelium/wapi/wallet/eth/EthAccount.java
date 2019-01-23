@@ -74,13 +74,12 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
         EthAddress from = (EthAddress)tx.getInputs().get(0).getAddress();
         EthAddress to = (EthAddress)tx.getOutputs().get(0).getAddress();
-        tx.getSent();
 
         Value fromAccountInitialBalance = accountBalancesStorage.get(from.toString());
         Value toAccountInitialBalance = accountBalancesStorage.get(to.toString());
 
-        accountBalancesStorage.put(from.toString(),fromAccountInitialBalance.subtract(tx.getSent()));
-        accountBalancesStorage.put(to.toString(), toAccountInitialBalance.add(tx.getSent()));
+        accountBalancesStorage.put(from.toString(),fromAccountInitialBalance.subtract(tx.getTransferred()));
+        accountBalancesStorage.put(to.toString(), toAccountInitialBalance.add(tx.getTransferred()));
 
         transactionStorage.add(tx);
 

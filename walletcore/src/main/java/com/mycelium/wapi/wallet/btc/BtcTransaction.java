@@ -19,9 +19,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     protected CryptoCurrency type;
     protected Sha256Hash hash;
     private Transaction tx;
-    protected Value valueSent;
-    protected Value valueReceived;
-    protected Value value;
+    protected Value transferred;
     protected int timestamp;
     protected ArrayList<GenericInput> inputs;
     protected ArrayList<GenericOutput> outputs;
@@ -36,9 +34,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
-        this.valueSent = Value.zeroValue(type);
-        this.valueReceived = Value.zeroValue(type);
-        this.value = Value.zeroValue(type);
+        this.transferred = Value.zeroValue(type);
         this.timestamp = 0;
         this.confirmations = 0;
         this.isQueuedOutgoing = false;
@@ -50,16 +46,14 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long valueSent, long valueReceived, long value, int timestamp, int confirmations,
+                          long transferred, int timestamp, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
-        this.valueSent = Value.valueOf(type, valueSent);
-        this.valueReceived = Value.valueOf(type, valueReceived);
-        this.value = Value.valueOf(type, value);
+        this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
@@ -129,23 +123,13 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public Value getSent() {
-        return valueSent;
-    }
-
-    @Override
-    public Value getReceived() {
-        return valueReceived;
-    }
-
-    @Override
     public Value getTransferred() {
-        return value;
+        return transferred;
     }
 
     @Override
     public boolean isIncoming() {
-        return value.value >= 0;
+        return transferred.value >= 0;
     }
 
     @Override

@@ -58,10 +58,6 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
         return listOf()
     }
 
-    override fun getSent(): Value = if (!isIncoming) value else Value.zeroValue(value.getType())
-
-    override fun getReceived(): Value = if (isIncoming) value else Value.zeroValue(value.getType())
-
     override fun getTransferred(): Value {
         return value
     }
