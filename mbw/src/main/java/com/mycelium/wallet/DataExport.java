@@ -68,7 +68,7 @@ public class DataExport {
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
       String date = df.format(new Date(transaction.getTimestamp() * 1000L));
-      double value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
+      double value = transaction.getTransferred().abs().value;
       return
             escape(accountLabel) + "," +
                   transaction.getHash() + "," +

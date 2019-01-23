@@ -46,8 +46,9 @@ class PopUtils {
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
       Long txSatoshis;
+      // TODO why BitcoinMain is hard-coded here?
       if (transaction.getType() == BitcoinMain.get()) {
-         txSatoshis = (transaction.isIncoming()?transaction.getReceived():transaction.getSent()).getValue();
+         txSatoshis = (transaction.getTransferred().abs()).getValue();
       } else {
          txSatoshis = -1L;
       }

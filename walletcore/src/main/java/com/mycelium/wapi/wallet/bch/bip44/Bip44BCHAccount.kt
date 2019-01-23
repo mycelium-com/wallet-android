@@ -102,29 +102,11 @@ open class Bip44BCHAccount(
     private fun getBchTransaction(ts :  TransactionSummary): BchTransaction?{
         checkNotArchived()
 
-        var satoshisReceived: Long = 0
-        var satoshisSent: Long = 0
-
-        if (ts.isIncoming){
-            satoshisReceived = ts.value.longValue
-        } else {
-            satoshisSent = ts.value.longValue
-        }
-
-        val outputs = ArrayList<GenericTransaction.GenericOutput>()
-        outputs.add(GenericTransaction.GenericOutput(BtcLegacyAddress(coinType, ts.destinationAddress.get().allAddressBytes),
-                Value.valueOf(coinType, satoshisSent)))
-
-        val inputs = ArrayList<GenericTransaction.GenericInput>() //need to create list of outputs
-        for (input in ts.toAddresses) {
-            inputs.add(GenericTransaction.GenericInput(BtcLegacyAddress(coinType, input.allAddressBytes),
-                        Value.valueOf(coinType, satoshisReceived)))
-        }
-
+        //TODO - the information about BCH transaction is incomplete as we accept only TransactionSummary information.
         val isQueuedOutgoing = ts.isQueuedOutgoing
-        return BchTransaction(coinType, ts.txid, satoshisSent, satoshisReceived, ts.time.toInt(),
-                ts.confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx[ts.txid], 0,
-                 Value.valueOf(if (network.isProdnet) BchMain else BchTest, Math.abs(satoshisReceived - satoshisSent)))
+        return BchTransaction(coinType, ts.txid, ts.value.longValue, ts.time.toInt(),
+                ts.confirmations, isQueuedOutgoing, null, null, riskAssessmentForUnconfirmedTx[ts.txid], 0,
+                 Value.valueOf(if (network.isProdnet) BchMain else BchTest, 0))
     }
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<BtcTransaction> {
