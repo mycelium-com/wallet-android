@@ -13,15 +13,19 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtentionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -100,11 +104,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set Date
       Date date = new Date(record.getTimestamp() * 1000L);
-      TextView tvDate = (TextView) rowView.findViewById(R.id.tvDate);
+      TextView tvDate = rowView.findViewById(R.id.tvDate);
       tvDate.setText(_dateFormat.format(date));
 
       // Set value
-      TextView tvAmount = (TextView) rowView.findViewById(R.id.tvAmount);
+      TextView tvAmount = rowView.findViewById(R.id.tvAmount);
       //Maybe it's wrong
 
       Value valueTx = Value.valueOf(record.getTransferred().type, Math.abs(record.getTransferred().value));
@@ -112,10 +116,36 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       tvAmount.setTextColor(color);
 
       // Set alternative value
-      TextView tvFiat = (TextView) rowView.findViewById(R.id.tvFiatAmount);
-      tvFiat.setVisibility(View.GONE);
+      TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
 
-      TextView tvFiatTimed = (TextView) rowView.findViewById(R.id.tvFiatAmountTimed);
+      Value recordValue = record.isIncoming() ? record.getReceived() : record.getSent();
+      // if the current selected currency is the same as the transactions
+      if (alternativeCurrency.equals(recordValue.type)) {
+         if (!(alternativeCurrency instanceof FiatType)) {
+            // use the current selected fiat currency
+            alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+         } else {
+            // always show BTC
+            alternativeCurrency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+         }
+      }
+
+      if (alternativeCurrency != null) {
+         Value alternativeValue = _mbwManager.getExchangeRateManager().get(recordValue, alternativeCurrency);
+
+         if (alternativeValue == null) {
+            tvFiat.setVisibility(View.GONE);
+         } else {
+            tvFiat.setVisibility(View.VISIBLE);
+            tvFiat.setText(ValueExtentionsKt.toStringWithUnit(alternativeValue, _mbwManager.getBitcoinDenomination()));
+            tvFiat.setTextColor(color);
+         }
+      } else {
+         tvFiat.setVisibility(View.GONE);
+      }
+
+      TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
       String value = transactionFiatValuePref.getString(record.getHash().toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
