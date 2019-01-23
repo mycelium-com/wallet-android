@@ -58,7 +58,10 @@ public interface GenericTransaction extends Serializable {
     List<GenericInput> getInputs();
     List<GenericOutput> getOutputs();
 
+    // Amount transferred to the corresponding account.
+    // Can be positive (funds arrived to the account) or negative (funds are sent from the account)
     Value getTransferred();
+
     boolean isIncoming();
 
     int getRawSize();
