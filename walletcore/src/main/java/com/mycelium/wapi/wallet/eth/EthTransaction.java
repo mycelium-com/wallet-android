@@ -100,17 +100,7 @@ public class EthTransaction implements GenericTransaction {
     public List<GenericOutput> getOutputs() {
         return outputs;
     }
-
-    @Override
-    public Value getSent() {
-        return sentValue;
-    }
-
-    @Override
-    public Value getReceived() {
-        return null;
-    }
-
+    
     @Override
     public Value getTransferred() {
         return null;

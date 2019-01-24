@@ -122,9 +122,9 @@ class ReceiveCoinsModel(
         var sum = if (interesting.isEmpty()) {
             null
         } else {
-            if (interesting.first().isIncoming) interesting.first().received else interesting.first().sent
+            interesting.first().transferred.abs()
         }
-        interesting.drop(1).forEach { sum = sum!!.add(if (it.isIncoming) it.received else it.sent) }
+        interesting.drop(1).forEach { sum = sum!!.add(it.transferred.abs())}
         receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 
@@ -148,8 +148,7 @@ class ReceiveCoinsModel(
     }
 
     private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<out GenericTransaction>) =
-            transactionsSince.filter { tx -> tx.outputs.contains(GenericTransaction.GenericOutput(receivingAddress.value,
-                    if (tx.isIncoming) tx.received else tx.sent)) }
+            transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress} }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

@@ -91,16 +91,6 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public Value getSent() {
-        return null;
-    }
-
-    @Override
-    public Value getReceived() {
-        return null;
-    }
-
-    @Override
     public Value getTransferred() {
         return null;
     }

@@ -35,8 +35,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
             val json = coluClient.getAddressTransactions(address.toString())
             result = mutableListOf()
             for (transaction in json.transactions) {
-                var sent = Value.zeroValue(address.coinType)
-                var receive = Value.zeroValue(address.coinType)
+                var transferred = Value.zeroValue(address.coinType)
 
                 val input = mutableListOf<GenericTransaction.GenericInput>()
                 transaction.vin.forEach { vin ->
@@ -46,7 +45,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         input.add(GenericTransaction.GenericInput(
                                 BtcLegacyAddress(address.coinType, _address.allAddressBytes), value))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
-                            sent = sent.add(value)
+                            transferred = transferred.subtract(value)
                         }
                     }
                 }
@@ -59,15 +58,14 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         output.add(GenericTransaction.GenericOutput(
                                 BtcLegacyAddress(address.coinType, _address.allAddressBytes), value))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
-                            receive = receive.add(value)
+                            transferred = transferred.add(value)
                         }
                     }
                 }
 
                 if (input.size > 0 && output.size > 0) {
                     result.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), MTCoin
-                            , if (sent.isGreaterThan(receive)) sent.subtract(receive) else Value.zeroValue(address.coinType)
-                            , if (receive.isGreaterThan(sent)) receive.subtract(sent) else Value.zeroValue(address.coinType)
+                            , transferred
                             , transaction.time / 1000, null
                             , transaction.confirmations, false, input, output))
                 }

@@ -40,9 +40,8 @@ public class AddressUtils {
 
     //Use only for bitcoin address
     public static GenericAddress fromAddress(Address address) {
-        GenericAddress res = null;
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-        res = (address.getType() == AddressType.P2WPKH) ?
+        GenericAddress res = (address.getType() == AddressType.P2WPKH) ?
                 new SegwitAddress(currency, (com.mrd.bitlib.model.SegwitAddress) address) :
                 new BtcLegacyAddress(currency, address.getAllAddressBytes());
         return res;
