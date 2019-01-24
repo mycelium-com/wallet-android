@@ -284,10 +284,19 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         return last.hasHadActivity()
     }
 
-    override fun canCreateAccount(config: Config): Boolean =
-            config is UnrelatedHDAccountConfig ||
-                    config is AdditionalHDAccountConfig ||
-                    config is ExternalSignaturesAccountConfig
+    override fun canCreateAccount(config: Config): Boolean {
+        if (!hasBip32MasterSeed()){
+            return false
+        }
+        for (account in accounts.values) {
+            if (!account.hasHadActivity()) {
+                return false
+            }
+        }
+        return config is UnrelatedHDAccountConfig ||
+                config is AdditionalHDAccountConfig ||
+                config is ExternalSignaturesAccountConfig
+    }
 
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
