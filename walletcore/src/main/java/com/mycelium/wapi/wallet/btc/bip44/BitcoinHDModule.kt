@@ -11,8 +11,11 @@ import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.Currency
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.btc.*
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PRIV
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -29,7 +32,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
                       internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>,
-                      internal val metadataStorage: IMetaDataStorage) : GenericModule(metadataStorage), WalletModule {
+                      internal val metadataStorage: IMetaDataStorage,
+                      internal val signatureProviders: ExternalSignatureProviderProxy?) : GenericModule(metadataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -45,20 +49,27 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         val contexts = backing.loadBip44AccountContexts()
         for (context in contexts) {
-//            val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
-
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-            for (entry in context.indexesMap) {
-                keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, secureStore, entry.key)
-            }
-            val accountBacking = backing.getBip44AccountBacking(context.id);
+
+            loadKeyManagers(context, keyManagerMap)
+
+            val accountBacking = backing.getBip44AccountBacking(context.id)
             val account: WalletAccount<*, *>
             val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
             if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PRIV) {
                 account = HDAccount(context, keyManagerMap, networkParameters, accountBacking
-                        , _wapi, btcSettings.changeAddressModeReference);
+                        , _wapi, btcSettings.changeAddressModeReference)
             } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
-                account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi);
+                account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR) {
+                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), btcSettings.changeAddressModeReference)
+            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), btcSettings.changeAddressModeReference)
+            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), btcSettings.changeAddressModeReference)
             } else {
                 account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
                         btcSettings.changeAddressModeReference)
@@ -67,6 +78,34 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             accounts.put(account.id, account as HDAccount)
         }
         return result
+    }
+
+    private fun loadKeyManagers(context: HDAccountContext, keyManagerMap: HashMap<BipDerivationType, HDAccountKeyManager>) {
+        for (entry in context.indexesMap) {
+            when (context.accountType) {
+                ACCOUNT_TYPE_FROM_MASTERSEED -> keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, secureStore, entry.key)
+                ACCOUNT_TYPE_UNRELATED_X_PRIV -> {
+                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+                    keyManagerMap[entry.key] = HDAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
+                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB -> {
+                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
+                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR -> {
+                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
+                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER -> {
+                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
+                }
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY -> {
+                    val subKeyStore = secureStore.getSubKeyStore(context.accountSubId)
+                    keyManagerMap[entry.key] = HDPubOnlyAccountKeyManager(context.accountIndex, networkParameters, subKeyStore, entry.key)
+                }
+            }
+        }
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {

@@ -139,10 +139,7 @@ import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
@@ -631,14 +628,11 @@ public class MbwManager {
             }
         });
 
-        /* TODO - turn on externalSignatureProviderProxy. it is now not used
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
-            getTrezorManager(),
-            getKeepKeyManager(),
-            getLedgerManager()
+                getTrezorManager(),
+                getKeepKeyManager(),
+                getLedgerManager()
         );
-
-        */
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
@@ -681,7 +675,8 @@ public class MbwManager {
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage()));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage(),
+                externalSignatureProviderProxy));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
 
@@ -770,7 +765,7 @@ public class MbwManager {
         WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, environment.getNetwork(), _wapi, currenciesSettingsMap, getMetadataStorage()));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, environment.getNetwork(), _wapi, currenciesSettingsMap, getMetadataStorage(), null));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
