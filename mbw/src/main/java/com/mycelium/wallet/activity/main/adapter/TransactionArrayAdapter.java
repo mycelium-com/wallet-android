@@ -118,7 +118,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
       GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
 
-      Value recordValue = record.isIncoming() ? record.getReceived() : record.getSent();
+      Value recordValue = record.getTransferred().abs();
       // if the current selected currency is the same as the transactions
       if (alternativeCurrency.equals(recordValue.type)) {
          if (!(alternativeCurrency instanceof FiatType)) {
