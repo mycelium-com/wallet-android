@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -372,7 +371,7 @@ public class ColuManager implements AccountProvider {
         _backing.beginTransaction();
         try {
             SingleAddressAccountContext singleAccountContext = new SingleAddressAccountContext(createdAccountInfo.id,
-                    ImmutableMap.of(address.getType(), address), false, 0);
+                    ImmutableMap.of(address.getType(), address), false, 0, address.getType());
             _backing.createSingleAddressAccountContext(singleAccountContext);
             SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(singleAccountContext.getId()));
             singleAccountContext.persist(accountBacking);
@@ -504,8 +503,13 @@ public class ColuManager implements AccountProvider {
             ColuAccount account;
 
             if (accountKey == null) {
+                Address address = singleAddressAccount.getAddress(AddressType.P2PKH);
+                // fix NPE crash from console, maybe problem in db migration
+                if (address == null) {
+                    return;
+                }
                 account = new ColuAccount(
-                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, singleAddressAccount.getAddress(AddressType.P2PKH),
+                        ColuManager.this, createdAccountInfo.accountBacking, metadataStorage, address,
                         coluAsset);
             } else {
                 account = new ColuAccount(

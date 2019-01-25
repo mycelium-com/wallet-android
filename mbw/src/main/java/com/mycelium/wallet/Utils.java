@@ -107,6 +107,7 @@ import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -123,8 +124,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -700,31 +699,57 @@ public class Utils {
       return installed;
    }
 
-   public static void pinProtectedBackup(final Activity activity) {
-      MbwManager manager = MbwManager.getInstance(activity);
-      manager.runPinProtectedFunction(activity, new Runnable() {
+   private static boolean haveBackup(MbwManager mbwManager) {
+      WalletAccount account = mbwManager.getSelectedAccount();
+      MetadataStorage meta = mbwManager.getMetadataStorage();
 
+      // Then check if there are some SingleAddressAccounts with funds on it
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+         MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
+         return state == MetadataStorage.BackupState.NOT_VERIFIED || state == MetadataStorage.BackupState.VERIFIED;
+      }
+      return false;
+   }
+
+   public static void pinProtectedBackup(final Activity activity) {
+      final MbwManager manager = MbwManager.getInstance(activity);
+      manager.runPinProtectedFunction(activity, new Runnable() {
          @Override
          public void run() {
-            Utils.backup(activity);
+             Utils.backup(activity);
          }
       });
    }
 
    private static void backup(final Activity parent) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-      builder.setMessage(R.string.backup_legacy_warning).setCancelable(true)
-            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-               public void onClick(DialogInterface dialog, int id) {
-                  dialog.dismiss();
-                  BackupToPdfActivity.callMe(parent);
-               }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-         }
-      });
-      AlertDialog alertDialog = builder.create();
-      alertDialog.show();
+      final MbwManager manager = MbwManager.getInstance(parent);
+      new AlertDialog.Builder(parent)
+              .setMessage(R.string.backup_legacy_warning).setCancelable(true)
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    if (haveBackup(manager)) {
+                       secondaryBackup(parent);
+                    } else {
+                       BackupToPdfActivity.callMe(parent);
+                    }
+                 }
+              })
+              .setNegativeButton(R.string.no, null)
+              .create()
+              .show();
+   }
+
+   private static void secondaryBackup(final Activity parent) {
+      new AlertDialog.Builder(parent)
+              .setMessage(R.string.did_backup).setCancelable(true)
+              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                 public void onClick(DialogInterface dialog, int id) {
+                    BackupToPdfActivity.callMe(parent);
+                 }
+              })
+              .setNegativeButton(R.string.cancel, null)
+              .create()
+              .show();
    }
 
    public static void exportSelectedAccount(final Activity parent) {
@@ -742,10 +767,7 @@ public class Utils {
                           account);
 
                }
-            }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface dialog, int id) {
-         }
-      });
+            }).setNegativeButton(R.string.no, null);
       AlertDialog alertDialog = builder.create();
       alertDialog.show();
    }

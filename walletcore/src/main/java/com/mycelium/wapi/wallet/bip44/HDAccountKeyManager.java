@@ -48,7 +48,6 @@ import java.util.UUID;
  * retrieval next time they are requested.
  */
 public class HDAccountKeyManager {
-
    protected static final int BIP44_PRODNET_COIN_TYPE = 0x80000000;
    protected static final int BIP44_TESTNET_COIN_TYPE = 0x80000001;
    protected int _accountIndex;

@@ -29,7 +29,6 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 
 public class Signatures {
-
    private static final byte[] HEADER;
    private static final byte[] SIGNING_HEADER;
 
@@ -92,8 +91,7 @@ public class Signatures {
                 return null;
             }
 
-            byte[][] result = new byte[][] { bytes1, bytes2 };
-            return result;
+            return new byte[][] { bytes1, bytes2 };
         } catch (ByteReader.InsufficientBytesException e) {
             return null;
         }
@@ -205,6 +203,4 @@ public class Signatures {
       }
       return bos1.toByteArray();
    }
-
-
 }
