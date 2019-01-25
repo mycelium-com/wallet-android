@@ -16,7 +16,6 @@ object NewsDatabase {
     private lateinit var database: SQLiteDatabase
     private lateinit var insertOrReplaceNews: SQLiteStatement
     private lateinit var readNews: SQLiteStatement
-    private lateinit var getById: SQLiteStatement
 
     enum class SqlState {
         INSERTED, UPDATED
@@ -27,8 +26,8 @@ object NewsDatabase {
         val helper = NewsSQLiteHelper(context)
         database = helper.writableDatabase
 
-        getById = database.compileStatement("SELECT id FROM $NEWS WHERE id = ?")
-        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt)" +
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?)")
         readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
@@ -50,16 +49,10 @@ object NewsDatabase {
         val builder = SQLiteQueryBuilder()
         builder.tables = NewsSQLiteHelper.NEWS
 
-        val cursor = if (limit != -1) {
-            builder.query(database
-                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
-                    , where.toString(), null, null, null, "date desc"
-                    , offset.toString() + "," + limit.toString())
-        } else {
-            builder.query(database
-                    , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
-                    , where.toString(), null, null, null, "date desc")
-        }
+        val cursor = builder.query(database
+                , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
+                , where.toString(), null, null, null, "date desc"
+                , if (limit != -1) offset.toString() + "," + limit.toString() else null)
         val result = mutableListOf<News>()
         while (cursor.moveToNext()) {
             val news = News()

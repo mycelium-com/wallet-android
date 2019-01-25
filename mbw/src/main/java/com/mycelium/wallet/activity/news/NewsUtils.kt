@@ -29,7 +29,7 @@ object NewsUtils {
 
 fun News.getFitImage(width:Int): String {
     var result = this.image
-    val regexp = Regex(pattern = "fit=([0-9]*?)%2C([0-9]*?)&")
+    val regexp = Regex("fit=([0-9]*?)%2C([0-9]*?)&")
     val matchResult = regexp.find(this.image)
     if (matchResult != null) {
         val serverWidth = matchResult.groupValues[1].toInt()

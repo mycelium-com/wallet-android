@@ -27,7 +27,7 @@ class MoreNewsAdapter : RecyclerView.Adapter<MoreNewsAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val news = data?.get(position)!!
+        val news = data!![position]
         holder.itemView.title.text = news.title
         val category = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
         holder.itemView.category.text = category

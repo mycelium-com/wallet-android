@@ -10,21 +10,18 @@ import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.ConsoleMessage
-import android.webkit.WebChromeClient
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.convertToCategory
 import com.mycelium.wallet.activity.news.adapter.MoreNewsAdapter
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
+import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
 
@@ -42,19 +39,18 @@ class NewsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        app_bar_layout.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener  {
+        app_bar_layout.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
             override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
                 val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
                 category.alpha = 1 - scrollDelta
                 toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
             }
         });
-        news = intent.getSerializableExtra("news") as News
+        news = intent.getSerializableExtra(NewsConstants.NEWS) as News
         NewsDatabase.read(news)
         content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
-        val categories = preference.getStringSet("category_filter", null)?.toTypedArray()?.convertToCategory()
-                ?: listOf()
+        val categories = preference.getStringSet(NewsConstants.CATEGORY_FILTER, null)?.map { Category(it) } ?: listOf()
         val contentText = news.content
                 .replace("width=\".*?\"", "width=\"100%\"")
                 .replace("width: .*?px", "width: 100%")
@@ -123,19 +119,17 @@ class NewsActivity : AppCompatActivity() {
         adapter = MoreNewsAdapter()
         moreNewsList.adapter = adapter
         moreNewsList.setHasFixedSize(false)
-        val moreNewsTask = GetNewsTask(null, categories, 3)
-        moreNewsTask.listener =
-                {
-                    val list = it.toMutableList()
-                    list.remove(news)
-                    if (list.isEmpty()) {
-                        moreNewsList.visibility = View.GONE
-                        moreDivider.visibility = View.GONE
-                        moreText.visibility = View.GONE
-                    } else {
-                        adapter?.data = list
-                    }
-                }
+        val moreNewsTask = GetNewsTask(null, categories, 3) {
+            val list = it.toMutableList()
+            list.remove(news)
+            if (list.isEmpty()) {
+                moreNewsList.visibility = View.GONE
+                moreDivider.visibility = View.GONE
+                moreText.visibility = View.GONE
+            } else {
+                adapter?.data = list
+            }
+        }
         moreNewsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         adapter?.openClickListener =
                 {
@@ -157,15 +151,15 @@ class NewsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.share) {
-            val s = Intent(Intent.ACTION_SEND)
-            s.type = "text/plain"
-            s.putExtra(Intent.EXTRA_SUBJECT, news.title)
-            s.putExtra(Intent.EXTRA_TEXT, news.link)
-            startActivity(Intent.createChooser(s, "Share News"))
-            return true
-        } else if (item?.itemId == android.R.id.home) {
-            finish()
+        when {
+            item?.itemId == R.id.share -> {
+                startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
+                        .putExtra(Intent.EXTRA_SUBJECT, news.title)
+                        .putExtra(Intent.EXTRA_TEXT, news.link)
+                        .setType("text/plain"), getString(R.string.share_news)))
+                return true
+            }
+            item?.itemId == android.R.id.home -> finish()
         }
         return super.onOptionsItemSelected(item)
     }

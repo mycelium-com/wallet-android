@@ -1,3 +1,7 @@
+/**
+ * Taken and modified from
+ * https://gist.github.com/stepango/1dcf6055a80f840f9185
+ */
 package com.mycelium.wallet.activity.view;
 
 import android.content.Context;

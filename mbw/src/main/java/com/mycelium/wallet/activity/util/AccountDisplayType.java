@@ -1,3 +1,6 @@
+/*
+* source
+* */
 package com.mycelium.wallet.activity.util;
 
 import com.mycelium.wapi.wallet.WalletAccount;

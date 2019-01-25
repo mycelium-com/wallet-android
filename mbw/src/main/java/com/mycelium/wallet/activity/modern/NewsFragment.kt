@@ -21,6 +21,7 @@ import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.NewsConstants.CATEGORY_FILTER
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.Category
+import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.dialog_mediaflow_filter.view.*
 import kotlinx.android.synthetic.main.fragment_news.*
 
@@ -32,8 +33,8 @@ class NewsFragment : Fragment() {
     var searchActive = false
 
     private val updateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(p0: Context?, p1: Intent?) {
-            if (p1?.action == NewsConstants.NEWS_UPDATE_ACTION && !searchActive) {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == NewsConstants.NEWS_UPDATE_ACTION && !searchActive) {
                 startUpdate()
             }
         }
@@ -72,11 +73,10 @@ class NewsFragment : Fragment() {
             }
         })
         adapter.shareClickListener = { news ->
-            val s = Intent(Intent.ACTION_SEND)
-            s.type = "text/plain"
-            s.putExtra(Intent.EXTRA_SUBJECT, news.title)
-            s.putExtra(Intent.EXTRA_TEXT, news.link)
-            startActivity(Intent.createChooser(s, getString(R.string.share_news)))
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
+                    .putExtra(Intent.EXTRA_SUBJECT, news.title)
+                    .putExtra(Intent.EXTRA_TEXT, news.link)
+                    .setType("text/plain"), getString(R.string.share_news)))
         }
         adapter.openClickListener = {
             val intent = Intent(activity, NewsActivity::class.java)
@@ -129,13 +129,13 @@ class NewsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.action_filter ->
-                ShowFilter { result ->
+                ShowFilterTask { result ->
                     activity?.let { context ->
                         val view = LayoutInflater.from(context).inflate(R.layout.dialog_mediaflow_filter, null)
                         view.title.text = getString(R.string.select_flows)
                         view.list.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
                         val filterAdapter = MediaFlowFilterAdapter(result)
-                        filterAdapter.checked.addAll(preference.getStringSet(CATEGORY_FILTER, setOf()))
+                        filterAdapter.checked.addAll(preference.getStringSet(CATEGORY_FILTER, setOf())!!)
                         view.list.adapter = filterAdapter
                         val dialog = AlertDialog.Builder(context, R.style.MyceliumSettings_Dialog_Small)
                                 .setView(view)
@@ -164,15 +164,8 @@ class NewsFragment : Fragment() {
         if (loading) {
             return
         }
-        val categories = preference.getStringSet(CATEGORY_FILTER, null)?.toTypedArray()?.convertToCategory()
-                ?: listOf()
-        val task = if (search != null) {
-            GetNewsTask(search, categories)
-        } else {
-            GetNewsTask(search, categories, 30, offset)
-        }
-
-        task.listener = {
+        val categories = preference.getStringSet(CATEGORY_FILTER, null)?.map { Category(it) } ?: listOf()
+        val taskListener: (List<News>) -> Unit = {
             loading = false
             adapter.searchMode = search != null && search.isNotEmpty()
             if (it.isNotEmpty()) {
@@ -183,12 +176,18 @@ class NewsFragment : Fragment() {
                 }
             }
         }
+        val task = if (search != null) {
+            GetNewsTask(search, categories, listener = taskListener)
+        } else {
+            GetNewsTask(search, categories, 30, offset, taskListener)
+        }
+
         loading = true
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    class ShowFilter(val listener: ((List<Category>) -> Unit)) : AsyncTask<Void, Void, List<Category>>() {
-        override fun doInBackground(vararg p0: Void?): List<Category> {
+    class ShowFilterTask(val listener: ((List<Category>) -> Unit)) : AsyncTask<Void, Void, List<Category>>() {
+        override fun doInBackground(vararg args: Void?): List<Category> {
             return NewsDatabase.getCategories()
         }
 
@@ -197,12 +196,4 @@ class NewsFragment : Fragment() {
             result?.let { listener.invoke(it) }
         }
     }
-}
-
-fun Array<String>.convertToCategory(): List<Category> {
-    val result = mutableListOf<Category>()
-    this.forEach {
-        result.add(Category(it))
-    }
-    return result
 }

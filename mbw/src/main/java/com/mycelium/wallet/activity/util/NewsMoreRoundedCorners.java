@@ -1,3 +1,8 @@
+/**
+ * Taken and modified from
+ * https://github.com/bumptech/glide/blob/master/library/src/main/java/com/bumptech/glide/load/resource/bitmap/RoundedCorners.java
+ */
+
 package com.mycelium.wallet.activity.util;
 
 import android.graphics.Bitmap;
@@ -83,8 +88,7 @@ public class NewsMoreRoundedCorners extends BitmapTransformation {
 
     @Override
     public int hashCode() {
-        return Util.hashCode(ID.hashCode(),
-                Util.hashCode(roundingRadius));
+        return Util.hashCode(ID.hashCode(), Util.hashCode(roundingRadius));
     }
 
     @Override
@@ -95,8 +99,7 @@ public class NewsMoreRoundedCorners extends BitmapTransformation {
         messageDigest.update(radiusData);
     }
 
-    private static Bitmap getAlphaSafeBitmap(
-            @NonNull BitmapPool pool, @NonNull Bitmap maybeAlphaSafe) {
+    private static Bitmap getAlphaSafeBitmap(@NonNull BitmapPool pool, @NonNull Bitmap maybeAlphaSafe) {
         Bitmap.Config safeConfig = getAlphaSafeConfig(maybeAlphaSafe);
         if (safeConfig.equals(maybeAlphaSafe.getConfig())) {
             return maybeAlphaSafe;
@@ -104,7 +107,7 @@ public class NewsMoreRoundedCorners extends BitmapTransformation {
 
         Bitmap argbBitmap =
                 pool.get(maybeAlphaSafe.getWidth(), maybeAlphaSafe.getHeight(), safeConfig);
-        new Canvas(argbBitmap).drawBitmap(maybeAlphaSafe, 0 /*left*/, 0 /*top*/, null /*paint*/);
+        new Canvas(argbBitmap).drawBitmap(maybeAlphaSafe, 0, 0, null);
 
         // We now own this Bitmap. It's our responsibility to replace it in the pool outside this method
         // when we're finished with it.
@@ -114,8 +117,7 @@ public class NewsMoreRoundedCorners extends BitmapTransformation {
     @NonNull
     private static Bitmap.Config getAlphaSafeConfig(@NonNull Bitmap inBitmap) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Avoid short circuiting the sdk check.
-            if (Bitmap.Config.RGBA_F16.equals(inBitmap.getConfig())) { // NOPMD
+            if (Bitmap.Config.RGBA_F16.equals(inBitmap.getConfig())) {
                 return Bitmap.Config.RGBA_F16;
             }
         }
