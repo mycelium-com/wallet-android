@@ -27,7 +27,7 @@ object NewsDatabase {
         database = helper.writableDatabase
 
         insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt)" +
-                " VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+                " VALUES (?,?,?,?,?,?,?,?,?)")
         readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
@@ -91,8 +91,8 @@ object NewsDatabase {
                 insertOrReplaceNews.bindString(5, it.author.name)
                 insertOrReplaceNews.bindString(6, it.link)
                 insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
-                insertOrReplaceNews.bindString(9, it.image)
-                insertOrReplaceNews.bindString(11, it.excerpt)
+                insertOrReplaceNews.bindString(8, it.image)
+                insertOrReplaceNews.bindString(9, it.excerpt)
                 insertOrReplaceNews.executeInsert()
 
                 result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED

@@ -36,7 +36,7 @@ class NewsSyncService : Service() {
         super.onStart(intent, startId)
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null);
-        NewsUpdate(MbwManager.getEventBus(), lastUpdateTime, {
+        NewsUpdate(MbwManager.getEventBus(), lastUpdateTime) {
             val formattedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK).format(Date())
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, formattedDate)
@@ -94,7 +94,7 @@ class NewsSyncService : Service() {
                 }
 
             }
-        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 }
 
