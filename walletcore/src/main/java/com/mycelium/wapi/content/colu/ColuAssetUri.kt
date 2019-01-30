@@ -10,6 +10,7 @@ abstract class ColuAssetUri(address: GenericAddress?, value: Value?, label: Stri
     : GenericAssetUri(address, value, label, scheme), WithCallback {
 
     override fun equals(other: Any?): Boolean {
+        other ?: return false
         val uri = other as ColuAssetUri
         if(this.address != uri.address || this.value != uri.value ||
                 this.label != uri.label || this.callbackURL != uri.callbackURL ||
@@ -18,6 +19,14 @@ abstract class ColuAssetUri(address: GenericAddress?, value: Value?, label: Stri
         }
         return true
     }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (callbackURL?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString() = "ColuAssetUri(address=$address, value=$value, label=$label, scheme=$scheme, callbackURL=$callbackURL)"
 }
 
 
