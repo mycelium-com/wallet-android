@@ -314,26 +314,18 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             // No master seed
             return false
         }
-        if (getNextBip44Index() === 0) {
-            // First account not created
-            return true
-        }
-        // We can add an additional account if the last account had activity
-        val last = accounts.values.last()
-        return last.hasHadActivity()
-    }
 
-    override fun canCreateAccount(config: Config): Boolean {
-        if (!hasBip32MasterSeed()){
-            return false
-        }
         for (account in accounts.values) {
             if (!account.hasHadActivity()) {
                 return false
             }
         }
+        return true
+    }
+
+    override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||
-                config is AdditionalHDAccountConfig ||
+                (config is AdditionalHDAccountConfig && canCreateAdditionalBip44Account()) ||
                 config is ExternalSignaturesAccountConfig
     }
 
