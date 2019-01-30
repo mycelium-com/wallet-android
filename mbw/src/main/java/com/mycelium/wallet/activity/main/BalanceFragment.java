@@ -202,14 +202,14 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onStart() {
-       _mbwManager.getEventBus().register(this);
+       MbwManager.getEventBus().register(this);
        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
        if (_exchangeRatePrice == null) {
            _mbwManager.getExchangeRateManager().requestRefresh();
        }
 
        _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
+       _tcdFiatDisplay.setEventBus(MbwManager.getEventBus());
 
        updateUi();
        super.onStart();
@@ -217,7 +217,7 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onStop() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onStop();
    }
 
@@ -229,7 +229,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if (account.canSpend()) {
-            if (account instanceof ColuPubOnlyAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {

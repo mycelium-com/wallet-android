@@ -72,7 +72,6 @@ import java.util.UUID;
 import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
 
 public class VerifyBackupActivity extends Activity {
-
    private static final int SCAN_RESULT_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
@@ -109,7 +108,6 @@ public class VerifyBackupActivity extends Activity {
          }
 
       });
-
    }
 
    private boolean hasPrivateKeyOnClipboard() {
@@ -189,7 +187,7 @@ public class VerifyBackupActivity extends Activity {
          return;
       }
 
-      ShowDialogMessage(R.string.unrecognized_private_key_format, false);
+      showDialogMessage(R.string.unrecognized_private_key_format, false);
    }
 
    private void verify(InMemoryPrivateKey pk) {
@@ -201,7 +199,7 @@ public class VerifyBackupActivity extends Activity {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
          // Check whether regular wallet contains that account
-         success = _mbwManager.getWalletManager(false).hasAccount(account);
+         success = walletManager.hasAccount(account);
          if (success) {
             allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
             break;
@@ -228,9 +226,9 @@ public class VerifyBackupActivity extends Activity {
 
          String addresses = TextUtils.join("\n\n", addressList);
          String message = getResources().getString(R.string.verify_backup_ok, label, addresses);
-         ShowDialogMessage(message, false);
+         showDialogMessage(message, false);
       } else {
-         ShowDialogMessage(R.string.verify_backup_no_such_record, false);
+         showDialogMessage(R.string.verify_backup_no_such_record, false);
       }
    }
 
@@ -239,21 +237,21 @@ public class VerifyBackupActivity extends Activity {
             Bip39.MasterSeed ourSeed = _mbwManager.getMasterSeedManager().getMasterSeed(AesKeyCipher.defaultKeyCipher());
             if (masterSeed.equals(ourSeed)) {
                 _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
-                ShowDialogMessage(R.string.verify_backup_ok_message, false);
+                showDialogMessage(R.string.verify_backup_ok_message, false);
                 updateUi();
             } else {
-                ShowDialogMessage(R.string.wrong_seed, false);
+                showDialogMessage(R.string.wrong_seed, false);
             }
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
         }
     }
 
-   private void ShowDialogMessage(int messageResource, final boolean quit) {
-      ShowDialogMessage(getResources().getString(messageResource), quit);
+   private void showDialogMessage(int messageResource, final boolean quit) {
+      showDialogMessage(getResources().getString(messageResource), quit);
    }
 
-   private void ShowDialogMessage(String message, final boolean quit) {
+   private void showDialogMessage(String message, final boolean quit) {
       Utils.showSimpleMessageDialog(this, message);
    }
 
@@ -267,12 +265,12 @@ public class VerifyBackupActivity extends Activity {
              } else if (type == ResultType.MASTER_SEED) {
                  verify(StringHandlerActivity.getMasterSeed(intent));
              } else {
-                 ShowDialogMessage("Not supported backup! Please contact suport.", false);
+                 showDialogMessage("Not supported backup! Please contact suport.", false);
              }
          } else {
             String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {
-               ShowDialogMessage(error, false);
+               showDialogMessage(error, false);
             }
          }
       }
