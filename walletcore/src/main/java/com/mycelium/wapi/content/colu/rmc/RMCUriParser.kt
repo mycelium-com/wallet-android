@@ -13,7 +13,7 @@ class RMCUriParser(override val network: NetworkParameters) : ColuAssetUriParser
             var uri = URI.create(content.trim { it <= ' ' })
             val scheme = uri.scheme
             if (!scheme!!.equals("rmc", ignoreCase = true)) {
-                // not a rmc URI
+                // not an rmc URI
                 return null
             }
 
