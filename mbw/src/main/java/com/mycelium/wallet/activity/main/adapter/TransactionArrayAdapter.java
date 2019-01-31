@@ -43,11 +43,9 @@ import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EX
 public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private final MetadataStorage _storage;
    protected Context _context;
-   private final boolean _alwaysShowAddress;
    private DateFormat _dateFormat;
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
-   private Map<Address, String> _addressBook;
    private SharedPreferences transactionFiatValuePref;
    private Set<String> exchangeTransactions;
 
@@ -62,12 +60,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
                                   boolean alwaysShowAddress) {
       super(context, R.layout.transaction_row, transactions);
       _context = context;
-      _alwaysShowAddress = alwaysShowAddress;
       _dateFormat = new AdaptiveDateFormat(context);
       _mbwManager = MbwManager.getInstance(context);
       _containerFragment = containerFragment;
       _storage = _mbwManager.getMetadataStorage();
-      _addressBook = addressBook;
 
       transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
