@@ -154,8 +154,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.pendingSending.value > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.pendingSending.value);
+      if (balance.getSendingBalance().value > 0) {
+         String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance().value);
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
