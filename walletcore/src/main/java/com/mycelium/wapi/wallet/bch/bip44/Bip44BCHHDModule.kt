@@ -5,6 +5,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -52,3 +53,10 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
     }
 
 }
+
+/**
+ * Get Bitcoin Cash HD-accounts
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getBCHBip44Accounts() = getAccounts().filter { it is Bip44BCHAccount && it.isVisible }

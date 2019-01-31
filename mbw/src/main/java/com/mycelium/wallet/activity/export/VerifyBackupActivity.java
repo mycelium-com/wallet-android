@@ -69,7 +69,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class VerifyBackupActivity extends Activity {
 

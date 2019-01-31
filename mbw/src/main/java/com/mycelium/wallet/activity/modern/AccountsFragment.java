@@ -119,9 +119,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.mycelium.wallet.AccountManagerKt.getActiveHDAccounts;
-import static com.mycelium.wallet.AccountManagerKt.getActiveMasterseedAccounts;
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class AccountsFragment extends Fragment {
    public static final int ADD_RECORD_RESULT_CODE = 0;

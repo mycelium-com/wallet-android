@@ -8,6 +8,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.*
@@ -97,3 +98,5 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
 
 
 }
+
+fun WalletManager.getBCHSingleAddressAccounts() = getAccounts().filter { it is SingleAddressBCHAccount && it.isVisible }

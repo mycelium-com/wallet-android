@@ -149,3 +149,10 @@ fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: Net
     }
     return result
 }
+
+/**
+ * Get active colored coin accounts
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is ColuPubOnlyAccount && it.isVisible && it.isActive }
