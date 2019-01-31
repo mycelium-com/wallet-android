@@ -6,10 +6,17 @@ import android.os.AsyncTask
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
+import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
+import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
+import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.coinapult.getCoinapultAccounts
+import com.mycelium.wapi.wallet.colu.getColuAccounts
+import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService

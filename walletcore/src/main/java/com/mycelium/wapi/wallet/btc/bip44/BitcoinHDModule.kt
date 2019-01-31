@@ -339,3 +339,26 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     }
 
 }
+
+/**
+ * Get the active BTC HD-accounts managed by the wallet manager
+ * , excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount && it.isVisible }
+
+/**
+ * Get the active BTC HD-accounts managed by the wallet manager
+ * , excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isActive }
+
+/**
+ * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }

@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.AccountManagerKt.getBCHBip44Accounts;
-import static com.mycelium.wallet.AccountManagerKt.getBCHSingleAddressAccounts;
+import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
+import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 
 public class BCHHelper {
     public static final String BCH_FIRST_UPDATE = "bch_first_update_page";

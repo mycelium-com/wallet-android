@@ -23,7 +23,9 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModule
+import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Bus

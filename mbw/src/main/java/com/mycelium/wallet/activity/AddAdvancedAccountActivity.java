@@ -111,10 +111,9 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.mycelium.wapi.wallet.manager.Config;
 
-import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wallet.activity.util.WalletManagerExtentionsKt.getBTCSingleAddressAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 public class AddAdvancedAccountActivity extends FragmentActivity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";

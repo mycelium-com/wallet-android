@@ -2,10 +2,7 @@ package com.mycelium.wapi.wallet.coinapult
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.AccountListener
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletBacking
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -73,3 +70,17 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
     }
 
 }
+
+/**
+ * Get active coinapult accounts
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getCoinapultAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is CoinapultAccount && it.isVisible && it.isActive }
+
+/**
+ * Get coinapult account by coin type
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getCoinapultAccount(currency: Currency): WalletAccount<*, *>? = getCoinapultAccounts().find { it.coinType == currency }
