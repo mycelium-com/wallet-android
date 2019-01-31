@@ -14,7 +14,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Value implements Comparable<Value>, Serializable {
-
     /**
      * The type of this value
      */
