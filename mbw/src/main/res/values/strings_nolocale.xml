@@ -97,4 +97,22 @@
     <string name="coinapult_tos_link_url">https://coinapult.com/terms</string>
     <string name="glidera_tos">If you continue, you agree to proceed to Glidera, a third party service. All your interactions with Glidera are outside of Mycelium’s control and are subject to Glidera’s User Agreement and Privacy Policy. Please read them carefully before providing any personal information. Mycelium won’t provide any personal information to Glidera. All information that you may provide to Glidera will be subject to Glidera’s Privacy Policy and will not be collected, stored, or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON GLIDERA’S INFORMATION AND SERVICES.</string>
     <string name="buy_with_cc_tos">If you continue, you agree to proceed to the Swish BTC Store, a third party service. All your interactions with the Swish BTC Store are outside of Mycelium Wallet’s control and are subject to Swish BTC Store’s User Agreement and Privacy Policy. Please read them carefully before providing any personal information. Mycelium Wallet won’t provide any personal information to the Swish BTC Store. All information that you may provide to the Swish BTC Store will be subject to Swish BTC Store’s Privacy Policy and will not be collected, stored, or used by Mycelium Wallet.\n\nMYCELIUM WALLET ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON SWISH BTC STORE’S INFORMATION AND SERVICES.</string>
+
+    <string name="media_flow_html_template" ><![CDATA[<html><head>
+                <style type="text/css">body{color: #fff; padding: 0px; margin:0px; line-height: 1.43;}
+                 img{height: auto; width: 100%%; max-width: 100%%;}
+                 .wp-caption { margin: 0; padding: 0; height: auto; width: 100%%; max-width: 100%%;}
+                 .wp-caption-text, .wp-caption-dd {
+                 clear: both; font-size: 75%%;  font-weight: 400; font-style: italic;
+                 text-align: center; color: #e7e7e7; width: 100%%; margin: 0; margin-top: %1$s }
+                 a {text-decoration: none; color: #e7e7e7; }
+                 p, section { margin-top: %2$s px; margin-left: %3$spx;
+                 margin-bottom: %2$s px; margin-right: %3$spx;}
+                 blockquote {margin-left: %4$spx; font-family:Georgia,\'Times New Roman\',serif;
+                 font-style:italic;border:solid #595959;border-width: 0 0 0 %5$spx; color: #e7e7e7; }
+                 blockquote p{ padding-top: %1$spx; padding-bottom: %1$spx;}
+                 li { margin-bottom: %6$spx;}
+                </style>
+        </head><body>%7$s</body></html>]]>
+    </string>
 </resources>

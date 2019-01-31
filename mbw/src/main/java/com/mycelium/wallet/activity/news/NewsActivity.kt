@@ -14,10 +14,9 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.adapter.MoreNewsAdapter
+import com.mycelium.wallet.activity.news.adapter.SliderAdapter
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
@@ -39,59 +38,36 @@ class NewsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        app_bar_layout.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
-            override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
-                val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
-                category.alpha = 1 - scrollDelta
-                toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
-            }
-        });
+        app_bar_layout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
+            category.alpha = 1 - scrollDelta
+            toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
+        })
         news = intent.getSerializableExtra(NewsConstants.NEWS) as News
         NewsDatabase.read(news)
         content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
-        val categories = preference.getStringSet(NewsConstants.CATEGORY_FILTER, null)?.map { Category(it) } ?: listOf()
-        val contentText = news.content
+        val categories = preference.getStringSet(NewsConstants.CATEGORY_FILTER, null)?.map { Category(it) }
+                ?: listOf()
+        val parsedContent = NewsUtils.parseNews(news.content)
+        val contentText = parsedContent.news
                 .replace("width=\".*?\"", "width=\"100%\"")
                 .replace("width: .*?px", "width: 100%")
                 .replace("height=\".*?\"", "")
-        content.settings.javaScriptEnabled = true
-        content.settings.loadsImagesAutomatically = true;
-        content.settings.allowUniversalAccessFromFileURLs = true
         content.settings.defaultFontSize = 14;
 
         val webTextMarginHorizontal = resources.toWebViewPx(16f)
         val webTextMarginVertical = resources.toWebViewPx(24f)
 
-        content.loadDataWithBaseURL("https://blog.mycelium.com"
-                , "<html>"
-                + "<head>"
-                + "<script src='file:///android_asset/js/jquery.js'></script>"
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/css/smart-slider-3.css\" media=\"all\">"
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/css/smart-slider-3-addition.css\" media=\"all\">"
-                + "<style type=\"text/css\">body{color: #fff; padding: 0px; margin:0px; line-height: 1.43;}"
-                + " img{height: auto; width: 100%; max-width: 100%;}"
-                + " .wp-caption { margin: 0; padding: 0; height: auto; width: 100%; max-width: 100%;}"
-                + " .wp-caption-text, .wp-caption-dd {"
-                + " clear: both; font-size: 75%;  font-weight: 400; font-style: italic;"
-                + " text-align: center; color: #e7e7e7; width: 100%; margin: 0; margin-top: ${resources.toWebViewPx(12f)}}"
-                + " a {text-decoration: none; color: #e7e7e7; }"
-                + " p, section { margin-top: ${webTextMarginVertical}px; margin-left: ${webTextMarginHorizontal}px; "
-                + " margin-bottom: ${webTextMarginVertical}px; margin-right: ${webTextMarginHorizontal}px;}"
-                + " blockquote {margin-left: ${resources.toWebViewPx(16f)}px; font-family:Georgia,'Times New Roman',serif;"
-                + " font-style:italic;border:solid #595959;border-width: 0 0 0 ${resources.toWebViewPx(2f)}px; color: #e7e7e7; }"
-                + " blockquote p{ padding-top:${resources.toWebViewPx(12f)}px; padding-bottom: ${resources.toWebViewPx(12f)}px;}"
-                + " li { margin-bottom: ${resources.toWebViewPx(8f)}px;}"
-                + "</style>"
-                + "<script type=\"text/javascript\">(function(){var N=this;N.N2_=N.N2_||{r:[],d:[]},N.N2R=N.N2R||function(){N.N2_.r.push(arguments)},N.N2D=N.N2D||function(){N.N2_.d.push(arguments)}}).call(window);if(!window.n2jQuery){window.n2jQuery={ready:function(cb){console.error('n2jQuery will be deprecated!');N2R(['\$'],cb)}}}window.nextend={localization:{},ready:function(cb){console.error('nextend.ready will be deprecated!');N2R('documentReady',function(\$){cb.call(window,\$)})}};</script>"
-                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-n2.js\"></script>"
-                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-nextend.js\"></script>"
-                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-fronend.js\"></script>"
-                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-simple-type.js\"></script>"
-                + "<script type=\"text/javascript\" src=\"file:///android_asset/js/smart-slider-3-initialize.js\"></script>"
-                + "</head>"
-                + "<body>$contentText</body></html>"
-                , "text/html", "UTF-8", null)
+        val html = getString(R.string.media_flow_html_template
+                , resources.toWebViewPx(12f).toString()
+                , webTextMarginVertical.toString()
+                , webTextMarginHorizontal.toString()
+                , resources.toWebViewPx(16f).toString()
+                , resources.toWebViewPx(2f).toString()
+                , resources.toWebViewPx(8f).toString()
+                , contentText)
+        content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
         tvTitle.text = news.title
         tvDate.text = NewsUtils.getDateAuthorString(this, news)
 
@@ -110,10 +86,13 @@ class NewsActivity : AppCompatActivity() {
                 scrollTop.visibility = View.GONE
             }
         }
-        Glide.with(image)
-                .load(news.getFitImage(resources.displayMetrics.widthPixels))
-                .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
-                .into(image)
+        val images = mutableListOf<String>()
+        images.add(news.getFitImage(resources.displayMetrics.widthPixels))
+        images.addAll(parsedContent.images)
+        val imageAdapter = SliderAdapter(images)
+        image_slider.adapter = imageAdapter
+        pager_indicator.setupWithViewPager(image_slider)
+        pager_indicator.visibility = if (images.size > 1) View.VISIBLE else View.GONE
         moreNewsList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         moreNewsList.isNestedScrollingEnabled = false;
         adapter = MoreNewsAdapter()
@@ -131,13 +110,12 @@ class NewsActivity : AppCompatActivity() {
             }
         }
         moreNewsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        adapter?.openClickListener =
-                {
-                    finish()
-                    val intent = Intent(this@NewsActivity, NewsActivity::class.java)
-                    intent.putExtra(NewsConstants.NEWS, it)
-                    startActivity(intent)
-                }
+        adapter?.openClickListener = {
+            finish()
+            val intent = Intent(this@NewsActivity, NewsActivity::class.java)
+            intent.putExtra(NewsConstants.NEWS, it)
+            startActivity(intent)
+        }
     }
 
     private fun Resources.toWebViewPx(dipValue: Float): Float {

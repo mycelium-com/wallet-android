@@ -22,16 +22,30 @@
             app:contentScrim="#1a1a1a"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-
-            <ImageView
-                android:id="@+id/image"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/image_slider"
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
-                android:adjustViewBounds="true"
                 android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                android:tint="#66000000"
                 app:layout_collapseMode="parallax" />
+
+            <com.mycelium.wallet.activity.view.ViewPagerIndicator
+                android:id="@+id/pager_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_marginRight="@dimen/margin_medium"
+                android:layout_marginBottom="4dp"
+                app:delimiterSize="8dp"
+                app:itemIcon="@drawable/pager_indicator_dot"
+                app:itemWidth="8dp"
+                app:layout_collapseMode="pin"/>
+            <!--<ImageView-->
+                <!--android:id="@+id/image"-->
+                <!--android:adjustViewBounds="true"-->
+                <!---->
+                <!--android:scaleType="centerCrop"-->
+                <!--android:tint="#66000000" />-->
 
             <TextView
                 android:id="@+id/category"
