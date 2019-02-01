@@ -246,8 +246,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          Balance balance = walletAccount.getAccountBalance();
          String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed.add(balance.pendingChange).value);
 
-         if (balance.getSpendable().isPositive()){
-            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSpendable().value));
+         if (balance.getSendingBalance().isPositive()){
+            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance().value));
          }
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 

@@ -34,9 +34,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.AccountManagerKt.getBTCBip44Accounts;
-import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
-import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccounts;
+import static com.mycelium.wallet.activity.util.WalletManagerExtentionsKt.getBTCSingleAddressAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getBTCBip44Accounts;
+import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ChangellyActivity extends AppCompatActivity {

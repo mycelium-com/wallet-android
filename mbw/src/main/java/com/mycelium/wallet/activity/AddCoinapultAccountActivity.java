@@ -68,7 +68,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.mycelium.wallet.AccountManagerKt.getCoinapultAccount;
+import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccount;
 
 public class AddCoinapultAccountActivity extends Activity {
    public static final int RESULT_COINAPULT = 2;
