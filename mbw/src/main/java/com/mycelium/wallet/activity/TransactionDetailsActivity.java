@@ -105,11 +105,11 @@ public class TransactionDetailsActivity extends Activity {
       tvHash.setTransaction(_txs);
 
       // Set Confirmed
-      int confirmations = _txs.getAppearedAtChainHeight();
+      int confirmations = _txs.getConfirmations();
 
       String confirmed;
       if (confirmations > 0) {
-         confirmed = getResources().getString(R.string.confirmed_in_block, _txs.getDepthInBlocks());
+         confirmed = getResources().getString(R.string.confirmed_in_block, _txs.getHeight());
       } else {
          confirmed = getResources().getString(R.string.no);
       }

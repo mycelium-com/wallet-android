@@ -43,23 +43,13 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
-    public int getDepthInBlocks() {
+    public int getHeight() {
         return 0;
     }
 
     @Override
-    public void setDepthInBlocks(int depthInBlocks) {
-
-    }
-
-    @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return 0;
-    }
-
-    @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-
     }
 
     @Override
