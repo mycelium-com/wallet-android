@@ -89,6 +89,7 @@ import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.CreateTrader;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -239,7 +240,7 @@ public class AccountsFragment extends Fragment {
             }
             accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
-            if (!(account instanceof ColuAccount)
+            if (!(account instanceof ColuPubOnlyAccount)
                     && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
 
                setLabelOnAccount(account, account.getLabel(), false);
@@ -283,7 +284,7 @@ public class AccountsFragment extends Fragment {
          deleteDialog.setView(checkBoxView);
       }
 
-      if (accountToDelete instanceof com.mycelium.wapi.wallet.colu.ColuAccount && accountToDelete.canSpend()) {
+      if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
          Log.d(TAG, "Preparing to delete a colu account.");
          deleteDialog.setView(checkBoxView);
       }
@@ -318,7 +319,7 @@ public class AccountsFragment extends Fragment {
                } else {
                   GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
                   if (receivingAddress != null) {
-                     address = receivingAddress.toString(); //todo multiline string
+                     address = AddressUtils.toMultiLineString(receivingAddress.toString());
                   } else {
                      address = "";
                   }
@@ -358,7 +359,7 @@ public class AccountsFragment extends Fragment {
                         try {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuPubOnlyAccount) {
+                           if (linkedColuAccount instanceof ColuPubOnlyAccount) {
                               walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
                               walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
                               ColuAccountContext context = ((ColuPubOnlyAccount) linkedColuAccount).getContext();
@@ -406,7 +407,7 @@ public class AccountsFragment extends Fragment {
                         } else {
                            //Check if this SingleAddress account is related with ColuAccount
                            WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                           if (linkedColuAccount != null && linkedColuAccount instanceof ColuAccount) {
+                           if (linkedColuAccount instanceof ColuAccount) {
                               walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
                            }
                            walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());

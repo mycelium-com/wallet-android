@@ -112,6 +112,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.app.Activity.RESULT_OK;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getBitIdRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getUri;
 
 public class BalanceFragment extends Fragment {
    public static final String COINMARKETCAP = "Coinmarketcap";
@@ -364,26 +372,26 @@ public class BalanceFragment extends Fragment {
                 ResultType type = (ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 switch (type) {
                     case PRIVATE_KEY:
-                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
+                        InMemoryPrivateKey key = getPrivateKey(data);
                         UUID account = _mbwManager.createOnTheFlyAccount(key);
                         //we dont know yet where at what to send
                         SendInitializationActivity.callMeWithResult(getActivity(), account, true,
                                 StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         break;
                     case ADDRESS:
-                        GenericAddress address = StringHandlerActivity.getAddress(data);
+                        GenericAddress address = getAddress(data);
                         startActivity(SendMainActivity.getIntent(getActivity()
                                 , _mbwManager.getSelectedAccount().getId(), null, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
-                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(data);
+                        GenericAssetUri uri = getAssetUri(data);
                         startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     }
                     case HD_NODE:
-                        HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(data);
+                        HdKeyNode hdKeyNode = getHdKeyNode(data);
                         if (hdKeyNode.isPrivateHdKeyNode()) {
                             //its an xPriv, we want to cold-spend from it
                             final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
@@ -399,22 +407,22 @@ public class BalanceFragment extends Fragment {
                         }
                         break;
                     case SHARE:
-                        BipSss.Share share = StringHandlerActivity.getShare(data);
+                        BipSss.Share share = getShare(data);
                         BipSsImportActivity.callMe(getActivity(), share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                         break;
                     case URI:
                         // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
-                        Uri uri = StringHandlerActivity.getUri(data);
+                        Uri uri = getUri(data);
                         startActivity(HandleUrlActivity.getIntent(getActivity(), uri));
                         break;
                     case POP_REQUEST:
-                        PopRequest popRequest = StringHandlerActivity.getPopRequest(data);
+                        PopRequest popRequest = getPopRequest(data);
                         startActivity(new Intent(getActivity(), PopActivity.class)
                                 .putExtra("popRequest", popRequest)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case BIT_ID_REQUEST:
-                        BitIDSignRequest request = StringHandlerActivity.getBitIdRequest(data);
+                        BitIDSignRequest request = getBitIdRequest(data);
                         BitIDAuthenticationActivity.callMe(getActivity(), request);
                         break;
                 }
