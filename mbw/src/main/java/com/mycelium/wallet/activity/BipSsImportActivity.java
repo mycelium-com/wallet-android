@@ -48,6 +48,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
+
 public class BipSsImportActivity extends Activity {
    public static final String RESULT_SECRET = "secret";
    private static final int REQUEST_SHARE_CODE = 1;
@@ -119,7 +121,7 @@ public class BipSsImportActivity extends Activity {
          if (REQUEST_SHARE_CODE == requestCode) {
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
             if (type == ResultType.SHARE) {
-               BipSss.Share share = StringHandlerActivity.getShare(intent);
+               BipSss.Share share = getShare(intent);
                shares.add(share);
             }
          }

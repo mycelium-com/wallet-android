@@ -87,8 +87,8 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_ACCOUNT_KEY = "account";
    public static final String RESULT_MASTER_SEED_KEY = "master_seed";
-   private static final String RESULT_POP_REQUEST = "pop_request";
-   private static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
+   public static final String RESULT_POP_REQUEST = "pop_request";
+   public static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
 
    public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
       Intent intent = new Intent(currentActivity, StringHandlerActivity.class);
@@ -383,89 +383,6 @@ public class StringHandlerActivity extends Activity {
       result.putExtra(RESULT_TYPE_KEY, ResultType.NONE);
       setResult(RESULT_OK, result);
       finish();
-   }
-
-   public static InMemoryPrivateKey getPrivateKey(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.PRIVATE_KEY);
-      InMemoryPrivateKey key = (InMemoryPrivateKey) intent.getSerializableExtra(RESULT_PRIVATE_KEY);
-      Preconditions.checkNotNull(key);
-      return key;
-   }
-
-   public static HdKeyNode getHdKeyNode(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.HD_NODE);
-      HdKeyNode hdKeyNode = (HdKeyNode) intent.getSerializableExtra(RESULT_HD_NODE);
-      Preconditions.checkNotNull(hdKeyNode);
-      return hdKeyNode;
-   }
-
-   public static void getAddress(Intent intent, WalletManager walletManager, FragmentManager fragmentManager) {
-      StringHandlerActivity.checkType(intent, ResultType.ADDRESS_STRING);
-      String address = intent.getStringExtra(RESULT_ADDRESS_STRING_KEY);
-      Preconditions.checkNotNull(address);
-      List<GenericAddress> addresses = walletManager.parseAddress(address);
-      SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-      dialog.show(fragmentManager, "dialog");
-   }
-
-   public static GenericAddress getAddress(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ADDRESS);
-      GenericAddress address = (GenericAddress) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
-      Preconditions.checkNotNull(address);
-      return address;
-   }
-
-   public static GenericAssetUri getAssetUri(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ASSET_URI);
-      GenericAssetUri uri = (GenericAssetUri) intent.getSerializableExtra(RESULT_URI_KEY);
-      Preconditions.checkNotNull(uri);
-      return uri;
-   }
-
-   public static Uri getUri(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.URI);
-      Uri uri = (Uri) intent.getSerializableExtra(RESULT_URI_KEY);
-      Preconditions.checkNotNull(uri);
-      return uri;
-   }
-
-   public static BipSss.Share getShare(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.SHARE);
-      BipSss.Share share = (BipSss.Share) intent.getSerializableExtra(RESULT_SHARE_KEY);
-      Preconditions.checkNotNull(share);
-      return share;
-   }
-
-   public static UUID getAccount(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ACCOUNT);
-      UUID account = (UUID) intent.getSerializableExtra(RESULT_ACCOUNT_KEY);
-      Preconditions.checkNotNull(account);
-      return account;
-   }
-
-   public static Bip39.MasterSeed getMasterSeed(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.MASTER_SEED);
-      Bip39.MasterSeed result = (Bip39.MasterSeed) intent.getSerializableExtra(RESULT_MASTER_SEED_KEY);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static PopRequest getPopRequest(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.POP_REQUEST);
-      PopRequest result = (PopRequest) intent.getSerializableExtra(RESULT_POP_REQUEST);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static BitIDSignRequest getBitIdRequest(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.BIT_ID_REQUEST);
-      BitIDSignRequest result = (BitIDSignRequest) intent.getSerializableExtra(RESULT_BIT_ID_REQUEST);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static void checkType(Intent intent, ResultType type) {
-      Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
    }
 
    public NetworkParameters getNetwork() {
