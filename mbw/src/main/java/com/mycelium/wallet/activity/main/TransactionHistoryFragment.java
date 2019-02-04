@@ -433,11 +433,11 @@ public class TransactionHistoryFragment extends Fragment {
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false); //canCancel
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getHeight() == 0));// and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0));// and !canCoinapult
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getHeight() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
-                           .setVisible(record.getHeight() == 0);
+                           .setVisible(record.getConfirmations() == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
 
                      }
