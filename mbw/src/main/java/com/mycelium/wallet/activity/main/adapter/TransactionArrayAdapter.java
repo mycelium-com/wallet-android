@@ -148,7 +148,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Show confirmations indicator
-      int confirmations = record.getAppearedAtChainHeight();
+      int confirmations = record.getConfirmations();
       TransactionConfirmationsDisplay tcdConfirmations = rowView.findViewById(R.id.tcdConfirmations);
       if (record.isQueuedOutgoing()) {//record.isQueuedOutgoing
          // Outgoing, not broadcasted

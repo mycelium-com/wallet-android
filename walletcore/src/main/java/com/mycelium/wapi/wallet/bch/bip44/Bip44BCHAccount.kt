@@ -104,7 +104,7 @@ open class Bip44BCHAccount(
 
         //TODO - the information about BCH transaction is incomplete as we accept only TransactionSummary information.
         val isQueuedOutgoing = ts.isQueuedOutgoing
-        return BchTransaction(coinType, ts.txid, ts.value.longValue, ts.time.toInt(),
+        return BchTransaction(coinType, ts.txid, ts.value.longValue, ts.time.toInt(), ts.height,
                 ts.confirmations, isQueuedOutgoing, null, null, riskAssessmentForUnconfirmedTx[ts.txid], 0,
                  Value.valueOf(if (network.isProdnet) BchMain else BchTest, 0))
     }

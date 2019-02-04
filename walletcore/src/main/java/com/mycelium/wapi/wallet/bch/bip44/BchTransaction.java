@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class BchTransaction extends BtcTransaction {
 
     public BchTransaction(CryptoCurrency type, Sha256Hash txid,
-                          long transferred, int timestamp, int confirmations,
+                          long transferred, int timestamp, int height, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
@@ -21,6 +21,7 @@ public class BchTransaction extends BtcTransaction {
         this.hash = txid;
         this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
+        this.height = height;
         this.confirmations = confirmations;
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.inputs = inputs;
