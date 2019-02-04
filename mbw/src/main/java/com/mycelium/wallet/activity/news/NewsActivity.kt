@@ -56,13 +56,10 @@ class NewsActivity : AppCompatActivity() {
                 .replace("height=\".*?\"", "")
         content.settings.defaultFontSize = 14;
 
-        val webTextMarginHorizontal = resources.toWebViewPx(16f)
-        val webTextMarginVertical = resources.toWebViewPx(24f)
-
         val html = getString(R.string.media_flow_html_template
                 , resources.toWebViewPx(12f).toString()
-                , webTextMarginVertical.toString()
-                , webTextMarginHorizontal.toString()
+                , resources.toWebViewPx(24f).toString()
+                , resources.toWebViewPx(16f).toString()
                 , resources.toWebViewPx(16f).toString()
                 , resources.toWebViewPx(2f).toString()
                 , resources.toWebViewPx(8f).toString()

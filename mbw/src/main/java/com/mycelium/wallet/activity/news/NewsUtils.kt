@@ -28,22 +28,20 @@ object NewsUtils {
     data class ParsedData(val news: String, val images: List<String>)
 
     fun parseNews(data: String): ParsedData {
-        var result = data
         val resultImage = mutableListOf<String>()
-        val matches = "<div class=\"n2-section-smartslider\">.*?alt=\"Slider\" /></div></div>"
-                .toRegex(RegexOption.DOT_MATCHES_ALL)
-                .find(data, 0)
-        if (matches != null) {
-            matches.groups[0]?.range?.let { result = data.removeRange(it) }
-            matches.groups[0]?.let {
-                val res = Regex("data-desktop=\"//(.*?)\"").findAll(it.value)
-                res.forEach { matchResult ->
-                    matchResult.groups[1]?.let { matchGroup ->
-                        resultImage.add("https://${matchGroup.value}")
+        val result = Regex("<div class=\"n2-section-smartslider.*?\".*?>.*?alt=\"Slider\" /></div></div>",
+                RegexOption.DOT_MATCHES_ALL)
+                .replace(data) {
+                    it.groups[0]?.let {
+                        val res = Regex("data-desktop=\"//(.*?)\"").findAll(it.value)
+                        res.forEach { matchResult ->
+                            matchResult.groups[1]?.let { matchGroup ->
+                                resultImage.add("https://${matchGroup.value}")
+                            }
+                        }
                     }
+                    ""
                 }
-            }
-        }
         return ParsedData(result, resultImage)
     }
 }
