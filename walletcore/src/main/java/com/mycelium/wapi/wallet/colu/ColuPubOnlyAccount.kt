@@ -203,14 +203,14 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
 
         for (tx in transactions) {
             tx.inputs.forEach {
-                if (tx.height < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     sending = sending.add(it.value)
                 } else if (isMineAddress(it.address)) {
                     confirmed = confirmed.subtract(it.value)
                 }
             }
             tx.outputs.forEach {
-                if (tx.height < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     receiving = receiving.add(it.value)
                 } else if (isMineAddress(it.address)) {
                     confirmed = confirmed.add(it.value)
