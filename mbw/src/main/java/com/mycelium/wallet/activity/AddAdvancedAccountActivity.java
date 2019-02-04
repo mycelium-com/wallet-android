@@ -112,6 +112,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 import static com.mycelium.wallet.activity.util.WalletManagerExtentionsKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
@@ -331,7 +336,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
             switch (type) {
                case PRIVATE_KEY:
-                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  InMemoryPrivateKey key = getPrivateKey(intent);
                   if (fromClipboard) {
                      Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                   }
@@ -340,10 +345,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
                   break;
                case ADDRESS:
-                  returnAccount(StringHandlerActivity.getAddress(intent));
+                  returnAccount(getAddress(intent));
                   break;
                case HD_NODE:
-                  final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  final HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
                      Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                   }
@@ -351,10 +356,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   break;
                case ASSET_URI:
                   // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
-                  returnAccount(StringHandlerActivity.getAssetUri(intent).getAddress());
+                  returnAccount(getAssetUri(intent).getAddress());
                   break;
                case SHARE:
-                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSss.Share share = getShare(intent);
                   BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                   break;
                default:

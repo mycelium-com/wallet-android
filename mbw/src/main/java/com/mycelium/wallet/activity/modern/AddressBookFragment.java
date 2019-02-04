@@ -87,6 +87,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+
 public class AddressBookFragment extends Fragment {
 
    public static final int SCAN_RESULT_CODE = 0;
@@ -404,10 +407,10 @@ public class AddressBookFragment extends Fragment {
             Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
             break;
          case ASSET_URI:
-            addFromAddress(StringHandlerActivity.getAssetUri(intent).getAddress());
+            addFromAddress(getAssetUri(intent).getAddress());
             break;
          case ADDRESS:
-            StringHandlerActivity.getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
+            getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
             break;
       }
    }

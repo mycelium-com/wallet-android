@@ -156,6 +156,11 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
@@ -1179,7 +1184,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 switch (type) {
                     case PRIVATE_KEY:
-                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                        InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
                         for (AddressType addressType : AddressType.values()) {
                             Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
@@ -1188,10 +1193,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         setUpMultiAddressView();
                         break;
                     case ADDRESS:
-                        _receivingAddress = StringHandlerActivity.getAddress(intent);
+                        _receivingAddress = getAddress(intent);
                         break;
                     case ASSET_URI:
-                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
+                        GenericAssetUri uri = getAssetUri(intent);
                         if (uri instanceof BitcoinUri && ((BitcoinUri) uri).getCallbackURL() != null) {
                             //we contact the merchant server instead of using the params
                             genericUri = uri;
@@ -1210,10 +1215,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         }
                         break;
                     case HD_NODE:
-                        setReceivingAddressFromKeynode(StringHandlerActivity.getHdKeyNode(intent));
+                        setReceivingAddressFromKeynode(getHdKeyNode(intent));
                         break;
                     case POP_REQUEST:
-                        PopRequest popRequest = StringHandlerActivity.getPopRequest(intent);
+                        PopRequest popRequest = getPopRequest(intent);
                         startActivity(new Intent(this, PopActivity.class)
                                 .putExtra("popRequest", popRequest)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
