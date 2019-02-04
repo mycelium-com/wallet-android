@@ -338,6 +338,9 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         return false
     }
 
+    fun upgradeExtSigAccount(accountRoots: List<HdKeyNode>, account: HDAccountExternalSignature): Boolean {
+        return account.upgradeAccount(accountRoots, secureStore)
+    }
 }
 
 /**

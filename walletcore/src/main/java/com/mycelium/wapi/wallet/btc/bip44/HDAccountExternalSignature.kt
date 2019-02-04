@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
@@ -43,5 +44,25 @@ class HDAccountExternalSignature(
                     .serialize(_network, derivationType))
         }.toMap()
         return ExportableAccount.Data(null, publicDataMap)
+    }
+
+    fun upgradeAccount(accountRoots: List<HdKeyNode>, secureKeyValueStore: SecureKeyValueStore): Boolean {
+        if (context.indexesMap.size < accountRoots.size) {
+            for (root in accountRoots) {
+                if (context.indexesMap[root.derivationType] == null) {
+                    keyManagerMap[root.derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(root, _network,
+                            context.accountIndex, secureKeyValueStore.getSubKeyStore(context.accountSubId), root.derivationType)
+                    context.indexesMap[root.derivationType] = AccountIndexesContext(-1, -1, 0)
+                }
+            }
+            externalAddresses = initAddressesMap()
+            internalAddresses = initAddressesMap()
+            ensureAddressIndexes()
+
+            LoadingProgressTracker.clearLastFullUpdateTime()
+            context.persist(backing)
+            return true
+        }
+        return false
     }
 }

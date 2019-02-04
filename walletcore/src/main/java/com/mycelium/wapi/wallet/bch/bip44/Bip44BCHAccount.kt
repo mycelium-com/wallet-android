@@ -32,7 +32,7 @@ import java.util.UUID
 
 open class Bip44BCHAccount(
         context: HDAccountContext,
-        keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
                            network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
                            private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var blockChainHeight = 0
