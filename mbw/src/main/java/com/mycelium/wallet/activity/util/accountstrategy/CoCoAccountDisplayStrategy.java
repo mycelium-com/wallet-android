@@ -4,14 +4,14 @@ import android.content.Context;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 
 public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
-    private final ColuPubOnlyAccount account;
+    private final PublicColuAccount account;
     private final Context context;
 
-    public CoCoAccountDisplayStrategy(ColuPubOnlyAccount account, Context context) {
+    public CoCoAccountDisplayStrategy(PublicColuAccount account, Context context) {
         this.account = account;
         this.context = context;
     }

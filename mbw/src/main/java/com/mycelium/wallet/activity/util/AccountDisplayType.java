@@ -6,7 +6,7 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
 public enum AccountDisplayType {
     BTC_ACCOUNT("BTC"),
@@ -32,7 +32,7 @@ public enum AccountDisplayType {
         if (account instanceof CoinapultAccount){
             return COINAPULT_ACCOUNT;
         }
-        if (account instanceof ColuPubOnlyAccount) {
+        if (account instanceof PublicColuAccount) {
             return COLU_ACCOUNT;
         }
         return UNKNOWN_ACCOUNT;
