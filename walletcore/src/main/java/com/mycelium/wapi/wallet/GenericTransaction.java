@@ -41,11 +41,9 @@ public interface GenericTransaction extends Serializable {
     String getHashAsString();
     byte[] getHashBytes();
 
-    int getDepthInBlocks();
-    void setDepthInBlocks(int depthInBlocks);
+    int getHeight();
 
-    int getAppearedAtChainHeight();
-    void setAppearedAtChainHeight(int appearedAtChainHeight);
+    int getConfirmations();
 
     long getTimestamp();
     void setTimestamp(int timestamp);

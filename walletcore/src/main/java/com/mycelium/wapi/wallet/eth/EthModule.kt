@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -42,3 +43,10 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
     }
 
 }
+
+/**
+ * Get ethereum accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getEthAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is EthAccount && it.isVisible }

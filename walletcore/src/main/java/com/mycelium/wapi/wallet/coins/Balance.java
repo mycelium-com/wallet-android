@@ -19,6 +19,13 @@ public class Balance {
     public final Value pendingSending;
 
     /**
+     * Get the value to show as sending in a UI
+     */
+    public Value getSendingBalance() {
+        return pendingSending.subtract(pendingChange);
+    }
+
+    /**
      * The sum of the outputs being sent from the address set to itself
      */
     public final Value pendingChange;

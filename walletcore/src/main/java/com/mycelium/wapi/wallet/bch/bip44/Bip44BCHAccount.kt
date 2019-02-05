@@ -32,7 +32,7 @@ import java.util.UUID
 
 open class Bip44BCHAccount(
         context: HDAccountContext,
-        keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
                            network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
                            private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
     private var blockChainHeight = 0
@@ -104,7 +104,7 @@ open class Bip44BCHAccount(
 
         //TODO - the information about BCH transaction is incomplete as we accept only TransactionSummary information.
         val isQueuedOutgoing = ts.isQueuedOutgoing
-        return BchTransaction(coinType, ts.txid, ts.value.longValue, ts.time.toInt(),
+        return BchTransaction(coinType, ts.txid, ts.value.longValue, ts.time.toInt(), ts.height,
                 ts.confirmations, isQueuedOutgoing, null, null, riskAssessmentForUnconfirmedTx[ts.txid], 0,
                  Value.valueOf(if (network.isProdnet) BchMain else BchTest, 0))
     }

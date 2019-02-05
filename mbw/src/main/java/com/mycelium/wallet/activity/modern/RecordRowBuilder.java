@@ -64,7 +64,8 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class RecordRowBuilder {
     private final MbwManager mbwManager;

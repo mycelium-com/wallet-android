@@ -154,7 +154,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null, null);
             walletManager.add(bitcoinHDModule);
 
             // create account

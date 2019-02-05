@@ -12,10 +12,14 @@ import java.io.Serializable
 
 
 class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
-                      val tx: Transaction?, var confirmation: Int, val _isQueuedOutgoing: Boolean
+                      val tx: Transaction?, val _height: Int, var _confirmations: Int, val _isQueuedOutgoing: Boolean
                       , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
     : GenericTransaction, Serializable {
+
+    override fun getHeight(): Int = _height
+
+    override fun getConfirmations(): Int = _confirmations
 
     override fun getType(): GenericAssetInfo = _type
 
@@ -26,18 +30,6 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transf
     override fun getHashAsString(): String = hash.toString()
 
     override fun getHashBytes(): ByteArray = hash.bytes
-
-    override fun getDepthInBlocks(): Int = confirmation
-
-    override fun setDepthInBlocks(depthInBlocks: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getAppearedAtChainHeight(): Int = confirmation
-
-    override fun setAppearedAtChainHeight(appearedAtChainHeight: Int) {
-        confirmation = appearedAtChainHeight
-    }
 
     override fun getTimestamp(): Long = time
 

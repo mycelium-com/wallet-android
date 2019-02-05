@@ -69,7 +69,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getMasterSeed;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class VerifyBackupActivity extends Activity {
    private static final int SCAN_RESULT_CODE = 0;
@@ -261,9 +264,9 @@ public class VerifyBackupActivity extends Activity {
          if (resultCode == RESULT_OK) {
              ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
              if (type == ResultType.PRIVATE_KEY) {
-                 verify(StringHandlerActivity.getPrivateKey(intent));
+                 verify(getPrivateKey(intent));
              } else if (type == ResultType.MASTER_SEED) {
-                 verify(StringHandlerActivity.getMasterSeed(intent));
+                 verify(getMasterSeed(intent));
              } else {
                  showDialogMessage("Not supported backup! Please contact suport.", false);
              }

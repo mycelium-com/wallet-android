@@ -23,6 +23,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     protected int timestamp;
     protected ArrayList<GenericInput> inputs;
     protected ArrayList<GenericOutput> outputs;
+    protected int height;
     protected int confirmations;
     protected int rawSize;
     protected boolean isQueuedOutgoing;
@@ -36,6 +37,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.hash = tx.getId();
         this.transferred = Value.zeroValue(type);
         this.timestamp = 0;
+        this.height = 0;
         this.confirmations = 0;
         this.isQueuedOutgoing = false;
         this.inputs = new ArrayList<>();
@@ -46,7 +48,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long transferred, int timestamp, int confirmations,
+                          long transferred, int timestamp, int height, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
@@ -56,6 +58,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
+        this.height = height;
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -77,22 +80,13 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return confirmations;
     }
 
     @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-        this.confirmations = appearedAtChainHeight;
-    }
-
-    @Override
-    public int getDepthInBlocks() {
-        return 0;
-    }
-
-    @Override
-    public void setDepthInBlocks(int depthInBlocks) {
+    public int getHeight() {
+        return height;
     }
 
     @Override
