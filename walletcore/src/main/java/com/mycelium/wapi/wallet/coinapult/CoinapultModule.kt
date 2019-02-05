@@ -18,7 +18,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                       val listener: AccountListener,
                       val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-    override fun getId(): String = "coinapult module"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -69,6 +69,10 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         return api.verifyMail(link, email)
     }
 
+    companion object {
+        @JvmField
+        val ID: String = "coinapult module"
+    }
 }
 
 /**

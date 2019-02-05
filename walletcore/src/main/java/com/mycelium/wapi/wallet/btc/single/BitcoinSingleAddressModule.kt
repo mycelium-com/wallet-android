@@ -31,7 +31,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
-    override fun getId(): String = "BitcoinSA"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -106,7 +106,6 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return createAccount(publicKey)
     }
 
-
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is SingleAddressAccount) {
             publicPrivateKeyStore.forgetPrivateKey(walletAccount.address.allAddressBytes, keyCipher);
@@ -116,5 +115,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return false
     }
 
-
+    companion object {
+        @JvmField
+        val ID: String = "BitcoinSA"
+    }
 }

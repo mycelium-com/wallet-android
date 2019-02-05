@@ -24,7 +24,7 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
                        internal var _wapi: Wapi,
                        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-    override fun getId(): String = "Bip44HD"
+    override fun getId(): String = ID
 
     private val accounts = mutableMapOf<UUID, Bip44BCHAccount>()
 
@@ -52,6 +52,10 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    companion object {
+        @JvmField
+        val ID: String = "Bip44HD"
+    }
 }
 
 /**

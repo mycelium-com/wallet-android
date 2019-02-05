@@ -185,7 +185,7 @@ public class AccountsFragment extends Fragment {
       localTraderManager = _mbwManager.getLocalTraderManager();
       localTraderManager.subscribe(ltSubscriber);
       _storage = _mbwManager.getMetadataStorage();
-      eventBus = _mbwManager.getEventBus();
+      eventBus = MbwManager.getEventBus();
       _toaster = new Toaster(this);
       super.onAttach(context);
    }
@@ -229,7 +229,6 @@ public class AccountsFragment extends Fragment {
          _mbwManager.setSelectedAccount(accountId);
          accountListAdapter.setFocusedAccountId(account.getId());
          updateIncludingMenus();
-
       } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          if (accountid != null) {
@@ -421,11 +420,7 @@ public class AccountsFragment extends Fragment {
                      eventBus.post(new AccountChanged(accountToDelete.getId()));
                   }
                });
-               confirmDeleteDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                  public void onClick(DialogInterface arg0, int arg1) {
-                  }
-               });
+               confirmDeleteDialog.setNegativeButton(R.string.no, null);
                confirmDeleteDialog.show();
             } else {
                // account has no private data - dont make a fuzz about it and just delete it
@@ -851,7 +846,7 @@ public class AccountsFragment extends Fragment {
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return ((CoinapultModule) walletManager.getModuleById("coinapult module")).setMail(mail);
+         return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
       }
 
       @Override
@@ -876,7 +871,7 @@ public class AccountsFragment extends Fragment {
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return  ((CoinapultModule) walletManager.getModuleById("coinapult module")).verifyMail(link, email);
+         return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
       }
 
       @Override
@@ -986,7 +981,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
-      if (account == null || !AccountsFragment.this.isAdded()) {
+      if (account == null || !isAdded()) {
          return;
       }
       if (askForPin) {
@@ -994,7 +989,7 @@ public class AccountsFragment extends Fragment {
 
             @Override
             public void run() {
-               if (!AccountsFragment.this.isAdded()) {
+               if (!isAdded()) {
                   return;
                }
                EnterAddressLabelUtil.enterAccountLabel(getActivity(), account.getId(), defaultName, _storage);
@@ -1007,7 +1002,7 @@ public class AccountsFragment extends Fragment {
    }
 
    private void deleteSelected() {
-      if (!AccountsFragment.this.isAdded()) {
+      if (!isAdded()) {
          return;
       }
       final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
@@ -1019,7 +1014,7 @@ public class AccountsFragment extends Fragment {
 
          @Override
          public void run() {
-            if (!AccountsFragment.this.isAdded()) {
+            if (!isAdded()) {
                return;
             }
             deleteAccount(_focusedAccount);
@@ -1045,10 +1040,10 @@ public class AccountsFragment extends Fragment {
 
          @Override
          public void run() {
-            if (!AccountsFragment.this.isAdded()) {
+            if (!isAdded()) {
                return;
             }
-            Utils.exportSelectedAccount(AccountsFragment.this.getActivity());
+            Utils.exportSelectedAccount(getActivity());
          }
 
       });

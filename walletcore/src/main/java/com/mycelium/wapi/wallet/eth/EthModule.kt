@@ -19,7 +19,7 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         assetsList.add(EthMain)
     }
 
-    override fun getId(): String = "ETH"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val map = HashMap<UUID, WalletAccount<*,*>>()
@@ -42,6 +42,10 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         return true
     }
 
+    companion object {
+        @JvmField
+        val ID: String = "ETH"
+    }
 }
 
 /**

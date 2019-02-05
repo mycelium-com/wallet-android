@@ -83,11 +83,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
-            if (linked != null && linked is ColuPubOnlyAccount
-                    && linked.coinType == RMCCoin) {
-                return true
-            }
-            return false
+            return linked is ColuPubOnlyAccount && linked.coinType == RMCCoin
         }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
