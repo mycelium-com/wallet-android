@@ -1,6 +1,5 @@
 package com.mycelium.wallet.activity.modern.adapter;
 
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -18,21 +17,19 @@ import com.squareup.otto.Bus;
 
 import java.util.List;
 
-
 public class SelectAssetDialog extends DialogFragment {
-
-    private MbwManager mbwManager = MbwManager.getInstance(getContext());
     private static List<GenericAddress> addressList;
     private static SelectAssetDialog instance;
     private Bus bus;
 
     public static SelectAssetDialog getInstance(List<GenericAddress> genericAddresses) {
-        if(instance == null){
+        if (instance == null) {
             instance = new SelectAssetDialog();
         }
         addressList = genericAddresses;
         return instance;
     }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -50,7 +47,7 @@ public class SelectAssetDialog extends DialogFragment {
         });
 
         CharSequence[] items = new CharSequence[addressList.size()];
-        for (int i = 0; i < addressList.size(); i++){
+        for (int i = 0; i < addressList.size(); i++) {
             items[i] = addressList.get(i).getCoinType().getName();
         }
 
@@ -67,8 +64,7 @@ public class SelectAssetDialog extends DialogFragment {
 
     @Override
     public void onAttach(Context context) {
-        mbwManager = MbwManager.getInstance(context);
-        bus = mbwManager.getEventBus();
+        bus = MbwManager.getEventBus();
         super.onAttach(context);
     }
 
