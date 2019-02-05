@@ -32,7 +32,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
     }
 
-    override fun getId(): String = "colored coin module"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val contexts = backing.loadAccountContexts()
@@ -139,6 +139,11 @@ class ColuModule(val networkParameters: NetworkParameters,
             return true
         }
         return false
+    }
+
+    companion object {
+        @JvmField
+        val ID: String = "colored coin module"
     }
 }
 

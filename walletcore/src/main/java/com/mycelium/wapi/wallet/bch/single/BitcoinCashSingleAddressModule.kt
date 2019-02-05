@@ -25,7 +25,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      internal val spvBalanceFetcher: SpvBalanceFetcher,
                                      internal var _wapi: Wapi,
                                      internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
-    override fun getId(): String = "BCHSA"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -96,7 +96,10 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-
+    companion object {
+        @JvmField
+        val ID: String = "BCHSA"
+    }
 }
 
 /**

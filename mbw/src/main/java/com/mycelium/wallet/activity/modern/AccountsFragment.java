@@ -846,7 +846,7 @@ public class AccountsFragment extends Fragment {
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return ((CoinapultModule) walletManager.getModuleById("coinapult module")).setMail(mail);
+         return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
       }
 
       @Override
@@ -871,7 +871,7 @@ public class AccountsFragment extends Fragment {
 
       @Override
       protected Boolean doInBackground(Void... params) {
-         return  ((CoinapultModule) walletManager.getModuleById("coinapult module")).verifyMail(link, email);
+         return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
       }
 
       @Override
