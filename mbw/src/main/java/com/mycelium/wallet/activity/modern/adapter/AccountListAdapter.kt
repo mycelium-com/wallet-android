@@ -171,11 +171,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         focusedAccountId == account.accountId)
                 accountHolder.llAddress.setOnClickListener {
                     setFocusedAccountId(account.accountId)
-                    if (walletManager.getAccount(account.accountId) != null) {
-                        itemClickListener?.onItemClick(walletManager.getAccount(account.accountId)!!)
-                    } else {
-                        itemClickListener?.onItemClick(walletManager.getAccount(account.accountId)!!)
-                    }
+                    walletManager.getAccount(account.accountId)?.run { itemClickListener?.onItemClick(this) }
                 }
             }
             GROUP_TITLE_TYPE -> {
