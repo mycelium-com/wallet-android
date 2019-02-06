@@ -97,12 +97,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val updateOld = mbwManager.getWalletManager(false).getAccount(this.focusedAccountId!!) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
-        if(focusedAccountId != null && mbwManager.getWalletManager(false).getAccount(focusedAccountId)?.isActive == true) {
-            this.selectedAccountId = focusedAccountId
-            notifyItemChanged(oldSelectedPosition)
-        } else if (focusedAccountId != null
-                && mbwManager.getWalletManager(false).getAccount(focusedAccountId)!!.isActive) {
-            // If archived account selected - selection stays on previous account, while focus moves to archived.
+        if(focusedAccountId != null && (mbwManager.getWalletManager(false).getAccount(focusedAccountId)?.isActive == true ||
+                        mbwManager.getWalletManager(false).getAccount(focusedAccountId)!!.isActive)) {
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
