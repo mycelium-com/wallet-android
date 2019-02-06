@@ -20,24 +20,25 @@ import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 class AddressFragment : Fragment() {
-    private var mbwManager = MbwManager.getInstance(activity)
+    private val mbwManager = MbwManager.getInstance(activity)
     private lateinit var viewModel: AddressFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         val viewModelProvider = ViewModelProviders.of(this)
         val account = mbwManager.selectedAccount
-        this.viewModel = when (account) {
-            is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
+        this.viewModel = viewModelProvider.get(when (account) {
+            is SingleAddressBCHAccount,
+            is Bip44BCHAccount -> AddressFragmentCoinsModel::class.java
             is AbstractBtcAccount -> {
                 if (account.availableAddressTypes.size > 1) {
-                    viewModelProvider.get(AddressFragmentBtcModel::class.java)
+                    AddressFragmentBtcModel::class.java
                 } else {
-                    viewModelProvider.get(AddressFragmentCoinsModel::class.java)
+                    AddressFragmentCoinsModel::class.java
                 }
             }
-            else -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
-        }
+            else -> AddressFragmentCoinsModel::class.java
+        })
         super.onCreate(savedInstanceState)
     }
 
