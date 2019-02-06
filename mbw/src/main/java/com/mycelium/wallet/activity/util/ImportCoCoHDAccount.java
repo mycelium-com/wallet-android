@@ -19,7 +19,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -144,7 +144,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         List<UUID> ids = walletManager.createAccounts(new PrivateColuConfig(currentNode.getPrivateKey(), AesKeyCipher.defaultKeyCipher()));
         for (UUID id : ids) {
             WalletAccount account = walletManager.getAccount(id);
-            if (account instanceof ColuPubOnlyAccount) {
+            if (account instanceof PublicColuAccount) {
                 accountsCreated.add(account);
             }
         }

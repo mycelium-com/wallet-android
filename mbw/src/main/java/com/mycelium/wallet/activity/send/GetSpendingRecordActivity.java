@@ -48,7 +48,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -62,7 +61,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 public class GetSpendingRecordActivity extends Activity {
 

@@ -55,7 +55,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -130,8 +130,8 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                addressMap.put(address.getType(), address);
                entry = new EntryToExport(addressMap, null, label, account instanceof SingleAddressBCHAccount);
             }
-         } else if (account instanceof ColuAccount) {
-            ColuAccount a = (ColuAccount) account;
+         } else if (account instanceof PrivateColuAccount) {
+            PrivateColuAccount a = (PrivateColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
             String base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),

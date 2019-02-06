@@ -91,7 +91,7 @@ import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.model.FeeLvlItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.util.AnimationUtils;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
@@ -126,7 +126,7 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -161,7 +161,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -344,7 +344,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private boolean isColu() {
-        return _account instanceof ColuAccount;
+        return _account instanceof PrivateColuAccount;
     }
 
     @SuppressLint("ShowToast")
@@ -911,7 +911,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getAddressLabel(GenericAddress address) {
-        Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? ColuAccount.class : null);
+        Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? PrivateColuAccount.class : null);
         if (!accountId.isPresent()) {
             // We don't have it in our accounts, look in address book, returns empty string by default
             return _mbwManager.getMetadataStorage().getLabelByAddress(address);
@@ -971,7 +971,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 //                            );
                             Log.d(TAG_MCS, "line 1270");
                         }
-                        String sendAmount = ValueExtentionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                        String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
                         if (isColu()) {
                             // todo colu
 //                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount)
@@ -986,7 +986,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         } else {
                             // show the alternative amount
                             String alternativeAmountString =
-                                    ValueExtentionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+                                    ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
                             if (!alternativeAmount.getCurrencySymbol().equals("BTC")) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends

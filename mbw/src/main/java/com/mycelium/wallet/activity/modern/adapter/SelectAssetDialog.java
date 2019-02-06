@@ -36,8 +36,7 @@ public class SelectAssetDialog extends DialogFragment {
 
         builder.setIcon(R.drawable.ic_launcher);
         // todo fix this, title not shown fully
-        builder.setTitle(String.format("The address %s may belong to different crypto currency types." +
-                "\n\nPlease choose which one it belongs to:", Utils.getClipboardString(getActivity())));
+        builder.setTitle(String.format(getString(R.string.diff_type), Utils.getClipboardString(getActivity())));
 
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override

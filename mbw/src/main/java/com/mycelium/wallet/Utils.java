@@ -107,8 +107,8 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
@@ -713,7 +713,7 @@ public class Utils {
       MetadataStorage meta = mbwManager.getMetadataStorage();
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+      if ((account instanceof PrivateColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          return state == MetadataStorage.BackupState.NOT_VERIFIED || state == MetadataStorage.BackupState.VERIFIED;
       }
@@ -820,10 +820,10 @@ public class Utils {
             if(input instanceof SingleAddressAccount || input instanceof SingleAddressBCHAccount) {
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
-            if(input instanceof ColuAccount) {
+            if(input instanceof PrivateColuAccount) {
                return 5;
             }
-            if(input instanceof ColuPubOnlyAccount) {
+            if(input instanceof PublicColuAccount) {
                return 6;
             }
             if(input instanceof CoinapultAccount) {
@@ -847,9 +847,9 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1 instanceof ColuAccount) {
+            if (w1 instanceof PrivateColuAccount) {
                return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2 instanceof ColuAccount) {
+            } else if (w2 instanceof PrivateColuAccount) {
                return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
             } else if (w1 instanceof Bip44BCHAccount
                     && w2 instanceof HDAccount
@@ -892,8 +892,8 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof ColuPubOnlyAccount) {
-         com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount account = (com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount) walletAccount;
+      if (walletAccount instanceof PublicColuAccount) {
+         com.mycelium.wapi.wallet.colu.PublicColuAccount account = (com.mycelium.wapi.wallet.colu.PublicColuAccount) walletAccount;
          if (account.getCoinType() == MTCoin.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);
@@ -965,7 +965,7 @@ public class Utils {
       if (account instanceof CoinapultAccount
               || account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof ColuAccount) {
+              || account instanceof PrivateColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
