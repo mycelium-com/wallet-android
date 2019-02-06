@@ -103,7 +103,8 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         accounts[account.id] = account
     }
 
-    fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
+    @JvmOverloads
+    fun deleteAccount(id: UUID, keyCipher: KeyCipher = AesKeyCipher.defaultKeyCipher()) {
         val account = accounts[id]
         account?.let {
             accounts.remove(id)

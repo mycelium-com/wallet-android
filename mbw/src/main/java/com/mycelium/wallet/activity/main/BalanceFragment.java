@@ -285,12 +285,8 @@ public class BalanceFragment extends Fragment {
                || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateUi() {
-        if (!isAdded()) {
-            return;
-        }
-        if (_mbwManager.getSelectedAccount().isArchived()) {
+        if (!isAdded() || _mbwManager.getSelectedAccount().isArchived()) {
             return;
         }
 
@@ -300,7 +296,6 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(Balance balance) {
-
       CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
       // Show alternative values

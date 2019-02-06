@@ -533,8 +533,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                                         AesKeyCipher.defaultKeyCipher()));
                              } else {
                                 WalletManager walletManager = _mbwManager.getWalletManager(false);
-                                walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                                walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
+                                walletManager.deleteAccount(existingAccount.getId());
+                                walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
                                 walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                              }
 

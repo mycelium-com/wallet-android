@@ -111,6 +111,7 @@ import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -126,430 +127,426 @@ import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 
 public class AccountsFragment extends Fragment {
-   public static final int ADD_RECORD_RESULT_CODE = 0;
+    public static final int ADD_RECORD_RESULT_CODE = 0;
 
-   public static final String TAG = "AccountsFragment";
+    public static final String TAG = "AccountsFragment";
 
-   private WalletManager walletManager;
+    private WalletManager walletManager;
 
-   private MetadataStorage _storage;
-   private MbwManager _mbwManager;
-   private LocalTraderManager localTraderManager;
-   private Toaster _toaster;
-   private ProgressDialog _progress;
-   private RecyclerView rvRecords;
-   private View llLocked;
-   private AccountListAdapter accountListAdapter;
-   private View root;
-   private Bus eventBus;
+    private MetadataStorage _storage;
+    private MbwManager _mbwManager;
+    private LocalTraderManager localTraderManager;
+    private Toaster _toaster;
+    private ProgressDialog _progress;
+    private RecyclerView rvRecords;
+    private View llLocked;
+    private AccountListAdapter accountListAdapter;
+    private View root;
+    private Bus eventBus;
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setHasOptionsMenu(true);
-   }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
-   /**
-    * Called when the activity is first created.
-    */
-   @Override
-   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      if (root == null) {
-         root = inflater.inflate(R.layout.records_activity, container, false);
-      }
-      return root;
-   }
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (root == null) {
+            root = inflater.inflate(R.layout.records_activity, container, false);
+        }
+        return root;
+    }
 
-   @Override
-   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-      super.onViewCreated(view, savedInstanceState);
-      if (rvRecords == null) {
-         rvRecords = view.findViewById(R.id.rvRecords);
-         rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-         accountListAdapter = new AccountListAdapter(this, _mbwManager);
-         rvRecords.setAdapter(accountListAdapter);
-         rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
-                 , LinearLayoutManager.VERTICAL));
-         rvRecords.setHasFixedSize(true);
-      }
-      if (llLocked == null) {
-         llLocked = view.findViewById(R.id.llLocked);
-      }
-      accountListAdapter.setItemClickListener(recordAddressClickListener);
-   }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (rvRecords == null) {
+            rvRecords = view.findViewById(R.id.rvRecords);
+            rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+            accountListAdapter = new AccountListAdapter(this, _mbwManager);
+            rvRecords.setAdapter(accountListAdapter);
+            rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
+                                        , LinearLayoutManager.VERTICAL));
+            rvRecords.setHasFixedSize(true);
+        }
+        if (llLocked == null) {
+            llLocked = view.findViewById(R.id.llLocked);
+        }
+        accountListAdapter.setItemClickListener(recordAddressClickListener);
+    }
 
-   @Override
-   public void onAttach(Context context) {
-      _mbwManager = MbwManager.getInstance(context);
-      walletManager = _mbwManager.getWalletManager(false);
-      localTraderManager = _mbwManager.getLocalTraderManager();
-      localTraderManager.subscribe(ltSubscriber);
-      _storage = _mbwManager.getMetadataStorage();
-      eventBus = MbwManager.getEventBus();
-      _toaster = new Toaster(this);
-      super.onAttach(context);
-   }
+    @Override
+    public void onAttach(Context context) {
+        _mbwManager = MbwManager.getInstance(context);
+        walletManager = _mbwManager.getWalletManager(false);
+        localTraderManager = _mbwManager.getLocalTraderManager();
+        localTraderManager.subscribe(ltSubscriber);
+        _storage = _mbwManager.getMetadataStorage();
+        eventBus = MbwManager.getEventBus();
+        _toaster = new Toaster(this);
+        super.onAttach(context);
+    }
 
-   @Override
-   public void onResume() {
-      eventBus.register(this);
-      getView().findViewById(R.id.btUnlock).setOnClickListener(unlockClickedListener);
-      update();
-      _progress = new ProgressDialog(getActivity());
-      super.onResume();
-   }
+    @Override
+    public void onResume() {
+        eventBus.register(this);
+        getView().findViewById(R.id.btUnlock).setOnClickListener(unlockClickedListener);
+        update();
+        _progress = new ProgressDialog(getActivity());
+        super.onResume();
+    }
 
-   @Override
-   public void onPause() {
-      _progress.dismiss();
-      eventBus.unregister(this);
-      super.onPause();
-   }
+    @Override
+    public void onPause() {
+        _progress.dismiss();
+        eventBus.unregister(this);
+        super.onPause();
+    }
 
-   @Override
-   public void onDetach() {
-      localTraderManager.unsubscribe(ltSubscriber);
-      super.onDetach();
-   }
+    @Override
+    public void onDetach() {
+        localTraderManager.unsubscribe(ltSubscriber);
+        super.onDetach();
+    }
 
-   @Override
-   public void setUserVisibleHint(boolean isVisibleToUser) {
-      super.setUserVisibleHint(isVisibleToUser);
-      if (!isVisibleToUser) {
-         finishCurrentActionMode();
-      }
-   }
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (!isVisibleToUser) {
+            finishCurrentActionMode();
+        }
+    }
 
-   @Override
-   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      ActivityCompat.invalidateOptionsMenu(getActivity());
-      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
-         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         WalletAccount account  = _mbwManager.getWalletManager(false).getAccount(accountId);
-         _mbwManager.setSelectedAccount(accountId);
-         accountListAdapter.setFocusedAccountId(account.getId());
-         updateIncludingMenus();
-      } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
-         UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         if (accountid != null) {
-            //check whether the account is active - we might have scanned the priv key for an archived watchonly
-            WalletAccount account = walletManager.getAccount(accountid);
-            if (account.isActive()) {
-               _mbwManager.setSelectedAccount(accountid);
-            }
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+        ActivityCompat.invalidateOptionsMenu(getActivity());
+        if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
+            UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+            WalletAccount account  = _mbwManager.getWalletManager(false).getAccount(accountId);
+            _mbwManager.setSelectedAccount(accountId);
             accountListAdapter.setFocusedAccountId(account.getId());
             updateIncludingMenus();
-            if (!(account instanceof PublicColuAccount)
-                    && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+        } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+            UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
+            if (accountid != null) {
+                //check whether the account is active - we might have scanned the priv key for an archived watchonly
+                WalletAccount account = walletManager.getAccount(accountid);
+                if (account.isActive()) {
+                    _mbwManager.setSelectedAccount(accountid);
+                }
+                accountListAdapter.setFocusedAccountId(account.getId());
+                updateIncludingMenus();
+                if (!(account instanceof PublicColuAccount)
+                        && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
 
-               setLabelOnAccount(account, account.getLabel(), false);
+                    setLabelOnAccount(account, account.getLabel(), false);
+                }
+                if (account instanceof SingleAddressAccount
+                        && intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
+                    setNameForUpgradeAccount(account);
+                }
+                eventBus.post(new ExtraAccountsChanged());
+                eventBus.post(new AccountChanged(accountid));
             }
-            if (account instanceof SingleAddressAccount
-                    && intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
-                setNameForUpgradeAccount(account);
-            }
-            eventBus.post(new ExtraAccountsChanged());
-            eventBus.post(new AccountChanged(accountid));
-         }
-      } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
-         new AlertDialog.Builder(getActivity())
-                 .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
-                 .setPositiveButton(R.string.button_ok, null)
-                 .create()
-                 .show();
-      } else {
-         super.onActivityResult(requestCode, resultCode, intent);
-      }
-   }
+        } else if(requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddAdvancedAccountActivity.RESULT_MSG) {
+            new AlertDialog.Builder(getActivity())
+            .setMessage(intent.getStringExtra(AddAccountActivity.RESULT_MSG))
+            .setPositiveButton(R.string.button_ok, null)
+            .create()
+            .show();
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
 
     private void deleteAccount(final WalletAccount accountToDelete) {
-       Preconditions.checkNotNull(accountToDelete);
-       final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
+        Preconditions.checkNotNull(accountToDelete);
+        final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
 
-       final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
-       final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
-       keepAddrCheckbox.setText(getString(R.string.keep_account_address));
-       keepAddrCheckbox.setChecked(false);
+        final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
+        final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
+        keepAddrCheckbox.setText(getString(R.string.keep_account_address));
+        keepAddrCheckbox.setChecked(false);
 
-       final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
-       deleteDialog.setTitle(R.string.delete_account_title);
-       deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
+        final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
+        deleteDialog.setTitle(R.string.delete_account_title);
+        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
 
-      // add checkbox only for SingleAddressAccounts and only if a private key is present
-      final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
-              && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
+        // add checkbox only for SingleAddressAccounts and only if a private key is present
+        final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
+                                        && ((ExportableAccount) accountToDelete).getExportData(AesKeyCipher.defaultKeyCipher()).getPrivateData().isPresent());
 
-      if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
-         deleteDialog.setView(checkBoxView);
-      }
+        if (accountToDelete instanceof SingleAddressAccount && hasPrivateData) {
+            deleteDialog.setView(checkBoxView);
+        }
 
-      if (accountToDelete instanceof PrivateColuAccount && accountToDelete.canSpend()) {
-         Log.d(TAG, "Preparing to delete a colu account.");
-         deleteDialog.setView(checkBoxView);
-      }
+        if (accountToDelete instanceof PrivateColuAccount && accountToDelete.canSpend()) {
+            Log.d(TAG, "Preparing to delete a colu account.");
+            deleteDialog.setView(checkBoxView);
+        }
 
-      deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-         public void onClick(DialogInterface arg0, int arg1) {
-            Log.d(TAG, "Entering onClick delete");
-            if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
-               localTraderManager.unsetLocalTraderAccount();
-            }
-            if (hasPrivateData) {
-               Long satoshis = getPotentialBalance(accountToDelete);
-               AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
-               confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
-
-               // Set the message. There are four combinations, with and without label, with and without BTC amount.
-               String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
-                int labelCount = 1;
-                if (linkedAccount != null) {
-                    label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-                    labelCount++;
+        deleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                Log.d(TAG, "Entering onClick delete");
+                if (accountToDelete.getId().equals(localTraderManager.getLocalTraderAccountId())) {
+                    localTraderManager.unsetLocalTraderAccount();
                 }
-                String message;
+                if (hasPrivateData) {
+                    Long satoshis = getPotentialBalance(accountToDelete);
+                    AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
+                    confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
 
-               // For active accounts we check whether there is money on them before deleting. we don't know if there
-               // is money on archived accounts
-               String address;
-               if (accountToDelete instanceof SingleAddressAccount) {
-                  Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
-                          getAllSupportedAddresses(_mbwManager.getNetwork());
-                  address = TextUtils.join("\n\n", addressMap.values());
-               } else {
-                  GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
-                  if (receivingAddress != null) {
-                     address = AddressUtils.toMultiLineString(receivingAddress.toString());
-                  } else {
-                     address = "";
-                  }
-               }
-               if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
-                  if (label != null && label.length() != 0) {
+                    // Set the message. There are four combinations, with and without label, with and without BTC amount.
+                    String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+                    int labelCount = 1;
+                    if (linkedAccount != null) {
+                        label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                        labelCount++;
+                    }
+                    String message;
 
-                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
-                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                             getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                             address, accountToDelete instanceof PrivateColuAccount ?
-                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis));
-                  } else {
-                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
-                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                             address, accountToDelete instanceof PrivateColuAccount ?
-                                     Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                     : _mbwManager.getBtcValueString(satoshis));
-                  }
-               } else {
-                  if (label != null && label.length() != 0) {
-                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
-                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                             getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
-                  } else {
-                     message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance,
-                             !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0, address);
-                  }
-               }
-               confirmDeleteDialog.setMessage(message);
-
-               confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface arg0, int arg1) {
-                     Log.d(TAG, "In deleteFragment onClick");
-                     if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
-                        try {
-                           //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                           if (linkedColuAccount instanceof PublicColuAccount) {
-                              walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                              walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                              ColuAccountContext context = ((PublicColuAccount) linkedColuAccount).getContext();
-                              if (context.getPublicKey() != null) {
-                                 walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
-                                         , (ColuMain) linkedColuAccount.getCoinType()));
-                              } else {
-                                 walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
-                                         , (ColuMain) linkedColuAccount.getCoinType()));
-                              }
-                           } else {
-                              ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
-                           }
-                           _toaster.toast(R.string.private_key_deleted, false);
-                        } catch (KeyCipher.InvalidKeyCipher e) {
-                           throw new RuntimeException(e);
-                        }
-                     } else {
-                        if (accountToDelete instanceof PublicColuAccount) {
-                           try {
-                               walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-                               WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                               if (linkedAccount != null) {
-                                   walletManager.deleteAccount(linkedAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                               }
-                               if (keepAddrCheckbox.isChecked()) {
-                                   ColuAccountContext context = ((PublicColuAccount) accountToDelete).getContext();
-                                   if (context.getPublicKey() != null) {
-                                       walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
-                                               , (ColuMain) accountToDelete.getCoinType()));
-                                   } else {
-                                       walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
-                                               , (ColuMain) accountToDelete.getCoinType()));
-                                   }
-                               } else {
-                                   _storage.deleteAccountMetadata(accountToDelete.getId());
-                                   _toaster.toast("Deleting account.", false);
-                                   _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                               }
-                           } catch (Exception e) {
-                              // make a message !
-                              Log.e(TAG, getString(R.string.colu_error_deleting), e);
-                              _toaster.toast(getString(R.string.colu_error_deleting), false);
-                           }
+                    // For active accounts we check whether there is money on them before deleting. we don't know if there
+                    // is money on archived accounts
+                    String address;
+                    if (accountToDelete instanceof SingleAddressAccount) {
+                        Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
+                                                               getAllSupportedAddresses(_mbwManager.getNetwork());
+                        address = TextUtils.join("\n\n", addressMap.values());
+                    } else {
+                        GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
+                        if (receivingAddress != null) {
+                            address = AddressUtils.toMultiLineString(receivingAddress.toString());
                         } else {
-                           //Check if this SingleAddress account is related with ColuAccount
-                           WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                           if (linkedColuAccount instanceof PublicColuAccount) {
-                              walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                           }
-                           walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-
-                           _storage.deleteAccountMetadata(accountToDelete.getId());
-                           _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                           _toaster.toast(R.string.account_deleted, false);
+                            address = "";
                         }
-                     }
-                     finishCurrentActionMode();
-                     eventBus.post(new AccountChanged(accountToDelete.getId()));
-                  }
-               });
-               confirmDeleteDialog.setNegativeButton(R.string.no, null);
-               confirmDeleteDialog.show();
-            } else {
-               // account has no private data - dont make a fuzz about it and just delete it
-               walletManager.deleteAccount(accountToDelete.getId(), AesKeyCipher.defaultKeyCipher());
-               _storage.deleteAccountMetadata(accountToDelete.getId());
-               //Check if this SingleAddress account is related with ColuAccount
-               WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-               if (linkedColuAccount != null) {
-                  walletManager.deleteAccount(linkedColuAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                  _storage.deleteAccountMetadata(linkedColuAccount.getId());
-               }
-               finishCurrentActionMode();
-               eventBus.post(new AccountChanged(accountToDelete.getId()));
-               _toaster.toast(R.string.account_deleted, false);
+                    }
+                    if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
+                        if (label != null && label.length() != 0) {
+
+                            message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
+                                      !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                                      getResources().getQuantityString(R.plurals.account_label, labelCount, label),
+                                      address, accountToDelete instanceof PrivateColuAccount ?
+                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                      : _mbwManager.getBtcValueString(satoshis));
+                        } else {
+                            message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
+                                      !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                                      address, accountToDelete instanceof PrivateColuAccount ?
+                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
+                                      : _mbwManager.getBtcValueString(satoshis));
+                        }
+                    } else {
+                        if (label != null && label.length() != 0) {
+                            message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
+                                      !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
+                                      getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
+                        } else {
+                            message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance,
+                                      !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0, address);
+                        }
+                    }
+                    confirmDeleteDialog.setMessage(message);
+
+                    confirmDeleteDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            Log.d(TAG, "In deleteFragment onClick");
+                            if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
+                                try {
+                                    //Check if this SingleAddress account is related with ColuAccount
+                                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                                    if (linkedColuAccount instanceof PublicColuAccount) {
+                                        walletManager.deleteAccount(linkedColuAccount.getId());
+                                        walletManager.deleteAccount(accountToDelete.getId());
+                                        ColuAccountContext context = ((PublicColuAccount) linkedColuAccount).getContext();
+                                        ColuMain coluMain = (ColuMain) linkedColuAccount.getCoinType();
+                                        Config config;
+                                        if (context.getPublicKey() != null) {
+                                            config = new PublicColuConfig(context.getPublicKey(), coluMain);
+                                        } else {
+                                            config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
+                                        }
+                                        walletManager.createAccounts(config);
+                                    } else {
+                                        ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                                    }
+                                    _toaster.toast(R.string.private_key_deleted, false);
+                                } catch (KeyCipher.InvalidKeyCipher e) {
+                                    throw new RuntimeException(e);
+                                }
+                            } else {
+                                if (accountToDelete instanceof PublicColuAccount) {
+                                    try {
+                                        walletManager.deleteAccount(accountToDelete.getId());
+                                        WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                                        if (linkedAccount != null) {
+                                            walletManager.deleteAccount(linkedAccount.getId());
+                                        }
+                                        if (keepAddrCheckbox.isChecked()) {
+                                            ColuAccountContext context = ((PublicColuAccount) accountToDelete).getContext();
+                                            if (context.getPublicKey() != null) {
+                                                walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
+                                                                             , (ColuMain) accountToDelete.getCoinType()));
+                                            } else {
+                                                walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
+                                                                             , (ColuMain) accountToDelete.getCoinType()));
+                                            }
+                                        } else {
+                                            _storage.deleteAccountMetadata(accountToDelete.getId());
+                                            _toaster.toast("Deleting account.", false);
+                                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                        }
+                                    } catch (Exception e) {
+                                        // make a message !
+                                        Log.e(TAG, getString(R.string.colu_error_deleting), e);
+                                        _toaster.toast(getString(R.string.colu_error_deleting), false);
+                                    }
+                                } else {
+                                    //Check if this SingleAddress account is related with ColuAccount
+                                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                                    if (linkedColuAccount instanceof PublicColuAccount) {
+                                        walletManager.deleteAccount(linkedColuAccount.getId());
+                                    }
+                                    walletManager.deleteAccount(accountToDelete.getId());
+
+                                    _storage.deleteAccountMetadata(accountToDelete.getId());
+                                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                    _toaster.toast(R.string.account_deleted, false);
+                                }
+                            }
+                            finishCurrentActionMode();
+                            eventBus.post(new AccountChanged(accountToDelete.getId()));
+                        }
+                    });
+                    confirmDeleteDialog.setNegativeButton(R.string.no, null);
+                    confirmDeleteDialog.show();
+                } else {
+                    // account has no private data - dont make a fuzz about it and just delete it
+                    walletManager.deleteAccount(accountToDelete.getId());
+                    _storage.deleteAccountMetadata(accountToDelete.getId());
+                    //Check if this SingleAddress account is related with ColuAccount
+                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                    if (linkedColuAccount != null) {
+                        walletManager.deleteAccount(linkedColuAccount.getId());
+                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                    }
+                    finishCurrentActionMode();
+                    eventBus.post(new AccountChanged(accountToDelete.getId()));
+                    _toaster.toast(R.string.account_deleted, false);
+                }
             }
-         }
 
-         private Value getPotentialBalanceColu(WalletAccount account) {
-            if (account.isArchived()) {
-               return null;
-            } else {
-               return account.getAccountBalance().confirmed;
+            private Value getPotentialBalanceColu(WalletAccount account) {
+                if (account.isArchived()) {
+                    return null;
+                } else {
+                    return account.getAccountBalance().confirmed;
+                }
             }
-         }
 
-         private Long getPotentialBalance(WalletAccount account) {
-            if (account.isArchived()) {
-               return null;
-            } else {
-               Balance balance = account.getAccountBalance();
-               return balance.confirmed.add(balance.pendingReceiving).value;
+            private Long getPotentialBalance(WalletAccount account) {
+                if (account.isArchived()) {
+                    return null;
+                } else {
+                    Balance balance = account.getAccountBalance();
+                    return balance.confirmed.add(balance.pendingReceiving).value;
+                }
             }
-         }
 
-      });
-      deleteDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+        });
+        deleteDialog.setNegativeButton(R.string.no, null).show();
 
-         public void onClick(DialogInterface arg0, int arg1) {
-         }
-      });
-      deleteDialog.show();
+    }
 
-   }
+    @NonNull
+    private String createDeleteDialogText(WalletAccount accountToDelete, WalletAccount linkedAccount) {
+        String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
+        String dialogText;
 
-   @NonNull
-   private String createDeleteDialogText(WalletAccount accountToDelete, WalletAccount linkedAccount) {
-      String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
-      String dialogText;
+        if (accountToDelete.isActive()) {
+            dialogText = getActiveAccountDeleteText(accountToDelete, linkedAccount, accountName);
+        } else {
+            dialogText = getArchivedAccountDeleteText(linkedAccount, accountName);
+        }
+        return dialogText;
+    }
 
-      if (accountToDelete.isActive()) {
-         dialogText = getActiveAccountDeleteText(accountToDelete, linkedAccount, accountName);
-      } else {
-         dialogText = getArchivedAccountDeleteText(linkedAccount, accountName);
-      }
-      return dialogText;
-   }
+    @NonNull
+    private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
+        String dialogText;
+        if (linkedAccount != null && linkedAccount.isVisible()) {
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+            dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
+        } else {
+            dialogText = getString(R.string.delete_archived_account_message_s, accountName);
+        }
+        return dialogText;
+    }
 
-   @NonNull
-   private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
-      String dialogText;
-      if (linkedAccount != null && linkedAccount.isVisible()) {
-         String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
-      } else {
-         dialogText = getString(R.string.delete_archived_account_message_s, accountName);
-      }
-      return dialogText;
-   }
+    @NonNull
+    private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
+        String dialogText;
+        Balance balance = Preconditions.checkNotNull(accountToDelete.getAccountBalance());
+        String valueString = getBalanceString(accountToDelete, balance);
 
-   @NonNull
-   private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
-      String dialogText;
-      Balance balance = Preconditions.checkNotNull(accountToDelete.getAccountBalance());
-      String valueString = getBalanceString(accountToDelete, balance);
+        if (linkedAccount != null && linkedAccount.isVisible()) {
+            Balance linkedBalance = linkedAccount.getAccountBalance();
+            String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+            dialogText = getString(R.string.delete_account_message, accountName, valueString,
+                                   linkedAccountName, linkedValueString) + "\n" +
+                         getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
+        } else {
+            dialogText = getString(R.string.delete_account_message_s, accountName, valueString);
+        }
+        return dialogText;
+    }
 
-      if (linkedAccount != null && linkedAccount.isVisible()) {
-         Balance linkedBalance = linkedAccount.getAccountBalance();
-         String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
-         String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.delete_account_message, accountName, valueString,
-                 linkedAccountName, linkedValueString) + "\n" +
-                 getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
-      } else {
-         dialogText = getString(R.string.delete_account_message_s, accountName, valueString);
-      }
-      return dialogText;
-   }
+    private String getBalanceString(WalletAccount account, Balance balance) {
+        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+    }
 
-   private String getBalanceString(WalletAccount account, Balance balance) {
-      return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
-   }
+    /**
+     * If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
+     */
+    private WalletAccount getLinkedAccount(WalletAccount account) {
+        WalletAccount linkedAccount;
+        linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
 
-   /**
-    * If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
-    */
-   private WalletAccount getLinkedAccount(WalletAccount account) {
-      WalletAccount linkedAccount;
-      linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+        if (linkedAccount == null) {
+            linkedAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+        }
+        return linkedAccount;
+    }
 
-      if (linkedAccount == null) {
-         linkedAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-      }
-      return linkedAccount;
-   }
+    private void finishCurrentActionMode() {
+        if (currentActionMode != null) {
+            currentActionMode.finish();
+        }
+    }
 
-   private void finishCurrentActionMode() {
-      if (currentActionMode != null) {
-         currentActionMode.finish();
-      }
-   }
-
-   private void setNameForNewAccount(WalletAccount account) {
-      if (account == null || !isAdded()) {
-         return;
-      }
-      String baseName = Utils.getNameForNewAccount(account, getActivity());
-      //append counter if name already in use
-      String defaultName = baseName;
-      int num = 1;
-      while (_storage.getAccountByLabel(defaultName).isPresent()) {
-         defaultName = baseName + " (" + num++ + ')';
-      }
-      //we just put the default name into storage first, if there is none
-      //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
-      if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
-         _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
-      }
-      setLabelOnAccount(account, defaultName, false);
-   }
+    private void setNameForNewAccount(WalletAccount account) {
+        if (account == null || !isAdded()) {
+            return;
+        }
+        String baseName = Utils.getNameForNewAccount(account, getActivity());
+        //append counter if name already in use
+        String defaultName = baseName;
+        int num = 1;
+        while (_storage.getAccountByLabel(defaultName).isPresent()) {
+            defaultName = baseName + " (" + num++ + ')';
+        }
+        //we just put the default name into storage first, if there is none
+        //if the user cancels entry or it gets somehow aborted, we at least have a valid entry
+        if (_mbwManager.getMetadataStorage().getLabelByAccount(account.getId()).length() == 0) {
+            _mbwManager.getMetadataStorage().storeAccountLabel(account.getId(), defaultName);
+        }
+        setLabelOnAccount(account, defaultName, false);
+    }
 
     private void setNameForUpgradeAccount(WalletAccount account) {
         // special case for sa upgrade accounts
@@ -566,798 +563,798 @@ public class AccountsFragment extends Fragment {
         _storage.storeAccountLabel(account.getId(), oldName);
     }
 
-   private void update() {
-      if (!isAdded()) {
-         return;
-      }
+    private void update() {
+        if (!isAdded()) {
+            return;
+        }
 
-      if (_mbwManager.isKeyManagementLocked()) {
-         // Key management is locked
-         rvRecords.setVisibility(View.GONE);
-         llLocked.setVisibility(View.VISIBLE);
-      } else {
-         // Make all the key management functionality available to experts
-         rvRecords.setVisibility(View.VISIBLE);
-         llLocked.setVisibility(View.GONE);
-      }
-      eventBus.post(new AccountListChanged());
-   }
+        if (_mbwManager.isKeyManagementLocked()) {
+            // Key management is locked
+            rvRecords.setVisibility(View.GONE);
+            llLocked.setVisibility(View.VISIBLE);
+        } else {
+            // Make all the key management functionality available to experts
+            rvRecords.setVisibility(View.VISIBLE);
+            llLocked.setVisibility(View.GONE);
+        }
+        eventBus.post(new AccountListChanged());
+    }
 
-   private ActionMode currentActionMode;
+    private ActionMode currentActionMode;
 
-   private AccountListAdapter.ItemClickListener recordAddressClickListener = new AccountListAdapter.ItemClickListener() {
-      @Override
-      public void onItemClick(WalletAccount account) {
-         // Check whether a new account was selected
-         if (!_mbwManager.getSelectedAccount().equals(account) && account.isActive()) {
-            _mbwManager.setSelectedAccount(account.getId());
-         }
-         toastSelectedAccountChanged(account);
-         updateIncludingMenus();
-      }
-   };
-
-   private void updateIncludingMenus() {
-      WalletAccount account = accountListAdapter.getFocusedAccount();
-      boolean isBch = account instanceof SingleAddressBCHAccount
-              || account instanceof Bip44BCHAccount;
-
-      final List<Integer> menus = Lists.newArrayList();
-      if(!(account instanceof PrivateColuAccount)
-              && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
-         menus.add(R.menu.record_options_menu);
-      }
-
-      if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
-         menus.add(R.menu.record_options_menu_backup);
-      }
-
-      if (account instanceof SingleAddressAccount) {
-         menus.add(R.menu.record_options_menu_backup_verify);
-      }
-
-      if(account instanceof PrivateColuAccount) {
-         //TODO: distinguish between ColuAccount in single address mode and HD mode
-         menus.add(R.menu.record_options_menu_backup);
-         menus.add(R.menu.record_options_menu_backup_verify);
-      }
-
-      if (!account.isDerivedFromInternalMasterseed() && !isBch) {
-         menus.add(R.menu.record_options_menu_delete);
-      }
-
-      if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-              && !isBch && !(account instanceof HDAccountExternalSignature)) {
-         menus.add(R.menu.record_options_menu_sign);
-      }
-
-      if (account.isActive() && !isBch) {
-         menus.add(R.menu.record_options_menu_active);
-      }
-
-      if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
-         menus.add(R.menu.record_options_menu_outputs);
-      }
-
-      if (account instanceof CoinapultAccount) {
-         menus.add(R.menu.record_options_menu_set_coinapult_mail);
-      }
-
-      if (!(account instanceof Bip44BCHAccount)
-              && !(account instanceof SingleAddressBCHAccount)
-              && account.isArchived()) {
-         menus.add(R.menu.record_options_menu_archive);
-      }
-
-      if (account.isActive() && account instanceof ExportableAccount && !isBch) {
-         menus.add(R.menu.record_options_menu_export);
-      }
-
-      if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
-              && getActiveMasterseedAccounts(walletManager).size() > 1 && !isBch) {
-
-         final HDAccount HDAccount = (HDAccount) account;
-         BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById("BitcoinHD");
-         if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
-            //only allow to remove unused HD acounts from the view
-            menus.add(R.menu.record_options_menu_hide_unused);
-         }
-      }
-
-      if (account.getId().equals(_mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
-         menus.add(R.menu.record_options_menu_detach);
-      }
-
-      AppCompatActivity parent = (AppCompatActivity) getActivity();
-
-      Callback actionMode = new Callback() {
-         @Override
-         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            for (Integer res : menus) {
-               actionMode.getMenuInflater().inflate(res, menu);
+    private AccountListAdapter.ItemClickListener recordAddressClickListener = new AccountListAdapter.ItemClickListener() {
+        @Override
+        public void onItemClick(WalletAccount account) {
+            // Check whether a new account was selected
+            if (!_mbwManager.getSelectedAccount().equals(account) && account.isActive()) {
+                _mbwManager.setSelectedAccount(account.getId());
             }
-            return true;
-         }
+            toastSelectedAccountChanged(account);
+            updateIncludingMenus();
+        }
+    };
 
-         @Override
-         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            return true;
-         }
+    private void updateIncludingMenus() {
+        WalletAccount account = accountListAdapter.getFocusedAccount();
+        boolean isBch = account instanceof SingleAddressBCHAccount
+                        || account instanceof Bip44BCHAccount;
 
-         @Override
-         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-            if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
-               _toaster.toast(R.string.synchronizing_please_wait, false);
-               return true;
+        final List<Integer> menus = Lists.newArrayList();
+        if(!(account instanceof PrivateColuAccount)
+                && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
+            menus.add(R.menu.record_options_menu);
+        }
+
+        if ((account instanceof SingleAddressAccount) || (account.isDerivedFromInternalMasterseed())) {
+            menus.add(R.menu.record_options_menu_backup);
+        }
+
+        if (account instanceof SingleAddressAccount) {
+            menus.add(R.menu.record_options_menu_backup_verify);
+        }
+
+        if(account instanceof PrivateColuAccount) {
+            //TODO: distinguish between ColuAccount in single address mode and HD mode
+            menus.add(R.menu.record_options_menu_backup);
+            menus.add(R.menu.record_options_menu_backup_verify);
+        }
+
+        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+            menus.add(R.menu.record_options_menu_delete);
+        }
+
+        if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
+                && !isBch && !(account instanceof HDAccountExternalSignature)) {
+            menus.add(R.menu.record_options_menu_sign);
+        }
+
+        if (account.isActive() && !isBch) {
+            menus.add(R.menu.record_options_menu_active);
+        }
+
+        if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
+            menus.add(R.menu.record_options_menu_outputs);
+        }
+
+        if (account instanceof CoinapultAccount) {
+            menus.add(R.menu.record_options_menu_set_coinapult_mail);
+        }
+
+        if (!(account instanceof Bip44BCHAccount)
+                && !(account instanceof SingleAddressBCHAccount)
+                && account.isArchived()) {
+            menus.add(R.menu.record_options_menu_archive);
+        }
+
+        if (account.isActive() && account instanceof ExportableAccount && !isBch) {
+            menus.add(R.menu.record_options_menu_export);
+        }
+
+        if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
+                && getActiveMasterseedAccounts(walletManager).size() > 1 && !isBch) {
+
+            final HDAccount HDAccount = (HDAccount) account;
+            BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById("BitcoinHD");
+            if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
+                //only allow to remove unused HD acounts from the view
+                menus.add(R.menu.record_options_menu_hide_unused);
             }
-            int id = menuItem.getItemId();
-            switch (id) {
-               case R.id.miActivate:
-                  activateSelected();
-                  return true;
-               case R.id.miSetLabel:
-                  setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
-                  return true;
-               case R.id.miDeleteRecord:
-                  deleteSelected();
-                  return true;
-               case R.id.miArchive:
-                  archiveSelected();
-                  return true;
-               case R.id.miHideUnusedAccount:
-                  hideSelected();
-                  return true;
-               case R.id.miExport:
-                  exportSelectedPrivateKey();
-                  return true;
-               case R.id.miSignMessage:
-                  signMessage();
-                  return true;
-               case R.id.miDetach:
-                  detachFromLocalTrader();
-                  return true;
-               case R.id.miShowOutputs:
-                  showOutputs();
-                  return true;
-               case R.id.miMakeBackup:
-                  makeBackup();
-                  return true;
-               case R.id.miSingleKeyBackupVerify:
-                  verifySingleKeyBackup();
-                  return true;
-               case R.id.miRescan:
-                  rescan();
-                  return true;
-               case R.id.miSetMail:
-                  setCoinapultMail();
-                  return true;
-               case R.id.miVerifyMail:
-                  verifyCoinapultMail();
-                  return true;
-               default:
-                  return false;
+        }
+
+        if (account.getId().equals(_mbwManager.getLocalTraderManager().getLocalTraderAccountId())) {
+            menus.add(R.menu.record_options_menu_detach);
+        }
+
+        AppCompatActivity parent = (AppCompatActivity) getActivity();
+
+        Callback actionMode = new Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                for (Integer res : menus) {
+                    actionMode.getMenuInflater().inflate(res, menu);
+                }
+                return true;
             }
-         }
 
-         @Override
-         public void onDestroyActionMode(ActionMode actionMode) {
-            currentActionMode = null;
-            // Loose focus
-            if (accountListAdapter.getFocusedAccount() != null) {
-               accountListAdapter.setFocusedAccountId(null);
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return true;
             }
-         }
-      };
-      currentActionMode = parent.startSupportActionMode(actionMode);
-      // Late set the focused record. We have to do this after
-      // startSupportActionMode above, as it calls onDestroyActionMode when
-      // starting for some reason, and this would clear the focus and force
-      // an update.
-      accountListAdapter.setFocusedAccountId(account.getId());
-   }
 
-   //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
-   private void setCoinapultMail() {
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
+                if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
+                    _toaster.toast(R.string.synchronizing_please_wait, false);
+                    return true;
+                }
+                int id = menuItem.getItemId();
+                switch (id) {
+                case R.id.miActivate:
+                    activateSelected();
+                    return true;
+                case R.id.miSetLabel:
+                    setLabelOnAccount(accountListAdapter.getFocusedAccount(), "", true);
+                    return true;
+                case R.id.miDeleteRecord:
+                    deleteSelected();
+                    return true;
+                case R.id.miArchive:
+                    archiveSelected();
+                    return true;
+                case R.id.miHideUnusedAccount:
+                    hideSelected();
+                    return true;
+                case R.id.miExport:
+                    exportSelectedPrivateKey();
+                    return true;
+                case R.id.miSignMessage:
+                    signMessage();
+                    return true;
+                case R.id.miDetach:
+                    detachFromLocalTrader();
+                    return true;
+                case R.id.miShowOutputs:
+                    showOutputs();
+                    return true;
+                case R.id.miMakeBackup:
+                    makeBackup();
+                    return true;
+                case R.id.miSingleKeyBackupVerify:
+                    verifySingleKeyBackup();
+                    return true;
+                case R.id.miRescan:
+                    rescan();
+                    return true;
+                case R.id.miSetMail:
+                    setCoinapultMail();
+                    return true;
+                case R.id.miVerifyMail:
+                    verifyCoinapultMail();
+                    return true;
+                default:
+                    return false;
+                }
+            }
 
-      AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-      b.setTitle(getString(R.string.coinapult_mail_question));
-      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
-      final EditText mailField = (EditText) diaView.findViewById(R.id.mail);
-      mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-      String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-      if (!email.isEmpty()) {
-         mailField.setText(email);
-      }
-      b.setView(diaView);
-      b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            String mailText = mailField.getText().toString();
-            if (Utils.isValidEmailAddress(mailText)) {
-               if (!mailText.isEmpty()) {
-                  _progress.setCancelable(false);
-                  _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                  _progress.setMessage(getString(R.string.coinapult_setting_email));
-                  _progress.show();
-                  _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
-                  new SetCoinapultMailAsyncTask(mailText).execute();
-               }
-               dialog.dismiss();
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+                currentActionMode = null;
+                // Loose focus
+                if (accountListAdapter.getFocusedAccount() != null) {
+                    accountListAdapter.setFocusedAccountId(null);
+                }
+            }
+        };
+        currentActionMode = parent.startSupportActionMode(actionMode);
+        // Late set the focused record. We have to do this after
+        // startSupportActionMode above, as it calls onDestroyActionMode when
+        // starting for some reason, and this would clear the focus and force
+        // an update.
+        accountListAdapter.setFocusedAccountId(account.getId());
+    }
+
+    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
+    private void setCoinapultMail() {
+
+        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+        b.setTitle(getString(R.string.coinapult_mail_question));
+        View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
+        final EditText mailField = diaView.findViewById(R.id.mail);
+        mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        String email = _mbwManager.getMetadataStorage().getCoinapultMail();
+        if (!email.isEmpty()) {
+            mailField.setText(email);
+        }
+        b.setView(diaView);
+        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String mailText = mailField.getText().toString();
+                if (Utils.isValidEmailAddress(mailText)) {
+                    if (!mailText.isEmpty()) {
+                        _progress.setCancelable(false);
+                        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        _progress.setMessage(getString(R.string.coinapult_setting_email));
+                        _progress.show();
+                        _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
+                        new SetCoinapultMailAsyncTask(mailText).execute();
+                    }
+                    dialog.dismiss();
+                } else {
+                    new Toaster(AccountsFragment.this).toast("Email address not valid", false);
+                }
+            }
+        });
+        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = b.create();
+        dialog.show();
+    }
+
+    private void verifyCoinapultMail() {
+        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+        b.setTitle(getString(R.string.coinapult_mail_verification));
+        final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
+        View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
+        final EditText verificationTextField = diaView.findViewById(R.id.mailVerification);
+
+        // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
+        String clipboardString = Utils.getClipboardString(getActivity());
+        if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")) {
+            verificationTextField.setText(clipboardString);
+        }
+
+        b.setView(diaView);
+        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String verification = verificationTextField.getText().toString();
+                _progress.setCancelable(false);
+                _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                _progress.setMessage(getString(R.string.coinapult_verifying_email));
+                _progress.show();
+                new VerifyCoinapultMailAsyncTask(verification, email).execute();
+                dialog.dismiss();
+            }
+        });
+        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = b.create();
+        dialog.show();
+    }
+
+    private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
+        private String mail;
+
+        public SetCoinapultMailAsyncTask(@NonNull String mail) {
+            this.mail = mail;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            _progress.dismiss();
+            if (success) {
+                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_please_verify);
             } else {
-               new Toaster(AccountsFragment.this).toast("Email address not valid", false);
+                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_failed);
             }
-         }
-      });
-      b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
-         }
-      });
+        }
+    }
 
-      AlertDialog dialog = b.create();
-      dialog.show();
-   }
+    private class VerifyCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
+        private String link;
+        private String email;
 
-   private void verifyCoinapultMail() {
-      AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-      b.setTitle(getString(R.string.coinapult_mail_verification));
-      final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-      View diaView = getActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
-      final EditText verificationTextField = (EditText) diaView.findViewById(R.id.mailVerification);
+        public VerifyCoinapultMailAsyncTask(String link, String email) {
+            this.link = link;
+            this.email = email;
+        }
 
-      // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
-      String clipboardString = Utils.getClipboardString(getActivity());
-      if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")) {
-         verificationTextField.setText(clipboardString);
-      }
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
+        }
 
-      b.setView(diaView);
-      b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            String verification = verificationTextField.getText().toString();
-            _progress.setCancelable(false);
-            _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progress.setMessage(getString(R.string.coinapult_verifying_email));
-            _progress.show();
-            new VerifyCoinapultMailAsyncTask(verification, email).execute();
-            dialog.dismiss();
-         }
-      });
-      b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-         @Override
-         public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
-         }
-      });
-
-      AlertDialog dialog = b.create();
-      dialog.show();
-   }
-
-   private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-      private String mail;
-
-      public SetCoinapultMailAsyncTask(@NonNull String mail) {
-         this.mail = mail;
-      }
-
-      @Override
-      protected Boolean doInBackground(Void... params) {
-         return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
-      }
-
-      @Override
-      protected void onPostExecute(Boolean success) {
-         _progress.dismiss();
-         if (success) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_please_verify);
-         } else {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_failed);
-         }
-      }
-   }
-
-   private class VerifyCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-      private String link;
-      private String email;
-
-      public VerifyCoinapultMailAsyncTask(String link, String email) {
-         this.link = link;
-         this.email = email;
-      }
-
-      @Override
-      protected Boolean doInBackground(Void... params) {
-         return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
-      }
-
-      @Override
-      protected void onPostExecute(Boolean success) {
-         _progress.dismiss();
-         if (success) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_success);
-         } else {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_error);
-         }
-      }
-   }
+        @Override
+        protected void onPostExecute(Boolean success) {
+            _progress.dismiss();
+            if (success) {
+                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_success);
+            } else {
+                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_error);
+            }
+        }
+    }
 
 
-   private void verifySingleKeyBackup() {
-      if (!AccountsFragment.this.isAdded()) {
-         return;
-      }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof PrivateColuAccount) {
-         //start legacy backup verification
-         VerifyBackupActivity.callMe(getActivity());
-      }
-   }
+    private void verifySingleKeyBackup() {
+        if (!AccountsFragment.this.isAdded()) {
+            return;
+        }
+        WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof PrivateColuAccount) {
+            //start legacy backup verification
+            VerifyBackupActivity.callMe(getActivity());
+        }
+    }
 
-   private void makeBackup() {
-      if (!AccountsFragment.this.isAdded()) {
-         return;
-      }
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if(_focusedAccount instanceof PrivateColuAccount) {
-         //ColuAccount class can be single or HD
-         //TODO: test if account is single address or HD and do wordlist backup instead
-         //start legacy backup if a single key or watch only was selected
-         Utils.pinProtectedBackup(getActivity());
-      } else {
-         if (_focusedAccount.isDerivedFromInternalMasterseed()) {
-            //start wordlist backup if a HD account or derived account was selected
-            Utils.pinProtectedWordlistBackup(getActivity());
-         } else if (_focusedAccount instanceof SingleAddressAccount) {
+    private void makeBackup() {
+        if (!AccountsFragment.this.isAdded()) {
+            return;
+        }
+        WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        if(_focusedAccount instanceof PrivateColuAccount) {
+            //ColuAccount class can be single or HD
+            //TODO: test if account is single address or HD and do wordlist backup instead
             //start legacy backup if a single key or watch only was selected
             Utils.pinProtectedBackup(getActivity());
-         }
-      }
-   }
-
-   private void showOutputs() {
-      Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class);
-      WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      intent.putExtra("account", _focusedAccount.getId());
-      startActivity(intent);
-   }
-
-   private void signMessage() {
-      if (!AccountsFragment.this.isAdded()) {
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!AccountsFragment.this.isAdded()) {
-               return;
+        } else {
+            if (_focusedAccount.isDerivedFromInternalMasterseed()) {
+                //start wordlist backup if a HD account or derived account was selected
+                Utils.pinProtectedWordlistBackup(getActivity());
+            } else if (_focusedAccount instanceof SingleAddressAccount) {
+                //start legacy backup if a single key or watch only was selected
+                Utils.pinProtectedBackup(getActivity());
             }
-            WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        }
+    }
 
-            MessageSigningActivity.callMe(getActivity(), _focusedAccount);
-         }
-      });
-   }
+    private void showOutputs() {
+        Intent intent = new Intent(getActivity(), UnspentOutputsActivity.class);
+        WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        intent.putExtra("account", _focusedAccount.getId());
+        startActivity(intent);
+    }
 
-   /**
-    * Show a message to the user explaining what it means to select a different
-    * address.
-    */
-   private void toastSelectedAccountChanged(WalletAccount account) {
-      if (account.isArchived()) {
-         _toaster.toast(getString(R.string.selected_archived_warning), true);
-      } else if (account instanceof HDAccount) {
-         _toaster.toast(getString(R.string.selected_hd_info), true);
-      } else if (account instanceof SingleAddressAccount) {
-         _toaster.toast(getString(R.string.selected_single_info), true);
-      } else if(account instanceof PrivateColuAccount) {
-          _toaster.toast(getString(R.string.selected_colu_info
-                  , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
-      }
-   }
-
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item) {
-      if (!isAdded()) {
-         return true;
-      }
-      if (item.getItemId() == R.id.miAddRecord) {
-         AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
-         return true;
-      } else if (item.getItemId() == R.id.miAddFiatAccount) {
-         Intent intent = AddCoinapultAccountActivity.getIntent(getActivity());
-         this.startActivityForResult(intent, ADD_RECORD_RESULT_CODE);
-         return true;
-      } else if (item.getItemId() == R.id.miLockKeys) {
-         lock();
-         return true;
-      }
-
-      return super.onOptionsItemSelected(item);
-   }
-
-   private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
-      if (account == null || !isAdded()) {
-         return;
-      }
-      if (askForPin) {
-         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+    private void signMessage() {
+        if (!AccountsFragment.this.isAdded()) {
+            return;
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
             public void run() {
-               if (!isAdded()) {
-                  return;
-               }
-               EnterAddressLabelUtil.enterAccountLabel(getActivity(), account.getId(), defaultName, _storage);
+                if (!AccountsFragment.this.isAdded()) {
+                    return;
+                }
+                WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+
+                MessageSigningActivity.callMe(getActivity(), _focusedAccount);
+            }
+        });
+    }
+
+    /**
+     * Show a message to the user explaining what it means to select a different
+     * address.
+     */
+    private void toastSelectedAccountChanged(WalletAccount account) {
+        if (account.isArchived()) {
+            _toaster.toast(getString(R.string.selected_archived_warning), true);
+        } else if (account instanceof HDAccount) {
+            _toaster.toast(getString(R.string.selected_hd_info), true);
+        } else if (account instanceof SingleAddressAccount) {
+            _toaster.toast(getString(R.string.selected_single_info), true);
+        } else if(account instanceof PrivateColuAccount) {
+            _toaster.toast(getString(R.string.selected_colu_info
+                                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (!isAdded()) {
+            return true;
+        }
+        if (item.getItemId() == R.id.miAddRecord) {
+            AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
+            return true;
+        } else if (item.getItemId() == R.id.miAddFiatAccount) {
+            Intent intent = AddCoinapultAccountActivity.getIntent(getActivity());
+            this.startActivityForResult(intent, ADD_RECORD_RESULT_CODE);
+            return true;
+        } else if (item.getItemId() == R.id.miLockKeys) {
+            lock();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setLabelOnAccount(final WalletAccount account, final String defaultName, boolean askForPin) {
+        if (account == null || !isAdded()) {
+            return;
+        }
+        if (askForPin) {
+            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
+                @Override
+                public void run() {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    EnterAddressLabelUtil.enterAccountLabel(getActivity(), account.getId(), defaultName, _storage);
+                }
+
+            });
+        } else {
+            EnterAddressLabelUtil.enterAccountLabel(getActivity(), account.getId(), defaultName, _storage);
+        }
+    }
+
+    private void deleteSelected() {
+        if (!isAdded()) {
+            return;
+        }
+        final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        if (_focusedAccount.isActive() && accountProtected(_focusedAccount)) {
+            _toaster.toast(R.string.keep_one_active, false);
+            return;
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
+            @Override
+            public void run() {
+                if (!isAdded()) {
+                    return;
+                }
+                deleteAccount(_focusedAccount);
             }
 
-         });
-      } else {
-         EnterAddressLabelUtil.enterAccountLabel(getActivity(), account.getId(), defaultName, _storage);
-      }
-   }
+        });
+    }
 
-   private void deleteSelected() {
-      if (!isAdded()) {
-         return;
-      }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (_focusedAccount.isActive() && accountProtected(_focusedAccount)) {
-         _toaster.toast(R.string.keep_one_active, false);
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!isAdded()) {
-               return;
-            }
-            deleteAccount(_focusedAccount);
-         }
-
-      });
-   }
-
-   private void rescan() {
-      if (!isAdded()) {
-         return;
-      }
-      accountListAdapter.getFocusedAccount().dropCachedData();
-      _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+    private void rescan() {
+        if (!isAdded()) {
+            return;
+        }
+        accountListAdapter.getFocusedAccount().dropCachedData();
+        _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
 //      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-   }
+    }
 
-   private void exportSelectedPrivateKey() {
-      if (!isAdded()) {
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!isAdded()) {
-               return;
-            }
-            Utils.exportSelectedAccount(getActivity());
-         }
-
-      });
-   }
-
-   private void detachFromLocalTrader() {
-      if (!isAdded()) {
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!AccountsFragment.this.isAdded()) {
-               return;
-            }
-            AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
-            confirmDialog.setTitle(R.string.lt_detaching_title);
-            confirmDialog.setMessage(getString(R.string.lt_detaching_question));
-            confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-               public void onClick(DialogInterface arg0, int arg1) {
-                  _mbwManager.getLocalTraderManager().unsetLocalTraderAccount();
-                  _toaster.toast(R.string.lt_detached, false);
-                  update();
-               }
-            });
-            confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-               public void onClick(DialogInterface arg0, int arg1) {
-               }
-            });
-            confirmDialog.show();
-         }
-
-      });
-   }
-
-   private void activateSelected() {
-      if (!isAdded()) {
-         return;
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
-         @Override
-         public void run() {
-            if (!AccountsFragment.this.isAdded()) {
-               return;
-            }
-            activate(accountListAdapter.getFocusedAccount());
-         }
-
-      });
-   }
-
-   private void activate(WalletAccount account) {
-      account.activateAccount();
-      WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-      if (linkedAccount != null) {
-         linkedAccount.activateAccount();
-      }
-      WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-      if (correspondingBCHAccount != null) {
-         correspondingBCHAccount.activateAccount();
-      }
-      //setselected also broadcasts AccountChanged event
-      _mbwManager.setSelectedAccount(account.getId());
-      updateIncludingMenus();
-      _toaster.toast(R.string.activated, false);
-      _mbwManager.getWalletManager(false).startSynchronization();
-   }
-
-   private void archiveSelected() {
-      if (!isAdded()) {
-         return;
-      }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (accountProtected(_focusedAccount)) {
-         //this is the last active hd account, we dont allow archiving it
-         _toaster.toast(R.string.keep_one_active, false);
-         return;
-      }
-      if (_focusedAccount instanceof CoinapultAccount) {
-         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+    private void exportSelectedPrivateKey() {
+        if (!isAdded()) {
+            return;
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
             @Override
             public void run() {
-               if (!AccountsFragment.this.isAdded()) {
-                  return;
-               }
-
-               archive(_focusedAccount);
+                if (!isAdded()) {
+                    return;
+                }
+                Utils.exportSelectedAccount(getActivity());
             }
 
-         });
-         return;
-      } else if (_focusedAccount instanceof HDAccount) {
-         HDAccount account = (HDAccount) _focusedAccount;
-         if (!account.hasHadActivity()) {
-            //this account is unused, we dont allow archiving it
-            _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
+        });
+    }
+
+    private void detachFromLocalTrader() {
+        if (!isAdded()) {
             return;
-         }
-      }
-      _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
-         @Override
-         public void run() {
-            if (!AccountsFragment.this.isAdded()) {
-               return;
+            @Override
+            public void run() {
+                if (!AccountsFragment.this.isAdded()) {
+                    return;
+                }
+                AlertDialog.Builder confirmDialog = new AlertDialog.Builder(getActivity());
+                confirmDialog.setTitle(R.string.lt_detaching_title);
+                confirmDialog.setMessage(getString(R.string.lt_detaching_question));
+                confirmDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        _mbwManager.getLocalTraderManager().unsetLocalTraderAccount();
+                        _toaster.toast(R.string.lt_detached, false);
+                        update();
+                    }
+                });
+                confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface arg0, int arg1) {
+                    }
+                });
+                confirmDialog.show();
             }
 
-            archive(_focusedAccount);
-         }
+        });
+    }
 
-      });
-   }
+    private void activateSelected() {
+        if (!isAdded()) {
+            return;
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
-   /**
-    * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
-    */
-   private boolean accountProtected(WalletAccount toRemove) {
-      if (toRemove instanceof HDAccount
-              && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-         // unprotected account type
-         return false;
-      }
+            @Override
+            public void run() {
+                if (!AccountsFragment.this.isAdded()) {
+                    return;
+                }
+                activate(accountListAdapter.getFocusedAccount());
+            }
 
-      Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
-      for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
-         if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-            uniqueAccountsSet.add(account);
-         }
-         if (uniqueAccountsSet.size() > 1) {
-            // after deleting one, more remain
+        });
+    }
+
+    private void activate(WalletAccount account) {
+        account.activateAccount();
+        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+        if (linkedAccount != null) {
+            linkedAccount.activateAccount();
+        }
+        WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+        if (correspondingBCHAccount != null) {
+            correspondingBCHAccount.activateAccount();
+        }
+        //setselected also broadcasts AccountChanged event
+        _mbwManager.setSelectedAccount(account.getId());
+        updateIncludingMenus();
+        _toaster.toast(R.string.activated, false);
+        _mbwManager.getWalletManager(false).startSynchronization();
+    }
+
+    private void archiveSelected() {
+        if (!isAdded()) {
+            return;
+        }
+        final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        if (accountProtected(_focusedAccount)) {
+            //this is the last active hd account, we dont allow archiving it
+            _toaster.toast(R.string.keep_one_active, false);
+            return;
+        }
+        if (_focusedAccount instanceof CoinapultAccount) {
+            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
+                @Override
+                public void run() {
+                    if (!AccountsFragment.this.isAdded()) {
+                        return;
+                    }
+
+                    archive(_focusedAccount);
+                }
+
+            });
+            return;
+        } else if (_focusedAccount instanceof HDAccount) {
+            HDAccount account = (HDAccount) _focusedAccount;
+            if (!account.hasHadActivity()) {
+                //this account is unused, we dont allow archiving it
+                _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
+                return;
+            }
+        }
+        _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
+            @Override
+            public void run() {
+                if (!AccountsFragment.this.isAdded()) {
+                    return;
+                }
+
+                archive(_focusedAccount);
+            }
+
+        });
+    }
+
+    /**
+     * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
+     */
+    private boolean accountProtected(WalletAccount toRemove) {
+        if (toRemove instanceof HDAccount
+                && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+            // unprotected account type
             return false;
-         }
-      }
-      return true;
-   }
+        }
 
-   private void hideSelected() {
-      if (!isAdded()) {
-         return;
-      }
-      final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-      if (accountProtected(_focusedAccount)) {
-         //this is the last active account, we dont allow hiding it
-         _toaster.toast(R.string.keep_one_active, false);
-         return;
-      }
-      if (_focusedAccount instanceof HDAccount) {
-         final HDAccount account = (HDAccount) _focusedAccount;
-         if (account.hasHadActivity()) {
-            //this account is used, we don't allow hiding it
-            _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
+        Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
+        for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
+            if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
+                uniqueAccountsSet.add(account);
+            }
+            if (uniqueAccountsSet.size() > 1) {
+                // after deleting one, more remain
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void hideSelected() {
+        if (!isAdded()) {
             return;
-         }
-
-         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-            @Override
-            public void run() {
-               _mbwManager.getWalletManager(false).deleteAccount(account.getId(), AesKeyCipher.defaultKeyCipher());
-               //in case user had labeled the account, delete the stored name
-               _storage.deleteAccountMetadata(account.getId());
-               eventBus.post(new AccountChanged(account.getId()));
-               _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-               //we dont want to show the context menu for the automatically selected account
-               accountListAdapter.setFocusedAccountId(null);
-               finishCurrentActionMode();
+        }
+        final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
+        if (accountProtected(_focusedAccount)) {
+            //this is the last active account, we dont allow hiding it
+            _toaster.toast(R.string.keep_one_active, false);
+            return;
+        }
+        if (_focusedAccount instanceof HDAccount) {
+            final HDAccount account = (HDAccount) _focusedAccount;
+            if (account.hasHadActivity()) {
+                //this account is used, we don't allow hiding it
+                _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
+                return;
             }
-         });
-      }
-   }
 
-   private void archive(final WalletAccount account) {
-      final WalletAccount linkedAccount = getLinkedAccount(account);
-      new AlertDialog.Builder(getActivity())
-              .setTitle(R.string.archiving_account_title)
-              .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
-              .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-
-                 public void onClick(DialogInterface arg0, int arg1) {
-                    account.archiveAccount();
-                    WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-                    if (linkedAccount != null) {
-                       linkedAccount.archiveAccount();
-                    }
-                    WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-                    if (correspondingBCHAccount != null) {
-                       correspondingBCHAccount.archiveAccount();
-                    }
-                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+                @Override
+                public void run() {
+                    _mbwManager.getWalletManager(false).deleteAccount(account.getId());
+                    //in case user had labeled the account, delete the stored name
+                    _storage.deleteAccountMetadata(account.getId());
                     eventBus.post(new AccountChanged(account.getId()));
-                    if (linkedAccount != null){
-                       eventBus.post(new AccountChanged(linkedAccount.getId()));
-                    }
-                    if (correspondingBCHAccount != null){
-                       eventBus.post(new AccountChanged(correspondingBCHAccount.getId()));
-                    }
-                    updateIncludingMenus();
-                    _toaster.toast(R.string.archived, false);
-                 }
-              })
-              .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                 public void onClick(DialogInterface arg0, int arg1) {
-                 }
-              })
-              .show();
-   }
+                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                    //we dont want to show the context menu for the automatically selected account
+                    accountListAdapter.setFocusedAccountId(null);
+                    finishCurrentActionMode();
+                }
+            });
+        }
+    }
 
-   @NonNull
-   private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
-      String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-      return getAccountArchiveText(account, linkedAccount, accountName);
-   }
+    private void archive(final WalletAccount account) {
+        final WalletAccount linkedAccount = getLinkedAccount(account);
+        new AlertDialog.Builder(getActivity())
+        .setTitle(R.string.archiving_account_title)
+        .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
+        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 
-   @NonNull
-   private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
-      String dialogText;
-      Balance balance = Preconditions.checkNotNull(account.getAccountBalance());
-      String valueString = getBalanceString(account, balance);
-
-      if (linkedAccount != null && linkedAccount.isVisible()) {
-         Balance linkedBalance = linkedAccount.getAccountBalance();
-         String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
-         String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-         dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
-                 linkedAccountName, linkedValueString);
-      } else {
-         dialogText = getString(R.string.question_archive_account, accountName, valueString);
-      }
-      return dialogText;
-   }
-
-   private void lock() {
-      _mbwManager.setKeyManagementLocked(true);
-      update();
-      if (isAdded()) {
-         getActivity().supportInvalidateOptionsMenu();
-      }
-   }
-
-   OnClickListener unlockClickedListener = new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-         _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
-
-            @Override
-            public void run() {
-               _mbwManager.setKeyManagementLocked(false);
-               update();
-               if (isAdded()) {
-                  getActivity().supportInvalidateOptionsMenu();
-               }
+            public void onClick(DialogInterface arg0, int arg1) {
+                account.archiveAccount();
+                WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+                if (linkedAccount != null) {
+                    linkedAccount.archiveAccount();
+                }
+                WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
+                if (correspondingBCHAccount != null) {
+                    correspondingBCHAccount.archiveAccount();
+                }
+                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                eventBus.post(new AccountChanged(account.getId()));
+                if (linkedAccount != null) {
+                    eventBus.post(new AccountChanged(linkedAccount.getId()));
+                }
+                if (correspondingBCHAccount != null) {
+                    eventBus.post(new AccountChanged(correspondingBCHAccount.getId()));
+                }
+                updateIncludingMenus();
+                _toaster.toast(R.string.archived, false);
             }
+        })
+        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+            }
+        })
+        .show();
+    }
 
-         });
-      }
-   };
+    @NonNull
+    private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
+        String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
+        return getAccountArchiveText(account, linkedAccount, accountName);
+    }
 
-   @Subscribe
-   public void addressChanged(ReceivingAddressChanged event) {
-      update();
-   }
+    @NonNull
+    private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
+        String dialogText;
+        Balance balance = Preconditions.checkNotNull(account.getAccountBalance());
+        String valueString = getBalanceString(account, balance);
 
-   @Subscribe
-   public void balanceChanged(BalanceChanged event) {
-      update();
-   }
+        if (linkedAccount != null && linkedAccount.isVisible()) {
+            Balance linkedBalance = linkedAccount.getAccountBalance();
+            String linkedValueString = getBalanceString(linkedAccount, linkedBalance);
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+            dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
+                                   linkedAccountName, linkedValueString);
+        } else {
+            dialogText = getString(R.string.question_archive_account, accountName, valueString);
+        }
+        return dialogText;
+    }
 
-   @Subscribe
-   public void syncStarted(SyncStarted event) {
-      update();
-   }
+    private void lock() {
+        _mbwManager.setKeyManagementLocked(true);
+        update();
+        if (isAdded()) {
+            getActivity().supportInvalidateOptionsMenu();
+        }
+    }
 
-   @Subscribe
-   public void syncStopped(SyncStopped event) {
-      update();
-   }
+    OnClickListener unlockClickedListener = new OnClickListener() {
 
-   @Subscribe
-   public void accountChanged(AccountChanged event) {
-      update();
-   }
+        @Override
+        public void onClick(View v) {
+            _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
 
-   @Subscribe
-   public void syncProgressUpdated(SyncProgressUpdated event) {
-      update();
-   }
+                @Override
+                public void run() {
+                    _mbwManager.setKeyManagementLocked(false);
+                    update();
+                    if (isAdded()) {
+                        getActivity().supportInvalidateOptionsMenu();
+                    }
+                }
 
-   @Subscribe
-   public void exchangeSourceChange(ExchangeSourceChanged event) {
-      accountListAdapter.notifyDataSetChanged();
-   }
+            });
+        }
+    };
 
-   @Subscribe
-   public void selectedCurrencyChanged(SelectedCurrencyChanged event){
-      accountListAdapter.notifyDataSetChanged();
-   }
+    @Subscribe
+    public void addressChanged(ReceivingAddressChanged event) {
+        update();
+    }
 
-   private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-      @Override
-      public void onLtError(int errorCode) { }
+    @Subscribe
+    public void balanceChanged(BalanceChanged event) {
+        update();
+    }
 
-      @Override
-      public void onLtAccountDeleted(DeleteTrader request) {
-         accountListAdapter.notifyDataSetChanged();
-      }
+    @Subscribe
+    public void syncStarted(SyncStarted event) {
+        update();
+    }
 
-      @Override
-      public void onLtTraderCreated(CreateTrader request) {
-         accountListAdapter.notifyDataSetChanged();
-      }
-   };
+    @Subscribe
+    public void syncStopped(SyncStopped event) {
+        update();
+    }
+
+    @Subscribe
+    public void accountChanged(AccountChanged event) {
+        update();
+    }
+
+    @Subscribe
+    public void syncProgressUpdated(SyncProgressUpdated event) {
+        update();
+    }
+
+    @Subscribe
+    public void exchangeSourceChange(ExchangeSourceChanged event) {
+        accountListAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe
+    public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
+        accountListAdapter.notifyDataSetChanged();
+    }
+
+    private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
+        @Override
+        public void onLtError(int errorCode) { }
+
+        @Override
+        public void onLtAccountDeleted(DeleteTrader request) {
+            accountListAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onLtTraderCreated(CreateTrader request) {
+            accountListAdapter.notifyDataSetChanged();
+        }
+    };
 }

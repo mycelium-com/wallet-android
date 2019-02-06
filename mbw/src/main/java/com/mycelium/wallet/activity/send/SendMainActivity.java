@@ -513,7 +513,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        feeItemsBuilder = new FeeItemsBuilder(feeEstimation);
+        feeItemsBuilder = new FeeItemsBuilder();
         feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
