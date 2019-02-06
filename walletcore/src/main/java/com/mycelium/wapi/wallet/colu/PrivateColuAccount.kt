@@ -17,14 +17,14 @@ import org.apache.commons.codec.binary.Hex
 import java.util.*
 
 
-class ColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
-                  , coluCoinType: CryptoCurrency
-                  , networkParameters: NetworkParameters
-                  , coluClient: ColuApi
-                  , accountBacking: AccountBacking<ColuTransaction>
-                  , backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                  , listener: AccountListener? = null)
-    : ColuPubOnlyAccount(context, coluCoinType, networkParameters
+class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPrivateKey
+                         , coluCoinType: CryptoCurrency
+                         , networkParameters: NetworkParameters
+                         , coluClient: ColuApi
+                         , accountBacking: AccountBacking<ColuTransaction>
+                         , backing: WalletBacking<ColuAccountContext, ColuTransaction>
+                         , listener: AccountListener? = null)
+    : PublicColuAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {

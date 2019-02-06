@@ -52,9 +52,6 @@ import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
-
-import java.util.UUID;
 
 public class ManualAddressEntry extends Activity {
 

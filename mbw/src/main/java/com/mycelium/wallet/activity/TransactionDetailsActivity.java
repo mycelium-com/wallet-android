@@ -56,7 +56,7 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -90,7 +90,7 @@ public class TransactionDetailsActivity extends Activity {
 
       _txs = _mbwManager.getSelectedAccount().getTx(txid);
 
-      if(_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
+      if(_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
          coluMode = true;
       } else {
          coluMode = false;
