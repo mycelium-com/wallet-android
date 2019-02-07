@@ -20,7 +20,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     protected Sha256Hash hash;
     private Transaction tx;
     protected Value transferred;
-    protected int timestamp;
+    protected long timestamp;
     protected ArrayList<GenericInput> inputs;
     protected ArrayList<GenericOutput> outputs;
     protected int height;
@@ -48,7 +48,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long transferred, int timestamp, int height, int confirmations,
+                          long transferred, long timestamp, int height, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
@@ -95,7 +95,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

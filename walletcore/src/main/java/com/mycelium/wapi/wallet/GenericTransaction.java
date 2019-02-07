@@ -46,7 +46,7 @@ public interface GenericTransaction extends Serializable {
     int getConfirmations();
 
     long getTimestamp();
-    void setTimestamp(int timestamp);
+    void setTimestamp(long timestamp);
 
     boolean isQueuedOutgoing();
     Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile();

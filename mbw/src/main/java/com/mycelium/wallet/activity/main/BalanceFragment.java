@@ -261,12 +261,8 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
-        //todo: generic address check
-        //Address receivingAddress = Address.fromString(_mbwManager.getSelectedAccount().getReceiveAddress().toString());
-        //if(receivingAddress != null) {
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                     _mbwManager.getSelectedAccount().canSpend(), true);
-        //}
     }
 
     @OnClick(R.id.btScan)

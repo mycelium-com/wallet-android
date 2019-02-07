@@ -47,9 +47,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
-
-    }
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public boolean isQueuedOutgoing() {
@@ -59,10 +57,6 @@ public class FiatTransaction implements GenericTransaction {
     @Override
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return null;
-    }
-
-    public void setTimestamp(long timestamp) {
-
     }
 
     @Override
