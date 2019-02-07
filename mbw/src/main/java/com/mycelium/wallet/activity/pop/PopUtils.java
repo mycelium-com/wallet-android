@@ -41,7 +41,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 
 class PopUtils {
    public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransaction transaction) {
-      if (popRequest.getTxid() != null && !transaction.getHash().equals(popRequest.getTxid())) {
+      if (popRequest.getTxid() != null && !transaction.getId().equals(popRequest.getTxid())) {
          return false;
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
@@ -57,7 +57,7 @@ class PopUtils {
          return false;
       }
       if (popRequest.getLabel() != null) {
-         String label = metadataStorage.getLabelByTransaction(transaction.getHash());
+         String label = metadataStorage.getLabelByTransaction(transaction.getId());
          if (!popRequest.getLabel().equals(label)) {
             return false;
          }

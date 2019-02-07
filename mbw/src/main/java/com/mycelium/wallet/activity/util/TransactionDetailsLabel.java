@@ -66,12 +66,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.getHash().toString();
+      return transaction.getId().toString();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.getHash().toString(), 4, " ");
+      return Utils.stringChopper(transaction.getId().toString(), 4, " ");
    }
 
    @Override

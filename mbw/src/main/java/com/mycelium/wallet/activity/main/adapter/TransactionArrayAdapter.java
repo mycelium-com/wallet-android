@@ -141,7 +141,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(record.getHash().toHex(), null);
+      String value = transactionFiatValuePref.getString(record.getId().toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
@@ -159,8 +159,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(record.getHash());
-      if(exchangeTransactions.contains(record.getHash().toString())) {
+      String label = _storage.getLabelByTransaction(record.getId());
+      if(exchangeTransactions.contains(record.getId().toString())) {
          //label = "Exchange BCH to BTC " + label;
       }
       if (label.length() == 0) {

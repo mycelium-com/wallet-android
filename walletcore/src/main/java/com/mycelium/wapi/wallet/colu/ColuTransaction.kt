@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.io.Serializable
 
 
-class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
+class ColuTransaction(val _id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
                       val tx: Transaction?, val _height: Int, var _confirmations: Int, val _isQueuedOutgoing: Boolean
                       , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
@@ -23,13 +23,11 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transf
 
     override fun getType(): GenericAssetInfo = _type
 
-    override fun getHash(): Sha256Hash {
-        return id
-    }
+    override fun getId(): Sha256Hash? = _id
 
-    override fun getHashAsString(): String = hash.toString()
+    override fun getHashAsString(): String = _id.toString()
 
-    override fun getHashBytes(): ByteArray = hash.bytes
+    override fun getHashBytes(): ByteArray = _id.bytes
 
     override fun getTimestamp(): Long = time
 

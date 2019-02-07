@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.eth.coins.EthMain;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
-    public Sha256Hash getHash() {
+    public Sha256Hash getId() {
         return Sha256Hash.ZERO_HASH;
     }
 

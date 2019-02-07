@@ -16,7 +16,7 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
 
     override fun getType(): GenericAssetInfo = value.getType()
 
-    override fun getHash(): Sha256Hash = _hash
+    override fun getId(): Sha256Hash? = _hash
 
     override fun getHashAsString(): String {
         return _hash.toString()
