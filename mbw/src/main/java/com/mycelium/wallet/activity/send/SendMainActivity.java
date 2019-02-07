@@ -687,9 +687,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         BitcoinUriWithAddress uri = getUriFromClipboard();
         if (uri != null) {
             makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-            _receivingAddress = AddressUtils.fromAddress(uri.address);
-            if (uri.amount != null && uri.amount >= 0) {
-                _amountToSend = Value.valueOf(BitcoinTest.get(), uri.amount);
+            _receivingAddress = uri.getAddress();
+            if (uri.getValue() != null && !uri.getValue().isNegative()) {
+                _amountToSend = uri.getValue();
             }
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
@@ -1346,7 +1346,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         String string = content.trim();
         if (string.matches("[a-zA-Z0-9]*")) {
             // Raw format
-            Address address = Address.fromString(string, _mbwManager.getNetwork());
+            GenericAddress address = AddressUtils.from(_mbwManager.getNetwork().isProdnet() ?
+                    BitcoinMain.get() : BitcoinTest.get(), string);
             if (address == null) {
                 return null;
             }

@@ -24,7 +24,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         var address: GenericAddress? = null
         val addressString = uri.host
         if (addressString != null && addressString.isNotEmpty()) {
-            address = AddressUtils.from(coinType, addressString.trim { it <= ' ' })
+            address = AddressUtils.from(coinType, addressString)
         }
 
         val params = URLEncodedUtils.parse(uri, "UTF-8")

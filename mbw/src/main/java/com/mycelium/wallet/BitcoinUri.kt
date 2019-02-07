@@ -32,50 +32,64 @@
  * fitness for a particular purpose and non-infringement.
  */
 
-package com.mycelium.wallet;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.coins.Value;
+package com.mycelium.wallet
 
-import java.io.Serializable;
+import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.WithCallback
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.coins.Value
+import java.lang.StringBuilder
 
 /**
- * This subclass of BitcoinUri guarantees to always have an address
+ * This is a crude implementation of a Bitcoin URI, but for now it works for our
+ * purpose.
  */
-public class BitcoinUriWithAddress extends BitcoinUri implements Serializable  {
-   private static final long serialVersionUID = 1L;
+open class BitcoinUri(override val address: GenericAddress?, override val value: Value?, override val label: String?,
+                      override val callbackURL: String?)
+    : GenericAssetUri(address, value, label, scheme = "bitcoin"), WithCallback {
 
-   public BitcoinUriWithAddress(GenericAddress address, Value value, String label) {
-      this(address, value, label, null);
-   }
+    fun from(address: GenericAddress?, value: Value?, label: String?, callbackURL: String?, scheme: String = "bitcoin"){
+        if (address != null) {
+            BitcoinUriWithAddress(address, value, label, callbackURL)
+        } else {
+            BitcoinUri(null, value, label, callbackURL)
+        }
+    }
 
-   public BitcoinUriWithAddress(GenericAddress address, Value value, String label, String callbackURL) {
-      super(address, value, label, callbackURL);
-      Preconditions.checkNotNull(address);
-   }
+    override fun toString(): String {
+        var result = StringBuilder("bitcoin:")
 
-   public static Optional<BitcoinUriWithAddress> parseWithAddress(String uri, NetworkParameters network) {
-      Optional<GenericAssetUri> bitcoinUri = Optional.of((new BitcoinUriParser(network)).parse(uri));
-      if (!bitcoinUri.isPresent()) {
-         return Optional.absent();
-      }
-      return fromBitcoinUri(bitcoinUri.get());
-   }
+        // detect first parameter
+        var isFirst = true
+        if(address != null){
+            result.append(address.toString())
+        }
+        if(value != null){
+            if(isFirst) {
+                result.append("?")
+            }
+            result.append("amount=").append(value!!.getValue().toDouble()/100000000)
+            isFirst = false
+        }
+        if(label != null){
+            if(isFirst) {
+                result.append("?")
+            } else {
+                result.append("&")
+            }
+            result.append("label=").append(label)
+        }
+        if(callbackURL != null){
+            if(isFirst) {
+                result.append("?")
+            } else {
+                result.append("&")
+            }
+            result.append("r=").append(callbackURL)
+        }
+        return result.toString()
+    }
 
-   public static Optional<BitcoinUriWithAddress> fromBitcoinUri(GenericAssetUri bitcoinUri) {
-      if (bitcoinUri.getAddress() == null) {
-         return Optional.absent();
-      }
-      return Optional.of(new BitcoinUriWithAddress(bitcoinUri.getAddress(), bitcoinUri.getValue(), bitcoinUri.getLabel(),
-              bitcoinUri.getLabel()));
-   }
 
-   public static BitcoinUriWithAddress fromAddress(GenericAddress address) {
-      return new BitcoinUriWithAddress(address, null, null);
-   }
+    class PrivateKeyUri private constructor(val keyString: String, label: String) : BitcoinUri(null, null, label, null)
 }
