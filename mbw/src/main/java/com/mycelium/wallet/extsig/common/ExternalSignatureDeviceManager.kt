@@ -512,7 +512,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                 throw RuntimeException("Trezor error:" + msg.code.toString() + "; " + msg.message)
             }
             is TxRequest -> {
-                if (msg.requestType == TXOUTPUT) {
+                if (msg.requestType == TXOUTPUT && !msg.details.hasTxHash() && !msg.hasSerialized()) {
                     val outputIndex = msg.details.requestIndex
                     val address = transaction!!.outputs[outputIndex].script.getAddress(network)
                     if (forAccount!!.isOwnInternalAddress(address)) {
