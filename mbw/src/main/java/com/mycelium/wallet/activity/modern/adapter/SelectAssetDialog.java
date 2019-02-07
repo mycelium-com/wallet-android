@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
+import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -36,7 +37,12 @@ public class SelectAssetDialog extends DialogFragment {
 
         builder.setIcon(R.drawable.ic_launcher);
         // todo fix this, title not shown fully
-        builder.setTitle(String.format(getString(R.string.diff_type), Utils.getClipboardString(getActivity())));
+        TextView title = new TextView(getContext());
+        title.setText(String.format(getString(R.string.diff_type), Utils.getClipboardString(getActivity())));
+        title.setTextSize(16);
+        title.setPadding(20, 20, 20, 20);
+
+        builder.setCustomTitle(title);
 
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override

@@ -105,8 +105,6 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      //Maybe it's wrong
-      
       tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getBitcoinDenomination()));
       tvAmount.setTextColor(color);
 
@@ -150,7 +148,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       // Show confirmations indicator
       int confirmations = record.getConfirmations();
       TransactionConfirmationsDisplay tcdConfirmations = rowView.findViewById(R.id.tcdConfirmations);
-      if (record.isQueuedOutgoing()) {//record.isQueuedOutgoing
+      if (record.isQueuedOutgoing()) {
          // Outgoing, not broadcasted
          tcdConfirmations.setNeedsBroadcast();
       } else {
@@ -166,7 +164,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;
-         if (false) { //record.isQueuedOutgoing
+         if (record.isQueuedOutgoing()) {
             confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
          } else {
             if (confirmations > 6) {
@@ -181,7 +179,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Show risky unconfirmed warning if necessary
-      //Maybe we needn't these block, but warnings seems necessary, I think we should add it
+
       TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
       if (confirmations <= 0) {
          ArrayList<String> warnings = new ArrayList<String>();
