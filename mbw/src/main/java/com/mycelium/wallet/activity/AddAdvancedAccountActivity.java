@@ -62,6 +62,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -85,6 +86,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
@@ -459,7 +461,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
           for (AddressType addressType : AddressType.values()) {
               Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
               address = AddressUtils.fromAddress(addr);
-              address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
+              address = new BtcLegacyAddress(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get(),
+                      address.getBytes());
               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
               if (accountId.isPresent()) {
                   return null;
@@ -482,7 +485,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          Optional accountId = _mbwManager.getAccountId(this.address, null);
          if (askUserForColorize) {
             final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-            adapter.add(BitcoinMain.get());
+            adapter.add(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get());
             adapter.addAll(ColuUtils.allColuCoins());
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setTitle(R.string.restore_addres_as)
@@ -640,7 +643,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          dialog.dismiss();
           if (askUserForColorize) {
               final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-              adapter.addAll(BitcoinMain.get(), MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+              adapter.addAll(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get(),
+                      MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
               new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                       .setTitle(R.string.restore_addres_as)
                       .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {

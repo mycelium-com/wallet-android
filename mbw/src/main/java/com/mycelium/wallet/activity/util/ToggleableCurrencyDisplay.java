@@ -44,12 +44,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -141,7 +143,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
             if (!currencySwitcher.isFiatExchangeRateAvailable()
                     && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
                     && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
-                currencySwitcher.setCurrency(BitcoinMain.get());
+                currencySwitcher.setCurrency(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get());
             }
 
             setVisibility(VISIBLE);

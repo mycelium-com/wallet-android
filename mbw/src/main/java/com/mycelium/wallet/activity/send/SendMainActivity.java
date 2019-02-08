@@ -361,7 +361,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
-        //_amountToSend = Value.valueOf(_mbwManager.getNetwork().isProdnet()? BitcoinMain.get() : BitcoinTest.get(), 0);
 
         // May be null
         _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
@@ -1088,7 +1087,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             long fee = _unsigned.calculateFee();
             if (fee != size * getCurrentFeeEstimation() / 1000) {
                 //TODO: use Value class
-                Value value = Value.valueOf(BitcoinMain.get(), fee);
+                Value value = Value.valueOf(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                 String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";

@@ -73,10 +73,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.DataExport;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
@@ -569,7 +566,7 @@ public class TransactionHistoryFragment extends Fragment {
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
-                              Value txFeeBitcoinValue = Value.valueOf(_mbwManager.getNetwork().isProdnet() ?
+                              Value txFeeBitcoinValue = Value.valueOf(BuildConfig.FLAVOR.equals("prodnet") ?
                                       BitcoinMain.get() : BitcoinTest.get(), txFee);
                               String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
                               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
