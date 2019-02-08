@@ -52,11 +52,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun isReceivingAmountWrong() = model.receivingAmountWrong
 
     fun getCurrentlyReceivingFormatted() = Transformations.map(model.receivingAmount) {
-        if (it != null) {
-            getFormattedValue(it)
-        } else {
-            getFormattedValue(Value.zeroValue(mbwManager.selectedAccount.coinType))
-        }
+        getFormattedValue(it ?: Value.zeroValue(mbwManager.selectedAccount.coinType))
     }
 
     fun getCurrentlyReceivingAmount() = model.receivingAmount

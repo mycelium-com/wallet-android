@@ -42,7 +42,8 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
             // - get element from your dataSet at this position
             // - replace the contents of the view with that element
             val item = dataSet[position]
-            holder.addressTextView?.text = AddressUtils.toMultiLineString(item.address?.toString()) ?: ""
+            holder.addressTextView?.text = item.address?.run { AddressUtils.toMultiLineString(toString()) }
+                    ?: ""
             holder.addressTypeTextView?.text = item.addressType
             holder.addressTypeLabelTextView?.text = item.addressTypeLabel
 
