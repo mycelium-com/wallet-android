@@ -47,7 +47,7 @@ public class BitcoinUriTest {
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testToString() {
         assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", new BitcoinUri(AddressUtils.from(BitcoinMain.get(),
                 "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, null).toString());
         assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11", new BitcoinUri(AddressUtils.from(BitcoinMain.get(),
@@ -55,7 +55,7 @@ public class BitcoinUriTest {
     }
 
     @Test
-    public void testToStringFails() throws Exception {
+    public void testToStringFails() {
         assertEquals("According to BIP72, the r-parameter should not be url encoded?", "bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe",
                 new BitcoinUri(AddressUtils.from(BitcoinMain.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, "https://merchant.com/pay.php?h=2a8628fc2fbe").toString());
         assertEquals("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", new BitcoinUri(null, null, null, "https://merchant.com/pay.php?h=2a8628fc2fbe").toString());

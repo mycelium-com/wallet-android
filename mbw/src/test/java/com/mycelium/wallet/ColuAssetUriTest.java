@@ -64,15 +64,7 @@ public class ColuAssetUriTest {
         String label = "HelloWorld";
         String address = "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN";
         testParse("rmc:" + address + "?amount=123.456&label=" + label, RMCCoin.INSTANCE, productionNetwork,
-                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, address), Value.valueOf(RMCCoin.INSTANCE, 123456L), label));
-    }
-
-    @Test
-    public void parseWithSloppyLabel() {
-        String label = "Hello World!";
-        String address = "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN";
-        testParse("rmc:" + address + "?amount=123.456&label=" + label, RMCCoin.INSTANCE, productionNetwork,
-                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, address), Value.valueOf(RMCCoin.INSTANCE, 123456L), label));
+                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, address), Value.valueOf(RMCCoin.INSTANCE, 12345600000L), label));
     }
 
     @Test
