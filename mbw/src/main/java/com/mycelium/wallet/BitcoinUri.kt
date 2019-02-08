@@ -48,7 +48,7 @@ open class BitcoinUri(override val address: GenericAddress?, override val value:
                       override val callbackURL: String?)
     : GenericAssetUri(address, value, label, scheme = "bitcoin"), WithCallback {
 
-    fun from(address: GenericAddress?, value: Value?, label: String?, callbackURL: String?, scheme: String = "bitcoin"){
+    fun from(address: GenericAddress?, value: Value?, label: String?, callbackURL: String?, scheme: String = "bitcoin") {
         if (address != null) {
             BitcoinUriWithAddress(address, value, label, callbackURL)
         } else {
@@ -61,27 +61,27 @@ open class BitcoinUri(override val address: GenericAddress?, override val value:
 
         // detect first parameter
         var isFirst = true
-        if(address != null){
-            result.append(address.toString())
-        }
-        if(value != null){
-            if(isFirst) {
+        address?.run { result.append(address.toString()) }
+        if (value != null) {
+            if (isFirst) {
                 result.append("?")
             }
-            result.append("amount=").append(value!!.getValue().toDouble()/100000000)
+            result.append("amount=").append(value!!.getValue().toDouble() / 100000000)
             isFirst = false
         }
-        if(label != null){
-            if(isFirst) {
+        label?.run {
+            if (isFirst) {
                 result.append("?")
+                isFirst = false
             } else {
                 result.append("&")
             }
             result.append("label=").append(label)
         }
-        if(callbackURL != null){
-            if(isFirst) {
+        callbackURL?.run {
+            if (isFirst) {
                 result.append("?")
+                isFirst = false
             } else {
                 result.append("&")
             }
