@@ -98,6 +98,7 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -568,7 +569,8 @@ public class TransactionHistoryFragment extends Fragment {
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
-                              Value txFeeBitcoinValue = Value.valueOf(BitcoinMain.get(), txFee);
+                              Value txFeeBitcoinValue = Value.valueOf(_mbwManager.getNetwork().isProdnet() ?
+                                      BitcoinMain.get() : BitcoinTest.get(), txFee);
                               String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
                               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
                               if(!Value.isNullOrZero(txFeeCurrencyValue)) {

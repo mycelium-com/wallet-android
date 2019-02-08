@@ -94,7 +94,7 @@ public class PopActivity extends Activity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi(null);
+         updateUi((_mbwManager.getSelectedAccount().getTx(txidToProve)));
          return;
       }
 
