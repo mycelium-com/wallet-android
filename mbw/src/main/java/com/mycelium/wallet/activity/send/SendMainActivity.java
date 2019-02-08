@@ -1312,9 +1312,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
-                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getHash(), _transactionLabel);
+                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), _transactionLabel);
             }
-            String hash = signedSendRequest.tx.getHash().toString();
+            String hash = signedSendRequest.tx.getId().toString();
             String fiat = getFiatValue();
             transactionFiatValuePref.edit().putString(hash, fiat).apply();
 

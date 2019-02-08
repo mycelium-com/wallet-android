@@ -56,7 +56,7 @@ public class DataExport {
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
       for (GenericTransaction summary : history) {
-         String txLabel = storage.getLabelByTransaction(summary.getHash());
+         String txLabel = storage.getLabelByTransaction(summary.getId());
          osw.write(getTxLine(accountLabel, txLabel, summary));
       }
       osw.close();
@@ -71,7 +71,7 @@ public class DataExport {
       double value = transaction.getTransferred().abs().value;
       return
             escape(accountLabel) + "," +
-                  transaction.getHash() + "," +
+                  transaction.getId() + "," +
                   date + "," +
                   value + "," +
                   transaction.getType().getName() + "," +
