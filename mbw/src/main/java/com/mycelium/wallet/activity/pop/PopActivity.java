@@ -215,7 +215,7 @@ public class PopActivity extends Activity {
    }
 
    private long getPaymentAmountSatoshis(GenericTransaction transaction) {
-      if (!(transaction.getType() == BitcoinMain.get())) {
+      if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
       long amountSatoshis = transaction.getTransferred().abs().getValue();
