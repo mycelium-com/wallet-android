@@ -32,8 +32,8 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
 
     override fun getTimestamp(): Long = time
 
-    override fun setTimestamp(timestamp: Int) {
-        time = timestamp.toLong()
+    override fun setTimestamp(timestamp: Long) {
+        time = timestamp
     }
 
     override fun isQueuedOutgoing(): Boolean = false

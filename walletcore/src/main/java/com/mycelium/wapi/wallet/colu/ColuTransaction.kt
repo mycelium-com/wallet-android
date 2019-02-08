@@ -33,8 +33,8 @@ class ColuTransaction(val id: Sha256Hash, val _type: CryptoCurrency, val _transf
 
     override fun getTimestamp(): Long = time
 
-    override fun setTimestamp(timestamp: Int) {
-        time = timestamp.toLong()
+    override fun setTimestamp(timestamp: Long) {
+        time = timestamp
     }
 
     override fun isQueuedOutgoing(): Boolean = _isQueuedOutgoing

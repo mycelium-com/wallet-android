@@ -58,11 +58,6 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
-
-    }
-
-    @Override
     public boolean isQueuedOutgoing() {
         return false;
     }
@@ -72,9 +67,8 @@ public class EthTransaction implements GenericTransaction {
         return Optional.absent();
     }
 
-    public void setTimestamp(long timestamp) {
-
-    }
+    @Override
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public Value getFee() {
