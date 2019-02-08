@@ -218,11 +218,7 @@ public class PopActivity extends Activity {
       if (!(transaction.getType() == BitcoinMain.get())) {
          return 0;
       }
-      long amountSatoshis = transaction.getTransferred().abs().getValue();
-      GenericTransaction genericTransaction = _mbwManager.getSelectedAccount().getTx(transaction.getHash());
-      // TODO why we substract fee here?
-      amountSatoshis -= genericTransaction.getFee().getValue();
-      return amountSatoshis;
+      return transaction.getTransferred().abs().getValue();
    }
 
    @Override
