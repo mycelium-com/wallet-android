@@ -116,7 +116,7 @@ public class PopActivity extends Activity {
             launchSelectTransactionActivity();
             return;
          }
-         txidToProve = matchingTransaction.getHash();
+         txidToProve = matchingTransaction.getId();
          txToProve = matchingTransaction;
       }
 
@@ -179,7 +179,7 @@ public class PopActivity extends Activity {
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
       // Set label
-      String label = metadataStorage.getLabelByTransaction(transaction.getHash());
+      String label = metadataStorage.getLabelByTransaction(transaction.getId());
       setText(R.id.pop_transaction_label, label);
 
       URL url = getUrl(popRequest.getP());
@@ -219,7 +219,7 @@ public class PopActivity extends Activity {
          return 0;
       }
       long amountSatoshis = transaction.getTransferred().abs().getValue();
-      GenericTransaction genericTransaction = _mbwManager.getSelectedAccount().getTx(transaction.getHash());
+      GenericTransaction genericTransaction = _mbwManager.getSelectedAccount().getTx(transaction.getId());
       // TODO why we substract fee here?
       amountSatoshis -= genericTransaction.getFee().getValue();
       return amountSatoshis;

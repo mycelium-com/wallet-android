@@ -20,9 +20,10 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     protected Sha256Hash hash;
     private Transaction tx;
     protected Value transferred;
-    protected int timestamp;
+    protected long timestamp;
     protected ArrayList<GenericInput> inputs;
     protected ArrayList<GenericOutput> outputs;
+    protected int height;
     protected int confirmations;
     protected int rawSize;
     protected boolean isQueuedOutgoing;
@@ -36,6 +37,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.hash = tx.getId();
         this.transferred = Value.zeroValue(type);
         this.timestamp = 0;
+        this.height = 0;
         this.confirmations = 0;
         this.isQueuedOutgoing = false;
         this.inputs = new ArrayList<>();
@@ -46,7 +48,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long transferred, int timestamp, int confirmations,
+                          long transferred, long timestamp, int height, int confirmations,
                           boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
@@ -56,6 +58,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
+        this.height = height;
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -77,22 +80,13 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return confirmations;
     }
 
     @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-        this.confirmations = appearedAtChainHeight;
-    }
-
-    @Override
-    public int getDepthInBlocks() {
-        return 0;
-    }
-
-    @Override
-    public void setDepthInBlocks(int depthInBlocks) {
+    public int getHeight() {
+        return height;
     }
 
     @Override
@@ -101,7 +95,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -138,20 +132,18 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public Sha256Hash getHash() {
-        // TODO: Find out should we return tx.getHash() or tx.getId().
-        // This is related with latest SEGWIT changes
+    public Sha256Hash getId() {
         return tx.getId();
     }
 
     @Override
     public String getHashAsString() {
-        return getHash().toString();
+        return getId().toString();
     }
 
     @Override
     public byte[] getHashBytes() {
-        return getHash().getBytes();
+        return getId().getBytes();
     }
 
     @Override
@@ -164,7 +156,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BtcTransaction other = (BtcTransaction) o;
-        return getHash().equals(other.getHash());
+        return getId().equals(other.getId());
     }
 
     public Transaction getRawTransaction() {

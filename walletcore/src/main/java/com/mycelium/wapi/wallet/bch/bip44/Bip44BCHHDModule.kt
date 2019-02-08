@@ -5,6 +5,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -23,7 +24,7 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
                        internal var _wapi: Wapi,
                        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-    override fun getId(): String = "Bip44HD"
+    override fun getId(): String = ID
 
     private val accounts = mutableMapOf<UUID, Bip44BCHAccount>()
 
@@ -51,4 +52,15 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    companion object {
+        @JvmField
+        val ID: String = "Bip44HD"
+    }
 }
+
+/**
+ * Get Bitcoin Cash HD-accounts
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getBCHBip44Accounts() = getAccounts().filter { it is Bip44BCHAccount && it.isVisible }

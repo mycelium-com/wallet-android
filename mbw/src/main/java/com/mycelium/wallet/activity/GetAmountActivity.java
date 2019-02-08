@@ -59,7 +59,7 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
@@ -67,11 +67,9 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -159,7 +157,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       } else {
          _account = _mbwManager.getSelectedAccount();
       }
-      isColu = _account instanceof ColuPubOnlyAccount;
+      isColu = _account instanceof PublicColuAccount;
       initNumberEntry(savedInstanceState);
 
       mainCurrencyType = (CryptoCurrency) getIntent().getSerializableExtra(BASIC_CURRENCY);
@@ -403,7 +401,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       String maxBalanceString = "";
       maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtentionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -493,7 +491,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             }
          }
          if(convertedAmount != null) {
-            tvAlternateAmount.setText(ValueExtentionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
          }
       }
    }

@@ -18,13 +18,13 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import java.util.*
 
 
-open class ColuPubOnlyAccount(val context: ColuAccountContext
-                              , private val type: CryptoCurrency
-                              , val networkParameters: NetworkParameters
-                              , val coluClient: ColuApi
-                              , val accountBacking: AccountBacking<ColuTransaction>
-                              , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                              , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
+open class PublicColuAccount(val context: ColuAccountContext
+                             , private val type: CryptoCurrency
+                             , val networkParameters: NetworkParameters
+                             , val coluClient: ColuApi
+                             , val accountBacking: AccountBacking<ColuTransaction>
+                             , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
+                             , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
 
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -203,14 +203,14 @@ open class ColuPubOnlyAccount(val context: ColuAccountContext
 
         for (tx in transactions) {
             tx.inputs.forEach {
-                if (tx.depthInBlocks < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     sending = sending.add(it.value)
                 } else if (isMineAddress(it.address)) {
                     confirmed = confirmed.subtract(it.value)
                 }
             }
             tx.outputs.forEach {
-                if (tx.depthInBlocks < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     receiving = receiving.add(it.value)
                 } else if (isMineAddress(it.address)) {
                     confirmed = confirmed.add(it.value)

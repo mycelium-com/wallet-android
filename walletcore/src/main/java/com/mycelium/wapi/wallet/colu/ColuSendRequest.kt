@@ -23,7 +23,7 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcLegacyAddress, 
     fun setTransaction(tx: Transaction) {
         baseTransaction = tx
         this.tx = ColuTransaction(tx.id, this.type, Value.zeroValue(type)
-                , 0, tx, 0, false
+                , 0, tx, 0, 0, false
                 , listOf(), listOf())
     }
 

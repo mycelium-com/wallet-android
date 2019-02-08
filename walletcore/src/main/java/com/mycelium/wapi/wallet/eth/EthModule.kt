@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -18,7 +19,7 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         assetsList.add(EthMain)
     }
 
-    override fun getId(): String = "ETH"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val map = HashMap<UUID, WalletAccount<*,*>>()
@@ -41,4 +42,15 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         return true
     }
 
+    companion object {
+        @JvmField
+        val ID: String = "ETH"
+    }
 }
+
+/**
+ * Get ethereum accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getEthAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is EthAccount && it.isVisible }

@@ -8,6 +8,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.*
@@ -24,7 +25,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      internal val spvBalanceFetcher: SpvBalanceFetcher,
                                      internal var _wapi: Wapi,
                                      internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
-    override fun getId(): String = "BCHSA"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -95,5 +96,15 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-
+    companion object {
+        @JvmField
+        val ID: String = "BCHSA"
+    }
 }
+
+/**
+ * Get bitcoin single account list
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getBCHSingleAddressAccounts() = getAccounts().filter { it is SingleAddressBCHAccount && it.isVisible }

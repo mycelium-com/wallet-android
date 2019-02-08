@@ -18,7 +18,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
@@ -43,11 +43,9 @@ import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EX
 public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private final MetadataStorage _storage;
    protected Context _context;
-   private final boolean _alwaysShowAddress;
    private DateFormat _dateFormat;
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
-   private Map<Address, String> _addressBook;
    private SharedPreferences transactionFiatValuePref;
    private Set<String> exchangeTransactions;
 
@@ -62,12 +60,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
                                   boolean alwaysShowAddress) {
       super(context, R.layout.transaction_row, transactions);
       _context = context;
-      _alwaysShowAddress = alwaysShowAddress;
       _dateFormat = new AdaptiveDateFormat(context);
       _mbwManager = MbwManager.getInstance(context);
       _containerFragment = containerFragment;
       _storage = _mbwManager.getMetadataStorage();
-      _addressBook = addressBook;
 
       transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
@@ -109,9 +105,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      //Maybe it's wrong
-      
-      tvAmount.setText(ValueExtentionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getBitcoinDenomination()));
+      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getBitcoinDenomination()));
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -137,7 +131,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
-            tvFiat.setText(ValueExtentionsKt.toStringWithUnit(alternativeValue, _mbwManager.getBitcoinDenomination()));
+            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getBitcoinDenomination()));
             tvFiat.setTextColor(color);
          }
       } else {
@@ -145,16 +139,16 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(record.getHash().toHex(), null);
+      String value = transactionFiatValuePref.getString(record.getId().toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
       }
 
       // Show confirmations indicator
-      int confirmations = record.getAppearedAtChainHeight();
+      int confirmations = record.getConfirmations();
       TransactionConfirmationsDisplay tcdConfirmations = rowView.findViewById(R.id.tcdConfirmations);
-      if (record.isQueuedOutgoing()) {//record.isQueuedOutgoing
+      if (record.isQueuedOutgoing()) {
          // Outgoing, not broadcasted
          tcdConfirmations.setNeedsBroadcast();
       } else {
@@ -163,14 +157,14 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(record.getHash());
-      if(exchangeTransactions.contains(record.getHash().toString())) {
+      String label = _storage.getLabelByTransaction(record.getId());
+      if(exchangeTransactions.contains(record.getId().toString())) {
          //label = "Exchange BCH to BTC " + label;
       }
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;
-         if (false) { //record.isQueuedOutgoing
+         if (record.isQueuedOutgoing()) {
             confirmationsText = _context.getResources().getString(R.string.transaction_not_broadcasted_info);
          } else {
             if (confirmations > 6) {
@@ -185,7 +179,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Show risky unconfirmed warning if necessary
-      //Maybe we needn't these block, but warnings seems necessary, I think we should add it
+
       TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
       if (confirmations <= 0) {
          ArrayList<String> warnings = new ArrayList<String>();

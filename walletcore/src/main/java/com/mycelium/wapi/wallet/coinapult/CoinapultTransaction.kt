@@ -16,7 +16,7 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
 
     override fun getType(): GenericAssetInfo = value.getType()
 
-    override fun getHash(): Sha256Hash = _hash
+    override fun getId(): Sha256Hash? = _hash
 
     override fun getHashAsString(): String {
         return _hash.toString()
@@ -26,22 +26,14 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
         return _hash.bytes
     }
 
-    override fun getDepthInBlocks(): Int = 0
+    override fun getHeight(): Int = 0
 
-    override fun setDepthInBlocks(depthInBlocks: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getAppearedAtChainHeight(): Int = if (state == "complete") 7 else 0
-
-    override fun setAppearedAtChainHeight(appearedAtChainHeight: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getConfirmations(): Int = if (state == "complete") 7 else 0
 
     override fun getTimestamp(): Long = time
 
-    override fun setTimestamp(timestamp: Int) {
-        time = timestamp.toLong()
+    override fun setTimestamp(timestamp: Long) {
+        time = timestamp
     }
 
     override fun isQueuedOutgoing(): Boolean = false

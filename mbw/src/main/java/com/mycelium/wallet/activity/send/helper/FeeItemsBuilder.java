@@ -15,10 +15,10 @@ import java.util.List;
 
 /**
  * se have 4 dynamic values from server LOWPRIO, ECO, NORMAL, PRIO
- * FeeItemsBuilder divide values  MIN_NON_ZIRO_FEE_PER_KB..LOWPRIO..ECO..NORMAL..PRIO..1.5*PRIO
+ * FeeItemsBuilder divide values  MIN_NON_ZERO_FEE_PER_KB..LOWPRIO..ECO..NORMAL..PRIO..1.5*PRIO
  * on 8 part,
  * LOWPRIO tab
- * lower part - MIN_NON_ZIRO_FEE_PER_KB..LOWPRIO
+ * lower part - MIN_NON_ZERO_FEE_PER_KB..LOWPRIO
  * upper part - LOWPRIO..(LOWPRIO+ECO)/2
  * ECO tab
  * lower part - (LOWPRIO+ECO)/2..ECO
@@ -31,17 +31,11 @@ import java.util.List;
  * upper part - PRIO..(1.5*PRIO)
  */
 public class FeeItemsBuilder {
-    private static final int MIN_NON_ZIRO_FEE_PER_KB = 1000;
+    private static final int MIN_NON_ZERO_FEE_PER_KB = 1000;
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
-    private FeeEstimationsGeneric feeEstimation;
-
-    public FeeItemsBuilder(FeeEstimationsGeneric feeEstimation) {
-        this.feeEstimation = feeEstimation;
-    }
-
     public List<FeeItem> getFeeItemList(FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
-        long min = MIN_NON_ZIRO_FEE_PER_KB;
+        long min = MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
         long next = 0;

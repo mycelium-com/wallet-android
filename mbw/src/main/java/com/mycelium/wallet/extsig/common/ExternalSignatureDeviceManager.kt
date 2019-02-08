@@ -56,9 +56,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage
@@ -75,7 +72,7 @@ import com.mycelium.wallet.Constants.TAG
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig
+import com.mycelium.wapi.wallet.btc.bip44.*
 import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
 import org.bitcoinj.core.NetworkParameters.ID_MAINNET
 import org.bitcoinj.core.NetworkParameters.ID_TESTNET
@@ -487,10 +484,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                                 uuid: UUID): Boolean {
         val account = walletManager.getAccount(uuid)
         return if (account is HDAccountExternalSignature) {
-            /* TODO - fix upgrading signature account creation.
-            return walletManager.upgradeExtSigAccount(accountRoots, hdAccount);
-            */
-            false
+            // TODO make the module name defined programmatically
+            return (walletManager.getModuleById("BitcoinHD") as BitcoinHDModule).upgradeExtSigAccount(accountRoots, account)
         } else {
             false
         }

@@ -2,9 +2,6 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
-import android.text.Html
-import android.text.Spanned
-import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.MbwManager
@@ -15,7 +12,6 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.squareup.otto.Subscribe
 
@@ -39,17 +35,18 @@ class AddressFragmentModel(
     }
 
     private fun updateAddressPath(showBip44Path: Boolean) {
-        addressPath.value =
-                when (showBip44Path && bip32Path.value != null) {
-                    true -> bip32Path.value.toString()
-                    false -> ""
-                }
+        addressPath.value = if (showBip44Path && bip32Path.value != null) {
+            bip32Path.value.toString()
+        } else {
+            ""
+        }
     }
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         accountLabel.value = when (account) {
-            is Bip44BCHAccount, is SingleAddressBCHAccount ->
+            is Bip44BCHAccount,
+            is SingleAddressBCHAccount ->
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
         }

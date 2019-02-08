@@ -47,7 +47,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +67,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
@@ -79,7 +78,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -93,7 +91,7 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
@@ -101,8 +99,6 @@ import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -111,10 +107,14 @@ import java.util.UUID;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.mycelium.wapi.wallet.manager.Config;
 
-import static com.mycelium.wallet.AccountManagerKt.getBTCSingleAddressAccounts;
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
+import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getBTCSingleAddressAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 public class AddAdvancedAccountActivity extends FragmentActivity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
@@ -332,7 +332,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
             switch (type) {
                case PRIVATE_KEY:
-                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  InMemoryPrivateKey key = getPrivateKey(intent);
                   if (fromClipboard) {
                      Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                   }
@@ -341,10 +341,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   returnAccount(key, MetadataStorage.BackupState.IGNORED, AccountType.Unknown);
                   break;
                case ADDRESS:
-                  returnAccount(StringHandlerActivity.getAddress(intent));
+                  returnAccount(getAddress(intent));
                   break;
                case HD_NODE:
-                  final HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  final HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   if (fromClipboard && hdKeyNode.isPrivateHdKeyNode()) {
                      Utils.clearClipboardString(AddAdvancedAccountActivity.this);
                   }
@@ -352,10 +352,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   break;
                case ASSET_URI:
                   // uri result must be with address, can check request HandleConfigFactory.returnKeyOrAddressOrHdNode
-                  returnAccount(StringHandlerActivity.getAssetUri(intent).getAddress());
+                  returnAccount(getAssetUri(intent).getAddress());
                   break;
                case SHARE:
-                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSss.Share share = getShare(intent);
                   BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                   break;
                default:
@@ -513,7 +513,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
              finishOk(account, false);
          } else if (accountId.isPresent()) {
             final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
-            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof ColuAccount)) {
+            if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof PrivateColuAccount)) {
                // scanned the private key of a watch only single address account
                String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
@@ -533,8 +533,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                                         AesKeyCipher.defaultKeyCipher()));
                              } else {
                                 WalletManager walletManager = _mbwManager.getWalletManager(false);
-                                walletManager.deleteAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
-                                walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId(), AesKeyCipher.defaultKeyCipher());
+                                walletManager.deleteAccount(existingAccount.getId());
+                                walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
                                 walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                              }
 
@@ -679,13 +679,13 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                                Value mtFound, Value massFound, Value rmcFound) {
       List<String> amountStrings = new ArrayList<>();
       if (rmcFound.isPositive()) {
-         amountStrings.add(ValueExtentionsKt.toStringWithUnit(rmcFound));
+         amountStrings.add(ValueExtensionsKt.toStringWithUnit(rmcFound));
       }
       if (mtFound.isPositive()) {
-         amountStrings.add(ValueExtentionsKt.toStringWithUnit(mtFound));
+         amountStrings.add(ValueExtensionsKt.toStringWithUnit(mtFound));
       }
       if (massFound.isPositive()) {
-         amountStrings.add(ValueExtentionsKt.toStringWithUnit(massFound));
+         amountStrings.add(ValueExtensionsKt.toStringWithUnit(massFound));
       }
       String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;

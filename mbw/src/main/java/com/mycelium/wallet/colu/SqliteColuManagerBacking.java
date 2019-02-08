@@ -62,7 +62,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
@@ -627,8 +626,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             for (ColuTransaction transaction: transactions) {
                int index = i * 5;
                updateStatement.bindBlob(index + 1, transaction.getId().getBytes());
-               updateStatement.bindBlob(index + 2, transaction.getHash().getBytes());
-               updateStatement.bindLong(index + 3, transaction.getAppearedAtChainHeight() == -1 ? Integer.MAX_VALUE : transaction.getAppearedAtChainHeight());
+               updateStatement.bindBlob(index + 2, transaction.getId().getBytes());
+               updateStatement.bindLong(index + 3, transaction.getHeight() == -1 ? Integer.MAX_VALUE : transaction.getHeight());
                updateStatement.bindLong(index + 4, transaction.getTime());
 
                byte[] txData = null;

@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.eth.coins.EthMain;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
-    public Sha256Hash getHash() {
+    public Sha256Hash getId() {
         return Sha256Hash.ZERO_HASH;
     }
 
@@ -43,33 +42,18 @@ public class EthTransaction implements GenericTransaction {
     }
 
     @Override
-    public int getDepthInBlocks() {
+    public int getHeight() {
         return 0;
     }
 
     @Override
-    public void setDepthInBlocks(int depthInBlocks) {
-
-    }
-
-    @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return 0;
-    }
-
-    @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-
     }
 
     @Override
     public long getTimestamp() {
         return 0;
-    }
-
-    @Override
-    public void setTimestamp(int timestamp) {
-
     }
 
     @Override
@@ -82,9 +66,8 @@ public class EthTransaction implements GenericTransaction {
         return Optional.absent();
     }
 
-    public void setTimestamp(long timestamp) {
-
-    }
+    @Override
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public Value getFee() {

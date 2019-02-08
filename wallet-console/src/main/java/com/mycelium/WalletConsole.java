@@ -53,7 +53,7 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
@@ -154,7 +154,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null, null);
             walletManager.add(bitcoinHDModule);
 
             // create account
@@ -201,14 +201,14 @@ class WalletConsole {
                     , RMCCoin.INSTANCE, AesKeyCipher.defaultKeyCipher()));
 
             SingleAddressAccount coluSAAccount = null;
-            ColuAccount coluAccount = null;
-            if (walletManager.getAccount(colu.get(0)) instanceof ColuAccount) {
-                coluAccount = (ColuAccount) walletManager.getAccount(colu.get(0));
+            PrivateColuAccount coluAccount = null;
+            if (walletManager.getAccount(colu.get(0)) instanceof PrivateColuAccount) {
+                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(0));
             } else {
                 coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(0));
             }
-            if (walletManager.getAccount(colu.get(1)) instanceof ColuAccount) {
-                coluAccount = (ColuAccount) walletManager.getAccount(colu.get(1));
+            if (walletManager.getAccount(colu.get(1)) instanceof PrivateColuAccount) {
+                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(1));
             } else {
                 coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(1));
             }
@@ -263,7 +263,7 @@ class WalletConsole {
 
     }
 
-    private static void coluParseAndSign(String data, ColuAccount coluAccount, SingleAddressAccount singleAddressAccount) {
+    private static void coluParseAndSign(String data, PrivateColuAccount coluAccount, SingleAddressAccount singleAddressAccount) {
         try {
             byte[] txBytes = Hex.decodeHex(data.toCharArray());
             Transaction transaction = Transaction.fromBytes(txBytes);
@@ -282,7 +282,7 @@ class WalletConsole {
         }
     }
 
-    private static void sendColuWithFundingAccount(ColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
+    private static void sendColuWithFundingAccount(PrivateColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
         SendRequest<ColuTransaction> sendRequest = coluAccount.getSendToRequest(
                 new BtcLegacyAddress(RMCCoin.INSTANCE
                         , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c").getAllAddressBytes())

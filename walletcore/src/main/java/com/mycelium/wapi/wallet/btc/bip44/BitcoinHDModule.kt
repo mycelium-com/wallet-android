@@ -43,7 +43,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
 
-    override fun getId(): String = "BitcoinHD"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -314,26 +314,18 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             // No master seed
             return false
         }
-        if (getNextBip44Index() === 0) {
-            // First account not created
-            return true
-        }
-        // We can add an additional account if the last account had activity
-        val last = accounts.values.last()
-        return last.hasHadActivity()
-    }
 
-    override fun canCreateAccount(config: Config): Boolean {
-        if (!hasBip32MasterSeed()){
-            return false
-        }
         for (account in accounts.values) {
             if (!account.hasHadActivity()) {
                 return false
             }
         }
+        return true
+    }
+
+    override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||
-                config is AdditionalHDAccountConfig ||
+                (config is AdditionalHDAccountConfig && canCreateAdditionalBip44Account()) ||
                 config is ExternalSignaturesAccountConfig
     }
 
@@ -346,4 +338,35 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         return false
     }
 
+    fun upgradeExtSigAccount(accountRoots: List<HdKeyNode>, account: HDAccountExternalSignature): Boolean {
+        return account.upgradeAccount(accountRoots, secureStore)
+    }
+
+    companion object {
+        @JvmField
+        val ID: String = "BitcoinHD"
+    }
 }
+
+/**
+ * Get the active BTC HD-accounts managed by the wallet manager
+ * , excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount && it.isVisible }
+
+/**
+ * Get the active BTC HD-accounts managed by the wallet manager
+ * , excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isActive }
+
+/**
+ * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }

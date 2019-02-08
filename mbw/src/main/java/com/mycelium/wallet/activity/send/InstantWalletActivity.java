@@ -67,6 +67,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
+
 public class InstantWalletActivity extends FragmentActivity {
 
    public static final int REQUEST_SCAN = 0;
@@ -159,7 +165,7 @@ public class InstantWalletActivity extends FragmentActivity {
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
             switch (type) {
                case PRIVATE_KEY: {
-                  InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
+                  InMemoryPrivateKey key = getPrivateKey(intent);
                   UUID account = mbwManager.createOnTheFlyAccount(key);
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,
@@ -167,7 +173,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
                }
                case ADDRESS: {
-                  GenericAddress address = StringHandlerActivity.getAddress(intent);
+                  GenericAddress address = getAddress(intent);
                   UUID account = mbwManager.createOnTheFlyAccount(address);
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,
@@ -175,7 +181,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
                }
                case ASSET_URI: {
-                  GenericAssetUri uri = StringHandlerActivity.getAssetUri(intent);
+                  GenericAssetUri uri = getAssetUri(intent);
                   UUID account = mbwManager.createOnTheFlyAccount(uri.getAddress());
                   //we dont know yet where at what to send
                   SendInitializationActivity.callMeWithResult(this, account, true,
@@ -183,7 +189,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
                }
                case HD_NODE: {
-                  HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(intent);
+                  HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
                   UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
                   tempWalletManager.setActiveAccount(account);
@@ -192,7 +198,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
                }
                case SHARE:
-                  BipSss.Share share = StringHandlerActivity.getShare(intent);
+                  BipSss.Share share = getShare(intent);
                   BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                   break;
             }

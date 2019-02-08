@@ -47,12 +47,11 @@ public class BitcoinMain extends BitcoinBasedCryptoCurrency {
             return null;
         }
 
-        if (address.getNetwork().isTestnet())
+        if (!address.getNetwork().isProdnet())
             throw new AddressMalformedException("Address " + addressString + " is malformed");
 
         return (address.getType() == AddressType.P2WPKH) ?
                 new SegwitAddress(this, (com.mrd.bitlib.model.SegwitAddress) address) :
-                new BtcLegacyAddress(this,
-                        address.getAllAddressBytes());
+                new BtcLegacyAddress(this, address.getAllAddressBytes());
     }
 }

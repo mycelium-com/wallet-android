@@ -51,7 +51,6 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -147,7 +146,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
             setVisibility(VISIBLE);
 
-            tvValue.setText(currentValue != null ? ValueExtentionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
+            tvValue.setText(currentValue != null ? ValueExtensionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
             String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
             tvCurrency.setText(currentCurrency);
         }
@@ -164,7 +163,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
             Value value = currencySwitcher.getAsFiatValue(currentValue);
 
             tvCurrency.setText(currencySwitcher.getCurrentFiatCurrency().getSymbol());
-            tvValue.setText(value != null ? ValueExtentionsKt.toString(value) : null);
+            tvValue.setText(value != null ? ValueExtensionsKt.toString(value) : null);
         }
     }
 

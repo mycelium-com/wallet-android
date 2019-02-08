@@ -32,7 +32,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
     }
 
-    override fun getId(): String = "colored coin module"
+    override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val contexts = backing.loadAccountContexts()
@@ -43,11 +43,11 @@ class ColuModule(val networkParameters: NetworkParameters,
                         ?: context.address
                 val accountKey = getPrivateKey(addresses)
                 val account = if (accountKey == null) {
-                    ColuPubOnlyAccount(context, context.coinType, networkParameters, coluApi
+                    PublicColuAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 } else {
-                    ColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
+                    PrivateColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id), backing
                             , listener)
                 }
@@ -83,7 +83,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val context = ColuAccountContext(id, type, config.privateKey.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuAccount(context, config.privateKey, type, networkParameters
+                result = PrivateColuAccount(context, config.privateKey, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
@@ -95,7 +95,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val context = ColuAccountContext(id, type, config.publicKey, null
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuPubOnlyAccount(context, type, networkParameters
+                result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         } else if (config is AddressColuConfig) {
@@ -105,7 +105,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val context = ColuAccountContext(id, type, null, mapOf(config.address.type to config.address)
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuPubOnlyAccount(context, type, networkParameters
+                result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
@@ -133,12 +133,17 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
-        if (walletAccount is ColuPubOnlyAccount) {
+        if (walletAccount is PublicColuAccount) {
             publicPrivateKeyStore.forgetPrivateKey(walletAccount.receiveAddress.getBytes(), keyCipher)
             backing.deleteAccountContext(walletAccount.id)
             return true
         }
         return false
+    }
+
+    companion object {
+        @JvmField
+        val ID: String = "colored coin module"
     }
 }
 
@@ -149,3 +154,10 @@ fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: Net
     }
     return result
 }
+
+/**
+ * Get active colored coin accounts
+ *
+ * @return list of accounts
+ */
+fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is PublicColuAccount && it.isVisible && it.isActive }

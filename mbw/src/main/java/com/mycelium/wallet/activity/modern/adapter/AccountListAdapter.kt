@@ -39,9 +39,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val layoutInflater: LayoutInflater
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
+    private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out GenericTransaction, out GenericAddress>?
-        get() = mbwManager.getWalletManager(false).getAccount(focusedAccountId!!)
+        get() = walletManager.getAccount(focusedAccountId!!)
 
     init {
         layoutInflater = LayoutInflater.from(context)
@@ -94,15 +95,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         }
         val oldFocusedPosition = findPosition(this.focusedAccountId)
         // If old account was removed we don't want to notify removed element. It would be updated itself.
-        val updateOld = mbwManager.getWalletManager(false).getAccount(this.focusedAccountId!!) != null
+        val updateOld = walletManager.getAccount(this.focusedAccountId!!) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
-        if(focusedAccountId != null && mbwManager.getWalletManager(false).getAccount(focusedAccountId)?.isActive == true) {
-            this.selectedAccountId = focusedAccountId
-            notifyItemChanged(oldSelectedPosition)
-        } else if (focusedAccountId != null
-                && mbwManager.getWalletManager(false).getAccount(focusedAccountId)!!.isActive) {
-            // If archived account selected - selection stays on previous account, while focus moves to archived.
+        if(focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
@@ -175,11 +171,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         focusedAccountId == account.accountId)
                 accountHolder.llAddress.setOnClickListener {
                     setFocusedAccountId(account.accountId)
-                    if (mbwManager.getWalletManager(false).getAccount(account.accountId) != null) {
-                        itemClickListener?.onItemClick(mbwManager.getWalletManager(false).getAccount(account.accountId)!!)
-                    } else {
-                        itemClickListener?.onItemClick(mbwManager.getWalletManager(false).getAccount(account.accountId)!!)
-                    }
+                    walletManager.getAccount(account.accountId)?.run { itemClickListener?.onItemClick(this) }
                 }
             }
             GROUP_TITLE_TYPE -> {

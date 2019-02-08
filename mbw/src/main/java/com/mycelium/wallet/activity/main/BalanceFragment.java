@@ -68,7 +68,7 @@ import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.HandleConfigFactory;
@@ -95,8 +95,8 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -112,6 +112,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static android.app.Activity.RESULT_OK;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getBitIdRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getUri;
 
 public class BalanceFragment extends Fragment {
    public static final String COINMARKETCAP = "Coinmarketcap";
@@ -168,7 +176,7 @@ public class BalanceFragment extends Fragment {
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                  : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
          String item;
-         if (_mbwManager.getSelectedAccount() instanceof ColuPubOnlyAccount) {
+         if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
             item = COINMARKETCAP + "/" + source;
          } else {
             item = source + " (" + price + ")";
@@ -202,14 +210,14 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onStart() {
-       _mbwManager.getEventBus().register(this);
+       MbwManager.getEventBus().register(this);
        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
        if (_exchangeRatePrice == null) {
            _mbwManager.getExchangeRateManager().requestRefresh();
        }
 
        _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-       _tcdFiatDisplay.setEventBus(_mbwManager.getEventBus());
+       _tcdFiatDisplay.setEventBus(MbwManager.getEventBus());
 
        updateUi();
        super.onStart();
@@ -217,7 +225,7 @@ public class BalanceFragment extends Fragment {
 
    @Override
    public void onStop() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onStop();
    }
 
@@ -229,7 +237,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if (account.canSpend()) {
-            if (account instanceof ColuPubOnlyAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof PrivateColuAccount && ((PrivateColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -253,12 +261,8 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
-        //todo: generic address check
-        //Address receivingAddress = Address.fromString(_mbwManager.getSelectedAccount().getReceiveAddress().toString());
-        //if(receivingAddress != null) {
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                     _mbwManager.getSelectedAccount().canSpend(), true);
-        //}
     }
 
     @OnClick(R.id.btScan)
@@ -277,32 +281,26 @@ public class BalanceFragment extends Fragment {
                || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
     }
 
-    @SuppressLint("SetTextI18n")
     private void updateUi() {
-        if (!isAdded()) {
-            return;
-        }
-        if (_mbwManager.getSelectedAccount().isArchived()) {
+        if (!isAdded() || _mbwManager.getSelectedAccount().isArchived()) {
             return;
         }
 
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        _root.findViewById(R.id.pbProgress).setVisibility(account.isSynchronizing() ? View.VISIBLE : View.GONE);
         updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
    }
 
    private void updateUiKnownBalance(Balance balance) {
-
-      CharSequence valueString = ValueExtentionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
-// TODO remove or change isSynchronizing call and uncomment
-//      _root.findViewById(R.id.pbProgress).setVisibility(balance.isSynchronizing ? View.VISIBLE : View.GONE);
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(true);
       _tcdFiatDisplay.setValue(balance.confirmed);
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.isPositive()) {
-         String receivingString = ValueExtentionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -315,7 +313,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.pendingSending.isPositive()) {
-         String sendingString = ValueExtentionsKt.toStringWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -332,11 +330,8 @@ public class BalanceFragment extends Fragment {
 
    private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
       TextView tv = _root.findViewById(textViewResourceId);
-      if (!_mbwManager.hasFiatCurrency()
-            || _exchangeRatePrice == null
-            || (hideOnZeroBalance && value.isZero())
-//            || value.isFiat()
-            ) {
+      if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null
+            || (hideOnZeroBalance && value.isZero())) {
          tv.setVisibility(View.GONE);
       } else {
           try {
@@ -364,26 +359,26 @@ public class BalanceFragment extends Fragment {
                 ResultType type = (ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 switch (type) {
                     case PRIVATE_KEY:
-                        InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(data);
+                        InMemoryPrivateKey key = getPrivateKey(data);
                         UUID account = _mbwManager.createOnTheFlyAccount(key);
                         //we dont know yet where at what to send
                         SendInitializationActivity.callMeWithResult(getActivity(), account, true,
                                 StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         break;
                     case ADDRESS:
-                        GenericAddress address = StringHandlerActivity.getAddress(data);
+                        GenericAddress address = getAddress(data);
                         startActivity(SendMainActivity.getIntent(getActivity()
                                 , _mbwManager.getSelectedAccount().getId(), null, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
-                        GenericAssetUri uri = StringHandlerActivity.getAssetUri(data);
+                        GenericAssetUri uri = getAssetUri(data);
                         startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     }
                     case HD_NODE:
-                        HdKeyNode hdKeyNode = StringHandlerActivity.getHdKeyNode(data);
+                        HdKeyNode hdKeyNode = getHdKeyNode(data);
                         if (hdKeyNode.isPrivateHdKeyNode()) {
                             //its an xPriv, we want to cold-spend from it
                             final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
@@ -399,22 +394,22 @@ public class BalanceFragment extends Fragment {
                         }
                         break;
                     case SHARE:
-                        BipSss.Share share = StringHandlerActivity.getShare(data);
+                        BipSss.Share share = getShare(data);
                         BipSsImportActivity.callMe(getActivity(), share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
                         break;
                     case URI:
                         // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
-                        Uri uri = StringHandlerActivity.getUri(data);
+                        Uri uri = getUri(data);
                         startActivity(HandleUrlActivity.getIntent(getActivity(), uri));
                         break;
                     case POP_REQUEST:
-                        PopRequest popRequest = StringHandlerActivity.getPopRequest(data);
+                        PopRequest popRequest = getPopRequest(data);
                         startActivity(new Intent(getActivity(), PopActivity.class)
                                 .putExtra("popRequest", popRequest)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case BIT_ID_REQUEST:
-                        BitIDSignRequest request = StringHandlerActivity.getBitIdRequest(data);
+                        BitIDSignRequest request = getBitIdRequest(data);
                         BitIDAuthenticationActivity.callMe(getActivity(), request);
                         break;
                 }

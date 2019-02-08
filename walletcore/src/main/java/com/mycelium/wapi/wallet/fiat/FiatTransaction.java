@@ -17,7 +17,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public Sha256Hash getHash() {
+    public Sha256Hash getId() {
         return null;
     }
 
@@ -32,23 +32,13 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public int getDepthInBlocks() {
+    public int getHeight() {
         return 0;
     }
 
     @Override
-    public void setDepthInBlocks(int depthInBlocks) {
-
-    }
-
-    @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return 0;
-    }
-
-    @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-
     }
 
     @Override
@@ -57,9 +47,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
-
-    }
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public boolean isQueuedOutgoing() {
@@ -69,10 +57,6 @@ public class FiatTransaction implements GenericTransaction {
     @Override
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return null;
-    }
-
-    public void setTimestamp(long timestamp) {
-
     }
 
     @Override
