@@ -341,13 +341,14 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency)) {
             return null;
         }
-        if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || _latestRates.get(currency) == null) {
+        QueryExchangeRatesResponse latestRatesForCurrency = _latestRates.get(currency);
+        if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForCurrency == null) {
             //rate is too old or does not exists, source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
             return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
         }
 
-        ExchangeRate[] exchangeRates = _latestRates.get(currency).exchangeRates;
+        ExchangeRate[] exchangeRates = latestRatesForCurrency.exchangeRates;
         if (exchangeRates == null) {
             return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
         }
