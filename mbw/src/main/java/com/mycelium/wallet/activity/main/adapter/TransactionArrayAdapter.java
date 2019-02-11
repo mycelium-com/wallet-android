@@ -108,21 +108,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
-
-      Value recordValue = record.getTransferred().abs();
-      // if the current selected currency is the same as the transactions
-      if (alternativeCurrency.equals(recordValue.type)) {
-         if (!(alternativeCurrency instanceof FiatType)) {
-            // use the current selected fiat currency
-            alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
-         } else {
-            // always show BTC
-            alternativeCurrency = Utils.getBtcCoinType();
-         }
-      }
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
 
       if (alternativeCurrency != null) {
+         Value recordValue = record.getTransferred().abs();
          Value alternativeValue = _mbwManager.getExchangeRateManager().get(recordValue, alternativeCurrency);
 
          if (alternativeValue == null) {
