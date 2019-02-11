@@ -132,20 +132,18 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public Sha256Hash getHash() {
-        // TODO: Find out should we return tx.getHash() or tx.getId().
-        // This is related with latest SEGWIT changes
+    public Sha256Hash getId() {
         return tx.getId();
     }
 
     @Override
     public String getHashAsString() {
-        return getHash().toString();
+        return getId().toString();
     }
 
     @Override
     public byte[] getHashBytes() {
-        return getHash().getBytes();
+        return getId().getBytes();
     }
 
     @Override
@@ -158,7 +156,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BtcTransaction other = (BtcTransaction) o;
-        return getHash().equals(other.getHash());
+        return getId().equals(other.getId());
     }
 
     public Transaction getRawTransaction() {

@@ -13,16 +13,14 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -120,7 +118,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
             alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
          } else {
             // always show BTC
-            alternativeCurrency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+            alternativeCurrency = Utils.getBtcCoinType();
          }
       }
 
@@ -139,7 +137,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(record.getHash().toHex(), null);
+      String value = transactionFiatValuePref.getString(record.getId().toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
@@ -157,8 +155,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(record.getHash());
-      if(exchangeTransactions.contains(record.getHash().toString())) {
+      String label = _storage.getLabelByTransaction(record.getId());
+      if(exchangeTransactions.contains(record.getId().toString())) {
          //label = "Exchange BCH to BTC " + label;
       }
       if (label.length() == 0) {

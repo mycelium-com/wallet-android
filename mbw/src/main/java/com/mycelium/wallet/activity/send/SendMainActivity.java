@@ -1088,7 +1088,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             long fee = _unsigned.calculateFee();
             if (fee != size * getCurrentFeeEstimation() / 1000) {
                 //TODO: use Value class
-                Value value = Value.valueOf(BitcoinMain.get(), fee);
+                Value value = Value.valueOf(_account.getCoinType(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                 String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
@@ -1312,9 +1312,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
-                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getHash(), _transactionLabel);
+                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), _transactionLabel);
             }
-            String hash = signedSendRequest.tx.getHash().toString();
+            String hash = signedSendRequest.tx.getId().toString();
             String fiat = getFiatValue();
             transactionFiatValuePref.edit().putString(hash, fiat).apply();
 

@@ -37,8 +37,8 @@ class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : Ac
                 var i = 0
                 transactions.forEach { transaction ->
                     val index = i * 5
-                    updateStatement.bindBlob(index + 1, transaction.hash.bytes)
-                    updateStatement.bindBlob(index + 2, transaction.hash.bytes)
+                    updateStatement.bindBlob(index + 1, transaction.id!!.bytes)
+                    updateStatement.bindBlob(index + 2, transaction.id!!.bytes)
                     updateStatement.bindLong(index + 3, (if (transaction.height == -1) Integer.MAX_VALUE else transaction.height).toLong())
                     updateStatement.bindLong(index + 4, transaction.time)
 
