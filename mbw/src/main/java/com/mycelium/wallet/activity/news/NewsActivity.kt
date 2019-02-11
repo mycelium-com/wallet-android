@@ -11,9 +11,15 @@ import android.support.design.widget.AppBarLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.AbsoluteLayout
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.news.adapter.MoreNewsAdapter
 import com.mycelium.wallet.activity.news.adapter.SliderAdapter
@@ -23,6 +29,7 @@ import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
+import kotlinx.android.synthetic.main.media_flow_slider.view.*
 
 
 class NewsActivity : AppCompatActivity() {
@@ -54,17 +61,37 @@ class NewsActivity : AppCompatActivity() {
                 .replace("width=\".*?\"", "width=\"100%\"")
                 .replace("width: .*?px", "width: 100%")
                 .replace("height=\".*?\"", "")
-        content.settings.defaultFontSize = 14;
+        content.settings.defaultFontSize = 14
+        content.settings.javaScriptEnabled = true
 
         val html = getString(R.string.media_flow_html_template
                 , resources.toWebViewPx(12f).toString()
                 , resources.toWebViewPx(24f).toString()
                 , resources.toWebViewPx(16f).toString()
-                , resources.toWebViewPx(16f).toString()
                 , resources.toWebViewPx(2f).toString()
                 , resources.toWebViewPx(8f).toString()
-                , contentText)
+                , contentText
+                , resources.toWebViewPx(260f).toString())
         content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
+
+        content.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                parsedContent.images.entries.forEach { entry ->
+                    view?.evaluateJavascript("(function() {return document.getElementById('${entry.key}').offsetTop;})();") {
+                        val top = it.toInt()
+                        val injectView = LayoutInflater.from(this@NewsActivity).inflate(R.layout.media_flow_slider, view, false)
+                        injectView.image_slider.adapter = SliderAdapter(entry.value)
+                        injectView.pager_indicator.setupWithViewPager(injectView.image_slider)
+                        injectView.pager_indicator.visibility = if (entry.value.size > 1) View.VISIBLE else View.GONE
+                        view.addView(injectView, AbsoluteLayout.LayoutParams(AbsoluteLayout.LayoutParams.MATCH_PARENT
+                                , resources.getDimensionPixelSize(R.dimen.media_slider_height)
+                                , 0, resources.fromWebViewPx(top)))
+                    }
+                }
+            }
+        }
+
         tvTitle.text = news.title
         tvDate.text = NewsUtils.getDateAuthorString(this, news)
 
@@ -83,13 +110,10 @@ class NewsActivity : AppCompatActivity() {
                 scrollTop.visibility = View.GONE
             }
         }
-        val images = mutableListOf<String>()
-        images.add(news.getFitImage(resources.displayMetrics.widthPixels))
-        images.addAll(parsedContent.images)
-        val imageAdapter = SliderAdapter(images)
-        image_slider.adapter = imageAdapter
-        pager_indicator.setupWithViewPager(image_slider)
-        pager_indicator.visibility = if (images.size > 1) View.VISIBLE else View.GONE
+        Glide.with(image)
+                .load(news.getFitImage(resources.displayMetrics.widthPixels))
+                .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
+                .into(image)
         moreNewsList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         moreNewsList.isNestedScrollingEnabled = false;
         adapter = MoreNewsAdapter()
@@ -115,9 +139,14 @@ class NewsActivity : AppCompatActivity() {
         }
     }
 
-    private fun Resources.toWebViewPx(dipValue: Float): Float {
+    fun Resources.toWebViewPx(dipValue: Float): Float {
         val metrics = this.displayMetrics
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics) / metrics.density
+    }
+
+    fun Resources.fromWebViewPx(value: Int): Int {
+        val metrics = this.displayMetrics
+        return (value * metrics.density).toInt()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

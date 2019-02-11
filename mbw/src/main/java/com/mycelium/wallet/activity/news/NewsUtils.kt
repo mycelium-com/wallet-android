@@ -25,22 +25,34 @@ object NewsUtils {
                 } else ""
     }
 
-    data class ParsedData(val news: String, val images: List<String>)
+    data class ParsedData(val news: String, val images: Map<String, List<String>>)
 
     fun parseNews(data: String): ParsedData {
-        val resultImage = mutableListOf<String>()
+        val resultImage = mutableMapOf<String, List<String>>()
+        var sliderIndex = 1
         val result = Regex("<div class=\"n2-section-smartslider.*?\".*?>.*?alt=\"Slider\" /></div></div>",
                 RegexOption.DOT_MATCHES_ALL)
                 .replace(data) {
-                    it.groups[0]?.let {
-                        val res = Regex("data-desktop=\"//(.*?)\"").findAll(it.value)
+                    val imageList = mutableListOf<String>()
+                    it.groups[0]?.let { matchGroup ->
+                        val res = Regex("<img .*? src=\"(.*?)\"").findAll(matchGroup.value)
                         res.forEach { matchResult ->
                             matchResult.groups[1]?.let { matchGroup ->
-                                resultImage.add("https://${matchGroup.value}")
+                                var image = matchGroup.value
+                                if (!image.startsWith("data:")) {
+                                    if (image.startsWith("//")) {
+                                        image = "https:$image"
+                                    }
+                                    imageList.add(image)
+                                }
                             }
                         }
                     }
-                    ""
+                    val sliderId = "slider_${sliderIndex++}"
+                    if (imageList.isNotEmpty()) {
+                        resultImage[sliderId] = imageList
+                    }
+                    "<div class=\"slider\" id=\"$sliderId\"></div>"
                 }
         return ParsedData(result, resultImage)
     }

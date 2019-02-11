@@ -22,6 +22,7 @@ import com.mycelium.wallet.external.mediaflow.model.News
 import com.squareup.otto.Bus
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 const val mediaFlowNotificationId = 100000
 const val mediaFlowNotificationGroup = "Media Flow"
@@ -36,10 +37,10 @@ class NewsSyncService : Service() {
         super.onStart(intent, startId)
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null);
+        val updateTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK).format(Date(Date().time - TimeUnit.DAYS.toMillis(1)) )
         NewsUpdate(MbwManager.getEventBus(), lastUpdateTime) {
-            val formattedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK).format(Date())
             preference.edit()
-                    .putString(NewsConstants.UPDATE_TIME, formattedDate)
+                    .putString(NewsConstants.UPDATE_TIME, updateTime)
                     .apply()
             if (it != null && it.isNotEmpty()) {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
@@ -104,7 +105,14 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
         var result: Map<News, NewsDatabase.SqlState>? = null
         try {
             val news = if (after != null && after.isNotEmpty()) {
-                NewsFactory.getService().posts(after).execute().body()?.posts
+                val res = mutableListOf<News>()
+                NewsFactory.getService().posts(after).execute().body()?.posts?.let {
+                    res.addAll(it)
+                }
+                NewsFactory.getService().updatedPosts(after).execute().body()?.posts?.let {
+                    res.addAll(it)
+                }
+                res
             } else {
                 NewsFactory.getService().posts().execute().body()?.posts
             }

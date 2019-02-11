@@ -14,5 +14,8 @@ public interface NewsApiService {
     Call<NewsContainer> posts(@Query("after") String afterDate);
 
     @GET("posts?number=100" + responseFields)
+    Call<NewsContainer> updatedPosts(@Query("modified_after") String updateAfterDate);
+
+    @GET("posts?number=100" + responseFields)
     Call<NewsContainer> posts();
 }

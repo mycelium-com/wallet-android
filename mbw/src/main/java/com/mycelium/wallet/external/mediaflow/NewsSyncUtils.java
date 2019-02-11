@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class NewsSyncUtils {
 
@@ -16,7 +17,8 @@ public class NewsSyncUtils {
         Intent intent = new Intent(context, NewsSyncReceiver.class);
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
 
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis()
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP
+                , Calendar.getInstance().getTimeInMillis() + TimeUnit.SECONDS.toMillis(30)
                 , AlarmManager.INTERVAL_HOUR, alarmIntent);
     }
 }

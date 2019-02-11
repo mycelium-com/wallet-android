@@ -108,11 +108,12 @@
                  a {text-decoration: none; color: #e7e7e7; }
                  p, section { margin-top: %2$s px; margin-left: %3$spx;
                  margin-bottom: %2$s px; margin-right: %3$spx;}
-                 blockquote {margin-left: %4$spx; font-family:Georgia,\'Times New Roman\',serif;
-                 font-style:italic;border:solid #595959;border-width: 0 0 0 %5$spx; color: #e7e7e7; }
+                 blockquote {margin-left: %3$spx; font-family:Georgia,\'Times New Roman\',serif;
+                 font-style:italic;border:solid #595959;border-width: 0 0 0 %4$spx; color: #e7e7e7; }
                  blockquote p{ padding-top: %1$spx; padding-bottom: %1$spx;}
-                 li { margin-bottom: %6$spx;}
+                 li { margin-bottom: %5$spx;}
+                 .slider {height: %7$s}
                 </style>
-        </head><body>%7$s</body></html>]]>
+        </head><body>%6$s</body></html>]]>
     </string>
 </resources>

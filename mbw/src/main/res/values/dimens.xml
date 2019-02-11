@@ -33,5 +33,6 @@
     <dimen name="media_flow_round_corner">8dp</dimen>
     <dimen name="min_height_for_show">200dp</dimen>
     <dimen name="mediaflow_more_image_size">118dp</dimen>
+    <dimen name="media_slider_height">260dp</dimen>
 
 </resources>
