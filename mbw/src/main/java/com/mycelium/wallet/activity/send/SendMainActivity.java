@@ -952,9 +952,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     if (!Value.isNullOrZero(_amountToSend)) {
                         // show the user entered value as primary amount
                         Value primaryAmount = _amountToSend;
-                        Value alternativeAmount = primaryAmount.type.equals(_account.getCoinType())
-                                ? _mbwManager.getExchangeRateManager().get(primaryAmount, _mbwManager.getFiatCurrency())
-                                : _mbwManager.getExchangeRateManager().get(primaryAmount, _account.getCoinType());
+                        Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
+                                primaryAmount.type.equals(_account.getCoinType())
+                                        ? _mbwManager.getFiatCurrency() : _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
                         if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
