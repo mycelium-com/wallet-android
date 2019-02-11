@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.btc.bip44
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.crypto.RandomSource
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
@@ -346,6 +348,100 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         @JvmField
         val ID: String = "BitcoinHD"
     }
+
+    fun getGapsBug(): List<Int> {
+        val mainAccounts = filterAndConvert(MASTER_SEED_ID) as List<*> as List<HDAccount>
+
+        // sort it according to their index
+        Collections.sort(mainAccounts, object : Comparator<HDAccount>() {
+            fun compare(o1: HDAccount, o2: HDAccount): Int {
+                val x = o1.accountIndex
+                val y = o2.accountIndex
+                return if (x < y) -1 else if (x == y) 0 else 1
+            }
+        })
+        val gaps = LinkedList()
+        var lastIndex = 0
+        for (acc in mainAccounts) {
+            while (acc.accountIndex > lastIndex++) {
+                gaps.add(lastIndex - 1)
+            }
+        }
+        return gaps
+    }
+
+
+    @Throws(InvalidKeyCipher::class)
+    fun getGapAddresses(cipher: KeyCipher): List<Address> {
+        val gaps: List<Int> = getGapsBug()
+        // Get the master seed
+        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+        val tempSecureBacking = InMemoryWalletManagerBacking()
+
+        val tempSecureKeyValueStore = SecureKeyValueStore(tempSecureBacking, RandomSource {
+            // randomness not needed for the temporary keystore
+        })
+
+        val addresses: LinkedList<Address> = LinkedList()
+        for (gapIndex in gaps.indices) {
+            for (derivationType: BipDerivationType in BipDerivationType.values()) {
+                // Generate the root private key
+                val root: HdKeyNode = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                val keyManager: HDAccountKeyManager = HDAccountKeyManager.createNew(root, networkParameters, gapIndex!!, tempSecureKeyValueStore, cipher, derivationType)
+                addresses.add(keyManager.getAddress(false, 0)) // get first external address for the account in the gap
+            }
+        }
+
+        return addresses
+    }
+
+    @Throws(InvalidKeyCipher::class)
+    fun createArchivedGapFiller(cipher: KeyCipher, accountIndex: Int?, archived: Boolean): UUID {
+        // Get the master seed
+        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+
+        synchronized(accounts) {
+            backing.beginTransaction()
+            try {
+                // Create the base keys for the account
+                val keyManagerMap = HashMap()
+                for (derivationType in BipDerivationType.values()) {
+                    // Generate the root private key
+                    val root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType)
+                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex!!,
+                            _secureKeyValueStore, cipher, derivationType))
+                }
+
+                val (defaultAddressType, changeAddressModeReference) = currenciesSettingsMap.get(java.util.Currency.BTC)
+// Generate the context for the account
+                val context = HDAccountContext(
+                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex!!, false, defaultAddressType)
+                backing.createBip44AccountContext(context)
+
+                // Get the backing for the new account
+                val accountBacking = getBip44AccountBacking(context.id)
+
+                // Create actual account
+                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                        changeAddressModeReference)
+
+                // Finally persist context and add account
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+                if (archived) {
+                    account.archiveAccount()
+                }
+                val uuidList = getAccountVirtualIds(keyManagerMap, account)
+
+                addAccount(account, uuidList)
+                hdAccounts.add(account)
+                return account.id
+            } finally {
+                _backing.endTransaction()
+            }
+        }
+    }
+
 }
 
 /**
@@ -370,3 +466,5 @@ fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts
  * @return the list of accounts
  */
 fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
+
+
