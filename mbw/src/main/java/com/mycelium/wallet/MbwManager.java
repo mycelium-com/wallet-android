@@ -45,6 +45,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -319,8 +320,7 @@ public class MbwManager {
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
-        changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
+        changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
 
         // Get the display metrics of this device
