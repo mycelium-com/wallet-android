@@ -1088,7 +1088,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             long fee = _unsigned.calculateFee();
             if (fee != size * getCurrentFeeEstimation() / 1000) {
                 //TODO: use Value class
-                Value value = Value.valueOf(BitcoinMain.get(), fee);
+                Value value = Value.valueOf(_account.getCoinType(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                 String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";

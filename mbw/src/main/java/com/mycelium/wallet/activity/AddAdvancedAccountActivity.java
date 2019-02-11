@@ -84,7 +84,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
@@ -459,7 +458,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
           for (AddressType addressType : AddressType.values()) {
               Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
               address = AddressUtils.fromAddress(addr);
-              address = new BtcLegacyAddress(BitcoinMain.get(), address.getBytes());
+              address = new BtcLegacyAddress(Utils.getBtcCoinType(), address.getBytes());
               Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
               if (accountId.isPresent()) {
                   return null;
@@ -482,7 +481,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          Optional accountId = _mbwManager.getAccountId(this.address, null);
          if (askUserForColorize) {
             final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-            adapter.add(BitcoinMain.get());
+            adapter.add(Utils.getBtcCoinType());
             adapter.addAll(ColuUtils.allColuCoins());
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                     .setTitle(R.string.restore_addres_as)
@@ -640,7 +639,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          dialog.dismiss();
           if (askUserForColorize) {
               final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-              adapter.addAll(BitcoinMain.get(), MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+              adapter.addAll(Utils.getBtcCoinType(), MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
               new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                       .setTitle(R.string.restore_addres_as)
                       .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
