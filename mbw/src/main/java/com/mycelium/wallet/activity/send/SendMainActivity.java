@@ -73,7 +73,12 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -114,7 +119,6 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -127,7 +131,6 @@ import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -161,7 +164,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
-import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -590,32 +592,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             return _account.getTypicalEstimatedTransactionSize();
         }
     }
-
-    private WalletAccount getFundAccount() {
-        WalletAccount fundColuAccount = null;
-        List<WalletAccount<?,?>> walletAccountList = _mbwManager.getWalletManager(false).getActiveAccounts();
-        walletAccountList = Utils.sortAccounts(walletAccountList, _mbwManager.getMetadataStorage());
-        for (WalletAccount walletAccount : walletAccountList) {
-            if (canFundColuFrom(walletAccount)) {
-                fundColuAccount = walletAccount;
-                break;
-            }
-        }
-        return fundColuAccount;
-    }
-
-    private boolean canFundColuFrom(WalletAccount walletAccount) {
-        return walletAccount != null && walletAccount.canSpend()
-                && isBtc(walletAccount.getAccountBalance().confirmed.type)
-                && walletAccount.getAccountBalance().getSpendable().value >=
-                /*_mbwManager.getColuManager().getColuTransactionFee(feePerKbValue) +*/ getAmountForColuTxOutputs();
-    }
-
-    private long getAmountForColuTxOutputs() {
-        int coluDustOutputSize = this._mbwManager.getNetwork().isTestnet() ? AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_TESTNET : AbstractBtcAccount.COLU_MAX_DUST_OUTPUT_SIZE_MAINNET;
-        return 2 * coluDustOutputSize + ColuUtils.METADATA_OUTPUT_SIZE;
-    }
-
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted
     private Value getValueToSend() {
@@ -947,35 +923,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     if (!Value.isNullOrZero(_amountToSend)) {
                         // show the user entered value as primary amount
                         Value primaryAmount = _amountToSend;
-                        Value alternativeAmount = null;
-                        if (primaryAmount.getCurrencySymbol().equals(_account.getCoinType().getSymbol())) {
-                            if (primaryAmount.getCurrencySymbol().equals("BTC")
-                                    || ColuUtils.allColuCoins().contains(primaryAmount.type)) {
-                                // if the accounts default currency is BTC and the user entered BTC, use the current
-                                // selected fiat as alternative currency
-//                                alternativeAmount = Value.fromValue(
-//                                        primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
-//                                );
-                                Log.d(TAG_MCS, "line 1257");
-                            } else {
-                                // if the accounts default currency isn't BTC, use BTC as alternative
-//                                alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
-//                                        primaryAmount, _mbwManager.getExchangeRateManager()
-//                                );
-                                Log.d(TAG_MCS, "line 1263");
-                            }
-                        } else {
-                            // use the accounts default currency as alternative
-//                            alternativeAmount = CurrencyValue.fromValue(
-//                                    primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-//                            );
-                            Log.d(TAG_MCS, "line 1270");
-                        }
+                        Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
+                                primaryAmount.type.equals(_account.getCoinType())
+                                        ? _mbwManager.getFiatCurrency() : _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                        if (isColu()) {
-                            // todo colu
-//                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount)
-                        } else if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
+                        if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                             // on a FX rate
                             sendAmount = "~ " + sendAmount;
@@ -1326,11 +1278,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         finish();
     }
 
-    //TODO refactor or get rid of this method
     private String getFiatValue() {
-//        long value = _amountToSend.getAsBitcoin(_mbwManager.getExchangeRateManager()).getLongValue() + _unsigned.calculateFee();
-        long value = 1000;
-        return _mbwManager.getCurrencySwitcher().getFormattedFiatValue(ExactBitcoinValue.from(value), true);
+        return ValueExtensionsKt.toStringWithUnit(_mbwManager.getExchangeRateManager()
+                .get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency()));
     }
 
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
