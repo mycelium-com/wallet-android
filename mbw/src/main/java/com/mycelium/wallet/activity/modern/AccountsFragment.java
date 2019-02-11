@@ -453,8 +453,7 @@ public class AccountsFragment extends Fragment {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    Balance balance = account.getAccountBalance();
-                    return balance.confirmed.add(balance.pendingReceiving).value;
+                    return account.getAccountBalance().getSpendable().value;
                 }
             }
 
