@@ -67,7 +67,7 @@ public class CurrencySwitcher {
 
    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
     private GenericAssetInfo currentCurrency;
-    private GenericAssetInfo defaultCurrency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+    private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<GenericAssetInfo> fiatCurrencies
            , GenericAssetInfo currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {

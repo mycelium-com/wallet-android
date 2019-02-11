@@ -34,12 +34,10 @@
 
 package com.mycelium.wallet.activity.pop;
 
-import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 class PopUtils {
@@ -49,7 +47,7 @@ class PopUtils {
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
       long txSatoshis;
-      CryptoCurrency currency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+      CryptoCurrency currency = Utils.getBtcCoinType();
       if (transaction.getType() == currency) {
          txSatoshis = (transaction.getTransferred().abs()).getValue();
       } else {
