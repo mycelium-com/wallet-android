@@ -545,7 +545,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_mbwManager.getSelectedAccount(), record);
+                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
                                          broadcastDialog.show(getFragmentManager(), "broadcast");
 //                                         boolean success = BroadcastTransactionActivity.create(getActivity(), , );
 //                                         if (!success) {
