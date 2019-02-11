@@ -112,17 +112,25 @@ public class ColdStorageSummaryActivity extends Activity {
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
 
-         final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
-         P2PKH.setVisibility(View.VISIBLE);
-         final TextView P2SH = findViewById(R.id.tvAddressP2SH);
-         P2SH.setVisibility(View.VISIBLE);
-         final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
-         P2WPKH.setVisibility(View.VISIBLE);
-
          AbstractBtcAccount account = (AbstractBtcAccount) _account;
-         P2PKH.setText(account.getReceivingAddress(AddressType.P2PKH).toMultiLineString());
-         P2SH.setText(account.getReceivingAddress(AddressType.P2SH_P2WPKH).toMultiLineString());
-         P2WPKH.setText(account.getReceivingAddress(AddressType.P2WPKH).toMultiLineString());
+         Address p2pkhAddress = account.getReceivingAddress(AddressType.P2PKH);
+         if (p2pkhAddress != null) {
+            final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
+            P2PKH.setVisibility(View.VISIBLE);
+            P2PKH.setText(p2pkhAddress.toMultiLineString());
+         }
+         Address p2shAddress = account.getReceivingAddress(AddressType.P2SH_P2WPKH);
+         if (p2shAddress != null) {
+            final TextView P2SH = findViewById(R.id.tvAddressP2SH);
+            P2SH.setVisibility(View.VISIBLE);
+            P2SH.setText(p2shAddress.toMultiLineString());
+         }
+         Address p2wpkhAddress = account.getReceivingAddress(AddressType.P2WPKH);
+         if (p2wpkhAddress != null) {
+            final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
+            P2WPKH.setVisibility(View.VISIBLE);
+            P2WPKH.setText(p2wpkhAddress.toMultiLineString());
+         }
       }
 
       // BalanceSatoshis

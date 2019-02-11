@@ -425,7 +425,6 @@ public class ModernMain extends AppCompatActivity {
                 }
 
                 _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
                 showRefresh(); // without this call sometime user not see click feedback

@@ -45,6 +45,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -140,8 +141,6 @@ import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
@@ -321,8 +320,7 @@ public class MbwManager {
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(_applicationContext);
-        changeAddressMode = ChangeAddressMode.valueOf(defaultSharedPreferences.getString(Constants.CHANGE_ADDRESS_MODE,
+        changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
 
         // Get the display metrics of this device
@@ -766,7 +764,11 @@ public class MbwManager {
         WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
 
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, environment.getNetwork(), _wapi, currenciesSettingsMap, getMetadataStorage(), null));
+        NetworkParameters networkParameters = environment.getNetwork();
+        PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
+
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, getMetadataStorage()));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage(), null));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -1233,8 +1235,7 @@ public class MbwManager {
 
     public UUID createOnTheFlyAccount(Address address) {
         UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
-                new BtcLegacyAddress(BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get(),
-                        address.getAllAddressBytes()))).get(0);
+                new BtcLegacyAddress(Utils.getBtcCoinType(), address.getAllAddressBytes()))).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;

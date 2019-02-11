@@ -13,16 +13,14 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -110,21 +108,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
-
-      Value recordValue = record.getTransferred().abs();
-      // if the current selected currency is the same as the transactions
-      if (alternativeCurrency.equals(recordValue.type)) {
-         if (!(alternativeCurrency instanceof FiatType)) {
-            // use the current selected fiat currency
-            alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
-         } else {
-            // always show BTC
-            alternativeCurrency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
-         }
-      }
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
 
       if (alternativeCurrency != null) {
+         Value recordValue = record.getTransferred().abs();
          Value alternativeValue = _mbwManager.getExchangeRateManager().get(recordValue, alternativeCurrency);
 
          if (alternativeValue == null) {

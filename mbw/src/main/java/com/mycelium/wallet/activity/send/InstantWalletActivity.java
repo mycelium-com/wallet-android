@@ -74,7 +74,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 
 public class InstantWalletActivity extends FragmentActivity {
-
    public static final int REQUEST_SCAN = 0;
    private static final int REQUEST_TREZOR = 1;
    private static final int IMPORT_WORDLIST = 2;
@@ -136,8 +135,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
    private void handleString(String str) {
       Intent intent = StringHandlerActivity.getIntent(this,
-              HandleConfigFactory.spendFromColdStorage(),
-            str);
+              HandleConfigFactory.spendFromColdStorage(), str);
       startActivityForResult(intent, REQUEST_SCAN);
    }
 
@@ -164,39 +162,25 @@ public class InstantWalletActivity extends FragmentActivity {
             MbwManager mbwManager = MbwManager.getInstance(this);
             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
             switch (type) {
-               case PRIVATE_KEY: {
+               case PRIVATE_KEY:
                   InMemoryPrivateKey key = getPrivateKey(intent);
-                  UUID account = mbwManager.createOnTheFlyAccount(key);
-                  //we dont know yet where at what to send
-                  SendInitializationActivity.callMeWithResult(this, account, true,
-                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  sendWithAccount(mbwManager.createOnTheFlyAccount(key));
                   break;
-               }
-               case ADDRESS: {
+               case ADDRESS:
                   GenericAddress address = getAddress(intent);
-                  UUID account = mbwManager.createOnTheFlyAccount(address);
-                  //we dont know yet where at what to send
-                  SendInitializationActivity.callMeWithResult(this, account, true,
-                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  sendWithAccount(mbwManager.createOnTheFlyAccount(address));
                   break;
-               }
-               case ASSET_URI: {
+               case ASSET_URI:
                   GenericAssetUri uri = getAssetUri(intent);
-                  UUID account = mbwManager.createOnTheFlyAccount(uri.getAddress());
-                  //we dont know yet where at what to send
-                  SendInitializationActivity.callMeWithResult(this, account, true,
-                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  sendWithAccount(mbwManager.createOnTheFlyAccount(uri.getAddress()));
                   break;
-               }
-               case HD_NODE: {
+               case HD_NODE:
                   HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
                   UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
                   tempWalletManager.setActiveAccount(account);
-                  SendInitializationActivity.callMeWithResult(this, account, true,
-                          StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                  sendWithAccount(account);
                   break;
-               }
                case SHARE:
                   BipSss.Share share = getShare(intent);
                   BipSsImportActivity.callMe(this, share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
@@ -219,12 +203,17 @@ public class InstantWalletActivity extends FragmentActivity {
          if (resultCode == RESULT_OK) {
             ArrayList<String> wordList = intent.getStringArrayListExtra(EnterWordListActivity.MASTERSEED);
             String password = intent.getStringExtra(EnterWordListActivity.PASSWORD);
-            InstantMasterseedActivity.callMe(this, wordList.toArray(new String[wordList.size()]), password);
-
+            InstantMasterseedActivity.callMe(this, wordList.toArray(new String[0]), password);
          }
       } else {
          throw new IllegalStateException("unknown return codes after scanning... " + requestCode + " " + resultCode);
       }
+   }
+
+   private void sendWithAccount(UUID account) {
+      //we don't know yet where and what to send
+      SendInitializationActivity.callMeWithResult(this, account, true,
+              StringHandlerActivity.SEND_INITIALIZATION_CODE);
    }
 
    @Override
