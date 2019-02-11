@@ -418,8 +418,6 @@ public class ModernMain extends AppCompatActivity {
                 }
 
                 _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-//            _mbwManager.getColuManager().startSynchronization(syncMode);
-
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
                 showRefresh(); // without this call sometime user not see click feedback
@@ -435,8 +433,6 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-//            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-
                 break;
 
             case R.id.miVerifyMessage:

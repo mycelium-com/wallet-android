@@ -73,7 +73,12 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.BitcoinUriWithAddress;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -126,8 +131,8 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -947,35 +952,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     if (!Value.isNullOrZero(_amountToSend)) {
                         // show the user entered value as primary amount
                         Value primaryAmount = _amountToSend;
-                        Value alternativeAmount = null;
-                        if (primaryAmount.getCurrencySymbol().equals(_account.getCoinType().getSymbol())) {
-                            if (primaryAmount.getCurrencySymbol().equals("BTC")
-                                    || ColuUtils.allColuCoins().contains(primaryAmount.type)) {
-                                // if the accounts default currency is BTC and the user entered BTC, use the current
-                                // selected fiat as alternative currency
-//                                alternativeAmount = Value.fromValue(
-//                                        primaryAmount, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager()
-//                                );
-                                Log.d(TAG_MCS, "line 1257");
-                            } else {
-                                // if the accounts default currency isn't BTC, use BTC as alternative
-//                                alternativeAmount = ExchangeBasedBitcoinValue.fromValue(
-//                                        primaryAmount, _mbwManager.getExchangeRateManager()
-//                                );
-                                Log.d(TAG_MCS, "line 1263");
-                            }
-                        } else {
-                            // use the accounts default currency as alternative
-//                            alternativeAmount = CurrencyValue.fromValue(
-//                                    primaryAmount, _account.getAccountDefaultCurrency(), _mbwManager.getExchangeRateManager()
-//                            );
-                            Log.d(TAG_MCS, "line 1270");
-                        }
+                        Value alternativeAmount = primaryAmount.type.equals(_account.getCoinType())
+                                ? _mbwManager.getExchangeRateManager().get(primaryAmount, _mbwManager.getFiatCurrency())
+                                : _mbwManager.getExchangeRateManager().get(primaryAmount, _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                        if (isColu()) {
-                            // todo colu
-//                           sendAmount = Utils.getColuFormattedValueWithUnit(primaryAmount)
-                        } else if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
+                        if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                             // on a FX rate
                             sendAmount = "~ " + sendAmount;
