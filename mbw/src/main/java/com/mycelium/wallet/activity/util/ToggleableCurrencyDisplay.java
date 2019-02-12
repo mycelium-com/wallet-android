@@ -44,20 +44,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.CurrencySwitcher;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.exchange.ValueSum;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 
 public class ToggleableCurrencyDisplay extends LinearLayout {
-    protected Bus eventBus = null;
     protected CurrencySwitcher currencySwitcher;
 
     protected TextView tvCurrency;
@@ -142,7 +140,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
             if (!currencySwitcher.isFiatExchangeRateAvailable()
                     && currencySwitcher.isFiatCurrency(currencySwitcher.getCurrentCurrency())
                     && !currencySwitcher.isFiatCurrency(currencySwitcher.getDefaultCurrency())) {
-                currencySwitcher.setCurrency(Utils.getBtcCoinType());
+                currencySwitcher.setCurrency(BitcoinMain.get());
             }
 
             setVisibility(VISIBLE);
@@ -168,18 +166,12 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
         }
     }
 
-    public void setEventBus(Bus eventBus) {
-        this.eventBus = eventBus;
-    }
-
     private boolean isAddedToBus = false;
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(eventBus != null) {
-            isAddedToBus = true;
-            eventBus.register(this);
-        }
+        isAddedToBus = true;
+        MbwManager.getEventBus().register(this);
         if(currencySwitcher != null) {
             updateUi();
         }
@@ -188,10 +180,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
         // unregister from the event bus
-        if (eventBus != null && isAddedToBus) {
-            eventBus.unregister(this);
+        if (isAddedToBus) {
+            MbwManager.getEventBus().unregister(this);
             isAddedToBus = false;
         }
     }
