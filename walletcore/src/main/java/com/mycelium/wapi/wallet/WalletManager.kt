@@ -225,7 +225,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun getAssetTypes(): List<GenericAssetInfo> {
-        return accounts.values.flatMap { account -> setOf(account.coinType) }.toList()
+        return accounts.values.flatMap { account -> listOf(account.coinType) }.toSet().toList()
     }
 
     fun parseAddress(address: String): List<GenericAddress> {
