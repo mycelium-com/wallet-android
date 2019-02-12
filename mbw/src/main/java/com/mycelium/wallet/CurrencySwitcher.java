@@ -147,7 +147,7 @@ public class CurrencySwitcher {
    }
 
     public List<GenericAssetInfo> getCurrencyList(List<GenericAssetInfo> additions) {
-        return getCurrencyList(additions.toArray(new GenericAssetInfo[additions.size()]));
+        return getCurrencyList(additions.toArray(new GenericAssetInfo[0]));
     }
 
    public void setCurrencyList(final Set<GenericAssetInfo> fiatCurrencies) {
