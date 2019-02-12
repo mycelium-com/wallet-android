@@ -29,15 +29,11 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
 import com.mycelium.wapi.wallet.btc.BTCSettings
-import com.mrd.bitlib.crypto.BipDerivationType
-import com.mrd.bitlib.model.AddressType
 import javax.annotation.Nonnull
 import kotlin.collections.ArrayList
-import sun.java2d.marlin.MarlinUtils.logInfo
 import com.mycelium.wapi.wallet.WalletManager
-import sun.java2d.marlin.MarlinUtils.logInfo
-
-
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 
 
 
@@ -59,7 +55,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
-    private val _accountEventManager: AccountEventManager? = null
     private val hdAccounts: List<HDAccount> = ArrayList()
     override fun getId(): String = ID
 
@@ -93,7 +88,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                         btcSettings.changeAddressModeReference)
             }
             result[account.id] = account
-            accounts.put(account.id, account as HDAccount)
+            accounts[account.id] = account as HDAccount
         }
         return result
     }
@@ -158,7 +153,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
 
             // check if it already exists
-            var isUpgrade = false
+            val isUpgrade = false
 //            if (_walletAccounts.containsKey(id)) {
 //                isUpgrade = !_walletAccounts.get(id).canSpend() && cfg.hdKeyNodes[0].isPrivateHdKeyNode
 //                if (!isUpgrade) {
@@ -209,8 +204,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             for (derivationType in BipDerivationType.values()) {
                 // Generate the root private key
                 val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
-                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType))
+                keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
+                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
             }
             val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
             val defaultAddressType = btcSettings.defaultAddressType
@@ -279,7 +274,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
         }
 
-        accounts.put(result!!.id, result as HDAccount)
+        accounts[result!!.id] = result as HDAccount
 
         val baseLabel = "Account" + " " + (result.accountIndex + 1)
         result.label = createLabel(baseLabel, result.id)
@@ -366,10 +361,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     }
 
     fun getGapsBug(): List<Int> {
-        val mainAccounts = filterAndConvert(MASTER_SEED_ID) as List<*> as List<HDAccount>
+        val mainAccounts: List<HDAccount> = arrayListOf()
 
         // sort it according to their index
-        Collections.sort(mainAccounts, object : Comparator<HDAccount>() {
+        Collections.sort(mainAccounts, object : Comparator<HDAccount> {
             override fun compare(o1: HDAccount, o2: HDAccount): Int {
                 val x = o1.accountIndex
                 val y = o2.accountIndex
@@ -436,7 +431,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 backing.createBip44AccountContext(context)
 
                 // Get the backing for the new account
-                val accountBacking: Bip44AccountBacking = getBip44AccountBacking(context.id)
+                val accountBacking: Bip44AccountBacking = backing.getBip44AccountBacking(context.id)
 
                 // Create actual account
                 val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, btcSettings.changeAddressModeReference)
@@ -449,7 +444,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 }
                 val uuidList: List<UUID> = getAccountVirtualIds(keyManagerMap, account)
 
-                addAccount(account, uuidList)
                 hdAccounts.plus(account)
                 return account.id
             } finally {
@@ -465,23 +459,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     fun getAccountVirtualIds(keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>, account: HDAccount): List<UUID> {
         val uuidList: MutableList<UUID> = mutableListOf()
         for (addressType in account.availableAddressTypes) {
-            uuidList.add(keyManagerMap[BipDerivationType.getDerivationTypeByAddressType(addressType)].getAccountId())
+            uuidList.add(keyManagerMap.getValue(BipDerivationType.getDerivationTypeByAddressType(addressType)).accountId)
         }
         return uuidList
     }
-
-    /**
-     * @param accountIds - because of mixed mode account might have multiple ids, some of which might be virtual.
-     */
-    private fun addAccount(account: AbstractAccount, accountIds: List<UUID>) {
-        synchronized(accounts) {
-            account.setEventHandler(_accountEventManager)
-            for (id in accountIds) {
-                accounts[id] = account
-            }
-        }
-    }
-
 
 }
 
