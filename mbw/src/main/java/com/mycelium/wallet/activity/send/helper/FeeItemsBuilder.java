@@ -42,11 +42,16 @@ public class FeeItemsBuilder {
         switch (minerFee){
             case LOWPRIO:
                 current = feeEstimation.getLow().value;
+                next = feeEstimation.getEconomy().value;
+                break;
+            case ECONOMIC:
+                current = feeEstimation.getEconomy().value;
+                previous = feeEstimation.getLow().value;
                 next = feeEstimation.getNormal().value;
                 break;
             case NORMAL:
                 current = feeEstimation.getNormal().value;
-                previous = feeEstimation.getLow().value;
+                previous = feeEstimation.getEconomy().value;
                 next = feeEstimation.getHigh().value;
                 break;
             case PRIORITY:

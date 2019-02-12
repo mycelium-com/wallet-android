@@ -544,9 +544,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : fees) {
             int blocks = 0;
-            switch (feeLvl){
+            switch (fee){
                 case LOWPRIO:
                     blocks = 20;
+                    break;
+                case ECONOMIC:
+                    blocks = 10;
                     break;
                 case NORMAL:
                     blocks = 3;
