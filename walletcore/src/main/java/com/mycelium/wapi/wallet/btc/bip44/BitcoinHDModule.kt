@@ -5,6 +5,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
@@ -27,6 +28,20 @@ import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
+import com.mycelium.wapi.wallet.btc.BTCSettings
+import com.mrd.bitlib.crypto.BipDerivationType
+import com.mrd.bitlib.model.AddressType
+import javax.annotation.Nonnull
+import kotlin.collections.ArrayList
+import sun.java2d.marlin.MarlinUtils.logInfo
+import com.mycelium.wapi.wallet.WalletManager
+import sun.java2d.marlin.MarlinUtils.logInfo
+
+
+
+
+
+
 
 
 class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
@@ -44,7 +59,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
-
+    private val _accountEventManager: AccountEventManager? = null
+    private val hdAccounts: List<HDAccount> = ArrayList()
     override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
@@ -354,17 +370,17 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
         // sort it according to their index
         Collections.sort(mainAccounts, object : Comparator<HDAccount>() {
-            fun compare(o1: HDAccount, o2: HDAccount): Int {
+            override fun compare(o1: HDAccount, o2: HDAccount): Int {
                 val x = o1.accountIndex
                 val y = o2.accountIndex
                 return if (x < y) -1 else if (x == y) 0 else 1
             }
         })
-        val gaps = LinkedList()
+        val gaps: List<Int> = LinkedList()
         var lastIndex = 0
         for (acc in mainAccounts) {
             while (acc.accountIndex > lastIndex++) {
-                gaps.add(lastIndex - 1)
+                gaps.plus(lastIndex - 1)
             }
         }
         return gaps
@@ -404,26 +420,26 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             backing.beginTransaction()
             try {
                 // Create the base keys for the account
-                val keyManagerMap = HashMap()
+                val keyManagerMap = mutableMapOf<BipDerivationType, HDAccountKeyManager>()
                 for (derivationType in BipDerivationType.values()) {
                     // Generate the root private key
-                    val root = HdKeyNode.fromSeed(masterSeed.getBip32Seed(), derivationType)
-                    keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex!!,
-                            _secureKeyValueStore, cipher, derivationType))
+                    val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex!!,
+                            secureStore, cipher, derivationType)
                 }
 
-                val (defaultAddressType, changeAddressModeReference) = currenciesSettingsMap.get(java.util.Currency.BTC)
-// Generate the context for the account
+                val btcSettings: BTCSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
+                val defaultAddressType: AddressType = btcSettings.defaultAddressType
+                // Generate the context for the account
                 val context = HDAccountContext(
-                        keyManagerMap.get(BipDerivationType.BIP44).getAccountId(), accountIndex!!, false, defaultAddressType)
+                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex!!, false, defaultAddressType)
                 backing.createBip44AccountContext(context)
 
                 // Get the backing for the new account
-                val accountBacking = getBip44AccountBacking(context.id)
+                val accountBacking: Bip44AccountBacking = getBip44AccountBacking(context.id)
 
                 // Create actual account
-                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        changeAddressModeReference)
+                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, btcSettings.changeAddressModeReference)
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
@@ -431,16 +447,41 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 if (archived) {
                     account.archiveAccount()
                 }
-                val uuidList = getAccountVirtualIds(keyManagerMap, account)
+                val uuidList: List<UUID> = getAccountVirtualIds(keyManagerMap, account)
 
                 addAccount(account, uuidList)
-                hdAccounts.add(account)
+                hdAccounts.plus(account)
                 return account.id
             } finally {
-                _backing.endTransaction()
+                backing.endTransaction()
             }
         }
     }
+
+    /**
+     * This method is intended to get all possible ids for mixed HD account.
+     */
+    @Nonnull
+    fun getAccountVirtualIds(keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>, account: HDAccount): List<UUID> {
+        val uuidList: MutableList<UUID> = mutableListOf()
+        for (addressType in account.availableAddressTypes) {
+            uuidList.add(keyManagerMap[BipDerivationType.getDerivationTypeByAddressType(addressType)].getAccountId())
+        }
+        return uuidList
+    }
+
+    /**
+     * @param accountIds - because of mixed mode account might have multiple ids, some of which might be virtual.
+     */
+    private fun addAccount(account: AbstractAccount, accountIds: List<UUID>) {
+        synchronized(accounts) {
+            account.setEventHandler(_accountEventManager)
+            for (id in accountIds) {
+                accounts[id] = account
+            }
+        }
+    }
+
 
 }
 

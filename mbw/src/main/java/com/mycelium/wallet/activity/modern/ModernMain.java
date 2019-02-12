@@ -88,16 +88,16 @@ import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModule;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.squareup.otto.Subscribe;
 
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -192,9 +192,9 @@ public class ModernMain extends AppCompatActivity {
 
     private void checkGapBug() {
         // TODO - Review and rewrite
-        final Bip44BCHHDModule module = (Bip44BCHHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
-        final List<Integer> gaps = module.getGapsBug();
-        if (!gaps.isEmpty()) {
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
+        final List<Integer> gaps = module != null ? module.getGapsBug() : null;
+        if (!(gaps != null && gaps.isEmpty())) {
             try {
                 final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
                 final String gapsString = Joiner.on(", ").join(gapAddresses);
@@ -215,7 +215,7 @@ public class ModernMain extends AppCompatActivity {
                             }
                         }).show();
                 // Make the textview clickable. Must be called after show()
-                ((TextView) d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                ((TextView) Objects.requireNonNull(d.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 throw new RuntimeException(invalidKeyCipher);
             }
@@ -224,7 +224,7 @@ public class ModernMain extends AppCompatActivity {
 
     private void createPlaceHolderAccounts(List<Integer> gapIndex) {
         // TODO - review and rewrite
-        final Bip44BCHHDModule module = (Bip44BCHHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
         for (Integer index : gapIndex) {
             try {
                 final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
