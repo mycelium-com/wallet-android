@@ -47,7 +47,6 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
@@ -57,6 +56,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -64,7 +64,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -141,7 +141,7 @@ public class PopActivity extends Activity {
    }
 
    private void setText(int viewId, String value) {
-      TextView textView = (TextView) findViewById(viewId);
+      TextView textView = findViewById(viewId);
       textView.setText(value);
    }
 
@@ -168,13 +168,11 @@ public class PopActivity extends Activity {
       // Set amount
       long amountSatoshis = getPaymentAmountSatoshis(transaction);
       String value = _mbwManager.getBtcValueString(amountSatoshis);
-      String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(
-            ExactBitcoinValue.from(amountSatoshis),
-            true
-      );
+      Value btcValue = Utils.getBtcCoinType().value(amountSatoshis);
+      Value fiatValue = _mbwManager.getCurrencySwitcher().getAsFiatValue(btcValue);
       String fiatAppendment = "";
-      if (!Strings.isNullOrEmpty(fiatValue)) {
-         fiatAppendment = " (" + fiatValue + ")";
+      if (fiatValue != null) {
+         fiatAppendment = " (" + ValueExtensionsKt.toStringWithUnit(fiatValue) + ")";
       }
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
@@ -189,7 +187,7 @@ public class PopActivity extends Activity {
          return;
       }
 
-      TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
+      TextView textView = findViewById(R.id.pop_recipient_host);
       textView.setText(url.getHost());
       String protocol = url.getProtocol();
       if ("https".equals(protocol)) {

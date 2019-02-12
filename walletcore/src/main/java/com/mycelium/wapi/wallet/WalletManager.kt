@@ -220,8 +220,12 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
-        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id }
+        val coinTypes = walletModules.values.flatMap { module -> module.getSupportedAssets() }.distinctBy { it -> it.id }
         return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
+    }
+
+    fun getAssetTypes(): List<GenericAssetInfo> {
+        return accounts.values.flatMap { account -> setOf(account.coinType) }.toList()
     }
 
     fun parseAddress(address: String): List<GenericAddress> {

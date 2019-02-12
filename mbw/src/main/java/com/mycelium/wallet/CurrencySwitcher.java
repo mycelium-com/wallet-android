@@ -55,17 +55,18 @@ import java.util.List;
 import java.util.Set;
 
 public class CurrencySwitcher {
-   private final ExchangeRateManager exchangeRateManager;
+    private final ExchangeRateManager exchangeRateManager;
 
-   private List<GenericAssetInfo> fiatCurrencies;
-   private CoinUtil.Denomination bitcoinDenomination;
+    private List<GenericAssetInfo> fiatCurrencies;
+    private List<GenericAssetInfo> walletCurrencies;
+    private CoinUtil.Denomination bitcoinDenomination;
 
-  private CoinUtil.Denomination bitcoinCashDenomination;
+    private CoinUtil.Denomination bitcoinCashDenomination;
 
-   // the last selected/shown fiat currency
-   private GenericAssetInfo currentFiatCurrency;
+    // the last selected/shown fiat currency
+    private GenericAssetInfo currentFiatCurrency;
 
-   // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
+    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
     private GenericAssetInfo currentCurrency;
     private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
 
@@ -145,6 +146,10 @@ public class CurrencySwitcher {
       return result;
    }
 
+    public List<GenericAssetInfo> getCurrencyList(List<GenericAssetInfo> additions) {
+        return getCurrencyList(additions.toArray(new GenericAssetInfo[additions.size()]));
+    }
+
    public void setCurrencyList(final Set<GenericAssetInfo> fiatCurrencies) {
       // convert the set to a list and sort it
       ArrayList<GenericAssetInfo> currencies = Lists.newArrayList(fiatCurrencies);
@@ -177,7 +182,15 @@ public class CurrencySwitcher {
       defaultCurrency = currency;
    }
 
-   public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
+    public List<GenericAssetInfo> getWalletCurrencies() {
+        return walletCurrencies;
+    }
+
+    public void setWalletCurrencies(List<GenericAssetInfo> walletCurrencies) {
+        this.walletCurrencies = walletCurrencies;
+    }
+
+    public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
       List<GenericAssetInfo> currencies = getCurrencyList();
 
       //just to be sure we dont cycle through a single one
@@ -274,70 +287,6 @@ public class CurrencySwitcher {
       return rate != null && rate.price != null;
    }
 
-   public String getFormattedFiatValue(CurrencyValue value, boolean includeCurrencyCode) {
-      if (value == null){
-         return "";
-      }
-
-      CurrencyValue targetCurrency = getAsFiatValue(value);
-
-      if (currentFiatCurrency == null) {
-         return "";
-      }
-
-      if (targetCurrency == null) {
-         //todo
-         return "";
-      } else {
-         if (includeCurrencyCode) {
-            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination());
-         } else {
-            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination());
-         }
-      }
-   }
-
-    public String getFormattedFiatValue(Value value, boolean includeCurrencyCode) {
-        if (value == null){
-            return "";
-        }
-        if (includeCurrencyCode) {
-            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination());
-        } else {
-            return Utils.getFormattedValue(value, getBitcoinDenomination());
-        }
-    }
-
-   public String getFormattedFiatValue(Value value, boolean includeCurrencyCode, int precision) {
-      if (currentFiatCurrency == null) {
-         return "";
-      }
-
-      Value targetCurrency = getAsFiatValue(value);
-
-      if (targetCurrency == null) {
-         return "";
-      } else {
-         if (includeCurrencyCode) {
-            return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
-         } else {
-            return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
-         }
-      }
-   }
-
-   public String getFormattedValue(CurrencyValue currencyValue, boolean includeCurrencyCode) {
-      if (currencyValue == null){
-         return "";
-      }
-      CurrencyValue targetCurrency = getAsValue(currencyValue);
-      if (includeCurrencyCode) {
-         return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination());
-      } else {
-         return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination());
-      }
-   }
-
     public String getFormattedValue(Value value, boolean includeCurrencyCode) {
         if (value == null){
             return "";
@@ -348,18 +297,6 @@ public class CurrencySwitcher {
             return Utils.getFormattedValue(value, getBitcoinDenomination());
         }
     }
-
-   public String getFormattedValue(CurrencyValue currencyValue, boolean includeCurrencyCode, int precision) {
-      if (currencyValue == null){
-         return "";
-      }
-      CurrencyValue targetCurrency = getAsValue(currencyValue);
-      if (includeCurrencyCode) {
-         return Utils.getFormattedValueWithUnit(targetCurrency, getBitcoinDenomination(), precision);
-      } else {
-         return Utils.getFormattedValue(targetCurrency, getBitcoinDenomination(), precision);
-      }
-   }
 
     public String getFormattedValue(Value value, boolean includeCurrencyCode, int precision) {
         if (value == null){
@@ -372,7 +309,6 @@ public class CurrencySwitcher {
         }
     }
 
-
     public Value getAsFiatValue(Value value) {
         if (value == null) {
             return null;
@@ -382,23 +318,6 @@ public class CurrencySwitcher {
         }
         return exchangeRateManager.get(value, getCurrentFiatCurrency());
     }
-
-    public CurrencyValue getAsFiatValue(CurrencyValue value){
-      if (value == null){
-         return null;
-      }
-      if (currentFiatCurrency == null) {
-         return null;
-      }
-      return CurrencyValue.fromValue(value, getCurrentFiatCurrency().getSymbol(), exchangeRateManager);
-   }
-
-   public CurrencyValue getAsValue(CurrencyValue value){
-      if (value == null){
-         return null;
-      }
-      return CurrencyValue.fromValue(value, getCurrentCurrency().getSymbol(), exchangeRateManager);
-   }
 
    /**
     * Get the exchange rate price for the currently selected currency.
