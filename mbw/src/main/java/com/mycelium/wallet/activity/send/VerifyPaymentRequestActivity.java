@@ -136,7 +136,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...
-      Preconditions.checkArgument((assetUri != null && assetUri instanceof WithCallback
+      Preconditions.checkArgument((assetUri instanceof WithCallback
               && !Strings.isNullOrEmpty(((WithCallback) assetUri).getCallbackURL()))
                       || rawPaymentRequest != null
       );
@@ -194,7 +194,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    @OnTouch(R.id.etMerchantMemo)
    public boolean scrollIntoView() {
       etMerchantMemo.requestLayout();
-      VerifyPaymentRequestActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
       return false;
    }
 

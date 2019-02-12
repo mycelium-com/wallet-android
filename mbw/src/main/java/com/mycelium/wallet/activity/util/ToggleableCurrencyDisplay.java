@@ -66,7 +66,6 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
     protected boolean fiatOnly = false;
     protected boolean hideOnNoExchangeRate = false;
-    private int precision = -1;
 
     public ToggleableCurrencyDisplay(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -86,8 +85,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
     }
 
     void parseXML(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.ToggleableCurrencyButton);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ToggleableCurrencyButton);
 
         final int N = a.getIndexCount();
         for (int i = 0; i < N; ++i) {
@@ -104,12 +102,9 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
                     break;
                 case R.styleable.ToggleableCurrencyButton_hideOnNoExchangeRate:
                     hideOnNoExchangeRate = a.getBoolean(attr, false);
-                case R.styleable.ToggleableCurrencyButton_precision:
-                    precision = a.getInteger(attr, -1);
             }
         }
         a.recycle();
-
     }
 
     protected void init(Context context) {
@@ -223,5 +218,4 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
     public void onSelectedCurrencyChange(SelectedCurrencyChanged event) {
         updateUi();
     }
-
 }

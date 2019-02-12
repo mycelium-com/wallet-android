@@ -241,11 +241,8 @@ public class Utils {
    }
 
    public static void toastConnectionError(Context context) {
-      if (isConnected(context)) {
-         Toast.makeText(context, R.string.no_server_connection, Toast.LENGTH_LONG).show();
-      } else {
-         Toast.makeText(context, R.string.no_network_connection, Toast.LENGTH_LONG).show();
-      }
+      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
+      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -280,7 +277,6 @@ public class Utils {
       final Duration duration = p.approximateDuration(date);
       if (mbwManager.getLocale().getLanguage().equals("ru")) {
          Duration duration1 = new Duration(){
-
             @Override
             public long getQuantity() {
                return duration.getQuantity();
@@ -792,10 +788,7 @@ public class Utils {
    }
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
-      if (getLinkedAccount(account, accounts) != null) {
-         return true;
-      }
-      return false;
+      return getLinkedAccount(account, accounts) != null;
    }
 
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {

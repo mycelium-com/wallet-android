@@ -485,7 +485,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         val account = walletManager.getAccount(uuid)
         return if (account is HDAccountExternalSignature) {
             // TODO make the module name defined programmatically
-            return (walletManager.getModuleById("BitcoinHD") as BitcoinHDModule).upgradeExtSigAccount(accountRoots, account)
+            return (walletManager.getModuleById(BitcoinHDModule.ID) as BitcoinHDModule).upgradeExtSigAccount(accountRoots, account)
         } else {
             false
         }

@@ -669,7 +669,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       WalletAccount account = walletManager.getAccount(uuid);
       if (account instanceof HDAccountExternalSignature) {
          // TODO make the module name defined programmatically
-         return ((BitcoinHDModule) walletManager.getModuleById("BitcoinHD")).upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
+         return ((BitcoinHDModule) walletManager.getModuleById(BitcoinHDModule.ID)).upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
       }
       return false;
    }
