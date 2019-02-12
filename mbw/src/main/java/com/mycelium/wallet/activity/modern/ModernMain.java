@@ -42,14 +42,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.net.ServerEndpointType;
@@ -77,7 +84,7 @@ import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
-import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
@@ -418,8 +425,6 @@ public class ModernMain extends AppCompatActivity {
                 }
 
                 _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-//            _mbwManager.getColuManager().startSynchronization(syncMode);
-
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
                 showRefresh(); // without this call sometime user not see click feedback
@@ -435,8 +440,6 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-//            _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-
                 break;
 
             case R.id.miVerifyMessage:

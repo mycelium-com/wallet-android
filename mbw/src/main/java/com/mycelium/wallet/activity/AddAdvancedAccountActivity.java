@@ -62,6 +62,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;

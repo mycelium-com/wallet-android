@@ -123,7 +123,6 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
             actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
         } else {
-            actions.add(new ActionButton(GEB_ACTION, ""));
             actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
             scrollTo = addMyDfs(actions, scrollTo);
             addApex(actions);
