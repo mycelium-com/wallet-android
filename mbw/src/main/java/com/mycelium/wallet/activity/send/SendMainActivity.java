@@ -183,7 +183,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String ACCOUNT = "account";
     private static final String AMOUNT = "amount";
     public static final String IS_COLD_STORAGE = "isColdStorage";
-    public static final String CURRENCY_TYPE = "currencyType";
     public static final String RECEIVING_ADDRESS = "receivingAddress";
     public static final String HD_KEY = "hdKey";
     public static final String TRANSACTION_LABEL = "transactionLabel";
@@ -196,7 +195,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final String RMC_URI = "rmcUri";
     private static final String FEE_PER_KB = "fee_per_kb";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
-    private static final long STALE_WARNING_MS = 2 * 60 * 60 * 1000; // 2 hours
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
@@ -206,8 +204,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     TextView tvAmount;
     @BindView(R.id.tvError)
     TextView tvError;
-    @BindView(R.id.tvStaleWarning)
-    TextView tvStaleWarning;
     @BindView(R.id.tvAmountFiat)
     TextView tvAmountFiat;
     @BindView(R.id.tvAmountTitle)
@@ -287,7 +283,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
     private boolean _spendingUnconfirmed = false;
-    private boolean showStaleWarning = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
@@ -1059,13 +1054,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
-        tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
         tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
     }
 
     @Override
     protected void onResume() {
-        _mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
 
         // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
         if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()) {
@@ -1086,7 +1080,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @Override
     protected void onPause() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         _mbwManager.getVersionManager().closeDialog();
         super.onPause();
     }
@@ -1139,8 +1133,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
                         for (AddressType addressType : AddressType.values()) {
-                            Address address = publicKey.toAddress(_mbwManager.getNetwork(), addressType);
-                            _receivingAddress = AddressUtils.fromAddress(address);   //TODO SegWit fix
+                            receivingAddressesList.add((GenericAddress) publicKey.toAddress(_mbwManager.getNetwork(), addressType));
                         }
                         setUpMultiAddressView();
                         break;
