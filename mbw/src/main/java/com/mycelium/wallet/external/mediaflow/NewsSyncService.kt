@@ -37,7 +37,7 @@ class NewsSyncService : Service() {
         super.onStart(intent, startId)
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null);
-        val updateTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK).format(Date(Date().time - TimeUnit.DAYS.toMillis(1)) )
+        val updateTime = SimpleDateFormat("yyyy-MM-dd", Locale.UK).format(Date())
         NewsUpdate(MbwManager.getEventBus(), lastUpdateTime) {
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, updateTime)
@@ -106,9 +106,6 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
         try {
             val news = if (after != null && after.isNotEmpty()) {
                 val res = mutableListOf<News>()
-                NewsFactory.getService().posts(after).execute().body()?.posts?.let {
-                    res.addAll(it)
-                }
                 NewsFactory.getService().updatedPosts(after).execute().body()?.posts?.let {
                     res.addAll(it)
                 }
