@@ -192,10 +192,11 @@ public class ModernMain extends AppCompatActivity {
 
     private void checkGapBug() {
         // TODO - Review and rewrite
-        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BitcoinHD");
         final List<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (!(gaps != null && gaps.isEmpty())) {
             try {
+                assert module != null;
                 final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
                 final String gapsString = Joiner.on(", ").join(gapAddresses);
 
