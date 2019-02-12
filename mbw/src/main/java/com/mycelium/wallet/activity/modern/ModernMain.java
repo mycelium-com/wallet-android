@@ -198,22 +198,25 @@ public class ModernMain extends AppCompatActivity {
             try {
                 final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
                 final String gapsString = Joiner.on(", ").join(gapAddresses);
+
                 Log.d("Gaps", gapsString);
-                final SpannableString s = new SpannableString(
-                        "Sorry to interrupt you... \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.");
+
+                final SpannableString s = new SpannableString(getResources().getString(R.string.check_gap_bug_spannable_string));
                 Linkify.addLinks(s, Linkify.ALL);
-                final AlertDialog d = new AlertDialog.Builder(this).setTitle("Account Gap").setMessage(s)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                final AlertDialog d = new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.account_gap)).setMessage(s)
+                        .setPositiveButton(getResources().getString(R.string.gaps_button_ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 createPlaceHolderAccounts(gaps);
-                                _mbwManager.reportIgnoredException(new RuntimeException("Address gaps: " + gapsString));
+                                _mbwManager.reportIgnoredException(new RuntimeException(getResources().getString(R.string.address_gaps) + gapsString));
                             }
-                        }).setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                        }).setNegativeButton(getResources().getString(R.string.gaps_button_ignore), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                             }
                         }).show();
+
                 // Make the textview clickable. Must be called after show()
                 ((TextView) Objects.requireNonNull(d.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {

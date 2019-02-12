@@ -425,6 +425,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
                 val btcSettings: BTCSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
                 val defaultAddressType: AddressType = btcSettings.defaultAddressType
+
                 // Generate the context for the account
                 val context = HDAccountContext(
                         keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex!!, false, defaultAddressType)
@@ -442,7 +443,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 if (archived) {
                     account.archiveAccount()
                 }
-                val uuidList: List<UUID> = getAccountVirtualIds(keyManagerMap, account)
 
                 hdAccounts.plus(account)
                 return account.id
