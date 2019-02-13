@@ -175,7 +175,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final int MANUAL_ENTRY_RESULT_CODE = 4;
     private static final int REQUEST_PICK_ACCOUNT = 5;
     protected static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
-    private static final int BROADCAST_REQUEST_CODE = 7;
     private static final int REQUEST_PAYMENT_HANDLER = 8;
     private static final int REQUET_BTC_ACCOUNT = 9;
     public static final String RAW_PAYMENT_REQUEST = "rawPaymentRequest";
@@ -1319,11 +1318,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @Subscribe
     public void paymentRequestAck(PaymentACK paymentACK) {
-        //todo
-//        if (paymentACK != null) {
-//            BroadcastTransactionActivity.callMe(this, _account.getId(), _isColdStorage, _signedTransaction
-//                    , _transactionLabel, getFiatValue(), BROADCAST_REQUEST_CODE);
-//        }
+        if (paymentACK != null) {
+            activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
+        }
     }
 
     @Subscribe
