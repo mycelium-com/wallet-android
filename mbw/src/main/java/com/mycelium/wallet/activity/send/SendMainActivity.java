@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -138,7 +139,6 @@ import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1236,7 +1236,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     @Override
-    public void broadcastResult(@NotNull BroadcastResult broadcastResult) {
+    public void broadcastResult(@NonNull BroadcastResult broadcastResult) {
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
