@@ -90,12 +90,11 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
-            if (item.btc != null) {
-                holder.categoryTextView.setText(CoinUtil.valueString(item.btc.getLongValue(), mBTC, true) + " " + mBTC.getUnicodeName());
-            }
+
             if (item.value != null) {
-                holder.itemTextView.setText("~" + item.value + " " + item.value.getCurrencySymbol());
+                holder.categoryTextView.setText("~" + item.value + " " + item.value.getCurrencySymbol());
             }
+
             holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
 
         } else {

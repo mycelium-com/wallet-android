@@ -1756,8 +1756,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
          Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
          Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
+         Bitcoins economy = oldStyleFeeEstimation.getEstimation(10);
          Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
          FeeEstimationsGeneric result = new FeeEstimationsGeneric(Value.valueOf(getCoinType(), lowPriority.getLongValue()),
+                 Value.valueOf(getCoinType(), economy.getLongValue()),
                  Value.valueOf(getCoinType(), normal.getLongValue()),
                  Value.valueOf(getCoinType(), high.getLongValue()));
          return result;

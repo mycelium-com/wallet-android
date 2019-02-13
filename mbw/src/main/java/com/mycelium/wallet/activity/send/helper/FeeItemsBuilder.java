@@ -8,6 +8,7 @@ import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class FeeItemsBuilder {
     private static final int MIN_NON_ZERO_FEE_PER_KB = 1000;
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
-    public List<FeeItem> getFeeItemList(FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
+    public List<FeeItem> getFeeItemList(GenericAssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
         long min = MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
@@ -42,11 +43,16 @@ public class FeeItemsBuilder {
         switch (minerFee){
             case LOWPRIO:
                 current = feeEstimation.getLow().value;
+                next = feeEstimation.getEconomy().value;
+                break;
+            case ECONOMIC:
+                current = feeEstimation.getEconomy().value;
+                previous = feeEstimation.getLow().value;
                 next = feeEstimation.getNormal().value;
                 break;
             case NORMAL:
                 current = feeEstimation.getNormal().value;
-                previous = feeEstimation.getLow().value;
+                previous = feeEstimation.getEconomy().value;
                 next = feeEstimation.getHigh().value;
                 break;
             case PRIORITY:
@@ -71,21 +77,21 @@ public class FeeItemsBuilder {
         }
 
         List<FeeItem> feeItems = new ArrayList<>();
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
-        addItemsInRange(feeItems, algorithmLower, txSize);
+        feeItems.add(new FeeItem(0, Value.zeroValue(asset), FeeViewAdapter.VIEW_TYPE_PADDING));
+        addItemsInRange(asset, feeItems, algorithmLower, txSize);
         if (minerFee == MinerFee.LOWPRIO) {
             algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition()+1
                     , max, algorithmLower.getMaxPosition() + 4);
-            addItemsInRange(feeItems, algorithmUpper, txSize);
+            addItemsInRange(asset, feeItems, algorithmUpper, txSize);
         }
-        feeItems.add(new FeeItem(0, null, null, FeeViewAdapter.VIEW_TYPE_PADDING));
+        feeItems.add(new FeeItem(0, Value.zeroValue(asset), FeeViewAdapter.VIEW_TYPE_PADDING));
 
         return feeItems;
     }
 
-    private void addItemsInRange(List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
+    private void addItemsInRange(GenericAssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
-            FeeItem currFeeItem = createFeeItem(txSize, algorithm.computeValue(i));
+            FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
             FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
             boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
@@ -104,10 +110,8 @@ public class FeeItemsBuilder {
     }
 
     @NonNull
-    private FeeItem createFeeItem(int txSize, long feePerKb) {
-        ExactBitcoinValue bitcoinValue;
-        bitcoinValue = ExactBitcoinValue.from(txSize * feePerKb / 1000);
-        Value fiatFee = Value.valueOf(BitcoinTest.get(), txSize * feePerKb / 1000);
-        return new FeeItem(feePerKb, bitcoinValue.getAsBitcoin(), fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM);
+    private FeeItem createFeeItem(GenericAssetInfo asset, int txSize, long feePerKb) {
+        Value fee = Value.valueOf(asset, txSize * feePerKb / 1000);
+        return new FeeItem(feePerKb, fee, FeeViewAdapter.VIEW_TYPE_ITEM);
     }
 }
