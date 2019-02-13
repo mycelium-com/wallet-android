@@ -580,9 +580,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 _transactionStatus = tryCreateUnsignedTransaction();
-                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeEstimation, feeLvl, estimateTxSize());
+                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), Value.zeroValue(_account.getCoinType()), FeeViewAdapter.VIEW_TYPE_ITEM));
             }
         });
         feeLvlList.setSelectedItem(selectedIndex);
@@ -800,9 +800,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
 
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeEstimation, feeLvl, estimateTxSize());
+        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), Value.zeroValue(_account.getCoinType()),  FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
