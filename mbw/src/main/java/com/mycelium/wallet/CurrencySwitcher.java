@@ -38,14 +38,13 @@ import com.google.api.client.util.Lists;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.bch.coins.BchCoin;
 import com.mycelium.wapi.wallet.bch.coins.BchMain;
 import com.mycelium.wapi.wallet.bch.coins.BchTest;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.util.ArrayList;
@@ -106,7 +105,6 @@ public class CurrencySwitcher {
    }
 
    public void setCurrency(GenericAssetInfo setToCurrency) {
-      //TODO need no accurate detect is colu currency
       if (isFiatCurrency(setToCurrency)) {
          currentFiatCurrency = setToCurrency;
       }
@@ -129,15 +127,13 @@ public class CurrencySwitcher {
       return currentCurrency;
    }
 
-   public String getCurrentCurrencyIncludingDenomination() {
-      if (currentCurrency.equals(BitcoinMain.get()) || currentCurrency.equals(BitcoinTest.get())) {
-          return bitcoinDenomination.getUnicodeName();
-      }else if(currentCurrency instanceof BchCoin) {
-              return bitcoinDenomination.getUnicodeName().replace(CurrencyValue.BTC, CurrencyValue.BCH);
-      }else {
-          return currentCurrency.getSymbol();
-      }
-   }
+    public String getCurrentCurrencyIncludingDenomination() {
+        if (currentCurrency instanceof FiatType || currentCurrency instanceof Currency) {
+            return currentCurrency.getSymbol();
+        } else {
+            return bitcoinDenomination.getUnicodeString(currentCurrency.getSymbol());
+        }
+    }
 
    public List<GenericAssetInfo> getCurrencyList(GenericAssetInfo ... additions) {
       //make a copy to prevent others from changing our internal list
