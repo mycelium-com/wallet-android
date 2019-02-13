@@ -71,6 +71,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.BitcoinUriWithAddress;
@@ -167,7 +168,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
-    private static final String TAG_MCS = "mulicurrencyslplog";
 
     private static final int GET_AMOUNT_RESULT_CODE = 1;
     private static final int SCAN_RESULT_CODE = 2;
@@ -189,10 +189,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String FEE_LVL = "feeLvl";
     public static final String PAYMENT_FETCHED = "paymentFetched";
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
-    private static final String SIGNED_TRANSACTION = "signedTransaction";
-    private static final String SEND_REQUEST = "sendRequest";
-    private static final String RMC_URI = "rmcUri";
-    private static final String FEE_PER_KB = "fee_per_kb";
+    private static final String SIGNED_SEND_REQUEST = "transactionRequest";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
 
     private enum TransactionStatus {
@@ -382,10 +379,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _receivingAddress = AddressUtils.fromAddress(address);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
+            feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             genericUri = (GenericAssetUri) savedInstanceState.getSerializable(ASSET_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
-            //_signedTransaction = (Transaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
-            //signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
+            signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
 
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
@@ -619,7 +616,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
-        savedInstanceState.putSerializable(SEND_REQUEST, sendRequest);
+        savedInstanceState.putSerializable(SIGNED_SEND_REQUEST, signedSendRequest);
     }
 
     @OnClick(R.id.colu_tips_check_address)
@@ -1204,8 +1201,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             updateUi();
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                //_signedTransaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-                signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+                signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
                         && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
@@ -1215,8 +1211,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
-                        //todo
-                        //_paymentRequestHandler.sendResponse(_signedTransaction, _account.getReceivingAddress().get());
+                        _paymentRequestHandler.sendResponse((Transaction) signedSendRequest.tx, (Address) _account.getReceiveAddress());
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
