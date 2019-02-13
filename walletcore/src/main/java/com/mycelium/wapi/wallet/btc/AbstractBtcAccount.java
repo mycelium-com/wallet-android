@@ -1643,7 +1643,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
+   public SendRequest getSendToRequest(BtcAddress destination, Value amount) {
       return BtcSendRequest.to(destination, amount);
    }
 

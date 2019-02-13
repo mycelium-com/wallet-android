@@ -27,6 +27,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
@@ -35,11 +36,10 @@ import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswe
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -518,15 +518,14 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
-        CurrencyValue currencyBTCValue = null;
+        Value currencyBTCValue = null;
         try {
             currencyBTCValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                    ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
+                    Utils.getBtcCoinType().value(toValue.getText().toString()));
         } catch (IllegalArgumentException ignore) {
         }
-        if (currencyBTCValue != null && currencyBTCValue.getValue() != null
-                && tvErrorTo.getVisibility() != View.VISIBLE) {
-            exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
+        if (currencyBTCValue != null && tvErrorTo.getVisibility() != View.VISIBLE) {
+            exchangeFiatRate.setText(ABOUT + ValueExtensionsKt.toStringWithUnit(currencyBTCValue));
             exchangeFiatRate.setVisibility(View.VISIBLE);
         } else {
             exchangeFiatRate.setVisibility(View.INVISIBLE);

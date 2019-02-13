@@ -13,17 +13,17 @@ import java.io.Serializable;
 public class BtcSendRequest extends SendRequest<BtcTransaction> implements Serializable {
 
     private Value amount;
-    private BtcLegacyAddress destination;
+    private BtcAddress destination;
     private UnsignedTransaction unsignedTx;
 
-    public BtcSendRequest(CryptoCurrency type, BtcLegacyAddress destination, Value amount) {
+    public BtcSendRequest(CryptoCurrency type, BtcAddress destination, Value amount) {
         super(type);
 
         this.destination = destination;
         this.amount = amount;
     }
 
-    public static BtcSendRequest to(BtcLegacyAddress destination, Value amount) {
+    public static BtcSendRequest to(BtcAddress destination, Value amount) {
         BtcSendRequest req = new BtcSendRequest(destination.getCoinType(), destination, amount);
         return req;
     }
@@ -32,7 +32,7 @@ public class BtcSendRequest extends SendRequest<BtcTransaction> implements Seria
         return amount;
     }
 
-    public BtcLegacyAddress getDestination() {
+    public BtcAddress getDestination() {
         return destination;
     }
 

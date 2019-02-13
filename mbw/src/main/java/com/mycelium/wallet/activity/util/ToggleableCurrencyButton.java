@@ -70,7 +70,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       super.updateUi();
 
       final List<GenericAssetInfo> currencies = fiatOnly ? currencySwitcher.getCurrencyList()
-              : currencySwitcher.getCurrencyList(currencySwitcher.getDefaultCurrency());
+              : currencySwitcher.getCurrencyList(currencySwitcher.getWalletCurrencies());
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
