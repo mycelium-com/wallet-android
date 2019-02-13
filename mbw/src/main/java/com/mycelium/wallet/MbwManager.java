@@ -185,6 +185,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MbwManager {
@@ -207,10 +208,11 @@ public class MbwManager {
     private ScheduledFuture<?> pinOkTimeoutHandle;
     private int failedPinCount = 0;
 
-   private volatile boolean showQueuedTransactionsRemovalAlert = true;private final CurrencySwitcher _currencySwitcher;
-   private boolean startUpPinUnlocked = false;
-   private boolean randomizePinPad;
-   private Timer _addressWatchTimer;
+    private volatile boolean showQueuedTransactionsRemovalAlert = true;
+    private final CurrencySwitcher _currencySwitcher;
+    private boolean startUpPinUnlocked = false;
+    private boolean randomizePinPad;
+    private Timer _addressWatchTimer;
 
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
@@ -273,7 +275,7 @@ public class MbwManager {
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
-        _applicationContext = Preconditions.checkNotNull(evilContext.getApplicationContext());
+        _applicationContext = checkNotNull(evilContext.getApplicationContext());
         _environment = MbwEnvironment.verifyEnvironment();
 
         // Preferences
@@ -320,7 +322,7 @@ public class MbwManager {
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
         changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
-                ChangeAddressMode.PRIVACY.name()));
+                            ChangeAddressMode.PRIVACY.name()));
 
         // Get the display metrics of this device
         DisplayMetrics dm = new DisplayMetrics();
@@ -380,8 +382,6 @@ public class MbwManager {
 
         migrateOldKeys();
         createTempWalletManager();
-
-
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
 
         _versionManager.initBackgroundVersionChecker();
@@ -630,9 +630,9 @@ public class MbwManager {
         });
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
-                getTrezorManager(),
-                getKeepKeyManager(),
-                getLedgerManager()
+            getTrezorManager(),
+            getKeepKeyManager(),
+            getLedgerManager()
         );
 
         SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
@@ -677,14 +677,14 @@ public class MbwManager {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, currenciesSettingsMap, getMetadataStorage(),
-                externalSignatureProviderProxy));
+                                              externalSignatureProviderProxy));
 
         SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
 
         SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking, new AndroidRandomSource());
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs);
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
-                , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
+                                         , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -697,7 +697,7 @@ public class MbwManager {
     }
 
     private void addCoinapultModule(Context context, MbwEnvironment environment
-            , WalletManager walletManager, AccountListener accountListener) {
+                                    , WalletManager walletManager, AccountListener accountListener) {
         NetworkParameters networkParameters = environment.getNetwork();
         try {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
@@ -705,8 +705,8 @@ public class MbwManager {
             SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
                     , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
-                    , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
-                    , coinapultBacking, accountListener, getMetadataStorage()));
+                                                  , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
+                                                  , coinapultBacking, accountListener, getMetadataStorage()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
         }
@@ -744,9 +744,9 @@ public class MbwManager {
         }
     }
 
-   public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
-      return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
-   }
+    public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
+        return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
+    }
 
     /**
      * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
@@ -826,7 +826,7 @@ public class MbwManager {
             data.add(currency.getSymbol());
         }
         getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
-   }
+    }
 
     public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
         return _currencySwitcher.getNextCurrency(includeBitcoin);
@@ -942,21 +942,21 @@ public class MbwManager {
         });
     }
 
-   public void savePin(Pin pin) {
-      // if we were not pin protected and get a new pin, remember the blockheight
-      // at which the pin was set - so that we can measure the age of the pin.
-      if (!isPinProtected()) {
-         setPinBlockheight();
-      } else {
-         // if we were pin-protected and now the pin is removed, reset the blockheight
-         if (!pin.isSet()) {
-            getMetadataStorage().clearLastPinSetBlockheight();
-         }
-      }
-      _pin = pin;
-      getEditor().putString(Constants.PIN_SETTING, _pin.getPin())
-      .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").apply();
-   }
+    public void savePin(Pin pin) {
+        // if we were not pin protected and get a new pin, remember the blockheight
+        // at which the pin was set - so that we can measure the age of the pin.
+        if (!isPinProtected()) {
+            setPinBlockheight();
+        } else {
+            // if we were pin-protected and now the pin is removed, reset the blockheight
+            if (!pin.isSet()) {
+                getMetadataStorage().clearLastPinSetBlockheight();
+            }
+        }
+        _pin = pin;
+        getEditor().putString(Constants.PIN_SETTING, _pin.getPin())
+        .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").apply();
+    }
 
     private void setPinBlockheight() {
         int blockHeight = getSelectedAccount().getBlockChainHeight();
@@ -985,27 +985,27 @@ public class MbwManager {
         }
     }
 
-   protected void runPinProtectedFunction(final Activity activity, PinDialog pinDialog, final Runnable fun) {
-      if (isPinProtected()) {
-         failedPinCount = getPreferences().getInt(Constants.FAILED_PIN_COUNT, 0);
-         pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
-            @Override
-            public void pinEntered(final PinDialog pinDialog, Pin pin) {
-               if(failedPinCount > 0) {
-                  long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
-                  try {
-                     Thread.sleep(millis);
-                  } catch (InterruptedException ignored) {
-                     Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
-                     vibrate();
-                     pinDialog.dismiss();
-                     return;
-                  }
-               }
-               if (pin.equals(getPin())) {
-                  failedPinCount = 0;
-                  getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
-                  pinDialog.dismiss();
+    protected void runPinProtectedFunction(final Activity activity, PinDialog pinDialog, final Runnable fun) {
+        if (isPinProtected()) {
+            failedPinCount = getPreferences().getInt(Constants.FAILED_PIN_COUNT, 0);
+            pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
+                @Override
+                public void pinEntered(final PinDialog pinDialog, Pin pin) {
+                    if(failedPinCount > 0) {
+                        long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
+                        try {
+                            Thread.sleep(millis);
+                        } catch (InterruptedException ignored) {
+                            Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
+                            vibrate();
+                            pinDialog.dismiss();
+                            return;
+                        }
+                    }
+                    if (pin.equals(getPin())) {
+                        failedPinCount = 0;
+                        getEditor().putInt(Constants.FAILED_PIN_COUNT, failedPinCount).apply();
+                        pinDialog.dismiss();
 
                         // as soon as you enter the correct pin once, abort the reset-pin-procedure
                         MbwManager.this.getMetadataStorage().clearResetPinStartBlockheight();
@@ -1014,14 +1014,14 @@ public class MbwManager {
                         // like startup-pin request and account-choose-pin request if opened by a bitcoin url
                         pinOkForOneS();
 
-                  fun.run();
-               } else {
-                  getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
-                  if (_pin.isResettable()) {
-                     // Show hint, that this pin is resettable
-                     new AlertDialog.Builder(activity)
-                             .setTitle(R.string.pin_invalid_pin)
-                             .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                        fun.run();
+                    } else {
+                        getEditor().putInt(Constants.FAILED_PIN_COUNT, ++failedPinCount).apply();
+                        if (_pin.isResettable()) {
+                            // Show hint, that this pin is resettable
+                            new AlertDialog.Builder(activity)
+                            .setTitle(R.string.pin_invalid_pin)
+                            .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     pinDialog.dismiss();
@@ -1190,14 +1190,14 @@ public class MbwManager {
         return new Locale(_language);
     }
 
-   public void setLanguage(String _language) {
-      this._language = _language;
-       getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
-   }
+    public void setLanguage(String _language) {
+        this._language = _language;
+        getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
+    }
 
-   public void setTorMode(ServerEndpointType.Types torMode) {
-      this._torMode = torMode;
-       getEditor().putString(Constants.TOR_MODE, torMode.toString()).apply();
+    public void setTorMode(ServerEndpointType.Types torMode) {
+        this._torMode = torMode;
+        getEditor().putString(Constants.TOR_MODE, torMode.toString()).apply();
 
         ServerEndpointType serverEndpointType = ServerEndpointType.fromType(torMode);
         if (serverEndpointType.mightUseTor()) {
@@ -1237,7 +1237,7 @@ public class MbwManager {
 
     public UUID createOnTheFlyAccount(Address address) {
         UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
-                new BtcLegacyAddress(Utils.getBtcCoinType(), address.getAllAddressBytes()))).get(0);
+                             new BtcLegacyAddress(Utils.getBtcCoinType(), address.getAllAddressBytes()))).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
@@ -1264,9 +1264,9 @@ public class MbwManager {
         UUID uuid = getLastSelectedAccountId();
 
         // If nothing is selected, or selected is archived, pick the first one
-       if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
-           return _walletManager.getAccount(uuid);
-       } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
+        if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
+            return _walletManager.getAccount(uuid);
+        } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
             if (_walletManager.getActiveAccounts().isEmpty()) {
                 // That case should never happen, because we prevent users from archiving all of their
                 // accounts.
@@ -1281,18 +1281,19 @@ public class MbwManager {
     }
 
 
-   public Optional<UUID> getAccountId(GenericAddress address, Class accountClass) {
-      Optional<UUID> result = Optional.absent();
-      for (UUID uuid : _walletManager.getAccountIds()) {
-         WalletAccount account = _walletManager.getAccount(uuid);
-         if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
-                 && account.isMineAddress(address)) {
-            result = Optional.of(uuid);
-            break;
-         }
-      }
-      return result;
-   }
+    @SuppressWarnings("unchecked")
+    public Optional<UUID> getAccountId(GenericAddress address, Class accountClass) {
+        Optional<UUID> result = Optional.absent();
+        for (UUID uuid : _walletManager.getAccountIds()) {
+            WalletAccount account = checkNotNull(_walletManager.getAccount(uuid));
+            if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
+                    && account.isMineAddress(address)) {
+                result = Optional.of(uuid);
+                break;
+            }
+        }
+        return result;
+    }
 
     @Nullable
     private UUID getLastSelectedAccountId() {
@@ -1425,10 +1426,11 @@ public class MbwManager {
         return _ltApi;
     }
 
-   @Subscribe
-   public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-       getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
-   }
+    @Subscribe
+    public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
+        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
+    }
+
     @Subscribe
     public void accountCreated(AccountCreated accountCreated) {
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
@@ -1446,11 +1448,11 @@ public class MbwManager {
         this.startUpPinUnlocked = unlocked;
     }
 
-   public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
-       getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
+    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
+        getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
 
-      this._pinRequiredOnStartup = _pinRequiredOnStartup;
-   }
+        this._pinRequiredOnStartup = _pinRequiredOnStartup;
+    }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
         return _semiPersistingBackgroundObjects;
@@ -1475,16 +1477,16 @@ public class MbwManager {
         }, 1000, 5 * 1000);
     }
 
-   private void pinOkForOneS() {
-      if(pinOkTimeoutHandle != null) {
-         pinOkTimeoutHandle.cancel(true);
-      }
-      lastPinAgeOkay.set(true);
-      pinOkTimeoutHandle = scheduler.schedule(new Runnable() {
-         public void run() {
-            lastPinAgeOkay.set(false);
-         }
-      }, 1, SECONDS);
+    private void pinOkForOneS() {
+        if(pinOkTimeoutHandle != null) {
+            pinOkTimeoutHandle.cancel(true);
+        }
+        lastPinAgeOkay.set(true);
+        pinOkTimeoutHandle = scheduler.schedule(new Runnable() {
+            public void run() {
+                lastPinAgeOkay.set(false);
+            }
+        }, 1, SECONDS);
     }
 
     // Derivation constants for mycelium messages' signing key

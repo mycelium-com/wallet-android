@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -124,8 +125,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
@@ -137,14 +136,12 @@ import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -160,15 +157,10 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
-
     private static final int GET_AMOUNT_RESULT_CODE = 1;
     private static final int SCAN_RESULT_CODE = 2;
     private static final int ADDRESS_BOOK_RESULT_CODE = 3;
@@ -291,13 +283,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private DialogFragment activityResultDialog;
 
-    private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {
-        {
-            put(MTCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
-            put(MASSCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
-            put(RMCCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
-        }
-    };
+    private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {{
+        put(MTCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+        put(MASSCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+        put(RMCCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
+    }};
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
         return new Intent(currentActivity, SendMainActivity.class)
@@ -306,11 +296,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     public static Intent getIntent(Activity currentActivity, UUID account,
-                                   Long amountToSend, GenericAddress receivingAddress, boolean isColdStorage) {
+                                   long amountToSend, GenericAddress receivingAddress, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(AMOUNT, Value.valueOf(
-                        BitcoinTest.get(), // todo get valuetype depending on the account
-                        amountToSend != null ? amountToSend : 0))
+                        Utils.getBtcCoinType(), // todo get valuetype depending on the account
+                        amountToSend))
                 .putExtra(RECEIVING_ADDRESS, receivingAddress);
     }
 
@@ -344,7 +334,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO: profile. slow!
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.send_main_activity);
         ButterKnife.bind(this);
@@ -409,7 +399,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             GenericAssetUri uri;
             if (genericUri == null) {
                 uri = BitcoinUri.from(_receivingAddress,
-                        getValueToSend() == null ? null : getValueToSend(), _transactionLabel, null);
+                        getValueToSend(), _transactionLabel, null);
             } else {
                 uri = genericUri;
             }
@@ -431,7 +421,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
-        if (genericUri != null && genericUri instanceof WithCallback
+        if (genericUri instanceof WithCallback
                 && !Strings.isNullOrEmpty(((WithCallback) genericUri).getCallbackURL()) && _paymentRequestHandler == null) {
             verifyPaymentRequest(genericUri);
         }
@@ -442,10 +432,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         // Amount Hint
-
         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                _account.getCoinType() == BitcoinMain.get() || _account.getCoinType() == BitcoinTest.get() ?
-                        _mbwManager.getBitcoinDenomination().toString() : _account.getCoinType().getSymbol()));
+                _account.getCoinType() == Utils.getBtcCoinType()
+                        ? _mbwManager.getBitcoinDenomination().toString()
+                        : _account.getCoinType().getSymbol()));
         tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -456,12 +446,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         initFeeLvlView();
 
         transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
-
     }
 
     private FeeViewAdapter feeViewAdapter;
     private boolean showSendBtn = true;
-
 
     private void setUpMultiAddressView() {
         tvReceiverAddress.setVisibility(View.GONE);
@@ -510,7 +498,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
-                FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
                 updateRecipient();
                 updateAmount();
                 updateFeeText();
@@ -529,10 +516,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void initFeeLvlView() {
         feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeLvlList.setHasFixedSize(true);
-        List<MinerFee> fees = Arrays.asList(MinerFee.values());
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
-        for (MinerFee fee : fees) {
+        for (MinerFee fee : MinerFee.values()) {
             int blocks = 0;
             switch (fee){
                 case LOWPRIO:
@@ -663,7 +649,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
             _receivingAddress = AddressUtils.fromAddress(uri.address);
             if (uri.amount != null && uri.amount >= 0) {
-                _amountToSend = Value.valueOf(BitcoinTest.get(), uri.amount);
+                _amountToSend = Value.valueOf(Utils.getBtcCoinType(), uri.amount);
             }
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
@@ -675,7 +661,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Value presetAmount = _amountToSend;
         if (Value.isNullOrZero(presetAmount)) {
             // if no amount is set so far, use an unknown amount but in the current accounts currency
-            presetAmount = Value.valueOf(BitcoinTest.get(), 0);
+            presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
                 _account.getCoinType(), _isColdStorage, _account.getReceiveAddress());
@@ -741,7 +727,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
                             }
                         });
-
                     }
                 });
     }
@@ -760,7 +745,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .show();
     }
 
-
     private TransactionStatus tryCreateUnsignedTransaction() {
         Value toSend = getValueToSend();
 
@@ -768,8 +752,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (hasAddressData) {
-                this.sendRequest = _account.getSendToRequest(_receivingAddress, toSend);
-                _account.completeTransaction(this.sendRequest);
+                sendRequest = _account.getSendToRequest(_receivingAddress, toSend);
+                _account.completeTransaction(sendRequest);
             } else {
                 return TransactionStatus.MissingArguments;
             }
@@ -880,13 +864,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getAddressLabel(GenericAddress address) {
-        Optional<UUID> accountId = _mbwManager.getAccountId(address, isColu() ? PrivateColuAccount.class : null);
-        if (!accountId.isPresent()) {
+        UUID accountId = _mbwManager.getAccountId(address, isColu() ? PrivateColuAccount.class : null).orNull();
+        if (accountId != null) {
             // We don't have it in our accounts, look in address book, returns empty string by default
             return _mbwManager.getMetadataStorage().getLabelByAddress(address);
         }
         // Get the name of the account
-        return _mbwManager.getMetadataStorage().getLabelByAccount(accountId.get());
+        return _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
     }
 
     private void updateAmount() {
@@ -918,12 +902,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
                                 primaryAmount.type.equals(_account.getCoinType())
-                                        ? _mbwManager.getFiatCurrency() : _account.getCoinType());
+                                        ? _mbwManager.getFiatCurrency()
+                                        : _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
-                        if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
+                        if (!primaryAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
-                            // on a FX rate
-                            sendAmount = "~ " + sendAmount;
+                            // on an FX rate
+                            sendAmount = "~" + sendAmount;
                         }
                         tvAmount.setText(sendAmount);
                         if (Value.isNullOrZero(alternativeAmount)) {
@@ -933,10 +918,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                             String alternativeAmountString =
                                     ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
 
-                            if (!alternativeAmount.getCurrencySymbol().equals("BTC")) {
+                            if (!alternativeAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                                 // on a FX rate
-                                alternativeAmountString = "~ " + alternativeAmountString;
+                                alternativeAmountString = "~" + alternativeAmountString;
                             }
 
                             tvAmountFiat.setText(alternativeAmountString);
@@ -1249,7 +1234,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     @Override
-    public void broadcastResult(BroadcastResult broadcastResult) {
+    public void broadcastResult(@NonNull BroadcastResult broadcastResult) {
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
@@ -1278,7 +1263,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
         _xpubSyncing = true;
         if (!_mbwManager.getWalletManager(true).startSynchronization(_receivingAcc)) {
-            _mbwManager.getEventBus().post(new SyncFailed());
+            MbwManager.getEventBus().post(new SyncFailed());
         }
     }
 

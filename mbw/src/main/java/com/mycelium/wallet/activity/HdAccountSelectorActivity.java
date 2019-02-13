@@ -72,13 +72,9 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected AccountsAdapter accountsAdapter;
    protected AbstractAccountScanManager masterseedScanManager;
 
-
-
-   private ListView lvAccounts;
    protected TextView txtStatus;
 
    protected abstract AbstractAccountScanManager initMasterseedManager();
-
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +82,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
       setView();
 
-      lvAccounts = findViewById(R.id.lvAccounts);
+      ListView lvAccounts = findViewById(R.id.lvAccounts);
       txtStatus = findViewById(R.id.txtStatus);
 
       // Accounts listview + adapter
@@ -138,12 +134,12 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    @Override
    protected void onResume() {
       super.onResume();
-      MbwManager.getInstance(this).getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
    }
 
    @Override
    protected void onPause() {
-      MbwManager.getInstance(this).getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -212,9 +208,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper that = (HdAccountWrapper) o;
 
-         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-
-         return true;
+         return id != null ? id.equals(that.id) : that.id == null;
       }
 
       @Override
@@ -263,12 +257,10 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       }
    }
 
-
    @Subscribe
    public void onScanError(AccountScanManager.OnScanError event){
       Utils.showSimpleMessageDialog(this, event.errorMessage);
    }
-
 
    @Subscribe
    public void onStatusChanged(AccountScanManager.OnStatusChanged event){
@@ -298,7 +290,5 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
       pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
    }
-
 }
-
 

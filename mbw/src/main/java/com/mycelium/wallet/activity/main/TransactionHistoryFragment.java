@@ -199,13 +199,13 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
