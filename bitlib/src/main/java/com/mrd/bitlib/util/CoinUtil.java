@@ -73,12 +73,21 @@ public class CoinUtil {
       }
 
       public String getUnicodeString(String symbol) {
-         if (this == BTC || this == BCH) {
-            return symbol;
-         } else if (this == mBTC || this == mBCH || this == uBTC || this == uBCH) {
-            return this.getUnicodeName().substring(0, 1) + symbol;
+         if (symbol.contains("BTC") || symbol.contains("BCH")) {
+            switch (this) {
+               case BTC:
+               case BCH:
+                  return symbol;
+               case mBTC:
+               case mBCH:
+               case uBTC:
+               case uBCH:
+                  return this.getUnicodeName().substring(0, 1) + symbol;
+               default:
+                  return getUnicodeName();
+            }
          } else {
-            return getUnicodeName();
+            return symbol;
          }
       }
 
