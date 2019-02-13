@@ -736,8 +736,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private String getAccountType(GenericAddress address) {
-      UUID walletId = _mbwManager.getAccountId(address, null).get();
-      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(walletId);
+      UUID accountId = _mbwManager.getAccountId(address, null).get();
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       if (account instanceof HDAccount) {
          return "BTC HD account";
       }
