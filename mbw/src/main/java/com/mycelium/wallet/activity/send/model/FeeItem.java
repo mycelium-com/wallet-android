@@ -10,13 +10,11 @@ import com.mycelium.wapi.wallet.coins.Value;
 public class FeeItem {
 
     public long feePerKb;
-    public Bitcoins btc;
-    public Value value;
+    public Value value; // Fee value in minimal asset's units
     public int type;
 
-    public FeeItem(long feePerKb, Bitcoins btc, Value value, int type) {
+    public FeeItem(long feePerKb, Value value, int type) {
         this.feePerKb = feePerKb;
-        this.btc = btc;
         this.value = value;
         this.type = type;
     }

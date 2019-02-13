@@ -172,7 +172,7 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
 
     @Override
     public FeeEstimationsGeneric getFeeEstimations() {
-        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
+        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
     }
 
     @Override

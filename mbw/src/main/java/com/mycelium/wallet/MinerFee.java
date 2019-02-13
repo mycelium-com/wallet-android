@@ -41,6 +41,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 
 public enum MinerFee {
    LOWPRIO("LOWPRIO", R.string.miner_fee_lowprio_name, R.string.miner_fee_lowprio_desc),
+   ECONOMIC("ECONOMIC", R.string.miner_fee_economic_name, R.string.miner_fee_economic_desc),
    NORMAL("NORMAL", R.string.miner_fee_normal_name, R.string.miner_fee_normal_desc),
    PRIORITY("PRIORITY", R.string.miner_fee_priority_name, R.string.miner_fee_priority_desc);
 

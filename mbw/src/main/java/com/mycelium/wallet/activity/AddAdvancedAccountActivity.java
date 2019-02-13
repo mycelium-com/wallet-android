@@ -80,9 +80,9 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
@@ -90,8 +90,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -112,8 +112,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
-import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getBTCSingleAddressAccounts;
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 public class AddAdvancedAccountActivity extends FragmentActivity implements ImportCoCoHDAccount.FinishListener {
    public static final String BUY_TREZOR_LINK = "https://buytrezor.com?a=mycelium.com";
@@ -720,29 +718,23 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private void finishAlreadyExist(GenericAddress address) {
-      Intent result = new Intent();
-      String accountType;
-      UUID walletId = _mbwManager.getAccountId(address, null).get();
-      if (_mbwManager.getWalletManager(false).getAccount(walletId) instanceof Bip44BCHAccount) {
-         accountType = "BTC HD account";
-      } else {
-         accountType = "BTC Single Address";
-      }
-      for (WalletAccount<?, ?> account : getColuAccounts(_mbwManager.getWalletManager(false))) {
-         if (account.isMineAddress(address)) {
-            accountType = account.getCoinType().getName();
-         }
-      }
-      if (accountType == null) {
-         for (WalletAccount<?, ?> account : getBTCSingleAddressAccounts(_mbwManager.getWalletManager(false))) {
-            if (account.isMineAddress(address)) {
-               accountType = account.getCoinType().getName();
-            }
-         }
-      }
-      result.putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
+      String accountType = getAccountType(address);
+      Intent result = new Intent()
+              .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
       setResult(RESULT_MSG, result);
       finish();
+   }
+
+   private String getAccountType(GenericAddress address) {
+      UUID accountId = _mbwManager.getAccountId(address, null).get();
+      WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
+      if (account instanceof HDAccount) {
+         return "BTC HD account";
+      }
+      if (account instanceof SingleAddressAccount) {
+         return "BTC Single Address";
+      }
+      return account.getCoinType().getName();
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {
