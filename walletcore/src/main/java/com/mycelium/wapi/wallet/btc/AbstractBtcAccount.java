@@ -1803,4 +1803,3 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return result;
    }
 }
-

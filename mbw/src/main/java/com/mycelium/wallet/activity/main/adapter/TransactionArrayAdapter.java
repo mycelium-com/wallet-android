@@ -145,9 +145,6 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getId());
-      if(exchangeTransactions.contains(record.getId().toString())) {
-         //label = "Exchange BCH to BTC " + label;
-      }
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;
@@ -166,8 +163,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Show risky unconfirmed warning if necessary
-
-      TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
+      TextView tvWarnings = rowView.findViewById(R.id.tvUnconfirmedWarning);
       if (confirmations <= 0) {
          ArrayList<String> warnings = new ArrayList<String>();
          if (record.getConfirmationRiskProfile().isPresent()) {
