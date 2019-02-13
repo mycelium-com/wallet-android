@@ -44,8 +44,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -95,6 +93,7 @@ import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.event.BalanceChanged;
 import com.mycelium.wallet.event.EventTranslator;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
@@ -381,6 +380,9 @@ public class MbwManager {
 
         migrateOldKeys();
         createTempWalletManager();
+
+
+        _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
 
         _versionManager.initBackgroundVersionChecker();
         _blockExplorerManager = new BlockExplorerManager(this,
@@ -1427,6 +1429,10 @@ public class MbwManager {
    public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
    }
+    @Subscribe
+    public void accountCreated(AccountCreated accountCreated) {
+        _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+    }
 
     public boolean getPinRequiredOnStartup() {
         return this._pinRequiredOnStartup;

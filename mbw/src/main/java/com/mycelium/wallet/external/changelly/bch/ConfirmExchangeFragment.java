@@ -32,6 +32,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
@@ -41,11 +42,11 @@ import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -223,14 +224,14 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateRate() {
         if (offer != null) {
-            CurrencyValue currencyValueTo = null;
+            Value currencyValueTo = null;
             try {
-                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinValue.from(new BigDecimal(toValue)));
+                Value btcValue = Utils.getBtcCoinType().value(toValue);
+                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(btcValue);
             } catch (NumberFormatException ignore) {
             }
-            if (currencyValueTo != null && currencyValueTo.getValue() != null) {
-                toFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueTo));
+            if (currencyValueTo != null) {
+                toFiat.setText(ABOUT + ValueExtensionsKt.toStringWithUnit(currencyValueTo));
                 toFiat.setVisibility(View.VISIBLE);
             } else {
                 toFiat.setVisibility(View.INVISIBLE);
