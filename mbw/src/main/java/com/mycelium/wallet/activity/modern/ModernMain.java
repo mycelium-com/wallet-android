@@ -228,7 +228,7 @@ public class ModernMain extends AppCompatActivity {
 
     private void createPlaceHolderAccounts(List<Integer> gapIndex) {
         // TODO - review and rewrite
-        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BCHHD");
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BitcoinHD");
         for (Integer index : gapIndex) {
             try {
                 final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,

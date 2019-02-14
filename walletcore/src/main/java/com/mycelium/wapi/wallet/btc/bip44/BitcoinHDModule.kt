@@ -360,22 +360,20 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val ID: String = "BitcoinHD"
     }
 
-    fun getGapsBug(): List<Int> {
-        val mainAccounts: List<HDAccount> = arrayListOf()
+    fun getGapsBug(): MutableList<Int> {
+        val mainAccounts: MutableCollection<HDAccount> = accounts.values
 
-        // sort it according to their index
-        Collections.sort(mainAccounts, object : Comparator<HDAccount> {
-            override fun compare(o1: HDAccount, o2: HDAccount): Int {
-                val x = o1.accountIndex
-                val y = o2.accountIndex
-                return if (x < y) -1 else if (x == y) 0 else 1
-            }
-        })
-        val gaps: List<Int> = LinkedList()
+        mainAccounts.filter { it.isDerivedFromInternalMasterseed }
+
+        fun selector(objAcc: HDAccount): Int = objAcc.accountIndex
+
+        mainAccounts.sortedBy { selector(it) }
+
+        val gaps: MutableList<Int> = mutableListOf()
         var lastIndex = 0
         for (acc in mainAccounts) {
             while (acc.accountIndex > lastIndex++) {
-                gaps.plus(lastIndex - 1)
+                gaps.add(lastIndex - 1)
             }
         }
         return gaps
@@ -384,7 +382,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
     @Throws(InvalidKeyCipher::class)
     fun getGapAddresses(cipher: KeyCipher): List<Address> {
-        val gaps: List<Int> = getGapsBug()
+        val gaps: MutableList<Int> = getGapsBug()
         // Get the master seed
         val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
         val tempSecureBacking = InMemoryWalletManagerBacking()
@@ -393,7 +391,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             // randomness not needed for the temporary keystore
         })
 
-        val addresses: LinkedList<Address> = LinkedList()
+        val addresses: MutableList<Address> = mutableListOf()
         for (gapIndex in gaps.indices) {
             for (derivationType: BipDerivationType in BipDerivationType.values()) {
                 // Generate the root private key
