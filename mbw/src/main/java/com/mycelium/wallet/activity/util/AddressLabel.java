@@ -88,8 +88,6 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          String baseUrl;
          if (networkParameters.isProdnet()) {
             baseUrl = "http://coloredcoins.org/explorer/";
-         } else if (networkParameters.isTestnet()) {
-            baseUrl = "http://coloredcoins.org/explorer/testnet/";
          } else {
             baseUrl = "http://coloredcoins.org/explorer/testnet/";
          }

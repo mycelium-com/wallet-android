@@ -216,7 +216,6 @@ public class BalanceFragment extends Fragment {
        }
 
        _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-       _tcdFiatDisplay.setEventBus(MbwManager.getEventBus());
 
        updateUi();
        super.onStart();
@@ -367,7 +366,7 @@ public class BalanceFragment extends Fragment {
                     case ADDRESS:
                         GenericAddress address = getAddress(data);
                         startActivity(SendMainActivity.getIntent(getActivity()
-                                , _mbwManager.getSelectedAccount().getId(), null, address, false)
+                                , _mbwManager.getSelectedAccount().getId(), 0, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
