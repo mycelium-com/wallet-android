@@ -190,7 +190,7 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void checkGapBug() {
-        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BitcoinHD");
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
         final List<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (!(gaps != null && gaps.isEmpty())) {
             try {
@@ -225,7 +225,7 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void createPlaceHolderAccounts(List<Integer> gapIndex) {
-        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BitcoinHD");
+        final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
         for (Integer index : gapIndex) {
             try {
                 final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
