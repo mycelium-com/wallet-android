@@ -407,55 +407,55 @@ public class ModernMain extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         final int itemId = item.getItemId();
         switch (itemId) {
-        case R.id.miColdStorage:
-            InstantWalletActivity.callMe(this);
-            return true;
-        case R.id.miSettings: {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, REQUEST_SETTING_CHANGED);
-            return true;
-        }
-        case R.id.miBackup:
-            Utils.pinProtectedWordlistBackup(this);
-            return true;
-        // with wordlists, we just need to backup and verify in one step
-        // } else if (itemId == R.id.miVerifyBackup) {
-        // VerifyBackupActivity.callMe(this);
-        // return true;
-        case R.id.miRefresh:
-            // default only sync the current account
-            SyncMode syncMode = SyncMode.NORMAL_FORCED;
-            // every 5th manual refresh make a full scan
-            if (counter == 4) {
-                syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
-                counter = 0;
-            } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
-                // if we are in the accounts tab, sync all accounts if the users forces a sync
-                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
-                counter++;
+            case R.id.miColdStorage:
+                InstantWalletActivity.callMe(this);
+                return true;
+            case R.id.miSettings: {
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, REQUEST_SETTING_CHANGED);
+                return true;
             }
-            _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-            // also fetch a new exchange rate, if necessary
-            _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-            showRefresh(); // without this call sometime user not see click feedback
-            return true;
-        case R.id.miHelp:
-            openMyceliumHelp();
-            break;
-        case R.id.miAbout: {
-            Intent intent = new Intent(this, AboutActivity.class);
-            startActivity(intent);
-            break;
-        }
-        case R.id.miRescanTransactions:
-            _mbwManager.getSelectedAccount().dropCachedData();
-            _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-            break;
+            case R.id.miBackup:
+                Utils.pinProtectedWordlistBackup(this);
+                return true;
+            // with wordlists, we just need to backup and verify in one step
+            // } else if (itemId == R.id.miVerifyBackup) {
+            // VerifyBackupActivity.callMe(this);
+            // return true;
+            case R.id.miRefresh:
+                // default only sync the current account
+                SyncMode syncMode = SyncMode.NORMAL_FORCED;
+                // every 5th manual refresh make a full scan
+                if (counter == 4) {
+                    syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
+                    counter = 0;
+                } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
+                    // if we are in the accounts tab, sync all accounts if the users forces a sync
+                    syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
+                    counter++;
+                }
+                _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+                // also fetch a new exchange rate, if necessary
+                _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+                showRefresh(); // without this call sometime user not see click feedback
+                return true;
+            case R.id.miHelp:
+                openMyceliumHelp();
+                break;
+            case R.id.miAbout: {
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.miRescanTransactions:
+                _mbwManager.getSelectedAccount().dropCachedData();
+                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+                break;
 
-        case R.id.miVerifyMessage:
-            startActivity(new Intent(this, MessageVerifyActivity.class));
-            break;
-        }
+            case R.id.miVerifyMessage:
+                startActivity(new Intent(this, MessageVerifyActivity.class));
+                break;
+            }
         return super.onOptionsItemSelected(item);
     }
 
