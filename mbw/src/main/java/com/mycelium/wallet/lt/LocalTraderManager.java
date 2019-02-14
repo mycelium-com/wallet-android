@@ -271,7 +271,7 @@ public class LocalTraderManager {
          try {
             // Get new session
             session = api.createSession(LtApi.VERSION, mbwManager.getLanguage(),
-                  mbwManager.getBitcoinDenomination().getAsciiName()).getResult();
+                  mbwManager.getDenomination().getAsciiName()).getResult();
             isLoggedIn = false;
             return true;
          } catch (LtApiException e) {

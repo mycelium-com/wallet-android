@@ -15,7 +15,6 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -23,7 +22,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -103,7 +101,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getBitcoinDenomination()));
+      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getDenomination()));
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -118,7 +116,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
-            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getBitcoinDenomination()));
+            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getDenomination()));
             tvFiat.setTextColor(color);
          }
       } else {

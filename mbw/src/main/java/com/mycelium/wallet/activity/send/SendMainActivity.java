@@ -124,7 +124,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
@@ -443,8 +442,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Amount Hint
 
         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                _account.getCoinType() == BitcoinMain.get() || _account.getCoinType() == BitcoinTest.get() ?
-                        _mbwManager.getBitcoinDenomination().toString() : _account.getCoinType().getSymbol()));
+                _mbwManager.getDenomination().getUnicodeString(_account.getCoinType().getSymbol())));
         tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -900,7 +898,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             switch (_transactionStatus) {
                 case OutputTooSmall:
                     // Amount too small
-                    tvAmount.setText(_mbwManager.getBtcValueString(getValueToSend().value));
+                    tvAmount.setText(ValueExtensionsKt.toStringWithUnit(getValueToSend(), _mbwManager.getDenomination()));
                     tvAmountFiat.setVisibility(GONE);
                     break;
                 case InsufficientFunds:
@@ -918,7 +916,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
                                 primaryAmount.type.equals(_account.getCoinType())
                                         ? _mbwManager.getFiatCurrency() : _account.getCoinType());
-                        String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                        String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getDenomination());
                         if (!primaryAmount.getCurrencySymbol().equals("BTC")) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                             // on a FX rate
@@ -930,7 +928,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         } else {
                             // show the alternative amount
                             String alternativeAmountString =
-                                    ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+                                    ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getDenomination());
 
                             if (!alternativeAmount.getCurrencySymbol().equals("BTC")) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
@@ -1034,10 +1032,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 //TODO: use Value class
                 Value value = Value.valueOf(_account.getCoinType(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
+                String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
                 feeWarning = getString(R.string.fee_change_warning
-                        , Utils.getFormattedValueWithUnit(value, _mbwManager.getBitcoinDenomination())
+                        , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
                         , fiat);
                 tvFeeWarning.setOnClickListener(new View.OnClickListener() {
                     @Override

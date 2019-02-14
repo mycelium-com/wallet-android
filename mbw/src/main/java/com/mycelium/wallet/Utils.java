@@ -467,27 +467,6 @@ public class Utils {
       return FIAT_FORMAT.format(converted);
    }
 
-   private static SparseArray<DecimalFormat> formatCache = new SparseArray<>(2);
-
-   public static String formatFiatValueAsString(BigDecimal fiat) {
-      return FIAT_FORMAT.format(fiat);
-   }
-
-   public static String formatFiatWithUnit(CurrencyValue fiat, int fractionDigit) {
-      DecimalFormat decimalFormat = (DecimalFormat) FIAT_FORMAT.clone();
-      decimalFormat.setMaximumFractionDigits(fractionDigit);
-      return decimalFormat.format(fiat.getValue()) + " " + fiat.getCurrency();
-   }
-
-   public static String formatFiatWithUnit(CurrencyValue fiat) {
-      try {
-         return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
-      } catch (Exception e) {
-         Log.e(TAG, e.getMessage());
-         return "???";
-      }
-   }
-
    public static void setClipboardString(String string, Context context) {
       try {
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -998,83 +977,6 @@ public class Utils {
       return format.format(date);
    }
 
-   // todo delete and use method below
-   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      if (value.isBtc() || value.isBch()) {
-         return CoinUtil.valueString(val, denomination, false);
-      } else {
-
-         return FIAT_FORMAT.format(val);
-      }
-   }
-
-   public static String getFormattedValue(Value value, CoinUtil.Denomination denomination) {
-      if (value == null) {
-         return "";
-      }
-
-      long val = value.value;
-      // todo
-      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
-         return CoinUtil.valueString(val, denomination, false);
-      } else {
-         return FIAT_FORMAT.format(val);
-      }
-   }
-
-   public static String getFormattedValue(Value value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      long val = value.value;
-      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
-         return CoinUtil.valueString(
-                 ((BitcoinValue) value).getLongValue(),
-                 denomination, precision
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return formatCache.get(precision).format(val);
-      }
-   }
-
-   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      if (value.isBtc()) {
-         return CoinUtil.valueString(
-               ((BitcoinValue) value).getLongValue(),
-               denomination, precision
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return formatCache.get(precision).format(val);
-      }
-   }
-
    public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination) {
       if (value == null) {
          return "";
@@ -1102,20 +1004,6 @@ public class Utils {
       return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
    }
 
-   public static String getColuFormattedValueWithUnit(Value value) {
-      return String.format("%s %s", value.getValueAsBigDecimal().stripTrailingZeros().toPlainString(), value.getCurrencySymbol());
-   }
-
-   public static String getColuFormattedValue(Value value) {
-//      return value.value.stripTrailingZeros().toPlainString(); // todo ?
-      return value.getValueAsBigDecimal().stripTrailingZeros().toPlainString();
-   }
-
-   // prevent ambiguous call for ExactBitcoinValue
-   public static String getFormattedValueWithUnit(ExactBitcoinValue value, CoinUtil.Denomination denomination) {
-      return getFormattedValueWithUnit((BitcoinValue)value, denomination);
-   }
-
    public static String getFormattedValueWithUnit(BitcoinValue value, CoinUtil.Denomination denomination) {
       BigDecimal val = value.getValue();
       if (val == null) {
@@ -1130,61 +1018,6 @@ public class Utils {
          return "";
       }
       return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
-   }
-
-   public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination) {
-      return String.format("%s %s", getFormattedValue(value, denomination), denomination.getUnicodeName().replace("BTC", "BCH"));
-   }
-
-   public static String getFormattedValueWithUnit(Value value) {
-      CoinUtil.Denomination denomination = CoinUtil.Denomination.BTC;
-      return String.format("%s %s", getFormattedValue(value, denomination), denomination.getUnicodeName().replace("BTC", "BCH"));
-   }
-
-
-      public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-
-      if (value.isBtc()) {
-         return String.format("%s %s", CoinUtil.valueString(((BitcoinValue) value).getLongValue(),
-                     denomination, precision), denomination.getUnicodeName()
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrency());
-      }
-   }
-
-   public static String getFormattedValueWithUnit(Value value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      long val = value.value;
-
-      if (value.getCurrencySymbol().equals("BTC") || value.getCurrencySymbol().equals("BCH")) {
-         return String.format("%s %s", CoinUtil.valueString(((BitcoinValue) value).getLongValue(),
-                 denomination, precision), denomination.getUnicodeName()
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrencySymbol());
-      }
    }
 
    public static boolean isValidEmailAddress(String value) {

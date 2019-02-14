@@ -89,6 +89,7 @@ import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
@@ -122,32 +123,34 @@ import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.bip44.*;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.masterseed.Listener;
-import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -160,9 +163,10 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
+import com.mycelium.wapi.wallet.masterseed.Listener;
+import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import kotlin.jvm.Synchronized;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -184,6 +188,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
+import kotlin.jvm.Synchronized;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -349,7 +355,7 @@ public class MbwManager {
             _exchangeRateManager,
             fiatCurrencies,
             new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.BTC.toString()))
+            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -1091,21 +1097,17 @@ public class MbwManager {
     }
 
 
-    public CoinUtil.Denomination getBitcoinDenomination() {
-        return _currencySwitcher.getBitcoinDenomination();
+    public CoinUtil.Denomination getDenomination() {
+        return _currencySwitcher.getDenomination();
     }
 
     public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
-        _currencySwitcher.setBitcoinDenomination(denomination);
+        _currencySwitcher.setDenomination(denomination);
         getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
     }
 
     public String getBtcValueString(long satoshis) {
-        return _currencySwitcher.getBtcValueString(satoshis);
-    }
-
-    public String getBchValueString(long satoshis) {
-        return _currencySwitcher.getBchValueString(satoshis);
+        return ValueExtensionsKt.toStringWithUnit(Utils.getBtcCoinType().value(satoshis), getDenomination());
     }
 
     public boolean isKeyManagementLocked() {

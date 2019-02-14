@@ -52,6 +52,7 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -61,7 +62,6 @@ import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandl
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -78,15 +78,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.mycelium.wallet.MinerFee.*;
+import static com.mycelium.wallet.MinerFee.LOWPRIO;
 import static com.mycelium.wallet.MinerFee.NORMAL;
 import static com.mycelium.wallet.MinerFee.PRIORITY;
+import static com.mycelium.wallet.MinerFee.fromString;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
@@ -97,7 +100,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference _bitcoinDenomination;
+    private ListPreference _denomination;
     private Preference _localCurrency;
     private ListPreference _exchangeSource;
     private CheckBoxPreference _ltNotificationSound;
@@ -228,7 +231,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
         _ltManager = _mbwManager.getLocalTraderManager();
         // Bitcoin Denomination
-        _bitcoinDenomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
+        _denomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
@@ -403,17 +406,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             processPairedModules(modulesPrefs);
         }
         processUnpairedModules(modulesPrefs);
-
-        _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
-        _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-        CharSequence[] denominations = new CharSequence[]{CoinUtil.Denomination.BTC.toString(), CoinUtil.Denomination.mBTC.toString(),
-                CoinUtil.Denomination.uBTC.toString(), CoinUtil.Denomination.BITS.toString()};
-        _bitcoinDenomination.setEntries(denominations);
-        _bitcoinDenomination.setEntryValues(denominations);
-        _bitcoinDenomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        final HashMap<String, CoinUtil.Denomination> denominationMap = new LinkedHashMap<>();
+        String defaultValue = "";
+        for (CoinUtil.Denomination value : CoinUtil.Denomination.values()) {
+            String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
+            denominationMap.put(key, value);
+            if (value == _mbwManager.getDenomination()) {
+                defaultValue = key;
+            }
+        }
+        _denomination.setDefaultValue(defaultValue);
+        _denomination.setValue(defaultValue);
+        _denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBitcoinDenomination(CoinUtil.Denomination.fromString(newValue.toString()));
+                _mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
                 return true;
             }
         });

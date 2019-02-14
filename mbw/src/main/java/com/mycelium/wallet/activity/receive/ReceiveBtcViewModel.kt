@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
@@ -50,11 +50,11 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
 
     override fun getHint() = context.getString(R.string.amount_hint_denomination,
-                mbwManager.bitcoinDenomination.toString())
+                mbwManager.denomination.toString())
 
     override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.denomination)
 
     fun showAddressTypesInfo(activity: AppCompatActivity) {
         // building message based on networking preferences

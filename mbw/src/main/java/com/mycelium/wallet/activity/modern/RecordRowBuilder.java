@@ -132,7 +132,7 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, mbwManager.getDenomination());
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 

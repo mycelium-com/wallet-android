@@ -44,7 +44,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Preconditions;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -147,7 +146,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
             setVisibility(VISIBLE);
 
-            tvValue.setText(currentValue != null ? ValueExtensionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
+            tvValue.setText(currentValue != null ? ValueExtensionsKt.toString(currentValue, currencySwitcher.getDenomination()) : null);
             String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
             tvCurrency.setText(currentCurrency);
         }

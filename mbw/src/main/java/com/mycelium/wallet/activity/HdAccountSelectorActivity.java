@@ -42,16 +42,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.google.common.collect.Iterables;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -242,12 +248,13 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper account = getItem(position);
          ((TextView)row.findViewById(R.id.tvLabel)).setText(account.name);
-         WalletAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
+         MbwManager mbwManager = MbwManager.getInstance(getContext());
+         WalletAccount walletAccount = mbwManager.getWalletManager(true).getAccount(account.id);
          Balance balance = walletAccount.getAccountBalance();
-         String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed.add(balance.pendingChange).value);
-
-         if (balance.getSendingBalance().isPositive()){
-            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance().value));
+         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.confirmed.add(balance.pendingChange), mbwManager.getDenomination());
+         if (balance.getSendingBalance().isPositive()) {
+            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount)
+                    , ValueExtensionsKt.toStringWithUnit(balance.getSendingBalance(), mbwManager.getDenomination()));
          }
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 

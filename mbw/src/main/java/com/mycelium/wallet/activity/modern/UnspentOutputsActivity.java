@@ -45,8 +45,10 @@ import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.List;
 import java.util.UUID;
@@ -98,7 +100,7 @@ public class UnspentOutputsActivity extends Activity {
       ll.setPadding(10, 10, 10, 10);
 
       // Add BTC value
-      ll.addView(getValue(item.getValue().value));
+      ll.addView(getValue(item.getValue()));
 
       AddressLabel addressLabel = new AddressLabel(this);
       addressLabel.setAddress(item.getAddress());
@@ -107,11 +109,11 @@ public class UnspentOutputsActivity extends Activity {
       return ll;
    }
 
-   private View getValue(long value) {
+   private View getValue(Value value) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(_mbwManager.getBtcValueString(value));
+      tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
       tv.setTextColor(getResources().getColor(R.color.white));
       return tv;
    }

@@ -58,9 +58,7 @@ public class CurrencySwitcher {
 
     private List<GenericAssetInfo> fiatCurrencies;
     private List<GenericAssetInfo> walletCurrencies;
-    private CoinUtil.Denomination bitcoinDenomination;
-
-    private CoinUtil.Denomination bitcoinCashDenomination;
+    private CoinUtil.Denomination denomination;
 
     // the last selected/shown fiat currency
     private GenericAssetInfo currentFiatCurrency;
@@ -70,7 +68,7 @@ public class CurrencySwitcher {
     private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<GenericAssetInfo> fiatCurrencies
-           , GenericAssetInfo currentCurrency, final CoinUtil.Denomination bitcoinDenomination) {
+           , GenericAssetInfo currentCurrency, final CoinUtil.Denomination denomination) {
       this.exchangeRateManager = exchangeRateManager;
       ArrayList<GenericAssetInfo> currencies = Lists.newArrayList(fiatCurrencies);
       Collections.sort(currencies, new Comparator<GenericAssetInfo>() {
@@ -80,14 +78,13 @@ public class CurrencySwitcher {
           }
       });
       this.fiatCurrencies = currencies;
-      this.bitcoinDenomination = bitcoinDenomination;
-      this.bitcoinCashDenomination = CoinUtil.Denomination.BCH;
+      this.denomination = denomination;
 
       this.currentCurrency = currentCurrency;
 
       // if BTC is selected or current currency is not in list of available currencies (e.g. after update)
       // select a default one or none
-      if (currentCurrency.equals(BitcoinMain.get()) || currentCurrency.equals(BitcoinTest.get())
+      if (currentCurrency.equals(Utils.getBtcCoinType())
               || currentCurrency.equals(BchMain.INSTANCE) || currentCurrency.equals(BchTest.INSTANCE)
               || !fiatCurrencies.contains(currentCurrency)) {
          if (fiatCurrencies.size() == 0) {
@@ -131,7 +128,7 @@ public class CurrencySwitcher {
         if (currentCurrency instanceof FiatType || currentCurrency instanceof Currency) {
             return currentCurrency.getSymbol();
         } else {
-            return bitcoinDenomination.getUnicodeString(currentCurrency.getSymbol());
+            return denomination.getUnicodeString(currentCurrency.getSymbol());
         }
     }
 
@@ -217,60 +214,13 @@ public class CurrencySwitcher {
       return currentCurrency;
    }
 
-   public CoinUtil.Denomination getBitcoinDenomination() {
-      return bitcoinDenomination;
+   public CoinUtil.Denomination getDenomination() {
+      return denomination;
    }
 
-  public CoinUtil.Denomination getBitcoinCashDenomination() {
-    return bitcoinCashDenomination;
-  }
-
-   public void setBitcoinDenomination(CoinUtil.Denomination _bitcoinDenomination) {
-      this.bitcoinDenomination = _bitcoinDenomination;
+   public void setDenomination(CoinUtil.Denomination _bitcoinDenomination) {
+      this.denomination = _bitcoinDenomination;
    }
-
-  public void setBitcoinCashDenomination(CoinUtil.Denomination _bitcoinCashDenomination) {
-    this.bitcoinCashDenomination = _bitcoinCashDenomination;
-  }
-
-   public String getBtcValueString(long satoshis) {
-      return getBtcValueString(satoshis, true);
-   }
-
-  public String getBchValueString(long satoshis) {
-    return getBchValueString(satoshis, true);
-  }
-
-   public String getBtcValueString(long satoshis, boolean includeUnit) {
-      CoinUtil.Denomination d = getBitcoinDenomination();
-      String valueString = CoinUtil.valueString(satoshis, d, true);
-      if (includeUnit) {
-         return valueString + " " + d.getUnicodeName();
-      } else {
-         return valueString;
-      }
-   }
-
-  public String getBchValueString(long satoshis, boolean includeUnit) {
-    CoinUtil.Denomination d = getBitcoinCashDenomination();
-    String valueString = CoinUtil.valueString(satoshis, d, true);
-    if (includeUnit) {
-      return valueString + " " + d.getUnicodeName();
-    } else {
-      return valueString;
-    }
-  }
-
-   public String getBtcValueString(long satoshis, boolean includeUnit, int precision) {
-      CoinUtil.Denomination d = getBitcoinDenomination();
-      String valueString = CoinUtil.valueString(satoshis, d, precision);
-      if (includeUnit) {
-         return valueString + " " + d.getUnicodeName();
-      } else {
-         return valueString;
-      }
-   }
-
 
    public boolean isFiatExchangeRateAvailable() {
       if (currentFiatCurrency == null) {
@@ -283,27 +233,6 @@ public class CurrencySwitcher {
       return rate != null && rate.price != null;
    }
 
-    public String getFormattedValue(Value value, boolean includeCurrencyCode) {
-        if (value == null){
-            return "";
-        }
-        if (includeCurrencyCode) {
-            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination());
-        } else {
-            return Utils.getFormattedValue(value, getBitcoinDenomination());
-        }
-    }
-
-    public String getFormattedValue(Value value, boolean includeCurrencyCode, int precision) {
-        if (value == null){
-            return "";
-        }
-        if (includeCurrencyCode) {
-            return Utils.getFormattedValueWithUnit(value, getBitcoinDenomination(), precision);
-        } else {
-            return Utils.getFormattedValue(value, getBitcoinDenomination(), precision);
-        }
-    }
 
     public Value getAsFiatValue(Value value) {
         if (value == null) {

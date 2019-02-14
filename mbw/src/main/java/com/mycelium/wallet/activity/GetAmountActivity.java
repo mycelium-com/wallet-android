@@ -230,11 +230,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // Init the number pad
       String amountString;
       if (!Value.isNullOrZero(_amount)) {
-         if(isColu) {
-            amountString = Utils.getColuFormattedValue(_amount);
-         }else {
-            amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
-         }
+         amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination());
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
       } else {
          if (_amount != null && _amount.getCurrencySymbol() != null) {
@@ -247,7 +243,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if(isColu) {
          _numberEntry = new NumberEntry(4, this, this, amountString);
       } else {
-         _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
+         _numberEntry = new NumberEntry(_mbwManager.getDenomination().getDecimalPlaces(), this, this, amountString);
       }
    }
 
@@ -305,7 +301,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       setEnteredAmount(clipboardValue);
 
-      _numberEntry.setEntry(clipboardValue, isColu ? 4 : _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+      _numberEntry.setEntry(clipboardValue, isColu ? 4 : _mbwManager.getDenomination().getDecimalPlaces());
    }
 
    @OnClick(R.id.tvHowIsItCalculated)
@@ -329,7 +325,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       String number = content.trim();
       if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
          number = Utils
-                 .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+                 .truncateAndConvertDecimalString(number, _mbwManager.getDenomination().getDecimalPlaces());
          if (number == null) {
             return null;
          }
@@ -372,13 +368,13 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          BigDecimal newAmount = null;
          if ( _mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(mainCurrencyType)) {
             //just good ol bitcoins
-            showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+            showDecimalPlaces = _mbwManager.getDenomination().getDecimalPlaces();
             if (_amount.getValueAsBigDecimal() != null) {
-               int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+               int btcToTargetUnit = CoinUtil.Denomination.UNIT.getDecimalPlaces() - _mbwManager.getDenomination().getDecimalPlaces();
                newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
             }
          } else if (isColu) {
-            showDecimalPlaces = CoinUtil.Denomination.BTC.getDecimalPlaces();
+            showDecimalPlaces = CoinUtil.Denomination.UNIT.getDecimalPlaces();
             newAmount = _amount.getValueAsBigDecimal();
          } else {
             //take what was typed in
@@ -401,7 +397,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       String maxBalanceString = "";
       maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -454,7 +450,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
       }
       Long satoshis;
-      int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+      int decimals = _mbwManager.getDenomination().getDecimalPlaces();
       satoshis = value.movePointRight(decimals).longValue();
       _amount = Value.valueOf(_account.getCoinType(), satoshis);
 
@@ -491,7 +487,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             }
          }
          if(convertedAmount != null) {
-            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination()));
          }
       }
    }

@@ -10,17 +10,16 @@ import java.text.DecimalFormat
 
 
 @JvmOverloads
-fun Value.toStringWithUnit(denomination: CoinUtil.Denomination = CoinUtil.Denomination.BTC): String {
+fun Value.toStringWithUnit(denomination: CoinUtil.Denomination = CoinUtil.Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
     return String.format("%s %s", toString(denomination), denomination.getUnicodeString(type.symbol))
 }
 
 @JvmOverloads
-fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.BTC): String {
+fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
     var result = valueAsBigDecimal
-    //TODO maybe need other idea for fiat type
-    if (type !is FiatType && denomination != CoinUtil.Denomination.BTC) {
+    if (type !is FiatType && denomination != CoinUtil.Denomination.UNIT) {
         result = result.movePointRight(type.unitExponent - denomination.decimalPlaces)
     }
     return CoinFormat.format(result)

@@ -17,7 +17,7 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import java.util.Collections;
 import java.util.List;
 
-import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
+import static com.mrd.bitlib.util.CoinUtil.Denomination.MILLI;
 
 /**
  * Created by elvis on 31.08.17.
@@ -90,7 +90,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, mBTC));
+                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, MILLI));
             }
             if (item.fiatValue != null) {
                 holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));

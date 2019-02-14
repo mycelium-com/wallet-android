@@ -124,7 +124,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
+            CoinUtil.Denomination denomination = mbwManager.getDenomination();
             viewHolder.itemTextView.setText(ValueExtensionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
             if (item.account.getReceiveAddress() != null) {
                 viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());

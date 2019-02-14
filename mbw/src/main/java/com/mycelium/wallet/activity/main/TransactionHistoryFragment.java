@@ -73,13 +73,17 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.DataExport;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -565,10 +569,10 @@ public class TransactionHistoryFragment extends Fragment {
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
                               Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-                              String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
+                              String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
                               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
                               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                                 txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
+                                 txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
                               }
                               new AlertDialog.Builder(getActivity())
                                       .setTitle(_context.getString(R.string.bump_fee_title))
