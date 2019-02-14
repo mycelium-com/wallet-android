@@ -191,7 +191,6 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void checkGapBug() {
-        // TODO - Review and rewrite
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById("BitcoinHD");
         final List<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (!(gaps != null && gaps.isEmpty())) {

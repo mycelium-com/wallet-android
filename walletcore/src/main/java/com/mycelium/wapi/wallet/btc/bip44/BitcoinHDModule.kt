@@ -55,7 +55,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
-    private val hdAccounts: List<HDAccount> = ArrayList()
     override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
@@ -361,13 +360,9 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     }
 
     fun getGapsBug(): MutableList<Int> {
-        val mainAccounts: MutableCollection<HDAccount> = accounts.values
-
-        mainAccounts.filter { it.isDerivedFromInternalMasterseed }
-
-        fun selector(objAcc: HDAccount): Int = objAcc.accountIndex
-
-        mainAccounts.sortedBy { selector(it) }
+        val mainAccounts: List<HDAccount> = accounts.values
+                .filter { it.isDerivedFromInternalMasterseed }
+                .sortedBy { it.accountIndex }
 
         val gaps: MutableList<Int> = mutableListOf()
         var lastIndex = 0
@@ -442,7 +437,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                     account.archiveAccount()
                 }
 
-                hdAccounts.plus(account)
+                accounts[account.id] = account
                 return account.id
             } finally {
                 backing.endTransaction()
