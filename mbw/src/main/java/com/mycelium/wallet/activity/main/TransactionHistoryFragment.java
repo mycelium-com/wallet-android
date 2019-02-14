@@ -73,10 +73,7 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.DataExport;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.TransactionDetailsActivity;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
@@ -97,7 +94,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -203,13 +199,13 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -264,7 +260,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
       // Open transaction details
       Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
-      intent.putExtra("transaction", selected.getHash());
+      intent.putExtra("transaction", selected.getId());
       startActivity(intent);
    }
 
@@ -503,7 +499,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(record.getHash());
+                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(record.getId());
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
@@ -527,7 +523,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(record.getHash());
+                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(record.getId());
                                          dialog.dismiss();
                                       }
                                    })
@@ -546,7 +542,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_mbwManager.getSelectedAccount(), record);
+                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
                                          broadcastDialog.show(getFragmentManager(), "broadcast");
 //                                         boolean success = BroadcastTransactionActivity.create(getActivity(), , );
 //                                         if (!success) {
@@ -565,10 +561,10 @@ public class TransactionHistoryFragment extends Fragment {
                            break;
                         case R.id.miBumpFee:
                            long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
-                           final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getHash(), fee);
+                           final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
-                              Value txFeeBitcoinValue = Value.valueOf(BitcoinMain.get(), txFee);
+                              Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
                               String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
                               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
                               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
@@ -609,12 +605,12 @@ public class TransactionHistoryFragment extends Fragment {
                                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
                                             //TODO Module should provide full bytes of transaction.
                                             transaction = HexUtils.toHex(((WalletBtcAccount)_mbwManager.getSelectedAccount()).
-                                                    getTransactionSummary(record.getHash()).txid.getBytes());
+                                                    getTransactionSummary(record.getId()).txid.getBytes());
                                          } else {
                                             //TODO non-generic classes are used
                                             WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
                                             transaction = HexUtils.toHex(account
-                                                .getTransaction(record.getHash()).binary);
+                                                .getTransaction(record.getId()).binary);
                                          }
 
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -680,7 +676,7 @@ public class TransactionHistoryFragment extends Fragment {
    };
 
    private void setTransactionLabel(GenericTransaction record) {
-      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.getHash(), _storage, transactionLabelChanged);
+      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.getId(), _storage, transactionLabelChanged);
    }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {

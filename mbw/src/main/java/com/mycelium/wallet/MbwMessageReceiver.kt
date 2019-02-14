@@ -229,8 +229,8 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val txUTXOsHexList = intent.getStringArrayExtra(IntentContract.CONNECTED_OUTPUTS)
                 val accountIndex = intent.getIntExtra(IntentContract.ACCOUNT_INDEX_EXTRA, -1)
                 val mbwManager = MbwManager.getInstance(context)
-                val module = mbwManager.getWalletManager(false).getModuleById("BCHHD") as Bip44BCHHDModule
-                val account = module.getAccountByIndex(accountIndex) as Bip44BCHAccount
+                val mod = mbwManager.getWalletManager(false).getModuleById(Bip44BCHHDModule.ID) as Bip44BCHHDModule
+                val account = mod.getAccountByIndex(accountIndex) as Bip44BCHAccount
                 val networkParameters = NetworkParameters.fromID(if (mbwManager.network.isTestnet) {
                     NetworkParameters.ID_TESTNET
                 } else {
@@ -239,17 +239,14 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                 val transaction = Transaction(networkParameters, transactionBytes)
                 transaction.clearInputs()
 
-                val keyList = ArrayList<ECKey>()
-
-                for (utxoHex in txUTXOsHexList) {
+                val keyList = txUTXOsHexList.map { utxoHex ->
                     val utxo = UTXO(ByteArrayInputStream(Hex.decode(utxoHex)))
                     val txOutput = FreeStandingTransactionOutput(networkParameters, utxo, utxo.height)
                     val address = txOutput.getAddressFromP2PKHScript(networkParameters)!!.toBase58()
                     val privateKey = account.getPrivateKeyForAddress(Address.fromString(address),
-                            AesKeyCipher.defaultKeyCipher())
-                    checkNotNull(privateKey)
-                    keyList.add(DumpedPrivateKey.fromBase58(networkParameters,
-                            privateKey!!.getBase58EncodedPrivateKey(mbwManager.network)).key)
+                            AesKeyCipher.defaultKeyCipher())!!
+                    DumpedPrivateKey.fromBase58(networkParameters,
+                            privateKey.getBase58EncodedPrivateKey(mbwManager.network)).key
                 }
 
                 val signedTransaction = signAndSerialize(networkParameters, keyList, txUTXOsHexList, transaction)
@@ -332,7 +329,7 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
         val mds = MbwManager.getInstance(context).metadataStorage
         val walletManager = MbwManager.getInstance(context).getWalletManager(false)
 
-        @SuppressWarnings("deprecation") // the non-deprecated alternative requires min API level 26
+        @Suppress("DEPRECATION") // the non-deprecated alternative requires min API level 26
         val builder = Notification.Builder(context)
                 // TODO: bitcoin icon
                 .setSmallIcon(R.drawable.holo_dark_ic_action_new_usd_account)

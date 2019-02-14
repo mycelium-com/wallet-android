@@ -13,16 +13,14 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
-import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -110,21 +108,10 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
-
-      Value recordValue = record.getTransferred().abs();
-      // if the current selected currency is the same as the transactions
-      if (alternativeCurrency.equals(recordValue.type)) {
-         if (!(alternativeCurrency instanceof FiatType)) {
-            // use the current selected fiat currency
-            alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
-         } else {
-            // always show BTC
-            alternativeCurrency = BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
-         }
-      }
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
 
       if (alternativeCurrency != null) {
+         Value recordValue = record.getTransferred().abs();
          Value alternativeValue = _mbwManager.getExchangeRateManager().get(recordValue, alternativeCurrency);
 
          if (alternativeValue == null) {
@@ -139,7 +126,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(record.getHash().toHex(), null);
+      String value = transactionFiatValuePref.getString(record.getId().toHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
@@ -157,10 +144,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(record.getHash());
-      if(exchangeTransactions.contains(record.getHash().toString())) {
-         //label = "Exchange BCH to BTC " + label;
-      }
+      String label = _storage.getLabelByTransaction(record.getId());
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;
@@ -179,8 +163,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       // Show risky unconfirmed warning if necessary
-
-      TextView tvWarnings = (TextView) rowView.findViewById(R.id.tvUnconfirmedWarning);
+      TextView tvWarnings = rowView.findViewById(R.id.tvUnconfirmedWarning);
       if (confirmations <= 0) {
          ArrayList<String> warnings = new ArrayList<String>();
          if (record.getConfirmationRiskProfile().isPresent()) {

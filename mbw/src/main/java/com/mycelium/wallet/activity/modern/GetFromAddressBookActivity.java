@@ -69,13 +69,13 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
 
       //todo: use this check
-      //int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
+      int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
-//      if (countContactsEntries > 0) {
-//         bar.selectTab(contactsTab);
-//      } else {
+      if (countContactsEntries > 0) {
+         bar.selectTab(contactsTab);
+      } else {
          bar.selectTab(myAddressesTab);
-//      }
+      }
    }
 
    private Bundle addressBookBundle(boolean own) {

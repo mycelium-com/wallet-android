@@ -2,8 +2,6 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -37,7 +35,7 @@ public interface GenericTransaction extends Serializable {
 
     GenericAssetInfo getType();
 
-    Sha256Hash getHash();
+    Sha256Hash getId();
     String getHashAsString();
     byte[] getHashBytes();
 
@@ -56,8 +54,10 @@ public interface GenericTransaction extends Serializable {
     List<GenericInput> getInputs();
     List<GenericOutput> getOutputs();
 
-    // Amount transferred to the corresponding account.
-    // Can be positive (funds arrived to the account) or negative (funds are sent from the account)
+    /**
+     * Amount transferred to the corresponding account.
+     * Can be positive (funds arrived to the account) or negative (funds are sent from the account)
+     */
     Value getTransferred();
 
     boolean isIncoming();

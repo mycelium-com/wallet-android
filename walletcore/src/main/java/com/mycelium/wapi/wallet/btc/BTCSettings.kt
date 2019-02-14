@@ -13,7 +13,6 @@ data class BTCSettings(
 
 
 class Reference<T>(private var referent: T?) {
-
     fun set(newVal: T) {
         referent = newVal
     }

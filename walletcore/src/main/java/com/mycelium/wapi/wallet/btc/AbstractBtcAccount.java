@@ -1643,7 +1643,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(BtcLegacyAddress destination, Value amount) {
+   public SendRequest getSendToRequest(BtcAddress destination, Value amount) {
       return BtcSendRequest.to(destination, amount);
    }
 
@@ -1702,7 +1702,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
       return new BtcTransaction(getCoinType(), tx, satoshisTransferred, tex.time, tex.height,
               confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
-              tex.binary.length, Value.valueOf(BitcoinMain.get(), Math.abs(satoshisReceived - satoshisSent)));
+              tex.binary.length, Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
    }
 
    private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce) {
@@ -1756,8 +1756,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
          Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
          Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
+         Bitcoins economy = oldStyleFeeEstimation.getEstimation(10);
          Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
          FeeEstimationsGeneric result = new FeeEstimationsGeneric(Value.valueOf(getCoinType(), lowPriority.getLongValue()),
+                 Value.valueOf(getCoinType(), economy.getLongValue()),
                  Value.valueOf(getCoinType(), normal.getLongValue()),
                  Value.valueOf(getCoinType(), high.getLongValue()));
          return result;
@@ -1803,4 +1805,3 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return result;
    }
 }
-

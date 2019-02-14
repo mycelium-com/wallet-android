@@ -1,7 +1,7 @@
 # Multi currency architecture
 
 In order to support multiple asset classes, Mycelium Wallet has a set of abstract classes 
-and interfaces to provide an ability if describing any type of asset.
+and interfaces to provide the ability to describe any type of asset.
 
 An asset implementation involves *WalletAccount* interface methods' realization:
 

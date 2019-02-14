@@ -34,20 +34,21 @@
 
 package com.mycelium.wallet.activity.pop;
 
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 class PopUtils {
    public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransaction transaction) {
-      if (popRequest.getTxid() != null && !transaction.getHash().equals(popRequest.getTxid())) {
+      if (popRequest.getTxid() != null && !transaction.getId().equals(popRequest.getTxid())) {
          return false;
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
-      Long txSatoshis;
-      // TODO why BitcoinMain is hard-coded here?
-      if (transaction.getType() == BitcoinMain.get()) {
+      long txSatoshis;
+      CryptoCurrency currency = Utils.getBtcCoinType();
+      if (transaction.getType() == currency) {
          txSatoshis = (transaction.getTransferred().abs()).getValue();
       } else {
          txSatoshis = -1L;
@@ -57,7 +58,7 @@ class PopUtils {
          return false;
       }
       if (popRequest.getLabel() != null) {
-         String label = metadataStorage.getLabelByTransaction(transaction.getHash());
+         String label = metadataStorage.getLabelByTransaction(transaction.getId());
          if (!popRequest.getLabel().equals(label)) {
             return false;
          }

@@ -17,7 +17,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public Sha256Hash getHash() {
+    public Sha256Hash getId() {
         return null;
     }
 

@@ -104,8 +104,11 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -238,11 +241,8 @@ public class Utils {
    }
 
    public static void toastConnectionError(Context context) {
-      if (isConnected(context)) {
-         Toast.makeText(context, R.string.no_server_connection, Toast.LENGTH_LONG).show();
-      } else {
-         Toast.makeText(context, R.string.no_network_connection, Toast.LENGTH_LONG).show();
-      }
+      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
+      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -277,7 +277,6 @@ public class Utils {
       final Duration duration = p.approximateDuration(date);
       if (mbwManager.getLocale().getLanguage().equals("ru")) {
          Duration duration1 = new Duration(){
-
             @Override
             public long getQuantity() {
                return duration.getQuantity();
@@ -789,10 +788,7 @@ public class Utils {
    }
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
-      if (getLinkedAccount(account, accounts) != null) {
-         return true;
-      }
-      return false;
+      return getLinkedAccount(account, accounts) != null;
    }
 
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
@@ -1088,6 +1084,10 @@ public class Utils {
          }
          return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
       }
+   }
+
+   public static CryptoCurrency getBtcCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
    }
 
    // todo delete and use method below

@@ -9,13 +9,13 @@ import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
-import kotlin.collections.ArrayList
+import java.util.concurrent.TimeUnit
 
 
 class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
-    private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
+    private val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
@@ -50,14 +50,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
 
     fun getAccountBy(address: GenericAddress): UUID? {
-        var result: UUID? = null
-        for (account in accounts.values) {
-            if (account.isMineAddress(address)) {
-                result = account.id
-                break
-            }
-        }
-        return result
+        return accounts.values.firstOrNull { it.isMineAddress(address) }?.id
     }
 
     fun setIsNetworkConnected(connected: Boolean) {
@@ -65,14 +58,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun hasPrivateKey(address: GenericAddress): Boolean {
-        var result = false
-        for (account in accounts.values) {
-            if (account.canSpend() && account.isMineAddress(address)) {
-                result = true
-                break
-            }
-        }
-        return result
+        return accounts.values.any { it.canSpend() && it.isMineAddress(address) }
     }
 
 
@@ -220,23 +206,26 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
-        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id }
-        return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
+        return walletModules.values
+                .flatMap { it.getSupportedAssets() }
+                .distinctBy { it.id }
+                .filter { it.isMineAddress(address)}
+                .toList()
+    }
+
+    fun getAssetTypes(): List<GenericAssetInfo> {
+        return accounts.values.map { it.coinType }.distinct()
     }
 
     fun parseAddress(address: String): List<GenericAddress> {
-        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id}
-        val addressesList = ArrayList<GenericAddress>()
-        for(asset in coinTypes) {
+        return walletModules.values
+                .flatMap { it.getSupportedAssets() }
+                .distinctBy { it.id }
+                .mapNotNull { genericAssetInfo ->
             try {
-                val addr = asset.parseAddress(address)
-                if (addr != null) {
-                    addressesList.add(addr)
+                        genericAssetInfo.parseAddress(address)
+                    } catch (ex: AddressMalformedException) { null }
                 }
-            } catch (ex : AddressMalformedException) {
-            }
-        }
-        return addressesList
     }
 
     /**

@@ -67,7 +67,9 @@ class AddressFragmentModel(
      * or because our HD Account received Coins and changed the Address
      */
     @Subscribe
-    fun receivingAddressChanged(event: ReceivingAddressChanged) = ::onAddressChange
+    fun receivingAddressChanged(event: ReceivingAddressChanged) {
+        onAddressChange()
+    }
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {

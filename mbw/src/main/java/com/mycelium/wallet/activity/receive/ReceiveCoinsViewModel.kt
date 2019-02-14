@@ -52,11 +52,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun isReceivingAmountWrong() = model.receivingAmountWrong
 
     fun getCurrentlyReceivingFormatted() = Transformations.map(model.receivingAmount) {
-        if (it != null) {
-            getFormattedValue(it)
-        } else {
-            getFormattedValue(Value.zeroValue(mbwManager.selectedAccount.coinType))
-        }
+        getFormattedValue(it ?: Value.zeroValue(mbwManager.selectedAccount.coinType))
     }
 
     fun getCurrentlyReceivingAmount() = model.receivingAmount
@@ -90,17 +86,17 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getPaymentUri() = model.getPaymentUri()
 
     fun shareRequest() {
-        val s = Intent(Intent.ACTION_SEND)
-        s.type = "text/plain"
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
         if (Value.isNullOrZero(model.amount.value)) {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
+            intent.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
+            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_bitcoin_address))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         } else {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
-            s.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_payment_request))
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
+            intent.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
+            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_payment_request))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         }
     }
