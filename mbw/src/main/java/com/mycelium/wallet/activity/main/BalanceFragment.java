@@ -217,7 +217,6 @@ public class BalanceFragment extends Fragment {
        }
 
        _tcdFiatDisplay.setCurrencySwitcher(_mbwManager.getCurrencySwitcher());
-       _tcdFiatDisplay.setEventBus(MbwManager.getEventBus());
 
        updateUi();
        super.onStart();
