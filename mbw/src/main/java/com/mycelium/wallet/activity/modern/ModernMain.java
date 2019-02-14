@@ -154,8 +154,7 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
         mBalanceTab = bar.newTab();
         mTabsAdapter.addTab(mBalanceTab.setText(getString(R.string.tab_balance)), BalanceMasterFragment.class, null);
-        mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)),
-                TransactionHistoryFragment.class, null);
+        mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
         mRecommendationsTab = bar.newTab();
         mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)),
                 RecommendationsFragment.class, null);
