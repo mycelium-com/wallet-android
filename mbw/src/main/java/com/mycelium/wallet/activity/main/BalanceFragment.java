@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.main;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -311,8 +310,8 @@ public class BalanceFragment extends Fragment {
       setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
 
       // Show/Hide Sending
-      if (balance.pendingSending.isPositive()) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.pendingSending, _mbwManager.getBitcoinDenomination());
+      if (balance.getSendingToForeignAddresses().isPositive()) {
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getBitcoinDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
