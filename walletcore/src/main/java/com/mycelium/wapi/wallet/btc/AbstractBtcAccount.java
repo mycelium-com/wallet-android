@@ -1109,11 +1109,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
-      if (outputAddress != null) {
-         estimatorBuilder.addOutput(outputAddress.getType());
-      } else {
-         estimatorBuilder.setLegacyOutputs(1);
-      }
+      AddressType type = outputAddress != null ? outputAddress.getType() : AddressType.P2PKH;
+      estimatorBuilder.addOutput(type);
    }
 
    protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
