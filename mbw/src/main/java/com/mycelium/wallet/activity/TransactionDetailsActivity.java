@@ -64,7 +64,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
-
    @SuppressWarnings("deprecation")
    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
@@ -90,11 +89,7 @@ public class TransactionDetailsActivity extends Activity {
 
       _txs = _mbwManager.getSelectedAccount().getTx(txid);
 
-      if(_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
-         coluMode = true;
-      } else {
-         coluMode = false;
-      }
+      coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
       updateUi();
    }
 
@@ -165,8 +160,8 @@ public class TransactionDetailsActivity extends Activity {
       final long txFeeTotal = _txs.getFee().getValue();
       String fee;
       if(txFeeTotal > 0) {
-         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
         fee = _mbwManager.getBtcValueString(txFeeTotal);
          if (_txs.getRawSize() > 0) {
             final long txFeePerSat = txFeeTotal / _txs.getRawSize();
@@ -175,7 +170,7 @@ public class TransactionDetailsActivity extends Activity {
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
          ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
+         findViewById(R.id.tvInputsLabel).setVisibility(View.GONE);
       }
    }
 
@@ -195,7 +190,6 @@ public class TransactionDetailsActivity extends Activity {
       ll.setPadding(10, 10, 10, 10);
       return ll;
    }
-
 
    private View getCoinbaseText() {
       TextView tv = new TextView(this);
@@ -222,8 +216,6 @@ public class TransactionDetailsActivity extends Activity {
             return true;
          }
       });
-
-
       return tv;
    }
 
@@ -242,9 +234,6 @@ public class TransactionDetailsActivity extends Activity {
             return true;
          }
       });
-
-
       return tv;
    }
-
 }
