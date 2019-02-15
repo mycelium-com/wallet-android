@@ -330,15 +330,11 @@ public class AccountsFragment extends Fragment {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                       getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                      address, accountToDelete instanceof PrivateColuAccount ?
-                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                      : _mbwManager.getBtcValueString(satoshis));
+                                      address, ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                      address, accountToDelete instanceof PrivateColuAccount ?
-                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                      : _mbwManager.getBtcValueString(satoshis));
+                                    ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         }
                     } else {
                         if (label != null && label.length() != 0) {
@@ -441,7 +437,7 @@ public class AccountsFragment extends Fragment {
                 }
             }
 
-            private Value getPotentialBalanceColu(WalletAccount account) {
+            private Value getBalance(WalletAccount account) {
                 if (account.isArchived()) {
                     return null;
                 } else {
@@ -506,7 +502,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private String getBalanceString(WalletAccount account, Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
     }
 
     /**

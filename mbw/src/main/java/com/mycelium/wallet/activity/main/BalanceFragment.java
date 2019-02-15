@@ -290,7 +290,7 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(Balance balance) {
-      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(true);
@@ -298,7 +298,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.isPositive()) {
-         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getBitcoinDenomination());
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -311,7 +311,7 @@ public class BalanceFragment extends Fragment {
 
       // Show/Hide Sending
       if (balance.getSendingToForeignAddresses().isPositive()) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getBitcoinDenomination());
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

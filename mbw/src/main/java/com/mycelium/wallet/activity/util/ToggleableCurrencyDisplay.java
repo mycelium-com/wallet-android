@@ -140,7 +140,7 @@ public class ToggleableCurrencyDisplay extends LinearLayout {
 
             setVisibility(VISIBLE);
 
-            tvValue.setText(currentValue != null ? ValueExtensionsKt.toString(currentValue, currencySwitcher.getBitcoinDenomination()) : null);
+            tvValue.setText(currentValue != null ? ValueExtensionsKt.toString(currentValue, currencySwitcher.getDenomination()) : null);
             String currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination();
             tvCurrency.setText(currentCurrency);
         }

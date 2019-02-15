@@ -46,7 +46,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -54,11 +53,12 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -165,9 +165,9 @@ public class TransactionDetailsActivity extends Activity {
       final long txFeeTotal = _txs.getFee().getValue();
       String fee;
       if(txFeeTotal > 0) {
-         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
-        fee = _mbwManager.getBtcValueString(txFeeTotal);
+         findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
+         findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
+         fee = ValueExtensionsKt.toStringWithUnit(_txs.getFee(), _mbwManager.getDenomination());
          if (_txs.getRawSize() > 0) {
             final long txFeePerSat = txFeeTotal / _txs.getRawSize();
             fee += String.format("\n%d sat/byte", txFeePerSat);
@@ -175,7 +175,7 @@ public class TransactionDetailsActivity extends Activity {
          ((TextView) findViewById(R.id.tvFee)).setText(fee);
       } else {
          ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
+         findViewById(R.id.tvInputsLabel).setVisibility(View.GONE);
       }
    }
 
@@ -186,7 +186,7 @@ public class TransactionDetailsActivity extends Activity {
       ll.setLayoutParams(WCWC);
       // Add BTC value
       String address = item.getAddress().toString();
-      ll.addView(getValue(item.getValue().getValue(), address));
+      ll.addView(getValue(item.getValue(), address));
       AddressLabel adrLabel = new AddressLabel(this);
       adrLabel.setColuMode(coluMode);
       adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
@@ -206,45 +206,22 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
-   private View getValue(final long value, Object tag) {
+   private View getValue(final Value value, Object tag) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(_mbwManager.getBtcValueString(value));
+      tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
       tv.setTextColor(_white_color);
       tv.setTag(tag);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
          @Override
          public boolean onLongClick(View v) {
-            Utils.setClipboardString(CoinUtil.valueString(value, _mbwManager.getCurrencySwitcher().getBitcoinDenomination(), false), getApplicationContext());
+            Utils.setClipboardString(ValueExtensionsKt.toString(value, _mbwManager.getDenomination()), getApplicationContext());
             Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
          }
       });
-
-
       return tv;
    }
-
-   private View getColuValue(final BigDecimal value, String currency) {
-      TextView tv = new TextView(this);
-      tv.setLayoutParams(FPWC);
-      tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(value.stripTrailingZeros().toPlainString() + " " + currency);
-      tv.setTextColor(_white_color);
-
-      tv.setOnLongClickListener(new View.OnLongClickListener() {
-         @Override
-         public boolean onLongClick(View v) {
-            Utils.setClipboardString(CoinUtil.valueString(value, _mbwManager.getCurrencySwitcher().getBitcoinDenomination(), false), getApplicationContext());
-            Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-            return true;
-         }
-      });
-
-
-      return tv;
-   }
-
 }

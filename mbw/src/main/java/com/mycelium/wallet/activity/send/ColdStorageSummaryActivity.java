@@ -50,8 +50,9 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
@@ -134,7 +135,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendable().value));
+      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
 
@@ -152,7 +153,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.value > 0) {
-         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving.value);
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -163,7 +164,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Show/Hide Sending
       if (balance.getSendingToForeignAddresses().value > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.getSendingToForeignAddresses().value);
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

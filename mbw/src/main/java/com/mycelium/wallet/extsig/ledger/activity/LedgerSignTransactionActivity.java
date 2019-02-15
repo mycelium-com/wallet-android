@@ -43,28 +43,35 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
+
 import com.btchip.BTChipDongle.BTChipOutput;
 import com.btchip.BTChipDongle.BTChipOutputKeycard;
 import com.btchip.BTChipDongle.UserConfirmation;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.mrd.bitlib.*;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.LedgerPin2FADialog;
+import com.mycelium.wallet.LedgerPinDialog;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
-import com.mycelium.wapi.wallet.btc.*;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
-import nordpol.android.TagDispatcher;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+
+import nordpol.android.TagDispatcher;
 
 public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
@@ -149,9 +156,9 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          }
 
          String toAddress = Joiner.on(",\n").join(toAddresses);
-         String amount = CoinUtil.valueString(totalSending, false) + " BTC";
-         String total = CoinUtil.valueString(totalSending + unsigned.calculateFee(), false) + " BTC";
-         String fee = CoinUtil.valueString(unsigned.calculateFee(), false) + " BTC";
+         String amount = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(totalSending));
+         String total = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(totalSending + unsigned.calculateFee()));
+         String fee = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(unsigned.calculateFee()));
 
          ((TextView) findViewById(R.id.tvAmount)).setText(amount);
          ((TextView) findViewById(R.id.tvToAddress)).setText(toAddress);

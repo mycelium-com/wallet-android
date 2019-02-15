@@ -58,6 +58,7 @@ import com.mycelium.lt.api.params.LoginParameters;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.api.CreateAd;
 import com.mycelium.wallet.lt.api.CreateTrade;
 import com.mycelium.wallet.lt.api.Request;
@@ -271,7 +272,7 @@ public class LocalTraderManager {
          try {
             // Get new session
             session = api.createSession(LtApi.VERSION, mbwManager.getLanguage(),
-                  mbwManager.getBitcoinDenomination().getAsciiName()).getResult();
+                  mbwManager.getDenomination().getAsciiString(Utils.getBtcCoinType().getSymbol())).getResult();
             isLoggedIn = false;
             return true;
          } catch (LtApiException e) {
