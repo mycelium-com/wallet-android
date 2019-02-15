@@ -163,6 +163,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     /**
      * Determine the maximum spendable amount you can send in a transaction
+     * Destination address can be null
      */
     Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
 

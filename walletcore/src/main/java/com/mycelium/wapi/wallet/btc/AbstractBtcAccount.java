@@ -1045,11 +1045,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
-      return calculateMaxSpendableAmount(minerFeePerKbToUse, destinationAddress.getAddress());
+      if (destinationAddress != null) {
+         return _calculateMaxSpendableAmount(minerFeePerKbToUse, destinationAddress.getAddress());
+      } else {
+         return _calculateMaxSpendableAmount(minerFeePerKbToUse, null);
+      }
    }
 
 
-   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
+   private synchronized Value _calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
