@@ -1,9 +1,9 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
-import com.mrd.bitlib.util.CoinUtil
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -13,10 +13,7 @@ class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(appl
         model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
     }
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination,
-            CoinUtil.Denomination.BCH)
-
-    override fun getFormattedValue(sum: Value) = Utils.getFormattedValue(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) =  sum.toString(mbwManager.denomination)
 
     override fun getTitle(): String {
         return if (Value.isNullOrZero(model.amount.value)) {

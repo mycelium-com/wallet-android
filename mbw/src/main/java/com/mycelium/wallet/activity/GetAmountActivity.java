@@ -48,11 +48,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
-import com.mrd.bitlib.StandardTransactionBuilder.OutputTooSmallException;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -64,12 +60,16 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -111,6 +111,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private boolean isColu;
    private CryptoCurrency mainCurrencyType;
+   private int maxDecimal;
 
    /**
     * Get Amount for spending
@@ -165,6 +166,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType);
       _mbwManager.getCurrencySwitcher().setCurrency(mainCurrencyType);
 
+      maxDecimal = _account.getCoinType().getUnitExponent() - _mbwManager.getDenomination().getBase10();
       if (isSendMode) {
          initSendMode();
       }
@@ -184,7 +186,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
       //}
       //todo: get units from account
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
@@ -230,11 +232,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // Init the number pad
       String amountString;
       if (!Value.isNullOrZero(_amount)) {
-         if(isColu) {
-            amountString = Utils.getColuFormattedValue(_amount);
-         }else {
-            amountString = Utils.getFormattedValue(_amount, _mbwManager.getBitcoinDenomination());
-         }
+         amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination());
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
       } else {
          if (_amount != null && _amount.getCurrencySymbol() != null) {
@@ -244,11 +242,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          }
          amountString = "";
       }
-      if(isColu) {
-         _numberEntry = new NumberEntry(4, this, this, amountString);
-      } else {
-         _numberEntry = new NumberEntry(_mbwManager.getBitcoinDenomination().getDecimalPlaces(), this, this, amountString);
-      }
+      _numberEntry = new NumberEntry(maxDecimal, this, this, amountString);
    }
 
    @OnClick(R.id.btOk)
@@ -305,7 +299,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       setEnteredAmount(clipboardValue);
 
-      _numberEntry.setEntry(clipboardValue, isColu ? 4 : _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+      _numberEntry.setEntry(clipboardValue, maxDecimal);
    }
 
    @OnClick(R.id.tvHowIsItCalculated)
@@ -328,8 +322,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       String number = content.trim();
       if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
-         number = Utils
-                 .truncateAndConvertDecimalString(number, _mbwManager.getBitcoinDenomination().getDecimalPlaces());
+         number = Utils.truncateAndConvertDecimalString(number, maxDecimal);
          if (number == null) {
             return null;
          }
@@ -360,32 +353,24 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
 
       if (_amount != null) {
-         if(ColuUtils.allColuCoins().contains(_amount.type)) {
-            // always set native asset currency here ?
-            btCurrency.setText(_amount.type.getSymbol());
-         } else {
-            // Set current currency name button
-            btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
-         }
+         // Set current currency name button
+         btCurrency.setText(_mbwManager.getCurrencySwitcher().getCurrentCurrencyIncludingDenomination());
          //update amount
          int showDecimalPlaces;
          BigDecimal newAmount = null;
-         if ( _mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(mainCurrencyType)) {
+         if (_mbwManager.getCurrencySwitcher().getCurrentCurrency().equals(mainCurrencyType)) {
             //just good ol bitcoins
-            showDecimalPlaces = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+            showDecimalPlaces = maxDecimal;
             if (_amount.getValueAsBigDecimal() != null) {
-               int btcToTargetUnit = CoinUtil.Denomination.BTC.getDecimalPlaces() - _mbwManager.getBitcoinDenomination().getDecimalPlaces();
+               int btcToTargetUnit = _mbwManager.getDenomination().getBase10();
                newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(btcToTargetUnit));
             }
-         } else if (isColu) {
-            showDecimalPlaces = CoinUtil.Denomination.BTC.getDecimalPlaces();
-            newAmount = _amount.getValueAsBigDecimal();
          } else {
             //take what was typed in
-            showDecimalPlaces = 8;
+            showDecimalPlaces = maxDecimal;
             newAmount = _amount.getValueAsBigDecimal();
          }
-         _numberEntry.setEntry(newAmount, isColu ? 4 : showDecimalPlaces);
+         _numberEntry.setEntry(newAmount, showDecimalPlaces);
       } else {
          tvAmount.setText("");
       }
@@ -395,13 +380,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = Value.valueOf(_account.getCoinType(),
-              _account.getAccountBalance().getSpendable().value);
-      // todo was Value.fromValue(_maxSpendableAmount, _amount.getCurrencySymbol(), _mbwManager.getExchangeRateManager());
-
       String maxBalanceString = "";
       maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+               , ValueExtensionsKt.toStringWithUnit(_maxSpendableAmount, _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -454,8 +435,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentCurrency();
       }
       Long satoshis;
-      int decimals = _mbwManager.getBitcoinDenomination().getDecimalPlaces();
-      satoshis = value.movePointRight(decimals).longValue();
+      satoshis = value.movePointRight(maxDecimal).longValue();
       _amount = Value.valueOf(_account.getCoinType(), satoshis);
 
       if (isSendMode) {
@@ -491,7 +471,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             }
          }
          if(convertedAmount != null) {
-            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getBitcoinDenomination()));
+            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination()));
          }
       }
    }
@@ -522,13 +502,15 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       try {
          Address address = Address.getNullAddress(_mbwManager.getNetwork());
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), satoshis);
-         _account.checkAmount(receiver, _kbMinerFee, _amount);
-      } catch (OutputTooSmallException e1) {
+
+         SendRequest<?> sendRequest = _account.getSendToRequest(AddressUtils.fromAddress(address), Value.valueOf(_account.getCoinType(), satoshis), Value.valueOf(_account.getCoinType(), _kbMinerFee));
+         _account.completeTransaction(sendRequest);
+
+      } catch (GenericOutputTooSmallException e) {
          return AmountValidation.ValueTooSmall;
-      } catch (InsufficientFundsException e) {
+      } catch (GenericInsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+      } catch (GenericBuildTransactionException e) {
           // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
           // debug it
           _mbwManager.reportIgnoredException("MinerFeeException", e);

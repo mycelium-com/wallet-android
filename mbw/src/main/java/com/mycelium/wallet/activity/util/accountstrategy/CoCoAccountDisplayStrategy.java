@@ -30,9 +30,4 @@ public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
     public String getHint() {
         return context.getString(R.string.amount_hint_denomination, account.getCoinType().getSymbol());
     }
-
-    @Override
-    public String getFormattedValue(CurrencyValue sum) {
-        return Utils.getColuFormattedValueWithUnit(sum);
-    }
 }

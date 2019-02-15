@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
@@ -17,9 +18,9 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import java.util.Collections;
 import java.util.List;
 
-import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
+
     private List<FeeItem> mDataset;
     private int paddingWidth = 0;
 
@@ -54,7 +55,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         if (viewType == VIEW_TYPE_ITEM) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
+                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
@@ -66,7 +67,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             return new FeeViewAdapter.ViewHolder(v, this);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
-                    parent, false);
+                        parent, false);
 
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -74,6 +75,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             return new FeeViewAdapter.ViewHolder(view, this);
         }
     }
+
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
@@ -83,7 +85,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, mBTC));
+                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, Denomination.MILLI));
             }
             if (item.fiatValue != null) {
                 holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
@@ -121,7 +123,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         return mDataset.get(position).type;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView categoryTextView;
         public TextView itemTextView;

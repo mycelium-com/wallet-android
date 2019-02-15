@@ -132,7 +132,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddre
     * @throws StandardTransactionBuilder.InsufficientFundsException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(List<WalletAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
+   UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
            StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**

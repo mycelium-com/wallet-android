@@ -9,15 +9,11 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.GenericTransaction
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
 import com.mycelium.wapi.wallet.bch.coins.BchMain
 import com.mycelium.wapi.wallet.bch.coins.BchTest
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
-import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_FROM_MASTERSEED
@@ -56,7 +52,7 @@ open class Bip44BCHAccount(
         return transactions.firstOrNull { it.txid == txid }
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long, destinationAddress: BtcAddress): Value {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         val txFee = "NORMAL"
         val txFeeFactor = 1.0f
@@ -68,9 +64,6 @@ open class Bip44BCHAccount(
                     spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
         }
     }
-
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long, destinationAddress: Address?) =
-        calculateMaxSpendableAmount(minerFeePerKbToUse)
 
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())

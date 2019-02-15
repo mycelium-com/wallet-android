@@ -118,6 +118,7 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -125,6 +126,7 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
@@ -136,7 +138,10 @@ import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -433,9 +438,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         // Amount Hint
         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
-                _account.getCoinType() == Utils.getBtcCoinType()
-                        ? _mbwManager.getBitcoinDenomination().toString()
-                        : _account.getCoinType().getSymbol()));
+                _mbwManager.getDenomination().getUnicodeString(_account.getCoinType().getSymbol())));
         tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
 
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -558,7 +561,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _transactionStatus = tryCreateUnsignedTransaction();
                 List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), Value.zeroValue(_account.getCoinType()), null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation().value, Value.zeroValue(_account.getCoinType()), null, FeeViewAdapter.VIEW_TYPE_ITEM));
             }
         });
         feeLvlList.setSelectedItem(selectedIndex);
@@ -663,7 +666,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // if no amount is set so far, use an unknown amount but in the current accounts currency
             presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
         }
-        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation(),
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation().value,
                 _account.getCoinType(), _isColdStorage, _account.getReceiveAddress());
     }
 
@@ -697,14 +700,17 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                                 new AsyncTask<Void, Void, Boolean>() {
                                     @Override
                                     protected Boolean doInBackground(Void... voids) {
-                                        SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend);
+                                        SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend, getCurrentFeeEstimation());
                                         try {
-                                            _account.completeAndSignTx(sendRequest, AesKeyCipher.defaultKeyCipher());
+                                            _account.completeTransaction(sendRequest);
+                                            _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
                                             _account.broadcastTx(sendRequest.tx);
                                             return true;
-                                        } catch (WalletAccount.WalletAccountException e) {
-                                            Log.e(TAG, "", e);
-                                        } catch (TransactionBroadcastException e) {
+                                        } catch (GenericTransactionBroadcastException |
+                                                GenericBuildTransactionException |
+                                                GenericOutputTooSmallException|
+                                                GenericInsufficientFundsException|
+                                                KeyCipher.InvalidKeyCipher e) {
                                             Log.e(TAG, "", e);
                                         }
                                         return false;
@@ -752,13 +758,17 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (hasAddressData) {
-                sendRequest = _account.getSendToRequest(_receivingAddress, toSend);
+                sendRequest = _account.getSendToRequest(_receivingAddress, toSend, getCurrentFeeEstimation());
                 _account.completeTransaction(sendRequest);
             } else {
                 return TransactionStatus.MissingArguments;
             }
             return TransactionStatus.OK;
-        } catch (WalletAccount.WalletAccountException ex) {
+        } catch (GenericBuildTransactionException ex) {
+            return TransactionStatus.InsufficientFunds;
+        } catch (GenericOutputTooSmallException ex) {
+            return TransactionStatus.OutputTooSmall;
+        } catch (GenericInsufficientFundsException ex) {
             return TransactionStatus.InsufficientFunds;
         }
     }
@@ -776,7 +786,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation(), Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation().value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
@@ -885,7 +895,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             switch (_transactionStatus) {
                 case OutputTooSmall:
                     // Amount too small
-                    tvAmount.setText(_mbwManager.getBtcValueString(getValueToSend().value));
+                    tvAmount.setText(ValueExtensionsKt.toStringWithUnit(getValueToSend(), _mbwManager.getDenomination()));
                     tvAmountFiat.setVisibility(GONE);
                     break;
                 case InsufficientFunds:
@@ -902,9 +912,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
                                 primaryAmount.type.equals(_account.getCoinType())
-                                        ? _mbwManager.getFiatCurrency()
-                                        : _account.getCoinType());
-                        String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getBitcoinDenomination());
+                                        ? _mbwManager.getFiatCurrency() : _account.getCoinType());
+                        String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getDenomination());
                         if (!primaryAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                             // on an FX rate
@@ -916,7 +925,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         } else {
                             // show the alternative amount
                             String alternativeAmountString =
-                                    ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getBitcoinDenomination());
+                                    ValueExtensionsKt.toStringWithUnit(alternativeAmount, _mbwManager.getDenomination());
 
                             if (!alternativeAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
@@ -941,16 +950,16 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-    private long getCurrentFeeEstimation(){
+    private Value getCurrentFeeEstimation(){
         switch (feeLvl){
             case LOWPRIO:
-                return feeEstimation.getLow().value;
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getLow().value);
             case NORMAL:
-                return feeEstimation.getNormal().value;
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().value);
             case PRIORITY:
-                return feeEstimation.getHigh().value;
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getHigh().value);
             default:
-                return feeEstimation.getNormal().value;
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().value);
         }
     }
 
@@ -999,7 +1008,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _transactionStatus = tryCreateUnsignedTransaction();
         String feeWarning = null;
         tvFeeWarning.setOnClickListener(null);
-        if (getCurrentFeeEstimation() == 0) {
+        if (getCurrentFeeEstimation().value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
         if (_unsigned == null) {
@@ -1016,14 +1025,14 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
             long fee = _unsigned.calculateFee();
-            if (fee != size * getCurrentFeeEstimation() / 1000) {
+            if (fee != size * getCurrentFeeEstimation().value / 1000) {
                 //TODO: use Value class
                 Value value = Value.valueOf(_account.getCoinType(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                String fiat = Utils.getFormattedValueWithUnit(fiatValue, _mbwManager.getBitcoinDenomination());
+                String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
                 fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
                 feeWarning = getString(R.string.fee_change_warning
-                        , Utils.getFormattedValueWithUnit(value, _mbwManager.getBitcoinDenomination())
+                        , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
                         , fiat);
                 tvFeeWarning.setOnClickListener(new View.OnClickListener() {
                     @Override

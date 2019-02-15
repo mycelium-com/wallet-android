@@ -41,6 +41,7 @@ import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.btchip.BTChipDongle;
 import com.btchip.BTChipException;
 import com.btchip.BitcoinTransaction;
@@ -60,21 +61,35 @@ import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.bip44.*;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.squareup.otto.Bus;
-import nordpol.android.OnDiscoveredTagListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -84,6 +99,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import nordpol.android.OnDiscoveredTagListener;
 
 public class LedgerManager extends AbstractAccountScanManager implements
         ExternalSignatureProvider, OnDiscoveredTagListener {
@@ -242,8 +259,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
          private LegacyParams(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
             outputAddress = getOutputAddressString(unsigned, forAccount);
-            amount = CoinUtil.valueString(calculateTotalSending(unsigned, forAccount), false);
-            fees = CoinUtil.valueString(unsigned.calculateFee(), false);
+            amount = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(calculateTotalSending(unsigned, forAccount)));
+            fees = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(unsigned.calculateFee()));
          }
       }
 

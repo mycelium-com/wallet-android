@@ -8,6 +8,7 @@ import com.mycelium.wapi.model.TransactionSummary
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking
 import com.mycelium.wapi.wallet.SpvBalanceFetcher
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
@@ -33,16 +34,13 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
         return spvBalanceFetcher.retrieveByUnrelatedAccountId(id.toString())
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeePerKbToUse: Long, destinationAddress: BtcAddress): Value {
         //TODO Refactor the code and make the proper usage of minerFeePerKbToUse parameter
         val txFee = "NORMAL"
         val txFeeFactor = 1.0f
         return Value.valueOf( if(_network.isProdnet())  BitcoinMain.get() else BitcoinTest.get(),
                 spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
     }
-
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: Address?) =
-            calculateMaxSpendableAmount(minerFeeToUse)
 
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())

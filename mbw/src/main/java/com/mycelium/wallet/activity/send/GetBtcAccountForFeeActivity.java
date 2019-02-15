@@ -77,7 +77,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     AccountForFee accountForFee = (AccountForFee) getItem(position);
-                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
+                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getDenomination()));
                     return view;
                 }
             });

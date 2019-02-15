@@ -1,15 +1,15 @@
 package com.mycelium.wapi.wallet;
 
-import com.megiontechnologies.Bitcoins;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,23 +17,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     void setAllowZeroConfSpending(boolean b);
 
-    class WalletAccountException extends Exception {
-        public WalletAccountException(Throwable cause) {
-            super(cause);
-        }
+    void completeTransaction(SendRequest<T> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
-        public WalletAccountException(String s) {
-            super(s);
-        }
-    }
+    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
 
-    void completeAndSignTx(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
-
-    void completeTransaction(SendRequest<T> request) throws WalletAccountException;
-
-    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
-
-    BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException;
+    BroadcastResult broadcastTx(T tx) throws GenericTransactionBroadcastException;
 
     /**
      * Get current receive address
@@ -64,14 +52,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     List<T> getTransactionsSince(long receivingSince);
 
-
-    void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount)
-            throws StandardTransactionBuilder.InsufficientFundsException,
-            StandardTransactionBuilder.OutputTooSmallException,
-            StandardTransactionBuilder.UnableToBuildTransactionException;
-
-
-    SendRequest<T> getSendToRequest(A destination, Value amount);
+    SendRequest<T> getSendToRequest(A destination, Value amount, Value fee);
 
     List<GenericTransaction.GenericOutput> getUnspentOutputs();
 
@@ -182,8 +163,9 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     /**
      * Determine the maximum spendable amount you can send in a transaction
+     * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(long minerFeeToUse);
+    Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization
@@ -198,30 +180,4 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns the private key used by the account to sign transactions
      */
     InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
-
-    /**
-     * Class representing a receiver of funds
-     */
-    class Receiver implements Serializable {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * The address to send funds to
-         */
-        public final GenericAddress address;
-
-        /**
-         * The amount to send measured in satoshis
-         */
-        public final long amount;
-
-        public Receiver(GenericAddress address, long amount) {
-            this.address = address;
-            this.amount = amount;
-        }
-
-        public Receiver(GenericAddress address, Bitcoins amount) {
-            this(address, amount.getLongValue());
-        }
-    }
 }
