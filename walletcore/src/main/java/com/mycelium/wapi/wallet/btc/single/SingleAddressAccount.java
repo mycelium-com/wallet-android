@@ -516,6 +516,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       receivers.add(new BtcReceiver(btcSendRequest.getDestination().getAddress(), btcSendRequest.getAmount().value));
       try {
          btcSendRequest.setUnsignedTx(createUnsignedTransaction(receivers, request.fee.value));
+         request.setCompleted(true);
       } catch (StandardTransactionBuilder.OutputTooSmallException e) {
          throw new GenericOutputTooSmallException(e);
       } catch (StandardTransactionBuilder.InsufficientFundsException e) {

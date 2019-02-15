@@ -735,6 +735,7 @@ open class HDAccount(
         receivers.add(BtcReceiver(btcSendRequest.destination.address, btcSendRequest.amount.value))
         try {
             btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+            request.isCompleted = true
         } catch (e: StandardTransactionBuilder.OutputTooSmallException) {
             throw GenericOutputTooSmallException(e)
         } catch (e: StandardTransactionBuilder.InsufficientFundsException) {
