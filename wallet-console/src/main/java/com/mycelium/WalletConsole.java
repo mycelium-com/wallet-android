@@ -18,7 +18,6 @@ import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;

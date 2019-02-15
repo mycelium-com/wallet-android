@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
@@ -16,12 +17,6 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 
 import java.util.Collections;
 import java.util.List;
-
-import static com.mrd.bitlib.util.CoinUtil.Denomination.MILLI;
-
-/**
- * Created by elvis on 31.08.17.
- */
 
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
@@ -90,7 +85,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, MILLI));
+                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, Denomination.MILLI));
             }
             if (item.fiatValue != null) {
                 holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));

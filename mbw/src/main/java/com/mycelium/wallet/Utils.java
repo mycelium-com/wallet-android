@@ -87,7 +87,6 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
@@ -970,47 +969,8 @@ public class Utils {
       return format.format(date);
    }
 
-   public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination) {
-      if (value == null) {
-         return "";
-      }
-
-      if (value.isBtc()) {
-         return getFormattedValueWithUnit((BitcoinValue) value, denomination);
-      } else if(value.isBch()) {
-        return getFormattedValueWithUnit(ExactBitcoinCashValue.from(value.getValue()), denomination);
-      } else {
-         BigDecimal val = value.getValue();
-         if (val == null) {
-            return "";
-         }
-         return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
-      }
-   }
-
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
-   }
-
-   // todo delete and use method below
-   public static String getColuFormattedValueWithUnit(CurrencyValue value) {
-      return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
-   }
-
-   public static String getFormattedValueWithUnit(BitcoinValue value, CoinUtil.Denomination denomination) {
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
-   }
-
-   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value, CoinUtil.Denomination denomination) {
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
    }
 
    public static boolean isValidEmailAddress(String value) {

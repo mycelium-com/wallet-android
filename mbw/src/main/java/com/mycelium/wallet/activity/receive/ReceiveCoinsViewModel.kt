@@ -37,7 +37,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         model.saveInstance(outState)
     }
 
-    abstract fun getHint(): String
+    open fun getHint() = context.getString(R.string.amount_hint_denomination,
+            mbwManager.denomination.getUnicodeString(account.coinType.symbol))
 
     abstract fun getFormattedValue(sum: Value): String
 

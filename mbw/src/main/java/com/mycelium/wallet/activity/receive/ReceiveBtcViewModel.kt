@@ -49,8 +49,6 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination,
-                mbwManager.denomination.toString())
 
     override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
 

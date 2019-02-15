@@ -40,7 +40,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -142,7 +142,8 @@ public class BitcoinUri implements Serializable {
             .scheme("bitcoin")
             .authority(address == null ? "" : address.toString());
       if (amount != null) {
-         builder.appendQueryParameter("amount", CoinUtil.valueString(amount, false));
+         builder.appendQueryParameter("amount",
+                 ValueExtensionsKt.toString(Utils.getBtcCoinType().value(amount)));
       }
       if (label != null) {
          builder.appendQueryParameter("label", label);

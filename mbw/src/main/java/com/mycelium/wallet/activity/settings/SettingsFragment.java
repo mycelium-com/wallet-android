@@ -44,12 +44,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -399,9 +399,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             processPairedModules(modulesPrefs);
         }
         processUnpairedModules(modulesPrefs);
-        final HashMap<String, CoinUtil.Denomination> denominationMap = new LinkedHashMap<>();
+        final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
         String defaultValue = "";
-        for (CoinUtil.Denomination value : CoinUtil.Denomination.values()) {
+        for (Denomination value : Denomination.values()) {
             String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
             denominationMap.put(key, value);
             if (value == _mbwManager.getDenomination()) {

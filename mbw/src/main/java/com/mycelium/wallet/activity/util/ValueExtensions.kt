@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.util
 
-import com.mrd.bitlib.util.CoinUtil
+import com.mycelium.view.Denomination
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -10,17 +10,17 @@ import java.text.DecimalFormat
 
 
 @JvmOverloads
-fun Value.toStringWithUnit(denomination: CoinUtil.Denomination = CoinUtil.Denomination.UNIT): String {
+fun Value.toStringWithUnit(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
     return String.format("%s %s", toString(denomination), denomination.getUnicodeString(type.symbol))
 }
 
 @JvmOverloads
-fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.UNIT): String {
+fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
     var result = valueAsBigDecimal
-    if (type !is FiatType && denomination != CoinUtil.Denomination.UNIT) {
-        result = result.movePointRight(type.unitExponent - denomination.decimalPlaces)
+    if (type !is FiatType && denomination != Denomination.UNIT) {
+        result = result.movePointRight(denomination.base10)
     }
     return CoinFormat.format(result)
 }

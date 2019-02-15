@@ -35,9 +35,4 @@ public class BTCAccountDisplayStrategy implements AccountDisplayStrategy {
         return context.getString(R.string.amount_hint_denomination,
                 mbwManager.getDenomination().toString());
     }
-
-    @Override
-    public String getFormattedValue(CurrencyValue sum) {
-        return Utils.getFormattedValueWithUnit(sum, mbwManager.getDenomination());
-    }
 }

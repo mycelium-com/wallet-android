@@ -15,8 +15,6 @@ class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewM
         model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
     }
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination, account.coinType.symbol)
-
     override fun getFormattedValue(sum: Value) = sum.toStringWithUnit()
 
     override fun getCurrencyName() = account.coinType.symbol

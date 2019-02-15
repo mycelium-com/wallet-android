@@ -77,8 +77,6 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mrd.bitlib.util.CoinUtil.Denomination;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
@@ -86,6 +84,7 @@ import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
@@ -357,7 +356,7 @@ public class MbwManager {
             _exchangeRateManager,
             fiatCurrencies,
             new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-            Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+            Denomination.Companion.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -1097,11 +1096,11 @@ public class MbwManager {
     }
 
 
-    public CoinUtil.Denomination getDenomination() {
+    public Denomination getDenomination() {
         return _currencySwitcher.getDenomination();
     }
 
-    public void setBitcoinDenomination(CoinUtil.Denomination denomination) {
+    public void setBitcoinDenomination(Denomination denomination) {
         _currencySwitcher.setDenomination(denomination);
         getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
     }

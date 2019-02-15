@@ -34,6 +34,10 @@ public class CoinUtil {
    private static final BigDecimal uBTC_IN_SATOSHIS = new BigDecimal(100);
    private static final BigDecimal BITS_IN_SATOSHIS = new BigDecimal(100);
 
+   private static final BigDecimal BCH_IN_SATOSHIS = new BigDecimal(100000000);
+   private static final BigDecimal mBCH_IN_SATOSHIS = new BigDecimal(100000);
+   private static final BigDecimal uBCH_IN_SATOSHIS = new BigDecimal(100);
+
    private static final DecimalFormat COIN_FORMAT;
 
    static {
@@ -48,9 +52,12 @@ public class CoinUtil {
    }
 
    public enum Denomination {
-      UNIT(8, "", "",  BTC_IN_SATOSHIS),
-      MILLI(5, "m", "m", mBTC_IN_SATOSHIS),
-      MICRO(2, "u", "\u00B5", uBTC_IN_SATOSHIS),
+      BTC(8, "BTC", "BTC",  BTC_IN_SATOSHIS),
+      mBTC(5, "mBTC", "mBTC", mBTC_IN_SATOSHIS),
+      uBTC(2, "uBTC", "\u00B5BTC", uBTC_IN_SATOSHIS),
+      BCH(8, "BCH", "BCH", BCH_IN_SATOSHIS),
+      mBCH(5, "mBCH", "mBCH", mBCH_IN_SATOSHIS),
+      uBCH(2, "uBCH", "\u00B5BCH", uBCH_IN_SATOSHIS),
       BITS(2, "bits", "bits", BITS_IN_SATOSHIS);
 
       private final int _decimalPlaces;
@@ -66,18 +73,12 @@ public class CoinUtil {
       }
 
       public String getUnicodeString(String symbol) {
-         if (symbol.contains("BTC") || symbol.contains("BCH")) {
-            switch (this) {
-               case UNIT:
-                  return symbol;
-               case MILLI:
-               case MICRO:
-                  return this.getUnicodeName().substring(0, 1) + symbol;
-               default:
-                  return getUnicodeName();
-            }
-         } else {
+         if (this == BTC || this == BCH) {
             return symbol;
+         } else if (this == mBTC || this == mBCH || this == uBTC || this == uBCH) {
+            return this.getUnicodeName().substring(0, 1) + symbol;
+         } else {
+            return getUnicodeName();
          }
       }
 
@@ -97,24 +98,32 @@ public class CoinUtil {
          return _oneUnitInSatoshis;
       }
 
+      @Override
+      public String toString() {
+         return _asciiString;
+      }
+
       public static Denomination fromString(String string) {
          if (string == null) {
-            return UNIT;
+            return BTC;
          }
          switch (string) {
-            case "BTC"://back compatibility
-            case "unit":
-               return UNIT;
-            case "mBTC"://back compatibility
-            case "milli":
-               return MILLI;
-            case "uBTC": //back compatibility
-            case "micro":
-               return MICRO;
+            case "BTC":
+               return BTC;
+            case "mBTC":
+               return mBTC;
+            case "uBTC":
+               return uBTC;
+            case "BCH":
+               return BCH;
+            case "mBCH":
+               return mBCH;
+            case "uBCH":
+               return uBCH;
             case "bits":
                return BITS;
             default:
-               return UNIT;
+               return BTC;
          }
       }
    }
@@ -139,7 +148,7 @@ public class CoinUtil {
     * @return The given value in satoshis as a string on the form "10.12345".
     */
    public static String valueString(long value, boolean withThousandSeparator) {
-      return valueString(value, Denomination.UNIT, withThousandSeparator);
+      return valueString(value, Denomination.BTC, withThousandSeparator);
    }
 
    /**
@@ -231,7 +240,7 @@ public class CoinUtil {
     * @return The given value in satoshis as a string on the form "10.12345000".
     */
    public static String fullValueString(long value) {
-      return fullValueString(value, Denomination.UNIT);
+      return fullValueString(value, Denomination.BTC);
    }
 
    /**

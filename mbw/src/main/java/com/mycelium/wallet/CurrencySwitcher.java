@@ -35,13 +35,11 @@
 package com.mycelium.wallet;
 
 import com.google.api.client.util.Lists;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.bch.coins.BchMain;
 import com.mycelium.wapi.wallet.bch.coins.BchTest;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -58,7 +56,7 @@ public class CurrencySwitcher {
 
     private List<GenericAssetInfo> fiatCurrencies;
     private List<GenericAssetInfo> walletCurrencies;
-    private CoinUtil.Denomination denomination;
+    private Denomination denomination;
 
     // the last selected/shown fiat currency
     private GenericAssetInfo currentFiatCurrency;
@@ -68,7 +66,7 @@ public class CurrencySwitcher {
     private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<GenericAssetInfo> fiatCurrencies
-           , GenericAssetInfo currentCurrency, final CoinUtil.Denomination denomination) {
+           , GenericAssetInfo currentCurrency, final Denomination denomination) {
       this.exchangeRateManager = exchangeRateManager;
       ArrayList<GenericAssetInfo> currencies = Lists.newArrayList(fiatCurrencies);
       Collections.sort(currencies, new Comparator<GenericAssetInfo>() {
@@ -214,12 +212,12 @@ public class CurrencySwitcher {
       return currentCurrency;
    }
 
-   public CoinUtil.Denomination getDenomination() {
+   public Denomination getDenomination() {
       return denomination;
    }
 
-   public void setDenomination(CoinUtil.Denomination _bitcoinDenomination) {
-      this.denomination = _bitcoinDenomination;
+   public void setDenomination(Denomination _denomination) {
+      this.denomination = _denomination;
    }
 
    public boolean isFiatExchangeRateAvailable() {
