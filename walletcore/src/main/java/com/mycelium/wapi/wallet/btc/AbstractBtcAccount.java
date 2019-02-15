@@ -1043,17 +1043,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return outputs;
    }
 
-   @Override
    public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
-      if (destinationAddress != null) {
-         return _calculateMaxSpendableAmount(minerFeePerKbToUse, destinationAddress.getAddress());
-      } else {
-         return _calculateMaxSpendableAmount(minerFeePerKbToUse, null);
-      }
-   }
 
+      Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
-   private synchronized Value _calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
@@ -1069,7 +1062,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
               .setMinerFeePerKb(minerFeePerKbToUse);
-      addOutputToEstimation(destinationAddress, estimatorBuilder);
+      addOutputToEstimation(destAddress, estimatorBuilder);
       FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
 
