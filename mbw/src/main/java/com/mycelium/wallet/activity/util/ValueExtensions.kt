@@ -1,18 +1,22 @@
 package com.mycelium.wallet.activity.util
 
 import com.mycelium.view.Denomination
-import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import java.text.DecimalFormat
 
 
 @JvmOverloads
 fun Value.toStringWithUnit(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
-    return String.format("%s %s", toString(denomination), denomination.getUnicodeString(type.symbol))
+    var value = type.symbol
+    if (type !is FiatType) {
+        value = denomination.getUnicodeString(type.symbol)
+    }
+    return String.format("%s %s", toString(denomination), value)
 }
 
 @JvmOverloads
