@@ -1043,6 +1043,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return outputs;
    }
 
+   @Override
    public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
