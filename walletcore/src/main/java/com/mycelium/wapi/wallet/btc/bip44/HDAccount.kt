@@ -6,6 +6,7 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
+import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -20,6 +21,9 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -725,16 +729,19 @@ open class HDAccount(
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 
-    override fun completeAndSignTx(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {
-        completeTransaction(request)
-        signTransaction(request, keyCipher)
-    }
-
     override fun completeTransaction(request: SendRequest<BtcTransaction>) {
         val btcSendRequest = request as BtcSendRequest
-        val receivers = ArrayList<WalletAccount.Receiver>()
-        receivers.add(WalletAccount.Receiver(btcSendRequest.destination, btcSendRequest.amount.value))
-        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+        val receivers = ArrayList<BtcReceiver>()
+        receivers.add(BtcReceiver(btcSendRequest.destination.address, btcSendRequest.amount.value))
+        try {
+            btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+        } catch (e: StandardTransactionBuilder.OutputTooSmallException) {
+            throw GenericOutputTooSmallException(e)
+        } catch (e: StandardTransactionBuilder.InsufficientFundsException) {
+            throw GenericInsufficientFundsException(e)
+        } catch (e: StandardTransactionBuilder.UnableToBuildTransactionException) {
+            throw GenericBuildTransactionException(e)
+        }
     }
 
     override fun signTransaction(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {

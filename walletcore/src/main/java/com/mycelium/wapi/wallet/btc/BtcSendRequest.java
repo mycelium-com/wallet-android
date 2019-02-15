@@ -16,16 +16,15 @@ public class BtcSendRequest extends SendRequest<BtcTransaction> implements Seria
     private BtcAddress destination;
     private UnsignedTransaction unsignedTx;
 
-    public BtcSendRequest(CryptoCurrency type, BtcAddress destination, Value amount) {
-        super(type);
+    public BtcSendRequest(CryptoCurrency type, BtcAddress destination, Value amount, Value feePerKb) {
+        super(type, feePerKb);
 
         this.destination = destination;
         this.amount = amount;
     }
 
-    public static BtcSendRequest to(BtcAddress destination, Value amount) {
-        BtcSendRequest req = new BtcSendRequest(destination.getCoinType(), destination, amount);
-        return req;
+    public static BtcSendRequest to(BtcAddress destination, Value amount, Value feePerkb) {
+        return new BtcSendRequest(destination.getCoinType(), destination, amount, feePerkb);
     }
 
     public Value getAmount() {

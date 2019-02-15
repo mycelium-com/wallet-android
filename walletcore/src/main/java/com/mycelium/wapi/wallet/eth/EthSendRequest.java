@@ -9,15 +9,15 @@ public class EthSendRequest extends SendRequest<EthTransaction> {
 
     private EthAddress destination;
 
-    public EthSendRequest(CryptoCurrency type, EthAddress destination, Value amount) {
-        super(type);
+    public EthSendRequest(CryptoCurrency type, EthAddress destination, Value amount, Value fee) {
+        super(type, fee);
 
         this.destination = destination;
         this.amount = amount;
     }
 
-    public static EthSendRequest to(EthAddress destination, Value amount) {
-        EthSendRequest req = new EthSendRequest(destination.getCoinType(), destination, amount);
+    public static EthSendRequest to(EthAddress destination, Value amount, Value fee) {
+        EthSendRequest req = new EthSendRequest(destination.getCoinType(), destination, amount, fee);
         return req;
     }
 

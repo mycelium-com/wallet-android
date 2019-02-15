@@ -41,17 +41,20 @@ import com.mycelium.wapi.wallet.GenericInput;
 import com.mycelium.wapi.wallet.InputSigner;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -507,36 +510,29 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public void completeAndSignTx(SendRequest<BtcTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
-      completeTransaction(request);
-      signTransaction(request, keyCipher);
-   }
-
-   @Override
-   public void completeTransaction(SendRequest<BtcTransaction> request) throws WalletAccountException {
+   public void completeTransaction(SendRequest<BtcTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
       BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      List<WalletAccount.Receiver> receivers = new ArrayList<>();
-      receivers.add(new WalletAccount.Receiver(btcSendRequest.getDestination(), btcSendRequest.getAmount().value));
+      List<BtcReceiver> receivers = new ArrayList<>();
+      receivers.add(new BtcReceiver(btcSendRequest.getDestination().getAddress(), btcSendRequest.getAmount().value));
       try {
          btcSendRequest.setUnsignedTx(createUnsignedTransaction(receivers, request.fee.value));
-      } catch (StandardTransactionBuilder.OutputTooSmallException | StandardTransactionBuilder.InsufficientFundsException
-              | StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         e.printStackTrace();
+      } catch (StandardTransactionBuilder.OutputTooSmallException e) {
+         throw new GenericOutputTooSmallException(e);
+      } catch (StandardTransactionBuilder.InsufficientFundsException e) {
+         throw new GenericInsufficientFundsException(e);
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+         throw new GenericBuildTransactionException(e);
       }
    }
 
    @Override
-   public void signTransaction(SendRequest<BtcTransaction> request, KeyCipher keyCipher ) throws WalletAccountException {
+   public void signTransaction(SendRequest<BtcTransaction> request, KeyCipher keyCipher ) throws InvalidKeyCipher {
       BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      try {
-         btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
-      } catch (InvalidKeyCipher invalidKeyCipher) {
-         invalidKeyCipher.printStackTrace();
-      }
+      btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
    }
 
    @Override
-   public BroadcastResult broadcastTx(BtcTransaction tx) throws TransactionBroadcastException {
+   public BroadcastResult broadcastTx(BtcTransaction tx) throws GenericTransactionBroadcastException {
       return broadcastTransaction(tx.getRawTransaction());
    }
 

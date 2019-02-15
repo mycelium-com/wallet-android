@@ -64,12 +64,16 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -184,7 +188,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
       //}
       //todo: get units from account
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee);
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
@@ -395,13 +399,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = Value.valueOf(_account.getCoinType(),
-              _account.getAccountBalance().getSpendable().value);
-      // todo was Value.fromValue(_maxSpendableAmount, _amount.getCurrencySymbol(), _mbwManager.getExchangeRateManager());
-
       String maxBalanceString = "";
       maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getBitcoinDenomination()));
+               , ValueExtensionsKt.toStringWithUnit(_maxSpendableAmount, _mbwManager.getBitcoinDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -522,13 +522,15 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
       try {
          Address address = Address.getNullAddress(_mbwManager.getNetwork());
-         WalletAccount.Receiver receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), satoshis);
-         _account.checkAmount(receiver, _kbMinerFee, _amount);
-      } catch (OutputTooSmallException e1) {
+
+         SendRequest<?> sendRequest = _account.getSendToRequest(AddressUtils.fromAddress(address), Value.valueOf(_account.getCoinType(), satoshis), Value.valueOf(_account.getCoinType(), _kbMinerFee));
+         _account.completeTransaction(sendRequest);
+
+      } catch (GenericOutputTooSmallException e) {
          return AmountValidation.ValueTooSmall;
-      } catch (InsufficientFundsException e) {
+      } catch (GenericInsufficientFundsException e) {
          return AmountValidation.NotEnoughFunds;
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
+      } catch (GenericBuildTransactionException e) {
           // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
           // debug it
           _mbwManager.reportIgnoredException("MinerFeeException", e);

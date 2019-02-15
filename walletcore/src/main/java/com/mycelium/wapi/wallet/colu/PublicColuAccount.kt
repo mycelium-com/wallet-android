@@ -117,16 +117,11 @@ open class PublicColuAccount(val context: ColuAccountContext
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcLegacyAddress): Value {
         return Value.zeroValue(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
-
-    override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
+    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -258,11 +253,6 @@ open class PublicColuAccount(val context: ColuAccountContext
 
     override fun getSyncTotalRetrievedTransactions(): Int {
         return 0;
-    }
-
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
-        // This implementation is empty since this account is read only and cannot create,
-        // sign and broadcast transactions
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {

@@ -17,7 +17,7 @@ import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import java.util.*
 
 
@@ -98,7 +98,7 @@ class BroadcastDialog : DialogFragment() {
         override fun doInBackground(vararg args: Void): BroadcastResult {
             return try {
                 account.broadcastTx(transaction)
-            } catch (e: TransactionBroadcastException) {
+            } catch (e: GenericTransactionBroadcastException) {
                 Log.e("BroadcastDialog", "", e)
                 BroadcastResult(BroadcastResultType.REJECTED)
             }
