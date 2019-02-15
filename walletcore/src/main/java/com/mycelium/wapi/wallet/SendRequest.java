@@ -14,7 +14,7 @@ public abstract class SendRequest<T extends GenericTransaction> implements Seria
 
     public T tx;
 
-    public Value fee;
+    public Value fee; //May be flat fee or fee per kb, depending on asset type
 
     public boolean isCompleted() {
         return completed;
@@ -28,9 +28,9 @@ public abstract class SendRequest<T extends GenericTransaction> implements Seria
     // Tracks if this has been passed to wallet.completeTransaction already: just a safety check.
     private boolean completed;
 
-    protected SendRequest(CryptoCurrency type) {
+    protected SendRequest(CryptoCurrency type, Value fee) {
         this.type = type;
-        fee = type.getFeeValue();
+        this.fee = fee;
     }
 
     public abstract int getEstimatedTransactionSize();

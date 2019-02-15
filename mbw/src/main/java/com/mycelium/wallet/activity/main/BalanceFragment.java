@@ -310,8 +310,8 @@ public class BalanceFragment extends Fragment {
       setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
 
       // Show/Hide Sending
-      if (balance.pendingSending.isPositive()) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.pendingSending, _mbwManager.getDenomination());
+      if (balance.getSendingToForeignAddresses().isPositive()) {
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = _root.findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

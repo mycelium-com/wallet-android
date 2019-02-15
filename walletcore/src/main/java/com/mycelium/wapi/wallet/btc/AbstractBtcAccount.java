@@ -936,11 +936,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract void persistContextIfNecessary();
 
    @Override
-   public void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws InsufficientFundsException, OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
-      createUnsignedTransaction(singletonList(receiver), kbMinerFee);
-   }
-
-   @Override
    public NetworkParameters getNetwork() {
       return _network;
    }
@@ -1049,12 +1044,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse) {
-      return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
-   }
+   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
 
+      Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
-   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
       long satoshis = 0;
@@ -1070,7 +1063,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
               .setMinerFeePerKb(minerFeePerKbToUse);
-      addOutputToEstimation(destinationAddress, estimatorBuilder);
+      addOutputToEstimation(destAddress, estimatorBuilder);
       FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
 
@@ -1109,11 +1102,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    private void addOutputToEstimation(Address outputAddress, FeeEstimatorBuilder estimatorBuilder) {
-      if (outputAddress != null) {
-         estimatorBuilder.addOutput(outputAddress.getType());
-      } else {
-         estimatorBuilder.setLegacyOutputs(1);
-      }
+      AddressType type = outputAddress != null ? outputAddress.getType() : AddressType.P2PKH;
+      estimatorBuilder.addOutput(type);
    }
 
    protected abstract InMemoryPrivateKey getPrivateKey(PublicKey publicKey, KeyCipher cipher)
@@ -1131,7 +1121,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected abstract PublicKey getPublicKeyForAddress(Address address);
 
    @Override
-   public synchronized UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
+   public synchronized UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
          throws OutputTooSmallException, InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
 
@@ -1141,9 +1131,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Create the unsigned transaction
       StandardTransactionBuilder stb = new StandardTransactionBuilder(_network);
       List<Address> addressList = new ArrayList<>();
-      for (Receiver receiver : receivers) {
-         stb.addOutput(((BtcAddress)receiver.address).getAddress(), receiver.amount);
-         addressList.add(((BtcAddress)receiver.address).getAddress());
+      for (BtcReceiver receiver : receivers) {
+         stb.addOutput(receiver.address, receiver.amount);
+         addressList.add(receiver.address);
       }
       Address changeAddress = getChangeAddress(addressList);
       return stb.createUnsignedTransaction(spendable, changeAddress, new PublicKeyRing(),
@@ -1643,8 +1633,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(BtcAddress destination, Value amount) {
-      return BtcSendRequest.to(destination, amount);
+   public SendRequest getSendToRequest(BtcAddress destination, Value amount, Value feePerKb) {
+      return BtcSendRequest.to(destination, amount, feePerKb);
    }
 
    @Override

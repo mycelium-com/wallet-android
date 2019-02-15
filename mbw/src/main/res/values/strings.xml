@@ -1358,4 +1358,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
     </plurals>
+    <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
+    <string name="account_gap">Account Gap</string>
+    <string name="address_gaps">Address gaps: </string>
+    <string name="gaps_button_ok">OK</string>
+    <string name="gaps_button_ignore">Ignore</string>
 </resources>

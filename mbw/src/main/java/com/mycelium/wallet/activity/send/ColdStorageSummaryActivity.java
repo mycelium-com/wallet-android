@@ -163,8 +163,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingBalance().value > 0) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingBalance(), _mbwManager.getDenomination());
+      if (balance.getSendingToForeignAddresses().value > 0) {
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

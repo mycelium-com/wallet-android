@@ -18,6 +18,7 @@ import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
+import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
@@ -33,6 +34,7 @@ import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -51,6 +53,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
@@ -64,7 +69,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthTransaction;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.mycelium.wapi.wallet.manager.Synchronizer;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
@@ -240,9 +245,9 @@ class WalletConsole {
             System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
             System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
 
-            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest(ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000));
-
-            ethAccount1.completeAndSignTx(sendRequest, AesKeyCipher.defaultKeyCipher());
+            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest(ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000), Value.valueOf(EthMain.INSTANCE, 10000));
+            ethAccount1.completeTransaction(sendRequest);
+            ethAccount1.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
             ethAccount1.broadcastTx(sendRequest.tx);
 
             System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
@@ -253,9 +258,9 @@ class WalletConsole {
             WalletAccount account = accounts.get(0);
             account.synchronize(SyncMode.NORMAL);
              System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());
-        } catch (TransactionBroadcastException ex) {
+        } catch (GenericTransactionBroadcastException ex) {
             ex.printStackTrace();
-        } catch (WalletAccount.WalletAccountException ex) {
+        } catch (GenericBuildTransactionException | GenericInsufficientFundsException | GenericOutputTooSmallException ex) {
             ex.printStackTrace();
         } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();
@@ -306,7 +311,7 @@ class WalletConsole {
         try {
             StandardTransactionBuilder stb = new StandardTransactionBuilder(network);
 
-            WalletAccount.Receiver receiver = new WalletAccount.Receiver(hdAccount3.getReceiveAddress(), 10000l);
+            BtcReceiver receiver = new BtcReceiver( ((BtcAddress)hdAccount3.getReceiveAddress()).getAddress(), 10000l);
 
             stb.addOutput(((BtcAddress) receiver.address).getAddress(), receiver.amount);
 

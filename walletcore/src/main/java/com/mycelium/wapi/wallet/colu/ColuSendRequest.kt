@@ -10,8 +10,8 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 
 
-class ColuSendRequest(type: CryptoCurrency?, val destination: BtcLegacyAddress, val amount: Value)
-    : SendRequest<ColuTransaction>(type) {
+class ColuSendRequest(type: CryptoCurrency?, val destination: BtcLegacyAddress, val amount: Value, var _fee: Value)
+    : SendRequest<ColuTransaction>(type, _fee) {
     var txHex: String? = null
 
     var fundingAddress: List<BtcAddress> = listOf()
