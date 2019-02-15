@@ -1053,7 +1053,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return calculateMaxSpendableAmount(minerFeePerKbToUse, null);
    }
 
-
    public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, Address destinationAddress) {
       checkNotArchived();
       Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
@@ -1064,10 +1063,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          satoshis += output.value;
       }
 
-      // TODO: 25.06.17 the following comment was justifying to assume two outputs, which might wrongly lead to no spendable funds or am I reading the wrongly? I assume one output only for the max.
-      // we will use all of the available inputs and it will be only one output
-      // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
-      // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
               .setMinerFeePerKb(minerFeePerKbToUse);
       addOutputToEstimation(destinationAddress, estimatorBuilder);

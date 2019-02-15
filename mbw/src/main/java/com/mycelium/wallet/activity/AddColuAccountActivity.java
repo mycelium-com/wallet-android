@@ -68,8 +68,6 @@ import butterknife.OnClick;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 public class AddColuAccountActivity extends Activity {
-   public static final int RESULT_COLU = 3;
-
    public static final String TAG = "AddColuAccountActivity";
 
    @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
@@ -78,8 +76,7 @@ public class AddColuAccountActivity extends Activity {
    ColuMain selectedColuAsset;
 
    public static Intent getIntent(Context context) {
-      Intent intent = new Intent(context, AddColuAccountActivity.class);
-      return intent;
+      return new Intent(context, AddColuAccountActivity.class);
    }
 
    public static final String RESULT_KEY = "account";
@@ -156,7 +153,7 @@ public class AddColuAccountActivity extends Activity {
                   _mbwManager.runPinProtectedFunction(AddColuAccountActivity.this, new Runnable() {
                      @Override
                      public void run() {
-                        new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset).execute();
+                        new AddColuAsyncTask(coluAsset).execute();
 
                      }
                   });
@@ -167,12 +164,10 @@ public class AddColuAccountActivity extends Activity {
 
    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private final boolean alreadyHadColuAccount;
-      private Bus bus;
       private final ColuMain coluAsset;
       private final ProgressDialog progressDialog;
 
-      public AddColuAsyncTask(Bus bus, ColuMain coluAsset) {
-         this.bus = bus;
+      public AddColuAsyncTask(ColuMain coluAsset) {
          this.coluAsset = coluAsset;
          this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
          progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
@@ -186,9 +181,8 @@ public class AddColuAccountActivity extends Activity {
          _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, true);
          try {
             InMemoryPrivateKey key = new InMemoryPrivateKey(_mbwManager.getRandomSource(), true);
-            UUID uuid = _mbwManager.getWalletManager(false)
+            return _mbwManager.getWalletManager(false)
                     .createAccounts(new PrivateColuConfig(key, coluAsset,AesKeyCipher.defaultKeyCipher())).get(0);
-            return uuid;
          } catch (Exception e) {
             Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage(), e);
             return null;
@@ -216,7 +210,7 @@ public class AddColuAccountActivity extends Activity {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       setButtonEnabled();
       super.onResume();
    }
@@ -224,9 +218,8 @@ public class AddColuAccountActivity extends Activity {
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }
-
 }

@@ -19,14 +19,8 @@ import java.util.List;
 
 import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
 
-/**
- * Created by elvis on 31.08.17.
- */
-
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
-
     private List<FeeItem> mDataset;
-    public static final int VIEW_TYPE_ITEM = 2;
     private int paddingWidth = 0;
 
     public FeeViewAdapter(int paddingWidth) {
@@ -80,7 +74,6 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             return new FeeViewAdapter.ViewHolder(view, this);
         }
     }
-
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
