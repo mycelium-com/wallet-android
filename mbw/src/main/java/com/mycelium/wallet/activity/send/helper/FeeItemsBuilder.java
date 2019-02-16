@@ -102,7 +102,8 @@ public class FeeItemsBuilder {
             FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
             boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
-            if (currFeeItem.value != null && prevFeeItem.value != null) {
+            if (currFeeItem.value != null && prevFeeItem.value != null
+                    && currFeeItem.fiatValue != null && prevFeeItem.fiatValue != null) {
                 String thisFiatFee = currFeeItem.fiatValue.toString();
                 String prevFiatFee = prevFeeItem.fiatValue.toString();
 
