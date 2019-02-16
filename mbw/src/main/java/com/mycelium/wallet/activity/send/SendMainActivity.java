@@ -667,7 +667,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation().value,
-                _account.getCoinType(), _isColdStorage, _account.getReceiveAddress());
+                _account.getCoinType(), _isColdStorage, _receivingAddress);
     }
 
     @OnClick(R.id.btSend)

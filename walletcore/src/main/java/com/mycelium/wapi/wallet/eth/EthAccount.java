@@ -215,6 +215,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public EthAddress getDummyAddress() {
+        return null;
+    }
+
+    @Override
     public SendRequest getSendToRequest(EthAddress destination, Value amount, Value fee) {
         return EthSendRequest.to(destination, amount, fee);
     }

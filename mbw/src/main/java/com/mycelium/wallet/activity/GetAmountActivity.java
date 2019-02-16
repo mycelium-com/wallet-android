@@ -181,10 +181,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
       destinationAddress = (GenericAddress) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
 
-      // TODO - why do we need null address here?
-      // if (destinationAddress == null) {
-      //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
-      //}
+      if (destinationAddress == null) {
+         destinationAddress = _account.getDummyAddress();
+      }
+
       //todo: get units from account
       _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();

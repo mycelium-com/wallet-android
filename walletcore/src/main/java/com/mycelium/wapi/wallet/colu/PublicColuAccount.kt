@@ -8,7 +8,6 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.Balance
@@ -24,7 +23,10 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val coluClient: ColuApi
                              , val accountBacking: AccountBacking<ColuTransaction>
                              , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                             , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcLegacyAddress> {
+                             , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
+    override fun getDummyAddress(): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -69,7 +71,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     private fun convert(publicKey: PublicKey, coinType: ColuMain?): Map<AddressType, BtcAddress> {
         val btcAddress = mutableMapOf<AddressType, BtcAddress>()
         for (address in publicKey.getAllSupportedAddresses(networkParameters)) {
-            btcAddress[address.key] = BtcLegacyAddress(coinType, address.value.allAddressBytes)
+            btcAddress[address.key] = BtcAddress(coinType, address.value)
         }
         return btcAddress
     }
@@ -117,11 +119,11 @@ open class PublicColuAccount(val context: ColuAccountContext
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcLegacyAddress): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
         return Value.zeroValue(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
+    override fun getSendToRequest(destination: BtcAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

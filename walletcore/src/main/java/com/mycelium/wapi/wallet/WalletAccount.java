@@ -180,4 +180,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Returns the private key used by the account to sign transactions
      */
     InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
+
+    A getDummyAddress();
 }
