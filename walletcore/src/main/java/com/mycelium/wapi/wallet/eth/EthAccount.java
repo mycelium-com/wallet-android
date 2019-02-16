@@ -216,12 +216,12 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public EthAddress getDummyAddress() {
-        return null;
+        return new EthAddress("0x29D7d1dd5B6f9C864d9db560D72a247c178aE86B");
     }
 
     @Override
     public EthAddress getDummyAddress(String subType) {
-        return null;
+        return getDummyAddress();
     }
 
     @Override
