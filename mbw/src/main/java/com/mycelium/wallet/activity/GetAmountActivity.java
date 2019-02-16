@@ -191,7 +191,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
-         // todo get generic value (BTC/ETH) ? using _account.getAccountDefaultCurrency()
          _amount = Value.valueOf(_account.getCoinType(), 0);
          updateUI();
       }
@@ -213,8 +212,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       // set the text for the currency button
       if(isColu) {
          if (_amount == null) {
-            // todo get generic value (BTC/ETH) ? using coluAccount.getAccountDefaultCurrency()
-            _amount = Value.valueOf(_account.getCoinType(), 0);;
+            _amount = Value.valueOf(_account.getCoinType(), 0);
          }
       } else {
 //         btCurrency.setText(_mbwManager.getBitcoinDenomination().getUnicodeName());
@@ -284,7 +282,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             targetCurrency = _mbwManager.getNextCurrency(true);
          }
 //         _amount = CurrencyValue.fromValue(_amount, targetCurrency, _mbwManager.getExchangeRateManager());
-         _amount = Value.valueOf(targetCurrency, _amount.getValue()); // todo use exchange rate manager?
+         _amount = Value.valueOf(targetCurrency, _mbwManager.getExchangeRateManager().get(_amount, targetCurrency).value);
          // todo create a FiatValue for _amount?
       }
 
@@ -349,7 +347,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Show maximum spendable amount
       if (isSendMode) {
-//         showMaxAmount(); todo max
+         showMaxAmount();
       }
 
       if (_amount != null) {
@@ -380,8 +378,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      String maxBalanceString = "";
-      maxBalanceString = getResources().getString(R.string.max_btc
+      String maxBalanceString = getResources().getString(R.string.max_btc
                , ValueExtensionsKt.toStringWithUnit(_maxSpendableAmount, _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
