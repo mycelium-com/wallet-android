@@ -501,9 +501,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         Address address = Address.getNullAddress(_mbwManager.getNetwork());
-
-         SendRequest<?> sendRequest = _account.getSendToRequest(AddressUtils.fromAddress(address), Value.valueOf(_account.getCoinType(), satoshis), Value.valueOf(_account.getCoinType(), _kbMinerFee));
+         SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), Value.valueOf(_account.getCoinType(), satoshis), Value.valueOf(_account.getCoinType(), _kbMinerFee));
          _account.completeTransaction(sendRequest);
 
       } catch (GenericOutputTooSmallException e) {

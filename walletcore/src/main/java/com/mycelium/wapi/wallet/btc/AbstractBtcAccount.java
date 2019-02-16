@@ -1786,6 +1786,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
+   public BtcAddress getDummyAddress(String subType) {
+      Address address = Address.getNullAddress(getNetwork(), AddressType.valueOf(subType));
+      return new BtcAddress(getCoinType(), address);
+   }
+
+   @Override
    public List<GenericTransaction.GenericOutput> getUnspentOutputs() {
       List<TransactionOutputSummary> outputSummaryList = getUnspentTransactionOutputSummary();
       List<GenericTransaction.GenericOutput> result = new ArrayList<>();

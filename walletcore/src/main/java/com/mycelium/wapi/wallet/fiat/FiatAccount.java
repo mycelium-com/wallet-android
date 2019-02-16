@@ -189,6 +189,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
         return null;
     }
 
+    @Override
+    public FiatAddress getDummyAddress(String subType) {
+        return null;
+    }
+
 
     @Override
     public List<GenericTransaction.GenericOutput> getUnspentOutputs() {

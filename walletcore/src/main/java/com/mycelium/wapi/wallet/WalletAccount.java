@@ -182,4 +182,6 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
 
     A getDummyAddress();
+
+    A getDummyAddress(String subType);
 }
