@@ -57,7 +57,7 @@ public class FiatType extends AbstractAsset {
 
     @Override
     public Value value(long units) {
-        return null;
+        return Value.valueOf(this, units);
     }
 
  /* TODO - implement equals
@@ -79,6 +79,6 @@ e
 
     @Override
     public Value value(String string) {
-        return null;
+        return Value.parse(this, string);
     }
 }
