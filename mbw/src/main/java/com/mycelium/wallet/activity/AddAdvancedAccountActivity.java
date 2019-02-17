@@ -81,7 +81,6 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
@@ -455,7 +454,6 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          for (AddressType addressType : AddressType.values()) {
             Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
             address = AddressUtils.fromAddress(addr);
-            address = new BtcLegacyAddress(Utils.getBtcCoinType(), address.getBytes());
             Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
             if (accountId.isPresent()) {
                return null;

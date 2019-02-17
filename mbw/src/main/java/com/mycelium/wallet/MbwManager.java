@@ -134,7 +134,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
@@ -708,7 +708,8 @@ public class MbwManager {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
             InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
             SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
-                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes());
+                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes(),
+                    networkParameters);
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                                                   , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
                                                   , coinapultBacking, accountListener, getMetadataStorage()));
@@ -1238,7 +1239,7 @@ public class MbwManager {
 
     public UUID createOnTheFlyAccount(Address address) {
         UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
-                             new BtcLegacyAddress(Utils.getBtcCoinType(), address.getAllAddressBytes()))).get(0);
+                             new BtcAddress(Utils.getBtcCoinType(), address))).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;

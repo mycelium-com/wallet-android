@@ -10,7 +10,6 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.IOException
@@ -76,7 +75,7 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
         var address: GenericAddress? = null
         try {
             if (currentAddress == null) {
-                address = BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
+                address = BtcAddress(currency, Address.fromString(client.bitcoinAddress.address))
             } else {
                 val criteria = HashMap<String, String>(1)
                 criteria["to"] = address.toString()
@@ -84,7 +83,7 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
                 val alreadyUsed = search.containsKey("transaction_id")
                 address = if (alreadyUsed) {
                     // get a new one
-                    BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
+                    BtcAddress(currency, Address.fromString(client.bitcoinAddress.address))
                 } else {
                     currentAddress
                 }
