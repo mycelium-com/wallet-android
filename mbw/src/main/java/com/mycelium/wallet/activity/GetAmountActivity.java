@@ -182,17 +182,16 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
       destinationAddress = (GenericAddress) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
 
-      // TODO - why do we need null address here?
-      // if (destinationAddress == null) {
-      //   destinationAddress = Address.getNullAddress(_mbwManager.getNetwork());
-      //}
+      if (destinationAddress == null) {
+         destinationAddress = _account.getDummyAddress();
+      }
+
       //todo: get units from account
       _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
       if (_amount == null) {
-         // todo get generic value (BTC/ETH) ? using _account.getAccountDefaultCurrency()
          _amount = Value.valueOf(_account.getCoinType(), 0);
       }
 
@@ -318,7 +317,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Show maximum spendable amount
       if (isSendMode) {
-//         showMaxAmount(); todo max
+         showMaxAmount();
       }
 
       if (_amount != null) {
@@ -343,8 +342,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
-      String maxBalanceString = "";
-      maxBalanceString = getResources().getString(R.string.max_btc
+      String maxBalanceString = getResources().getString(R.string.max_btc
                , ValueExtensionsKt.toStringWithUnit(_maxSpendableAmount, _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
@@ -452,9 +450,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          return AmountValidation.Ok; //entering a fiat value + exchange is not availible
       }
       try {
-         Address address = Address.getNullAddress(_mbwManager.getNetwork());
-
-         SendRequest<?> sendRequest = _account.getSendToRequest(AddressUtils.fromAddress(address), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
+         SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
          _account.completeTransaction(sendRequest);
 
       } catch (GenericOutputTooSmallException e) {
