@@ -5,13 +5,15 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
 import com.google.common.base.Splitter
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.wallet.AccountBacking
 import com.mycelium.wapi.wallet.WalletBacking
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
@@ -24,7 +26,8 @@ import java.util.*
 
 class SQLiteCoinapultBacking(val context: Context
                              , val metadataStorage: MetadataStorage
-                             , addressByteArray: ByteArray)
+                             , addressByteArray: ByteArray
+                             , val networkParameters: NetworkParameters)
     : WalletBacking<CoinapultAccountContext, CoinapultTransaction> {
     val database: SQLiteDatabase
 
@@ -42,7 +45,7 @@ class SQLiteCoinapultBacking(val context: Context
             currencies.forEach {
                 Currency.all[it]?.let { currency ->
                     val id = CoinapultUtils.getGuidForAsset(currency, addressByteArray)
-                    val address = BtcLegacyAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get().allAddressBytes)
+                    val address = BtcAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get())
                     createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
                 }
             }
@@ -123,7 +126,7 @@ class SQLiteCoinapultBacking(val context: Context
                 val isArchived = cursor.getInt(2) == 1
                 val currency = Currency.all[cursor.getString(3)]!!
                 backings[id] = SQLiteCoinapultAccountBacking(id, database)
-                result.add(CoinapultAccountContext(id, BtcLegacyAddress(currency, addressBytes), isArchived, currency))
+                result.add(CoinapultAccountContext(id, BtcAddress(currency, Address.fromStandardBytes(addressBytes, networkParameters)), isArchived, currency))
             }
         } finally {
             cursor?.close()

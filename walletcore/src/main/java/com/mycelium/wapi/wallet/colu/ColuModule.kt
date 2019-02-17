@@ -7,7 +7,6 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.manager.Config
@@ -150,7 +149,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: NetworkParameters): Map<AddressType, BtcAddress> {
     val result = mutableMapOf<AddressType, BtcAddress>()
     for (allSupportedAddress in getAllSupportedAddresses(networkParameters)) {
-        result[allSupportedAddress.key] = BtcLegacyAddress(coin, allSupportedAddress.value.allAddressBytes)
+        result[allSupportedAddress.key] = BtcAddress(coin, allSupportedAddress.value)
     }
     return result
 }

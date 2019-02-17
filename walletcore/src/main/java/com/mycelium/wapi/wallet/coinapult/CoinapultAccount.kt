@@ -22,6 +22,14 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
+    override fun getDummyAddress(subType: String?): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getDummyAddress(): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

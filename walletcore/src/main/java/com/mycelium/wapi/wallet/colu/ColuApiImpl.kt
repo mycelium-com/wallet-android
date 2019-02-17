@@ -6,7 +6,6 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.colu.coins.MTCoin
@@ -43,7 +42,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vin.previousOutput.addresses[0])
                         input.add(GenericTransaction.GenericInput(
-                                BtcLegacyAddress(address.coinType, _address.allAddressBytes), value))
+                                BtcAddress(address.coinType, _address), value))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
                             transferred = transferred.subtract(value)
                         }
@@ -56,7 +55,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vout.scriptPubKey.addresses[0])
                         output.add(GenericTransaction.GenericOutput(
-                                BtcLegacyAddress(address.coinType, _address.allAddressBytes), value))
+                                BtcAddress(address.coinType, _address), value))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
                             transferred = transferred.add(value)
                         }

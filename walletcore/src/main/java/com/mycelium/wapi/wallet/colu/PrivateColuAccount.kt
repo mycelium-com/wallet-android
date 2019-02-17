@@ -8,7 +8,6 @@ import com.mrd.bitlib.model.*
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -26,12 +25,15 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                          , listener: AccountListener? = null)
     : PublicColuAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
+    override fun getDummyAddress(subType: String?): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return privateKey
     }
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcLegacyAddress): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcAddress): Value {
         return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)
     }
 
@@ -100,7 +102,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         }
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
+    override fun getSendToRequest(destination: BtcAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
         return ColuSendRequest(coinType, destination, amount, feePerKb)
     }
 

@@ -16,7 +16,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -118,7 +118,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
             }
             WalletManager walletManager = mbwManager.getWalletManager(false);
             if (((ColuModule)walletManager.getModuleById(ColuModule.ID)).getColuApi()
-                    .getAddressTransactions(new BtcLegacyAddress(null, address.getAllAddressBytes())).size() > 0) {
+                    .getAddressTransactions(new BtcAddress(null, address)).size() > 0) {
                 empty = 0;
                 emptyHD = 0;
                 try {
