@@ -170,7 +170,7 @@ public class AddressBookFragment extends Fragment {
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
          //TODO a lot of pr
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-         if (account.getReceiveAddress() != null && selectedAccount != account) {
+         if (account.getReceiveAddress() != null) {
             if(selectedAccount instanceof CoinapultAccount
                     && (account instanceof CoinapultAccount || account.getCoinType() == BitcoinMain.get() || account.getCoinType() == BitcoinTest.get())) {
                entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
