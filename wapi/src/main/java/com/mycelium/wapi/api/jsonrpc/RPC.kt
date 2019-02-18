@@ -34,7 +34,6 @@ object RPC {
     private val builder = GsonBuilder()
             .registerTypeAdapter(RpcParams::class.java, RpcParamsTypeAdapter())
             .serializeNulls()
-            .setLenient()
 
     val jsonParser: Gson by lazy {
         builder.create()
@@ -48,7 +47,7 @@ object RPC {
 
     fun <T> fromJson(json: BufferedReader, type: Class<T>): T = jsonParser.fromJson(JsonReader(json), type)
 
-    inline fun <reified T> fromJson(json: BufferedReader): T = jsonParser.fromJson(json, T::class.java)
+    inline fun <reified T> fromJson(json: BufferedReader): T = jsonParser.fromJson(JsonReader(json), T::class.java)
 
     @JvmStatic
     fun registerTypeAdapter(type: Type, typeAdapter: Any) {
