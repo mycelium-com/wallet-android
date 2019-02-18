@@ -3,6 +3,7 @@ package com.mycelium.wapi.api.jsonrpc
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
+import com.google.gson.stream.JsonReader
 import java.io.BufferedReader
 import java.lang.reflect.Type
 
@@ -45,7 +46,7 @@ object RPC {
 
     internal fun <T> fromJson(json: JsonElement, type: Class<T>) = jsonParser.fromJson(json, type)
 
-    fun <T> fromJson(json: BufferedReader, type: Class<T>): T = jsonParser.fromJson(json, type)
+    fun <T> fromJson(json: BufferedReader, type: Class<T>): T = jsonParser.fromJson(JsonReader(json), type)
 
     inline fun <reified T> fromJson(json: BufferedReader): T = jsonParser.fromJson(json, T::class.java)
 
