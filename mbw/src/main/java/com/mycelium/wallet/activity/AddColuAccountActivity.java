@@ -57,7 +57,6 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.squareup.otto.Bus;
 
 import java.util.UUID;
 
@@ -68,18 +67,15 @@ import butterknife.OnClick;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 public class AddColuAccountActivity extends Activity {
-   public static final int RESULT_COLU = 3;
 
    public static final String TAG = "AddColuAccountActivity";
 
    @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
-//   @BindView(R.id.tvTosLink) TextView tvTosLink;
 
    ColuMain selectedColuAsset;
 
    public static Intent getIntent(Context context) {
-      Intent intent = new Intent(context, AddColuAccountActivity.class);
-      return intent;
+      return new Intent(context, AddColuAccountActivity.class);
    }
 
    public static final String RESULT_KEY = "account";
@@ -93,20 +89,11 @@ public class AddColuAccountActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       ButterKnife.bind(this);
       btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
-//      setTosLink(tvTosLink);
    }
 
    void setButtonEnabled(){
          btColuAddAccount.setEnabled(true);
    }
-
-//   private void setTosLink(TextView link) {
-//      link.setClickable(true);
-//      link.setMovementMethod(LinkMovementMethod.getInstance());
-//      String linkUrl = getString(R.string.colu_tos_link_url);
-//      String text = "<a href='" + linkUrl + "'> " + link.getText() + "</a>";
-//      link.setText(Html.fromHtml(text));
-//   }
 
    @OnClick(R.id.btColuAddAccount)
    void onColuAddAccountClick() {
@@ -156,7 +143,7 @@ public class AddColuAccountActivity extends Activity {
                   _mbwManager.runPinProtectedFunction(AddColuAccountActivity.this, new Runnable() {
                      @Override
                      public void run() {
-                        new AddColuAsyncTask(_mbwManager.getEventBus(), coluAsset).execute();
+                        new AddColuAsyncTask(coluAsset).execute();
 
                      }
                   });
@@ -167,12 +154,10 @@ public class AddColuAccountActivity extends Activity {
 
    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
       private final boolean alreadyHadColuAccount;
-      private Bus bus;
       private final ColuMain coluAsset;
       private final ProgressDialog progressDialog;
 
-      public AddColuAsyncTask(Bus bus, ColuMain coluAsset) {
-         this.bus = bus;
+      public AddColuAsyncTask(ColuMain coluAsset) {
          this.coluAsset = coluAsset;
          this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
          progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
@@ -216,7 +201,7 @@ public class AddColuAccountActivity extends Activity {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       setButtonEnabled();
       super.onResume();
    }
@@ -224,7 +209,7 @@ public class AddColuAccountActivity extends Activity {
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }
