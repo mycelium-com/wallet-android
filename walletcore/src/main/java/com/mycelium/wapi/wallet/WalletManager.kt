@@ -165,11 +165,6 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         }
         return null
     }
-
-    fun activateFirstAccount() {
-//        filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount()
-    }
-
     /**
      * Add an observer that gets callbacks when the wallet manager state changes
      * or account events occur.
