@@ -2,14 +2,13 @@ package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
-import com.mycelium.wapi.wallet.segwit.SegwitAddress;
 
 public class AddressUtils {
 
@@ -27,7 +26,7 @@ public class AddressUtils {
         } else if (currencyType instanceof ColuMain) {
             Address addr = Address.fromString(address);
             if (addr != null) {
-                return new BtcLegacyAddress(currencyType, addr.getAllAddressBytes());
+                return new BtcAddress(currencyType, addr);
             } else {
                 return null;
             }
@@ -41,9 +40,7 @@ public class AddressUtils {
     //Use only for bitcoin address
     public static GenericAddress fromAddress(Address address) {
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-        GenericAddress res = (address.getType() == AddressType.P2WPKH) ?
-                new SegwitAddress(currency, (com.mrd.bitlib.model.SegwitAddress) address) :
-                new BtcLegacyAddress(currency, address.getAllAddressBytes());
+        GenericAddress res = new BtcAddress(currency, address);
         return res;
     }
 

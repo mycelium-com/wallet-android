@@ -102,9 +102,10 @@ public class FeeItemsBuilder {
             FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
             boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
-            if (currFeeItem.value != null && prevFeeItem.value != null) {
-                String thisFiatFee = currFeeItem.value.toString();
-                String prevFiatFee = prevFeeItem.value.toString();
+            if (currFeeItem.value != null && prevFeeItem.value != null
+                    && currFeeItem.fiatValue != null && prevFeeItem.fiatValue != null) {
+                String thisFiatFee = currFeeItem.fiatValue.toString();
+                String prevFiatFee = prevFeeItem.fiatValue.toString();
 
                 // if we reached this, then we can override canAdd
                 canAdd = (float) currFeeItem.feePerKb / prevFeeItem.feePerKb >= MIN_FEE_INCREMENT && !thisFiatFee.equals(prevFiatFee);
