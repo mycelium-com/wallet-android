@@ -1,14 +1,20 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-  printf "No arguments supplied.\nUsage: ./checkBuild.sh FILE REVISION\n\n \
+  printf "No arguments supplied.\nUsage: ./checkBuild.sh FILE REVISION [RETRIES]\n\n \
 FILE       The apk you want to verify, without extension. mbw-prodnet-release for example\n \
-REVISION   The git revision, tag or branch. v2.12.0.19 for example.\n"
+REVISION   The git revision, tag or branch. v2.12.0.19 for example.\n \
+RETRIES    The number of times compilation should be retried if differences remain."
   exit 1
 fi
 
 releaseFile=$1
 revision=$2
+# If the build tools are slightly non-deterministic and produce randomly one of two different
+# versions of each file for example, you can try to rebuild several times, to eventually verify each
+# file individually. The script will maintain a list of unverified files that should get shorter
+# with every iteration. Pick how many retries you want to run:
+retries=${3:-0}
 
 if [[ ! -f "./${releaseFile}.apk" ]]
 then
@@ -23,11 +29,6 @@ then
 fi
 
 workdir=/tmp/mbwDeterministicBuild/
-# If the build tools are slightly non-deterministic and produce randomly one of two different
-# versions of each file for example, you can try to rebuild several times, to eventually verify each
-# file individually. The script will maintain a list of unverified files that should get shorter
-# with every iteration. Pick how many retries you want to run:
-retries=${3:-0}
 mkdir -p $workdir
 
 printf "Checking $releaseFile against revision $revision with $retries retries if verification fails.\n \
@@ -44,6 +45,7 @@ git config user.email "only@thistmprepo.com"
 git config user.name "only temporary"
 git stash
 git checkout $revision
+sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
 git submodule update --init --recursive
 
 # these files are either irrelevant (apktool.yml is created by the akp extractor) or not reproducible signature/meta data (CERT, MANIFEST)
@@ -51,6 +53,13 @@ ignoreFiles="apktool.yml\|original/META-INF/CERT.RSA\|original/META-INF/CERT.SF\
 
 ./gradlew clean :mbw:assProdRel
 cp ./mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk candidate.apk
+
+if [ ! -e candidate.apk ]
+then
+	echo "Unexpected error: candidate.apk doesn't exist. Possibly the build failed. Check and try again."
+	exit 1
+fi
+
 java -jar apktool.jar d candidate.apk
 diff --brief --recursive original/ candidate/ > 0.diff
 mv candidate/ 0/
@@ -89,7 +98,7 @@ done
 
 printf "Error: The following files could not be verified:\n \
 $( cat remaining.diff ) \
-Error: Giving up after 10 compilations. Please manually check if the differing files are acceptable using meld or any other folder diff tool.\n \
+Error: Giving up after $retries retries. Please manually check if the differing files are acceptable using meld or any other folder diff tool.\n \
 Not every tiny diff is a red flag. Maybe this script is broken. Maybe a tool compiles in a non-deterministic way. Both happened before." \
     | tee -a progress.log
 
