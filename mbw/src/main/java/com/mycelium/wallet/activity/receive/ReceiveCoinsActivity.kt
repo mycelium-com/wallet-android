@@ -47,7 +47,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
-            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
