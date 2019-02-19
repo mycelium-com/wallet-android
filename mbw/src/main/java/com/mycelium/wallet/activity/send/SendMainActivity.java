@@ -954,6 +954,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         switch (feeLvl){
             case LOWPRIO:
                 return Value.valueOf(_account.getCoinType(), feeEstimation.getLow().value);
+            case ECONOMIC:
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getEconomy().value);
             case NORMAL:
                 return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().value);
             case PRIORITY:
