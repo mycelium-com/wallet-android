@@ -126,7 +126,7 @@ class SQLiteCoinapultBacking(val context: Context
                 val isArchived = cursor.getInt(2) == 1
                 val currency = Currency.all[cursor.getString(3)]!!
                 backings[id] = SQLiteCoinapultAccountBacking(id, database)
-                result.add(CoinapultAccountContext(id, BtcAddress(currency, Address.fromStandardBytes(addressBytes, networkParameters)), isArchived, currency))
+                result.add(CoinapultAccountContext(id, BtcAddress(currency, Address(addressBytes)), isArchived, currency))
             }
         } finally {
             cursor?.close()
