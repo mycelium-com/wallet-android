@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,11 +72,12 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
             tvNoRecords.setVisibility(View.GONE);
             lvAccounts.setVisibility(View.VISIBLE);
             lvAccounts.setAdapter(new AddressBookAdapter(this, R.layout.btc_account_for_fee_row, entries) {
+                @NonNull
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     AccountForFee accountForFee = (AccountForFee) getItem(position);
-                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
+                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getDenomination()));
                     return view;
                 }
             });

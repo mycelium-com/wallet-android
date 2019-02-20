@@ -40,24 +40,27 @@ import android.graphics.Typeface.NORMAL
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.View
+import android.widget.TextView
 import com.google.common.base.Joiner
-import com.mrd.bitlib.util.CoinUtil
-import com.mycelium.wallet.*
+import com.mycelium.view.Denomination
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.TrezorPinDialog
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.MasterseedPasswordDialog
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.*
 import com.mycelium.wallet.extsig.common.showChange
 import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.btc.BtcSendRequest
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.sign_ext_sig_transaction_activity.*
-import java.lang.IllegalStateException
-import android.text.method.LinkMovementMethod
-import android.widget.TextView
-import com.mycelium.wapi.wallet.btc.BtcSendRequest
 
 abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), MasterseedPasswordSetter {
     protected abstract val extSigManager: ExternalSignatureDeviceManager
@@ -150,13 +153,13 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             }
 
             val toAddress = Joiner.on(",\n").join(toAddresses)
-            amountString = "${CoinUtil.valueString(amountSending, false)} BTC"
+            amountString = Utils.getBtcCoinType().value(amountSending).toString(Denomination.UNIT)
             val fee = unsigned.calculateFee()
             val showChange = showChange(unsigned, _mbwManager.network, _account as HDAccount)
             val totalAmount = amountSending + fee + if (showChange) { changeValue } else { 0 }
-            totalString = "${CoinUtil.valueString(totalAmount, false)} BTC"
-            changeString = "${CoinUtil.valueString(changeValue, false)} BTC"
-            feeString = "${CoinUtil.valueString(fee, false)} BTC"
+            totalString = Utils.getBtcCoinType().value(totalAmount).toString(Denomination.UNIT)
+            changeString = Utils.getBtcCoinType().value(changeValue).toString(Denomination.UNIT)
+            feeString = Utils.getBtcCoinType().value(fee).toString(Denomination.UNIT)
 
             if ((changeAddress != "") && showChange) {
                 showChangeProperties(changeAddress, amountSending, fee)
@@ -183,7 +186,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
         changeToAddress.visibility = View.VISIBLE
         sendingValue.visibility = View.VISIBLE
         sendingValueLabel.visibility = View.VISIBLE
-        amountSendingString = "${CoinUtil.valueString(amountSending + fee, false)} BTC"
+        amountSendingString = Utils.getBtcCoinType().value(amountSending + fee).toString(Denomination.UNIT)
         sendingValue.text = amountSendingString
         changeToAddressLabel.visibility = View.VISIBLE
         summaryTransactionValues.visibility = View.VISIBLE
@@ -232,12 +235,14 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             }
             CONFIRM_OUTPUT -> {
                 setChangeTypeface(NORMAL)
-                getString(R.string.confirm_output_on_device,"${CoinUtil.valueString(output.value, false)} BTC",
+                getString(R.string.confirm_output_on_device,
+                        Utils.getBtcCoinType().value(output.value).toString(Denomination.UNIT),
                         address.toDoubleLineString().replace("\n", "<br>"), extSigManager.modelName)
             }
             CONFIRM_CHANGE -> {
                 setChangeTypeface(BOLD)
-                getString(R.string.confirm_change_on_device,"${CoinUtil.valueString(output.value, false)} BTC",
+                getString(R.string.confirm_change_on_device,
+                        Utils.getBtcCoinType().value(output.value).toString(Denomination.UNIT),
                         address.toDoubleLineString().replace("\n", "<br>"), extSigManager.modelName)
             }
             SIGN_TRANSACTION -> {

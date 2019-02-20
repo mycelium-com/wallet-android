@@ -40,18 +40,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -61,7 +61,6 @@ import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandl
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.event.SpvSyncChanged;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
@@ -78,6 +77,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,19 +86,14 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static com.mycelium.wallet.MinerFee.*;
-import static com.mycelium.wallet.MinerFee.NORMAL;
-import static com.mycelium.wallet.MinerFee.PRIORITY;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-    public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
     // adding extra info to preferences (for search)
-    private static final String TAG = "settingsfragmenttag";
-
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference _bitcoinDenomination;
+    private ListPreference _denomination;
     private Preference _localCurrency;
     private ListPreference _exchangeSource;
     private CheckBoxPreference _ltNotificationSound;
@@ -228,7 +224,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
         _ltManager = _mbwManager.getLocalTraderManager();
         // Bitcoin Denomination
-        _bitcoinDenomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
+        _denomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
@@ -403,17 +399,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             processPairedModules(modulesPrefs);
         }
         processUnpairedModules(modulesPrefs);
-
-        _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
-        _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-        CharSequence[] denominations = new CharSequence[]{CoinUtil.Denomination.BTC.toString(), CoinUtil.Denomination.mBTC.toString(),
-                CoinUtil.Denomination.uBTC.toString(), CoinUtil.Denomination.BITS.toString()};
-        _bitcoinDenomination.setEntries(denominations);
-        _bitcoinDenomination.setEntryValues(denominations);
-        _bitcoinDenomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
+        String defaultValue = "";
+        for (Denomination value : Denomination.values()) {
+            String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
+            denominationMap.put(key, value);
+            if (value == _mbwManager.getDenomination()) {
+                defaultValue = key;
+            }
+        }
+        _denomination.setDefaultValue(defaultValue);
+        _denomination.setValue(defaultValue);
+        _denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBitcoinDenomination(CoinUtil.Denomination.fromString(newValue.toString()));
+                _mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
                 return true;
             }
         });
@@ -429,7 +431,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[exchangeSourceNamesList.size()]);
+        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
         _exchangeSource.setEntries(exchangeNames);
         if (exchangeNames.length == 0) {
             _exchangeSource.setEnabled(false);
@@ -588,9 +590,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -685,10 +685,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if(searchView.isIconified())
+            if(searchView.isIconified()) {
                 getActivity().finish();
-            else
+            } else {
                 searchView.setIconified(true);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -863,7 +864,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setupLocalTraderSettings();
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
-        _mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
         modulesPrefs.removeAll();
         if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
             processPairedModules(modulesPrefs);
@@ -874,17 +875,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private ProgressDialog pleaseWait;
 
-
     @Override
     public void onPause() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         refreshPreferences();
         if (pleaseWait != null) pleaseWait.dismiss();
         super.onPause();
     }
 
-    private void refreshPreferences()
-    {
+    private void refreshPreferences() {
         getPreferenceScreen().removeAll();
         for (Preference preference : rootPreferenceList)
             getPreferenceScreen().addPreference(preference);
@@ -1029,7 +1028,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             emailEdit = new AppCompatEditText(getActivity()) {
                 @Override
                 protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-
                     super.onTextChanged(text, start, lengthBefore, lengthAfter);
                     if (okButton != null) { //setText is also set before the alert is finished constructing
                         boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications

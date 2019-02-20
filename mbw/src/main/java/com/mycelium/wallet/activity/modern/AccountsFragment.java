@@ -330,15 +330,11 @@ public class AccountsFragment extends Fragment {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                       getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                      address, accountToDelete instanceof PrivateColuAccount ?
-                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                      : _mbwManager.getBtcValueString(satoshis));
+                                      address, ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                      address, accountToDelete instanceof PrivateColuAccount ?
-                                      Utils.getColuFormattedValueWithUnit(getPotentialBalanceColu(accountToDelete))
-                                      : _mbwManager.getBtcValueString(satoshis));
+                                    ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         }
                     } else {
                         if (label != null && label.length() != 0) {
@@ -388,13 +384,14 @@ public class AccountsFragment extends Fragment {
                                         }
                                         if (keepAddrCheckbox.isChecked()) {
                                             ColuAccountContext context = ((PublicColuAccount) accountToDelete).getContext();
+                                            ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
+                                            Config config;
                                             if (context.getPublicKey() != null) {
-                                                walletManager.createAccounts(new PublicColuConfig(context.getPublicKey()
-                                                                             , (ColuMain) accountToDelete.getCoinType()));
+                                                config = new PublicColuConfig(context.getPublicKey(), coluMain);
                                             } else {
-                                                walletManager.createAccounts(new AddressColuConfig(context.getAddress().get(AddressType.P2PKH)
-                                                                             , (ColuMain) accountToDelete.getCoinType()));
+                                                config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
                                             }
+                                            walletManager.createAccounts(config);
                                         } else {
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
                                             _toaster.toast("Deleting account.", false);
@@ -440,7 +437,7 @@ public class AccountsFragment extends Fragment {
                 }
             }
 
-            private Value getPotentialBalanceColu(WalletAccount account) {
+            private Value getBalance(WalletAccount account) {
                 if (account.isArchived()) {
                     return null;
                 } else {
@@ -452,14 +449,12 @@ public class AccountsFragment extends Fragment {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    Balance balance = account.getAccountBalance();
-                    return balance.confirmed.add(balance.pendingReceiving).value;
+                    return account.getAccountBalance().getSpendable().value;
                 }
             }
 
         });
         deleteDialog.setNegativeButton(R.string.no, null).show();
-
     }
 
     @NonNull
@@ -507,7 +502,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private String getBalanceString(WalletAccount account, Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getBitcoinDenomination());
+        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
     }
 
     /**
@@ -654,7 +649,7 @@ public class AccountsFragment extends Fragment {
                 && getActiveMasterseedAccounts(walletManager).size() > 1 && !isBch) {
 
             final HDAccount HDAccount = (HDAccount) account;
-            BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById("BitcoinHD");
+            BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById(BitcoinHDModule.ID);
             if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
                 //only allow to remove unused HD acounts from the view
                 menus.add(R.menu.record_options_menu_hide_unused);
@@ -1026,7 +1021,6 @@ public class AccountsFragment extends Fragment {
         }
         accountListAdapter.getFocusedAccount().dropCachedData();
         _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-//      _mbwManager.getColuManager().startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
     }
 
     private void exportSelectedPrivateKey() {
@@ -1125,7 +1119,6 @@ public class AccountsFragment extends Fragment {
         }
         if (_focusedAccount instanceof CoinapultAccount) {
             _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
                 @Override
                 public void run() {
                     if (!AccountsFragment.this.isAdded()) {
@@ -1146,7 +1139,6 @@ public class AccountsFragment extends Fragment {
             }
         }
         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
-
             @Override
             public void run() {
                 if (!AccountsFragment.this.isAdded()) {
@@ -1285,11 +1277,9 @@ public class AccountsFragment extends Fragment {
     }
 
     OnClickListener unlockClickedListener = new OnClickListener() {
-
         @Override
         public void onClick(View v) {
             _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
-
                 @Override
                 public void run() {
                     _mbwManager.setKeyManagementLocked(false);
@@ -1298,7 +1288,6 @@ public class AccountsFragment extends Fragment {
                         getActivity().supportInvalidateOptionsMenu();
                     }
                 }
-
             });
         }
     };

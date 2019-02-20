@@ -50,6 +50,7 @@ import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
@@ -60,7 +61,7 @@ import java.util.UUID;
 
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletAccount _account;
+   protected WalletAccount<?,?> _account;
    protected boolean _isColdStorage;
    protected SendRequest _sendRequest;
    private Transaction _transaction;
@@ -116,7 +117,7 @@ public class SignTransactionActivity extends Activity {
       // Get intent parameters
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
-      _account = (WalletAccount) Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
+      _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _sendRequest = Preconditions.checkNotNull((SendRequest) getIntent().getSerializableExtra("sendRequest"));
       amountToSend = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra("amountToSend"));
       receivingAddress = (GenericAddress) Preconditions.checkNotNull(getIntent().getSerializableExtra("receivingAddress"));
@@ -157,9 +158,9 @@ public class SignTransactionActivity extends Activity {
          protected SendRequest doInBackground(Void... args) {
             try {
                _account.signTransaction(_sendRequest, AesKeyCipher.defaultKeyCipher());
-               return _sendRequest; //_account.signTransaction(_unsigned, AesKeyCipher.defaultKeyCipher());
+               return _sendRequest;
             }
-            catch (WalletAccount.WalletAccountException e) {
+            catch (KeyCipher.InvalidKeyCipher e) {
                throw new RuntimeException("doInBackground" + e.getMessage());
             }
          }

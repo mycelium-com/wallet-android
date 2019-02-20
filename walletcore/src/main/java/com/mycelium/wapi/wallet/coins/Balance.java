@@ -19,9 +19,10 @@ public class Balance {
     public final Value pendingSending;
 
     /**
-     * Get the value to show as sending in a UI
+     * Get the value that is sending to foreign addresses
+     * Used in UI to display 'Sending ..."
      */
-    public Value getSendingBalance() {
+    public Value getSendingToForeignAddresses() {
         return pendingSending.subtract(pendingChange);
     }
 

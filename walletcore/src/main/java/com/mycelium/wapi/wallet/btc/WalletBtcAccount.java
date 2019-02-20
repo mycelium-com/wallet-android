@@ -42,7 +42,7 @@ import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegacyAddress> {
+public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
 
    /**
     * Get the network that this account is for.
@@ -132,7 +132,7 @@ public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcLegac
     * @throws StandardTransactionBuilder.InsufficientFundsException if not enough funds were present to create the unsigned
     *                                    transaction
     */
-   UnsignedTransaction createUnsignedTransaction(List<WalletAccount.Receiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
+   UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse) throws StandardTransactionBuilder.OutputTooSmallException,
            StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    /**

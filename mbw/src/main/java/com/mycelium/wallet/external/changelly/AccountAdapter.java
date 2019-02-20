@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -124,7 +124,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
+            Denomination denomination = mbwManager.getDenomination();
             viewHolder.itemTextView.setText(ValueExtensionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
             if (item.account.getReceiveAddress() != null) {
                 viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());
@@ -165,7 +165,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             super(v);
             categoryTextView = v.findViewById(R.id.categorytextView);
             itemTextView = v.findViewById(R.id.itemTextView);
-            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+            valueTextView = v.findViewById(R.id.valueTextView);
         }
     }
 

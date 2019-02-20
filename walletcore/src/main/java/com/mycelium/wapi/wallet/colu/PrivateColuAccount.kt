@@ -8,7 +8,6 @@ import com.mrd.bitlib.model.*
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -26,22 +25,20 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                          , listener: AccountListener? = null)
     : PublicColuAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
+    override fun getDummyAddress(subType: String?): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return privateKey
     }
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcAddress): Value {
         return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)
     }
 
     override fun broadcastOutgoingTransactions(): Boolean {
         return false
-    }
-
-    override fun completeAndSignTx(request: SendRequest<ColuTransaction>, keyCipher:KeyCipher) {
-        completeTransaction(request)
-        signTransaction(request, keyCipher)
     }
 
     override fun completeTransaction(request: SendRequest<ColuTransaction>) {
@@ -84,7 +81,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                         }
                     }
                     if (input.script.scriptBytes.isEmpty()) {
-                        throw WalletAccount.WalletAccountException("input ${input.outPoint} not signed")
+                        throw Exception("input ${input.outPoint} not signed")
                     }
                 }
             }
@@ -105,17 +102,13 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         }
     }
 
-    override fun getSendToRequest(destination: BtcLegacyAddress, amount: Value): SendRequest<ColuTransaction> {
-        return ColuSendRequest(coinType, destination, amount)
+    override fun getSendToRequest(destination: BtcAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
+        return ColuSendRequest(coinType, destination, amount, feePerKb)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
 
     override fun canSpend(): Boolean = true
-
-    override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
         var privKey = Optional.absent<String>()

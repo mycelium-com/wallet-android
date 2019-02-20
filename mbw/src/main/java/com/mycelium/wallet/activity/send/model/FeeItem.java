@@ -1,23 +1,22 @@
 package com.mycelium.wallet.activity.send.model;
 
-import com.megiontechnologies.Bitcoins;
 import com.mycelium.wapi.wallet.coins.Value;
-
-/**
- * Created by elvis on 31.08.17.
- */
 
 public class FeeItem {
 
     public long feePerKb;
-    public Bitcoins btc;
-    public Value value;
+    public Value value; // Fee value in minimal asset's units
+    public Value fiatValue;
     public int type;
 
-    public FeeItem(long feePerKb, Bitcoins btc, Value value, int type) {
+    public FeeItem(long feePerKb, Value value, Value fiatValue, int type) {
         this.feePerKb = feePerKb;
-        this.btc = btc;
         this.value = value;
+        this.fiatValue = fiatValue;
+        this.type = type;
+    }
+
+    public FeeItem(int type) {
         this.type = type;
     }
 

@@ -127,9 +127,6 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract boolean cancelQueuedTransaction(Sha256Hash transaction);
 
    @Override
-   public abstract void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException;
-
-   @Override
    public String getLabel() {
       return null;
    }
@@ -142,10 +139,10 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract NetworkParameters getNetwork();
 
    @Override
-   public abstract Value calculateMaxSpendableAmount(long minerFeeToUse);
+   public abstract Value calculateMaxSpendableAmount(long minerFeeToUse, BtcAddress destinationAddress);
 
    @Override
-   public abstract UnsignedTransaction createUnsignedTransaction(List<Receiver> receivers, long minerFeeToUse)
+   public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)
          throws StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException;
 
    @Override

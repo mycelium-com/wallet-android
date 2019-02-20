@@ -69,7 +69,6 @@ public class EnterAddressLabelUtil {
       } else {
          title_id = R.string.edit_address_label_title;
       }
-      currentName = currentName.length() == 0 ? defaultName : currentName;
       String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
       EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(storage,
               address, invalidOkToastMessage, changeHandler));
@@ -136,7 +135,7 @@ public class EnterAddressLabelUtil {
          title_id = R.string.edit_account_label_title;
       }
       String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
-      Bus bus = MbwManager.getInstance(context).getEventBus();
+      Bus bus = MbwManager.getEventBus();
       EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
          @Override
          public void onDismiss() {

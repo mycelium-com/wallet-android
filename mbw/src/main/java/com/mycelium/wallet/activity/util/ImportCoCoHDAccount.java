@@ -16,7 +16,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -107,7 +107,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         while (empty < coloredLookAhead) {
             HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
             Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
-            Optional<UUID> accountId = null;
+            Optional<UUID> accountId;
             accountId = mbwManager.getAccountId(AddressUtils.fromAddress(address), null);
             if (accountId.isPresent()) {
                 existingAccountsFound++;
@@ -117,8 +117,8 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
                 continue;
             }
             WalletManager walletManager = mbwManager.getWalletManager(false);
-            if (((ColuModule)walletManager.getModuleById("colored coin module")).getColuApi()
-                    .getAddressTransactions(new BtcLegacyAddress(null, address.getAllAddressBytes())).size() > 0) {
+            if (((ColuModule)walletManager.getModuleById(ColuModule.ID)).getColuApi()
+                    .getAddressTransactions(new BtcAddress(null, address)).size() > 0) {
                 empty = 0;
                 emptyHD = 0;
                 try {

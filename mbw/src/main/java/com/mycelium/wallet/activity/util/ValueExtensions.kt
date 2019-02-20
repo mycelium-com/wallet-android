@@ -1,27 +1,30 @@
 package com.mycelium.wallet.activity.util
 
-import com.mrd.bitlib.util.CoinUtil
-import com.mycelium.wapi.wallet.fiat.coins.FiatType
+import com.mycelium.view.Denomination
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import java.text.DecimalFormat
 
 
 @JvmOverloads
-fun Value.toStringWithUnit(denomination: CoinUtil.Denomination = CoinUtil.Denomination.BTC): String {
+fun Value.toStringWithUnit(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
-    return String.format("%s %s", toString(denomination), denomination.getUnicodeString(type.symbol))
+    var value = type.symbol
+    if (type !is FiatType) {
+        value = denomination.getUnicodeString(type.symbol)
+    }
+    return String.format("%s %s", toString(denomination), value)
 }
 
 @JvmOverloads
-fun Value.toString(denomination: CoinUtil.Denomination = CoinUtil.Denomination.BTC): String {
+fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
     var result = valueAsBigDecimal
-    //TODO maybe need other idea for fiat type
-    if (type !is FiatType && denomination != CoinUtil.Denomination.BTC) {
-        result = result.movePointRight(type.unitExponent - denomination.decimalPlaces)
+    if (type !is FiatType && denomination != Denomination.UNIT) {
+        result = result.movePointRight(denomination.base10)
     }
     return CoinFormat.format(result)
 }

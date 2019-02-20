@@ -46,11 +46,6 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public Value getFeeValue() {
-        return Value.zeroValue(this);
-    }
-
-    @Override
     public int hashCode() {
         int result = name.hashCode();
         result = 31 * result + minimumConversationValue.hashCode();

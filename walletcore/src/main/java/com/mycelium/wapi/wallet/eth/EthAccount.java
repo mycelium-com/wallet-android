@@ -15,7 +15,10 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import net.bytebuddy.utility.RandomString;
 
@@ -50,13 +53,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public void completeAndSignTx(SendRequest<EthTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
-        completeTransaction(request);
-        signTransaction(request, keyCipher);
-    }
-
-    @Override
-    public void completeTransaction(SendRequest<EthTransaction> request) throws WalletAccountException {
+    public void completeTransaction(SendRequest<EthTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
         EthSendRequest sendRequest = (EthSendRequest)request;
         Balance balance = getAccountBalance();
         List<GenericTransaction.GenericInput> inputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericInput(this.address, balance.confirmed)));
@@ -71,7 +68,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
 
     @Override
-    public BroadcastResult broadcastTx(EthTransaction tx) throws TransactionBroadcastException {
+    public BroadcastResult broadcastTx(EthTransaction tx) throws GenericTransactionBroadcastException {
         EthAddress from = (EthAddress)tx.getInputs().get(0).getAddress();
         EthAddress to = (EthAddress)tx.getOutputs().get(0).getAddress();
 
@@ -125,10 +122,6 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     @Override
     public List<EthTransaction> getTransactionsSince(long receivingSince) {
         return new ArrayList<>();
-    }
-
-    @Override
-    public void checkAmount(WalletAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) {
     }
 
     @Override
@@ -197,7 +190,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public Value calculateMaxSpendableAmount(long minerFeeToUse) {
+    public Value calculateMaxSpendableAmount(long minerFeeToUse, EthAddress destinationAddress) {
         return Value.zeroValue(EthMain.INSTANCE);
     }
 
@@ -208,7 +201,7 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public FeeEstimationsGeneric getFeeEstimations() {
-        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
+        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
     }
 
     @Override
@@ -222,8 +215,18 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
-    public SendRequest getSendToRequest(EthAddress destination, Value amount) {
-        return EthSendRequest.to(destination, amount);
+    public EthAddress getDummyAddress() {
+        return new EthAddress("0x29D7d1dd5B6f9C864d9db560D72a247c178aE86B");
+    }
+
+    @Override
+    public EthAddress getDummyAddress(String subType) {
+        return getDummyAddress();
+    }
+
+    @Override
+    public SendRequest getSendToRequest(EthAddress destination, Value amount, Value fee) {
+        return EthSendRequest.to(destination, amount, fee);
     }
 
     @Override

@@ -83,6 +83,7 @@ import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHis
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
@@ -97,7 +98,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
@@ -203,13 +203,13 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -546,7 +546,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         BroadcastDialog broadcastDialog = BroadcastDialog.Companion.create(_mbwManager.getSelectedAccount(), record);
+                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
                                          broadcastDialog.show(getFragmentManager(), "broadcast");
 //                                         boolean success = BroadcastTransactionActivity.create(getActivity(), , );
 //                                         if (!success) {
@@ -568,11 +568,11 @@ public class TransactionHistoryFragment extends Fragment {
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
-                              Value txFeeBitcoinValue = Value.valueOf(BitcoinMain.get(), txFee);
-                              String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
+                              Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
+                              String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
                               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
                               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                                 txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
+                                 txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
                               }
                               new AlertDialog.Builder(getActivity())
                                       .setTitle(_context.getString(R.string.bump_fee_title))

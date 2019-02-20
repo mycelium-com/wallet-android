@@ -47,7 +47,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
-            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
             else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
@@ -172,12 +172,11 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         @JvmOverloads
         fun callMe(currentActivity: Activity, account: WalletAccount<*,*>, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
-            val intent = Intent(currentActivity, ReceiveCoinsActivity::class.java)
-            intent.putExtra(UUID, account.id)
-            intent.putExtra(PRIVATE_KEY, havePrivateKey)
-            intent.putExtra(SHOW_UTXO, showIncomingUtxo)
-            intent.putExtra(IS_COLD_STORAGE, isColdStorage)
-            currentActivity.startActivity(intent)
+            currentActivity.startActivity(Intent(currentActivity, ReceiveCoinsActivity::class.java)
+                    .putExtra(UUID, account.id)
+                    .putExtra(PRIVATE_KEY, havePrivateKey)
+                    .putExtra(SHOW_UTXO, showIncomingUtxo)
+                    .putExtra(IS_COLD_STORAGE, isColdStorage))
         }
     }
 }

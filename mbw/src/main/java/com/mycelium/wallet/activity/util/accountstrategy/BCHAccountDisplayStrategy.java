@@ -28,9 +28,4 @@ public class BCHAccountDisplayStrategy extends BTCAccountDisplayStrategy {
     public String getHint() {
         return super.getHint().replace("BTC", "BCH");
     }
-
-    @Override
-    public String getFormattedValue(CurrencyValue sum) {
-        return super.getFormattedValue(sum).replaceAll("BTC", "BCH");
-    }
 }

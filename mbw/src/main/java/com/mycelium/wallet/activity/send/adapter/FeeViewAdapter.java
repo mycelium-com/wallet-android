@@ -9,20 +9,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-
-import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
-
-/**
- * Created by elvis on 31.08.17.
- */
 
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
@@ -90,12 +84,13 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
-            if (item.btc != null) {
-                holder.categoryTextView.setText(CoinUtil.valueString(item.btc.getLongValue(), mBTC, true) + " " + mBTC.getUnicodeName());
-            }
             if (item.value != null) {
-                holder.itemTextView.setText("~" + item.value + " " + item.value.getCurrencySymbol());
+                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, Denomination.MILLI));
             }
+            if (item.fiatValue != null) {
+                holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
+            }
+
             holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
 
         } else {
@@ -137,9 +132,9 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
 
         public ViewHolder(View v, FeeViewAdapter adapter) {
             super(v);
-            categoryTextView = (TextView) v.findViewById(R.id.categorytextView);
-            itemTextView = (TextView) v.findViewById(R.id.itemTextView);
-            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+            categoryTextView = v.findViewById(R.id.categorytextView);
+            itemTextView = v.findViewById(R.id.itemTextView);
+            valueTextView = v.findViewById(R.id.valueTextView);
             this.adapter = adapter;
         }
     }

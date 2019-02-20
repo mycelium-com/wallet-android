@@ -56,6 +56,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -71,8 +72,8 @@ public class TradeActivityUtil {
          return false;
       }
       Address address = Address.getNullAddress(mbwManager.getNetwork());
-      WalletAccount.Receiver receiver = null;
-      receiver = new WalletAccount.Receiver(AddressUtils.fromAddress(address), ts.satoshisFromSeller);
+      BtcReceiver receiver = null;
+      receiver = new BtcReceiver(address, ts.satoshisFromSeller);
       try {
          ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), lt.getMinerFeeEstimation().getLongValue());
       } catch (OutputTooSmallException e) {
@@ -90,10 +91,10 @@ public class TradeActivityUtil {
       Preconditions.checkArgument(satoshisForBuyer > MINIMUM_OUTPUT_VALUE);
       Preconditions.checkArgument(satoshisFromSeller >= satoshisForBuyer);
       long localTraderFee = satoshisFromSeller - satoshisForBuyer;
-      List<WalletAccount.Receiver> receiver = new ArrayList<>();
-      receiver.add(new WalletAccount.Receiver(AddressUtils.fromAddress(buyerAddress), satoshisForBuyer));
+      List<BtcReceiver> receiver = new ArrayList<>();
+      receiver.add(new BtcReceiver(buyerAddress, satoshisForBuyer));
       if (localTraderFee >= MINIMUM_OUTPUT_VALUE) {
-         receiver.add(new WalletAccount.Receiver(AddressUtils.fromAddress(feeAddress), localTraderFee));
+         receiver.add(new BtcReceiver(feeAddress, localTraderFee));
       }
       try {
          return ((WalletBtcAccount)acc).createUnsignedTransaction(receiver, minerFeeToUse);

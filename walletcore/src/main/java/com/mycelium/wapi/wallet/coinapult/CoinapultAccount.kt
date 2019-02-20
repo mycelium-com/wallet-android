@@ -22,6 +22,14 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
+    override fun getDummyAddress(subType: String?): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getDummyAddress(): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -113,7 +121,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun getBlockChainHeight(): Int = 0
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcAddress): Value {
         return Value.zeroValue(if (_network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
@@ -121,12 +129,12 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<CoinapultTransaction> {
-        return CoinapultSendRequest(currency, destination, amount)
+    override fun getSendToRequest(destination: BtcAddress, amount: Value, fee: Value): SendRequest<CoinapultTransaction> {
+        return CoinapultSendRequest(currency, destination, amount, fee)
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -134,11 +142,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun canSpend(): Boolean = true
 
     override fun isVisible(): Boolean = true
-
-    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
-        completeTransaction(request)
-        signTransaction(request, keyCipher)
-    }
 
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
         if (request is CoinapultSendRequest) {
@@ -171,12 +174,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun getAccountBalance(): Balance = cachedBalance
-
-    override fun checkAmount(receiver: WalletAccount.Receiver, kbMinerFee: Long, enteredAmount: Value?) {
-        if (cachedBalance.confirmed.isLessThan(enteredAmount)) {
-            throw StandardTransactionBuilder.InsufficientFundsException(receiver.amount, kbMinerFee)
-        }
-    }
 
     override fun synchronize(mode: SyncMode?): Boolean {
         _isSynchronizing = true

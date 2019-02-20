@@ -68,7 +68,6 @@ import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
@@ -153,7 +152,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             if(addressStringsList != null) {
                for (String addressString : addressStringsList) {
                   Address address = Address.fromString(addressString);
-                  addresses.put(address.getType(), new BtcLegacyAddress(coinType, address.getAllAddressBytes()));
+                  addresses.put(address.getType(), new BtcAddress(coinType, address));
                }
             }
             list.add(new ColuAccountContext(id, coinType, publicKey, addresses

@@ -50,8 +50,9 @@ import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
@@ -112,21 +113,29 @@ public class ColdStorageSummaryActivity extends Activity {
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
 
-         final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
-         P2PKH.setVisibility(View.VISIBLE);
-         final TextView P2SH = findViewById(R.id.tvAddressP2SH);
-         P2SH.setVisibility(View.VISIBLE);
-         final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
-         P2WPKH.setVisibility(View.VISIBLE);
-
          AbstractBtcAccount account = (AbstractBtcAccount) _account;
-         P2PKH.setText(account.getReceivingAddress(AddressType.P2PKH).toMultiLineString());
-         P2SH.setText(account.getReceivingAddress(AddressType.P2SH_P2WPKH).toMultiLineString());
-         P2WPKH.setText(account.getReceivingAddress(AddressType.P2WPKH).toMultiLineString());
+         Address p2pkhAddress = account.getReceivingAddress(AddressType.P2PKH);
+         if (p2pkhAddress != null) {
+            final TextView P2PKH = findViewById(R.id.tvAddressP2PKH);
+            P2PKH.setVisibility(View.VISIBLE);
+            P2PKH.setText(p2pkhAddress.toMultiLineString());
+         }
+         Address p2shAddress = account.getReceivingAddress(AddressType.P2SH_P2WPKH);
+         if (p2shAddress != null) {
+            final TextView P2SH = findViewById(R.id.tvAddressP2SH);
+            P2SH.setVisibility(View.VISIBLE);
+            P2SH.setText(p2shAddress.toMultiLineString());
+         }
+         Address p2wpkhAddress = account.getReceivingAddress(AddressType.P2WPKH);
+         if (p2wpkhAddress != null) {
+            final TextView P2WPKH = findViewById(R.id.tvAddressP2WPKH);
+            P2WPKH.setVisibility(View.VISIBLE);
+            P2WPKH.setText(p2wpkhAddress.toMultiLineString());
+         }
       }
 
       // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(_mbwManager.getBtcValueString(balance.getSpendable().value));
+      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
 
@@ -144,7 +153,7 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.value > 0) {
-         String receivingString = _mbwManager.getBtcValueString(balance.pendingReceiving.value);
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -154,8 +163,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingBalance().value > 0) {
-         String sendingString = _mbwManager.getBtcValueString(balance.getSendingBalance().value);
+      if (balance.getSendingToForeignAddresses().value > 0) {
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

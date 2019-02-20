@@ -58,11 +58,12 @@ import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Subscribe;
 
@@ -136,7 +137,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...
-      Preconditions.checkArgument((assetUri != null && assetUri instanceof WithCallback
+      Preconditions.checkArgument((assetUri instanceof WithCallback
               && !Strings.isNullOrEmpty(((WithCallback) assetUri).getCallbackURL()))
                       || rawPaymentRequest != null
       );
@@ -194,7 +195,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    @OnTouch(R.id.etMerchantMemo)
    public boolean scrollIntoView() {
       etMerchantMemo.requestLayout();
-      VerifyPaymentRequestActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
       return false;
    }
 
@@ -288,10 +289,9 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
             if (currencySwitcher.isFiatExchangeRateAvailable()){
                tvFiatAmount.setVisibility(View.VISIBLE);
-               tvFiatAmount.setText(
-                     String.format("(~%s)",
-                     currencySwitcher.getFormattedFiatValue(ExactBitcoinValue.from(totalAmount), true))
-               );
+               Value btcValue = Utils.getBtcCoinType().value(totalAmount);
+               Value fiatValue = currencySwitcher.getAsFiatValue(btcValue);
+               tvFiatAmount.setText(String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue)));
             } else {
                tvFiatAmount.setVisibility(View.GONE);
             }

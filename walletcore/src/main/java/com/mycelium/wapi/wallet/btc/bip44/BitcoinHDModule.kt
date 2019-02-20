@@ -3,6 +3,9 @@ package com.mycelium.wapi.wallet.btc.bip44
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.crypto.RandomSource
+import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
@@ -25,6 +28,16 @@ import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
+import com.mycelium.wapi.wallet.btc.BTCSettings
+import javax.annotation.Nonnull
+import kotlin.collections.ArrayList
+import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
+import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+
+
+
+
 
 
 class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
@@ -42,7 +55,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
-
     override fun getId(): String = ID
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
@@ -75,7 +87,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                         btcSettings.changeAddressModeReference)
             }
             result[account.id] = account
-            accounts.put(account.id, account as HDAccount)
+            accounts[account.id] = account as HDAccount
         }
         return result
     }
@@ -140,7 +152,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
 
             // check if it already exists
-            var isUpgrade = false
+            val isUpgrade = false
 //            if (_walletAccounts.containsKey(id)) {
 //                isUpgrade = !_walletAccounts.get(id).canSpend() && cfg.hdKeyNodes[0].isPrivateHdKeyNode
 //                if (!isUpgrade) {
@@ -191,8 +203,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             for (derivationType in BipDerivationType.values()) {
                 // Generate the root private key
                 val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                keyManagerMap.put(derivationType, HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
-                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType))
+                keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
+                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
             }
             val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
             val defaultAddressType = btcSettings.defaultAddressType
@@ -261,7 +273,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
         }
 
-        accounts.put(result!!.id, result as HDAccount)
+        accounts[result!!.id] = result as HDAccount
 
         val baseLabel = "Account" + " " + (result.accountIndex + 1)
         result.label = createLabel(baseLabel, result.id)
@@ -346,6 +358,105 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         @JvmField
         val ID: String = "BitcoinHD"
     }
+
+    fun getGapsBug(): MutableList<Int> {
+        val mainAccounts: List<HDAccount> = accounts.values
+                .filter { it.isDerivedFromInternalMasterseed }
+                .sortedBy { it.accountIndex }
+
+        val gaps: MutableList<Int> = mutableListOf()
+        var lastIndex = 0
+        for (acc in mainAccounts) {
+            while (acc.accountIndex > lastIndex++) {
+                gaps.add(lastIndex - 1)
+            }
+        }
+        return gaps
+    }
+
+
+    @Throws(InvalidKeyCipher::class)
+    fun getGapAddresses(cipher: KeyCipher): List<Address> {
+        val gaps: MutableList<Int> = getGapsBug()
+        // Get the master seed
+        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+        val tempSecureBacking = InMemoryWalletManagerBacking()
+
+        val tempSecureKeyValueStore = SecureKeyValueStore(tempSecureBacking, RandomSource {
+            // randomness not needed for the temporary keystore
+        })
+
+        val addresses: MutableList<Address> = mutableListOf()
+        for (gapIndex in gaps.indices) {
+            for (derivationType: BipDerivationType in BipDerivationType.values()) {
+                // Generate the root private key
+                val root: HdKeyNode = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                val keyManager: HDAccountKeyManager = HDAccountKeyManager.createNew(root, networkParameters, gapIndex!!, tempSecureKeyValueStore, cipher, derivationType)
+                addresses.add(keyManager.getAddress(false, 0)) // get first external address for the account in the gap
+            }
+        }
+
+        return addresses
+    }
+
+    @Throws(InvalidKeyCipher::class)
+    fun createArchivedGapFiller(cipher: KeyCipher, accountIndex: Int?, archived: Boolean): UUID {
+        // Get the master seed
+        val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
+
+        synchronized(accounts) {
+            backing.beginTransaction()
+            try {
+                // Create the base keys for the account
+                val keyManagerMap = mutableMapOf<BipDerivationType, HDAccountKeyManager>()
+                for (derivationType in BipDerivationType.values()) {
+                    // Generate the root private key
+                    val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex!!,
+                            secureStore, cipher, derivationType)
+                }
+
+                val btcSettings: BTCSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
+                val defaultAddressType: AddressType = btcSettings.defaultAddressType
+
+                // Generate the context for the account
+                val context = HDAccountContext(
+                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex!!, false, defaultAddressType)
+                backing.createBip44AccountContext(context)
+
+                // Get the backing for the new account
+                val accountBacking: Bip44AccountBacking = backing.getBip44AccountBacking(context.id)
+
+                // Create actual account
+                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, btcSettings.changeAddressModeReference)
+
+                // Finally persist context and add account
+                context.persist(accountBacking)
+                backing.setTransactionSuccessful()
+                if (archived) {
+                    account.archiveAccount()
+                }
+
+                accounts[account.id] = account
+                return account.id
+            } finally {
+                backing.endTransaction()
+            }
+        }
+    }
+
+    /**
+     * This method is intended to get all possible ids for mixed HD account.
+     */
+    @Nonnull
+    fun getAccountVirtualIds(keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>, account: HDAccount): List<UUID> {
+        val uuidList: MutableList<UUID> = mutableListOf()
+        for (addressType in account.availableAddressTypes) {
+            uuidList.add(keyManagerMap.getValue(BipDerivationType.getDerivationTypeByAddressType(addressType)).accountId)
+        }
+        return uuidList
+    }
+
 }
 
 /**
@@ -370,3 +481,5 @@ fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts
  * @return the list of accounts
  */
 fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
+
+
