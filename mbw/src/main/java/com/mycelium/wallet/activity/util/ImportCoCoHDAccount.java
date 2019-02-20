@@ -108,7 +108,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
             HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
             Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
             Optional<UUID> accountId;
-            accountId = mbwManager.getAccountId(AddressUtils.fromAddress(address), null);
+            accountId = mbwManager.getAccountId(AddressUtils.fromAddress(address));
             if (accountId.isPresent()) {
                 existingAccountsFound++;
                 addressIndex++;
