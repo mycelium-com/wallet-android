@@ -454,7 +454,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          for (AddressType addressType : AddressType.values()) {
             Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
             address = AddressUtils.fromAddress(addr);
-            Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+            Optional<UUID> accountId = _mbwManager.getAccountId(address);
             if (accountId.isPresent()) {
                return null;
             }
@@ -473,7 +473,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       @Override
       protected void onPostExecute(UUID account) {
          dialog.dismiss();
-         Optional accountId = _mbwManager.getAccountId(address, null);
+         Optional accountId = _mbwManager.getAccountId(address);
          if (askUserForColorize) {
             final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
             adapter.add(Utils.getBtcCoinType());
@@ -608,7 +608,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          UUID acc = null;
 
          //Check whether this address is already used in any account
-         Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
+         Optional<UUID> accountId = _mbwManager.getAccountId(address);
          if (accountId.isPresent()) {
             return null;
          }
@@ -658,7 +658,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                     .show();
          } else if (account != null) {
             finishOk(account, false);
-         } else if (_mbwManager.getAccountId(address, null).isPresent()) {
+         } else if (_mbwManager.getAccountId(address).isPresent()) {
             finishAlreadyExist(address);
          }
       }
@@ -724,7 +724,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private String getAccountType(GenericAddress address) {
-      UUID accountId = _mbwManager.getAccountId(address, null).get();
+      UUID accountId = _mbwManager.getAccountId(address).get();
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       if (account instanceof HDAccount) {
          return "BTC HD account";

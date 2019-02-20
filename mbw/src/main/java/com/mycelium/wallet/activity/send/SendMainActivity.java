@@ -126,13 +126,11 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -162,7 +160,11 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -325,14 +327,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static Intent getIntent(Activity currentActivity, UUID account, byte[] rawPaymentRequest, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
-    }
-
-    private boolean isCoinapult() {
-        return _account instanceof CoinapultAccount;
-    }
-
-    private boolean isColu() {
-        return _account instanceof PrivateColuAccount;
     }
 
     @SuppressLint("ShowToast")
@@ -672,69 +666,70 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btSend)
     void onClickSend() {
-        if (isCoinapult() || isColu()) {
-            sendTransaction();
-        } else if (_isColdStorage || _account instanceof HDAccountExternalSignature) {
+        if (_isColdStorage || _account instanceof HDAccountExternalSignature) {
             // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
             signTransaction();
         } else {
-            _mbwManager.runPinProtectedFunction(this, pinProtectedSignAndSend);
+            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
+                    featureMap.get(_account.getCoinType()), true, new Runnable() {
+                        @Override
+                        public void run() {
+                            _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
+                        }
+                    });
         }
     }
 
+    final Runnable pinProtectedSignAndSend = new Runnable() {
+        @Override
+        public void run() {
+            // if we have a payment request, check if it is expired
+            if (_paymentRequestHandler != null) {
+                if (_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
+                    makeText(SendMainActivity.this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
+                    return;
+                }
+            }
+            sendTransaction();
+        }
+    };
+
     private void sendTransaction() {
-        _mbwManager.getVersionManager().showFeatureWarningIfNeeded(SendMainActivity.this,
-                featureMap.get(_account.getCoinType()), true, new Runnable() {
-                    @Override
-                    public void run() {
-                        _mbwManager.runPinProtectedFunction(SendMainActivity.this, new Runnable() {
-                            @Override
-                            public void run() {
-                                progress = new ProgressDialog(SendMainActivity.this);
-                                progress.setCancelable(false);
-                                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                progress.setMessage(getString(R.string.colu_sending_via_colu));
-                                progress.show();
-                                disableButtons();
+        progress = new ProgressDialog(SendMainActivity.this);
+        progress.setCancelable(false);
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setMessage(getString(R.string.sending_assets, _account.getCoinType().getSymbol()));
+        progress.show();
+        disableButtons();
 
-                                new AsyncTask<Void, Void, Boolean>() {
-                                    @Override
-                                    protected Boolean doInBackground(Void... voids) {
-                                        SendRequest sendRequest = _account.getSendToRequest(_receivingAddress, _amountToSend, getCurrentFeeEstimation());
-                                        try {
-                                            _account.completeTransaction(sendRequest);
-                                            _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
-                                            _account.broadcastTx(sendRequest.tx);
-                                            return true;
-                                        } catch (GenericTransactionBroadcastException |
-                                                GenericBuildTransactionException |
-                                                GenericOutputTooSmallException|
-                                                GenericInsufficientFundsException|
-                                                KeyCipher.InvalidKeyCipher e) {
-                                            Log.e(TAG, "", e);
-                                        }
-                                        return false;
-                                    }
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
+                    _account.broadcastTx(sendRequest.tx);
+                    return true;
+                } catch (GenericTransactionBroadcastException |
+                        KeyCipher.InvalidKeyCipher e) {
+                    Log.e(TAG, "", e);
+                }
+                return false;
+            }
 
-                                    @Override
-                                    protected void onPostExecute(Boolean aBoolean) {
-                                        super.onPostExecute(aBoolean);
-                                        progress.dismiss();
-                                        if (aBoolean) {
-                                            _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
-                                            Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
-                                            SendMainActivity.this.finish();
-                                        } else {
-                                            Toast.makeText(SendMainActivity.this, R.string.colu_failed_to_broadcast, Toast.LENGTH_SHORT).show();
-                                            updateUi();
-                                        }
-                                    }
-                                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-                            }
-                        });
-                    }
-                });
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                progress.dismiss();
+                if (aBoolean) {
+                    _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
+                    Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
+                    SendMainActivity.this.finish();
+                } else {
+                    Toast.makeText(SendMainActivity.this, getString(R.string.asset_failed_to_broadcast, _account.getCoinType().getSymbol()), Toast.LENGTH_SHORT).show();
+                    updateUi();
+                }
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @OnClick(R.id.tvUnconfirmedWarning)
@@ -874,7 +869,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getAddressLabel(GenericAddress address) {
-        UUID accountId = _mbwManager.getAccountId(address, isColu() ? PrivateColuAccount.class : null).orNull();
+        UUID accountId = _mbwManager.getAccountId(address, _account.getCoinType()).orNull();
         if (accountId != null) {
             // We don't have it in our accounts, look in address book, returns empty string by default
             return _mbwManager.getMetadataStorage().getLabelByAddress(address);
@@ -971,7 +966,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
-                if (isCoinapult()) {
+                if (_account instanceof CoinapultAccount) {
                     CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
                     tvError.setText(getString(R.string.coinapult_amount_too_small,
                             ((Currency) coinapultAccount.getCoinType()).minimumConversationValue,
@@ -1078,13 +1073,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _mbwManager.getVersionManager().closeDialog();
         super.onPause();
     }
-
-    final Runnable pinProtectedSignAndSend = new Runnable() {
-        @Override
-        public void run() {
-            signTransaction();
-        }
-    };
 
     protected void signTransaction() {
         // if we have a payment request, check if it is expired
