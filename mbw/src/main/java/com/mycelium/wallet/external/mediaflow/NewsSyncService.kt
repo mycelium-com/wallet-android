@@ -22,7 +22,6 @@ import com.mycelium.wallet.external.mediaflow.model.News
 import com.squareup.otto.Bus
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 const val mediaFlowNotificationId = 100000
 const val mediaFlowNotificationGroup = "Media Flow"

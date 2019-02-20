@@ -115,7 +115,7 @@ object NewsDatabase {
             readNews.bindLong(2, news.id.toLong())
             readNews.executeInsert()
             database.setTransactionSuccessful()
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("NewsDatabase", "read", e)
         } finally {
             database.endTransaction()
@@ -135,5 +135,11 @@ object NewsDatabase {
         }
         cursor.close()
         return result
+    }
+
+    fun removeNews(trashNews: List<News>) {
+        trashNews.forEach {
+            val res = database.delete(NewsSQLiteHelper.NEWS, "id=?", arrayOf(it.id.toString()))
+        }
     }
 }

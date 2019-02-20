@@ -110,9 +110,9 @@ import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 public class ModernMain extends AppCompatActivity {
-   private static final int TAB_ID_ACCOUNTS = 0;
-   private static final int TAB_ID_BALANCE = 1;
-   private static final int TAB_ID_HISTORY = 2;
+   private static final int TAB_ID_ACCOUNTS = 1;
+   private static final int TAB_ID_BALANCE = 2;
+   private static final int TAB_ID_HISTORY = 3;
 
    private static final int REQUEST_SETTING_CHANGED = 5;
    public static final int GENERIC_SCAN_REQUEST = 4;
@@ -154,7 +154,7 @@ public class ModernMain extends AppCompatActivity {
 
       getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
-      mViewPager.setOffscreenPageLimit(4);
+      mViewPager.setOffscreenPageLimit(5);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
       mNewsTab = bar.newTab();
       mTabsAdapter.addTab(mNewsTab.setText(getString(R.string.media_flow)), NewsFragment.class, null);

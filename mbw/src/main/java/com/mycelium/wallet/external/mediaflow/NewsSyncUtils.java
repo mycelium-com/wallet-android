@@ -19,6 +19,6 @@ public class NewsSyncUtils {
 
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP
                 , Calendar.getInstance().getTimeInMillis() + TimeUnit.SECONDS.toMillis(30)
-                , AlarmManager.INTERVAL_HOUR, alarmIntent);
+                , TimeUnit.MINUTES.toMillis(1), alarmIntent);
     }
 }

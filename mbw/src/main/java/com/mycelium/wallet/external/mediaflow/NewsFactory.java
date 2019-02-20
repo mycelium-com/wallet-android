@@ -7,7 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 public class NewsFactory {
-    private static final String ENDPOINT = "https://public-api.wordpress.com/rest/v1.1/sites/blog.mycelium.com/";
+    private static final String ENDPOINT = "https://public-api.wordpress.com/rest/v1.1/sites/media.mycelium.com/";
     public static ObjectMapper objectMapper = new ObjectMapper() {
         {
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
