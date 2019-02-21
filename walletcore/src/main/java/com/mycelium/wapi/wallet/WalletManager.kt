@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit
 class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
-    private val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
+    val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
+    val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong()
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
@@ -121,7 +122,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
         val activeAccount = getAccount(acc)
-        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount)))
+        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
         return isNetworkConnected
     }
 
