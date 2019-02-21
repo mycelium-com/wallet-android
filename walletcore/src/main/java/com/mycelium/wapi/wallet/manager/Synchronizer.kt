@@ -16,11 +16,6 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
         try {
             synchronized(walletManager.getActiveAccounts()) {
                 if (walletManager.isNetworkConnected) {
-                    if (!syncMode.ignoreMinerFeeFetch && (walletManager.getLastFeeEstimations() == null ||
-                                    walletManager.getLastFeeEstimations().isExpired(walletManager.MIN_AGE_FEE_ESTIMATION))) {
-                        // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
-                        fetchFeeEstimation()
-                    }
 
                     // If we have any lingering outgoing transactions broadcast them now
                     // this function goes over all accounts - it is reasonable to

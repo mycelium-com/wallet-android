@@ -16,7 +16,6 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
     val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
-    val MIN_AGE_FEE_ESTIMATION = (20 * 60 * 1000).toLong()
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
