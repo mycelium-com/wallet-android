@@ -33,6 +33,9 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
 
     override fun createAccount(config: Config): WalletAccount<*, *>? {
         var result: WalletAccount<*, *>? = null
+
+        var baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+
         if (config is CoinapultConfig) {
             val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
             api.activate(config.mail)
@@ -42,10 +45,11 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                 backing.createAccountContext(context)
                 result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
                         , backing, networkParameters, config.currency, listener)
+
+                baseLabel = "Coinapult ${config.currency.name}"
             }
         }
 
-        val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
         if (result != null) {
             result.label = createLabel(baseLabel, result.id)
         }
