@@ -6,10 +6,10 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -51,7 +51,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                 || config is AddressSingleConfig
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
 
         if (config is PublicSingleConfig) {
@@ -77,6 +77,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
         if (result != null) {
             result.label = createLabel(baseLabel, result.id)
+        } else {
+            throw IllegalStateException("Account can't be created")
         }
         return result
     }

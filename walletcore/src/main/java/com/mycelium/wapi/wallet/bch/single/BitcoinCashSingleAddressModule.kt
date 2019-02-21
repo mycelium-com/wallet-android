@@ -16,6 +16,7 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.lang.IllegalArgumentException
 import java.util.*
 
 
@@ -45,7 +46,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                 || config is PublicSingleConfig
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
 
         if (config is PrivateSingleConfig) {
@@ -59,6 +60,8 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
         val baseLabel = "BCH Single Address"
         if (result != null) {
             result.label = createLabel(baseLabel, result.id)
+        } else {
+            throw IllegalStateException("Account can't be created")
         }
         return result
     }

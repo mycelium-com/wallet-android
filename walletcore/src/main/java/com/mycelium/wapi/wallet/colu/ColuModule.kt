@@ -13,6 +13,7 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.lang.IllegalArgumentException
 import java.text.DateFormat
 import java.util.*
 
@@ -71,7 +72,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         return result
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
 
         if (config is PrivateColuConfig) {
@@ -108,11 +109,15 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
         }
+
         result?.let {
             val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
             it.label = createLabel(baseName, it.id)
+        } ?: run {
+            throw IllegalStateException("Account can't be created")
         }
-        return result
+
+        return result!!
     }
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {

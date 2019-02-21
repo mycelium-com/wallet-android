@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
+import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -32,14 +33,15 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
         return mapOf()
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
-        var result: WalletAccount<*, *>? = null
-
-        val baseName = "BCH HD Account"
-        if (result != null) {
-            result.label = createLabel(baseName, result.id)
-        }
-        return result
+    override fun createAccount(config: Config): WalletAccount<*, *> {
+//        var result: WalletAccount<*, *> = null
+//
+//        val baseName = "BCH HD Account"
+//        if (result != null) {
+//            result.label = createLabel(baseName, result.id)
+//        }
+//        return result
+        throw IllegalStateException("Account can't be created")
     }
 
     fun getAccountByIndex(index: Int): HDAccount? {

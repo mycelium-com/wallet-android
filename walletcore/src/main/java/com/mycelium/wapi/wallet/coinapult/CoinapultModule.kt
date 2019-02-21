@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
-import java.text.DateFormat
 import java.util.*
 
 
@@ -31,8 +30,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         return result
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
-        var result: WalletAccount<*, *>? = null
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         if (config is CoinapultConfig) {
             val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
             api.activate(config.mail)
@@ -40,16 +38,14 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
             if (address != null) {
                 val context = CoinapultAccountContext(id, address, false, config.currency)
                 backing.createAccountContext(context)
-                result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
+                val result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
                         , backing, networkParameters, config.currency, listener)
+                val baseLabel = "Coinapult ${config.currency.name}"
+                result.label = createLabel(baseLabel, result.id)
+                return result
             }
         }
-
-        val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
-        if (result != null) {
-            result.label = createLabel(baseLabel, result.id)
-        }
-        return result
+        throw IllegalStateException("Account can't be created")
     }
 
     override fun canCreateAccount(config: Config): Boolean {
