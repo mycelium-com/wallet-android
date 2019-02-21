@@ -36,20 +36,6 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
         }
     }
 
-    private fun fetchFeeEstimation(): Boolean {
-        val minerFeeEstimations = walletManager.wapi.getMinerFeeEstimations()
-        if (minerFeeEstimations != null && minerFeeEstimations!!.getErrorCode() == Wapi.ERROR_CODE_SUCCESS) {
-            try {
-                walletManager.backing.saveLastFeeEstimation(minerFeeEstimations!!.getResult().feeEstimation)
-                return true
-            } catch (e: WapiException) {
-                return false
-            }
-
-        }
-        return false
-    }
-
     private fun broadcastOutgoingTransactions(): Boolean {
         for (account in accounts) {
             if (account!!.isArchived()) {
