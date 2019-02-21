@@ -73,9 +73,11 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
-                val account = it.createAccount(config)
-                account?.let {
+                try {
+                    val account = it.createAccount(config)
                     result[account.id] = account
+                } catch (exception: IllegalStateException){
+                    _logger.logError("Account", exception)
                 }
             }
         }

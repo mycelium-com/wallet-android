@@ -28,16 +28,8 @@ import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
-import com.mycelium.wapi.wallet.btc.BTCSettings
 import javax.annotation.Nonnull
 import kotlin.collections.ArrayList
-import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-
-
-
-
 
 
 class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
@@ -120,7 +112,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         }
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
         if (config is UnrelatedHDAccountConfig) {
             var cfg = config
@@ -273,7 +265,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
         }
 
-        accounts[result!!.id] = result as HDAccount
+        if (result == null) {
+            throw IllegalStateException("Account can't be created")
+        }
+        accounts[result.id] = result as HDAccount
 
         val baseLabel = "Account" + " " + (result.accountIndex + 1)
         result.label = createLabel(baseLabel, result.id)
