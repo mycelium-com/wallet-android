@@ -766,7 +766,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             return TransactionStatus.OK;
         } catch (GenericBuildTransactionException ex) {
-            return TransactionStatus.InsufficientFunds;
+            return TransactionStatus.MissingArguments;
         } catch (GenericOutputTooSmallException ex) {
             return TransactionStatus.OutputTooSmall;
         } catch (GenericInsufficientFundsException ex) {
