@@ -186,6 +186,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String TRANSACTION_LABEL = "transactionLabel";
     public static final String ASSET_URI = "assetUri";
     public static final String FEE_LVL = "feeLvl";
+    public static final String FEE_PER_KB = "feePerKb";
     public static final String PAYMENT_FETCHED = "paymentFetched";
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
     private static final String SIGNED_SEND_REQUEST = "transactionRequest";
@@ -274,6 +275,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private SendRequest sendRequest;
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
+    private Value feePerKb;
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
@@ -306,7 +308,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                                    long amountToSend, GenericAddress receivingAddress, boolean isColdStorage) {
         return getIntent(currentActivity, account, isColdStorage)
                 .putExtra(AMOUNT, Value.valueOf(
-                        Utils.getBtcCoinType(), // todo get valuetype depending on the account
+                        Utils.getBtcCoinType(),
                         amountToSend))
                 .putExtra(RECEIVING_ADDRESS, receivingAddress);
     }
@@ -360,6 +362,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _account.getFeeEstimations();
+        feePerKb = getCurrentFeeEstimation();
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
@@ -371,7 +374,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             genericUri = (GenericAssetUri) savedInstanceState.getSerializable(ASSET_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
             signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
-
+            feePerKb = (Value) savedInstanceState.getSerializable(FEE_PER_KB);
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
             _paymentRequestHandlerUuid = savedInstanceState.getString(PAYMENT_REQUEST_HANDLER_ID);
@@ -495,6 +498,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
+                FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
+                feePerKb = Value.valueOf(_account.getCoinType(), item.feePerKb);
                 updateRecipient();
                 updateAmount();
                 updateFeeText();
@@ -598,6 +603,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putSerializable(RECEIVING_ADDRESS, _receivingAddress);
         savedInstanceState.putString(TRANSACTION_LABEL, _transactionLabel);
         savedInstanceState.putSerializable(FEE_LVL, feeLvl);
+        savedInstanceState.putSerializable(FEE_PER_KB, feePerKb);
         savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
@@ -660,7 +666,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // if no amount is set so far, use an unknown amount but in the current accounts currency
             presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
         }
-        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, getCurrentFeeEstimation().value,
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, feePerKb.value,
                 _account.getCoinType(), _isColdStorage, _receivingAddress);
     }
 
@@ -753,7 +759,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (hasAddressData) {
-                sendRequest = _account.getSendToRequest(_receivingAddress, toSend, getCurrentFeeEstimation());
+                sendRequest = _account.getSendToRequest(_receivingAddress, toSend, feePerKb);
                 _account.completeTransaction(sendRequest);
             } else {
                 return TransactionStatus.MissingArguments;
@@ -781,7 +787,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation().value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+        feeValueList.setSelectedItem(new FeeItem(feePerKb.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
@@ -1005,7 +1011,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _transactionStatus = tryCreateUnsignedTransaction();
         String feeWarning = null;
         tvFeeWarning.setOnClickListener(null);
-        if (getCurrentFeeEstimation().value == 0) {
+        if (feePerKb.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
         if (_unsigned == null) {
@@ -1022,8 +1028,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
             long fee = _unsigned.calculateFee();
-            if (fee != size * getCurrentFeeEstimation().value / 1000) {
-                //TODO: use Value class
+            if (fee != size * feePerKb.value / 1000) {
                 Value value = Value.valueOf(_account.getCoinType(), fee);
                 Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                 String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
