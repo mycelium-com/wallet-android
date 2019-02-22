@@ -44,6 +44,7 @@ git config user.email "only@thistmprepo.com"
 git config user.name "only temporary"
 git stash
 git checkout $revision
+sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
 git submodule update --init --recursive
 
 # these files are either irrelevant (apktool.yml is created by the akp extractor) or not reproducible signature/meta data (CERT, MANIFEST)
@@ -51,6 +52,13 @@ ignoreFiles="apktool.yml\|original/META-INF/CERT.RSA\|original/META-INF/CERT.SF\
 
 ./gradlew clean :mbw:assProdRel
 cp ./mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk candidate.apk
+
+if [ ! -e candidate.apk ]
+then
+	echo "Unexpected error: candidate.apk doesn't exist. Possibly the build failed. Check and try again."
+	exit 1
+fi
+
 java -jar apktool.jar d candidate.apk
 diff --brief --recursive original/ candidate/ > 0.diff
 mv candidate/ 0/

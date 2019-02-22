@@ -34,17 +34,16 @@
 
 package com.mycelium.wallet.lt.notification;
 
-import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -52,82 +51,70 @@ import com.mycelium.wallet.activity.PinProtectedActivity;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
-public class GcmIntentService extends IntentService {
-   private static final String TAG = "GcmIntentService";
+import java.util.Map;
+
+public class FcmListenerService extends FirebaseMessagingService {
+   private static final String TAG = "firebasenotificationlog";
    private static final String LT_CHANNEL_ID = "LT notification channel";
 
-   public GcmIntentService() {
-      super("GcmIntentService");
-   }
-
    @Override
-   protected void onHandleIntent(Intent intent) {
-      Bundle extras = intent.getExtras();
-      try {
-         if (extras == null) {
-            Log.i(TAG, "empty message received, ignoring");
-            return;
-         }
-         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-         // The getMessageType() intent parameter must be the intent you
-         // received
-         // in your BroadcastReceiver.
-         String messageType = gcm.getMessageType(intent);
+   public void onMessageReceived(RemoteMessage remoteMessage) {
+      Map data = remoteMessage.getData();
+      String messageType = remoteMessage.getMessageType();  // null for firebase
+      String key = remoteMessage.getCollapseKey();
 
-         if (!extras.isEmpty()) { // has effect of unparcelling Bundle
-            /*
-             * Filter messages based on message type. Since it is likely that
-             * GCM will be extended in the future with new message types, just
-             * ignore any message types you're not interested in, or that you
-             * don't recognize.
-             */
-            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-               Log.i(TAG, "SEND ERROR: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-               Log.i(TAG, "DELETED: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-               Log.i(TAG, "Received: " + extras.toString());
-               if (LtApi.TRADE_ACTIVITY_NOTIFICATION_KEY.equals(extras.getString("collapse_key"))) {
-                  handleTradeActivityNotification(extras);
-               } else if (LtApi.AD_ACTIVITY_NOTIFICATION_KEY.equals(extras.getString("collapse_key"))) {
-                  handleAdActivityNotification(extras);
-               }
+      Log.d(TAG, "Message type: " + messageType);
+      Log.d(TAG, "Message key: " + key);
+      Log.d(TAG, "Message data: " + data);
+
+      // Check if message contains a data payload.
+      if (data.size() > 0 && key != null) {
+         Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+//         if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+//            Log.d(TAG, "DELETED: " + data.toString());
+//         } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+//            Log.d(TAG, "DELETED: " + data.toString());
+//         } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+            if (LtApi.TRADE_ACTIVITY_NOTIFICATION_KEY.equals(key)) {
+               handleTradeActivityNotification(data);
+            } else if (LtApi.AD_ACTIVITY_NOTIFICATION_KEY.equals(key)) {
+               handleAdActivityNotification(data);
             }
-         }
-      } finally {
-         // Release the wake lock provided by the WakefulBroadcastReceiver.
-         GcmBroadcastReceiver.completeWakefulIntent(intent);
+//         }
+      } else {
+         Log.d(TAG, "empty message received, ignoring");
       }
    }
 
-   private void handleTradeActivityNotification(Bundle extras) {
+   private void handleTradeActivityNotification(Map data) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
       if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
-         Log.w(TAG, "Local trader not enabled while getting trader activity notification");
+         Log.d(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
-      String trader = extras.getString("trader");
+      String trader = String.valueOf(data.get("trader"));
       if (!ltManager.getLocalTraderAddress().toString().equals(trader)) {
-         Log.w(TAG, "Local trader received notification for a different trader than the currently active");
+         Log.d(TAG, "Local trader received notification for a different trader than the currently active");
          return;
       }
       long lastChange;
       try {
-         String lastChangeString = extras.getString("lastChange");
+         String lastChangeString = String.valueOf(data.get("lastChange"));
          if (lastChangeString == null) {
-            Log.w(TAG, "Local trader received notification without lastChange");
+            Log.d(TAG, "Local trader received notification without lastChange");
             return;
          }
          lastChange = Long.parseLong(lastChangeString);
       } catch (NumberFormatException e) {
-         Log.w(TAG, "Local trader received notification invalid lastChange");
+         Log.d(TAG, "Local trader received notification invalid lastChange");
          return;
       }
       if (lastChange == 0) {
-         Log.w(TAG, "Local trader last change is zero");
+         Log.d(TAG, "Local trader last change is zero");
          return;
       }
-      String type = extras.getString("type");
+      String type = String.valueOf(data.get("type"));
 
       // Let local trader know what the latest trader change timestamp is
       if (ltManager.setLastTraderNotification(lastChange) && ltManager.areNotificationsEnabled()) {
@@ -136,24 +123,24 @@ public class GcmIntentService extends IntentService {
       }
    }
 
-   private void handleAdActivityNotification(Bundle extras) {
+   private void handleAdActivityNotification(Map data) {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
       if (!ltManager.isLocalTraderEnabled() || !ltManager.hasLocalTraderAccount()) {
-         Log.w(TAG, "Local trader not enabled while getting trader activity notification");
+         Log.d(TAG, "Local trader not enabled while getting trader activity notification");
          return;
       }
-      String trader = extras.getString("trader");
+      String trader = String.valueOf(data.get("trader"));
       if (!ltManager.getLocalTraderAddress().toString().equals(trader)) {
-         Log.w(TAG, "Local trader received notification for a different trader than the currently active");
+         Log.d(TAG, "Local trader received notification for a different trader than the currently active");
          return;
       }
-      String type = extras.getString("type");
+      String type = String.valueOf(data.get("type"));
 
       if (ltManager.areNotificationsEnabled()) {
          showAdNotification(type);
       }
    }
-   
+
    private void showTradeNotification(String type, long lastChange) {
       Intent intent;
       if (LtApi.TRADE_FINAL_NOTIFICATION_TYPE.equals(type)) {
@@ -185,7 +172,7 @@ public class GcmIntentService extends IntentService {
       ltManager.setLastNotificationSoundTimestamp(lastChange);
 
       // Vibrate
-      long[] pattern = { 500, 500 };
+      long[] pattern = {500, 500};
       builder.setVibrate(pattern);
 
       // Make a sound
@@ -205,7 +192,7 @@ public class GcmIntentService extends IntentService {
       Intent intent;
       if (LtApi.AD_TIME_OUT_NOTIFICATION_TYPE.equals(type)) {
          intent = PinProtectedActivity.createIntent(this,
-               LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
+                 LtMainActivity.createIntent(this, LtMainActivity.TAB_TYPE.MY_ADS)
          );
       } else {
          // We don't know this type, so we ignore it
@@ -229,7 +216,7 @@ public class GcmIntentService extends IntentService {
       LocalTraderManager ltManager = MbwManager.getInstance(this).getLocalTraderManager();
 
       // Vibrate
-      long[] pattern = { 500, 500 };
+      long[] pattern = {500, 500};
       builder.setVibrate(pattern);
 
       // Make a sound
@@ -244,5 +231,4 @@ public class GcmIntentService extends IntentService {
       NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
       notificationManager.notify(0, builder.build());
    }
-   
 }
