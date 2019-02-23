@@ -69,9 +69,6 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
-/***
- * Olp
- */
 public class GlideraService {
    private final static String GLIDERA_SERVICE = "glideraService";
    /*
@@ -113,7 +110,7 @@ public class GlideraService {
          clientId = MAINNET_CLIENT_ID;
       }
 
-      /**
+      /*
        * The Sha256 HMAC hash of the message. Use the secret matching the access_key to txid the message.
        * The message is the concatenation of the X-ACCESS-NONCE + URI of the request + message body JSON.
        * The final X-ACCESS-SIGNATURE is the HmacSha256 of the UTF-8 encoding of the message as a Hex encoded string
@@ -728,7 +725,6 @@ public class GlideraService {
                              }
                           }
 
-
                           return false;
                        }
                     })
@@ -754,5 +750,4 @@ public class GlideraService {
 
       abstract Observable<T> apiCall(OAuth1Response apiSecretToken);
    }
-
 }
