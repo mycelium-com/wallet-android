@@ -98,12 +98,15 @@ import com.squareup.otto.Subscribe;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
     private static final int TAB_ID_ACCOUNTS = 0;
@@ -191,49 +194,36 @@ public class ModernMain extends AppCompatActivity {
 
     private void checkGapBug() {
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
-        final List<Integer> gaps = module != null ? module.getGapsBug() : null;
+        final Set<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (!(gaps != null && gaps.isEmpty())) {
-            try {
-                assert module != null;
-                final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
-                final String gapsString = Joiner.on(", ").join(gapAddresses);
+            checkNotNull(module);
+            final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
+            final String gapsString = Joiner.on(", ").join(gapAddresses);
 
-                Log.d("Gaps", gapsString);
+            Log.d("Gaps", gapsString);
 
-                final SpannableString s = new SpannableString(getResources().getString(R.string.check_gap_bug_spannable_string));
-                Linkify.addLinks(s, Linkify.ALL);
+            final SpannableString s = new SpannableString(getResources().getString(R.string.check_gap_bug_spannable_string));
+            Linkify.addLinks(s, Linkify.ALL);
 
-                final AlertDialog d = new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.account_gap)).setMessage(s)
-                        .setPositiveButton(getResources().getString(R.string.gaps_button_ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                createPlaceHolderAccounts(gaps);
-                                _mbwManager.reportIgnoredException(new RuntimeException(getResources().getString(R.string.address_gaps) + gapsString));
-                            }
-                        }).setNegativeButton(getResources().getString(R.string.gaps_button_ignore), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        }).show();
+            final AlertDialog d = new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.account_gap)).setMessage(s)
+                    .setPositiveButton(getResources().getString(R.string.gaps_button_ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            createPlaceHolderAccounts(gaps);
+                            _mbwManager.reportIgnoredException(new RuntimeException(getResources().getString(R.string.address_gaps) + gapsString));
+                        }
+                    }).setNegativeButton(getResources().getString(R.string.gaps_button_ignore), null).show();
 
-                // Make the textview clickable. Must be called after show()
-                ((TextView) Objects.requireNonNull(d.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                throw new RuntimeException(invalidKeyCipher);
-            }
+            // Make the textview clickable. Must be called after show()
+            ((TextView) Objects.requireNonNull(d.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
-    private void createPlaceHolderAccounts(List<Integer> gapIndex) {
+    private void createPlaceHolderAccounts(Set<Integer> gapIndex) {
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
         for (Integer index : gapIndex) {
-            try {
-                final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index,
-                        true);
-                _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index + 1));
-            } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-                throw new RuntimeException(invalidKeyCipher);
-            }
+            final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index);
+            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index + 1));
         }
     }
 
@@ -363,29 +353,29 @@ public class ModernMain extends AppCompatActivity {
         final int tabIdx = mViewPager.getCurrentItem();
 
         // at the moment, we allow to make backups multiple times
-        Preconditions.checkNotNull(menu.findItem(R.id.miBackup)).setVisible(true);
+        checkNotNull(menu.findItem(R.id.miBackup)).setVisible(true);
 
         // Add Record menu
         final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
         final boolean locked = _mbwManager.isKeyManagementLocked();
-        Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
-        Preconditions.checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
+        checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
+        checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
 
         // Lock menu
         final boolean hasPin = _mbwManager.isPinProtected();
-        Preconditions.checkNotNull(menu.findItem(R.id.miLockKeys)).setVisible(isAccountTab && !locked && hasPin);
+        checkNotNull(menu.findItem(R.id.miLockKeys)).setVisible(isAccountTab && !locked && hasPin);
 
         // Refresh menu
         final boolean isBalanceTab = tabIdx == TAB_ID_BALANCE;
         final boolean isHistoryTab = tabIdx == TAB_ID_HISTORY;
-        refreshItem = Preconditions.checkNotNull(menu.findItem(R.id.miRefresh));
+        refreshItem = checkNotNull(menu.findItem(R.id.miRefresh));
         refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
         setRefreshAnimation();
 
-        Preconditions.checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
+        checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
         final boolean isAddressBook = tabIdx == addressBookTabIndex;
-        Preconditions.checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
+        checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
         return super.onPrepareOptionsMenu(menu);
     }
