@@ -64,13 +64,10 @@ todo HD: instead, there can be two possibilities. select address for signing fro
 
 */
 public class MessageSigningActivity extends Activity {
-
-
     public static final String PRIVATE_KEY = "privateKey";
     public static final String ADDRESS = "address";
     private String base64Signature;
     private String messageText;
-    private NetworkParameters network;
     public static final String TEMPLATE =
            /**/"-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
            /**/"%s\n" +
@@ -84,8 +81,8 @@ public class MessageSigningActivity extends Activity {
     public static void callMe(Context currentActivity, WalletAccount focusedAccount) {
         try {
             if (focusedAccount instanceof HDAccount) {
-                Intent intent = new Intent(currentActivity, HDSigningActivity.class);
-                intent.putExtra("account", focusedAccount.getId());
+                Intent intent = new Intent(currentActivity, HDSigningActivity.class)
+                        .putExtra("account", focusedAccount.getId());
                 currentActivity.startActivity(intent);
             } else {
                 InMemoryPrivateKey key = focusedAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
@@ -99,9 +96,9 @@ public class MessageSigningActivity extends Activity {
     public static void callMe(Context currentActivity, InMemoryPrivateKey privateKey, GenericAddress address) {
         String privKey = privateKey.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
 
-        Intent intent = new Intent(currentActivity, MessageSigningActivity.class);
-        intent.putExtra(PRIVATE_KEY, privKey);
-        intent.putExtra(ADDRESS, address);
+        Intent intent = new Intent(currentActivity, MessageSigningActivity.class)
+                .putExtra(PRIVATE_KEY, privKey)
+                .putExtra(ADDRESS, address);
         currentActivity.startActivity(intent);
     }
 
@@ -111,7 +108,7 @@ public class MessageSigningActivity extends Activity {
         setTitle(R.string.sign_message);
         String encoded = getIntent().getStringExtra(PRIVATE_KEY);
         final GenericAddress address = (GenericAddress) getIntent().getSerializableExtra(ADDRESS);
-        network = MbwManager.getInstance(this).getNetwork();
+        NetworkParameters network = MbwManager.getInstance(this).getNetwork();
         final InMemoryPrivateKey privateKey = new InMemoryPrivateKey(encoded, network);
 
         setContentView(R.layout.message_signing);

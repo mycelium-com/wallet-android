@@ -67,151 +67,150 @@ import butterknife.OnClick;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 public class AddColuAccountActivity extends Activity {
+    public static final String TAG = "AddColuAccountActivity";
 
-   public static final String TAG = "AddColuAccountActivity";
+    @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
 
-   @BindView(R.id.btColuAddAccount) Button btColuAddAccount;
+    ColuMain selectedColuAsset;
 
-   ColuMain selectedColuAsset;
+    public static Intent getIntent(Context context) {
+        return new Intent(context, AddColuAccountActivity.class);
+    }
 
-   public static Intent getIntent(Context context) {
-      return new Intent(context, AddColuAccountActivity.class);
-   }
+    public static final String RESULT_KEY = "account";
+    private MbwManager _mbwManager;
 
-   public static final String RESULT_KEY = "account";
-   private MbwManager _mbwManager;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.add_colu_account_activity);
+        _mbwManager = MbwManager.getInstance(this);
+        ButterKnife.bind(this);
+        btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
+    }
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.add_colu_account_activity);
-      _mbwManager = MbwManager.getInstance(this);
-      ButterKnife.bind(this);
-      btColuAddAccount.setText(getString(R.string.colu_create_account, ""));
-   }
+    void setButtonEnabled() {
+        btColuAddAccount.setEnabled(true);
+    }
 
-   void setButtonEnabled(){
-         btColuAddAccount.setEnabled(true);
-   }
 
-   @OnClick(R.id.btColuAddAccount)
-   void onColuAddAccountClick() {
-      if(selectedColuAsset != null) {
-         createColuAccountProtected(selectedColuAsset);
-      } else {
-         Toast.makeText(AddColuAccountActivity.this, R.string.colu_select_an_account_type, Toast.LENGTH_SHORT).show();
-      }
-     //displayTemporaryMessage();
-   }
+    @OnClick(R.id.btColuAddAccount)
+    void onColuAddAccountClick() {
+        if(selectedColuAsset != null) {
+            createColuAccountProtected(selectedColuAsset);
+        } else {
+            Toast.makeText(AddColuAccountActivity.this, R.string.colu_select_an_account_type, Toast.LENGTH_SHORT).show();
+        }
+        //displayTemporaryMessage();
+    }
 
-   @OnClick({R.id.radio_mycelium_tokens, R.id.radio_mass_tokens, R.id.radio_rmc_tokens})
-   public void onRadioButtonClicked(View view) {
-      // Is the button now checked?
-      boolean checked = ((RadioButton) view).isChecked();
-      ColuMain assetType;
-      String name;
-      // Check which radio button was clicked
-      switch (view.getId()) {
-         case R.id.radio_mycelium_tokens:
+    @OnClick({R.id.radio_mycelium_tokens, R.id.radio_mass_tokens, R.id.radio_rmc_tokens})
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        ColuMain assetType;
+        String name;
+        // Check which radio button was clicked
+        switch (view.getId()) {
+        case R.id.radio_mycelium_tokens:
             assetType = MTCoin.INSTANCE;
             name = "MT";
             break;
-         case R.id.radio_mass_tokens:
+        case R.id.radio_mass_tokens:
             assetType = MASSCoin.INSTANCE;
             name = "Mass";
             break;
-         case R.id.radio_rmc_tokens:
+        case R.id.radio_rmc_tokens:
             assetType = RMCCoin.INSTANCE;
             name = "RMC";
             break;
-         default:
+        default:
             return;
-      }
-      if (checked) {
-         selectedColuAsset = assetType;
-      }
-      btColuAddAccount.setEnabled(true);
-      Toast.makeText(this, name + " selected", Toast.LENGTH_SHORT).show();
-   }
+        }
+        if (checked) {
+            selectedColuAsset = assetType;
+        }
+        btColuAddAccount.setEnabled(true);
+        Toast.makeText(this, name + " selected", Toast.LENGTH_SHORT).show();
+    }
 
-   private void createColuAccountProtected(final ColuMain coluAsset) {
-      _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
-            AddColuAccountActivity.this, Feature.COLU_NEW_ACCOUNT, true, new Runnable() {
-               @Override
-               public void run() {
-                  _mbwManager.runPinProtectedFunction(AddColuAccountActivity.this, new Runnable() {
-                     @Override
-                     public void run() {
+    private void createColuAccountProtected(final ColuMain coluAsset) {
+        _mbwManager.getVersionManager().showFeatureWarningIfNeeded(
+        AddColuAccountActivity.this, Feature.COLU_NEW_ACCOUNT, true, new Runnable() {
+            @Override
+            public void run() {
+                _mbwManager.runPinProtectedFunction(AddColuAccountActivity.this, new Runnable() {
+                    @Override
+                    public void run() {
                         new AddColuAsyncTask(coluAsset).execute();
 
-                     }
-                  });
-               }
+                    }
+                });
             }
-      );
-   }
+        }
+        );
+    }
 
-   private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private final boolean alreadyHadColuAccount;
-      private final ColuMain coluAsset;
-      private final ProgressDialog progressDialog;
+    private class AddColuAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        private final boolean alreadyHadColuAccount;
+        private final ColuMain coluAsset;
+        private final ProgressDialog progressDialog;
 
-      public AddColuAsyncTask(ColuMain coluAsset) {
-         this.coluAsset = coluAsset;
-         this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
-         progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
-         progressDialog.setCancelable(false);
-         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-         progressDialog.show();
-      }
+        public AddColuAsyncTask(ColuMain coluAsset) {
+            this.coluAsset = coluAsset;
+            this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
+            progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
 
-      @Override
-      protected UUID doInBackground(Void... params) {
-         _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, true);
-         try {
-            InMemoryPrivateKey key = new InMemoryPrivateKey(_mbwManager.getRandomSource(), true);
-            UUID uuid = _mbwManager.getWalletManager(false)
-                    .createAccounts(new PrivateColuConfig(key, coluAsset,AesKeyCipher.defaultKeyCipher())).get(0);
-            return uuid;
-         } catch (Exception e) {
-            Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage(), e);
-            return null;
-         }
-      }
+        @Override
+        protected UUID doInBackground(Void... params) {
+            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, true);
+            try {
+                InMemoryPrivateKey key = new InMemoryPrivateKey(_mbwManager.getRandomSource(), true);
+                return _mbwManager.getWalletManager(false)
+                            .createAccounts(new PrivateColuConfig(key, coluAsset,AesKeyCipher.defaultKeyCipher())).get(0);
+            } catch (Exception e) {
+                Log.d(TAG, "Error while creating Colored Coin account for asset " + coluAsset.getName() + ": " + e.getMessage(), e);
+                return null;
+            }
+        }
 
-      @Override
-      protected void onPostExecute(UUID account) {
-         if (account != null) {
-            Intent result = new Intent();
-            result.putExtra(RESULT_KEY, account);
-            setResult(RESULT_OK, result);
-            finish();
-         } else {
-            // something went wrong - clean up the half ready coluManager
-            Toast.makeText(AddColuAccountActivity.this, R.string.colu_unable_to_create_account, Toast.LENGTH_SHORT).show();
-            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, alreadyHadColuAccount);
-         }
-         if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-         }
-         setButtonEnabled();
-      }
-   }
+        @Override
+        protected void onPostExecute(UUID account) {
+            if (account != null) {
+                Intent result = new Intent();
+                result.putExtra(RESULT_KEY, account);
+                setResult(RESULT_OK, result);
+                finish();
+            } else {
+                // something went wrong - clean up the half ready coluManager
+                Toast.makeText(AddColuAccountActivity.this, R.string.colu_unable_to_create_account, Toast.LENGTH_SHORT).show();
+                _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, alreadyHadColuAccount);
+            }
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+            setButtonEnabled();
+        }
+    }
 
-   @Override
-   public void onResume() {
-      MbwManager.getEventBus().register(this);
-      setButtonEnabled();
-      super.onResume();
-   }
+    @Override
+    public void onResume() {
+        MbwManager.getEventBus().register(this);
+        setButtonEnabled();
+        super.onResume();
+    }
 
 
-   @Override
-   public void onPause() {
-      MbwManager.getEventBus().unregister(this);
-      _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
-   }
+    @Override
+    public void onPause() {
+        MbwManager.getEventBus().unregister(this);
+        _mbwManager.getVersionManager().closeDialog();
+        super.onPause();
+    }
 
 }
