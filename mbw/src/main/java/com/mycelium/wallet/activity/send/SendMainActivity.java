@@ -1305,7 +1305,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @Subscribe
     public void paymentRequestAck(PaymentACK paymentACK) {
         if (paymentACK != null) {
-            activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
+            activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
         }
     }
 

@@ -18,10 +18,10 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import java.util.Collections;
 import java.util.List;
 
+
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
     private List<FeeItem> mDataset;
-    public static final int VIEW_TYPE_ITEM = 2;
     private int paddingWidth = 0;
 
     public FeeViewAdapter(int paddingWidth) {
@@ -55,7 +55,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         if (viewType == VIEW_TYPE_ITEM) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
+                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
@@ -67,7 +67,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             return new FeeViewAdapter.ViewHolder(v, this);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
-                    parent, false);
+                        parent, false);
 
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -123,7 +123,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         return mDataset.get(position).type;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView categoryTextView;
         public TextView itemTextView;
