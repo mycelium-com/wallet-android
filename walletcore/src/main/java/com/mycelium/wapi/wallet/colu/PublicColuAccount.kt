@@ -133,7 +133,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), System.currentTimeMillis())
     }
 
 
