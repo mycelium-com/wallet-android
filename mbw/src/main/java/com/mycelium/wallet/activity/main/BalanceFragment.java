@@ -290,7 +290,7 @@ public class BalanceFragment extends Fragment {
    }
 
    private void updateUiKnownBalance(Balance balance) {
-      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
+      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(true);
