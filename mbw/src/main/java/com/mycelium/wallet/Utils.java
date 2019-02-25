@@ -92,6 +92,9 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.BitcoinUri;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -516,10 +519,10 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
       } else {
-         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(someString, network);
-         if (b.isPresent()) {
+         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         if (b != null && b.getAddress() != null) {
             // On URI format
-            return Optional.of(b.get().getAddress());
+            return Optional.of(b.getAddress());
          }
       }
       return Optional.absent();
