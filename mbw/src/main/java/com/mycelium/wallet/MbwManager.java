@@ -1277,13 +1277,16 @@ public class MbwManager {
         return _walletManager.getAccount(uuid);
     }
 
+    public Optional<UUID> getAccountId(GenericAddress address) {
+        return getAccountId(address, null);
+    }
 
     @SuppressWarnings("unchecked")
-    public Optional<UUID> getAccountId(GenericAddress address, Class accountClass) {
+    public Optional<UUID> getAccountId(GenericAddress address, GenericAssetInfo coinType) {
         Optional<UUID> result = Optional.absent();
         for (UUID uuid : _walletManager.getAccountIds()) {
             WalletAccount account = checkNotNull(_walletManager.getAccount(uuid));
-            if ((accountClass == null || accountClass.isAssignableFrom(account.getClass()))
+            if ((coinType == null || account.getCoinType().equals(coinType))
                     && account.isMineAddress(address)) {
                 result = Optional.of(uuid);
                 break;

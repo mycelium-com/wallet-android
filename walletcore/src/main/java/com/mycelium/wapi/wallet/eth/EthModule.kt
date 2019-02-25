@@ -26,7 +26,7 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         return map
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         val newEthAccount = EthAccount()
 
         val baseName = "Ethereum"

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 class WalletManager(val backing: WalletManagerBacking<*,*>,
                     val network: NetworkParameters,
                     val wapi: Wapi) {
-    private val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
+    val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
@@ -73,9 +73,11 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
-                val account = it.createAccount(config)
-                account?.let {
+                try {
+                    val account = it.createAccount(config)
                     result[account.id] = account
+                } catch (exception: IllegalStateException){
+                    _logger.logError("Account", exception)
                 }
             }
         }
@@ -121,7 +123,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
         val activeAccount = getAccount(acc)
-        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount)))
+        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
         return isNetworkConnected
     }
 

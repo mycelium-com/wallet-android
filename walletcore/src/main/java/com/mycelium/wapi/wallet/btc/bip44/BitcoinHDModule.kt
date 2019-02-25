@@ -28,16 +28,7 @@ import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.util.*
-import com.mycelium.wapi.wallet.btc.BTCSettings
-import javax.annotation.Nonnull
 import kotlin.collections.ArrayList
-import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-
-
-
-
 
 
 class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
@@ -120,7 +111,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         }
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *>? {
+    override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
         if (config is UnrelatedHDAccountConfig) {
             var cfg = config
@@ -273,7 +264,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
         }
 
-        accounts[result!!.id] = result as HDAccount
+        if (result == null) {
+            throw IllegalStateException("Account can't be created")
+        }
+        accounts[result.id] = result as HDAccount
 
         val baseLabel = "Account" + " " + (result.accountIndex + 1)
         result.label = createLabel(baseLabel, result.id)
@@ -359,25 +353,16 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         val ID: String = "BitcoinHD"
     }
 
-    fun getGapsBug(): MutableList<Int> {
-        val mainAccounts: List<HDAccount> = accounts.values
+    fun getGapsBug(): Set<Int> {
+        val accountIndices = accounts.values
                 .filter { it.isDerivedFromInternalMasterseed }
-                .sortedBy { it.accountIndex }
-
-        val gaps: MutableList<Int> = mutableListOf()
-        var lastIndex = 0
-        for (acc in mainAccounts) {
-            while (acc.accountIndex > lastIndex++) {
-                gaps.add(lastIndex - 1)
-            }
-        }
-        return gaps
+                .map { it.accountIndex }
+        val allIndices = 0..(accountIndices.max() ?: 0)
+        return allIndices.subtract(accountIndices)
     }
 
-
-    @Throws(InvalidKeyCipher::class)
     fun getGapAddresses(cipher: KeyCipher): List<Address> {
-        val gaps: MutableList<Int> = getGapsBug()
+        val gaps: Set<Int> = getGapsBug()
         // Get the master seed
         val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
         val tempSecureBacking = InMemoryWalletManagerBacking()
@@ -391,16 +376,14 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             for (derivationType: BipDerivationType in BipDerivationType.values()) {
                 // Generate the root private key
                 val root: HdKeyNode = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                val keyManager: HDAccountKeyManager = HDAccountKeyManager.createNew(root, networkParameters, gapIndex!!, tempSecureKeyValueStore, cipher, derivationType)
+                val keyManager: HDAccountKeyManager = HDAccountKeyManager.createNew(root, networkParameters, gapIndex, tempSecureKeyValueStore, cipher, derivationType)
                 addresses.add(keyManager.getAddress(false, 0)) // get first external address for the account in the gap
             }
         }
-
         return addresses
     }
 
-    @Throws(InvalidKeyCipher::class)
-    fun createArchivedGapFiller(cipher: KeyCipher, accountIndex: Int?, archived: Boolean): UUID {
+    fun createArchivedGapFiller(cipher: KeyCipher, accountIndex: Int): UUID {
         // Get the master seed
         val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
 
@@ -412,7 +395,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 for (derivationType in BipDerivationType.values()) {
                     // Generate the root private key
                     val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex!!,
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
                             secureStore, cipher, derivationType)
                 }
 
@@ -421,7 +404,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
                 // Generate the context for the account
                 val context = HDAccountContext(
-                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex!!, false, defaultAddressType)
+                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex, false, defaultAddressType)
                 backing.createBip44AccountContext(context)
 
                 // Get the backing for the new account
@@ -433,9 +416,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 // Finally persist context and add account
                 context.persist(accountBacking)
                 backing.setTransactionSuccessful()
-                if (archived) {
-                    account.archiveAccount()
-                }
+                account.archiveAccount()
 
                 accounts[account.id] = account
                 return account.id
@@ -444,19 +425,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
             }
         }
     }
-
-    /**
-     * This method is intended to get all possible ids for mixed HD account.
-     */
-    @Nonnull
-    fun getAccountVirtualIds(keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>, account: HDAccount): List<UUID> {
-        val uuidList: MutableList<UUID> = mutableListOf()
-        for (addressType in account.availableAddressTypes) {
-            uuidList.add(keyManagerMap.getValue(BipDerivationType.getDerivationTypeByAddressType(addressType)).accountId)
-        }
-        return uuidList
-    }
-
 }
 
 /**
