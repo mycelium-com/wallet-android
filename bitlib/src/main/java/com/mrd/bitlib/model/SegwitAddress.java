@@ -226,4 +226,14 @@ public class SegwitAddress extends Address implements Serializable {
         pubkey.write(data.program, 0, data.program.length);
         return pubkey.toByteArray();
     }
+
+    public NetworkParameters getNetwork() {
+        if (humanReadablePart.equalsIgnoreCase("BC")) {
+            return NetworkParameters.productionNetwork;
+        }
+        if (humanReadablePart.equalsIgnoreCase("TB")) {
+            return NetworkParameters.testNetwork;
+        }
+        throw new IllegalStateException("unknown network");
+    }
 }

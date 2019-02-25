@@ -29,7 +29,11 @@ abstract class EthCoin: CryptoCurrency(){
 
     @Throws(AddressMalformedException::class)
     override fun parseAddress(address: String): GenericAddress {
-        return EthAddress(address)
+        if(address.startsWith("0x")) {
+            return EthAddress(address)
+        } else {
+            throw AddressMalformedException("Address $address is malformed")
+        }
     }
 
 }
