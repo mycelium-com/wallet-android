@@ -96,14 +96,8 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.fromValue)
     TextView fromValue;
 
-    @BindView(R.id.bchLabel)
-    View bchLabel;
-
     @BindView(R.id.toValue)
     TextView toValue;
-
-    @BindView(R.id.fromValueLayout)
-    View fromLayout;
 
     @BindView(R.id.toValueLayout)
     View toLayout;
@@ -236,19 +230,19 @@ public class ExchangeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
     }
 
     @Override
     public void onPause() {
-        mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onPause();
     }
 
     @OnClick(R.id.buttonContinue)
     void continueClick() {
         String txtAmount = fromValue.getText().toString();
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(txtAmount);
         } catch (NumberFormatException e) {
@@ -422,7 +416,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void requestExchangeRate(String amount) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
@@ -433,7 +427,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private double calculateBTCtoBHC(String amount) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
@@ -464,7 +458,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             return false;
         }
-        Double dblAmountTo = 0.0;
+        double dblAmountTo = 0.0;
         try {
             dblAmountTo = Double.parseDouble(toValue.getText().toString());
         } catch (NumberFormatException ignore) {

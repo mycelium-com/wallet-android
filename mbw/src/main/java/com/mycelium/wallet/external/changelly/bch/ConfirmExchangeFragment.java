@@ -181,7 +181,6 @@ public class ConfirmExchangeFragment extends Fragment {
                         SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
                         service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
                         WalletApplication.sendToSpv(service, SingleAddressBCHAccount.class);
-
                 }
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setIndeterminate(true);
@@ -209,8 +208,8 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fromAddress.setText(((Address)((WalletBtcAccount)(fromAccount)).getReceivingAddress().get()).getShortAddress());
-        toAddress.setText(((Address)(((WalletBtcAccount)toAccount)).getReceivingAddress().get()).getShortAddress());
+        fromAddress.setText(((WalletBtcAccount)fromAccount).getReceivingAddress().get().getShortAddress());
+        toAddress.setText((((WalletBtcAccount)toAccount)).getReceivingAddress().get().getShortAddress());
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
@@ -363,7 +362,6 @@ public class ConfirmExchangeFragment extends Fragment {
             }
         });
         downloadConfirmationDialog = new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-
                 .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
