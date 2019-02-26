@@ -92,9 +92,10 @@ import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.BitcoinUri;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -509,19 +510,19 @@ public class Utils {
       }
    }
 
-   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
+   public static Optional<GenericAddress> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
          return Optional.absent();
       }
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Optional.fromNullable(Address.fromString(someString, network));
+         return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
       } else {
-         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(someString, network);
-         if (b.isPresent()) {
+         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         if (b != null && b.getAddress() != null) {
             // On URI format
-            return Optional.of(b.get().address);
+            return Optional.of(b.getAddress());
          }
       }
       return Optional.absent();

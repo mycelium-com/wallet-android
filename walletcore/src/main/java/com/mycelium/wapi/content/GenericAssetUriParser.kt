@@ -24,7 +24,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         var address: GenericAddress? = null
         val addressString = uri.host
         if (addressString != null && addressString.isNotEmpty()) {
-            address = AddressUtils.from(coinType, addressString.trim { it <= ' ' })
+            address = AddressUtils.from(coinType, addressString)
         }
 
         val params = URLEncodedUtils.parse(uri, "UTF-8")
@@ -35,7 +35,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
             val amountStr = params.first { it.name == "amount" }.value
 
             if (amountStr != null) {
-                amount = Value.valueOf(coinType, BigDecimal(amountStr).movePointRight(8).toBigIntegerExact().toLong())
+                amount = Value.valueOf(coinType, (java.lang.Double.parseDouble(amountStr)* Math.pow(10.0,8.0)).toLong())
             }
         }catch (e: NoSuchElementException){
         }
