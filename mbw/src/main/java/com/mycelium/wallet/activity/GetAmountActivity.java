@@ -48,7 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -58,7 +57,6 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -325,7 +323,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
          btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
          //update amount
-         BigDecimal newAmount = null;
+         BigDecimal newAmount;
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
@@ -355,7 +353,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @Override
    protected void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       _mbwManager.getExchangeRateManager().requestOptionalRefresh();
       btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
               && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
@@ -366,7 +364,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    @Override
    protected void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
       currencySwitcher.setCurrency(currencySwitcher.getCurrentCurrency());
       super.onPause();
@@ -452,7 +450,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       try {
          SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
          _account.completeTransaction(sendRequest);
-
       } catch (GenericOutputTooSmallException e) {
          return AmountValidation.ValueTooSmall;
       } catch (GenericInsufficientFundsException e) {
