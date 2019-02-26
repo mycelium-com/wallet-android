@@ -91,4 +91,6 @@ public interface AccountBacking<T extends GenericTransaction> {
    void putTransactions(List<T> txList);
 
    void putFeeEstimation(FeeEstimationsGeneric feeEstimation);
+
+   FeeEstimationsGeneric getFeeEstimations();
 }

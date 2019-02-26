@@ -413,6 +413,11 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
       }
 
       @Override
+      public FeeEstimationsGeneric getFeeEstimations() {
+         return null;
+      }
+
+      @Override
       public void deleteTxRefersParentTransaction(Sha256Hash txId) {
          _txRefersParentTxOpus.remove(txId);
       }

@@ -1757,7 +1757,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          _backing.putFeeEstimation(result);
          return result;
       } catch (WapiException ex) {
-         return null;
+         return _backing.getFeeEstimations();
       }
    }
 

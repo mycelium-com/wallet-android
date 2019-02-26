@@ -765,7 +765,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       }
 
-      @Override
+       @Override
+       public FeeEstimationsGeneric getFeeEstimations() {
+           return null;
+       }
+
+       @Override
       public void deleteTxRefersParentTransaction(Sha256Hash txId) {
          _deleteTxRefersParentTx.bindBlob(1, txId.getBytes());
          _deleteTxRefersParentTx.execute();
