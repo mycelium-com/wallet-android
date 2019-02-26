@@ -12,13 +12,13 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.AccountBacking
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import java.io.*
 import java.util.*
 
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : AccountBacking<CoinapultTransaction> {
-
     private val txTableName = "tx${HexUtils.toHex(uuidToBytes(id))}"
 
     private val deleteTx = database.compileStatement("DELETE FROM $txTableName WHERE id = ?");
@@ -179,6 +179,10 @@ class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : Ac
     }
 
     override fun putTxRefersParentTransaction(txId: Sha256Hash?, refersOutputs: MutableList<OutPoint>?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun putFeeEstimation(feeEstimation: FeeEstimationsGeneric?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

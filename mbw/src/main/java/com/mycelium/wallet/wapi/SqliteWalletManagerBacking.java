@@ -67,6 +67,7 @@ import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
@@ -756,6 +757,11 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public void putTransactions(List<BtcTransaction> txList) {
+
+      }
+
+      @Override
+      public void putFeeEstimation(FeeEstimationsGeneric feeEstimation) {
 
       }
 
