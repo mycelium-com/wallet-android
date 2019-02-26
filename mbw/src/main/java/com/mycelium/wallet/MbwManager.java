@@ -645,27 +645,7 @@ public class MbwManager {
         // Create and return wallet manager
 
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
-        walletManager.setWalletListener(new WalletListener() {
-            @Override
-            public void syncStarted() {
-                mainLoopHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        _eventBus.post(new SyncStarted());
-                    }
-                });
-            }
-
-            @Override
-            public void syncStopped() {
-                mainLoopHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        _eventBus.post(new SyncStopped());
-                    }
-                });
-            }
-        });
+        walletManager.setWalletListener(new SyncEventsListener());
 
         // notify the walletManager about the current selected account
         UUID lastSelectedAccountId = getLastSelectedAccountId();
@@ -772,6 +752,7 @@ public class MbwManager {
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
+        walletManager.setWalletListener(new SyncEventsListener());
 
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
@@ -781,6 +762,28 @@ public class MbwManager {
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
+    }
+
+    class SyncEventsListener implements WalletListener {
+        @Override
+        public void syncStarted() {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new SyncStarted());
+                }
+            });
+        }
+
+        @Override
+        public void syncStopped() {
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _eventBus.post(new SyncStopped());
+                }
+            });
+        }
     }
 
     public SpvBalanceFetcher getSpvBchFetcher() {
