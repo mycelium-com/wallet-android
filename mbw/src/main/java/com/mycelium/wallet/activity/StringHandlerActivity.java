@@ -129,9 +129,6 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-          if (requestCode == SEND_INITIALIZATION_CODE) {
-             _mbwManager.forgetColdStorageWalletManager();
-          }
          finishError(R.string.cancelled);
          return;
       }
@@ -150,10 +147,6 @@ public class StringHandlerActivity extends Activity {
          case IMPORT_SSS_CONTENT_CODE:
             content = intent.getStringExtra("secret");
             break;
-         case SEND_INITIALIZATION_CODE:
-            _mbwManager.forgetColdStorageWalletManager();
-            finishOk();
-            return;
          default:
             //todo: what kind of error should we throw?
             return;
