@@ -52,8 +52,4 @@ public interface WalletManagerBacking<AccountContext, T extends GenericTransacti
     SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
     void deleteSingleAddressAccountContext(UUID accountId);
-
-    void saveLastFeeEstimation(FeeEstimation feeEstimation);
-
-    FeeEstimation loadLastFeeEstimation();
 }

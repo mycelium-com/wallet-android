@@ -19,6 +19,14 @@ import java.util.*
 
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : AccountBacking<CoinapultTransaction> {
+    override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun loadLastFeeEstimation(assetType: String?): FeeEstimationsGeneric {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     private val txTableName = "tx${HexUtils.toHex(uuidToBytes(id))}"
 
     private val deleteTx = database.compileStatement("DELETE FROM $txTableName WHERE id = ?");
@@ -179,10 +187,6 @@ class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : Ac
     }
 
     override fun putTxRefersParentTransaction(txId: Sha256Hash?, refersOutputs: MutableList<OutPoint>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun putFeeEstimation(feeEstimation: FeeEstimationsGeneric?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

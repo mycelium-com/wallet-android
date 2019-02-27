@@ -12,15 +12,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class WalletManager(val backing: WalletManagerBacking<*,*>,
-                    val network: NetworkParameters,
+class WalletManager(val network: NetworkParameters,
                     val wapi: Wapi) {
     val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
-    private val _lastFeeEstimations = backing.loadLastFeeEstimation()
     private val _logger = wapi.logger
 
     var isNetworkConnected: Boolean = false
@@ -59,14 +57,6 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
     fun hasPrivateKey(address: GenericAddress): Boolean {
         return accounts.values.any { it.canSpend() && it.isMineAddress(address) }
-    }
-
-
-    fun getLastFeeEstimations(): FeeEstimation {
-        if (Date().time - _lastFeeEstimations.getValidFor().getTime() >= MAX_AGE_FEE_ESTIMATION) {
-            _logger.logError("Using stale fee estimation!") // this is still better
-        }
-        return _lastFeeEstimations
     }
 
     fun createAccounts(config: Config): List<UUID> {

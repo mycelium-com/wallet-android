@@ -90,7 +90,7 @@ public interface AccountBacking<T extends GenericTransaction> {
 
    void putTransactions(List<T> txList);
 
-   void putFeeEstimation(FeeEstimationsGeneric feeEstimation);
+   void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType);
 
-   FeeEstimationsGeneric getFeeEstimations();
+   FeeEstimationsGeneric loadLastFeeEstimation(String assetType);
 }

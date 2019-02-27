@@ -133,6 +133,20 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
+   public FeeEstimationsGeneric getDefaultFeeEstimation() {
+       FeeEstimationsGeneric result = new FeeEstimationsGeneric(
+               Value.valueOf(getCoinType(), 1000),
+               Value.valueOf(getCoinType(), 3000),
+               Value.valueOf(getCoinType(), 6000),
+               Value.valueOf(getCoinType(), 8000),
+               0
+       );
+       return result;
+   }
+
+
+
+    @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
    }
@@ -1754,10 +1768,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  Value.valueOf(getCoinType(), high.getLongValue()),
                  System.currentTimeMillis()
          );
-         _backing.putFeeEstimation(result);
+         _backing.saveLastFeeEstimation(result, getCoinType().getName());
          return result;
       } catch (WapiException ex) {
-         return _backing.getFeeEstimations();
+         return _backing.loadLastFeeEstimation(getCoinType().getName());
       }
    }
 

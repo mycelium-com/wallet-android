@@ -15,6 +15,8 @@ import java.util.UUID;
 
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
 
+    FeeEstimationsGeneric getDefaultFeeEstimation();
+
     void setAllowZeroConfSpending(boolean b);
 
     void completeTransaction(SendRequest<T> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;

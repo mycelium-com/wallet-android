@@ -35,8 +35,7 @@
 package com.mycelium.wallet.wapi;
 
 import android.util.ArrayMap;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+
 import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
@@ -59,11 +58,9 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
@@ -74,15 +71,10 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -101,7 +93,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
-   private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
+   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteAccountBacking> _backings;
@@ -160,25 +152,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
             cursor.close();
          }
       }
-   }
-
-   @Override
-   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
-      Gson gson = new Gson();
-      byte[] value = gson.toJson(feeEstimation).getBytes();
-      setValue(LAST_FEE_ESTIMATE, value);
-   }
-
-   @Override
-   public FeeEstimation loadLastFeeEstimation() {
-      Gson gson = new Gson();
-      byte[] value = getValue(LAST_FEE_ESTIMATE);
-      FeeEstimation feeEstimation = FeeEstimation.DEFAULT;
-      try {
-         String valueString = new String(value);
-         feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
-      } catch(Exception ignore) { }
-      return feeEstimation;
    }
 
    @Override
@@ -622,6 +595,26 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       }
 
       @Override
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType) {
+         Gson gson = new Gson();
+         byte[] key = (assetType + LAST_FEE_ESTIMATE).getBytes();
+         byte[] value = gson.toJson(feeEstimation).getBytes();
+         setValue(key, value);
+      }
+
+      @Override
+      public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
+         Gson gson = new Gson();
+         String key = assetType + LAST_FEE_ESTIMATE;
+//         FeeEstimationsGeneric feeEstimation = new FeeEstimationsGeneric();
+//         try {
+//            feeEstimation = gson.fromJson(key, FeeEstimationsGeneric.class);
+//         } catch(Exception ignore) { }
+//         return feeEstimation;
+         return gson.fromJson(key, FeeEstimationsGeneric.class);
+      }
+
+      @Override
       public void beginTransaction() {
          SqliteWalletManagerBacking.this.beginTransaction();
       }
@@ -761,16 +754,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       }
 
       @Override
-      public void putFeeEstimation(FeeEstimationsGeneric feeEstimation) {
-
-      }
-
-       @Override
-       public FeeEstimationsGeneric getFeeEstimations() {
-           return null;
-       }
-
-       @Override
       public void deleteTxRefersParentTransaction(Sha256Hash txId) {
          _deleteTxRefersParentTx.bindBlob(1, txId.getBytes());
          _deleteTxRefersParentTx.execute();
