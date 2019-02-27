@@ -1754,6 +1754,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public FeeEstimationsGeneric getFeeEstimations() {
+      // we try to get fee estimation from server
       try {
          WapiResponse<MinerFeeEstimationResponse> response = _wapi.getMinerFeeEstimations();
          FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
@@ -1768,10 +1769,14 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  Value.valueOf(getCoinType(), high.getLongValue()),
                  System.currentTimeMillis()
          );
+         //if all ok we return requested new fee estimation
          _backing.saveLastFeeEstimation(result, getCoinType().getName());
          return result;
       } catch (WapiException ex) {
-         return _backing.loadLastFeeEstimation(getCoinType().getName());
+         //receiving data from the server failed then trying to read fee estimations from the DB
+         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType().getName());
+         //if a read error has occurred from the DB, then we return the predefined default fee
+         return (feeFromDb == null) ? getDefaultFeeEstimation() : feeFromDb;
       }
    }
 

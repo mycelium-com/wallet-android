@@ -662,8 +662,13 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void putFeeEstimation(FeeEstimationsGeneric feeEstimation) {
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType) {
 
+      }
+
+      @Override
+      public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
+         return null;
       }
 
       @Override

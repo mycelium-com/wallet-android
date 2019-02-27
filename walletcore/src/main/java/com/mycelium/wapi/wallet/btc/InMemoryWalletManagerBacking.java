@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
@@ -40,7 +39,6 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, HDAccountContext> _bip44Contexts = new HashMap<>();
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
-   private FeeEstimation _feeEstimation = FeeEstimation.DEFAULT;
    private int maxSubId = 0;
 
    @Override
@@ -99,16 +97,6 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    public void deleteSingleAddressAccountContext(UUID accountId) {
       _backings.remove(accountId);
       _singleAddressAccountContexts.remove(accountId);
-   }
-
-   @Override
-   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
-            _feeEstimation = feeEstimation;
-   }
-
-   @Override
-   public FeeEstimation loadLastFeeEstimation() {
-      return _feeEstimation;
    }
 
    @Override
@@ -408,12 +396,12 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
       }
 
       @Override
-      public void putFeeEstimation(FeeEstimationsGeneric feeEstimation) {
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType) {
 
       }
 
       @Override
-      public FeeEstimationsGeneric getFeeEstimations() {
+      public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
          return null;
       }
 

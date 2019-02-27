@@ -606,12 +606,13 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
          Gson gson = new Gson();
          String key = assetType + LAST_FEE_ESTIMATE;
-//         FeeEstimationsGeneric feeEstimation = new FeeEstimationsGeneric();
-//         try {
-//            feeEstimation = gson.fromJson(key, FeeEstimationsGeneric.class);
-//         } catch(Exception ignore) { }
-//         return feeEstimation;
-         return gson.fromJson(key, FeeEstimationsGeneric.class);
+         FeeEstimationsGeneric feeEstimation;
+         try {
+            feeEstimation = gson.fromJson(key, FeeEstimationsGeneric.class);
+         }
+         catch(Exception ignore) { return null; }
+
+         return feeEstimation;
       }
 
       @Override

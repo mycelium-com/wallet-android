@@ -25,6 +25,11 @@ import java.util.UUID;
 
 public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> {
     @Override
+    public FeeEstimationsGeneric getDefaultFeeEstimation() {
+        return null;
+    }
+
+    @Override
     public void setAllowZeroConfSpending(boolean b) {
 
     }

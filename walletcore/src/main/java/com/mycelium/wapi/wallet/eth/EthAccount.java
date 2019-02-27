@@ -48,6 +48,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public FeeEstimationsGeneric getDefaultFeeEstimation() {
+        return null;
+    }
+
+    @Override
     public void setAllowZeroConfSpending(boolean b) {
 
     }
