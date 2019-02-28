@@ -369,7 +369,7 @@ public class TradeActivity extends Activity {
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, _ltManager.getMinerFeeEstimation().getLongValue());
+            ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
       // TODO: 9/19/18 Nuru commented this
 //      SignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
    }
