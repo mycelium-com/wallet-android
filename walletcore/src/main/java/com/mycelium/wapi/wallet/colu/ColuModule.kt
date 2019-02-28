@@ -74,6 +74,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
+        var baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
 
         if (config is PrivateColuConfig) {
             val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
@@ -87,6 +88,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
+            baseName = config.coinType?.symbol ?: baseName
         } else if (config is PublicColuConfig) {
             val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
             val coinType = coluMain(address, config.coinType)
@@ -98,6 +100,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
+            baseName = config.coinType?.symbol ?: baseName
         } else if (config is AddressColuConfig) {
             val coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
@@ -108,10 +111,10 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
+            baseName = config.coinType?.symbol ?: baseName
         }
 
         result?.let {
-            val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
             it.label = createLabel(baseName, it.id)
         } ?: run {
             throw IllegalStateException("Account can't be created")
