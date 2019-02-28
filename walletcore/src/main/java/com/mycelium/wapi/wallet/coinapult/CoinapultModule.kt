@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.coinapult
 
+import com.coinapult.api.httpclient.CoinapultClient
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
@@ -33,16 +34,20 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
     override fun createAccount(config: Config): WalletAccount<*, *> {
         if (config is CoinapultConfig) {
             val id = CoinapultUtils.getGuidForAsset(config.currency, accountKey.publicKey.publicKeyBytes)
-            api.activate(config.mail)
-            val address = api.getAddress(config.currency, null)
-            if (address != null) {
-                val context = CoinapultAccountContext(id, address, false, config.currency)
-                backing.createAccountContext(context)
-                val result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
-                        , backing, networkParameters, config.currency, listener)
-                val baseLabel = "Coinapult ${config.currency.name}"
-                result.label = createLabel(baseLabel, result.id)
-                return result
+            try {
+                api.activate(config.mail)
+                val address = api.getAddress(config.currency, null)
+                if (address != null) {
+                    val context = CoinapultAccountContext(id, address, false, config.currency)
+                    backing.createAccountContext(context)
+                    val result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
+                            , backing, networkParameters, config.currency, listener)
+                    val baseLabel = "Coinapult ${config.currency.name}"
+                    result.label = createLabel(baseLabel, result.id)
+                    return result
+                }
+            } catch (e: CoinapultClient.CoinapultBackendException) {
+                throw IllegalStateException("Account can't be created. Problem with endpoint", e)
             }
         }
         throw IllegalStateException("Account can't be created")
