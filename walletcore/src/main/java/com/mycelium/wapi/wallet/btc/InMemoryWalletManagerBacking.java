@@ -28,6 +28,7 @@ import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.util.*;
 
@@ -396,12 +397,12 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
       }
 
       @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType) {
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
 
       }
 
       @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
          return null;
       }
 

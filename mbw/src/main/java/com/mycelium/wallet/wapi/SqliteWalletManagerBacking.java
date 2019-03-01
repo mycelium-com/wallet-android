@@ -74,8 +74,11 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -565,6 +568,23 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
+      private class FeeEstimationSerialized implements Serializable {
+          private long low;
+          private long economy;
+          private long normal;
+          private long high;
+          private long lastCheck;
+
+          FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
+              super();
+              this.low = low;
+              this.economy = economy;
+              this.normal = normal;
+              this.high = high;
+              this.lastCheck = lastCheck;
+          }
+      }
+
       private SqliteAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
@@ -595,22 +615,33 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       }
 
       @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType) {
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
          Gson gson = new Gson();
-         byte[] key = (assetType + LAST_FEE_ESTIMATE).getBytes();
-         byte[] value = gson.toJson(feeEstimation).getBytes();
+         String assetTypeName = assetType.getName();
+         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
+                                                                         feeEstimation.getEconomy().value,
+                                                                         feeEstimation.getNormal().value,
+                                                                         feeEstimation.getHigh().value,
+                                                                         feeEstimation.getLastCheck());
+         byte[] value = gson.toJson(feeValues).getBytes();
          setValue(key, value);
       }
 
       @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(String assetType) {
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
          Gson gson = new Gson();
-         String key = assetType + LAST_FEE_ESTIMATE;
-         FeeEstimationsGeneric feeEstimation;
+         String key = assetType.getName() + LAST_FEE_ESTIMATE;
+          FeeEstimationSerialized feeValues;
          try {
-            feeEstimation = gson.fromJson(key, FeeEstimationsGeneric.class);
+             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
          }
          catch(Exception ignore) { return null; }
+         FeeEstimationsGeneric feeEstimation = new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
+                                                                         Value.valueOf(assetType, feeValues.economy),
+                                                                         Value.valueOf(assetType, feeValues.normal),
+                                                                         Value.valueOf(assetType, feeValues.high),
+                                                                         feeValues.lastCheck);
 
          return feeEstimation;
       }

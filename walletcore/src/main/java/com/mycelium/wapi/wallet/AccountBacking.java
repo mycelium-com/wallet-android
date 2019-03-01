@@ -20,6 +20,7 @@ import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.util.Collection;
 import java.util.List;
@@ -90,7 +91,7 @@ public interface AccountBacking<T extends GenericTransaction> {
 
    void putTransactions(List<T> txList);
 
-   void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, String assetType);
+   void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType);
 
-   FeeEstimationsGeneric loadLastFeeEstimation(String assetType);
+   FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType);
 }

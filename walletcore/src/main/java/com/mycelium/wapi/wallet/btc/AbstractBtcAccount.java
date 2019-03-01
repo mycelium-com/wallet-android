@@ -80,6 +80,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -1770,11 +1771,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                  System.currentTimeMillis()
          );
          //if all ok we return requested new fee estimation
-         _backing.saveLastFeeEstimation(result, getCoinType().getName());
+         _backing.saveLastFeeEstimation(result, getCoinType());
          return result;
       } catch (WapiException ex) {
          //receiving data from the server failed then trying to read fee estimations from the DB
-         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType().getName());
+         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
          //if a read error has occurred from the DB, then we return the predefined default fee
          return (feeFromDb == null) ? getDefaultFeeEstimation() : feeFromDb;
       }
