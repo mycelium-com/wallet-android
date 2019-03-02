@@ -53,7 +53,7 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
-        if(account is WalletBtcAccount) {
+        if(account is WalletBtcAccount && account.receivingAddress.isPresent) {
             bip32Path.value = account.receivingAddress.get().bip32Path
             type.value = account.receivingAddress.get().type
         }
