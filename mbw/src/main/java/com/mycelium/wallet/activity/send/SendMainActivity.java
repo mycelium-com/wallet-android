@@ -191,7 +191,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
     private static final String SIGNED_SEND_REQUEST = "transactionRequest";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
-    private static final int FEE_EXPARATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+    private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
@@ -368,7 +368,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeEstimation = _account.getFeeEstimations();
         selectedFee = getCurrentFeeEstimation();
 
-        showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPARATION_TIME;
+        showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
