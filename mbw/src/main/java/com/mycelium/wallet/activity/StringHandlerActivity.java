@@ -40,7 +40,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import android.support.v4.app.FragmentManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip38;
@@ -59,18 +58,14 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
-import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.Action;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.WalletManager;
 
-import java.util.List;
 import java.util.UUID;
 
 public class StringHandlerActivity extends Activity {
@@ -79,7 +74,6 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_HD_NODE = "hdnode";
-   public static final String RESULT_URI_WITH_ADDRESS_KEY = "uri_with_address";
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_SHARE_KEY = "share";
    public static final String RESULT_ADDRESS_KEY = "address";
@@ -98,13 +92,9 @@ public class StringHandlerActivity extends Activity {
    }
 
    public static ParseAbility canHandle(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {
-      if (isMrdEncryptedPrivateKey(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (isMrdEncryptedMasterSeed(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (Bip38.isBip38PrivateKey(contentString)) {
+      if (isMrdEncryptedPrivateKey(contentString)
+              || isMrdEncryptedMasterSeed(contentString)
+              || Bip38.isBip38PrivateKey(contentString)) {
          return ParseAbility.MAYBE;
       }
       for (Action action : stringHandleConfig.getAllActions()) {
@@ -139,9 +129,6 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-          if (requestCode == SEND_INITIALIZATION_CODE) {
-             _mbwManager.forgetColdStorageWalletManager();
-          }
          finishError(R.string.cancelled);
          return;
       }
@@ -160,10 +147,6 @@ public class StringHandlerActivity extends Activity {
          case IMPORT_SSS_CONTENT_CODE:
             content = intent.getStringExtra("secret");
             break;
-         case SEND_INITIALIZATION_CODE:
-            _mbwManager.forgetColdStorageWalletManager();
-            finishOk();
-            return;
          default:
             //todo: what kind of error should we throw?
             return;

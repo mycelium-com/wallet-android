@@ -75,12 +75,7 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUriWithAddress;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -112,6 +107,7 @@ import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.content.btc.BitcoinUri;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
@@ -126,6 +122,8 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
@@ -653,12 +651,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btClipboard)
     void onClickClipboard() {
-        BitcoinUriWithAddress uri = getUriFromClipboard();
+        BitcoinUri uri = getUriFromClipboard();
         if (uri != null) {
             makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
-            _receivingAddress = AddressUtils.fromAddress(uri.address);
-            if (uri.amount != null && uri.amount >= 0) {
-                _amountToSend = Value.valueOf(Utils.getBtcCoinType(), uri.amount);
+            _receivingAddress = uri.getAddress();
+            if (uri.getValue() != null && !uri.getValue().isNegative()) {
+                _amountToSend = uri.getValue();
             }
             _transactionStatus = tryCreateUnsignedTransaction();
             updateUi();
@@ -772,7 +770,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             return TransactionStatus.OK;
         } catch (GenericBuildTransactionException ex) {
-            return TransactionStatus.InsufficientFunds;
+            return TransactionStatus.MissingArguments;
         } catch (GenericOutputTooSmallException ex) {
             return TransactionStatus.OutputTooSmall;
         } catch (GenericInsufficientFundsException ex) {
@@ -1278,7 +1276,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-    private BitcoinUriWithAddress getUriFromClipboard() {
+    //TODO: make it generic
+    private BitcoinUri getUriFromClipboard() {
         String content = Utils.getClipboardString(SendMainActivity.this);
         if (content.length() == 0) {
             return null;
@@ -1286,19 +1285,15 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         String string = content.trim();
         if (string.matches("[a-zA-Z0-9]*")) {
             // Raw format
-            Address address = Address.fromString(string, _mbwManager.getNetwork());
+            GenericAddress address = AddressUtils.from(Utils.getBtcCoinType(), string);
             if (address == null) {
                 return null;
             }
-            return new BitcoinUriWithAddress(address, null, null);
+            return BitcoinUri.from(address, null, null, null);
         } else {
-            Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(string, _mbwManager.getNetwork());
-            if (b.isPresent()) {
-                // On URI format
-                return b.get();
-            }
+            GenericAssetUri b = (new BitcoinUriParser(_mbwManager.getNetwork())).parse(string);
+            return (BitcoinUri) b;
         }
-        return null;
     }
 
     @Subscribe
@@ -1312,7 +1307,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @Subscribe
     public void paymentRequestAck(PaymentACK paymentACK) {
         if (paymentACK != null) {
-            activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
+            activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
         }
     }
 

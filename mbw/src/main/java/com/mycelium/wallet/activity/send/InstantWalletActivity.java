@@ -54,6 +54,7 @@ import com.mycelium.wallet.activity.EnterWordListActivity;
 import com.mycelium.wallet.activity.InstantMasterseedActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
+import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
@@ -187,6 +188,11 @@ public class InstantWalletActivity extends FragmentActivity {
                   break;
             }
          }
+      } else if (requestCode == StringHandlerActivity.SEND_INITIALIZATION_CODE) {
+         if (resultCode == Activity.RESULT_CANCELED) {
+            new Toaster(this).toast(R.string.cancelled, false);
+         }
+         MbwManager.getInstance(this).forgetColdStorageWalletManager();
          // else {
          // We don't call finish() here, so that this activity stays on the back stack.
          // So the user can click back and scan the next cold storage.

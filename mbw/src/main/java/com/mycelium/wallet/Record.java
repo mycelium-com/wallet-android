@@ -51,6 +51,8 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.persistence.MetadataStorage.BackupState;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 
 /**
  * Current Serialized Format: <HEX encoded 21 byte address>| <Bitcoin address
@@ -125,7 +127,7 @@ public class Record implements Serializable, Comparable<Record> {
    }
 
    public InMemoryPrivateKey key;
-   public Address address;
+   public GenericAddress address;
    public long timestamp;
    public Source source;
    public Tag tag;
@@ -135,21 +137,21 @@ public class Record implements Serializable, Comparable<Record> {
     * Constructor used when creating a new record from a private key
     */
    private Record(InMemoryPrivateKey key, Source source, NetworkParameters network) {
-      this(key, key.getPublicKey().toAddress(network, AddressType.P2PKH), System.currentTimeMillis(), source,
+      this(key, AddressUtils.fromAddress(key.getPublicKey().toAddress(network, AddressType.P2PKH)), System.currentTimeMillis(), source,
             Tag.ACTIVE, BackupState.UNKNOWN);
    }
 
    /**
     * Constructor used when creating a new record from Bitcoin address
     */
-   private Record(Address address) {
+   private Record(GenericAddress address) {
       this(null, address, System.currentTimeMillis(), Source.IMPORTED_BITCOIN_ADDRESS, Tag.ACTIVE, BackupState.UNKNOWN);
    }
 
    /**
     * Constructor used when loading a persisted record
     */
-   private Record(InMemoryPrivateKey key, Address address, long timestamp, Source source, Tag tag,
+   private Record(InMemoryPrivateKey key, GenericAddress address, long timestamp, Source source, Tag tag,
          BackupState backupState) {
       this.key = key;
       this.address = address;
@@ -201,7 +203,7 @@ public class Record implements Serializable, Comparable<Record> {
 
       String versionString = Integer.toString(CURRENT_VERSION);
       String timestampString = Long.toString(timestamp);
-      String addressBytesHex = HexUtils.toHex(address.getAllAddressBytes());
+      String addressBytesHex = HexUtils.toHex(address.getBytes());
       String addressString = address.toString();
       String privateKeyBytesHex = hasPrivateKey() ? HexUtils.toHex(key.getPrivateKeyBytes()) : "";
       String publicKeyBytesHex = hasPrivateKey() ? HexUtils.toHex(key.getPublicKey().getPublicKeyBytes()) : "";
@@ -272,7 +274,7 @@ public class Record implements Serializable, Comparable<Record> {
             throw new RuntimeException("Empty address while parsing version 1 record.");
          }
          // May throw
-         Address address = new Address(HexUtils.toBytes(addressBytesHex), addressString);
+         GenericAddress address = AddressUtils.fromAddress(new Address(HexUtils.toBytes(addressBytesHex), addressString));
 
          // Private key
          InMemoryPrivateKey key = null;
@@ -324,7 +326,7 @@ public class Record implements Serializable, Comparable<Record> {
             throw new RuntimeException("Empty address while parsing version 2 record.");
          }
          // May throw
-         Address address = new Address(HexUtils.toBytes(addressBytesHex), addressString);
+         GenericAddress address = AddressUtils.fromAddress(new Address(HexUtils.toBytes(addressBytesHex), addressString));
 
          // Private & Public key
          InMemoryPrivateKey key = null;
@@ -435,7 +437,7 @@ public class Record implements Serializable, Comparable<Record> {
 
    public static Optional<Record> recordFromBitcoinAddressString(String addressString, NetworkParameters network) {
       // Is it an address?
-      Optional<Address> address = Utils.addressFromString(addressString, network);
+      Optional<GenericAddress> address = Utils.addressFromString(addressString, network);
       if (address.isPresent()) {
          // We have an address
          return Optional.of(new Record(address.get()));

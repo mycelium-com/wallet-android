@@ -212,12 +212,12 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     @Subscribe
     open fun onPinMatrixRequest(event: ExternalSignatureDeviceManager.OnPinMatrixRequest) {
-        val pin = TrezorPinDialog(this, true)
-        pin.setOnPinValid { dialog, pin ->
+        val pinDialog = TrezorPinDialog(this, true)
+        pinDialog.setOnPinValid { dialog, pin ->
             extSigManager.enterPin(pin.pin)
             dialog.dismiss()
         }
-        pin.show()
+        pinDialog.show()
 
         // update the UI, as the state might have changed
         updateUi()

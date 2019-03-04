@@ -54,6 +54,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -81,7 +82,6 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
@@ -173,7 +173,7 @@ public class BalanceFragment extends Fragment {
          String source = sources.get(i);
          ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
          String price = exchangeRate == null || exchangeRate.price == null ? "not available"
-                 : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency();
+                 : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
          String item;
          if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
             item = COINMARKETCAP + "/" + source;
@@ -287,10 +287,32 @@ public class BalanceFragment extends Fragment {
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         _root.findViewById(R.id.pbProgress).setVisibility(account.isSynchronizing() ? View.VISIBLE : View.GONE);
         updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
-   }
+
+        TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
+        // Set BTC rate
+        if (!_mbwManager.hasFiatCurrency()) {
+            // No fiat currency selected by user
+            tvBtcRate.setVisibility(View.INVISIBLE);
+            exchangeSourceLayout.setVisibility(View.GONE);
+        } else {
+            Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(), _mbwManager.getFiatCurrency());
+            if (value == null) {
+                // We have no price, exchange not available
+                tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
+                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+            } else {
+                tvBtcRate.setText(getResources().getString(R.string.btc_rate
+                        , _mbwManager.getFiatCurrency().getSymbol()
+                        , ValueExtensionsKt.toString(value)));
+            }
+            tvBtcRate.setVisibility(View.VISIBLE);
+            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+            exchangeSourceLayout.setVisibility(View.VISIBLE);
+        }
+    }
 
    private void updateUiKnownBalance(Balance balance) {
-      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
+      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
       ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
       // Show alternative values
       _tcdFiatDisplay.setFiatOnly(true);

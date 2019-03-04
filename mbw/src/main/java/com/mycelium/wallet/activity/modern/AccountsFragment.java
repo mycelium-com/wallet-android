@@ -326,7 +326,6 @@ public class AccountsFragment extends Fragment {
                     }
                     if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                         if (label != null && label.length() != 0) {
-
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                       getResources().getQuantityString(R.plurals.account_label, labelCount, label),

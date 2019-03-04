@@ -964,18 +964,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (_mbwManager.hasFiatCurrency()) {
-            String currency = _mbwManager.getFiatCurrency() != null ? _mbwManager.getFiatCurrency().getSymbol() : "";
+            GenericAssetInfo currentCurrency = _mbwManager.getFiatCurrency();
+            String currencies = currentCurrency.getSymbol();
             List<GenericAssetInfo> currencyList = _mbwManager.getCurrencyList();
-            currencyList.remove(currency);
+            currencyList.remove(currentCurrency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop
-                currency += ", " + currencyList.get(i).getSymbol();
+                currencies += ", " + currencyList.get(i).getSymbol();
             }
             if (_mbwManager.getCurrencyList().size() > 3) {
                 //multiple selected, add ...
-                currency += "...";
+                currencies += "...";
             }
-            return currency;
+            return currencies;
         } else {
             //nothing selected
             return getResources().getString(R.string.pref_no_fiat_selected);

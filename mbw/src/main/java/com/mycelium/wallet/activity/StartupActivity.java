@@ -138,7 +138,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    @Override
    protected void onStart() {
       super.onStart();
-      eventBus = _mbwManager.getEventBus();
+      eventBus = MbwManager.getEventBus();
       eventBus.register(this);
       new Thread(delayedInitialization).start();
    }
@@ -313,7 +313,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       }
    }
 
-
    /**
     * This is used to create an account if it failed to be created in ConfigureSeedAsyncTask.
     * Resolves crashes that some users experience
@@ -392,7 +391,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
          _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
@@ -435,7 +433,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return false;
          }
       }
-
    };
 
    private void warnUserOnClipboardKeys(boolean isPrivate) {
@@ -573,7 +570,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
-      MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
+      MbwManager mbwManager = MbwManager.getInstance(getApplication());
       GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
