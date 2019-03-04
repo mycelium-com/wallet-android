@@ -77,13 +77,6 @@ public class ColuAssetUriTest {
         testParse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1", BitcoinTest.get(), testNetwork, null);
     }
 
-    @Test
-    public void fromAddress() {
-        ColuAssetUri actual = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null);
-        ColuAssetUri expected = new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), null, null);
-        assertEquals(expected, actual);
-    }
-
     private void testParse(String url, CryptoCurrency coinType, NetworkParameters np, GenericAssetUri expected) {
         GenericAssetUriParser parser;
         switch (coinType.getName()) {

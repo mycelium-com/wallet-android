@@ -167,6 +167,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         }
         return null
     }
+
     /**
      * Add an observer that gets callbacks when the wallet manager state changes
      * or account events occur.
