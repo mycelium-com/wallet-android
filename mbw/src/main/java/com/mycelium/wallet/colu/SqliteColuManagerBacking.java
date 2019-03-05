@@ -1110,9 +1110,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
          if(oldVersion < 7) {
-            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
-         }
-         if (oldVersion < 7) {
             List<UUID> listForRemove = new ArrayList<>();
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
             try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
@@ -1137,6 +1134,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
                deleteSingleAddressAccount.execute();
             }
+            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
          }
       }
 
