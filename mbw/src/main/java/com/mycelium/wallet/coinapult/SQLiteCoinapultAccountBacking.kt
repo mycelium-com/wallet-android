@@ -12,12 +12,21 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.AccountBacking
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.io.*
 import java.util.*
 
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : AccountBacking<CoinapultTransaction> {
+    override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: GenericAssetInfo?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun loadLastFeeEstimation(assetType: GenericAssetInfo?): FeeEstimationsGeneric {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val txTableName = "tx${HexUtils.toHex(uuidToBytes(id))}"
 

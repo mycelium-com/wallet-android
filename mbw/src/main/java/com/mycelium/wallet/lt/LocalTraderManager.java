@@ -770,8 +770,4 @@ public class LocalTraderManager {
       return session;
    }
 
-   public Bitcoins getMinerFeeEstimation(){
-      // choose a fee to get included within the next two blocks - our estimation for next block ist often too high
-      return mbwManager.getWalletManager(false).getLastFeeEstimations().getEstimation(2);
-   }
 }

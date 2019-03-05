@@ -627,7 +627,7 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
-        final WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
+        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi);
         masterSeedManager.setListener(new Listener() {
             @Override
             public void masterSeedConfigured() {
@@ -750,7 +750,7 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(backing, environment.getNetwork(), _wapi);
+        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
         walletManager.setWalletListener(new SyncEventsListener());
 

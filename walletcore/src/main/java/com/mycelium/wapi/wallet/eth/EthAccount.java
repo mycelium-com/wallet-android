@@ -48,6 +48,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public FeeEstimationsGeneric getDefaultFeeEstimation() {
+        return null;
+    }
+
+    @Override
     public void setAllowZeroConfSpending(boolean b) {
 
     }
@@ -201,7 +206,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
 
     @Override
     public FeeEstimationsGeneric getFeeEstimations() {
-        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
+        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000),
+                                         Value.valueOf(getCoinType(), 1000),
+                                         Value.valueOf(getCoinType(), 1000),
+                                         Value.valueOf(getCoinType(), 1000),
+                                         System.currentTimeMillis());
     }
 
     @Override
