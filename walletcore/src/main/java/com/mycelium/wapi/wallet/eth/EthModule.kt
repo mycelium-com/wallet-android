@@ -19,7 +19,10 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         assetsList.add(EthMain)
     }
 
+    private val accounts = mutableMapOf<UUID, EthAccount>()
     override fun getId(): String = ID
+
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val map = HashMap<UUID, WalletAccount<*,*>>()
@@ -30,6 +33,7 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
         val newEthAccount = EthAccount()
 
         val baseName = "Ethereum"
+        accounts[newEthAccount.id] = newEthAccount
         newEthAccount.label = createLabel(baseName, newEthAccount.id)
         return newEthAccount
     }

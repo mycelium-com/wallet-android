@@ -26,7 +26,11 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      internal val spvBalanceFetcher: SpvBalanceFetcher,
                                      internal var _wapi: Wapi,
                                      internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID
+
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -59,6 +63,7 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
 
         val baseLabel = "BCH Single Address"
         if (result != null) {
+            accounts[result.id] = result as SingleAddressAccount
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")
