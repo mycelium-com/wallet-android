@@ -136,7 +136,7 @@ public class EnterTextDialog {
 
          @Override
          public void afterTextChanged(Editable s) {
-            btOk.setEnabled(enterNameHandler.validateTextOnChange(s.toString().trim(), currentText));
+            btOk.setEnabled(enterNameHandler.validateTextOnChange(s.toString().trim(), currentText) && s.toString().trim().length() != 0);
          }
       });
       btOk.setOnClickListener(new OnClickListener() {
