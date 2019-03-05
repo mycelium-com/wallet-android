@@ -285,7 +285,6 @@ public class BalanceFragment extends Fragment {
         }
 
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        _root.findViewById(R.id.pbProgress).setVisibility(account.isSynchronizing() ? View.VISIBLE : View.GONE);
         updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
    }
 
