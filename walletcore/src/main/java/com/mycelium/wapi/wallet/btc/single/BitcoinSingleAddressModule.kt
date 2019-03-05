@@ -7,12 +7,15 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.colu.ColuModule
+import com.mycelium.wapi.wallet.colu.PrivateColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -25,13 +28,17 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                                  internal val networkParameters: NetworkParameters,
                                  internal var _wapi: Wapi,
+                                 internal var walletManager: WalletManager,
                                  internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
+    private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID
+
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -53,11 +60,19 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
     override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
+        var baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey)
         } else if (config is PrivateSingleConfig) {
             result = createAccount(config.privateKey, config.cipher)
+            if (config is PrivateColuConfig) {
+                walletManager.getModuleById(ColuModule.ID)?.let {
+                    val coluOfType = it.getAccounts().filter { it.coinType == config.coinType }.count()
+                    baseLabel = if (config.coinType != null) config.coinType.symbol + " " +
+                            coluOfType + " Bitcoin" else baseLabel
+                }
+            }
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -73,9 +88,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             }
         }
 
-
-        val baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
         if (result != null) {
+            accounts[result.id] = result as SingleAddressAccount
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")

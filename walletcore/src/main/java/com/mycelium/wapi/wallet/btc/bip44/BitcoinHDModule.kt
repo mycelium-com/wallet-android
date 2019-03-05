@@ -48,6 +48,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     private val accounts = mutableMapOf<UUID, HDAccount>()
     override fun getId(): String = ID
 
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
+
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         val contexts = backing.loadBip44AccountContexts()

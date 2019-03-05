@@ -170,7 +170,7 @@ class WalletConsole {
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
             BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore
-                    , network, wapiClient, null);
+                    , network, wapiClient, walletManager, null);
             walletManager.add(bitcoinSingleAddressModule);
 
 

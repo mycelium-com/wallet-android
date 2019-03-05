@@ -32,7 +32,10 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
     }
 
+    private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     override fun getId(): String = ID
+
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val contexts = backing.loadAccountContexts()
@@ -74,6 +77,8 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
+        var baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        var num = 1
 
         if (config is PrivateColuConfig) {
             val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
@@ -87,6 +92,9 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id), backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
+            num = if (coluNumOfType(config.coinType) == 0) num else num + 1
+            baseName = if (config.coinType != null)
+                config.coinType.symbol + " " + num else baseName
         } else if (config is PublicColuConfig) {
             val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
             val coinType = coluMain(address, config.coinType)
@@ -98,6 +106,9 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
+            num = if (coluNumOfType(config.coinType) == 0) num else num + 1
+            baseName = if (config.coinType != null)
+                config.coinType.symbol + " " + num else baseName
         } else if (config is AddressColuConfig) {
             val coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
@@ -108,10 +119,13 @@ class ColuModule(val networkParameters: NetworkParameters,
                 result = PublicColuAccount(context, type, networkParameters
                         , coluApi, backing.getAccountBacking(id), backing, listener)
             }
+            num = if (coluNumOfType(config.coinType) == 0) num else num + 1
+            baseName = if (config.coinType != null)
+                config.coinType.symbol + " " + num else baseName
         }
 
         result?.let {
-            val baseName = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+            accounts[it.id] = result!!
             it.label = createLabel(baseName, it.id)
         } ?: run {
             throw IllegalStateException("Account can't be created")
@@ -119,6 +133,8 @@ class ColuModule(val networkParameters: NetworkParameters,
 
         return result!!
     }
+
+    private fun coluNumOfType(coinType: ColuMain?) = accounts.values.filter { it.coinType == coinType }.count()
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {
         val types = coluApi.getCoinTypes(address)

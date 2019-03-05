@@ -18,4 +18,6 @@ interface WalletModule {
     fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean
 
     fun getSupportedAssets(): List<GenericAssetInfo>
+
+    fun getAccounts(): List<WalletAccount<*, *>>
 }

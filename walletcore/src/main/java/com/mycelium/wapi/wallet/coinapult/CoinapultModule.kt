@@ -18,7 +18,10 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                       val listener: AccountListener,
                       val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
+    private val accounts = mutableMapOf<UUID, CoinapultAccount>()
     override fun getId(): String = ID
+
+    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
@@ -42,6 +45,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                     backing.createAccountContext(context)
                     val result = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
                             , backing, networkParameters, config.currency, listener)
+                    accounts[result.id] = result
                     val baseLabel = "Coinapult ${config.currency.name}"
                     result.label = createLabel(baseLabel, result.id)
                     return result
