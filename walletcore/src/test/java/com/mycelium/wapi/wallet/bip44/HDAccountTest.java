@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,9 +52,10 @@ public class HDAccountTest {
         Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
-        WalletManager walletManager = new WalletManager(store, backing, NetworkParameters.productionNetwork, fakeWapi, currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(backing, NetworkParameters.productionNetwork, fakeWapi);
 
-        walletManager.configureBip32MasterSeed(masterSeed, cipher);
+        MasterSeedManager masterSeedManager = new MasterSeedManager(store);
+        masterSeedManager.configureBip32MasterSeed(masterSeed, cipher);
 
         UUID account1Id = walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
 

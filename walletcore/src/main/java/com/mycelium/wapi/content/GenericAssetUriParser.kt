@@ -13,9 +13,10 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
-import org.apache.http.client.utils.URLEncodedUtils
-import java.math.BigDecimal
+import java.io.UnsupportedEncodingException
 import java.net.URI
+import java.net.URLDecoder
+
 
 abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriParser {
 
@@ -27,17 +28,17 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
             address = AddressUtils.from(coinType, addressString)
         }
 
-        val params = URLEncodedUtils.parse(uri, "UTF-8")
+        val params = splitQuery(uri.rawQuery)
 
         var amount: Value? = null
         // Amount
         try {
-            val amountStr = params.first { it.name == "amount" }.value
+            val amountStr = params["amount"]
 
             if (amountStr != null) {
-                amount = Value.valueOf(coinType, (java.lang.Double.parseDouble(amountStr)* Math.pow(10.0,8.0)).toLong())
+                amount = Value.valueOf(coinType, (java.lang.Double.parseDouble(amountStr) * Math.pow(10.0, 8.0)).toLong())
             }
-        }catch (e: NoSuchElementException){
+        } catch (e: NoSuchElementException) {
         }
 
         // Label
@@ -45,19 +46,19 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         // exist, lets use "message"
         var label: String? = null
         try {
-            label = params.first { it.name == "label" }.value
+            label = params["label"]
         } catch (e: NoSuchElementException) {
         }
         if (label == null) {
             try {
-                label = params.first { it.name == "message" }?.value
+                label = params["message"]
             } catch (e: NoSuchElementException) {
             }
         }
 
         // Check if the supplied "address" is actually an encrypted private key
         if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
-            if(coinType == BitcoinMain.get() || coinType == BitcoinTest.get()){
+            if (coinType == BitcoinMain.get() || coinType == BitcoinTest.get()) {
                 return PrivateKeyUri(addressString, label, "bitcoin")
             }
             return PrivateKeyUri(addressString, label, coinType.symbol.decapitalize())
@@ -66,7 +67,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         // Payment Uri
         var paymentUri: String? = null
         try {
-            paymentUri = params.first { it.name == "r" }.value
+            paymentUri = params["r"]
         } catch (e: NoSuchElementException) {
         }
 
@@ -77,12 +78,25 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
     }
 
+    @Throws(UnsupportedEncodingException::class)
+    fun splitQuery(query: String?): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        query?.let { query ->
+            val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            for (pair in pairs) {
+                val idx = pair.indexOf("=")
+                result[URLDecoder.decode(pair.substring(0, idx), "UTF-8")] = URLDecoder.decode(pair.substring(idx + 1), "UTF-8")
+            }
+        }
+        return result
+    }
+
     private fun createUriByCoinType(coinType: CryptoCurrency,
                                     address: GenericAddress?,
                                     amount: Value?,
                                     label: String?,
-                                    paymentUri: String?): GenericAssetUri?{
-        return when(coinType){
+                                    paymentUri: String?): GenericAssetUri? {
+        return when (coinType) {
             is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
             is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
             is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
