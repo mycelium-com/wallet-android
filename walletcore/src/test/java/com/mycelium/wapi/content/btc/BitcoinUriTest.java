@@ -1,12 +1,11 @@
-package com.mycelium.wallet;
+package com.mycelium.wapi.content.btc;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.content.btc.BitcoinUri;
-import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Value;
 import org.junit.Test;
 
@@ -19,26 +18,25 @@ public class BitcoinUriTest {
 
     @Test
     public void testParse() throws Exception {
-        //TODO: Clarify situation with bip72
 //        // from BIP72 with fallback
-//        testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h=2a8628fc2fbe", TN,
-//                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
-//                        Value.valueOf(BitcoinMain.get(), 11000000), null, "https://merchant.com/pay.php?h=2a8628fc2fbe"
-//                )));
-//        // from BIP72 without fallback
-//        testParse("bitcoin:?r=https://merchant.com/pay.php?h=2a8628fc2fbe", TN,
-//                Optional.of(BitcoinUri.from(null, null, null, "https://merchant.com/pay.php?h=2a8628fc2fbe")));
-//        // with mainnet
-//        testParse("bitcoin:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=0.11&r=https://merchant.com/pay.php?h=2a8628fc2fbe", PN,
-//                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),"1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"),
-//                        Value.valueOf(BitcoinMain.get(), 11000000), null, "https://merchant.com/pay.php?h=2a8628fc2fbe")));
+        testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h=2a8628fc2fbe", TN,
+                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinTest.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
+                        Value.valueOf(BitcoinTest.get(), 11000000), null, "https://merchant.com/pay.php?h=2a8628fc2fbe"
+                )));
+        // from BIP72 without fallback
+        testParse("bitcoin:?r=https://merchant.com/pay.php?h=2a8628fc2fbe", TN,
+                Optional.of(BitcoinUri.from(null, null, null, "https://merchant.com/pay.php?h=2a8628fc2fbe")));
+        // with mainnet
+        testParse("bitcoin:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=0.11&r=https://merchant.com/pay.php?h=2a8628fc2fbe", PN,
+                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),"1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"),
+                        Value.valueOf(BitcoinMain.get(), 11000000), null, "https://merchant.com/pay.php?h=2a8628fc2fbe")));
         // with only address
         testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", TN,
-                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
+                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinTest.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
                         null, null, null)));
         // with only address and amount
         testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11", TN,
-                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
+                Optional.of(BitcoinUri.from(AddressUtils.from(BitcoinTest.get(),"mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
                         Value.valueOf(BitcoinMain.get(), 11000000), null, null)));
     }
 
