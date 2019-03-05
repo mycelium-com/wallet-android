@@ -301,7 +301,8 @@ public class BalanceFragment extends Fragment {
                 tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
                         , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
             } else {
-                tvBtcRate.setText(getResources().getString(R.string.btc_rate
+                tvBtcRate.setText(getResources().getString(R.string.balance_rate
+                        , account.getCoinType().getSymbol()
                         , _mbwManager.getFiatCurrency().getSymbol()
                         , ValueExtensionsKt.toString(value)));
             }
