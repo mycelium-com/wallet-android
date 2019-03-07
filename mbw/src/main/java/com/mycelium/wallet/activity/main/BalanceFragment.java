@@ -342,7 +342,7 @@ public class BalanceFragment extends Fragment {
          _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
       }
       // show fiat value (if balance is in btc)
-      setFiatValue(R.id.tvSendingFiat, balance.pendingSending, true);
+      setFiatValue(R.id.tvSendingFiat, balance.getSendingToForeignAddresses(), true);
 
       // set exchange item
       exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
@@ -355,11 +355,9 @@ public class BalanceFragment extends Fragment {
          tv.setVisibility(View.GONE);
       } else {
           try {
-              long satoshis = value.value;
               tv.setVisibility(View.VISIBLE);
-              String converted = Utils.getFiatValueAsString(satoshis, _exchangeRatePrice);
-              String currency = _mbwManager.getFiatCurrency().getSymbol();
-              tv.setText(getResources().getString(R.string.approximate_fiat_value, currency, converted));
+              Value converted = _mbwManager.getExchangeRateManager().get(value,  _mbwManager.getFiatCurrency());
+              tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
           } catch (IllegalArgumentException ex) {
               // something failed while calculating the bitcoin amount
               tv.setVisibility(View.GONE);
