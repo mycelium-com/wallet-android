@@ -132,7 +132,7 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.confirmed, mbwManager.getDenomination());
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
