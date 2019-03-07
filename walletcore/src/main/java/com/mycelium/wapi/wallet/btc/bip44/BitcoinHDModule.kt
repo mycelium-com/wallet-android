@@ -271,9 +271,16 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         }
         accounts[result.id] = result as HDAccount
 
-        val baseLabel = "Account" + " " + (result.accountIndex + 1)
-        result.label = createLabel(baseLabel, result.id)
+        result.label = createLabel(getBaseLabel(config), result.id)
         return result
+    }
+
+    private fun getBaseLabel(cfg: Config): String {
+        return when (cfg){
+            is AdditionalHDAccountConfig, is ExternalSignaturesAccountConfig -> "Account " + getNextBip44Index()
+            is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) "Account 1" else "Imported"
+            else -> throw IllegalArgumentException("Unsupported config")
+        }
     }
 
     /**
