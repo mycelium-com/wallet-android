@@ -881,11 +881,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private String getAddressLabel(GenericAddress address) {
         UUID accountId = _mbwManager.getAccountId(address, _account.getCoinType()).orNull();
         if (accountId != null) {
-            // We don't have it in our accounts, look in address book, returns empty string by default
-            return _mbwManager.getMetadataStorage().getLabelByAddress(address);
+            // Get the name of the account
+            return _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
         }
-        // Get the name of the account
-        return _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
+        // We don't have it in our accounts, look in address book, returns empty string by default
+        return _mbwManager.getMetadataStorage().getLabelByAddress(address);
     }
 
     private void updateAmount() {
