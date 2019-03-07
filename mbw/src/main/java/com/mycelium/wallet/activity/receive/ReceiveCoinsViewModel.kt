@@ -12,6 +12,8 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -64,7 +66,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            it.toString()
+            it?.toString(mbwManager.denomination)
         } else {
             ""
         }
@@ -74,7 +76,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
-            "~ " + Utils.getFiatValueAsString(it!!.value, mbwManager.currencySwitcher.exchangeRatePrice) + " USD" //todo: make method in Utils
+            "~ " + it?.toStringWithUnit(mbwManager.denomination)
         } else {
             ""
         }
@@ -113,7 +115,13 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: Value) {
-        model.setAmount(amount)
+        if(amount.getType() == account.coinType) {
+            model.setAmount(amount)
+            model.setAlternativeAmount(mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency))
+        } else {
+            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType))
+            model.setAlternativeAmount(amount)
+        }
     }
 
     fun onEnterClick(activity: AppCompatActivity) {
