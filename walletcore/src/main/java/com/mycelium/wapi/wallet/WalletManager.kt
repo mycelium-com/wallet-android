@@ -192,6 +192,10 @@ class WalletManager(val network: NetworkParameters,
         return accounts.values.filter { it.isActive && it.canSpend() }
     }
 
+    fun getAllActiveAccounts():  List<WalletAccount<*, *>> {
+        return accounts.values.filter { it.isActive }
+    }
+
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
         return walletModules.values
                 .flatMap { it.getSupportedAssets() }

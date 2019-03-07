@@ -164,7 +164,7 @@ public class AddressBookFragment extends Fragment {
    private void updateUiMine() {
       List<Entry> entries = new ArrayList<>();
 
-      List<WalletAccount<?, ?>> activeAccounts = new ArrayList<>(_mbwManager.getWalletManager(false).getActiveAccounts());
+      List<WalletAccount<?, ?>> activeAccounts = new ArrayList<>(_mbwManager.getWalletManager(false).getAllActiveAccounts());
       for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
          Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
