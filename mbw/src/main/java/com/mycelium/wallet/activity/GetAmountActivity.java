@@ -383,7 +383,14 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void setEnteredAmount(String value) {
       try {
-         _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(value);
+         Value val = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(value);
+         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+         if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
+            _amount = val;
+         } else {
+            int toTargetUnit = _mbwManager.getDenomination().getBase10();
+            _amount = val.divide((long) Math.pow(10,toTargetUnit ));
+         }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(0);
       }
