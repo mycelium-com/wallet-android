@@ -1787,7 +1787,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public GenericAddress getReceiveAddress(){
-      CryptoCurrency currency = getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
       if(getReceivingAddress().isPresent()) {
          return AddressUtils.fromAddress(getReceivingAddress().get());
       } else {
