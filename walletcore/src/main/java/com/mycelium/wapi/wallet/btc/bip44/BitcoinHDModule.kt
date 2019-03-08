@@ -35,7 +35,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                       internal val secureStore: SecureKeyValueStore,
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
-                      internal val currenciesSettingsMap: MutableMap<Currency, CurrencySettings>,
+                      internal val settings: BTCSettings,
                       internal val metadataStorage: IMetaDataStorage,
                       internal val signatureProviders: ExternalSignatureProviderProxy?) : GenericModule(metadataStorage), WalletModule {
 
@@ -60,24 +60,20 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
             val accountBacking = backing.getBip44AccountBacking(context.id)
             val account: WalletAccount<*, *>
-            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
-            if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PRIV) {
-                account = HDAccount(context, keyManagerMap, networkParameters, accountBacking
-                        , _wapi, btcSettings.changeAddressModeReference)
-            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
+            if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
                 account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
             } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR) {
                 account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), btcSettings.changeAddressModeReference)
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), settings.changeAddressModeReference)
             } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
                 account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), btcSettings.changeAddressModeReference)
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), settings.changeAddressModeReference)
             } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
                 account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), btcSettings.changeAddressModeReference)
+                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), settings.changeAddressModeReference)
             } else {
                 account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        btcSettings.changeAddressModeReference)
+                        settings.changeAddressModeReference)
             }
             result[account.id] = account
             accounts[account.id] = account as HDAccount
@@ -199,12 +195,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                 keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
                         secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
             }
-            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
-            val defaultAddressType = btcSettings.defaultAddressType
 
             // Generate the context for the account
             val context = HDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId
-                    , accountIndex, false, defaultAddressType)
+                    , accountIndex, false, settings.defaultAddressType)
 
             backing.beginTransaction()
             try {
@@ -215,7 +209,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
                 // Create actual account
                 result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        btcSettings.changeAddressModeReference)
+                        settings.changeAddressModeReference)
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
@@ -241,12 +235,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                         networkParameters, accountIndex, secureStorage, derivationType)
             }
             val id = keyManagerMap[derivationTypes[0]]!!.accountId
-            val btcSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
-            val defaultAddressType = btcSettings.defaultAddressType
 
             // Generate the context for the account
             val context = HDAccountContext(id, accountIndex, false, cfg.provider.biP44AccountType,
-                    secureStorage.subId, derivationTypes, defaultAddressType)
+                    secureStorage.subId, derivationTypes, settings.defaultAddressType)
             backing.beginTransaction()
             try {
                 backing.createBip44AccountContext(context)
@@ -256,7 +248,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
                 // Create actual account
                 result = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        cfg.provider, btcSettings.changeAddressModeReference)
+                        cfg.provider, settings.changeAddressModeReference)
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
@@ -419,19 +411,17 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                             secureStore, cipher, derivationType)
                 }
 
-                val btcSettings: BTCSettings = currenciesSettingsMap[Currency.BTC] as BTCSettings
-                val defaultAddressType: AddressType = btcSettings.defaultAddressType
 
                 // Generate the context for the account
                 val context = HDAccountContext(
-                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex, false, defaultAddressType)
+                        keyManagerMap[BipDerivationType.BIP44]!!.accountId, accountIndex, false, settings.defaultAddressType)
                 backing.createBip44AccountContext(context)
 
                 // Get the backing for the new account
                 val accountBacking: Bip44AccountBacking = backing.getBip44AccountBacking(context.id)
 
                 // Create actual account
-                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, btcSettings.changeAddressModeReference)
+                val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
