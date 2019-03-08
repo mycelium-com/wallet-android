@@ -35,8 +35,6 @@
 package com.mycelium.wallet.wapi;
 
 import android.util.ArrayMap;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
@@ -59,8 +57,6 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
@@ -107,7 +103,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
    private final SQLiteStatement _deleteKeyValue;
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
-
 
    SqliteWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);

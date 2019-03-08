@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Stopwatch;
 import com.mycelium.WapiLogger;
 import com.mycelium.net.*;
 import com.mycelium.wapi.api.WapiConst.Function;
@@ -138,7 +137,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
             client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
 
-            Stopwatch callDuration = Stopwatch.createStarted();
+            long callStart = System.currentTimeMillis();
             // build request
             final String toSend = getPostBody(request);
             Request rq = new Request.Builder()
@@ -149,8 +148,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
 
             // execute request
             Response response = client.newCall(rq).execute();
-            callDuration.stop();
-            _logger.logInfo(String.format(Locale.ENGLISH, "Wapi %s finished (%dms)", function, callDuration.elapsed(TimeUnit.MILLISECONDS)));
+            _logger.logInfo(String.format(Locale.ENGLISH, "Wapi %s finished (%dms)", function, System.currentTimeMillis() - callStart));
 
             // Check for status code 2XX
             if (response.isSuccessful()) {
@@ -178,7 +176,6 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
             // We have tried all URLs
             return null;
          }
-
       }
    }
 
@@ -192,41 +189,6 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
          logError("Error during JSON serialization", e);
          throw new RuntimeException(e);
       }
-   }
-
-   @Override
-   public WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request) {
-      return sendRequest(Function.QUERY_UNSPENT_OUTPUTS, request,
-            new TypeReference<WapiResponse<QueryUnspentOutputsResponse>>() {
-            });
-   }
-
-   @Override
-   public WapiResponse<QueryTransactionInventoryResponse> queryTransactionInventory(
-         QueryTransactionInventoryRequest request) {
-      return sendRequest(Function.QUERY_TRANSACTION_INVENTORY, request,
-            new TypeReference<WapiResponse<QueryTransactionInventoryResponse>>() {
-            });
-   }
-
-   @Override
-   public WapiResponse<GetTransactionsResponse> getTransactions(GetTransactionsRequest request) {
-      TypeReference<WapiResponse<GetTransactionsResponse>> typeref = new TypeReference<WapiResponse<GetTransactionsResponse>>() {
-      };
-      return sendRequest(Function.GET_TRANSACTIONS, request, typeref);
-   }
-
-   @Override
-   public WapiResponse<BroadcastTransactionResponse> broadcastTransaction(BroadcastTransactionRequest request) {
-      return sendRequest(Function.BROADCAST_TRANSACTION, request,
-            new TypeReference<WapiResponse<BroadcastTransactionResponse>>() {
-            });
-   }
-
-   @Override
-   public WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request) {
-      TypeReference<WapiResponse<CheckTransactionsResponse>> typeref = new TypeReference<WapiResponse<CheckTransactionsResponse>>() { };
-      return sendRequest(Function.CHECK_TRANSACTIONS, request, typeref);
    }
 
    @Override
@@ -254,25 +216,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    @Override
-   public WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations() {
-      TypeReference<WapiResponse<MinerFeeEstimationResponse>> typeref = new TypeReference<WapiResponse<MinerFeeEstimationResponse>>() { };
-      return sendRequest(Function.GET_MINER_FEE_ESTIMATION, null, typeref);
-   }
-
-   @Override
-   public void setAppInForeground(boolean isInForeground) {
-      // not required
-   }
-
-   @Override
-   public void setNetworkConnected(boolean isNetworkConnected) {
-      // not required
-   }
-
-   @Override
    public WapiLogger getLogger() {
       return _logger;
    }
 }
-
-
