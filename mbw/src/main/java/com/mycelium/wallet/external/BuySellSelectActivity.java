@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 
 
 public class BuySellSelectActivity extends FragmentActivity {
-
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -40,7 +39,7 @@ public class BuySellSelectActivity extends FragmentActivity {
       final MbwManager mbwManager = MbwManager.getInstance(this);
 
 
-      final ListView lvServices = (ListView) findViewById(R.id.lvServices);
+      final ListView lvServices = findViewById(R.id.lvServices);
       final List<BuySellServiceDescriptor> buySellServices = mbwManager.getEnvironmentSettings().getBuySellServices();
 
       BuySellServiceDescriptor onlyOneEnabled = null;
@@ -69,7 +68,6 @@ public class BuySellSelectActivity extends FragmentActivity {
       }));
 
       lvServices.setAdapter(new ServicesListAdapter(this, enabledServices));
-
    }
 
 
