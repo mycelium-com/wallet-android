@@ -829,6 +829,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
    }
 
+   @Override
    public String getLabelOrDefault() {
       return getContext().getString(R.string.ledger);
    }

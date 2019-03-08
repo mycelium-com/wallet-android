@@ -271,13 +271,24 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
         }
         accounts[result.id] = result as HDAccount
 
-        result.label = createLabel(getBaseLabel(config), result.id)
+        result.label = createLabel(config, result.id)
         return result
     }
 
+    private fun createLabel(config: Config, id: UUID): String? {
+        // can't fetch hardware wallet's account labels for temp accounts
+        // as we don't pass a signatureProviders and no need anyway
+        if (config is ExternalSignaturesAccountConfig && signatureProviders == null)
+            return null
+
+        return createLabel(getBaseLabel(config), id)
+    }
+
     private fun getBaseLabel(cfg: Config): String {
-        return when (cfg){
-            is AdditionalHDAccountConfig, is ExternalSignaturesAccountConfig -> "Account " + getNextBip44Index()
+        return when (cfg) {
+            is AdditionalHDAccountConfig -> "Account " + getNextBip44Index()
+            is ExternalSignaturesAccountConfig ->
+                signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes.get(0).index + 1)
             is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) "Account 1" else "Imported"
             else -> throw IllegalArgumentException("Unsupported config")
         }

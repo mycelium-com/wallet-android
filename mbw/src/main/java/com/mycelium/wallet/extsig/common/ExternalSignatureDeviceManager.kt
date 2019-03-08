@@ -85,10 +85,11 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
     var features: TrezorMessage.Features? = null
         private set
 
-    val labelOrDefault: String
-        get() = if (features != null && !features!!.label.isEmpty()) {
+    override fun getLabelOrDefault(): String {
+        return if (features != null && !features!!.label.isEmpty()) {
             features!!.label
         } else signatureDevice.defaultAccountName
+    }
 
     // we dont know...
     val isMostRecentVersion: Boolean
