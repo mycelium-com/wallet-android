@@ -9,4 +9,5 @@ import com.mrd.bitlib.model.Transaction;
 public interface ExternalSignatureProvider {
    Transaction getSignedTransaction(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount);
    int getBIP44AccountType();
+   String getLabelOrDefault();
 }
