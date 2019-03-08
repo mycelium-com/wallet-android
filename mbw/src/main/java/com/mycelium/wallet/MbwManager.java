@@ -669,7 +669,7 @@ public class MbwManager {
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap[Currency.BTC], getMetadataStorage(),
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(Currency.BTC), getMetadataStorage(),
                                               externalSignatureProviderProxy));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -758,7 +758,7 @@ public class MbwManager {
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage()));
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap[Currency.BTC], getMetadataStorage(), null));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(Currency.BTC), getMetadataStorage(), null));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -1328,7 +1328,7 @@ public class MbwManager {
         if (account instanceof SingleAddressAccount) {
             // For single address accounts we use the private key directly
             try {
-                return ((SingleAddressAccount) account).getPrivateKey(cipher);
+                return account.getPrivateKey(cipher);
             } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
                 throw new RuntimeException();
             }
