@@ -145,7 +145,7 @@ class WalletConsole {
         Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
         BTCSettings btcSettings = new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.P2SH_P2WPKH));
-        currenciesSettingsMap.put(Currency.BTC, btcSettings);
+        currenciesSettingsMap.put(, btcSettings);
 
         WalletManager walletManager = new WalletManager(
                 backing,
@@ -158,7 +158,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, currenciesSettingsMap, null, null);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null);
             walletManager.add(bitcoinHDModule);
 
             // create account
