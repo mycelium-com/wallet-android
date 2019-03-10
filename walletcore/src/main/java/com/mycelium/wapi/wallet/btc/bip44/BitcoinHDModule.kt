@@ -33,7 +33,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
                       internal val secureStore: SecureKeyValueStore,
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
-                      internal val settings: BTCSettings,
+                      internal var settings: BTCSettings,
                       internal val metadataStorage: IMetaDataStorage,
                       internal val signatureProviders: ExternalSignatureProviderProxy?) : GenericModule(metadataStorage), WalletModule {
 
@@ -42,6 +42,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
     }
 
     private val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        this.settings = currencySettings as BTCSettings
+    }
 
     private val accounts = mutableMapOf<UUID, HDAccount>()
     override fun getId(): String = ID

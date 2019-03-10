@@ -266,7 +266,7 @@ public class MbwManager {
     private ServerEndpointType.Types _torMode;
     private TorManager _torManager;
     public final BlockExplorerManager _blockExplorerManager;
-    private Map<GenericAssetInfo, CurrencySettings> currenciesSettingsMap = new HashMap<>();
+    private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
     private final Queue<LogEntry> _wapiLogs;
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
@@ -414,7 +414,7 @@ public class MbwManager {
 
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
-        currenciesSettingsMap.put(Utils.getBtcCoinType(), btcSettings);
+        currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -522,6 +522,10 @@ public class MbwManager {
 
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
+        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrenySettings(BitcoinHDModule.ID);
+        currencySettings.setChangeAddressMode(changeAddressMode);
+        _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+        getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
     }
 
     private void migrateOldKeys() {
@@ -626,7 +630,7 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
-        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi);
+        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
         masterSeedManager.setListener(new Listener() {
             @Override
             public void masterSeedConfigured() {
@@ -668,7 +672,7 @@ public class MbwManager {
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(Utils.getBtcCoinType()), getMetadataStorage(),
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                                               externalSignatureProviderProxy));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -749,7 +753,7 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi);
+        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
         walletManager.setWalletListener(new SyncEventsListener());
 
@@ -757,7 +761,7 @@ public class MbwManager {
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage()));
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(Utils.getBtcCoinType()), getMetadataStorage(), null));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(), null));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

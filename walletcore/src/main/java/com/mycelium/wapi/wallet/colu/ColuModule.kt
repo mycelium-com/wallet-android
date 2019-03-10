@@ -24,6 +24,10 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val listener: AccountListener,
                  val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     init {
         if (networkParameters.isProdnet) {
             assetsList.addAll(listOf(MASSCoin, MTCoin, RMCCoin))

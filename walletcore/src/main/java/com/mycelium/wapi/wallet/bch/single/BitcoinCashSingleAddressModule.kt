@@ -5,10 +5,7 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.SpvBalanceFetcher
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.single.*
@@ -26,6 +23,10 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      internal val spvBalanceFetcher: SpvBalanceFetcher,
                                      internal var _wapi: Wapi,
                                      internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID
