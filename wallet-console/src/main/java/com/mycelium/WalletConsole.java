@@ -30,7 +30,6 @@ import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
-import com.mycelium.wapi.wallet.Currency;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.btc.BtcReceiver;
@@ -42,7 +41,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
@@ -142,15 +140,15 @@ class WalletConsole {
         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(new String[]{"oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil"}, "");
 
         NetworkParameters network = NetworkParameters.productionNetwork;
-        Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
+        HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         BTCSettings btcSettings = new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.P2SH_P2WPKH));
-        currenciesSettingsMap.put(, btcSettings);
+        currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
 
         WalletManager walletManager = new WalletManager(
-                backing,
                 network,
-                wapiClient);
+                wapiClient,
+                currenciesSettingsMap);
         walletManager.setIsNetworkConnected(true);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
