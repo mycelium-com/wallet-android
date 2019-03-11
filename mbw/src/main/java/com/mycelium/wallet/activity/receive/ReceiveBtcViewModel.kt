@@ -8,9 +8,11 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
@@ -28,7 +30,8 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     fun setAddressType(addressType: AddressType) {
         this.addressType.value = addressType
         model.receivingAddress.value = when (account) {
-            is HDAccount, is SingleAddressAccount -> account.receiveAddress
+            is HDAccount -> BtcAddress(Utils.getBtcCoinType(), (account as HDAccount).getReceivingAddress(addressType)!!)
+            is SingleAddressAccount -> BtcAddress(Utils.getBtcCoinType(), (account as SingleAddressAccount).getAddress(addressType))
             else -> throw IllegalStateException()
         }
         model.updateObservingAddress()
