@@ -54,6 +54,7 @@ import com.mycelium.wallet.NumberEntry;
 import com.mycelium.wallet.NumberEntry.NumberEntryListener;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.ExchangeValueKt;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -236,7 +237,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
       // Return the entered value and set a positive result code
       Intent result = new Intent();
-      result.putExtra(AMOUNT, _amount);
+      result.putExtra(AMOUNT, ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType));
       setResult(RESULT_OK, result);
       finish();
    }
@@ -266,7 +267,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          while (!targetCurrency.equals(mainCurrencyType) && !currencySwitcher.isFiatExchangeRateAvailable()) {
             targetCurrency = _mbwManager.getNextCurrency(true);
          }
-         _amount = _mbwManager.getExchangeRateManager().get(_amount, targetCurrency);
+          _amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, targetCurrency);
       }
       updateUI();
    }
@@ -415,10 +416,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
             // Show Fiat as alternate amount
             GenericAssetInfo currency = _mbwManager.getFiatCurrency();
-            convertedAmount = _mbwManager.getExchangeRateManager().get(_amount, currency);
+            convertedAmount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, currency);
          } else {
             try {
-               convertedAmount = _mbwManager.getExchangeRateManager().get(_amount, mainCurrencyType);
+               convertedAmount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType);
             } catch (IllegalArgumentException ex){
                // something failed while calculating the amount
                convertedAmount = null;
