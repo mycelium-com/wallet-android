@@ -72,6 +72,7 @@ public class DataExport {
       return
             escape(accountLabel) + "," +
                   transaction.getId() + "," +
+                  "," +
                   date + "," +
                   value + "," +
                   transaction.getType().getName() + "," +
