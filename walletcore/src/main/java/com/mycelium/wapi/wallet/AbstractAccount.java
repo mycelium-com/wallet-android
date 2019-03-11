@@ -394,7 +394,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
 
       // Grab and handle parent transactions
-      fetchStoreAndValidateParentOutputs(txArray);
+      fetchStoreAndValidateParentOutputs(txArray,false);
 
       // Store transaction locally
       _backing.putTransactions(transactions);
@@ -404,11 +404,12 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       }
    }
 
-   private void fetchStoreAndValidateParentOutputs(List<Transaction> transactions) throws WapiException {
+   public void fetchStoreAndValidateParentOutputs(List<Transaction> transactions, boolean doRemoteFetching) throws WapiException {
       Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<>();
       Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<>();
 
       // Find list of parent outputs to fetch
+      Collection<Sha256Hash> toFetch = new HashSet<>();
       for (Transaction t : transactions) {
 
          for (TransactionInput in : t.inputs) {
@@ -441,6 +442,35 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                // We had the parent transaction in our own transactions, no need to
                // fetch it remotely
                parentTransactions.put(parentTransaction.txid, parentTransaction);
+            } else {
+               // Need to fetch it
+               toFetch.add(in.outPoint.txid);
+            }
+         }
+      }
+
+      if (!doRemoteFetching) {
+         toFetch.clear();
+      }
+      // Fetch missing parent transactions
+      if (toFetch.size() > 0) {
+         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
+         for (TransactionExApi tx : result.transactions) {
+            // Verify transaction hash. This is important as we don't want to
+            // have a transaction output associated with an outpoint that
+            // doesn't match.
+            // This is the end users protection against a rogue server that lies
+            // about the value of an output and makes you pay a large fee.
+            Sha256Hash hash = HashUtils.doubleSha256(tx.binary).reverse();
+            if (hash.equals(tx.hash)) {
+               parentTransactions.put(tx.txid, tx);
+            } else {
+               _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
+                       + " Calculated: " + hash);
+               //TODO: Document what's happening here.
+               //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
+               throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
+                       + " Calculated: " + hash);
             }
          }
       }
@@ -1258,13 +1288,11 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Inputs
       if (!tx.isCoinbase()) {
-         int i = 0;
          for (TransactionInput input : tx.inputs) {
             // find parent output
 
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
-               i++;
                _logger.logError("Unable to find parent output for: " + input.outPoint);
                continue;
             }

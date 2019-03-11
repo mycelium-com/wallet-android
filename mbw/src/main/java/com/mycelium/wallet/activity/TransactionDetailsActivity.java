@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
@@ -45,6 +46,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
@@ -55,12 +57,16 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.colu.json.ColuTxDetailsItem;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -88,7 +94,13 @@ public class TransactionDetailsActivity extends Activity {
       setContentView(R.layout.transaction_details_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
-      Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
+      loadAndUpdate();
+
+      new UpdateParentTask().execute();
+   }
+
+   private void loadAndUpdate() {
+      Sha256Hash txid = getTransactionFromIntent();
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
@@ -286,4 +298,32 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
+   private class UpdateParentTask extends AsyncTask<Transaction, Void, Void> {
+      @Override
+      protected Void doInBackground(Transaction... pop) {
+         Sha256Hash txid = getTransactionFromIntent();
+
+         if (_mbwManager.getSelectedAccount() instanceof AbstractAccount) {
+            AbstractAccount selectedAccount = (AbstractAccount) _mbwManager.getSelectedAccount();
+            TransactionEx transactionEx = selectedAccount.getTransaction(txid);
+            Transaction transaction = TransactionEx.toTransaction(transactionEx);
+            try {
+               selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
+            } catch (WapiException e) {
+               _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+            }
+         }
+         return null;
+      }
+
+      @Override
+      protected void onPostExecute(Void aVoid) {
+         super.onPostExecute(aVoid);
+         loadAndUpdate();
+      }
+   }
+
+   private Sha256Hash getTransactionFromIntent() {
+      return (Sha256Hash) getIntent().getSerializableExtra("transaction");
+   }
 }
