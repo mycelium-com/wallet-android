@@ -1271,7 +1271,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             if (isMine(funding)) {
                satoshis -= funding.value;
             }
-            _logger.logInfo("Missed: " + i);
          }
       }
       // else {
