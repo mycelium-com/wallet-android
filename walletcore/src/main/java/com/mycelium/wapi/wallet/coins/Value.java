@@ -97,7 +97,7 @@ public class Value implements Comparable<Value>, Serializable {
     }
 
     public static boolean isNullOrZero(Value value) {
-        return value == null || value.getValue() == 0 || value.isZero();
+        return value == null || value.isZero();
     }
 
     public GenericAssetInfo getType() {
