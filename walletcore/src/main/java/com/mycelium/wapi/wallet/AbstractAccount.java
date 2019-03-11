@@ -417,7 +417,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                // Coinbase input, so no parent
                continue;
             }
-
             TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(in.outPoint);
             if (parentOutput != null) {
                // We already have the parent output, no need to fetch the entire
@@ -427,11 +426,9 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             }
             TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.txid);
             if (parentTransaction == null) {
+               // Check current transactions list for parents
                for (Transaction transaction : transactions) {
-                  boolean equals = transaction.getId().equals(in.outPoint.txid);
-
-                  if (equals) {
-                     _logger.logInfo("Using current tx list");
+                  if (transaction.getId().equals(in.outPoint.txid)) {
                      parentTransaction = TransactionEx.fromUnconfirmedTransaction(transaction);
                      break;
                   }
@@ -1286,12 +1283,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       if (!tx.isCoinbase()) {
          for (TransactionInput input : tx.inputs) {
             // find parent output
-
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
                funding = _backing.getUnspentOutput(input.outPoint);
             }
-
             if (funding == null) {
                continue;
             }
