@@ -61,7 +61,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
@@ -75,7 +74,11 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -122,8 +125,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
@@ -905,10 +906,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     break;
                 case InsufficientFunds:
                     // Insufficient funds
-                    tvAmount.setText(
-                            //Utils.getFormattedValueWithUnit(_amountToSend, _mbwManager.getBitcoinDenomination())
-                            "Utils.getFormattedValueWithUnit(...)"
-                    );
+                    tvAmount.setText(ValueExtensionsKt.toStringWithUnit(_amountToSend, _mbwManager.getDenomination()));
                     break;
                 default:
                     // Set Amount
