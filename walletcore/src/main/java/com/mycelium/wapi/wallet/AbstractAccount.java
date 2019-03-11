@@ -442,16 +442,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                // We had the parent transaction in our own transactions, no need to
                // fetch it remotely
                parentTransactions.put(parentTransaction.txid, parentTransaction);
-            } else {
+            } else if (doRemoteFetching) {
                // Need to fetch it
                toFetch.add(in.outPoint.txid);
             }
          }
       }
 
-      if (!doRemoteFetching) {
-         toFetch.clear();
-      }
       // Fetch missing parent transactions
       if (toFetch.size() > 0) {
          GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
