@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.manager
 
+import com.mycelium.wapi.wallet.CurrencySettings
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
@@ -20,4 +21,6 @@ interface WalletModule {
     fun getSupportedAssets(): List<GenericAssetInfo>
 
     fun getAccounts(): List<WalletAccount<*, *>>
+
+    fun setCurrencySettings(currencySettings: CurrencySettings)
 }

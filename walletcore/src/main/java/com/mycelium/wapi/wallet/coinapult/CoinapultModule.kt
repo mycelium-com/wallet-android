@@ -18,6 +18,10 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                       val listener: AccountListener,
                       val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     private val accounts = mutableMapOf<UUID, CoinapultAccount>()
     override fun getId(): String = ID
 

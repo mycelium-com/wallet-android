@@ -13,13 +13,23 @@ import java.util.concurrent.TimeUnit
 
 
 class WalletManager(val network: NetworkParameters,
-                    val wapi: Wapi) {
+                    val wapi: Wapi,
+                    var currenciesSettingsMap: HashMap<String, CurrencySettings>) {
     val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
+
+    fun getCurrenySettings(moduleID: String): CurrencySettings? {
+        return currenciesSettingsMap.get(moduleID)
+    }
+
+    fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
+        currenciesSettingsMap[moduleID] = settings
+        walletModules.get(moduleID)?.setCurrencySettings(settings)
+    }
 
     var isNetworkConnected: Boolean = false
     var walletListener: WalletListener? = null

@@ -2,10 +2,7 @@ package com.mycelium.wapi.wallet.bch.bip44
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.SecureKeyValueStore
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
@@ -24,6 +21,10 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
                        internal val networkParameters: NetworkParameters,
                        internal var _wapi: Wapi,
                        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun getId(): String = ID
     private val accounts = mutableMapOf<UUID, Bip44BCHAccount>()

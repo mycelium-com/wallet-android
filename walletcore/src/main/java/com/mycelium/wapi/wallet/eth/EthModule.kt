@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mycelium.wapi.wallet.CurrencySettings
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
@@ -14,6 +15,10 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     init {
         assetsList.add(EthMain)
