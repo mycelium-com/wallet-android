@@ -1244,17 +1244,17 @@ public class MbwManager {
         return masterSeedManager;
     }
 
-    public UUID createOnTheFlyAccount(Address address) {
-        UUID accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
-                             new BtcAddress(Utils.getBtcCoinType(), address))).get(0);
+    public UUID createOnTheFlyAccount(GenericAddress address) {
+        UUID accountId;
+        if (address instanceof BtcAddress) {
+            accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
+                    new BtcAddress(Utils.getBtcCoinType(), ((BtcAddress) address).getAddress()))).get(0);
+        } else {
+            throw new IllegalArgumentException("Not implemented");
+        }
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
-    }
-
-    public UUID createOnTheFlyAccount(GenericAddress address) {
-        //TODO need implementation
-        return null;
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {

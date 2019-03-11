@@ -295,7 +295,7 @@ public class AddressBookFragment extends Fragment {
          return;
       }
       boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKey(mSelectedAddress);
-      UUID tempAccount = _mbwManager.createOnTheFlyAccount(((BtcAddress)mSelectedAddress).getAddress());
+      UUID tempAccount = _mbwManager.createOnTheFlyAccount(mSelectedAddress);
       ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
               hasPrivateKey, false, true);
       finishActionMode();
