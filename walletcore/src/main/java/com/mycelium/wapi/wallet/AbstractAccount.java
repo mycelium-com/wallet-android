@@ -496,7 +496,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                toPersist.add(parentOutput);
                continue;
             }
-            _logger.logError("Parent transaction not found: " + in.outPoint.txid);
          }
       }
 
@@ -1289,6 +1288,10 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
             // find parent output
 
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
+            if (funding == null) {
+               funding = _backing.getUnspentOutput(input.outPoint);
+            }
+
             if (funding == null) {
                continue;
             }
