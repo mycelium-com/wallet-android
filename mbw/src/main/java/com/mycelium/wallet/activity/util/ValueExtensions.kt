@@ -22,9 +22,12 @@ fun Value.toStringWithUnit(denomination: Denomination = Denomination.UNIT): Stri
 @JvmOverloads
 fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.maximumFractionDigits = type.unitExponent
+    CoinFormat.minimumFractionDigits = 0
     var result = valueAsBigDecimal
     if (type !is FiatType && denomination != Denomination.UNIT) {
         result = result.movePointRight(denomination.base10)
+    } else if (type is FiatType) {
+        CoinFormat.minimumFractionDigits = 2
     }
     return CoinFormat.format(result)
 }
