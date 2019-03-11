@@ -42,7 +42,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out GenericTransaction, out GenericAddress>?
-        get() = walletManager.getAccount(focusedAccountId!!)
+        get() = if (focusedAccountId != null) walletManager.getAccount(focusedAccountId!!) else null
 
     init {
         layoutInflater = LayoutInflater.from(context)

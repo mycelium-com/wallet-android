@@ -358,6 +358,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAc
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if(walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
+            accounts.remove(walletAccount.id)
             backing.deleteBip44AccountContext(walletAccount.id)
             return true
         }

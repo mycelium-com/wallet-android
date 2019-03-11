@@ -1154,23 +1154,9 @@ public class AccountsFragment extends Fragment {
      * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        if (toRemove instanceof HDAccount
-                && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-            // unprotected account type
-            return false;
-        }
-
-        Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
-        for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
-            if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-                uniqueAccountsSet.add(account);
-            }
-            if (uniqueAccountsSet.size() > 1) {
-                // after deleting one, more remain
-                return false;
-            }
-        }
-        return true;
+        // unprotected account type
+        return toRemove instanceof HDAccount
+                && ((HDAccount) toRemove).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
     }
 
     private void hideSelected() {
