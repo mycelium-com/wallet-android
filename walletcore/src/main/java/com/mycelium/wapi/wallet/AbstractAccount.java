@@ -411,11 +411,13 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       // Find list of parent outputs to fetch
       Collection<Sha256Hash> toFetch = new HashSet<>();
       for (Transaction t : transactions) {
+
          for (TransactionInput in : t.inputs) {
             if (in.outPoint.txid.equals(OutPoint.COINBASE_OUTPOINT.txid)) {
                // Coinbase input, so no parent
                continue;
             }
+
             TransactionOutputEx parentOutput = _backing.getParentTransactionOutput(in.outPoint);
             if (parentOutput != null) {
                // We already have the parent output, no need to fetch the entire
@@ -424,6 +426,18 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
                continue;
             }
             TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.txid);
+            if (parentTransaction == null) {
+               for (Transaction transaction : transactions) {
+                  boolean equals = transaction.getId().equals(in.outPoint.txid);
+
+                  if (equals) {
+                     _logger.logInfo("Using current tx list");
+                     parentTransaction = TransactionEx.fromUnconfirmedTransaction(transaction);
+                     break;
+                  }
+               }
+            }
+
             if (parentTransaction != null) {
                // We had the parent transaction in our own transactions, no need to
                // fetch it remotely
@@ -435,6 +449,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          }
       }
 
+      toFetch.clear();
       // Fetch missing parent transactions
       if (toFetch.size() > 0) {
          GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
@@ -1271,16 +1286,20 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
 
       // Inputs
       if (!tx.isCoinbase()) {
+         int i = 0;
          for (TransactionInput input : tx.inputs) {
             // find parent output
+
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
+               i++;
                _logger.logError("Unable to find parent output for: " + input.outPoint);
                continue;
             }
             if (isMine(funding)) {
                satoshis -= funding.value;
             }
+            _logger.logInfo("Missed: " + i);
          }
       }
       // else {
