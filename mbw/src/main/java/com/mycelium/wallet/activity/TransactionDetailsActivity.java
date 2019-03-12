@@ -94,12 +94,12 @@ public class TransactionDetailsActivity extends Activity {
       setContentView(R.layout.transaction_details_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
 
-      loadAndUpdate();
+      loadAndUpdate(false);
 
       new UpdateParentTask().execute();
    }
 
-   private void loadAndUpdate() {
+   private void loadAndUpdate(boolean isAfterRemoteUpdate) {
       Sha256Hash txid = getTransactionFromIntent();
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
@@ -109,10 +109,10 @@ public class TransactionDetailsActivity extends Activity {
       } else {
          coluMode = false;
       }
-      updateUi();
+      updateUi(isAfterRemoteUpdate);
    }
 
-   private void updateUi() {
+   private void updateUi(boolean isAfterRemoteUpdate) {
       // Set Hash
       TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
@@ -178,9 +178,13 @@ public class TransactionDetailsActivity extends Activity {
       // Set Fee
       final long txFeeTotal = getFee(_tx);
       String fee;
+      TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
+      TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
+      TextView tvFee = (TextView) findViewById(R.id.tvFee);
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.VISIBLE);
+         tvInputsLabel.setVisibility(View.VISIBLE);
+         tvInputsAmount.setVisibility(View.GONE);
          if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
             fee = _mbwManager.getBchValueString(txFeeTotal);
@@ -191,10 +195,18 @@ public class TransactionDetailsActivity extends Activity {
             final long txFeePerSat = txFeeTotal / _tx.rawSize;
             fee += String.format("\n%d sat/byte", txFeePerSat);
          }
-         ((TextView) findViewById(R.id.tvFee)).setText(fee);
+         tvFee.setText(fee);
       } else {
-         ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
-         ((TextView) findViewById(R.id.tvInputsLabel)).setVisibility(View.GONE);
+         tvFee.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
+         if (isAfterRemoteUpdate) {
+            tvInputsLabel.setVisibility(View.GONE);
+            tvInputsAmount.setVisibility(View.GONE);
+         } else {
+            tvInputsLabel.setVisibility(View.VISIBLE);
+            tvInputsAmount.setVisibility(View.VISIBLE);
+            String amountLoading = String.format("%s %s", String.valueOf(_tx.inputs.length), getText(R.string.no_transaction_loading));
+            tvInputsAmount.setText(amountLoading);
+         }
       }
    }
 
@@ -319,7 +331,7 @@ public class TransactionDetailsActivity extends Activity {
       @Override
       protected void onPostExecute(Void aVoid) {
          super.onPostExecute(aVoid);
-         loadAndUpdate();
+         loadAndUpdate(true);
       }
    }
 
