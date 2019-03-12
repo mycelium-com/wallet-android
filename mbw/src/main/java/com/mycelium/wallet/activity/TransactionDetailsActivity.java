@@ -114,7 +114,7 @@ public class TransactionDetailsActivity extends Activity {
         TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
         TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
-        if (_txs!=null && _txs.isQueuedOutgoing()) {
+        if (_txs != null && _txs.isQueuedOutgoing()) {
             confirmationsDisplay.setNeedsBroadcast();
             confirmationsCount.setText("");
             confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
@@ -138,7 +138,7 @@ public class TransactionDetailsActivity extends Activity {
         // Set Inputs
         LinearLayout inputs = findViewById(R.id.llInputs);
         if (_txs.getInputs() != null) {
-            int sum = 0;
+            long sum = 0;
             for (GenericTransaction.GenericOutput input : _txs.getInputs()) {
                 sum += input.getValue().value;
             }
@@ -159,8 +159,8 @@ public class TransactionDetailsActivity extends Activity {
 
         // Set Fee
         final long txFeeTotal = _txs.getFee().getValue();
-        String fee;
-        if(txFeeTotal > 0) {
+        if (txFeeTotal > 0) {
+            String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
             findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
             fee = ValueExtensionsKt.toStringWithUnit(_txs.getFee(), _mbwManager.getDenomination());
