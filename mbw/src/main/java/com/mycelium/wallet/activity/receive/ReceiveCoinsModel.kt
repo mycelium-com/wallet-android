@@ -84,11 +84,11 @@ class ReceiveCoinsModel(
         uri.append(receivingAddress.value)
         if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.toPlainString())
+                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
                 if (value != null) {
-                    uri.append("?amount=").append(value.valueAsBigDecimal.toPlainString())
+                    uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
