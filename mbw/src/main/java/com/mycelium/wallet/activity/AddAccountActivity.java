@@ -147,9 +147,8 @@ public class AddAccountActivity extends Activity {
          final WalletManager wallet = _mbwManager.getWalletManager(false);
          UUID createdId = wallet.createAccounts(new EthConfig()).get(0);
 
-         Bus bus = MbwManager.getEventBus();
-         bus.post(new AccountCreated(createdId));
-         bus.post(new AccountChanged(createdId));
+         MbwManager.getEventBus().post(new AccountCreated(createdId));
+         MbwManager.getEventBus().post(new AccountChanged(createdId));
       }
    };
 
@@ -199,9 +198,8 @@ public class AddAccountActivity extends Activity {
 
       @Override
       protected void onPostExecute(UUID account) {
-         Bus bus = MbwManager.getEventBus();
-         bus.post(new AccountCreated(account));
-         bus.post(new AccountChanged(account));
+         MbwManager.getEventBus().post(new AccountCreated(account));
+         MbwManager.getEventBus().post(new AccountChanged(account));
       }
    }
 
