@@ -1285,7 +1285,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fiat_currency">Fiat Currency</string>
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
-    <string name="no_transaction_loading">Loading...</string>
+    <string name="no_transaction_loading">Loading…</string>
     <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
