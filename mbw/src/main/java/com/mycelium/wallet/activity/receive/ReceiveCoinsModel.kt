@@ -153,8 +153,8 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<out GenericTransaction>) =
-            transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress} }
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<out GenericTransaction>) =
+            transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8
