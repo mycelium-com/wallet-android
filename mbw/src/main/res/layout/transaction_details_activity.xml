@@ -163,13 +163,6 @@
                             android:text="@string/inputs"
                             android:textSize="18sp"/>
 
-                    <TextView
-                            android:id="@+id/tvInputsAmount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            tools:text="123 loading"
-                            android:paddingLeft="16dp"
-                            android:textSize="18sp"/>
                 </LinearLayout>
 
 
@@ -179,6 +172,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="4dp" >
+
+                    <TextView
+                            android:id="@+id/tvInputsAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="123 Loading..."
+                            android:textSize="18sp"/>
                 </LinearLayout>
             </TableRow>
 

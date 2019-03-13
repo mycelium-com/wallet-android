@@ -161,6 +161,7 @@ public class TransactionDetailsActivity extends Activity {
             sum += input.value;
          }
          if (sum != 0) {
+            inputs.removeAllViews();
             for (TransactionDetails.Item item : _tx.inputs) {
                inputs.addView(getItemView(item));
             }
@@ -184,7 +185,6 @@ public class TransactionDetailsActivity extends Activity {
       if(txFeeTotal > 0) {
          ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
          tvInputsLabel.setVisibility(View.VISIBLE);
-         tvInputsAmount.setVisibility(View.GONE);
          if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
             fee = _mbwManager.getBchValueString(txFeeTotal);
@@ -200,12 +200,18 @@ public class TransactionDetailsActivity extends Activity {
          tvFee.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
          if (isAfterRemoteUpdate) {
             tvInputsLabel.setVisibility(View.GONE);
-            tvInputsAmount.setVisibility(View.GONE);
          } else {
             tvInputsLabel.setVisibility(View.VISIBLE);
-            tvInputsAmount.setVisibility(View.VISIBLE);
-            String amountLoading = String.format("%s %s", String.valueOf(_tx.inputs.length), getText(R.string.no_transaction_loading));
-            tvInputsAmount.setText(amountLoading);
+            int length = _tx.inputs.length;
+            String amountLoading;
+            if (length > 0) {
+               amountLoading = String.format("%s %s", String.valueOf(length), getString(R.string.no_transaction_loading));
+            } else {
+               amountLoading = getString(R.string.no_transaction_loading);
+            }
+            if (tvInputsAmount != null && tvInputsAmount.isAttachedToWindow()) {
+               tvInputsAmount.setText(amountLoading);
+            }
          }
       }
    }
