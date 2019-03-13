@@ -1363,4 +1363,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="address_gaps">Address gaps: </string>
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
+    <string name="change">Change</string>
 </resources>

@@ -36,6 +36,7 @@ package com.mycelium.wallet;
 
 
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -47,6 +48,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -68,13 +70,19 @@ public class DataExport {
       });
       for (GenericTransaction summary : history) {
          String txLabel = storage.getLabelByTransaction(summary.getId());
-         osw.write(getTxLine(accountLabel, txLabel, summary));
+         StringBuilder destAddresses = new StringBuilder();
+         for (GenericTransaction.GenericOutput output : summary.getOutputs()) {
+            if(!account.isMineAddress(output.getAddress())) {
+               destAddresses.append(output.getAddress().toString()).append(" ");
+            }
+         }
+         osw.write(getTxLine(accountLabel, txLabel, destAddresses, summary));
       }
       osw.close();
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction transaction) {
+   private static String getTxLine(String accountLabel, String txLabel, StringBuilder destAddresses, GenericTransaction transaction) {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
       df.setTimeZone(tz);
@@ -83,7 +91,7 @@ public class DataExport {
       return
             escape(accountLabel) + "," +
                   transaction.getId() + "," +
-                  "," +
+                  destAddresses + "," +
                   date + "," +
                   value + "," +
                   transaction.getType().getName() + "," +

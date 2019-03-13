@@ -56,6 +56,7 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
@@ -68,6 +69,7 @@ public class TransactionDetailsActivity extends Activity {
     @SuppressWarnings("deprecation")
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
+    private WalletAccount account;
     private GenericTransaction _txs;
     private int _white_color;
     private MbwManager _mbwManager;
@@ -88,7 +90,8 @@ public class TransactionDetailsActivity extends Activity {
 
         Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
-        _txs = _mbwManager.getSelectedAccount().getTx(txid);
+        account = _mbwManager.getSelectedAccount();
+        _txs = account.getTx(txid);
 
         coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
         updateUi();
@@ -151,9 +154,14 @@ public class TransactionDetailsActivity extends Activity {
 
         // Set Outputs
         LinearLayout outputs = findViewById(R.id.llOutputs);
+        LinearLayout change = findViewById(R.id.llChange);
         if(_txs.getOutputs() != null) {
             for (GenericTransaction.GenericOutput item : _txs.getOutputs()) {
-                outputs.addView(getItemView(item));
+                if (account.isMineAddress(item.getAddress())) {
+                    change.addView(getItemView(item));
+                } else {
+                    outputs.addView(getItemView(item));
+                }
             }
         }
 
