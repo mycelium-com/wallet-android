@@ -70,6 +70,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Async task to perform fetching parent transactions of current transaction from server
+ */
 public class TransactionDetailsActivity extends Activity {
 
    @SuppressWarnings("deprecation")
@@ -316,6 +319,9 @@ public class TransactionDetailsActivity extends Activity {
       return tv;
    }
 
+   /**
+    * Async task to perform fetching parent transactions of current transaction from server
+    */
    private class UpdateParentTask extends AsyncTask<Transaction, Void, Void> {
       @Override
       protected Void doInBackground(Transaction... pop) {
