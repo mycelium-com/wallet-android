@@ -76,6 +76,7 @@ import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
@@ -308,6 +309,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         MbwManager.getEventBus().post(new AccountCreated(accountid));
          //finish initialization
          activity.delayedFinish.run();
       }

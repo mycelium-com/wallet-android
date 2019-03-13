@@ -29,7 +29,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class BitcoinHDModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContext, BtcTransaction>,
                       internal val secureStore: SecureKeyValueStore,
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
