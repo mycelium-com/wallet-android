@@ -178,6 +178,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             tools:text="123 Loading..."
+                            android:text="@string/no_transaction_loading"
                             android:textSize="18sp"/>
                 </LinearLayout>
             </TableRow>
