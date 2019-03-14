@@ -788,21 +788,6 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
-    <string name="gd_buy_sell">Glidera</string>
-    <string name="gd_buy_tab">Купить</string>
-    <string name="gd_sell_tab">Продать</string>
-    <string name="gd_transaction_history_tab">История</string>
-    <string name="gd_glidera">Glidera</string>
-    <string name="gd_date">Дата:</string>
-    <string name="gd_fee">Комиссия:</string>
-    <string name="gd_total">Всего:</string>
-    <string name="gd_cancel">Отмена</string>
-    <string name="gd_sell_bitcoin">Продать Bitcoin</string>
-    <string name="gd_buy_bitcoin">Купить Bitcoin</string>
-    <string name="gd_btc">BTC</string>
-    <string name="gd_dollar_symbol">$</string>
-    <string name="gd_btc_symbol">฿</string>
-    <string name="gd_loading">Загрузка…</string>
     <string name="error_details">Сведения об ошибке</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
