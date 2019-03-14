@@ -306,12 +306,6 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
          GetTransactionsResponse response;
          try {
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
-         } catch (WapiException e) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-            postEvent(Event.SERVER_CONNECTION_ERROR);
-            return -1;
-         }
-         try {
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
