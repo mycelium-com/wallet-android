@@ -469,6 +469,12 @@ fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
+fun WalletManager.getActiveMasterseedHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
 
+/**
+ * Get the active accounts managed by the wallet manager
+ *
+ * @return the list of accounts
+ */
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it.isActive && it.isDerivedFromInternalMasterseed }
 
