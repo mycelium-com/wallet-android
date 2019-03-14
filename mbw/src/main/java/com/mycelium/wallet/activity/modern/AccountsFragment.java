@@ -122,6 +122,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
@@ -645,7 +646,7 @@ public class AccountsFragment extends Fragment {
         }
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
-                && getActiveMasterseedAccounts(walletManager).size() > 1 && !isBch) {
+                && getActiveMasterseedHDAccounts(walletManager).size() > 1 && !isBch) {
 
             final HDAccount HDAccount = (HDAccount) account;
             BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById(BitcoinHDModule.ID);
@@ -1151,25 +1152,21 @@ public class AccountsFragment extends Fragment {
     }
 
     /**
-     * Account is protected if after removal no BTC masterseed accounts would stay active, so it would not be possible to select an account
+     * Account is protected if after removal no masterseed accounts would stay active, so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        if (toRemove instanceof HDAccount
-                && ((HDAccount) toRemove).getAccountType() != HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-            // unprotected account type
+        //If the account is not derived from master seed, we can remove it
+        if (!toRemove.isDerivedFromInternalMasterseed()) {
             return false;
         }
 
-        Set<WalletAccount> uniqueAccountsSet = new ArraySet<>();
-        for (WalletAccount account : getActiveHDAccounts(_mbwManager.getWalletManager(false))) {
-            if (((HDAccount) account).getAccountType() == HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED) {
-                uniqueAccountsSet.add(account);
-            }
-            if (uniqueAccountsSet.size() > 1) {
-                // after deleting one, more remain
-                return false;
-            }
+        List<WalletAccount<?,?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
+
+        // If we have more than one master-seed derived account, we can remove it
+        if (accountsList.size() > 1) {
+            return false;
         }
+
         return true;
     }
 
