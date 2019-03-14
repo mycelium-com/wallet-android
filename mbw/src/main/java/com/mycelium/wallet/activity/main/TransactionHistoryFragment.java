@@ -675,7 +675,7 @@ public class TransactionHistoryFragment extends Fragment {
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
       @Override
       public void OnAddressLabelChanged(Address address, String label) {
-         _mbwManager.getEventBus().post(new AddressBookChanged());
+         MbwManager.getEventBus().post(new AddressBookChanged());
       }
    };
 
@@ -687,7 +687,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
-         _mbwManager.getEventBus().post(new TransactionLabelChanged());
+         MbwManager.getEventBus().post(new TransactionLabelChanged());
       }
    };
 

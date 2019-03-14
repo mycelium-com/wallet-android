@@ -189,6 +189,27 @@
                         android:orientation="vertical"
                         android:paddingLeft="4dp" />
             </TableRow>
+            <!-- Change -->
+
+            <TableRow
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip" >
+
+                <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/change"
+                        android:textSize="18sp" />
+
+                <LinearLayout
+                        android:id="@+id/llChange"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingLeft="4dp" />
+            </TableRow>
 
             <!-- Fee -->
 
