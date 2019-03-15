@@ -114,13 +114,13 @@ public class HDSigningActivity extends Activity {
          }
          HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
          InMemoryPrivateKey key;
+         BtcAddress btcAddress = (BtcAddress)addressLabel.getAddress();
          try {
-            BtcAddress btcAddress = (BtcAddress)addressLabel.getAddress();
             key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-         MessageSigningActivity.callMe(HDSigningActivity.this, key, account.getReceiveAddress());
+         MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
       }
    }
 }
