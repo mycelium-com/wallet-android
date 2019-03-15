@@ -67,10 +67,7 @@ public class PublicPrivateKeyStore {
       return new PublicKey(value);
    }
 
-
    public void forgetPrivateKey(Address address, KeyCipher cipher) throws KeyCipher.InvalidKeyCipher {
       _secureStorage.deleteEncryptedValue(address.getAllAddressBytes(), cipher);
    }
-
-
 }

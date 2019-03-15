@@ -46,12 +46,15 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     }
 
     fun getAllSupportedAddresses(networkParameters: NetworkParameters) =
-            SUPPORTED_ADDRESS_TYPES.map { it to toAddress(networkParameters, it)!! }.toMap()
+            SUPPORTED_ADDRESS_TYPES(isCompressed).map { it to toAddress(networkParameters, it)!! }.toMap()
 
     /**
      * @return [AddressType.P2SH_P2WPKH] address
      */
     private fun toNestedP2WPKH(networkParameters: NetworkParameters): Address? {
+        if (!isCompressed) {
+            return null
+        }
         val hashedPublicKey = pubKeyHashCompressed
         val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
         return Address.fromP2SHBytes(HashUtils.addressHash(
@@ -61,9 +64,12 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2WPKH] address
      */
-    private fun toP2WPKH(networkParameters: NetworkParameters) : SegwitAddress {
-        return SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
-    }
+    private fun toP2WPKH(networkParameters: NetworkParameters) : SegwitAddress? =
+            if (isCompressed) {
+                SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
+            } else {
+                null
+            }
 
     /**
      * @return [AddressType.P2PKH] address
@@ -117,10 +123,14 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     companion object {
         private const val serialVersionUID = 1L
         private const val HASH_TYPE = 1
-        private val SUPPORTED_ADDRESS_TYPES = listOf(
-                AddressType.P2PKH,
-                AddressType.P2WPKH,
-                AddressType.P2SH_P2WPKH
-        )
+        private fun SUPPORTED_ADDRESS_TYPES(isCompressed: Boolean) = if (isCompressed) {
+            listOf(
+                    AddressType.P2PKH,
+                    AddressType.P2WPKH,
+                    AddressType.P2SH_P2WPKH
+            )
+        } else {
+            listOf(AddressType.P2PKH)
+        }
     }
 }
