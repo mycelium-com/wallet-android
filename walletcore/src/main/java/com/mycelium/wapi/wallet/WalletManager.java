@@ -1571,7 +1571,7 @@ public class WalletManager {
     @Nonnull
     public List<UUID> getAccountVirtualIds(PublicKey publicKey) {
         final List<UUID> uuidList = new ArrayList<>();
-        for (Address address: publicKey.getAllSupportedAddresses(_network).values()) {
+        for (Address address: publicKey.getAllSupportedAddresses(_network, true).values()) {
             uuidList.add(SingleAddressAccount.calculateId(address));
         }
         return uuidList;

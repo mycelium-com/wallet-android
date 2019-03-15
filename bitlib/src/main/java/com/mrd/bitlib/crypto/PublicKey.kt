@@ -22,7 +22,7 @@ import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.*
 
 import java.io.Serializable
-import java.util.Arrays
+import java.util.*
 import kotlin.experimental.and
 
 class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
@@ -37,44 +37,51 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     val isCompressed: Boolean
         get() = Q.isCompressed
 
-    fun toAddress(networkParameters: NetworkParameters, addressType: AddressType): Address? {
+    /**
+     * @param ignoreCompression allows deriving segwit addresses from uncompressed keys. This should
+     * only be done to detect lost funds and under no circumstances should these addresses be shown
+     * to the user.
+     */
+    @JvmOverloads
+    fun toAddress(networkParameters: NetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): Address {
         return when (addressType) {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
-            AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
-            AddressType.P2WPKH -> toP2WPKH(networkParameters)
+            AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
+            AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
         }
     }
 
-    fun getAllSupportedAddresses(networkParameters: NetworkParameters) =
-            SUPPORTED_ADDRESS_TYPES(isCompressed).map { it to toAddress(networkParameters, it)!! }.toMap()
+    @JvmOverloads
+    fun getAllSupportedAddresses(networkParameters: NetworkParameters, ignoreCompression: Boolean = false) =
+            SUPPORTED_ADDRESS_TYPES(isCompressed || ignoreCompression).map { it to toAddress(networkParameters, it) }.toMap()
 
     /**
      * @return [AddressType.P2SH_P2WPKH] address
      */
-    private fun toNestedP2WPKH(networkParameters: NetworkParameters): Address? {
-        if (!isCompressed) {
-            return null
+    private fun toNestedP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): Address {
+        if (ignoreCompression || isCompressed) {
+            val hashedPublicKey = pubKeyHashCompressed
+            val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
+            return Address.fromP2SHBytes(HashUtils.addressHash(
+                    BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
         }
-        val hashedPublicKey = pubKeyHashCompressed
-        val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-        return Address.fromP2SHBytes(HashUtils.addressHash(
-                BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+        throw IllegalStateException("Can't create segwit address from uncompressed key")
     }
 
     /**
      * @return [AddressType.P2WPKH] address
      */
-    private fun toP2WPKH(networkParameters: NetworkParameters) : SegwitAddress? =
-            if (isCompressed) {
+    private fun toP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false) : SegwitAddress =
+            if (ignoreCompression || isCompressed) {
                 SegwitAddress(networkParameters, 0x00, HashUtils.addressHash(pubKeyCompressed))
             } else {
-                null
+                throw IllegalStateException("Can't create segwit address from uncompressed key")
             }
 
     /**
      * @return [AddressType.P2PKH] address
      */
-    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address? =
+    private fun toP2PKHAddress(networkParameters: NetworkParameters): Address =
             Address.fromStandardBytes(publicKeyHash, networkParameters)
 
     override fun hashCode(): Int {
