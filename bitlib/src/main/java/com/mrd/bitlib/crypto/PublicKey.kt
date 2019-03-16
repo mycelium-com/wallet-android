@@ -53,7 +53,9 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
 
     @JvmOverloads
     fun getAllSupportedAddresses(networkParameters: NetworkParameters, ignoreCompression: Boolean = false) =
-            SUPPORTED_ADDRESS_TYPES(isCompressed || ignoreCompression).map { it to toAddress(networkParameters, it) }.toMap()
+            SUPPORTED_ADDRESS_TYPES(isCompressed || ignoreCompression).map {
+                it to toAddress(networkParameters, it, ignoreCompression)
+            }.toMap()
 
     /**
      * @return [AddressType.P2SH_P2WPKH] address

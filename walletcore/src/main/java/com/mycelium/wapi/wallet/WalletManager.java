@@ -252,8 +252,7 @@ public class WalletManager {
      */
     public UUID createSingleAddressAccount(PublicKey publicKey) {
         final List<UUID> uuidList = getAccountVirtualIds(publicKey);
-        AddressType addressType = publicKey.isCompressed() ? AddressType.P2SH_P2WPKH : AddressType.P2PKH;
-        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType));
+        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH, true));
         synchronized (_walletAccounts) {
             boolean isUpgrade = false;
             for (UUID uuid : uuidList) {
@@ -1553,16 +1552,12 @@ public class WalletManager {
      */
     @Nonnull
     public List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
-        final List<UUID> uuidList = new ArrayList<>();
-        for (AddressType addressType: account.getAvailableAddressTypes()) {
-            PublicKey publicKey = account.getPublicKey();
-            if (publicKey != null) {
-                uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
-            } else {
-                uuidList.add(SingleAddressAccount.calculateId(account.getAddress()));
-            }
+        PublicKey publicKey = account.getPublicKey();
+        if (publicKey != null) {
+            return getAccountVirtualIds(publicKey);
+        } else {
+            return Collections.singletonList(SingleAddressAccount.calculateId(account.getAddress()));
         }
-        return uuidList;
     }
 
     /**
