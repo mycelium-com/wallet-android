@@ -24,6 +24,8 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
    );
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
+   private boolean isSyncing;
+
    protected Type type = Type.UNKNOWN;
 
    @Override
@@ -75,8 +77,9 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
     */
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
+         isSyncing = true;
          boolean synced = doSynchronization(mode);
-
+         isSyncing = false;
          // if sync went well, remember current time for this sync mode
          if (synced){
             _lastSync.put(mode.mode, new Date());
@@ -87,6 +90,11 @@ public abstract class SynchronizeAbleWalletAccount implements WalletAccount {
          return true;
       }
    }
+
+    @Override
+    public boolean isSyncing() {
+        return isSyncing;
+    }
 
    public boolean isVisible() {
       return true;
