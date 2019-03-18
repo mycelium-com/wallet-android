@@ -4,7 +4,6 @@
     tools:showIn="@layout/export_as_qr_activity">
 
     <data>
-
         <import type="android.view.View" />
 
         <variable

@@ -20,6 +20,5 @@
                 android:textSize="12sp"
                 android:textColor="@color/lightgrey"
                 android:text="@{viewModel.addressPath}"/>
-
     </merge>
 </layout>

@@ -1519,9 +1519,7 @@ public class SendMainActivity extends Activity {
                 if (type == StringHandlerActivity.ResultType.PRIVATE_KEY) {
                     InMemoryPrivateKey key = StringHandlerActivity.getPrivateKey(intent);
                     PublicKey publicKey = key.getPublicKey();
-                    for (AddressType addressType: AddressType.values()) {
-                        receivingAddressesList.add(publicKey.toAddress(_mbwManager.getNetwork(), addressType));
-                    }
+                    receivingAddressesList.addAll(publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values());
                     setUpMultiAddressView();
                 } else if (type == StringHandlerActivity.ResultType.ADDRESS) {
                     _receivingAddress = StringHandlerActivity.getAddress(intent);
