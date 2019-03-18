@@ -24,7 +24,7 @@ class AddressFragmentModel(
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
-    var isUncompressedKey: Boolean = false
+    var isCompressedKey: Boolean = true
 
     init {
         updateLabel()
@@ -44,7 +44,8 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        isUncompressedKey = !((account as SingleAddressAccount?)?.publicKey?.isCompressed ?: true)
+        val acc = account
+        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
         accountLabel.value =
                 Html.fromHtml(if (account is Bip44BCHAccount || account is SingleAddressBCHAccount) {
                     context.getString(R.string.bitcoin_cash) + " - " + label
