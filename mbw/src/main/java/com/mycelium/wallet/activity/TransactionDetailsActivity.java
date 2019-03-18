@@ -40,7 +40,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -66,6 +68,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
@@ -99,6 +102,10 @@ public class TransactionDetailsActivity extends Activity {
 
       loadAndUpdate(false);
 
+      startRemoteLoading();
+   }
+
+   private void startRemoteLoading() {
       new UpdateParentTask().execute();
    }
 
@@ -112,10 +119,10 @@ public class TransactionDetailsActivity extends Activity {
       } else {
          coluMode = false;
       }
-      updateUi(isAfterRemoteUpdate);
+      updateUi(isAfterRemoteUpdate,false);
    }
 
-   private void updateUi(boolean isAfterRemoteUpdate) {
+   private void updateUi(boolean isAfterRemoteUpdate, boolean suggestRetryIfError) {
       // Set Hash
       TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
@@ -157,16 +164,16 @@ public class TransactionDetailsActivity extends Activity {
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
       // Set Inputs
-      LinearLayout inputs = findViewById(R.id.llInputs);
+      final LinearLayout llInputs = findViewById(R.id.llInputs);
       if (_tx.inputs != null) {
          int sum = 0;
          for (TransactionDetails.Item input : _tx.inputs) {
             sum += input.value;
          }
          if (sum != 0) {
-            inputs.removeAllViews();
+            llInputs.removeAllViews();
             for (TransactionDetails.Item item : _tx.inputs) {
-               inputs.addView(getItemView(item));
+               llInputs.addView(getItemView(item));
             }
          }
       }
@@ -182,6 +189,7 @@ public class TransactionDetailsActivity extends Activity {
       // Set Fee
       final long txFeeTotal = getFee(_tx);
       String fee;
+      final LinearLayout llFeePanel = (LinearLayout) findViewById(R.id.llFeePanel);
       TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
       TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
       TextView tvFee = (TextView) findViewById(R.id.tvFee);
@@ -203,6 +211,24 @@ public class TransactionDetailsActivity extends Activity {
          tvFee.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
          if (isAfterRemoteUpdate) {
             tvInputsLabel.setVisibility(View.GONE);
+            if (suggestRetryIfError) {
+               Runnable removeRtryBtnTask = new Runnable() {
+                  @Override
+                  public void run() {
+                     ArrayList<View> retry = getViewsByTag(llInputs, "Retry");
+                     for (View view : retry) {
+                        llInputs.removeView(view);
+                     }
+
+                     retry = getViewsByTag(llFeePanel, "Retry");
+                     for (View view : retry) {
+                        llFeePanel.removeView(view);
+                     }
+                  }
+               };
+               addRetryButton(llInputs,removeRtryBtnTask);
+               addRetryButton(llFeePanel,removeRtryBtnTask);
+            }
          } else {
             tvInputsLabel.setVisibility(View.VISIBLE);
             int length = _tx.inputs.length;
@@ -217,6 +243,23 @@ public class TransactionDetailsActivity extends Activity {
             }
          }
       }
+   }
+
+   private View addRetryButton(final LinearLayout linearLayout, final Runnable doOnRetry){
+       Button tvRetry = new Button(this);
+       tvRetry.setLayoutParams(  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+       tvRetry.setText(R.string.no_transaction_retry);
+       final String tag = "Retry";
+       tvRetry.setTag(tag);
+       tvRetry.setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View v) {
+            startRemoteLoading();
+            doOnRetry.run();
+         }
+       });
+       linearLayout.addView(tvRetry);
+       return tvRetry;
    }
 
    private long getFee(TransactionDetails tx) {
@@ -303,7 +346,7 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(value.stripTrailingZeros().toPlainString() + " " + currency);
+      tv.setText(String.format("%s %s", value.stripTrailingZeros().toPlainString(), currency));
       tv.setTextColor(_white_color);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
@@ -322,9 +365,9 @@ public class TransactionDetailsActivity extends Activity {
    /**
     * Async task to perform fetching parent transactions of current transaction from server
     */
-   private class UpdateParentTask extends AsyncTask<Transaction, Void, Void> {
+   private class UpdateParentTask extends AsyncTask<Transaction, Void, Boolean> {
       @Override
-      protected Void doInBackground(Transaction... pop) {
+      protected Boolean doInBackground(Transaction... pop) {
          Sha256Hash txid = getTransactionFromIntent();
 
          if (_mbwManager.getSelectedAccount() instanceof AbstractAccount) {
@@ -335,19 +378,42 @@ public class TransactionDetailsActivity extends Activity {
                selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
             } catch (WapiException e) {
                _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               return false;
             }
          }
-         return null;
+         return true;
       }
 
       @Override
-      protected void onPostExecute(Void aVoid) {
-         super.onPostExecute(aVoid);
-         loadAndUpdate(true);
+      protected void onPostExecute(Boolean isResultOk) {
+         super.onPostExecute(isResultOk);
+         if (isResultOk) {
+            loadAndUpdate(true);
+         }else {
+            updateUi(true,true);
+         }
       }
    }
 
    private Sha256Hash getTransactionFromIntent() {
       return (Sha256Hash) getIntent().getSerializableExtra("transaction");
+   }
+
+   private static ArrayList<View> getViewsByTag(ViewGroup root, String tag){
+      ArrayList<View> views = new ArrayList<View>();
+      final int childCount = root.getChildCount();
+      for (int i = 0; i < childCount; i++) {
+         final View child = root.getChildAt(i);
+         if (child instanceof ViewGroup) {
+            views.addAll(getViewsByTag((ViewGroup) child, tag));
+         }
+
+         final Object tagObj = child.getTag();
+         if (tagObj != null && tagObj.equals(tag)) {
+            views.add(child);
+         }
+
+      }
+      return views;
    }
 }
