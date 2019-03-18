@@ -2,7 +2,8 @@
     xmlns:bind="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="android.view.View" />
+        <import type="com.mycelium.wallet.Utils" />
         <variable
             name="activity"
             type="android.support.v4.app.FragmentActivity" />
@@ -35,7 +36,6 @@
                 android:layout_gravity="center"
                 android:orientation="vertical">
 
-
                 <include
                     layout="@layout/address_fragment_label"
                     bind:viewModel="@{viewModel}" />
@@ -44,11 +44,17 @@
                     layout="@layout/address_fragment_addr"
                     bind:viewModel="@{viewModel}" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/uncompressed"
+                    android:visibility="@{viewModel.uncompressedKey ? View.VISIBLE : View.GONE }"
+                    android:textColor="@color/brightred"
+                    android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/uncompressed_key_explained) }" />
 
                 <include
                     layout="@layout/address_fragment_path"
                     bind:viewModel="@{viewModel}" />
-
             </LinearLayout>
         </FrameLayout>
 

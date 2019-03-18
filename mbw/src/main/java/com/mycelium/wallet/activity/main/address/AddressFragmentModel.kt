@@ -11,7 +11,7 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
+import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Subscribe
 
@@ -24,6 +24,7 @@ class AddressFragmentModel(
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
+    var isUncompressedKey: Boolean = false
 
     init {
         updateLabel()
@@ -43,6 +44,7 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
+        isUncompressedKey = !((account as SingleAddressAccount?)?.publicKey?.isCompressed ?: true)
         accountLabel.value =
                 Html.fromHtml(if (account is Bip44BCHAccount || account is SingleAddressBCHAccount) {
                     context.getString(R.string.bitcoin_cash) + " - " + label
