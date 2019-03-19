@@ -48,6 +48,7 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.PinProtectedActivity;
+import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
 
@@ -56,6 +57,7 @@ import java.util.Map;
 public class FcmListenerService extends FirebaseMessagingService {
    private static final String TAG = "firebasenotificationlog";
    private static final String LT_CHANNEL_ID = "LT notification channel";
+   public static final String MEDIA_TOPIC = "/topics/all";
 
    @Override
    public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -68,7 +70,9 @@ public class FcmListenerService extends FirebaseMessagingService {
       Log.d(TAG, "Message data: " + data);
 
       // Check if message contains a data payload.
-      if (data.size() > 0 && key != null) {
+        if (MEDIA_TOPIC.equalsIgnoreCase(remoteMessage.getFrom())) {
+            NewsSyncUtils.handle(this, remoteMessage);
+        } else if (data.size() > 0 && key != null) {
          Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
 //         if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {

@@ -46,6 +46,8 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDexApplication;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
@@ -103,6 +105,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         PackageRemovedReceiver.register(getApplicationContext());
         NewsDatabase.INSTANCE.initialize(this);
         NewsSyncUtils.startNewsUpdateRepeating(this);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {

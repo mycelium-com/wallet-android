@@ -137,9 +137,7 @@ object NewsDatabase {
         return result
     }
 
-    fun removeNews(trashNews: List<News>) {
-        trashNews.forEach {
-            val res = database.delete(NewsSQLiteHelper.NEWS, "id=?", arrayOf(it.id.toString()))
-        }
+    fun delete(id: String) {
+        database.delete(NewsSQLiteHelper.NEWS, "id=?", arrayOf(id))
     }
 }
