@@ -13,7 +13,6 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
-import java.lang.IllegalArgumentException
 import java.text.DateFormat
 import java.util.*
 
@@ -23,10 +22,6 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
                  val listener: AccountListener,
                  val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
-
-    override fun setCurrencySettings(currencySettings: CurrencySettings) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     init {
         if (networkParameters.isProdnet) {

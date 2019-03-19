@@ -20,7 +20,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYP
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.Companion.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -35,7 +34,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                       internal var _wapi: Wapi,
                       internal var settings: BTCSettings,
                       internal val metadataStorage: IMetaDataStorage,
-                      internal val signatureProviders: ExternalSignatureProviderProxy?) : GenericModule(metadataStorage), WalletModule {
+                      internal val signatureProviders: ExternalSignatureProviderProxy?,
+                      internal val loadingProgressUpdater: LoadingProgressUpdater?) : GenericModule(metadataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -53,32 +53,44 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
+        LoadingProgressTracker.subscribe(loadingProgressUpdater!!)
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         val contexts = backing.loadBip44AccountContexts()
+        var counter = 1
         for (context in contexts) {
+            if (loadingProgressUpdater.status is LoadingProgressStatus.Loading) {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.Migrating())
+            }
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
 
             loadKeyManagers(context, keyManagerMap)
 
             val accountBacking = backing.getBip44AccountBacking(context.id)
             val account: WalletAccount<*, *>
-            if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB) {
-                account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
-            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR) {
-                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), settings.changeAddressModeReference)
-            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
-                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), settings.changeAddressModeReference)
-            } else if (context.accountType == ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
-                account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), settings.changeAddressModeReference)
-            } else {
-                account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+            when (context.accountType) {
+                ACCOUNT_TYPE_UNRELATED_X_PUB ->
+                    account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR ->
+                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_TREZOR), settings.changeAddressModeReference)
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER ->
+                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER), settings.changeAddressModeReference)
+                ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY ->
+                    account = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                            signatureProviders!!.get(ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY), settings.changeAddressModeReference)
+                else -> account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
                         settings.changeAddressModeReference)
             }
             result[account.id] = account
             accounts[account.id] = account as HDAccount
+            LoadingProgressTracker.clearLastFullUpdateTime()
+
+            if (loadingProgressUpdater.status is LoadingProgressStatus.Migrating || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD) {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+            } else {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMHD(Integer.toString(counter++), Integer.toString(contexts.size)))
+            }
         }
         return result
     }

@@ -13,7 +13,6 @@ import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
-import java.lang.IllegalArgumentException
 import java.util.*
 
 
@@ -23,10 +22,6 @@ class BitcoinCashSingleAddressModule(internal val backing: WalletManagerBacking<
                                      internal val spvBalanceFetcher: SpvBalanceFetcher,
                                      internal var _wapi: Wapi,
                                      internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
-
-    override fun setCurrencySettings(currencySettings: CurrencySettings) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID

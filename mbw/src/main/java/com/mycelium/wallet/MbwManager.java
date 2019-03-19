@@ -668,12 +668,12 @@ public class MbwManager {
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage()));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
+                externalSignatureProviderProxy, migrationProgressTracker));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage(), migrationProgressTracker));
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
-                                              externalSignatureProviderProxy));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -760,8 +760,10 @@ public class MbwManager {
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage()));
-        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(), null));
+        walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi,
+                (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(), null, null));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
+                _wapi, walletManager, getMetadataStorage(), null));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
