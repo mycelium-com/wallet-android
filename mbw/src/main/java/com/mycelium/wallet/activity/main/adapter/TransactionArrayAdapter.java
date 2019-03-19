@@ -63,15 +63,6 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       _mbwManager = MbwManager.getInstance(context);
       _containerFragment = containerFragment;
       _storage = _mbwManager.getMetadataStorage();
-
-//      List<Address> keys = new ArrayList<>(addressBook.keySet());
-//
-//      for (int i = 0; i < keys.size(); i++) {
-//         //TODO: check coin type influence
-//         if (addressBook.get(keys.get(i)) != null) {
-//            _addressBook.put(AddressUtils.fromAddress(keys.get(i)), addressBook.get(keys.get(i)));
-//         }
-//      }
       _addressBook = addressBook;
       _alwaysShowAddress = alwaysShowAddress;
       transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
