@@ -63,10 +63,11 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       Tab myAddressesTab = bar.newTab();
-      Bundle bundle = addressBookBundle(true);
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class,
+              addressBookBundle(true, false));
       Tab contactsTab = bar.newTab();
-      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
+      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
+              addressBookBundle(false, true));
 
       //todo: use this check
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
@@ -78,10 +79,11 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       }
    }
 
-   private Bundle addressBookBundle(boolean own) {
+   private Bundle addressBookBundle(boolean own, boolean isSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
+      ownBundle.putBoolean(AddressBookFragment.IS_SENDING, isSending);
       return ownBundle;
    }
 }

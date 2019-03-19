@@ -19,6 +19,7 @@ import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -43,6 +44,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private SharedPreferences transactionFiatValuePref;
+   private Map<Address, String> _addressBook;
+   private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
    public TransactionArrayAdapter(Context context, List<GenericTransaction> transactions, Map<Address, String> addressBook) {
@@ -61,6 +64,16 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       _containerFragment = containerFragment;
       _storage = _mbwManager.getMetadataStorage();
 
+//      List<Address> keys = new ArrayList<>(addressBook.keySet());
+//
+//      for (int i = 0; i < keys.size(); i++) {
+//         //TODO: check coin type influence
+//         if (addressBook.get(keys.get(i)) != null) {
+//            _addressBook.put(AddressUtils.fromAddress(keys.get(i)), addressBook.get(keys.get(i)));
+//         }
+//      }
+      _addressBook = addressBook;
+      _alwaysShowAddress = alwaysShowAddress;
       transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
       SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
@@ -128,6 +141,35 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
+      }
+
+      // Show destination address and address label, if this address is in our address book
+      TextView tvAddressLabel = rowView.findViewById(R.id.tvAddressLabel);
+      TextView tvDestAddress = rowView.findViewById(R.id.tvDestAddress);
+
+
+      if (record.getOutputs().get(0).getAddress() != null) {
+         Address address = Address.fromString(record.getOutputs().get(0).getAddress().toString(), _mbwManager.getNetwork());
+         if (_addressBook.containsKey(address)) {
+            tvDestAddress.setText(AddressUtils.toShortString(record.getOutputs().get(0).getAddress().toString()));
+            tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix),
+                    _addressBook.get(address)));
+            tvAddressLabel.setVisibility(View.VISIBLE);
+            tvDestAddress.setVisibility(View.VISIBLE);
+
+            tvAddressLabel.setVisibility(View.VISIBLE);
+         } else if (_alwaysShowAddress) {
+            tvDestAddress.setText(AddressUtils.toShortString(record.getOutputs().get(0).getAddress().toString()));
+            tvDestAddress.setVisibility(View.VISIBLE);
+            tvAddressLabel.setVisibility(View.VISIBLE);
+
+         } else {
+            tvDestAddress.setVisibility(View.GONE);
+            tvAddressLabel.setVisibility(View.GONE);
+         }
+      } else {
+         tvDestAddress.setVisibility(View.GONE);
+         tvAddressLabel.setVisibility(View.GONE);
       }
 
       // Show confirmations indicator

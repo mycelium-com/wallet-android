@@ -162,7 +162,9 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)),
                 RecommendationsFragment.class, null);
         final Bundle addressBookConfig = new Bundle();
+        addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
+        addressBookConfig.putBoolean(AddressBookFragment.IS_SENDING, false);
         mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig);
         addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact

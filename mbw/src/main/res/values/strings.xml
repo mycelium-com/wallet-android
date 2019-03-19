@@ -194,6 +194,7 @@
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Address Book</string>
+    <string name="sending_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
     <string name="delete_archived_account_message"><![CDATA[Do you want to delete accounts <b>\"%1$s\"</b> and <b>\"%2$s\"</b>?]]></string>
