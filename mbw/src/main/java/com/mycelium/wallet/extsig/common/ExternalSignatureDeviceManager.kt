@@ -278,8 +278,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
             Log.d("trezor", "RequestTyp: " + response.requestType.toString())
 
 
-            val currentTx: Transaction
-            currentTx = if (txRequestDetailsType.hasTxHash()) {
+            val requestedTx: Transaction
+            requestedTx = if (txRequestDetailsType.hasTxHash()) {
                 // trezor requested information about a related tx - get it from the account backing
                 val requestHash = Sha256Hash.of(txRequestDetailsType.txHash.toByteArray())
                 TransactionEx.toTransaction(forAccount.getTransaction(requestHash))
@@ -294,14 +294,14 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                 TrezorType.RequestType.TXMETA ->
                     // Send transaction metadata
                     TrezorType.TransactionType.newBuilder()
-                            .setInputsCnt(currentTx.inputs.size)
-                            .setOutputsCnt(currentTx.outputs.size)
-                            .setVersion(currentTx.version)
-                            .setLockTime(currentTx.lockTime)
+                            .setInputsCnt(requestedTx.inputs.size)
+                            .setOutputsCnt(requestedTx.outputs.size)
+                            .setVersion(requestedTx.version)
+                            .setLockTime(requestedTx.lockTime)
                             .build()
 
                 TrezorType.RequestType.TXINPUT -> {
-                    val akInput = currentTx.inputs[txRequestDetailsType.requestIndex]
+                    val akInput = requestedTx.inputs[txRequestDetailsType.requestIndex]
                     val prevHash = ByteString.copyFrom(akInput.outPoint.txid.bytes)
                     val scriptSig = ByteString.copyFrom(akInput.script.scriptBytes)
                     val txInputBuilder = TrezorType.TxInputType.newBuilder()
@@ -355,7 +355,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                 }
 
                 TXOUTPUT -> {
-                    val akOutput = currentTx.outputs[txRequestDetailsType.requestIndex]
+                    val akOutput = requestedTx.outputs[txRequestDetailsType.requestIndex]
 
                     if (txRequestDetailsType.hasTxHash()) {
                         // request has an hash -> requests data for an existing output
@@ -512,7 +512,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                 throw RuntimeException("Trezor error:" + msg.code.toString() + "; " + msg.message)
             }
             is TxRequest -> {
-                if (msg.requestType == TXOUTPUT) {
+                if (msg.requestType == TXOUTPUT && !msg.details.hasTxHash() && !msg.hasSerialized()) {
                     val outputIndex = msg.details.requestIndex
                     val address = transaction!!.outputs[outputIndex].script.getAddress(network)
                     if (forAccount!!.isOwnInternalAddress(address)) {

@@ -27,24 +27,17 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
     var isConnected = AtomicBoolean(false)
-    @Volatile
-    var lastSuccessTime = System.currentTimeMillis()
-    @Volatile
-    private var isStopped = false
-    @Volatile
-    private var socket: Socket? = null
-    @Volatile
-    private var incoming : BufferedReader? = null
-    @Volatile
-    private var outgoing : BufferedOutputStream? = null
+    @Volatile var lastSuccessTime = System.currentTimeMillis()
+    @Volatile private var isStopped = false
+    @Volatile private var socket: Socket? = null
+    @Volatile private var incoming : BufferedReader? = null
+    @Volatile private var outgoing : BufferedOutputStream? = null
     private val nextRequestId = AtomicInteger(0)
     private val isStarted = AtomicBoolean(false)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
-    @Volatile
-    private var currentResponceTimeout = SMALL_RESPONSE_TIMEOUT
-    @Volatile
-    private var connectionAttempt = 0
+    @Volatile private var currentResponceTimeout = SMALL_RESPONSE_TIMEOUT
+    @Volatile private var connectionAttempt = 0
 
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
     private val subscriptions = mutableMapOf<String, Subscription>()
@@ -59,12 +52,13 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                 val currentEndpoint = endpoints[curEndpointIndex]
                 try {
                     synchronized(this) {
-                        socket = ssf.createSocket()
-                        socket?.soTimeout = currentResponceTimeout.toInt()
-                        socket?.connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
-                        socket!!.keepAlive = true
-                        incoming = BufferedReader(InputStreamReader(socket!!.getInputStream()))
-                        outgoing = BufferedOutputStream(socket!!.getOutputStream())
+                        socket = ssf.createSocket().apply {
+                            soTimeout = currentResponceTimeout.toInt()
+                            connect(InetSocketAddress(currentEndpoint.host, currentEndpoint.port))
+                            keepAlive = true
+                            incoming = BufferedReader(InputStreamReader(getInputStream()))
+                            outgoing = BufferedOutputStream(getOutputStream())
+                        }
                         callbacks.clear()
                         notify("server.version", RpcParams.mapParams(
                                 "client_name" to "wapi",
@@ -73,10 +67,11 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                         connectionAttempt = 0
 
                         // Schedule periodic ping requests execution
-                        pingTimer = Timer()
-                        pingTimer?.scheduleAtFixedRate(timerTask {
-                            sendPingMessage()
-                        }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+                        pingTimer = Timer().apply {
+                            scheduleAtFixedRate(timerTask {
+                                sendPingMessage()
+                            }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
+                        }
                         if (subscriptions.isNotEmpty()) {
                             renewSubscriptions()
                         }
@@ -85,10 +80,12 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
                     while (isConnected.get()) {
-                        val line = incoming!!.readLine()
-                        // There can be a use case when BufferedReader.readline() returns null
-                                ?: continue
-                        messageReceived(line)
+                        val msgStart = CharArray(200)
+                        incoming!!.mark(200)
+                        if(incoming!!.read(msgStart) > 0) {
+                            incoming!!.reset()
+                            messageReceived(msgStart.joinToString(""))
+                        }
                     }
                 } catch (exception: Exception) {
                     logger.logError("Socket creation or receiving failed: ${exception.message}")
@@ -228,7 +225,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         lastSuccessTime = System.currentTimeMillis()
         val isBatched = message[0] == '['
         if (isBatched) {
-            val response = BatchedRpcResponse.fromJson(message)
+            val response = BatchedRpcResponse.fromJson(incoming!!)
             val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
             callbacks[compoundId]?.also { callback ->
@@ -236,7 +233,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             }
             callbacks.remove(compoundId)
         } else {
-            val response = RpcResponse.fromJson(message)
+            val response = RpcResponse.fromJson(incoming!!)
             val id = response.id.toString()
             if (id != NO_ID.toString()) {
                 callbacks[id]?.also { callback ->
