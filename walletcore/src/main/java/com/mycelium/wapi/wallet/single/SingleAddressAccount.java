@@ -353,12 +353,12 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
             break;
          case PRIVACY:
             result = getAddress(maxedOn);
-            if (result == null) {
-               return getAddress();
-            }
             break;
          default:
             throw new IllegalStateException();
+      }
+      if (result == null) {
+         result = getAddress();
       }
       return result;
    }
