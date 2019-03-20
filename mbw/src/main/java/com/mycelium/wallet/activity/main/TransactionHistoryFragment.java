@@ -421,8 +421,8 @@ public class TransactionHistoryFragment extends Fragment {
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(!(record instanceof CoinapultTransaction)); //hasDetails
                      checkNotNull(menu.findItem(R.id.miShowCoinapultDebug))
-                             .setVisible(record instanceof CoinapultTransaction); //canCoinapult
-                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.getInputs().isEmpty()); //hasAddressBook
+                             .setVisible(record instanceof CoinapultTransaction);
+                     checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
                      if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                          || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
@@ -488,13 +488,12 @@ public class TransactionHistoryFragment extends Fragment {
                         case R.id.miAddToAddressBook:
                            String defaultName = "";
                            if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
-                              defaultName = _mbwManager.getSelectedAccount().getCoinType().getName();
+                              defaultName = ((PublicColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
                            }
-                           GenericAddress address = _mbwManager.getSelectedAccount().getReceiveAddress();
+                           GenericAddress address = record.getOutputs().get(0).getAddress();
                            EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
-                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(),
-                                   address.getCoinType().getName());
+                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())
