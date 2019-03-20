@@ -494,16 +494,10 @@ public class WalletManager {
             }
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-                if (singleAddressAccount.getAvailableAddressTypes().size() > 1) {
-                    // as remove() returns true we can remove all records with given account
-                    while (_walletAccounts.values().remove(account));
-                    singleAddressAccount.forgetPrivateKey(cipher);
-                    _backing.deleteSingleAddressAccountContext(id);
-
-                } else {
-                    _backing.deleteSingleAddressAccountContext(id);
-                    _walletAccounts.remove(id);
-                }
+                // as remove() returns true we can remove all records with given account
+                while (_walletAccounts.values().remove(account));
+                singleAddressAccount.forgetPrivateKey(cipher);
+                _backing.deleteSingleAddressAccountContext(id);
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
