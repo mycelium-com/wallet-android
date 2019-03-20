@@ -55,6 +55,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
@@ -372,6 +373,8 @@ private class AddDialog extends Dialog {
             }
         });
 
+        Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
+        findViewById(R.id.btClipboard).setEnabled(address.isPresent());
         findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
             @Override
