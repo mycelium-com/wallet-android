@@ -17,7 +17,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/transaction_details"
-                android:textSize="24sp"/>
+                android:textSize="24sp" />
 
         <TableLayout
                 android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/hash"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
                 <com.mycelium.wallet.activity.util.TransactionDetailsLabel
                         android:id="@+id/tvHash"
@@ -60,7 +60,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/confirmed"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
                 <TextView
                         android:id="@+id/tvConfirmed"
@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="4dp"
                         tools:text="in Block #123456"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
 
             </TableRow>
@@ -85,7 +85,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/tx_details_num_confirmations"
                         android:paddingRight="4dp"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
 
                 <LinearLayout android:layout_width="wrap_content"
@@ -97,13 +97,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             tools:text="5"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
                     <com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay
                             android:id="@+id/tcdConfirmations"
                             android:layout_width="wrap_content"
                             android:layout_gravity="center"
                             android:paddingLeft="5dp"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                 </LinearLayout>
 
             </TableRow>
@@ -121,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/date"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
                 <LinearLayout
                         android:layout_width="fill_parent"
@@ -134,7 +134,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingLeft="4dp"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
 
                     <TextView
                             android:id="@+id/tvTime"
@@ -142,7 +142,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingLeft="4dp"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
                 </LinearLayout>
             </TableRow>
 
@@ -161,7 +161,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/inputs"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
 
                 </LinearLayout>
 
@@ -175,7 +175,8 @@
                             android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/no_transaction_retry"/>
+                            android:text="@string/no_transaction_retry"
+                            android:onClick="startRemoteLoading" />
 
                     <TextView
                             android:id="@+id/tvInputsAmount"
@@ -183,14 +184,14 @@
                             android:layout_height="wrap_content"
                             tools:text="123 Loading..."
                             android:text="@string/no_transaction_loading"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
 
                     <LinearLayout
                             android:id="@+id/llInputs"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:paddingLeft="4dp"/>
+                            android:paddingLeft="4dp" />
                 </LinearLayout>
 
             </TableRow>
@@ -207,14 +208,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/outputs"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
                 <LinearLayout
                         android:id="@+id/llOutputs"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:paddingLeft="4dp"/>
+                        android:paddingLeft="4dp" />
             </TableRow>
 
             <!-- Fee -->
@@ -230,7 +231,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/miner_fee_label"
-                        android:textSize="18sp"/>
+                        android:textSize="18sp" />
 
 
                 <LinearLayout
@@ -245,13 +246,14 @@
                             tools:text="123123 Loading..."
                             android:paddingStart="4dp"
                             android:paddingEnd="1dp"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
 
                     <Button android:id="@+id/btFeeRetry"
                             android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/no_transaction_retry"/>
+                            android:text="@string/no_transaction_retry"
+                            android:onClick="startRemoteLoading" />
                 </LinearLayout>
 
             </TableRow>

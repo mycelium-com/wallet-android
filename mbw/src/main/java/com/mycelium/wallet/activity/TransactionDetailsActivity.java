@@ -83,12 +83,6 @@ public class TransactionDetailsActivity extends Activity {
    private int _white_color;
    private MbwManager _mbwManager;
    private boolean coluMode = false;
-   private View.OnClickListener retryClickListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         startRemoteLoading();
-      }
-   };
 
    /**
     * Called when the activity is first created.
@@ -105,10 +99,10 @@ public class TransactionDetailsActivity extends Activity {
 
       loadAndUpdate(false);
 
-      startRemoteLoading();
+      startRemoteLoading(null);
    }
 
-   private void startRemoteLoading() {
+   public void startRemoteLoading(View view) {
       new UpdateParentTask().execute();
    }
 
@@ -117,12 +111,8 @@ public class TransactionDetailsActivity extends Activity {
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-         coluMode = true;
-      } else {
-         coluMode = false;
-      }
-      updateUi(isAfterRemoteUpdate,false);
+      coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
+      updateUi(isAfterRemoteUpdate, false);
    }
 
    private void updateUi(boolean isAfterRemoteUpdate, boolean suggestRetryIfError) {
@@ -166,18 +156,14 @@ public class TransactionDetailsActivity extends Activity {
       String timeString = hourFormat.format(date);
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
-       TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
-       TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
-       Button btInputsRetry = (Button) findViewById(R.id.btInputsRetry);
-       Button btFeeRetry = (Button) findViewById(R.id.btFeeRetry);
-       TextView tvFeeAmount = (TextView) findViewById(R.id.tvFee);
-       TextView tvFeeLabel = findViewById(R.id.tvFeeLabel);
+       TextView tvInputsAmount = findViewById(R.id.tvInputsAmount);
+       Button btInputsRetry = findViewById(R.id.btInputsRetry);
+       Button btFeeRetry = findViewById(R.id.btFeeRetry);
+       TextView tvFeeAmount = findViewById(R.id.tvFee);
        btFeeRetry.setVisibility(View.GONE);
        btInputsRetry.setVisibility(View.GONE);
        tvFeeAmount.setVisibility(View.VISIBLE);
        tvInputsAmount.setVisibility(View.VISIBLE);
-       btFeeRetry.setOnClickListener(retryClickListener);
-       btInputsRetry.setOnClickListener(retryClickListener);
       // Set Inputs
       final LinearLayout llInputs = findViewById(R.id.llInputs);
       llInputs.removeAllViews();
