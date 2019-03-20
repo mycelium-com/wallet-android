@@ -79,6 +79,12 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       }
    }
 
+   /**
+    * Method for creating address book configuration which used in SendMainActivity
+    * @param own need for definition necessary configuration - print addresses from our wallet or not
+    * @param isSending need for definition necessary configuration - print only addresses available for sending or all addresses
+    * @return Bundle for address book
+    */
    private Bundle addressBookBundle(boolean own, boolean isSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
