@@ -40,14 +40,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -68,7 +66,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
@@ -86,6 +83,12 @@ public class TransactionDetailsActivity extends Activity {
    private int _white_color;
    private MbwManager _mbwManager;
    private boolean coluMode = false;
+   private View.OnClickListener retryClickListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+         startRemoteLoading();
+      }
+   };
 
    /**
     * Called when the activity is first created.
@@ -163,15 +166,28 @@ public class TransactionDetailsActivity extends Activity {
       String timeString = hourFormat.format(date);
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
+       TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
+       TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
+       Button btInputsRetry = (Button) findViewById(R.id.btInputsRetry);
+       Button btFeeRetry = (Button) findViewById(R.id.btFeeRetry);
+       TextView tvFeeAmount = (TextView) findViewById(R.id.tvFee);
+       TextView tvFeeLabel = findViewById(R.id.tvFeeLabel);
+       btFeeRetry.setVisibility(View.GONE);
+       btInputsRetry.setVisibility(View.GONE);
+       tvFeeAmount.setVisibility(View.VISIBLE);
+       tvInputsAmount.setVisibility(View.VISIBLE);
+       btFeeRetry.setOnClickListener(retryClickListener);
+       btInputsRetry.setOnClickListener(retryClickListener);
       // Set Inputs
       final LinearLayout llInputs = findViewById(R.id.llInputs);
+      llInputs.removeAllViews();
       if (_tx.inputs != null) {
          int sum = 0;
          for (TransactionDetails.Item input : _tx.inputs) {
             sum += input.value;
          }
          if (sum != 0) {
-            llInputs.removeAllViews();
+             tvInputsAmount.setVisibility(View.GONE);
             for (TransactionDetails.Item item : _tx.inputs) {
                llInputs.addView(getItemView(item));
             }
@@ -180,6 +196,7 @@ public class TransactionDetailsActivity extends Activity {
 
       // Set Outputs
       LinearLayout outputs = findViewById(R.id.llOutputs);
+      outputs.removeAllViews();
       if(_tx.outputs != null) {
          for (TransactionDetails.Item item : _tx.outputs) {
             outputs.addView(getItemView(item));
@@ -189,13 +206,8 @@ public class TransactionDetailsActivity extends Activity {
       // Set Fee
       final long txFeeTotal = getFee(_tx);
       String fee;
-      final LinearLayout llFeePanel = (LinearLayout) findViewById(R.id.llFeePanel);
-      TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
-      TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
-      TextView tvFee = (TextView) findViewById(R.id.tvFee);
+
       if(txFeeTotal > 0) {
-         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
-         tvInputsLabel.setVisibility(View.VISIBLE);
          if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
             fee = _mbwManager.getBchValueString(txFeeTotal);
@@ -206,31 +218,18 @@ public class TransactionDetailsActivity extends Activity {
             final long txFeePerSat = txFeeTotal / _tx.rawSize;
             fee += String.format("\n%d sat/byte", txFeePerSat);
          }
-         tvFee.setText(fee);
+         tvFeeAmount.setText(fee);
+         tvFeeAmount.setVisibility(View.VISIBLE);
       } else {
-         tvFee.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
+         tvFeeAmount.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
          if (isAfterRemoteUpdate) {
-            tvInputsLabel.setVisibility(View.GONE);
             if (suggestRetryIfError) {
-               Runnable removeRtryBtnTask = new Runnable() {
-                  @Override
-                  public void run() {
-                     ArrayList<View> retry = getViewsByTag(llInputs, "Retry");
-                     for (View view : retry) {
-                        llInputs.removeView(view);
-                     }
-
-                     retry = getViewsByTag(llFeePanel, "Retry");
-                     for (View view : retry) {
-                        llFeePanel.removeView(view);
-                     }
-                  }
-               };
-               addRetryButton(llInputs,removeRtryBtnTask);
-               addRetryButton(llFeePanel,removeRtryBtnTask);
+               btFeeRetry.setVisibility(View.VISIBLE);
+               btInputsRetry.setVisibility(View.VISIBLE);
+               tvFeeAmount.setVisibility(View.GONE);
+               tvInputsAmount.setVisibility(View.GONE);
             }
          } else {
-            tvInputsLabel.setVisibility(View.VISIBLE);
             int length = _tx.inputs.length;
             String amountLoading;
             if (length > 0) {
@@ -238,28 +237,11 @@ public class TransactionDetailsActivity extends Activity {
             } else {
                amountLoading = getString(R.string.no_transaction_loading);
             }
-            if (tvInputsAmount != null && tvInputsAmount.isAttachedToWindow()) {
+            if (tvInputsAmount.isAttachedToWindow()) {
                tvInputsAmount.setText(amountLoading);
             }
          }
       }
-   }
-
-   private View addRetryButton(final LinearLayout linearLayout, final Runnable doOnRetry){
-       Button tvRetry = new Button(this);
-       tvRetry.setLayoutParams(  new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-       tvRetry.setText(R.string.no_transaction_retry);
-       final String tag = "Retry";
-       tvRetry.setTag(tag);
-       tvRetry.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            startRemoteLoading();
-            doOnRetry.run();
-         }
-       });
-       linearLayout.addView(tvRetry);
-       return tvRetry;
    }
 
    private long getFee(TransactionDetails tx) {
@@ -389,7 +371,7 @@ public class TransactionDetailsActivity extends Activity {
          super.onPostExecute(isResultOk);
          if (isResultOk) {
             loadAndUpdate(true);
-         }else {
+         } else {
             updateUi(true,true);
          }
       }
@@ -397,23 +379,5 @@ public class TransactionDetailsActivity extends Activity {
 
    private Sha256Hash getTransactionFromIntent() {
       return (Sha256Hash) getIntent().getSerializableExtra("transaction");
-   }
-
-   private static ArrayList<View> getViewsByTag(ViewGroup root, String tag){
-      ArrayList<View> views = new ArrayList<View>();
-      final int childCount = root.getChildCount();
-      for (int i = 0; i < childCount; i++) {
-         final View child = root.getChildAt(i);
-         if (child instanceof ViewGroup) {
-            views.addAll(getViewsByTag((ViewGroup) child, tag));
-         }
-
-         final Object tagObj = child.getTag();
-         if (tagObj != null && tagObj.equals(tag)) {
-            views.add(child);
-         }
-
-      }
-      return views;
    }
 }

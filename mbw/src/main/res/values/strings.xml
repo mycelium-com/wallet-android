@@ -1301,6 +1301,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
+    <string name="no_transaction_retry">Retry</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
