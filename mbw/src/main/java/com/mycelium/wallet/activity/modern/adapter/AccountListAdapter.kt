@@ -215,7 +215,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
                     if (account.isActive) {
-                        sum.add(account.balance!!.confirmed)
+                        sum.add(account.balance!!.spendable)
                     }
                 }
             }
