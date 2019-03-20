@@ -26,7 +26,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 import com.mycelium.wapi.wallet.coins.Value
 
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*

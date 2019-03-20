@@ -47,16 +47,14 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.coins.ColuMain;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.*;
 
 import java.util.UUID;
 
@@ -114,15 +112,27 @@ public class AddColuAccountActivity extends Activity {
         // Check which radio button was clicked
         switch (view.getId()) {
         case R.id.radio_mycelium_tokens:
-            assetType = MTCoin.INSTANCE;
+            if (BuildConfig.FLAVOR.equals("prodnet")) {
+                assetType = MTCoin.INSTANCE;
+            } else {
+                assetType = MTCoinTest.INSTANCE;
+            }
             name = "MT";
             break;
         case R.id.radio_mass_tokens:
-            assetType = MASSCoin.INSTANCE;
+            if (BuildConfig.FLAVOR.equals("prodnet")) {
+                assetType = MASSCoin.INSTANCE;
+            } else {
+                assetType = MASSCoinTest.INSTANCE;
+            }
             name = "Mass";
             break;
         case R.id.radio_rmc_tokens:
-            assetType = RMCCoin.INSTANCE;
+            if (BuildConfig.FLAVOR.equals("prodnet")) {
+                assetType = RMCCoin.INSTANCE;
+            } else {
+                assetType = RMCCoinTest.INSTANCE;
+            }
             name = "RMC";
             break;
         default:

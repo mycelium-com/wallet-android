@@ -22,10 +22,6 @@ class Bip44BCHHDModule(internal val backing: WalletManagerBacking<SingleAddressA
                        internal var _wapi: Wapi,
                        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
-    override fun setCurrencySettings(currencySettings: CurrencySettings) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun getId(): String = ID
     private val accounts = mutableMapOf<UUID, Bip44BCHAccount>()
 

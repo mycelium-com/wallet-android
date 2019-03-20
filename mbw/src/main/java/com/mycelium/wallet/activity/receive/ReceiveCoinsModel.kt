@@ -25,7 +25,6 @@ class ReceiveCoinsModel(
         val context: Application,
         val account: WalletAccount<*, *>,
         private val accountLabel: String,
-        val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
 ) {
     val amount: MutableLiveData<Value?> = MutableLiveData()
@@ -136,9 +135,9 @@ class ReceiveCoinsModel(
 
         if (!Value.isNullOrZero(amount.value) && sum != null) {
             // if the user specified an amount, check it if it matches up...
-            receivingAmountWrong.value = sum!! != amount.value
+            receivingAmountWrong.value = sum!! != Value.valueOf(account.coinType, amount.value!!.value)
             if (sum != lastAddressBalance) {
-                //makeNotification(sum)
+                makeNotification(sum)
             }
         }
     }
@@ -153,7 +152,7 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: List<out GenericTransaction>) =
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransaction>) =
             transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {

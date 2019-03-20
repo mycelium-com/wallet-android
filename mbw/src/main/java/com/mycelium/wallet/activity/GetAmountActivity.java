@@ -185,7 +185,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          destinationAddress = _account.getDummyAddress();
       }
 
-      //todo: get units from account
       _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
       showMaxAmount();
 

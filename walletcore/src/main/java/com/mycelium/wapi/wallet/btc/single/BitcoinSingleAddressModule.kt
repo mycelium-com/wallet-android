@@ -5,10 +5,12 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.CurrencySettings
 import com.mycelium.wapi.wallet.KeyCipher
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.LoadingProgressTracker
+import com.mycelium.wapi.wallet.LoadingProgressUpdater
+import com.mycelium.wapi.wallet.LoadingProgressStatus
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
@@ -30,11 +32,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal val networkParameters: NetworkParameters,
                                  internal var _wapi: Wapi,
                                  internal var walletManager: WalletManager,
-                                 internal val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
-
-    override fun setCurrencySettings(currencySettings: CurrencySettings) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+                                 internal val metaDataStorage: IMetaDataStorage,
+                                 internal val loadingProgressUpdater: LoadingProgressUpdater?) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -46,9 +45,18 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
     override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
+        LoadingProgressTracker.subscribe(loadingProgressUpdater!!)
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         val contexts = backing.loadSingleAddressAccountContexts()
+        var counter = 1
         for (context in contexts) {
+            LoadingProgressTracker.setPercent(counter * 100 / contexts.size)
+            // The only way to know if we are migrating now
+            if (loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMSA) {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size)))
+            } else {
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size)))
+            }
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))

@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.manager
 
+import com.mycelium.wapi.wallet.CurrencySettings
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
@@ -34,5 +35,9 @@ abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : Wa
 
     override fun getSupportedAssets(): List<GenericAssetInfo> {
         return assetsList
+    }
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

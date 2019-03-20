@@ -58,9 +58,13 @@ public class AddressUtils {
         } else if (length <= 24) {
             return toDoubleLineString(address);
         } else {
-            return address.substring(0, 12) + "\r\n" +
-                    address.substring(12, 24) + "\r\n" +
-                    address.substring(24);
+            int i = 0;
+            StringBuilder result = new StringBuilder();
+            while (i + 12 < address.length()) {
+                result.append(address.substring(i, i + 12)).append("\r\n");
+                i = i + 12;
+            }
+            return result.append(address.substring(i)).toString();
         }
     }
 
