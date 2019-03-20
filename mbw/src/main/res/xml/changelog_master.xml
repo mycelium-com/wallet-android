@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.12.0.26" versioncode="2120026">
+        <change>removed obsolete Glidera integration. If you need to contact Glidera support, please use https://krakendirect.zendesk.com</change>
+        <change>improved loading of big accounts for speed and memory use</change>
+        <change>fixed a bug with very old uncompressed key single address accounts</change>
+    </release>
     <release version="2.12.0.10" versioncode="2120010">
         <change>Full SegWit support with bech32, hardware wallets and mixed-spending improved privacy.</change>
         <change>Hardware wallets compatibility improved.</change>
