@@ -8,7 +8,7 @@
     <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
         <!-- Title -->
 
@@ -29,7 +29,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
 
@@ -44,7 +44,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp"
-                        />
+                />
 
             </TableRow>
 
@@ -53,7 +53,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
 
@@ -78,7 +78,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
                         android:layout_width="wrap_content"
@@ -103,7 +103,7 @@
                             android:layout_width="wrap_content"
                             android:layout_gravity="center"
                             android:paddingLeft="5dp"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                 </LinearLayout>
 
             </TableRow>
@@ -114,7 +114,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
 
@@ -126,7 +126,7 @@
                 <LinearLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical" >
+                        android:orientation="vertical">
 
                     <TextView
                             android:id="@+id/tvDate"
@@ -151,7 +151,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <LinearLayout
                         android:layout_width="wrap_content"
@@ -161,17 +161,22 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/inputs"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
 
                 </LinearLayout>
 
 
                 <LinearLayout
-                        android:id="@+id/llInputs"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingLeft="4dp" >
+                        android:orientation="vertical">
+
+                    <Button android:id="@+id/btInputsRetry"
+                            android:visibility="gone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no_transaction_retry"
+                            android:onClick="startRemoteLoading" />
 
                     <TextView
                             android:id="@+id/tvInputsAmount"
@@ -179,8 +184,16 @@
                             android:layout_height="wrap_content"
                             tools:text="123 Loading..."
                             android:text="@string/no_transaction_loading"
-                            android:textSize="18sp"/>
+                            android:textSize="18sp" />
+
+                    <LinearLayout
+                            android:id="@+id/llInputs"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingLeft="4dp" />
                 </LinearLayout>
+
             </TableRow>
 
             <!-- Outputs -->
@@ -188,7 +201,7 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
 
@@ -210,26 +223,39 @@
             <TableRow
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="5dip" >
+                    android:padding="5dip">
 
                 <TextView
                         android:id="@+id/tvFeeLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-
                         android:layout_weight="1"
                         android:text="@string/miner_fee_label"
                         android:textSize="18sp" />
 
-                <TextView
-                        android:id="@+id/tvFee"
 
+                <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="1dp"
-                        android:textSize="18sp" />
+                        android:orientation="vertical">
+
+                    <TextView
+                            android:id="@+id/tvFee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="123123 Loading..."
+                            android:paddingStart="4dp"
+                            android:paddingEnd="1dp"
+                            android:textSize="18sp" />
+
+                    <Button android:id="@+id/btFeeRetry"
+                            android:visibility="gone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/no_transaction_retry"
+                            android:onClick="startRemoteLoading" />
+                </LinearLayout>
+
             </TableRow>
         </TableLayout>
     </LinearLayout>
