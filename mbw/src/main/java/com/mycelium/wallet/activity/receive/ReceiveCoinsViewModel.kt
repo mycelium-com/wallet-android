@@ -66,7 +66,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            it?.toString(mbwManager.denomination)
+            it?.toStringWithUnit(mbwManager.denomination)
         } else {
             ""
         }
