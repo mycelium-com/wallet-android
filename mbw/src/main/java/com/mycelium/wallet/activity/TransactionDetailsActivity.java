@@ -41,11 +41,11 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -99,6 +99,10 @@ public class TransactionDetailsActivity extends Activity {
 
       loadAndUpdate(false);
 
+      startRemoteLoading(null);
+   }
+
+   public void startRemoteLoading(View view) {
       new UpdateParentTask().execute();
    }
 
@@ -107,15 +111,11 @@ public class TransactionDetailsActivity extends Activity {
       _tx = _mbwManager.getSelectedAccount().getTransactionDetails(txid);
       _txs = _mbwManager.getSelectedAccount().getTransactionSummary(txid);
 
-      if(_mbwManager.getSelectedAccount() instanceof ColuAccount) {
-         coluMode = true;
-      } else {
-         coluMode = false;
-      }
-      updateUi(isAfterRemoteUpdate);
+      coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
+      updateUi(isAfterRemoteUpdate, false);
    }
 
-   private void updateUi(boolean isAfterRemoteUpdate) {
+   private void updateUi(boolean isAfterRemoteUpdate, boolean suggestRetryIfError) {
       // Set Hash
       TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
       tvHash.setColuMode(coluMode);
@@ -156,23 +156,33 @@ public class TransactionDetailsActivity extends Activity {
       String timeString = hourFormat.format(date);
       ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
+       TextView tvInputsAmount = findViewById(R.id.tvInputsAmount);
+       Button btInputsRetry = findViewById(R.id.btInputsRetry);
+       Button btFeeRetry = findViewById(R.id.btFeeRetry);
+       TextView tvFeeAmount = findViewById(R.id.tvFee);
+       btFeeRetry.setVisibility(View.GONE);
+       btInputsRetry.setVisibility(View.GONE);
+       tvFeeAmount.setVisibility(View.VISIBLE);
+       tvInputsAmount.setVisibility(View.VISIBLE);
       // Set Inputs
-      LinearLayout inputs = findViewById(R.id.llInputs);
+      final LinearLayout llInputs = findViewById(R.id.llInputs);
+      llInputs.removeAllViews();
       if (_tx.inputs != null) {
          int sum = 0;
          for (TransactionDetails.Item input : _tx.inputs) {
             sum += input.value;
          }
          if (sum != 0) {
-            inputs.removeAllViews();
+             tvInputsAmount.setVisibility(View.GONE);
             for (TransactionDetails.Item item : _tx.inputs) {
-               inputs.addView(getItemView(item));
+               llInputs.addView(getItemView(item));
             }
          }
       }
 
       // Set Outputs
       LinearLayout outputs = findViewById(R.id.llOutputs);
+      outputs.removeAllViews();
       if(_tx.outputs != null) {
          for (TransactionDetails.Item item : _tx.outputs) {
             outputs.addView(getItemView(item));
@@ -182,12 +192,8 @@ public class TransactionDetailsActivity extends Activity {
       // Set Fee
       final long txFeeTotal = getFee(_tx);
       String fee;
-      TextView tvInputsLabel = (TextView) findViewById(R.id.tvInputsLabel);
-      TextView tvInputsAmount = (TextView) findViewById(R.id.tvInputsAmount);
-      TextView tvFee = (TextView) findViewById(R.id.tvFee);
+
       if(txFeeTotal > 0) {
-         ((TextView) findViewById(R.id.tvFeeLabel)).setVisibility(View.VISIBLE);
-         tvInputsLabel.setVisibility(View.VISIBLE);
          if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHSINGLEADDRESS
              || _mbwManager.getSelectedAccount().getType() == WalletAccount.Type.BCHBIP44) {
             fee = _mbwManager.getBchValueString(txFeeTotal);
@@ -198,13 +204,18 @@ public class TransactionDetailsActivity extends Activity {
             final long txFeePerSat = txFeeTotal / _tx.rawSize;
             fee += String.format("\n%d sat/byte", txFeePerSat);
          }
-         tvFee.setText(fee);
+         tvFeeAmount.setText(fee);
+         tvFeeAmount.setVisibility(View.VISIBLE);
       } else {
-         tvFee.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
+         tvFeeAmount.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
          if (isAfterRemoteUpdate) {
-            tvInputsLabel.setVisibility(View.GONE);
+            if (suggestRetryIfError) {
+               btFeeRetry.setVisibility(View.VISIBLE);
+               btInputsRetry.setVisibility(View.VISIBLE);
+               tvFeeAmount.setVisibility(View.GONE);
+               tvInputsAmount.setVisibility(View.GONE);
+            }
          } else {
-            tvInputsLabel.setVisibility(View.VISIBLE);
             int length = _tx.inputs.length;
             String amountLoading;
             if (length > 0) {
@@ -212,7 +223,7 @@ public class TransactionDetailsActivity extends Activity {
             } else {
                amountLoading = getString(R.string.no_transaction_loading);
             }
-            if (tvInputsAmount != null && tvInputsAmount.isAttachedToWindow()) {
+            if (tvInputsAmount.isAttachedToWindow()) {
                tvInputsAmount.setText(amountLoading);
             }
          }
@@ -303,7 +314,7 @@ public class TransactionDetailsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(value.stripTrailingZeros().toPlainString() + " " + currency);
+      tv.setText(String.format("%s %s", value.stripTrailingZeros().toPlainString(), currency));
       tv.setTextColor(_white_color);
 
       tv.setOnLongClickListener(new View.OnLongClickListener() {
@@ -322,9 +333,9 @@ public class TransactionDetailsActivity extends Activity {
    /**
     * Async task to perform fetching parent transactions of current transaction from server
     */
-   private class UpdateParentTask extends AsyncTask<Transaction, Void, Void> {
+   private class UpdateParentTask extends AsyncTask<Transaction, Void, Boolean> {
       @Override
-      protected Void doInBackground(Transaction... pop) {
+      protected Boolean doInBackground(Transaction... pop) {
          Sha256Hash txid = getTransactionFromIntent();
 
          if (_mbwManager.getSelectedAccount() instanceof AbstractAccount) {
@@ -335,15 +346,20 @@ public class TransactionDetailsActivity extends Activity {
                selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
             } catch (WapiException e) {
                _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               return false;
             }
          }
-         return null;
+         return true;
       }
 
       @Override
-      protected void onPostExecute(Void aVoid) {
-         super.onPostExecute(aVoid);
-         loadAndUpdate(true);
+      protected void onPostExecute(Boolean isResultOk) {
+         super.onPostExecute(isResultOk);
+         if (isResultOk) {
+            loadAndUpdate(true);
+         } else {
+            updateUi(true,true);
+         }
       }
    }
 
