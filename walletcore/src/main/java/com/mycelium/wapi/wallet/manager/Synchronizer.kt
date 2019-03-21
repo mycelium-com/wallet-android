@@ -25,7 +25,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
                     }
 
                     // Synchronize selected accounts with the blockchain
-                    val list = if (accounts.isEmpty()) walletManager.getActiveAccounts() else accounts
+                    val list = if (accounts.isEmpty()) walletManager.getAllActiveAccounts() else accounts
                     list.forEach { it!!.synchronize(syncMode) }
                 }
 
