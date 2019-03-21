@@ -25,6 +25,7 @@ class ReceiveCoinsModel(
         val context: Application,
         val account: WalletAccount<*, *>,
         private val accountLabel: String,
+        val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
 ) {
     val amount: MutableLiveData<Value?> = MutableLiveData()
