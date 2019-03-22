@@ -337,23 +337,6 @@ public class ExchangeFragment extends Fragment {
 
     //TODO call getMaxFundsTransferrable need refactoring, we should call account object
     private BigDecimal getMaxSpend(WalletAccount account) {
-        if (account instanceof Bip44BCHAccount) {
-            Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-            //Find out the type of Bip44 account
-            long satoshisTransferable;
-            if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                int accountIndex = bip44BCHAccount.getAccountIndex();
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex);
-            } else {
-                //We are dealing with unrelated HDAccount and should handle it separately
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
-            }
-            return ExactBitcoinCashValue.from(satoshisTransferable).getValue();
-        } else if (account instanceof SingleAddressBCHAccount) {
-            String accountGuid = account.getId().toString();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();
-        }
-
         return BigDecimal.valueOf(0);
     }
 

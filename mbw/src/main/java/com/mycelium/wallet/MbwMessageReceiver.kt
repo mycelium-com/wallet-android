@@ -18,7 +18,6 @@ import com.mycelium.spvmodule.IntentContract
 import com.mycelium.wallet.WalletApplication.getSpvModuleName
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.event.SpvSendFundsResult
-import com.mycelium.wallet.event.SpvSyncChanged
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
@@ -122,9 +121,6 @@ class MbwMessageReceiver(private val context: Context) : ModuleMessageReceiver {
                             it!!.blockChainHeight = bestChainHeight
                         }
                 // Defines a Handler object that's attached to the UI thread
-                Handler(context.mainLooper).post {
-                    eventBus.post(SpvSyncChanged(module, Date(bestChainDate), bestChainHeight.toLong(), chainDownloadPercentDone))
-                }
             }
 
             "com.mycelium.wallet.requestAccountLevelKeysToMBW" -> {

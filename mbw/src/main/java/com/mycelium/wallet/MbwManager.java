@@ -109,7 +109,6 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -644,7 +643,6 @@ public class MbwManager {
             getLedgerManager()
         );
 
-        SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
 
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
@@ -671,6 +669,8 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                 externalSignatureProviderProxy, migrationProgressTracker));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage(), migrationProgressTracker));
+
+        SpvBalanceFetcher spvBchFetcher = null;
         if (spvBchFetcher != null) {
             walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
         }
@@ -717,8 +717,6 @@ public class MbwManager {
     }
 
     public void importLabelsToBch(WalletManager walletManager) {
-        if (getSpvBchFetcher() == null)
-            return;
         List<WalletAccount> accounts = new ArrayList<>();
         accounts.addAll(walletManager.getActiveAccounts());
         accounts.addAll(walletManager.getArchivedAccounts());
@@ -791,16 +789,7 @@ public class MbwManager {
         }
     }
 
-    public SpvBalanceFetcher getSpvBchFetcher() {
-        SpvBalanceFetcher result = null;
-        if (CommunicationManager.getInstance().getPairedModules()
-                .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
-            result = new SpvBchFetcher(_applicationContext);
-        }
-        return result;
-    }
-
-    @Synchronized
+        @Synchronized
     private LoadingProgressTracker getMigrationProgressTracker() {
         if (migrationProgressTracker == null) {
             migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
