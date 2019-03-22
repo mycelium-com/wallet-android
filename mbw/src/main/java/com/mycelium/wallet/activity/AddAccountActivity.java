@@ -108,13 +108,11 @@ public class AddAccountActivity extends Activity {
       final View coluCreate = findViewById(R.id.btColuCreate);
       coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
-      hdBchCreate.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
+      hdBchCreate.setVisibility(View.GONE);
    }
 
    @OnClick(R.id.btHdBchCreate)
-   void onAddBchHD(){
-      BCHHelper.bchTechnologyPreviewDialog(this);
-   }
+   void onAddBchHD(){}
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
       @Override

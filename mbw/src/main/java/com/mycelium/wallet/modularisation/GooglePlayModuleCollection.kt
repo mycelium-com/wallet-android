@@ -12,11 +12,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 object GooglePlayModuleCollection {
     @JvmStatic
     fun getModules(context: Context): Map<String, Module> =
-            hashMapOf("bch" to Module(WalletApplication.getSpvModuleName(Bip44BCHAccount::class.java)
-                    , context.getString(R.string.bitcoin_cash_module)
-                    , context.getString(R.string.bitcoin_cash_module_short)
-                    , context.getString(R.string.bch_module_description)),
-                    "geb" to Module(BuildConfig.appIdGeb,
+            hashMapOf("geb" to Module(BuildConfig.appIdGeb,
                             context.getString(R.string.get_extra_btc_module),
                             context.getString(R.string.get_extra_btc_module_short),
                             context.getString(R.string.get_extra_btc_module_desc)))

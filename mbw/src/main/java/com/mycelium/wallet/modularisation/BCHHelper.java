@@ -40,7 +40,7 @@ public class BCHHelper {
     public static void firstBCHPages(final Context context) {
         final Module bchModule = GooglePlayModuleCollection.getModules(context).get("bch");
         final SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_PREFS, MODE_PRIVATE);
-        final boolean moduleBCHInstalled = Utils.isAppInstalled(context, bchModule.getModulePackage());
+        final boolean moduleBCHInstalled = false;
         if (!sharedPreferences.getBoolean(BCH_INSTALLED, false) && moduleBCHInstalled) {
             View view = LayoutInflater.from(context).inflate(R.layout.dialog_bch_module_installed, null);
             ((TextView) view.findViewById(R.id.title)).setText(Html.fromHtml(context.getString(R.string.first_bch_installed_title)));
