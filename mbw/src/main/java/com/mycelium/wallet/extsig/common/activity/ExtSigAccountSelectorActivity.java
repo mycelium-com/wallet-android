@@ -113,7 +113,7 @@ public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorAct
          }
 
          String version;
-         TextView tvTrezorSerial = (TextView) findViewById(R.id.tvExtSigSerial);
+         TextView tvTrezorSerial = findViewById(R.id.tvExtSigSerial);
          if (extSigDevice.isMostRecentVersion()) {
             if (extSigDevice.getFeatures() != null) {
                version = String.format("%s, V%d.%d.%d",

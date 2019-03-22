@@ -42,12 +42,14 @@ import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
 import com.satoshilabs.trezor.lib.KeepKey;
 import com.squareup.otto.Bus;
 
-public class KeepKeyManager extends ExternalSignatureDeviceManager {
+import org.jetbrains.annotations.NotNull;
 
+public class KeepKeyManager extends ExternalSignatureDeviceManager {
    public KeepKeyManager(Context context, NetworkParameters network, Bus eventBus) {
       super(context, network, eventBus);
    }
 
+   @NotNull
    @Override
    protected ExternalSignatureDevice createDevice() {
       return new KeepKey(getContext());
