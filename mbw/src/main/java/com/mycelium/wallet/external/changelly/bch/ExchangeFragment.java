@@ -36,10 +36,7 @@ import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswe
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -64,7 +61,6 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
 import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getBTCBip44Accounts;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BCH;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;

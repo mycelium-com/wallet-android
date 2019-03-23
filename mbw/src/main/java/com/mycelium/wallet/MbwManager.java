@@ -123,11 +123,9 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -663,11 +661,6 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                 externalSignatureProviderProxy, migrationProgressTracker));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage(), migrationProgressTracker));
-
-        SpvBalanceFetcher spvBchFetcher = null;
-        if (spvBchFetcher != null) {
-            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
-        }
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);

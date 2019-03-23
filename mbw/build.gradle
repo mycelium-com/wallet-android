@@ -86,7 +86,6 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
-//    implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -214,11 +213,6 @@ android {
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
                 ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
-
-                appIdSpvBch = [release: "com.mycelium.module.spvbch",
-                               debug  : "com.mycelium.module.spvbch.debug"]
-                appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
-                            debug  : "com.modules.tradingbots.getextrabtc.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -237,11 +231,6 @@ android {
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
                 ElectrumServers = '{"tcp-tls://electrumx-b.mycelium.com:4432"}'
-
-                appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
-                               debug  : "com.mycelium.module.spvbch.testnet.debug"]
-                appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
-                            debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -257,8 +246,6 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
-        variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
-        variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
     }
 
     testOptions {
