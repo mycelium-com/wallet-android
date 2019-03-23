@@ -24,14 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
-import com.mrd.bitlib.model.Address;
-import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
@@ -41,8 +37,6 @@ import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
@@ -166,6 +160,7 @@ public class ConfirmExchangeFragment extends Fragment {
                     e.printStackTrace();
                 }
 
+                /*
                 Intent service;
                 if(fromAccount instanceof Bip44BCHAccount){
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
@@ -186,6 +181,7 @@ public class ConfirmExchangeFragment extends Fragment {
                 progressDialog.setIndeterminate(true);
                 progressDialog.setMessage(getString(R.string.sending, "..."));
                 progressDialog.show();
+                */
             }
         });
     }
