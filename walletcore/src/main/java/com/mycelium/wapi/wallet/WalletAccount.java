@@ -109,6 +109,11 @@ public interface WalletAccount {
    boolean synchronize(SyncMode mode);
 
    /**
+    * Get is account sync in progress
+    */
+   boolean isSyncing();
+
+   /**
     * Get the unique ID of this account
     */
    UUID getId();

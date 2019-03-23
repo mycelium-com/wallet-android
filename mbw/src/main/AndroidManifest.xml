@@ -194,16 +194,7 @@
         <activity android:name=".activity.export.DecryptBip38PrivateKeyActivity" />
         <activity android:name=".activity.send.GetSpendingRecordActivity" />
         <activity android:name=".activity.modern.UnspentOutputsActivity" />
-        <activity android:name=".activity.send.InstantWalletActivity">
-
-            <!--
-             <intent-filter>
-                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                 <data android:mimeType="application/bitcoin-privatekey" />
-                 <category android:name="android.intent.category.DEFAULT" />
-             </intent-filter>
-            -->
-        </activity>
+        <activity android:name=".activity.send.InstantWalletActivity" />
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
         <activity android:name=".activity.send.SendMainActivity" />
@@ -268,10 +259,7 @@
             android:label="@string/title_activity_bit_idauthentication" />
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
-        <activity android:name=".external.glidera.activities.GlideraSendToNextStep" />
         <activity android:name=".external.BuySellSelectActivity" />
-        <activity android:name=".external.glidera.activities.GlideraMainActivity" />
-        <activity android:name=".external.glidera.activities.GlideraTransaction" />
         <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
         <activity android:name=".activity.MessageVerifyActivity"/>
         <activity android:name=".external.changelly.bch.ExchangeActivity"
@@ -279,5 +267,4 @@
         <activity android:name=".activity.settings.SetSegwitChangeActivity"
             android:theme="@style/MyceliumSettings"/>
     </application>
-
 </manifest>
