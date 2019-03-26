@@ -717,6 +717,9 @@ public class MbwManager {
     }
 
     public void importLabelsToBch(WalletManager walletManager) {
+        if (getSpvBchFetcher() == null){
+            return;
+        }
         List<WalletAccount> accounts = new ArrayList<>();
         accounts.addAll(walletManager.getActiveAccounts());
         accounts.addAll(walletManager.getArchivedAccounts());
@@ -787,6 +790,10 @@ public class MbwManager {
                 }
             });
         }
+    }
+
+    public SpvBalanceFetcher getSpvBchFetcher() {
+        return null;
     }
 
         @Synchronized
