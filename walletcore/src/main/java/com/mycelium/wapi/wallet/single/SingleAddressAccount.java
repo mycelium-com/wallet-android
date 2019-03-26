@@ -425,9 +425,13 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
-      for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
-         _keyStore.forgetPrivateKey(address, cipher);
-      }
+       if (getPublicKey() == null) {
+           _keyStore.forgetPrivateKey(getAddress(), cipher);
+       } else {
+           for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
+               _keyStore.forgetPrivateKey(address, cipher);
+           }
+       }
    }
 
    public InMemoryPrivateKey getPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
