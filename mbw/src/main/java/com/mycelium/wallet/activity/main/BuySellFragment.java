@@ -209,14 +209,14 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     @Override
     public void onStart() {
-        _mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
         recreateActions();
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onStop();
     }
 

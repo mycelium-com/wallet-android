@@ -752,42 +752,8 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
-    <string name="gd_buy_sell_description">Koupit/prodat BTC z Glidera pomocí bankovního účtu v USA či Kanadě.</string>
-    <string name="gd_buy_tab">Koupit</string>
-    <string name="gd_sell_tab">Prodat</string>
-    <string name="gd_transaction_history_tab">Historie</string>
-    <string name="gd_delivery_date">Datum dodání:</string>
-    <string name="gd_date">Datum:</string>
-    <string name="gd_action">Akce:</string>
-    <string name="gd_amount">Částka:</string>
-    <string name="gd_pricing">Ocenění:</string>
-    <string name="gd_price">Cena:</string>
-    <string name="gd_status">Stav:</string>
-    <string name="gd_fee">Poplatek:</string>
-    <string name="gd_total">Celkem:</string>
-    <string name="gd_transaction_hash">Hash transakce:</string>
-    <string name="gd_glidera_transaction_number">Č. Glidera:</string>
-    <string name="gd_subtotal">Mezisoučet:</string>
-    <string name="gd_transaction_receipt">Potvrzení transakce</string>
-    <string name="gd_transaction_initiated">Transakce byla zahájena, podrobnosti jsou níže.</string>
-    <string name="gd_transaction_complete">Transakce je dokončena, podrobnosti jsou níže.</string>
-    <string name="gd_transaction_reviewed">Transakce se přezkoumává, podrobnosti jsou níže.</string>
-    <string name="gd_transaction_error">Při zpracovávání této transakce došlo k chybě. Kontaktujte prosím podporu Glidera na support@glidera.io.</string>
-    <string name="gd_resend_code">Znovuzaslat kód</string>
-    <string name="gd_cancel">Storno</string>
-    <string name="gd_continue">Pokračovat</string>
-    <string name="gd_amount_to_buy">Částka k nákupu</string>
-    <string name="gd_sell_bitcoin">Prodat Bitcoin</string>
-    <string name="gd_buy_bitcoin">Koupit Bitcoin</string>
-    <string name="gd_rate">Sazba:</string>
-    <string name="gd_summary">Shrnutí</string>
-    <string name="gd_amount_to_sell">Částka k prodeji</string>
-    <string name="gd_loading">Načítaní&#8230;</string>
-    <string name="gd_error_unable_to_connect">Nelze se připojit ke Glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s za %2$s</string>
     <string name="error_details">Podrobnosti chyby</string>
     <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
-    <string name="glidera_setting_show_button_summary">Zobrazit volbu Koupit/Prodat služby Glidera</string>
     <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
     <!-- GlideraService End -->
     <string name="settings_service_enabled">Povolit %1$s</string>

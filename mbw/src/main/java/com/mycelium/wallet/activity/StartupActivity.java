@@ -77,7 +77,6 @@ import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
 import com.mycelium.wallet.event.AccountCreated;
-import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.PrivateKeyUri;
@@ -88,6 +87,8 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wallet.event.MigrationStatusChanged;
 import com.mycelium.wallet.event.MigrationPercentChanged;
+import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -104,7 +105,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
 
-   private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
    private static final String LAST_STARTUP_TIME = "startupTme";
 
    private boolean _hasClipboardExportedPrivateKeys;
@@ -532,15 +532,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private void handleMyceliumUri(Uri intentUri) {
       final String host = intentUri.getHost();
-      if (host.equals(URI_HOST_GLIDERA_REGISTRATION)) {
-         Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
-         glideraIntent.putExtra("uri", intentUri.toString());
-         startActivity(glideraIntent);
-      } else {
-         // If we dont understand the url, just call the balance screen
-         Intent balanceIntent = new Intent(this, ModernMain.class);
-         startActivity(balanceIntent);
-      }
+      // If we dont understand the url, just call the balance screen
+      Intent balanceIntent = new Intent(this, ModernMain.class);
+      startActivity(balanceIntent);
       // close the startup activity to not pollute the backstack
       finish();
    }

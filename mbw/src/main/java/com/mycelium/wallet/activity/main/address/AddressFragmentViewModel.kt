@@ -27,9 +27,8 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAddressPath() = model.addressPath
     fun getType() = model.type
 
-    fun getDrawableForAccount(resources: Resources): Drawable? {
-        return Utils.getDrawableForAccount(model.account, true, resources)
-    }
+    fun getDrawableForAccount(resources: Resources): Drawable? =
+            Utils.getDrawableForAccount(model.account, true, resources)
 
     override fun onCleared() {
         model.onCleared()
