@@ -12,10 +12,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 object GooglePlayModuleCollection {
     @JvmStatic
     fun getModules(context: Context): Map<String, Module> =
-            hashMapOf("geb" to Module(BuildConfig.appIdGeb,
-                            context.getString(R.string.get_extra_btc_module),
-                            context.getString(R.string.get_extra_btc_module_short),
-                            context.getString(R.string.get_extra_btc_module_desc)))
+            hashMapOf()
 
     @JvmStatic
     fun getModuleByPackage(context: Context, packageName: String) =
@@ -23,7 +20,7 @@ object GooglePlayModuleCollection {
 
     @JvmStatic
     fun getBigLogos(context: Context): Map<String, Drawable> =
-            hashMapOf(WalletApplication.getSpvModuleName(Bip44BCHAccount::class.java) to context.resources.getDrawable(R.drawable.image_bch_module))
+            hashMapOf()
 
     @JvmStatic
     fun getBigLogo(context: Context, packageName: String) =
