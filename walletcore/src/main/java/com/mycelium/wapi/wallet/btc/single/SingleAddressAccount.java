@@ -71,6 +71,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    private PublicPrivateKeyStore _keyStore;
    private SingleAddressAccountBacking _backing;
    private Reference<ChangeAddressMode> changeAddressModeReference;
+   public boolean toRemove = false;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
                                NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
@@ -118,6 +119,10 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    public static UUID calculateId(Address address) {
       return addressToUUID(address);
+   }
+
+   void markToRemove() {
+       toRemove = true;
    }
 
    @Override
@@ -299,7 +304,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public boolean isActive() {
       // public method that needs no synchronization
-      return !isArchived();
+      return !isArchived() && !toRemove;
    }
 
    @Override
