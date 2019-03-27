@@ -69,7 +69,7 @@ class ReceiveCoinsModel(
         }
     }
 
-    fun setAlternativeAmount(newAmount: Value) {
+    fun setAlternativeAmount(newAmount: Value?) {
         if (!Value.isNullOrZero(newAmount)) {
             alternativeAmountData.value = newAmount
         } else {

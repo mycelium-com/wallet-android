@@ -3,9 +3,11 @@ package com.mycelium.wapi.wallet.colu
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -28,12 +30,13 @@ open class PublicColuAccount(val context: ColuAccountContext
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getDummyAddress(subType: String?): BtcAddress {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getDummyAddress(subType: String): BtcAddress {
+        val address = Address.getNullAddress(networkParameters, AddressType.valueOf(subType))
+        return BtcAddress(coinType, address)
     }
 
     override fun getDummyAddress(): BtcAddress {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return BtcAddress(coinType, Address.getNullAddress(networkParameters))
     }
 
     override fun removeAllQueuedTransactions() {
@@ -57,10 +60,10 @@ open class PublicColuAccount(val context: ColuAccountContext
         if (context.publicKey != null) {
             addressList = convert(context.publicKey, type as ColuMain)
         } else {
-            addressList = context.address?: mapOf()
+            addressList = context.address ?: mapOf()
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
-        cachedBalance = calculateBalance(accountBacking.getTransactions(0, 2000))
+        cachedBalance = calculateBalance(accountBacking.allUnspentOutputs.toList(), accountBacking.getTransactions(0, 2000))
     }
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<ColuTransaction> {
@@ -142,66 +145,21 @@ open class PublicColuAccount(val context: ColuAccountContext
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
-//        Log.e(TAG, "getBalances: address=" + address.get().toString())
-
-
-        // collect all tx history at that address from mycelium wapi server (non colored)
-//        val allTxidList = LinkedList<com.mrd.bitlib.util.Sha256Hash>()
-
-//        val wapiClient = getWapi()
-//        if (wapiClient == null) {
-//            Log.e(TAG, "getTransactionSummaries: wapiClient not found !")
-//            return
-//        }
-
         // retrieve history from colu server
-        val transactions = coluClient.getAddressTransactions(receiveAddress)
-        transactions?.let {
-            accountBacking.putTransactions(transactions)
-            cachedBalance = calculateBalance(transactions)
+        val txsInfo = coluClient.getAddressTransactions(receiveAddress)
+        txsInfo?.let {
+            accountBacking.clear()
+            accountBacking.putTransactions(it.transactions)
+            it.unspent.forEach { txOut ->
+                accountBacking.putUnspentOutput(txOut)
+            }
+            cachedBalance = calculateBalance(it.unspent, it.transactions)
             listener?.balanceUpdated(this)
         }
-
-
-//        if (addressInfoWithTransactions.transactions != null && addressInfoWithTransactions!!.transactions.size > 0) {
-//            account.setHistory(addressInfoWithTransactions!!.transactions)
-//            for (historyTx in addressInfoWithTransactions!!.transactions) {
-//                allTxidList.add(com.mrd.bitlib.util.Sha256Hash.fromString(historyTx.txid))
-//            }
-//        }
-
-//        try {
-//            val unspentOutputResponse = wapiClient!!.queryUnspentOutputs(QueryUnspentOutputsRequest(Wapi.VERSION, account.getSendingAddresses()))
-//                    .getResult()
-//            account.setBlockChainHeight(unspentOutputResponse.height)
-//        } catch (e: WapiException) {
-//            Log.w(TAG, "Warning ! Error accessing unspent outputs response: " + e.message)
-//        }
-//
-//
-//        account.setUtxos(addressInfoWithTransactions!!.utxos)
-
-        // start additional code to retrieve extended info from wapi server
-//        val trRequest = GetTransactionsRequest(2, allTxidList)
-//        val wapiResponse = wapiClient!!.getTransactions(trRequest)
-//        var trResponse: GetTransactionsResponse? = null
-//        if (wapiResponse == null) {
-//            return
-//        }
-//        try {
-//            trResponse = wapiResponse!!.getResult()
-//        } catch (e: Exception) {
-//            Log.w(TAG, "Warning ! Error accessing transaction response: " + e.message)
-//        }
-
-
-//        if (trResponse != null && trResponse.transactions != null) {
-//            account.setHistoryTxInfos(trResponse.transactions)
-//        }
         return true
     }
 
-    private fun calculateBalance(transactions: List<ColuTransaction>): Balance {
+    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<ColuTransaction>): Balance {
         var confirmed = Value.zeroValue(coinType)
         var receiving = Value.zeroValue(coinType)
         var sending = Value.zeroValue(coinType)
@@ -210,18 +168,16 @@ open class PublicColuAccount(val context: ColuAccountContext
             tx.inputs.forEach {
                 if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     sending = sending.add(it.value)
-                } else if (isMineAddress(it.address)) {
-                    confirmed = confirmed.subtract(it.value)
                 }
             }
             tx.outputs.forEach {
                 if (tx.confirmations < 6 && isMineAddress(it.address)) {
                     receiving = receiving.add(it.value)
-                } else if (isMineAddress(it.address)) {
-                    confirmed = confirmed.add(it.value)
                 }
             }
-
+        }
+        unspent.forEach {
+            confirmed = confirmed.add(it.value)
         }
         return Balance(confirmed, receiving, sending, Value.zeroValue(coinType))
     }
@@ -290,8 +246,12 @@ open class PublicColuAccount(val context: ColuAccountContext
                 .estimateTransactionSize()
     }
 
-    override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
-        return mutableListOf()
+    override fun getUnspentOutputs(): List<GenericTransaction.GenericOutput> {
+        val result = mutableListOf<GenericTransaction.GenericOutput>()
+        accountBacking.allUnspentOutputs.forEach {
+            result.add(GenericTransaction.GenericOutput(receiveAddress, Value.valueOf(coinType, it.value)))
+        }
+        return result
     }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey? {

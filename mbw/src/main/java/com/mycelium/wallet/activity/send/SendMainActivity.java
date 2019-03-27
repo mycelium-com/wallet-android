@@ -130,6 +130,7 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuSendRequest;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -193,7 +194,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
     private enum TransactionStatus {
-        MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
+        MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK, None
     }
 
     @BindView(R.id.tvAmount)
@@ -272,7 +273,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     protected String _transactionLabel;
     private GenericAssetUri genericUri;
     protected boolean _isColdStorage;
-    private TransactionStatus _transactionStatus;
+    private TransactionStatus _transactionStatus = TransactionStatus.None;
     protected UnsignedTransaction _unsigned;
     private SendRequest sendRequest;
     private SendRequest signedSendRequest;
@@ -400,7 +401,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // check whether the account can spend, if not, ask user to select one
         if (_account.canSpend()) {
             // See if we can create the transaction with what we have
-            _transactionStatus = tryCreateUnsignedTransaction();
+            tryCreateUnsignedTransaction();
         } else {
             //we need the user to pick a spending account - the activity will then init sendmain correctly
             GenericAssetUri uri;
@@ -487,8 +488,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 AddressItem item = ((AddressViewAdapter) adapter).getItem(position);
                 _receivingAddress = item.getAddress();
-                _transactionStatus = tryCreateUnsignedTransaction();
-                updateUi();
+                tryCreateUnsignedTransaction();
             }
         });
         receiversAddressesList.setSelectedItem(3);
@@ -562,7 +562,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
-                _transactionStatus = tryCreateUnsignedTransaction();
+                tryCreateUnsignedTransaction();
                 List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
                 feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation().value, Value.zeroValue(_account.getCoinType()), null, FeeViewAdapter.VIEW_TYPE_ITEM));
@@ -659,8 +659,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (uri.getValue() != null && !uri.getValue().isNegative()) {
                 _amountToSend = uri.getValue();
             }
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            tryCreateUnsignedTransaction();
         }
     }
 
@@ -669,7 +668,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Value presetAmount = _amountToSend;
         if (Value.isNullOrZero(presetAmount)) {
             // if no amount is set so far, use an unknown amount but in the current accounts currency
-            presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
+            presetAmount = Value.zeroValue(_account.getCoinType());
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, selectedFee.value,
                 _account.getCoinType(), _isColdStorage, _receivingAddress);
@@ -717,6 +716,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
+                    if(sendRequest instanceof ColuSendRequest) {
+                        ((ColuSendRequest) sendRequest).getFundingAccounts().add(Utils.getLinkedAccount(_account, _mbwManager.getWalletManager(false).getAccounts()));
+                    }
                     _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
                     _account.broadcastTx(sendRequest.tx);
                     return true;
@@ -757,26 +759,37 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .show();
     }
 
-    private TransactionStatus tryCreateUnsignedTransaction() {
-        Value toSend = getValueToSend();
+    private void tryCreateUnsignedTransaction() {
+        final Value toSend = getValueToSend();
 
-        boolean hasAddressData = toSend != null &&  _receivingAddress != null;
-
-        try {
-            if (hasAddressData) {
-                sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
-                _account.completeTransaction(sendRequest);
-            } else {
-                return TransactionStatus.MissingArguments;
+        final boolean hasAddressData = toSend != null &&  _receivingAddress != null;
+        new AsyncTask<Void, Void, TransactionStatus>() {
+            @Override
+            protected TransactionStatus doInBackground(Void... voids) {
+                try {
+                    if (hasAddressData) {
+                        sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
+                        _account.completeTransaction(sendRequest);
+                    } else {
+                        return TransactionStatus.MissingArguments;
+                    }
+                    return TransactionStatus.OK;
+                } catch (GenericBuildTransactionException ex) {
+                    return TransactionStatus.MissingArguments;
+                } catch (GenericOutputTooSmallException ex) {
+                    return TransactionStatus.OutputTooSmall;
+                } catch (GenericInsufficientFundsException ex) {
+                    return TransactionStatus.InsufficientFunds;
+                }
             }
-            return TransactionStatus.OK;
-        } catch (GenericBuildTransactionException ex) {
-            return TransactionStatus.MissingArguments;
-        } catch (GenericOutputTooSmallException ex) {
-            return TransactionStatus.OutputTooSmall;
-        } catch (GenericInsufficientFundsException ex) {
-            return TransactionStatus.InsufficientFunds;
-        }
+
+            @Override
+            protected void onPostExecute(TransactionStatus transactionStatus) {
+                super.onPostExecute(transactionStatus);
+                _transactionStatus = transactionStatus;
+                updateUi();
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void updateUi() {
@@ -1010,7 +1023,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private void updateFeeText() {
         // Update Fee-Display
-        _transactionStatus = tryCreateUnsignedTransaction();
+//        tryCreateUnsignedTransaction();
         String feeWarning = null;
         tvFeeWarning.setOnClickListener(null);
         if (selectedFee.value == 0) {
@@ -1163,8 +1176,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 }
             }
 
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            tryCreateUnsignedTransaction();
         } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
             // Get result from address chooser
             GenericAddress address =  (GenericAddress) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME); /*AddressUtils.fromAddress(Address.fromString(result, _mbwManager.getNetwork()));*/
@@ -1177,20 +1189,19 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             // this is where colusend is calling tryCreateUnsigned
             // why is amountToSend not set ?
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            tryCreateUnsignedTransaction();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
             _receivingAddress = (GenericAddress) Preconditions.checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
 
-            _transactionStatus = tryCreateUnsignedTransaction();
+            tryCreateUnsignedTransaction();
             updateUi();
         } else if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == RESULT_OK) {
             // Get result from AmountEntry
             Value enteredAmount = (Value) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
             setAmountToSend(enteredAmount);
             if (!Value.isNullOrZero(_amountToSend)) {
-                _transactionStatus = tryCreateUnsignedTransaction();
+                tryCreateUnsignedTransaction();
             }
             updateUi();
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
@@ -1223,8 +1234,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 } else {
                     _paymentRequestHandler = null;
                 }
-                _transactionStatus = tryCreateUnsignedTransaction();
-                updateUi();
+                tryCreateUnsignedTransaction();
             } else {
                 // user canceled - also leave this activity
                 setResult(RESULT_CANCELED);
@@ -1328,8 +1338,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (_progress != null) {
                 _progress.dismiss();
             }
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            tryCreateUnsignedTransaction();
         }
     }
 

@@ -66,6 +66,7 @@ public class AdvancedHttpClient {
                 return makePostRequest(t, url, headers, data);
             } catch (Exception ex) {
 //                Log.e(TAG, "Failed to make POST request to host " + host + " : " + ex.getMessage());
+                ex.printStackTrace();
             }
         }
         throw new IOException("Cannot connect to servers");

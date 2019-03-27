@@ -1,14 +1,15 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
-import com.mycelium.wapi.wallet.colu.coins.MTCoin
 import java.io.IOException
 
 
@@ -28,11 +29,11 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         return result.txid
     }
 
-    override fun getAddressTransactions(address: GenericAddress): List<ColuTransaction>? {
-        var result: MutableList<ColuTransaction>? = null
+    override fun getAddressTransactions(address: GenericAddress): ColuApi.ColuTransactionsInfo? {
+        var result: ColuApi.ColuTransactionsInfo? = null
         try {
             val json = coluClient.getAddressTransactions(address.toString())
-            result = mutableListOf()
+            val transactions = mutableListOf<ColuTransaction>()
             for (transaction in json.transactions) {
                 var transferred = Value.zeroValue(address.coinType)
 
@@ -62,13 +63,21 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                     }
                 }
 
-                if (input.size > 0 && output.size > 0) {
-                    result.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), MTCoin
+                if (input.size > 0 || output.size > 0) {
+                    transactions.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), address.coinType
                             , transferred
                             , transaction.time / 1000, null, transaction.blockheight.toInt()
                             , transaction.confirmations, false, input, output))
                 }
             }
+            val utxos = mutableListOf<TransactionOutputEx>()
+            for (utxo in json.utxos) {
+                utxo.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
+                    utxos.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(utxo.txid), utxo.index), utxo.blockheight,
+                            asset.amount, utxo.scriptPubKey.asm.toByteArray(), false))
+                }
+            }
+            result = ColuApi.ColuTransactionsInfo(transactions, utxos, Value.valueOf(address.coinType, json.balance))
         } catch (e: IOException) {
             //Log.e("ColuApiImpl", "", e)
         }

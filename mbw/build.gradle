@@ -234,8 +234,8 @@ android {
                 MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
                 RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
                 RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                ColoredCoinsApiURLs = '{"http://coloredcoins-test.mycelium.com:28342/"}'
+                ColuBlockExplorerApiURLs = '{"http://coloredcoins-test.mycelium.com:28332/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
                 ElectrumServers = '{"tcp-tls://electrumx-b.mycelium.com:4432"}'

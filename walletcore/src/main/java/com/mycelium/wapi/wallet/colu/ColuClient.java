@@ -95,8 +95,7 @@ public class ColuClient {
         List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
-        BigDecimal amountAssetSatoshi = new BigDecimal(nativeAmount.getValue()).multiply(new BigDecimal(10).pow(nativeAmount.type.getUnitExponent()));
-        dest.amount = amountAssetSatoshi.longValue();
+        dest.amount = nativeAmount.getValue();
         dest.assetId = nativeAmount.type.getId();
         to.add(dest);
 

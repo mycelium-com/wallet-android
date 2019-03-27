@@ -573,7 +573,39 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public ColuTransaction getTx(Sha256Hash hash) {
-         return null;
+         Cursor cursor = null;
+         ColuTransaction result = null;
+         try {
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
+            blobQuery.bindBlob(1, hash.getBytes());
+            cursor = blobQuery.raw( "SELECT hash, height, time, binary FROM " + txTableName + " WHERE id = ?" , txTableName);
+//         query(false, txTableName, new String[]{"hash", "height", "time", "binary"}, "id = ?", null,
+//                    null, null, null, null);
+
+            if (cursor.moveToNext()) {
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(3));
+               ObjectInput in = null;
+               try {
+                  in = new ObjectInputStream(bis);
+                  result = (ColuTransaction) in.readObject();
+               } catch (IOException | ClassNotFoundException e) {
+                  e.printStackTrace();
+               } finally {
+                  try {
+                     if (in != null) {
+                        in.close();
+                     }
+                  } catch (IOException ignore) {
+                  }
+               }
+            }
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+         return result;
       }
 
       @Override

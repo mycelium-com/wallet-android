@@ -38,6 +38,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -70,6 +71,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -437,9 +439,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             tvAmount.setTextColor(getResources().getColor(R.color.white));
             btOk.setEnabled(false);
          } else {
-            AmountValidation result = checkTransaction();
-            // Enable/disable Ok button
-            btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
+            checkTransaction();
          }
       } else {
          btOk.setEnabled(true);
@@ -450,56 +450,80 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     * Check that the amount is large enough for the network to accept it, and
     * that we have enough funds to send it.
     */
-   private AmountValidation checkSendAmount(Value value) {
-      if (value.value == 0) {
-         return AmountValidation.Ok; //entering a fiat value + exchange is not availible
-      }
-      try {
-         SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
-         _account.completeTransaction(sendRequest);
-      } catch (GenericOutputTooSmallException e) {
-         return AmountValidation.ValueTooSmall;
-      } catch (GenericInsufficientFundsException e) {
-         return AmountValidation.NotEnoughFunds;
-      } catch (GenericBuildTransactionException e) {
-          // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
-          // debug it
-          _mbwManager.reportIgnoredException("MinerFeeException", e);
-          return AmountValidation.Invalid;
-      }
-      return AmountValidation.Ok;
+   private void checkSendAmount(final Value value, final CheckListener listener) {
+      new AsyncTask<Void, Void, AmountValidation>() {
+         @Override
+         protected AmountValidation doInBackground(Void... voids) {
+            if (value.value == 0) {
+               return AmountValidation.Ok; //entering a fiat value + exchange is not availible
+            }
+            try {
+               SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
+               _account.completeTransaction(sendRequest);
+            } catch (GenericOutputTooSmallException e) {
+               return AmountValidation.ValueTooSmall;
+            } catch (GenericInsufficientFundsException e) {
+               return AmountValidation.NotEnoughFunds;
+            } catch (GenericBuildTransactionException e) {
+               // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
+               // debug it
+               _mbwManager.reportIgnoredException("MinerFeeException", e);
+               return AmountValidation.Invalid;
+            } catch (Exception e) {
+               return AmountValidation.Invalid;
+            }
+            return AmountValidation.Ok;
+         }
+
+         @Override
+         protected void onPostExecute(AmountValidation amountValidation) {
+            super.onPostExecute(amountValidation);
+            if(listener != null) {
+               listener.onResult(amountValidation);
+            }
+         }
+      }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+   }
+
+   interface CheckListener {
+      void onResult(AmountValidation result);
    }
 
    private enum AmountValidation {
       Ok, ValueTooSmall, Invalid, NotEnoughFunds
    }
 
-   private AmountValidation checkTransaction() {
+   private void checkTransaction() {
       // Check whether we have sufficient funds, and whether the output is too small
-      AmountValidation result = checkSendAmount(_amount);
-      if (result == AmountValidation.Ok) {
-         tvAmount.setTextColor(getResources().getColor(R.color.white));
-      } else {
-         tvAmount.setTextColor(getResources().getColor(R.color.red));
-         if (result == AmountValidation.NotEnoughFunds) {
-            // We do not have enough funds
-            if (_amount.value == 0 || _account.getAccountBalance().getSpendable().value < _amount.value) {
-               // We do not have enough funds for sending the requested amount
-               String msg = getResources().getString(R.string.insufficient_funds);
-               Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+      checkSendAmount(_amount, new CheckListener() {
+         @Override
+         public void onResult(AmountValidation result) {
+            if (result == AmountValidation.Ok) {
+               tvAmount.setTextColor(getResources().getColor(R.color.white));
             } else {
-               // We do have enough funds for sending the requested amount, but
-               // not for the required fee
-               String msg = getResources().getString(R.string.insufficient_funds_for_fee);
-               Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+               tvAmount.setTextColor(getResources().getColor(R.color.red));
+               if (result == AmountValidation.NotEnoughFunds) {
+                  // We do not have enough funds
+                  if (_amount.value == 0 || _account.getAccountBalance().getSpendable().value < _amount.value) {
+                     // We do not have enough funds for sending the requested amount
+                     String msg = getResources().getString(R.string.insufficient_funds);
+                     Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
+                  } else {
+                     // We do have enough funds for sending the requested amount, but
+                     // not for the required fee
+                     String msg = getResources().getString(R.string.insufficient_funds_for_fee);
+                     Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
+                  }
+               }
+               // else {
+               // The amount we want to send is not large enough for the network to
+               // accept it. Don't Toast about it, it's just annoying
+               // }
             }
+             // Enable/disable Ok button
+             btOk.setEnabled(result == AmountValidation.Ok && !_amount.isZero());
          }
-         // else {
-         // The amount we want to send is not large enough for the network to
-         // accept it. Don't Toast about it, it's just annoying
-         // }
-      }
-      return result;
+      });
    }
 
    @Subscribe

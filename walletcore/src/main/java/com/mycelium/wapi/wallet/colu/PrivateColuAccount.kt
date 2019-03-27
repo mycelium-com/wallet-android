@@ -29,10 +29,6 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getDummyAddress(subType: String?): BtcAddress {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return privateKey
     }
@@ -88,6 +84,8 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                         throw Exception("input ${input.outPoint} not signed")
                     }
                 }
+                request.tx = ColuTransaction(it.id, coinType, Value.zeroValue(coinType), 0, it
+                        , 0, 0, false, listOf(), listOf())
             }
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
@@ -169,7 +167,4 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                 .estimateTransactionSize()
     }
 
-    override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
-        return mutableListOf()
-    }
 }

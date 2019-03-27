@@ -118,7 +118,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
             }
             WalletManager walletManager = mbwManager.getWalletManager(false);
             if (((ColuModule)walletManager.getModuleById(ColuModule.ID)).getColuApi()
-                    .getAddressTransactions(new BtcAddress(null, address)).size() > 0) {
+                    .getAddressTransactions(new BtcAddress(null, address)).getTransactions().size() > 0) {
                 empty = 0;
                 emptyHD = 0;
                 try {
