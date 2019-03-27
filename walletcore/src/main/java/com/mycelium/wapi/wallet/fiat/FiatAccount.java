@@ -111,6 +111,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public boolean isSyncing() {
+        return false;
+    }
+
+    @Override
     public boolean isArchived() {
         return false;
     }

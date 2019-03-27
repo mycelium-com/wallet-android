@@ -31,6 +31,7 @@ open class Bip44BCHAccount(
         keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
                            network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
                            private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+
     private var blockChainHeight = 0
     private var visible = false
 
@@ -63,6 +64,10 @@ open class Bip44BCHAccount(
             Value.valueOf( if(_network.isProdnet())  BitcoinMain.get() else BitcoinTest.get(),
                     spvBalanceFetcher.calculateMaxSpendableAmountUnrelatedAccount(id.toString(), txFee, txFeeFactor))
         }
+    }
+
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getId(): UUID {

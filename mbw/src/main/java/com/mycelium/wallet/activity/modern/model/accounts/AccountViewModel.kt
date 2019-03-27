@@ -26,7 +26,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     var showBackupMissingWarning = showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager.metadataStorage.getLabelByAccount(accountId)
     var displayAddress: String
-    val isSyncing= account.isSyncing
+    val isSyncing = account.isSyncing
 
     init {
         val receivingAddress = account.receiveAddress

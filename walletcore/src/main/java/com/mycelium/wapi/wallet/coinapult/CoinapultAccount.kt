@@ -22,6 +22,11 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
+
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

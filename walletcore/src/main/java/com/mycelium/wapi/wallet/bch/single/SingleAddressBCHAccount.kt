@@ -27,6 +27,9 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               private val spvBalanceFetcher: SpvBalanceFetcher)
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
 
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private var visible: Boolean = false
 

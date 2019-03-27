@@ -112,6 +112,10 @@ open class HDAccount(
         clearInternalStateInt(false)
     }
 
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun dropCachedData() {
         if (context.isArchived()) {
             return

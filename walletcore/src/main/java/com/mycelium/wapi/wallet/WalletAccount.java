@@ -88,6 +88,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     boolean canSpend();
 
     /**
+     * Get is account sync in progress
+     */
+    boolean isSyncing();
+
+    /**
      * Is this account archived?
      * <p/>
      * An archived account is not tracked, and cannot be used until it has been

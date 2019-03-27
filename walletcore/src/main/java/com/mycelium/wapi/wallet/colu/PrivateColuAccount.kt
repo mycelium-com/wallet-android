@@ -25,6 +25,10 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                          , listener: AccountListener? = null)
     : PublicColuAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

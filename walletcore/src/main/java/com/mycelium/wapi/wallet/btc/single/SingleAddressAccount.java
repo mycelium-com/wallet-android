@@ -270,6 +270,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
+   public boolean isSyncing() {
+      return false;
+   }
+
+   @Override
    public boolean isMine(Address address) {
       return _addressList.contains(address);
    }

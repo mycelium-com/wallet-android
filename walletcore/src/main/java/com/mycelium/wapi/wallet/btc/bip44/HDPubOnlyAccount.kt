@@ -19,4 +19,9 @@ open class HDPubOnlyAccount(
     override fun canSpend(): Boolean {
         return false
     }
+
+    override fun isSyncing(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }
