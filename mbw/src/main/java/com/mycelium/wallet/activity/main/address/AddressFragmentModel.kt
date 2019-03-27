@@ -27,6 +27,7 @@ class AddressFragmentModel(
     var isUncompressedKey: Boolean = false
     val type: MutableLiveData<AddressType> = MutableLiveData()
     val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    var isCompressedKey: Boolean = true
 
     init {
         updateLabel()
