@@ -21,7 +21,8 @@ open class HDPubOnlyAccount(
     }
 
     override fun isSyncing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO: implement later
+        return false
     }
 
 }

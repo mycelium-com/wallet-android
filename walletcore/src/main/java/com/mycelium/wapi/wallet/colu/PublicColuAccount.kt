@@ -26,7 +26,8 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
 
     override fun isSyncing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO: implement later
+        return false
     }
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {

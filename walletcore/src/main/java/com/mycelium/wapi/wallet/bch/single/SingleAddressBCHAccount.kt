@@ -28,7 +28,8 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
 
     override fun isSyncing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO: implement later
+        return false
     }
 
     private var visible: Boolean = false

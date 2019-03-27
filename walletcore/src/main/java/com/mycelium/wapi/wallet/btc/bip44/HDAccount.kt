@@ -78,6 +78,10 @@ open class HDAccount(
                 2 + context.getLastInternalIndexWithActivity(it) + 1
     }
 
+    fun getPublicKey(): PublicKey? {
+        //TODO: implement later
+        return null
+    }
 
     val accountType = context.accountType
 
@@ -113,7 +117,8 @@ open class HDAccount(
     }
 
     override fun isSyncing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO: implement later
+        return false
     }
 
     override fun dropCachedData() {

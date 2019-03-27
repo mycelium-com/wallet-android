@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.bch.bip44
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
@@ -67,7 +68,8 @@ open class Bip44BCHAccount(
     }
 
     override fun isSyncing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //TODO: implement later
+        return false
     }
 
     override fun getId(): UUID {

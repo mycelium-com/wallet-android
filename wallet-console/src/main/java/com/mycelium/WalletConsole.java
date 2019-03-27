@@ -156,7 +156,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null,null);
             walletManager.add(bitcoinHDModule);
 
             // create account
@@ -168,7 +168,7 @@ class WalletConsole {
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
             BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore
-                    , network, wapiClient, walletManager, null);
+                    , network, wapiClient, walletManager, null,null);
             walletManager.add(bitcoinSingleAddressModule);
 
 
