@@ -283,11 +283,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       }
    }
 
-   @Override
-   public void upgradeBip44AccountContext(HDAccountContext context) {
-      updateBip44AccountContext(context);
-   }
-
    private void updateBip44AccountContext(HDAccountContext context) {
       _database.beginTransaction();
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
