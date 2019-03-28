@@ -755,10 +755,6 @@ public class MbwManager {
         }
     }
 
-    public boolean isSpvBchFetcherExist() {
-        return false;
-    }
-
         @Synchronized
     private LoadingProgressTracker getMigrationProgressTracker() {
         if (migrationProgressTracker == null) {
