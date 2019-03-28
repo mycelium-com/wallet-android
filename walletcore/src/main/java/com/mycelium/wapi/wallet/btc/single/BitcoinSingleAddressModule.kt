@@ -86,6 +86,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                             coluOfType + " Bitcoin" else baseLabel
                 }
             }
+            baseLabel = if (config.label.isEmpty()) baseLabel else config.label
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -137,7 +138,16 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
     override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is SingleAddressAccount) {
-            publicPrivateKeyStore.forgetPrivateKey(walletAccount.address.allAddressBytes, keyCipher);
+            val publickey = walletAccount.publicKey
+            if (publickey == null) {
+                publicPrivateKeyStore.forgetPrivateKey(walletAccount.address.allAddressBytes, keyCipher)
+            } else {
+                for (addressType in walletAccount.availableAddressTypes) {
+                    publicPrivateKeyStore.forgetPrivateKey(publickey.toAddress(networkParameters,
+                            addressType)?.allAddressBytes, keyCipher)
+                }
+            }
+            accounts[walletAccount.id]?.markToRemove()
             backing.deleteSingleAddressAccountContext(walletAccount.id)
             return true
         }

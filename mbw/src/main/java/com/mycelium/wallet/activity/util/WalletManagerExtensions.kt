@@ -9,4 +9,5 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
  *
  * @return list of accounts
  */
-fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount && !Utils.checkIsLinked(it, getAccounts()) }
+fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is
+        SingleAddressAccount && !Utils.checkIsLinked(it, getAccounts()) && it.isVisible && !it.toRemove}

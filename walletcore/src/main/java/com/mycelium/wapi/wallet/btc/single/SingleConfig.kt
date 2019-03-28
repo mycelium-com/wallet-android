@@ -12,5 +12,6 @@ open class AddressSingleConfig(val address: BtcAddress) : Config
 
 open class PublicSingleConfig(val publicKey: PublicKey) : Config
 
-open class PrivateSingleConfig(val privateKey: InMemoryPrivateKey, val cipher: KeyCipher) : Config
+open class PrivateSingleConfig @JvmOverloads constructor(val privateKey: InMemoryPrivateKey, val
+        cipher: KeyCipher, val label: String = "") : Config
 
