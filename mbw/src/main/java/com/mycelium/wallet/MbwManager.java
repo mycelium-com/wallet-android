@@ -646,8 +646,6 @@ public class MbwManager {
             walletManager.setActiveAccount(lastSelectedAccountId);
         }
 
-        importLabelsToBch(walletManager);
-
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
@@ -703,28 +701,6 @@ public class MbwManager {
         return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
     }
 
-    public void importLabelsToBch(WalletManager walletManager) {
-        if (!isSpvBchFetcherExist()){
-            return;
-        }
-        List<WalletAccount> accounts = new ArrayList<>();
-        accounts.addAll(walletManager.getActiveAccounts());
-        accounts.addAll(walletManager.getArchivedAccounts());
-        for (WalletAccount walletAccount : accounts) {
-            if (walletAccount instanceof HDAccount
-                    || walletAccount instanceof SingleAddressAccount) {
-                UUID bchId = getBitcoinCashAccountId(walletAccount);
-                String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
-                if (bchLabel == null || bchLabel.isEmpty()) {
-                    getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
-                }
-            }
-        }
-    }
-
-    public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
-        return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
-    }
 
     /**
      * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence

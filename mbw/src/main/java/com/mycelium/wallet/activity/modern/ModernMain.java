@@ -185,7 +185,6 @@ public class ModernMain extends AppCompatActivity {
             checkGapBug();
             _isAppStart = false;
         }
-        _mbwManager.importLabelsToBch(_mbwManager.getWalletManager(false));
 
         ModularisationVersionHelper.notifyWrongModuleVersion(this);
     }

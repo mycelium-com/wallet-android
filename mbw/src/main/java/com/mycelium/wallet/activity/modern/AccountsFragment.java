@@ -511,10 +511,6 @@ public class AccountsFragment extends Fragment {
     private WalletAccount getLinkedAccount(WalletAccount account) {
         WalletAccount linkedAccount;
         linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-
-        if (linkedAccount == null) {
-            linkedAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-        }
         return linkedAccount;
     }
 
@@ -1096,10 +1092,6 @@ public class AccountsFragment extends Fragment {
         if (linkedAccount != null) {
             linkedAccount.activateAccount();
         }
-        WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-        if (correspondingBCHAccount != null) {
-            correspondingBCHAccount.activateAccount();
-        }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
@@ -1217,17 +1209,10 @@ public class AccountsFragment extends Fragment {
                 if (linkedAccount != null) {
                     linkedAccount.archiveAccount();
                 }
-                WalletAccount correspondingBCHAccount = _mbwManager.getWalletManager(false).getAccount(MbwManager.getBitcoinCashAccountId(account));
-                if (correspondingBCHAccount != null) {
-                    correspondingBCHAccount.archiveAccount();
-                }
                 _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                 eventBus.post(new AccountChanged(account.getId()));
                 if (linkedAccount != null) {
                     eventBus.post(new AccountChanged(linkedAccount.getId()));
-                }
-                if (correspondingBCHAccount != null) {
-                    eventBus.post(new AccountChanged(correspondingBCHAccount.getId()));
                 }
                 updateIncludingMenus();
                 _toaster.toast(R.string.archived, false);
