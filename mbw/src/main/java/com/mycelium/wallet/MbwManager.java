@@ -704,7 +704,7 @@ public class MbwManager {
     }
 
     public void importLabelsToBch(WalletManager walletManager) {
-        if (getSpvBchFetcher() == null){
+        if (!isSpvBchFetcherExist()){
             return;
         }
         List<WalletAccount> accounts = new ArrayList<>();
@@ -779,8 +779,8 @@ public class MbwManager {
         }
     }
 
-    public SpvBalanceFetcher getSpvBchFetcher() {
-        return null;
+    public boolean isSpvBchFetcherExist() {
+        return false;
     }
 
         @Synchronized
