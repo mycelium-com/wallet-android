@@ -140,7 +140,6 @@ public class EnterAddressLabelUtil {
          @Override
          public void onDismiss() {
             super.onDismiss();
-            MbwManager.getInstance(context).importLabelsToBch(MbwManager.getInstance(context).getWalletManager(false));
          }
       };
       EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);

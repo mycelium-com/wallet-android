@@ -80,7 +80,6 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
@@ -107,9 +106,6 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.modularisation.GEBHelper;
-import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -127,11 +123,9 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -175,7 +169,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
@@ -272,7 +265,6 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
-    private final GEBHelper _gebHelper;
 
     private Handler mainLoopHandler;
 
@@ -373,7 +365,6 @@ public class MbwManager {
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
         contentResolver = createContentResolver(getNetwork());
-        _gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
@@ -644,7 +635,6 @@ public class MbwManager {
             getLedgerManager()
         );
 
-        SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
 
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
@@ -655,8 +645,6 @@ public class MbwManager {
         if (lastSelectedAccountId != null) {
             walletManager.setActiveAccount(lastSelectedAccountId);
         }
-
-        importLabelsToBch(walletManager);
 
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
@@ -671,9 +659,6 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                 externalSignatureProviderProxy, migrationProgressTracker));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage(), migrationProgressTracker));
-        if (spvBchFetcher != null) {
-            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
-        }
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -716,27 +701,6 @@ public class MbwManager {
         return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
     }
 
-    public void importLabelsToBch(WalletManager walletManager) {
-        if (getSpvBchFetcher() == null)
-            return;
-        List<WalletAccount> accounts = new ArrayList<>();
-        accounts.addAll(walletManager.getActiveAccounts());
-        accounts.addAll(walletManager.getArchivedAccounts());
-        for (WalletAccount walletAccount : accounts) {
-            if (walletAccount instanceof HDAccount
-                    || walletAccount instanceof SingleAddressAccount) {
-                UUID bchId = getBitcoinCashAccountId(walletAccount);
-                String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
-                if (bchLabel == null || bchLabel.isEmpty()) {
-                    getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
-                }
-            }
-        }
-    }
-
-    public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
-        return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
-    }
 
     /**
      * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
@@ -791,16 +755,7 @@ public class MbwManager {
         }
     }
 
-    public SpvBalanceFetcher getSpvBchFetcher() {
-        SpvBalanceFetcher result = null;
-        if (CommunicationManager.getInstance().getPairedModules()
-                .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
-            result = new SpvBchFetcher(_applicationContext);
-        }
-        return result;
-    }
-
-    @Synchronized
+        @Synchronized
     private LoadingProgressTracker getMigrationProgressTracker() {
         if (migrationProgressTracker == null) {
             migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
@@ -1412,10 +1367,6 @@ public class MbwManager {
 
     public LedgerManager getLedgerManager() {
         return _ledgerManager;
-    }
-
-    public GEBHelper getGEBHelper() {
-        return _gebHelper;
     }
 
     public WapiClientElectrumX getWapi() {

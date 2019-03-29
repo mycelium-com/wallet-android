@@ -77,17 +77,14 @@ import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
-import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -188,8 +185,6 @@ public class ModernMain extends AppCompatActivity {
             checkGapBug();
             _isAppStart = false;
         }
-        BCHHelper.firstBCHPages(this);
-        _mbwManager.importLabelsToBch(_mbwManager.getWalletManager(false));
 
         ModularisationVersionHelper.notifyWrongModuleVersion(this);
     }
@@ -504,23 +499,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void syncStopped(SyncStopped event) {
         setRefreshAnimation();
-        // On big wallets, loading the module to retrieve the sync status can take a
-        // long time. To
-        // avoid ANRs, run this on an AsyncTask
-        new AsyncTask<Void, Void, Float>() {
-            @Override
-            protected Float doInBackground(Void... voids) {
-                return BCHHelper.getBCHSyncProgress(ModernMain.this);
-            }
-
-            @Override
-            protected void onPostExecute(Float progress) {
-                super.onPostExecute(progress);
-                if (progress == 100) {
-                    BCHHelper.bchSynced(ModernMain.this);
-                }
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Subscribe
@@ -550,12 +528,5 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewVersion(final NewWalletVersionAvailable event) {
         _mbwManager.getVersionManager().showIfRelevant(event.versionInfo, this);
-    }
-
-    @Subscribe
-    public void onSpvSynced(SpvSyncChanged spvSyncChanged) {
-        if (spvSyncChanged.chainDownloadPercentDone == 100) {
-            BCHHelper.bchSynced(ModernMain.this);
-        }
     }
 }

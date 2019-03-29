@@ -509,9 +509,6 @@
     <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
     <string name="button_continue">Продолжить</string>
     <string name="butto_show_release_notes">Показать детали</string>
-    <string name="title_no_spvmodule_warning">Не найден SPV модуль</string>
-    <string name="no_spvmodule_warning_install">Установить</string>
-    <string name="no_spvmodule_warning_ignore">Закрыть кошелек</string>
     <string name="google_play_not_found">Google Play не найден</string>
     <string name="word_does_not_exist_in_wordlist">Слово, которое вы ввели, не существует в списке слов</string>
     <string name="pref_legacy_backup_title">Резервная копия старого образца</string>

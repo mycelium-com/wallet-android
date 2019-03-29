@@ -590,10 +590,6 @@
     <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
-    <string name="title_no_spvmodule_warning">No SPV Module found</string>
-    <string name="message_no_spvmodule_warning">Please install the %s spv module from Google Play.</string>
-    <string name="no_spvmodule_warning_install">Install</string>
-    <string name="no_spvmodule_warning_ignore">Close the wallet</string>
     <string name="google_play_not_found">Google Play not found</string>
     <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
     <string name="pref_legacy_backup_title">Legacy Backup</string>
@@ -953,7 +949,6 @@
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
-    <string name="spv_sync_progress">SPV-synced to %s</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -995,13 +990,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
 
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="get_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.getextrabtc</string>
-    <string name="get_extra_btc">Get extra BTC</string>
-    <string name="get_extra_btc_module"><![CDATA[<font color="#663aee82">Get Extra BTC</font> Module]]></string>
-    <string name="get_extra_btc_module_short">GEB</string>
-    <string name="get_extra_btc_module_desc">Get extra BTC with top trading strategies</string>
-    <string name="geb_module_change"><![CDATA[Mycelium <font color="#663aee82">Get Extra BTC</font> module has been %s!]]></string>
 
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>

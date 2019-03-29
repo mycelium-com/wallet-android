@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -60,17 +59,13 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
-import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.squareup.otto.Subscribe;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -735,7 +730,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module);
-        updateModuleSyncAsync(preference);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -768,7 +762,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module);
-        updateModuleSyncAsync(preference);
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
         preference.setTopButtonClickListener(new View.OnClickListener() {
             @Override
@@ -781,29 +774,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
-    }
-
-    private void updateModuleSyncAsync(final ModulePreference preference) {
-        new UpdateModuleSync(preference).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static class UpdateModuleSync extends AsyncTask<Void, Void, Float> {
-        private ModulePreference preference;
-
-        public UpdateModuleSync(ModulePreference preference) {
-            this.preference = preference;
-        }
-
-        @Override
-        protected Float doInBackground(Void... voids) {
-            return BCHHelper.getBCHSyncProgress(preference.getContext());
-        }
-
-        @Override
-        protected void onPostExecute(Float aFloat) {
-            super.onPostExecute(aFloat);
-            updateModulePreferenceSync(preference, aFloat);
-        }
     }
 
     @NonNull
@@ -852,13 +822,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         String syncStatus = progress == 100F ? preference.getContext().getString(R.string.fully_synced)
                 : preference.getContext().getString(R.string.sync_progress, format.format(progress));
         preference.setSyncStateText(syncStatus);
-    }
-
-    @Subscribe
-    public void onSyncStateChanged(SpvSyncChanged syncChanged) {
-        String bchPackage = "Module_" + WalletApplication.getSpvModuleName(Bip44BCHAccount.class);
-        Preference preference = modulesPrefs.findPreference(bchPackage);
-        updateModulePreferenceSync((ButtonPreference) preference, syncChanged.chainDownloadPercentDone);
     }
 
     @Override

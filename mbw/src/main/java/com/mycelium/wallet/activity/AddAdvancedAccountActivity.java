@@ -73,7 +73,6 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -206,12 +205,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             Utils.openWebsite(activity, BUY_LEDGER_LINK);
          }
       });
-      btGenerateNewBchSingleKey.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
-   }
-
-   @OnClick(R.id.btGenerateNewBchSingleKey)
-   void onGenerateBchClick() {
-      BCHHelper.bchTechnologyPreviewDialog(this);
+      btGenerateNewBchSingleKey.setVisibility(View.GONE);
    }
 
    @Override

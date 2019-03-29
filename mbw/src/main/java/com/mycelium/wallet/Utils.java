@@ -826,25 +826,9 @@ public class Utils {
                return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
             } else if (w2 instanceof PrivateColuAccount) {
                return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
-            } else if (w1 instanceof Bip44BCHAccount
-                    && w2 instanceof HDAccount
-                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
-               return 1;
-            } else if (w1 instanceof HDAccount
-                    && w2 instanceof Bip44BCHAccount
-                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
-               return -1;
-            } else if (w1 instanceof SingleAddressBCHAccount
-                    && w2 instanceof SingleAddressAccount
-                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
-               return 1;
-            } else if (w1 instanceof SingleAddressAccount
-                    && w2 instanceof SingleAddressBCHAccount
-                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
-               return -1;
-            } else {
-               return 0;
             }
+            return 0;
+
          }
       };
 
