@@ -26,12 +26,6 @@ class SingleAddressBCHAccount(context: SingleAddressAccountContext,
                               backing: SingleAddressAccountBacking, wapi: Wapi,
                               private val spvBalanceFetcher: SpvBalanceFetcher)
     : SingleAddressAccount(context, keyStore, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
-
-    override fun isSyncing(): Boolean {
-        //TODO: implement later
-        return false
-    }
-
     private var visible: Boolean = false
 
     override fun getCurrencyBasedBalance(): CurrencyBasedBalance {

@@ -87,8 +87,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wallet.event.MigrationStatusChanged;
 import com.mycelium.wallet.event.MigrationPercentChanged;
-import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

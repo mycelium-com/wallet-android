@@ -116,11 +116,6 @@ open class HDAccount(
         clearInternalStateInt(false)
     }
 
-    override fun isSyncing(): Boolean {
-        //TODO: implement later
-        return false
-    }
-
     override fun dropCachedData() {
         if (context.isArchived()) {
             return
