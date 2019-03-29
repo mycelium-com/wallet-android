@@ -41,10 +41,8 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
-import com.mycelium.wallet.external.GlideraServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
-import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +103,6 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
       return new ArrayList<BuySellServiceDescriptor>() {{
          add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
-         add(new GlideraServiceDescription());
          add(new SimplexServiceDescription());
       }};
    }

@@ -26,6 +26,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     var showBackupMissingWarning = showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager.metadataStorage.getLabelByAccount(accountId)
     var displayAddress: String
+    val isSyncing = account.isSyncing
 
     init {
         val receivingAddress = account.receiveAddress
@@ -63,6 +64,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
         if (showBackupMissingWarning != other.showBackupMissingWarning) return false
         if (label != other.label) return false
         if (displayAddress != other.displayAddress) return false
+        if (isSyncing != other.isSyncing) return false
 
         return true
     }
@@ -77,6 +79,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
         result = 31 * result + showBackupMissingWarning.hashCode()
         result = 31 * result + label.hashCode()
         result = 31 * result + displayAddress.hashCode()
+        result = 31 * result + isSyncing.hashCode()
         return result
     }
 

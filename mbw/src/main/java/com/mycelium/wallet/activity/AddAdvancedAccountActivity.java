@@ -453,8 +453,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       protected UUID doInBackground(Void... params) {
          UUID acc = null;
          //Check whether this address is already used in any account
-         for (AddressType addressType : AddressType.values()) {
-            Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+         for (Address addr : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
             address = AddressUtils.fromAddress(addr);
             Optional<UUID> accountId = _mbwManager.getAccountId(address);
             if (accountId.isPresent()) {

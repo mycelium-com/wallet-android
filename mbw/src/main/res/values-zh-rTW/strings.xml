@@ -748,42 +748,8 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">買/賣比特幣</string>
-    <string name="gd_buy_sell_description">使用銀行賬戶從Glider 買/賣比特幣, 僅限美國或加拿大地區。</string>
-    <string name="gd_buy_tab">購買</string>
-    <string name="gd_sell_tab">出售</string>
-    <string name="gd_transaction_history_tab">歷程紀錄</string>
-    <string name="gd_delivery_date">交貨日期 ︰</string>
-    <string name="gd_date">日期：</string>
-    <string name="gd_action">操作</string>
-    <string name="gd_amount">金額 ︰</string>
-    <string name="gd_pricing">定價 ︰</string>
-    <string name="gd_price">價格：</string>
-    <string name="gd_status">狀態:</string>
-    <string name="gd_fee">費用 ︰</string>
-    <string name="gd_total">總計</string>
-    <string name="gd_transaction_hash">交易哈希 ︰</string>
-    <string name="gd_subtotal">小計</string>
-    <string name="gd_transaction_receipt">交易收據</string>
-    <string name="gd_transaction_initiated">交易已經開始，詳細信息如下。</string>
-    <string name="gd_transaction_complete">交易已完畢，詳細信息如下。</string>
-    <string name="gd_transaction_reviewed">交易正在被審查，詳細信息如下。</string>
-    <string name="gd_transaction_error">處理此交易時出錯。請聯繫Glidera的客戶支持，support@glidera.io 。</string>
-    <string name="gd_resend_code">重新發送代碼</string>
-    <string name="gd_cancel">取消操作</string>
-    <string name="gd_continue">繼續</string>
-    <string name="gd_amount_to_buy">賣出數量</string>
-    <string name="gd_sell_bitcoin">出售比特幣</string>
-    <string name="gd_buy_bitcoin">買比特幣</string>
-    <string name="gd_rate">匯率</string>
-    <string name="gd_bitcoin">比特幣 ︰</string>
-    <string name="gd_summary">摘要</string>
-    <string name="gd_amount_to_sell">賣出數量</string>
-    <string name="gd_loading">載入中&#8230;</string>
-    <string name="gd_error_unable_to_connect">無法連接到 glidera-%s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%2$s中的%1$s</string>
     <string name="error_details">錯誤詳細資訊</string>
     <string name="warning_sync_failed_reusing_first">同步失敗 ！重用此 xpub #1地址 ！</string>
-    <string name="glidera_setting_show_button_summary">顯示 Glidera 的買入/賣出選項</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->

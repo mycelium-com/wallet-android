@@ -113,7 +113,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
     private fun createAccount(publicKey: PublicKey): WalletAccount<*, *>? {
         val result: WalletAccount<*, *>?
-        val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH))
+        val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
         backing.beginTransaction()
         try {
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)

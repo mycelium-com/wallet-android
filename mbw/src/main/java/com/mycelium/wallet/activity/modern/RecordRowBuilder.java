@@ -119,7 +119,7 @@ public class RecordRowBuilder {
         holder.tvAddress.setText(model.displayAddress);
         holder.tvAddress.setTextColor(textColor);
 
-        if (model.syncTotalRetrievedTransactions == 0) {
+        if (model.syncTotalRetrievedTransactions == 0 && !model.isSyncing) {
             holder.tvProgressLayout.setVisibility(View.GONE);
         } else {
             holder.tvProgressLayout.setVisibility(View.VISIBLE);

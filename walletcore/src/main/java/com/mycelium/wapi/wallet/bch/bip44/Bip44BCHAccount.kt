@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.bch.bip44
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
@@ -31,6 +32,7 @@ open class Bip44BCHAccount(
         keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
                            network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi,
                            private val spvBalanceFetcher: SpvBalanceFetcher) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+
     private var blockChainHeight = 0
     private var visible = false
 

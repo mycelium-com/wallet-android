@@ -578,6 +578,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             return _account.getTypicalEstimatedTransactionSize();
         }
     }
+
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted
     private Value getValueToSend() {
@@ -1122,8 +1123,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     case PRIVATE_KEY:
                         InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
-                        for (AddressType addressType : AddressType.values()) {
-                            receivingAddressesList.add((GenericAddress) publicKey.toAddress(_mbwManager.getNetwork(), addressType));
+                        for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+                            receivingAddressesList.add((GenericAddress) address);
                         }
                         setUpMultiAddressView();
                         break;

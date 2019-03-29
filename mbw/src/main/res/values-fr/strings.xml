@@ -748,42 +748,8 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
-    <string name="gd_buy_sell_description">Acheter/Vendre des bitcoins de Glidera en utilisant un compte en banque provenant des États Unis ou du Canada.</string>
-    <string name="gd_buy_tab">Acheter</string>
-    <string name="gd_sell_tab">Vendre</string>
-    <string name="gd_transaction_history_tab">Historique</string>
-    <string name="gd_delivery_date">Date de livraison :</string>
-    <string name="gd_date">Date :</string>
-    <string name="gd_action">Action :</string>
-    <string name="gd_amount">Montant :</string>
-    <string name="gd_pricing">Tarif :</string>
-    <string name="gd_price">Prix :</string>
-    <string name="gd_status">État :</string>
-    <string name="gd_fee">Frais :</string>
-    <string name="gd_total">Total :</string>
-    <string name="gd_transaction_hash">Hash de transaction :</string>
-    <string name="gd_subtotal">Sous-total :</string>
-    <string name="gd_transaction_receipt">Reçu de la transaction</string>
-    <string name="gd_transaction_initiated">La transaction a été lancée, les détails sont ci-dessous.</string>
-    <string name="gd_transaction_complete">La transaction est terminée, les détails sont ci-dessous.</string>
-    <string name="gd_transaction_reviewed">La transaction est en cours de révision, les détails sont ci-dessous.</string>
-    <string name="gd_transaction_error">Une erreur s’est produite lors du traitement de cette transaction.  Veuillez contacter le support de Glidera à support@glidera.io.</string>
-    <string name="gd_resend_code">Renvoyer le Code</string>
-    <string name="gd_cancel">Annuler</string>
-    <string name="gd_continue">Continuer</string>
-    <string name="gd_amount_to_buy">Montant à acheter</string>
-    <string name="gd_sell_bitcoin">Vendre BTC</string>
-    <string name="gd_buy_bitcoin">Acheter BTC</string>
-    <string name="gd_rate">Taux :</string>
-    <string name="gd_bitcoin">Bitcoin :</string>
-    <string name="gd_summary">Résumé</string>
-    <string name="gd_amount_to_sell">Montant à vendre</string>
-    <string name="gd_loading">Chargement&#8230;</string>
-    <string name="gd_error_unable_to_connect">Impossible de se connecter à Glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s pour %2$s</string>
     <string name="error_details">Détails de l’erreur</string>
     <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
-    <string name="glidera_setting_show_button_summary">Afficher l’option d’achat/vente de Glidera</string>
     <string name="tap_to_toggle_through_other_currencies">Appuyez pour alterner entre les autres monnaies</string>
     <!-- GlideraService End -->
     <string name="settings_service_enabled">Activez %1$s</string>
