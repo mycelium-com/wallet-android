@@ -4,25 +4,25 @@ import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
-import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
 
-public class BtcSendRequest extends SendRequest<BtcTransaction> implements Serializable {
+public class BtcSendRequest extends BitcoinBasedSendRequest<BtcTransaction> implements Serializable {
 
     private Value amount;
     private BtcAddress destination;
     private UnsignedTransaction unsignedTx;
 
-    public BtcSendRequest(CryptoCurrency type, BtcAddress destination, Value amount, Value feePerKb) {
+    private BtcSendRequest(CryptoCurrency type, BtcAddress destination, Value amount, Value feePerKb) {
         super(type, feePerKb);
 
         this.destination = destination;
         this.amount = amount;
     }
-
+    
     public static BtcSendRequest to(BtcAddress destination, Value amount, Value feePerkb) {
         return new BtcSendRequest(destination.getCoinType(), destination, amount, feePerkb);
     }
@@ -39,6 +39,7 @@ public class BtcSendRequest extends SendRequest<BtcTransaction> implements Seria
         this.unsignedTx = unsignedTx;
     }
 
+    @Override
     public UnsignedTransaction getUnsignedTx() {
         return unsignedTx;
     }
