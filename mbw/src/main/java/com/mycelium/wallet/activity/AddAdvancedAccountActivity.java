@@ -77,12 +77,14 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -445,8 +447,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       protected UUID doInBackground(Void... params) {
          UUID acc = null;
          //Check whether this address is already used in any account
-         for (AddressType addressType : AddressType.values()) {
-            Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+         for (Address addr : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
             address = AddressUtils.fromAddress(addr);
             Optional<UUID> accountId = _mbwManager.getAccountId(address);
             if (accountId.isPresent()) {
@@ -503,7 +504,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             final WalletAccount existingAccount = _mbwManager.getWalletManager(false).getAccount((UUID) accountId.get());
             if(!existingAccount.canSpend() && (existingAccount instanceof SingleAddressAccount || existingAccount instanceof PrivateColuAccount)) {
                // scanned the private key of a watch only single address account
-               String existingAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
+               final String existingAccountName =
+                       _mbwManager.getMetadataStorage().getLabelByAccount(existingAccount.getId());
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                        .setTitle(R.string.priv_key_of_watch_only_account)
                        .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
@@ -516,16 +518,31 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                           @Override
                           public void onClick(DialogInterface dialogInterface, int i) {
-                             if (existingAccount instanceof SingleAddressAccount) {
-                                _mbwManager.getWalletManager(false).createAccounts(new PrivateSingleConfig(key,
-                                        AesKeyCipher.defaultKeyCipher()));
+                              UUID accountId = existingAccount.getId();
+                              WalletManager walletManager = _mbwManager.getWalletManager(false);
+                              if (existingAccount instanceof SingleAddressAccount) {
+                                 // calculate list of possible account ids
+                                 List<UUID> possibleIds = new ArrayList<>();
+                                 for (AddressType addressType : AddressType.values()) {
+                                    Address addr = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+                                    possibleIds.add(SingleAddressAccount.calculateId(addr));
+                                 }
+                                 // delete related accounts and it's data
+                                 for (UUID id: possibleIds) {
+                                    if (walletManager.getAccount(id) != null) {
+                                       _mbwManager.getMetadataStorage().deleteAccountMetadata(id);
+                                       walletManager.getModuleById(BitcoinSingleAddressModule.ID)
+                                             .deleteAccount(walletManager.getAccount(id) , AesKeyCipher.defaultKeyCipher());
+                                    }
+                                 }
+                                 accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
+                                      AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
                              } else {
-                                WalletManager walletManager = _mbwManager.getWalletManager(false);
                                 walletManager.deleteAccount(existingAccount.getId());
                                 walletManager.deleteAccount(Utils.getLinkedAccount(existingAccount, walletManager.getAccounts()).getId());
                                 walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) existingAccount.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                              }
-                             finishOk(existingAccount.getId(), true);
+                             finishOk(accountId, true);
                           }
                        })
                        .create()

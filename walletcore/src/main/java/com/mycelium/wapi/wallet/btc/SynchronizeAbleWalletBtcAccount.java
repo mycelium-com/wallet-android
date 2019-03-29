@@ -13,8 +13,6 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +28,8 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    );
 
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
+
+   private boolean isSyncing;
 
    @Override
    public UUID getId(){
@@ -80,8 +80,9 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
     */
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
+         isSyncing = true;
          boolean synced = doSynchronization(mode);
-
+         isSyncing = false;
          // if sync went well, remember current time for this sync mode
          if (synced){
             _lastSync.put(mode.mode, new Date());
@@ -91,6 +92,11 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
       } else {
          return true;
       }
+   }
+
+   @Override
+   public boolean isSyncing() {
+      return isSyncing;
    }
 
    public boolean isVisible() {

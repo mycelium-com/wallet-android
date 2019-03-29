@@ -190,7 +190,7 @@ class WalletManager(val network: NetworkParameters,
 
 
     fun getArchivedAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { it.isArchived && it.canSpend() }
+        return accounts.values.filter { it.isArchived }
     }
 
     /**

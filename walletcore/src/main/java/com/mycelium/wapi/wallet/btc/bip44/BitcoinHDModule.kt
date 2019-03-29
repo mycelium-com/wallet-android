@@ -153,15 +153,6 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
             }
             val id = keyManagerMap[derivationTypes[0]]!!.accountId
 
-
-            // check if it already exists
-            val isUpgrade = false
-//            if (_walletAccounts.containsKey(id)) {
-//                isUpgrade = !_walletAccounts.get(id).canSpend() && cfg.hdKeyNodes[0].isPrivateHdKeyNode
-//                if (!isUpgrade) {
-//                    return id
-//                }
-//            }
             // Generate the context for the account
             val context: HDAccountContext
             if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
@@ -173,12 +164,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
             }
             backing.beginTransaction()
             try {
-
-                if (isUpgrade) {
-                    backing.upgradeBip44AccountContext(context)
-                } else {
-                    backing.createBip44AccountContext(context)
-                }
+                backing.createBip44AccountContext(context)
                 // Get the accountBacking for the new account
                 val accountBacking = backing.getBip44AccountBacking(context.id)
 

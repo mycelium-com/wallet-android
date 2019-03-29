@@ -13,6 +13,8 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
 
 class AddressFragmentModel(
@@ -26,6 +28,7 @@ class AddressFragmentModel(
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
     val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    var isCompressedKey: Boolean = true
 
     init {
         updateLabel()
@@ -44,6 +47,8 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
+        val acc = account
+        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
         accountLabel.value = when (account) {
             is Bip44BCHAccount,
             is SingleAddressBCHAccount ->

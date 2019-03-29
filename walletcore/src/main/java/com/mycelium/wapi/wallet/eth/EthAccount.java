@@ -145,6 +145,11 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     }
 
     @Override
+    public boolean isSyncing() {
+        return false;
+    }
+
+    @Override
     public boolean isArchived() {
         return false;
     }
