@@ -19,10 +19,4 @@ open class HDPubOnlyAccount(
     override fun canSpend(): Boolean {
         return false
     }
-
-    override fun isSyncing(): Boolean {
-        //TODO: implement later
-        return false
-    }
-
 }

@@ -67,11 +67,6 @@ open class Bip44BCHAccount(
         }
     }
 
-    override fun isSyncing(): Boolean {
-        //TODO: implement later
-        return false
-    }
-
     override fun getId(): UUID {
         return UUID.nameUUIDFromBytes(("BCH" + super.getId().toString()).toByteArray())
     }

@@ -270,11 +270,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   public boolean isSyncing() {
-      return false;
-   }
-
-   @Override
    public boolean isMine(Address address) {
       return _addressList.contains(address);
    }
@@ -455,8 +450,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
-      for (Address address : getPublicKey().getAllSupportedAddresses(_network).values()) {
-         _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
+      if (getPublicKey() == null) {
+         _keyStore.forgetPrivateKey(getAddress().getAllAddressBytes(), cipher);
+      } else {
+         for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
+            _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
+         }
       }
    }
 
