@@ -472,8 +472,8 @@ public class MbwManager {
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
-        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[wapiEndpoints.size()])),
-                tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]),
+        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]),
                 retainingWapiLogger, version);
     }
 
