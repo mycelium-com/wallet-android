@@ -44,6 +44,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
@@ -187,17 +189,27 @@ public class TransactionDetailsActivity extends Activity {
 
         // Set Outputs
         LinearLayout outputs = findViewById(R.id.llOutputs);
-        outputs.removeAllViews();
         LinearLayout change = findViewById(R.id.llChange);
-        if(_txs.getOutputs() != null) {
-            for (GenericTransaction.GenericOutput item : _txs.getOutputs()) {
-                if (account.isMineAddress(item.getAddress())) {
-                    change.addView(getItemView(item));
-                } else {
-                    outputs.addView(getItemView(item));
+        outputs.removeAllViews();
+        change.removeAllViews();
+        TableRow changeRow = findViewById(R.id.trChange);
+        changeRow.setVisibility(View.VISIBLE);
+
+        List<GenericTransaction.GenericOutput> outputList = _txs.getOutputs();
+        if (outputList != null) {
+            if (outputList.size() == 1) {
+               outputs.addView(getItemView(outputList.get(0)));
+               changeRow.setVisibility(View.GONE);
+            } else {
+                GenericTransaction.GenericOutput changeOutput = findChangeOutput(account, _txs, outputList);
+                change.addView(getItemView(changeOutput));
+                outputList.remove(changeOutput);
+                for (GenericTransaction.GenericOutput item : outputList) {
+                   outputs.addView(getItemView(item));
                 }
             }
         }
+
 
         // Set Fee
         final long txFeeTotal = _txs.getFee().getValue();
@@ -235,6 +247,24 @@ public class TransactionDetailsActivity extends Activity {
                 }
             }
         }
+    }
+
+    private GenericTransaction.GenericOutput findChangeOutput(WalletAccount account,
+                                                              GenericTransaction txs,
+                                                              List<GenericTransaction.GenericOutput> outputList) {
+        for (GenericTransaction.GenericOutput item : outputList) {
+            if (isChangeOutput(account, item, txs)) {
+               return item;
+            }
+        }
+        throw new IllegalStateException("If there is more than one outputs in the transaction, " +
+              "one of the them should be a change output");
+    }
+
+    private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,
+                                   GenericTransaction txs) {
+        return txs.isIncoming() && !account.isMineAddress(output.getAddress()) ||
+              !txs.isIncoming() && account.isMineAddress(output.getAddress());
     }
 
     private View getItemView(GenericTransaction.GenericOutput item) {
