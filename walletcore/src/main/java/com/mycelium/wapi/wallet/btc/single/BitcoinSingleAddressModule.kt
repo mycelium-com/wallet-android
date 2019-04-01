@@ -17,8 +17,10 @@ import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.colu.AddressColuConfig
 import com.mycelium.wapi.wallet.colu.ColuModule
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig
+import com.mycelium.wapi.wallet.colu.PublicColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -79,14 +81,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             result = createAccount(config.publicKey)
         } else if (config is PrivateSingleConfig) {
             result = createAccount(config.privateKey, config.cipher)
-            if (config is PrivateColuConfig) {
-                walletManager.getModuleById(ColuModule.ID)?.let {
-                    val coluOfType = it.getAccounts().filter { it.coinType == config.coinType }.count()
-                    baseLabel = if (config.coinType != null) config.coinType.symbol + " " +
-                            coluOfType + " Bitcoin" else baseLabel
-                }
-            }
-            baseLabel = if (config.label.isEmpty()) baseLabel else config.label
+            baseLabel = if (config.label.isNotEmpty()) config.label else baseLabel
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -104,11 +99,25 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
+            if (config is PrivateColuConfig || config is PublicColuConfig || config is AddressColuConfig) {
+                baseLabel = getLinkedAccountLabel(result, baseLabel)
+            }
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")
         }
         return result
+    }
+
+    private fun getLinkedAccountLabel(account: SingleAddressAccount, default: String): String? {
+        walletManager.getModuleById(ColuModule.ID)?.let {
+            for (walletAccount in it.getAccounts()) {
+                if (walletAccount.id != account.id && account.isMineAddress(walletAccount.receiveAddress)) {
+                    return walletAccount.label + " Bitcoin"
+                }
+            }
+        }
+        return default
     }
 
     private fun createAccount(publicKey: PublicKey): WalletAccount<*, *>? {
