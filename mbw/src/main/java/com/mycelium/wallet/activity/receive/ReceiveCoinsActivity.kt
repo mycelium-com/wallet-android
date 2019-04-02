@@ -10,6 +10,7 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.widget.PopupMenu
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
@@ -71,17 +72,17 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     private fun createAddressDropdown(addressTypes: MutableList<AddressType>) {
         val btcViewModel = (viewModel as ReceiveBtcViewModel)
 
-        val descriptionMap: Map<AddressType, String> = addressTypes.map {
-            it to resources.getString(when(it) {
-                AddressType.P2PKH -> R.string.receive_option_p2pkh
-                AddressType.P2WPKH -> R.string.receive_option_bech
-                AddressType.P2SH_P2WPKH -> R.string.receive_option_p2sh
-            })
+        val descriptionMap: Map<AddressType, Int> = addressTypes.map {
+            it to when(it) {
+                AddressType.P2PKH -> R.string.p2pkh
+                AddressType.P2WPKH -> R.string.bech
+                AddressType.P2SH_P2WPKH -> R.string.p2sh
+            }
         }.toMap()
 
         val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
         addressTypes.forEach {
-            addressTypesMenu.menu.add(descriptionMap[it])
+            addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, descriptionMap[it]!!)
         }
 
         addressDropdownLayout.setOnClickListener {
@@ -89,11 +90,10 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         }
 
         // setting initial text based on current address type
-        selectedAddressText.text = descriptionMap[btcViewModel.getAccountDefaultAddressType()]
+        selectedAddressText.text = getString(descriptionMap[btcViewModel.getAccountDefaultAddressType()]!!)
 
         addressTypesMenu.setOnMenuItemClickListener { item ->
-            val addressType = descriptionMap.filterValues { it == item.title }.keys.first()
-            btcViewModel.setAddressType(addressType)
+            btcViewModel.setAddressType(AddressType.values()[item.itemId])
             selectedAddressText.text = item.title
             false
         }

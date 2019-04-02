@@ -874,15 +874,10 @@
     <string name="private_key_s">Приватный ключ</string>
     <string name="warning">Внимание</string>
     <string name="address_type">Тип адреса</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Тип адреса для сдачи</string>
     <string name="segwit_change_mode_title">Сдача от транзакции</string>
     <string name="segwit_change_mode_description">Выберите способ получения сдачи от транзакции</string>
     <string name="bech32_receive_mode">SegWit native (Bech32)</string>
-    <string name="bech_next">Тап для Bech32</string>
-    <string name="p2sh_next">Тап для P2SH</string>
-    <string name="p2sh">SegWit compatible (P2SH)</string>
-    <string name="bech">SegWit native (Bech32)</string>
+    <string name="tap_next">Тап для %s</string>
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
 </resources>

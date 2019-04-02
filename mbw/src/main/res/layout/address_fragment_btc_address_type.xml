@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/green"
-            android:text="@{viewModel.accountAddress.type == AddressType.P2SH_P2WPKH ? @string/p2sh : @string/bech}"
+            android:text="@{viewModel.getAccountAddressType}"
             tools:showIn="@layout/address_fragment_btc" />
     </merge>
 </layout>

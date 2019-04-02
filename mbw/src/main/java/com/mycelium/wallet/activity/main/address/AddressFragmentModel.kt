@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
 import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
@@ -25,6 +26,7 @@ class AddressFragmentModel(
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     var isCompressedKey: Boolean = true
+    val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
     init {
         updateLabel()
@@ -55,8 +57,14 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount) {
-        if (account.receivingAddress.isPresent) {
-            accountAddress.value = account.receivingAddress.get()
+        account.receivingAddress.orNull()?.let { address ->
+            accountAddress.value = address
+            accountAddressType.value = context.getString(when (address.type) {
+                AddressType.P2PKH -> R.string.p2pkh
+                AddressType.P2SH_P2WPKH -> R.string.p2sh
+                AddressType.P2WPKH -> R.string.bech
+                null -> R.string.error
+            })
         }
     }
 
