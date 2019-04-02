@@ -76,8 +76,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
-                    prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes).apply()
-                    prefs.edit().putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes)).apply()
+                    prefs.edit()
+                            .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
+                            .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+                            .apply()
 
                     serverListChangedListener?.serverListChanged(getElectrumEndpoints())
                 }
