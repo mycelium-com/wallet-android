@@ -282,7 +282,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
-   private boolean _paymentFetched = false;
+    private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
     private FeeEstimationsGeneric feeEstimation;
