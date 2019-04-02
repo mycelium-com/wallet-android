@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "347858850803",
+    "firebase_url": "https://mycelium-media-flow.firebaseio.com",
+    "project_id": "mycelium-media-flow",
+    "storage_bucket": "mycelium-media-flow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347858850803:android:48ab5dd155749000",
+        "android_client_info": {
+          "package_name": "com.mycelium.testnetwallet.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqL3Ur6TE2nGxeTItMolGTrkKppdb50Ww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347858850803-2l5uk9cb3rhcibpkec4s3a4vpura02j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347858850803:android:493a730993b33262",
+        "android_client_info": {
+          "package_name": "com.mycelium.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqL3Ur6TE2nGxeTItMolGTrkKppdb50Ww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347858850803-2l5uk9cb3rhcibpkec4s3a4vpura02j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347858850803:android:9c120510ac806ebe",
+        "android_client_info": {
+          "package_name": "com.mycelium.wallet.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqL3Ur6TE2nGxeTItMolGTrkKppdb50Ww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347858850803-2l5uk9cb3rhcibpkec4s3a4vpura02j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
