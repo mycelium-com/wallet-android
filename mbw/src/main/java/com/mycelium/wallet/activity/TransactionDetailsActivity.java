@@ -263,6 +263,10 @@ public class TransactionDetailsActivity extends Activity {
 
     private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,
                                    GenericTransaction txs) {
+        // If we receive a transaction - txs.isIncoming() -
+        // an output of that tx that goes to foreign address is a change output.
+        // If we send a transaction - !txs.isIncoming() -
+        // an output of that tx that goes to our address is a change output.
         return txs.isIncoming() && !account.isMineAddress(output.getAddress()) ||
               !txs.isIncoming() && account.isMineAddress(output.getAddress());
     }
