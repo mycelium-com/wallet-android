@@ -275,7 +275,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private GenericAssetUri genericUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
-    protected UnsignedTransaction _unsigned;
     private SendRequest sendRequest;
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
@@ -768,9 +767,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (hasAddressData) {
                 sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
                 _account.completeTransaction(sendRequest);
-                if (sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
-                   _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
-                }
             } else {
                 return TransactionStatus.MissingArguments;
             }
@@ -1022,9 +1018,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (_unsigned == null) {
-            // Only show button for fee lvl, cannot calculate fee yet
-        } else {
+        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
+            // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
+            UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
 
