@@ -113,6 +113,7 @@ import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
@@ -130,6 +131,7 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -273,7 +275,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private GenericAssetUri genericUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
-    protected UnsignedTransaction _unsigned;
     private SendRequest sendRequest;
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
@@ -281,7 +282,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
-    private boolean _spendingUnconfirmed = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
@@ -971,8 +971,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
 
     void updateError() {
-        boolean tvErrorShow;
-        switch (_transactionStatus) {
+       boolean tvErrorShow;
+       boolean _spendingUnconfirmed = false;
+       switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
                 if (_account instanceof CoinapultAccount) {
@@ -1017,9 +1018,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (_unsigned == null) {
-            // Only show button for fee lvl, cannot calculate fee yet
-        } else {
+        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
+            // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
+            UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
             int inCount = _unsigned.getFundingOutputs().length;
             int outCount = _unsigned.getOutputs().length;
 
