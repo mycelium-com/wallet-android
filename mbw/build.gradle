@@ -241,7 +241,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-c.mycelium.com:19335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-aws-test.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\\\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/wapitestnet\\\'}]"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
