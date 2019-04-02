@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
+import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -29,12 +30,14 @@ interface  MyceliumNodesApi {
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse)
 
+const val ONION_DOMAIN = ".onion"
+
 // BTCNetResponse is intended for parsing nodes.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
-class ElectrumXResponse(val primary : Array<UrlResponse>, backup: Array<UrlResponse>)
+class ElectrumXResponse(val primary : Array<UrlResponse>)
 
 class UrlResponse(val url: String)
 
@@ -102,7 +105,13 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
         var resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
-        return resp.map { HttpsEndpoint(it.url, it.cert) }
+        return resp.map {
+            if (it.url.contains(ONION_DOMAIN)) {
+                TorHttpsEndpoint(it.url, it.cert)
+            } else {
+                HttpsEndpoint(it.url, it.cert)
+            }
+        }
     }
 
     private var serverListChangedListener: ServerListChangedListener? = null
