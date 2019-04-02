@@ -34,7 +34,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
     }
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcAddress): Value {
-        return Value.valueOf(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get(), accountBalance.spendable.value)
+        return accountBalance.spendable
     }
 
     override fun broadcastOutgoingTransactions(): Boolean {
