@@ -47,6 +47,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
 
+import java.util.Map;
+
 public class CreateKeyActivity extends Activity {
    private MbwManager manager;
    private InMemoryPrivateKey key;
@@ -95,10 +97,10 @@ public class CreateKeyActivity extends Activity {
          @Override
          protected void onPostExecute(InMemoryPrivateKey pk) {
             key = pk;
-            Address addressP2SH = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2SH_P2WPKH);
-            Address addressBech = key.getPublicKey().toAddress(manager.getNetwork(), AddressType.P2WPKH);
-            ((AddressLabel) findViewById(R.id.tvAddressP2SH)).setAddress(addressP2SH);
-            ((AddressLabel) findViewById(R.id.tvAddressBech)).setAddress(addressBech);
+            Map<AddressType, Address> addresses = key.getPublicKey().getAllSupportedAddresses(manager.getNetwork());
+            ((AddressLabel) findViewById(R.id.tvAddressP2PKH)).setAddress(addresses.get(AddressType.P2PKH));
+            ((AddressLabel) findViewById(R.id.tvAddressP2SH)).setAddress(addresses.get(AddressType.P2SH_P2WPKH));
+            ((AddressLabel) findViewById(R.id.tvAddressBech)).setAddress(addresses.get(AddressType.P2WPKH));
             findViewById(R.id.btShuffle).setEnabled(true);
             findViewById(R.id.btUse).setEnabled(true);
          }

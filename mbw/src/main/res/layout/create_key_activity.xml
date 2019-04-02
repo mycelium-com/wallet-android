@@ -37,6 +37,13 @@
             android:orientation="vertical">
 
             <com.mycelium.wallet.activity.util.AddressLabel
+                android:id="@+id/tvAddressP2PKH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:typeface="monospace" />
+
+            <com.mycelium.wallet.activity.util.AddressLabel
                 android:id="@+id/tvAddressP2SH"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
