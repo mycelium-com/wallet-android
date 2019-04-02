@@ -334,7 +334,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
     }
 
-    @SuppressLint("ShowToast")
+    @SuppressLint({"ShowToast", "StaticFieldLeak"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO: profile. slow!
@@ -364,7 +364,22 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
-        feeEstimation = _account.getFeeEstimations();
+        feeEstimation = _account.getDefaultFeeEstimation();
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                feeEstimation = _account.getFeeEstimations();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                updateUi();
+            }
+
+        }.execute(null, null, null);
+
         selectedFee = getCurrentFeeEstimation();
 
         showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
