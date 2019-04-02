@@ -54,7 +54,7 @@ public class SpinnerImportTest {
       // Bitcoin Spinner was using uncompressed keys. No SegWit here.
       assertFalse(pubKey.isCompressed());
       Collection<Address> addressList = pubKey.getAllSupportedAddresses(NetworkParameters.productionNetwork).values();
-      assertEquals(1, addressList.size());
+      assertEquals(2, addressList.size());
       assertTrue(addressList.contains(Address.fromString("1Ea3kC4swu6v6rnaEe1BDDkek85286YAiL")));
    }
 }
