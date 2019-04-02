@@ -372,6 +372,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 feeEstimation = _account.getFeeEstimations();
                 return null;
             }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                updateUi();
+            }
+
         }.execute(null, null, null);
 
         selectedFee = getCurrentFeeEstimation();
