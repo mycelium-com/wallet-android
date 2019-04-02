@@ -217,8 +217,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
-                WapiServers='"[{\'cert-sha1\':\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\',\'url\':\'https://wapi.mycelium.com/wapi\'}]"'
+                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "cp-tls://electrumx-aws-c.mycelium.com:9335"}'
+                WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/wapi\\\'}]"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -241,8 +241,8 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-b.mycelium.com:4432"}'
-                WapiServers='"[{\'cert-sha1\':\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\',\'url\':\'https://wapi.mycelium.com/wapitestnet\'}]"'
+                ElectrumServers = '{"tcp-tls://electrumx-c.mycelium.com:19335"}'
+                WapiServers='"[{\\\'cert-sha1\\\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/wapitestnet\\\'}]"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]

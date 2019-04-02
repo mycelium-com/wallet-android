@@ -88,7 +88,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     // Returns the set of Wapi servers
     val wapiServers: String
-        get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers.replace("'","\""))!!
+        get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
