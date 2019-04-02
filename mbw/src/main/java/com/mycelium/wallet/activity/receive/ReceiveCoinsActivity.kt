@@ -62,43 +62,38 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         initDatabinding(account)
 
-        val addressDropdownRequired = viewModel is ReceiveBtcViewModel &&
-               (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1
-
-        if (addressDropdownRequired)
-            createAddressDropdown()
+        if (viewModel is ReceiveBtcViewModel &&
+               (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1) {
+            createAddressDropdown((account as? AbstractAccount)?.availableAddressTypes!!)
+        }
     }
 
-    private fun createAddressDropdown() {
+    private fun createAddressDropdown(addressTypes: MutableList<AddressType>) {
         val btcViewModel = (viewModel as ReceiveBtcViewModel)
 
-        val p2pkh = resources.getString(R.string.receive_option_p2pkh)
-        val p2sh = resources.getString(R.string.receive_option_p2sh)
-        val bech = resources.getString(R.string.receive_option_bech)
+        val descriptionMap: Map<AddressType, String> = addressTypes.map {
+            it to resources.getString(when(it) {
+                AddressType.P2PKH -> R.string.receive_option_p2pkh
+                AddressType.P2WPKH -> R.string.receive_option_bech
+                AddressType.P2SH_P2WPKH -> R.string.receive_option_p2sh
+            })
+        }.toMap()
 
         val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
-        addressTypesMenu.menu.add(p2pkh)
-        addressTypesMenu.menu.add(p2sh)
-        addressTypesMenu.menu.add(bech)
+        addressTypes.forEach {
+            addressTypesMenu.menu.add(descriptionMap[it])
+        }
 
         addressDropdownLayout.setOnClickListener {
             addressTypesMenu.show()
         }
 
         // setting initial text based on current address type
-        when (btcViewModel.getAccountDefaultAddressType()) {
-            AddressType.P2PKH -> selectedAddressText.text = p2pkh
-            AddressType.P2SH_P2WPKH -> selectedAddressText.text = p2sh
-            AddressType.P2WPKH -> selectedAddressText.text = bech
-        }
+        selectedAddressText.text = descriptionMap[btcViewModel.getAccountDefaultAddressType()]
 
         addressTypesMenu.setOnMenuItemClickListener { item ->
-            when (item.title){
-                p2pkh -> btcViewModel.setAddressType(AddressType.P2PKH)
-                p2sh -> btcViewModel.setAddressType(AddressType.P2SH_P2WPKH)
-                bech -> btcViewModel.setAddressType(AddressType.P2WPKH)
-            }
-
+            val addressType = descriptionMap.filterValues { it == item.title }.keys.first()
+            btcViewModel.setAddressType(addressType)
             selectedAddressText.text = item.title
             false
         }
