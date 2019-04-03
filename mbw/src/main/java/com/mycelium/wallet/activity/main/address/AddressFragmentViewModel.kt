@@ -27,6 +27,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAddressPath() = model.addressPath
     fun isCompressedKey() = model.isCompressedKey
     fun getType() = model.type
+    fun getAccountAddressType() = model.accountAddressType
 
     fun getDrawableForAccount(resources: Resources): Drawable? =
             Utils.getDrawableForAccount(model.account, true, resources)

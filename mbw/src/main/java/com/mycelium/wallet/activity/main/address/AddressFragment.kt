@@ -28,9 +28,9 @@ class AddressFragment : Fragment() {
         val viewModelProvider = ViewModelProviders.of(this)
         val account = mbwManager.selectedAccount
         this.viewModel = viewModelProvider.get(when (account) {
-            is SingleAddressBCHAccount,
-            is Bip44BCHAccount -> AddressFragmentCoinsModel::class.java
+            is SingleAddressBCHAccount, is Bip44BCHAccount -> AddressFragmentCoinsModel::class.java
             is AbstractBtcAccount -> {
+                // HACK:
                 if (account.availableAddressTypes.size > 1) {
                     AddressFragmentBtcModel::class.java
                 } else {
