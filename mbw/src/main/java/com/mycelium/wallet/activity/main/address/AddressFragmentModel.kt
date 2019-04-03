@@ -13,7 +13,6 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
 
@@ -29,6 +28,7 @@ class AddressFragmentModel(
     val type: MutableLiveData<AddressType> = MutableLiveData()
     val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
     var isCompressedKey: Boolean = true
+    val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
     init {
         updateLabel()
@@ -58,9 +58,17 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {
-        if(account is WalletBtcAccount && account.receivingAddress.isPresent) {
-            bip32Path.value = account.receivingAddress.get().bip32Path
-            type.value = account.receivingAddress.get().type
+        if (account is WalletBtcAccount) {
+            account.receivingAddress.orNull()?.let { address ->
+                bip32Path.value = address.bip32Path
+                type.value = address.type
+                accountAddressType.value = context.getString(when (address.type) {
+                    AddressType.P2PKH -> R.string.p2pkh
+                    AddressType.P2SH_P2WPKH -> R.string.p2sh
+                    AddressType.P2WPKH -> R.string.bech
+                    null -> R.string.error
+                })
+            }
         }
         accountAddress.value = account.receiveAddress
     }

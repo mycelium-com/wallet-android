@@ -20,16 +20,12 @@ class PublicKeyTest {
     }
 
     @Test
-    fun uncompressedYieldsOnlyP2PKH() {
+    fun uncompressedYieldsP2PKHandP2SH_P2WPKH() {
         assertFalse(pk.Q.isCompressed)
         val allAddresses = pk.getAllSupportedAddresses(NetworkParameters.testNetwork)
         assertNotNull("We should get a p2pkh address ... ", allAddresses[AddressType.P2PKH])
-        assertEquals("and only a p2pkh address.", 1, allAddresses.size)
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun P2SH_P2WPKHFromUncompressedYieldsNull() {
-        assertNull(pk.toAddress(NetworkParameters.testNetwork, AddressType.P2SH_P2WPKH))
+        assertNotNull("We should get a p2sh_p2wpkh address ... ", allAddresses[AddressType.P2SH_P2WPKH])
+        assertEquals("and only those two addresses.", 2, allAddresses.size)
     }
 
     @Test(expected = IllegalStateException::class)
