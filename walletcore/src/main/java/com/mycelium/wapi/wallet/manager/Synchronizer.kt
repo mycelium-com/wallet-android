@@ -1,7 +1,5 @@
 package com.mycelium.wapi.wallet.manager
 
-import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
@@ -14,7 +12,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
         walletManager.walletListener?.syncStarted()
 
         try {
-            synchronized(walletManager.getActiveAccounts()) {
+            synchronized(walletManager.getAllActiveAccounts()) {
                 if (walletManager.isNetworkConnected) {
 
                     // If we have any lingering outgoing transactions broadcast them now
@@ -38,7 +36,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
 
     private fun broadcastOutgoingTransactions(): Boolean {
         for (account in accounts) {
-            if (account!!.isArchived()) {
+            if (account!!.isArchived) {
                 continue
             }
             if (!account.broadcastOutgoingTransactions()) {
