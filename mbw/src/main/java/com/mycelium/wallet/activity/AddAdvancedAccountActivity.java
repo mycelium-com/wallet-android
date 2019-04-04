@@ -492,6 +492,7 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
                           public void onClick(DialogInterface dialogInterface, int i) {
                              try {
                                 if(existingAccount instanceof SingleAddressAccount) {
+                                   _mbwManager.getWalletManager(false).deleteUnrelatedAccount(existingAccount.getId(), AesKeyCipher.defaultKeyCipher());
                                    _mbwManager.getWalletManager(false).createSingleAddressAccount(key,
                                            AesKeyCipher.defaultKeyCipher());
                                 } else {
