@@ -35,9 +35,7 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
-import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
 
 import java.util.List;
 import java.util.UUID;

@@ -2,8 +2,6 @@ package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
@@ -110,7 +108,7 @@ class WalletManager(val network: NetworkParameters,
      * @param accounts - list of any accounts
      * @return only active accounts
      */
-    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { !it.isArchived }
+    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { it.isActive }
 
     @JvmOverloads
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*, *>> = listOf()) {
