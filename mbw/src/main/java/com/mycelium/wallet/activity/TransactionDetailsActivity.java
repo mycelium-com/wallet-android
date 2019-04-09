@@ -257,8 +257,7 @@ public class TransactionDetailsActivity extends Activity {
                return item;
             }
         }
-        throw new IllegalStateException("If there is more than one outputs in the transaction, " +
-              "one of the them should be a change output");
+        return outputList.get(0);
     }
 
     private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,

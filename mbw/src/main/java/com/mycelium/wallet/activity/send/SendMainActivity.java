@@ -1036,34 +1036,36 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
             // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
             UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
-            int inCount = _unsigned.getFundingOutputs().length;
-            int outCount = _unsigned.getOutputs().length;
+            if (_unsigned != null) {
+                int inCount = _unsigned.getFundingOutputs().length;
+                int outCount = _unsigned.getOutputs().length;
 
-            FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
-                    .setArrayOfOutputs(_unsigned.getOutputs())
-                    .createFeeEstimator();
-            int size = feeEstimator.estimateTransactionSize();
+                FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
+                        .setArrayOfOutputs(_unsigned.getOutputs())
+                        .createFeeEstimator();
+                int size = feeEstimator.estimateTransactionSize();
 
-            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
+                tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
-            long fee = _unsigned.calculateFee();
-            if (fee != size * selectedFee.value / 1000) {
-                Value value = Value.valueOf(_account.getCoinType(), fee);
-                Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
-                fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
-                feeWarning = getString(R.string.fee_change_warning
-                        , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
-                        , fiat);
-                tvFeeWarning.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new AlertDialog.Builder(SendMainActivity.this)
-                                .setMessage(R.string.fee_change_description)
-                                .setPositiveButton(R.string.button_ok, null).create()
-                                .show();
-                    }
-                });
+                long fee = _unsigned.calculateFee();
+                if (fee != size * selectedFee.value / 1000) {
+                    Value value = Value.valueOf(_account.getCoinType(), fee);
+                    Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
+                    String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
+                    fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
+                    feeWarning = getString(R.string.fee_change_warning
+                            , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
+                            , fiat);
+                    tvFeeWarning.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            new AlertDialog.Builder(SendMainActivity.this)
+                                    .setMessage(R.string.fee_change_description)
+                                    .setPositiveButton(R.string.button_ok, null).create()
+                                    .show();
+                        }
+                    });
+                }
             }
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
@@ -1228,7 +1230,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
                     }
                 } else {
-                    activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
+                    activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
                 }
             }
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
