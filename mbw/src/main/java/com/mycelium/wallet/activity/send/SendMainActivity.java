@@ -717,47 +717,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     return;
                 }
             }
-            sendTransaction();
+            signTransaction();
         }
     };
-
-    private void sendTransaction() {
-        progress = new ProgressDialog(SendMainActivity.this);
-        progress.setCancelable(false);
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setMessage(getString(R.string.sending_assets, _account.getCoinType().getSymbol()));
-        progress.show();
-        disableButtons();
-
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
-                    _account.broadcastTx(sendRequest.tx);
-                    return true;
-                } catch (GenericTransactionBroadcastException |
-                        KeyCipher.InvalidKeyCipher e) {
-                    Log.e(TAG, "", e);
-                }
-                return false;
-            }
-
-            @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                super.onPostExecute(aBoolean);
-                progress.dismiss();
-                if (aBoolean) {
-                    _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
-                    Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
-                    SendMainActivity.this.finish();
-                } else {
-                    Toast.makeText(SendMainActivity.this, getString(R.string.asset_failed_to_broadcast, _account.getCoinType().getSymbol()), Toast.LENGTH_SHORT).show();
-                    updateUi();
-                }
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
 
     @OnClick(R.id.tvUnconfirmedWarning)
     void onClickUnconfirmedWarning() {
