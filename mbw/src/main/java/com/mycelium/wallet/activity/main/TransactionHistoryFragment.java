@@ -70,7 +70,6 @@ import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.DataExport;
@@ -82,6 +81,7 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AddressBookChanged;
@@ -93,12 +93,16 @@ import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.squareup.otto.Subscribe;
@@ -121,7 +125,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TransactionHistoryFragment extends Fragment {
    private static final int SIGN_TRANSACTION_REQUEST_CODE = 0x12f4;
-   private static final int BROADCAST_REQUEST_CODE = SIGN_TRANSACTION_REQUEST_CODE + 1;
    private MbwManager _mbwManager;
    private MetadataStorage _storage;
    private View _root;
@@ -217,9 +220,12 @@ public class TransactionHistoryFragment extends Fragment {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            Transaction transaction = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
-            // TODO: 9/19/18 Nuru commented this
-//            BroadcastTransactionActivity.create(getActivity(), _mbwManager.getSelectedAccount().getId(), false, transaction, "CPFP", null, BROADCAST_REQUEST_CODE);
+            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+
+             _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), "CPFP");
+
+             BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), false, signedSendRequest.tx);
+             broadcastDialog.show(getFragmentManager(), "ActivityResultDialog");
          }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
@@ -547,10 +553,6 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
                                          broadcastDialog.show(getFragmentManager(), "broadcast");
-//                                         boolean success = BroadcastTransactionActivity.create(getActivity(), , );
-//                                         if (!success) {
-//                                            Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.message_rebroadcast_failed));
-//                                         }
                                          dialog.dismiss();
                                       }
                                    })
@@ -563,7 +565,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
-                           long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
+                           final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
                            final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
                            if(unsigned != null) {
                               long txFee = unsigned.calculateFee();
@@ -581,12 +583,15 @@ public class TransactionHistoryFragment extends Fragment {
                                          public void onClick(DialogInterface dialog, int which) {
                                             // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
                                             if(unsigned != null) {
-                                               // TODO: 9/19/18 Nuru commented this
-//                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-//                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                                            }
-                                            else
-                                            {
+                                                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+                                                BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).getChangeAddress()),
+                                                        new Value(cryptoCurrency, 0), new Value(cryptoCurrency, fee));
+                                                sendRequest.setUnsignedTx(unsigned);
+
+                                                Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest,
+                                                        new Value(cryptoCurrency, 0), _mbwManager.getSelectedAccount().getDummyAddress());
+                                                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                                            } else {
                                                 new Toaster(getActivity()).toast("Bumping fee failed", false);
                                             }
                                             dialog.dismiss();
