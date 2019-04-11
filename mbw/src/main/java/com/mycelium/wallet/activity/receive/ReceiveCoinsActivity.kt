@@ -65,7 +65,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         if (viewModel is ReceiveBtcViewModel &&
                (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            createAddressDropdown((account as? AbstractAccount)?.availableAddressTypes!!)
+            val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
+                (account as AbstractAccount).availableAddressTypes
+            } else {
+                mutableListOf(AddressType.P2PKH)
+            }
+            createAddressDropdown(addressTypes)
         }
     }
 
@@ -126,12 +131,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
     }
 
-    private fun getDefaultBinding(): ReceiveCoinsActivityBinding {
-        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
-        contentView.viewModel = viewModel
-        contentView.activity = this
-        return contentView
-    }
+    private fun getDefaultBinding(): ReceiveCoinsActivityBinding =
+            DataBindingUtil
+                    .setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
+                    .also {
+                        it.viewModel = viewModel
+                        it.activity = this
+                    }
 
     private fun activateNfc() {
         val nfc = viewModel.getNfc()

@@ -220,7 +220,7 @@ public class WalletManager {
             _backing.beginTransaction();
             try {
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address),
-                        false, 0);
+                        false, 0, address.getType());
                 _backing.createSingleAddressAccountContext(context);
                 BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));

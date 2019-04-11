@@ -75,7 +75,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       try {
          InMemoryPrivateKey privateKey = getPrivateKey(AesKeyCipher.defaultKeyCipher());
          if (privateKey != null) {
-            Map<AddressType, Address> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network);
+            Map<AddressType, Address> allPossibleAddresses = privateKey.getPublicKey().getAllSupportedAddresses(_network, true);
             if (allPossibleAddresses.size() != _context.getAddresses().size()) {
                for (Address address : allPossibleAddresses.values()) {
                   if (!address.equals(_context.getAddresses().get(address.getType()))) {
@@ -149,7 +149,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _isSynchronizing = true;
       syncTotalRetrievedTransactions = 0;
       try {
-
          if (synchronizeUnspentOutputs(_addressList) == -1) {
             return false;
          }
@@ -175,7 +174,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          _isSynchronizing = false;
          syncTotalRetrievedTransactions = 0;
       }
-
    }
 
    @Override
@@ -453,8 +451,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
     * @return default address
     */
    public Address getAddress() {
-      if (getAddress(_context.getDefaultAddressType()) != null) {
-         return getAddress(_context.getDefaultAddressType());
+      Address defaultAddress = getAddress(_context.getDefaultAddressType());
+      if (defaultAddress != null) {
+         return defaultAddress;
       } else {
          return _context.getAddresses().values().iterator().next();
       }

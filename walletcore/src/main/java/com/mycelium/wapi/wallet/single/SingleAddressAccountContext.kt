@@ -24,12 +24,12 @@ import java.util.*
 /**
  * The abstract context of an account
  */
-class SingleAddressAccountContext @JvmOverloads constructor(
+class SingleAddressAccountContext constructor(
         val id: UUID,
         var addresses: Map<AddressType, Address>,
         private var isArchived: Boolean,
         private var blockHeight: Int,
-        defaultAddressType: AddressType = AddressType.P2SH_P2WPKH
+        defaultAddressType: AddressType
 ) {
     private var isDirty = false
     var defaultAddressType = defaultAddressType
