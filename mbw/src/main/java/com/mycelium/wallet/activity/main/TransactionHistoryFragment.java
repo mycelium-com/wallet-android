@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.main;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -94,7 +95,9 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionSummary;
 import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -105,6 +108,7 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -555,37 +559,14 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
-                           long fee = MinerFee.PRIORITY.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
-                           final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.txid, fee);
-                           if(unsigned != null) {
-                              long txFee = unsigned.calculateFee();
-                              ExactBitcoinValue txFeeBitcoinValue = ExactBitcoinValue.from(txFee);
-                              String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
-                              CurrencyValue txFeeCurrencyValue = CurrencyValue.fromValue(txFeeBitcoinValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
-                              if(!CurrencyValue.isNullOrZero(txFeeCurrencyValue)) {
-                                 txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
-                              }
-                              new AlertDialog.Builder(getActivity())
-                                      .setTitle(_context.getString(R.string.bump_fee_title))
-                                      .setMessage(_context.getString(R.string.description_bump_fee, fee / 1000, txFeeString))
-                                      .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                         @Override
-                                         public void onClick(DialogInterface dialog, int which) {
-                                            // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
-                                            if(unsigned != null) {
-                                               Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
-                                               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                                            }
-                                            else
-                                            {
-                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
-                                            }
-                                            dialog.dismiss();
-                                         }
-                                      })
-                                      .setNegativeButton(R.string.no, null)
-                                      .create().show();
-                           }
+                           AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.bump_fee_title))
+                                   .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
+                                   .setPositiveButton(R.string.yes, null)
+                                   .setNegativeButton(R.string.no, null).create();
+
+                           alertDialog.show();
+                           new UpdateParentTask(record.txid, alertDialog, _context).execute();
                            break;
                         case R.id.miShare:
                            new AlertDialog.Builder(getActivity())
@@ -633,6 +614,73 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
+   /**
+    * Async task to perform fetching parent transactions of current transaction from server
+    */
+   @SuppressLint("StaticFieldLeak")
+   private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+      private final Sha256Hash txid;
+      private final AlertDialog alertDialog;
+      private final Context context;
+
+      UpdateParentTask(Sha256Hash txid, AlertDialog alertDialog, Context context) {
+         this.txid = txid;
+         this.alertDialog = alertDialog;
+         this.context = context;
+      }
+
+      @Override
+      protected Boolean doInBackground(Void... voids) {
+         if (_mbwManager.getSelectedAccount() instanceof AbstractAccount) {
+            AbstractAccount selectedAccount = (AbstractAccount) _mbwManager.getSelectedAccount();
+            TransactionEx transactionEx = selectedAccount.getTransaction(txid);
+            Transaction transaction = TransactionEx.toTransaction(transactionEx);
+            try {
+               selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
+            } catch (WapiException e) {
+               _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               return false;
+            }
+         }
+         return true;
+      }
+
+      @Override
+      protected void onPostExecute(Boolean isResultOk) {
+         super.onPostExecute(isResultOk);
+         if (isResultOk) {
+            long fee = MinerFee.PRIORITY.getFeePerKb(_mbwManager.getWalletManager(false).getLastFeeEstimations()).getLongValue();
+            final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
+            if (unsigned != null) {
+               long txFee = unsigned.calculateFee();
+               ExactBitcoinValue txFeeBitcoinValue = ExactBitcoinValue.from(txFee);
+               String txFeeString = Utils.getFormattedValueWithUnit(txFeeBitcoinValue, _mbwManager.getBitcoinDenomination());
+               CurrencyValue txFeeCurrencyValue = CurrencyValue.fromValue(txFeeBitcoinValue, _mbwManager.getFiatCurrency(), _mbwManager.getExchangeRateManager());
+               if (!CurrencyValue.isNullOrZero(txFeeCurrencyValue)) {
+                  txFeeString += " (" + Utils.getFormattedValueWithUnit(txFeeCurrencyValue, _mbwManager.getBitcoinDenomination()) + ")";
+               }
+               alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
+               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialog, int which) {
+                     // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
+                     if (unsigned != null) {
+                        Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsigned);
+                        startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                     } else {
+                        new Toaster(getActivity()).toast("Bumping fee failed", false);
+                     }
+                     dialog.dismiss();
+                  }
+               });
+            } else {
+               alertDialog.dismiss();
+            }
+         } else {
+            alertDialog.dismiss();
+         }
+      }
+   }
    /**
     * This method determins the parent's size and fee and builds a transaction that spends from its outputs but with a fee that lifts the parent and the child to high priority.
     * TODO: consider upstream chains of unconfirmed
