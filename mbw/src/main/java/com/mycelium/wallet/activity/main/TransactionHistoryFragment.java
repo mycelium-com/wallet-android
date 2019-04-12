@@ -565,8 +565,17 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, null)
                                    .setNegativeButton(R.string.no, null).create();
 
+                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(record.txid, alertDialog, _context);
+                           alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                              @Override
+                              public void onDismiss(DialogInterface dialog) {
+                                 updateParentTask.cancel(true);
+                              }
+                           });
+
                            alertDialog.show();
-                           new UpdateParentTask(record.txid, alertDialog, _context).execute();
+                           alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                           updateParentTask.execute();
                            break;
                         case R.id.miShare:
                            new AlertDialog.Builder(getActivity())
@@ -662,6 +671,7 @@ public class TransactionHistoryFragment extends Fragment {
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
                   @Override
+                  @SuppressWarnings("all")
                   public void onClick(DialogInterface dialog, int which) {
                      // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
                      if (unsigned != null) {
@@ -673,6 +683,7 @@ public class TransactionHistoryFragment extends Fragment {
                      dialog.dismiss();
                   }
                });
+               alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
             } else {
                alertDialog.dismiss();
             }
