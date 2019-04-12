@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.google.api.client.util.ArrayMap;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -274,6 +273,9 @@ public class WalletManager {
             try {
                 BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 AddressType defaultAddressType = btcSettings.getDefaultAddressType();
+                if (!publicKey.isCompressed()) {
+                    defaultAddressType = AddressType.P2PKH;
+                }
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id,
                         publicKey.getAllSupportedAddresses(_network), false, 0, defaultAddressType);
                 _backing.createSingleAddressAccountContext(context);
