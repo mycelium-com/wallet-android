@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -139,6 +140,25 @@ class BroadcastDialog : DialogFragment() {
                         .show()
 
             }
+            BroadcastResultType.REJECT_MALFORMED -> {
+                // Transaction rejected, display message and exit
+                Utils.setClipboardString(HexUtils.toHex(transaction.hashBytes), context)
+                Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_malformed) {
+                    returnResult(broadcastResult)
+                }
+            }
+            BroadcastResultType.REJECT_NONSTANDARD -> {
+                // Transaction rejected, display message and exit
+                val message = String.format(getString(R.string.transaction_not_sent_nonstandard), broadcastResult.errorMessage)
+                Utils.setClipboardString(HexUtils.toHex(transaction.hashBytes), context)
+                Utils.showSimpleMessageDialog(activity, message) {
+                    returnResult(broadcastResult)
+                }
+            }
+            BroadcastResultType.REJECT_INSUFFICIENT_FEE -> // Transaction rejected, display message and exit
+                Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent_small_fee) {
+                    returnResult(broadcastResult)
+                }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
                 Toast.makeText(activity, resources.getString(R.string.transaction_sent),
