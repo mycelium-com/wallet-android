@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.colu.AddressColuConfig
@@ -35,7 +36,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal var _wapi: Wapi,
                                  internal var walletManager: WalletManager,
                                  internal val metaDataStorage: IMetaDataStorage,
-                                 internal val loadingProgressUpdater: LoadingProgressUpdater?) : GenericModule(metaDataStorage), WalletModule {
+                                 internal val loadingProgressUpdater: LoadingProgressUpdater?,
+                                 internal val eventHandler: AbstractBtcAccount.EventHandler) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -62,6 +64,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+            account.setEventHandler(eventHandler)
             result[account.id] = account
         }
         return result
@@ -99,6 +102,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
+            result.setEventHandler(eventHandler)
             if (config is PrivateColuConfig || config is PublicColuConfig || config is AddressColuConfig) {
                 baseLabel = getLinkedAccountLabel(result, baseLabel)
             }

@@ -35,7 +35,9 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                       internal var settings: BTCSettings,
                       internal val metadataStorage: IMetaDataStorage,
                       internal val signatureProviders: ExternalSignatureProviderProxy?,
-                      internal val loadingProgressUpdater: LoadingProgressUpdater?) : GenericModule(metadataStorage), WalletModule {
+                      internal val loadingProgressUpdater: LoadingProgressUpdater?,
+                      internal val eventHandler: AbstractBtcAccount.EventHandler) :
+        GenericModule(metadataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -84,6 +86,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
             }
             result[account.id] = account
             accounts[account.id] = account as HDAccount
+            account.setEventHandler(eventHandler)
             LoadingProgressTracker.clearLastFullUpdateTime()
 
             if (loadingProgressUpdater.status is LoadingProgressStatus.Migrating || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD) {
@@ -262,6 +265,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
             throw IllegalStateException("Account can't be created")
         }
         accounts[result.id] = result as HDAccount
+        result.setEventHandler(eventHandler)
 
         result.label = createLabel(config, result.id)
         return result
