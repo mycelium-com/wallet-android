@@ -1,8 +1,12 @@
 package com.mycelium.wallet
 
 import android.content.SharedPreferences
+import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.net.HttpEndpoint
+import com.mycelium.net.HttpsEndpoint
+import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -26,17 +30,24 @@ interface  MyceliumNodesApi {
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse)
 
+const val ONION_DOMAIN = ".onion"
+
 // BTCNetResponse is intended for parsing nodes.json file
-class BTCNetResponse(val electrumx: ElectrumXResponse)
+class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
-// ElectrumXResponse is intended for parsing nodes.json file
-class ElectrumXResponse(val primary : Array<ElectrumServerResponse>, backup: Array<ElectrumServerResponse>)
+class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
-// ElectrumServerResponse is intended for parsing nodes.json file
-class ElectrumServerResponse(val url: String)
+class ElectrumXResponse(val primary : Array<UrlResponse>)
+
+class UrlResponse(val url: String)
+
+class HttpsUrlResponse(val url: String, @SerializedName("cert-sha1") val cert: String)
 
 class WalletConfiguration(private val prefs: SharedPreferences,
                           val network : NetworkParameters) {
+
+    val gson = GsonBuilder().create()
+
     init {
         updateConfig()
     }
@@ -55,11 +66,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
-                    val nodes = if (network.isTestnet())
+                    val electrumXnodes = if (network.isTestnet())
                         myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
                     else
                         myceliumNodesResponse?.btcMainnet?.electrumx?.primary?.map { it.url }?.toSet()
-                    prefs.edit().putStringSet(PREFS_ELECTRUM_SERVERS, nodes).apply()
+
+                    val wapiNodes = if (network.isTestnet())
+                        myceliumNodesResponse?.btcTestnet?.wapi?.primary
+                    else
+                        myceliumNodesResponse?.btcMainnet?.wapi?.primary
+
+                    prefs.edit()
+                            .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
+                            .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+                            .apply()
+
                     serverListChangedListener?.serverListChanged(getElectrumEndpoints())
                 }
             } catch (_: Exception) {}
@@ -69,6 +90,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     // Returns the set of electrum servers
     val electrumServers: Set<String>
         get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
+
+    // Returns the set of Wapi servers
+    val wapiServers: String
+        get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
@@ -80,6 +105,17 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         return result
     }
 
+    fun getWapiEndpoints(): List<HttpEndpoint> {
+        var resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
+        return resp.map {
+            if (it.url.contains(ONION_DOMAIN)) {
+                TorHttpsEndpoint(it.url, it.cert)
+            } else {
+                HttpsEndpoint(it.url, it.cert)
+            }
+        }
+    }
+
     private var serverListChangedListener: ServerListChangedListener? = null
 
     fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
@@ -88,6 +124,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
+        const val PREFS_WAPI_SERVERS = "wapi_servers"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"

@@ -73,7 +73,9 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.wallet.activity.util.BlockExplorer;
@@ -469,7 +471,10 @@ public class MbwManager {
         String version = "" + BuildConfig.VERSION_CODE;
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
+        List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
+        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]),
+                retainingWapiLogger, version);
     }
 
     private void initTor() {

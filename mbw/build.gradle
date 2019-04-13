@@ -137,8 +137,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2120026
-        versionName '2.12.0.26'
+        versionCode 2120027
+        versionName '2.12.0.27'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -217,7 +217,10 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx.mycelium.com:4431"}'
+                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "tcp-tls://electrumx-aws-c.mycelium.com:9335"}'
+                WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
+                        '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
+                        '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -240,7 +243,10 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-b.mycelium.com:4432"}'
+                ElectrumServers = '{"tcp-tls://electrumx-aws-test.mycelium.com:19335"}'
+                WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
+                        '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
+                        '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
@@ -261,6 +267,7 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
+        variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
     }

@@ -820,6 +820,7 @@
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
+    <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block explorers</string>
@@ -1256,9 +1257,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
-    <string name="receive_option_p2pkh">Legacy (P2PKH)</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
     <string name="segwit_change_mode_title">Transaction change handling</string>
     <string name="segwit_change_mode_description">Select the way transaction change will be handled</string>
@@ -1270,8 +1268,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
     <string name="set_default">Set as default</string>
-    <string name="bech_next">Tap for Bech32</string>
-    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="tap_next">Tap for %s</string>
+    <string name="p2pkh_short">P2PKH</string>
+    <string name="p2sh_short">P2SH</string>
+    <string name="bech_short">Bech32</string>
+    <string name="p2pkh">Legacy (P2PKH)</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
     <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>

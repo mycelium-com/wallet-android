@@ -30,6 +30,7 @@ class AddressFragment : Fragment() {
         this.viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(AddressFragmentCoinsModel::class.java)
             is AbstractAccount -> {
+                // HACK:
                 if (account.availableAddressTypes.size > 1) {
                     viewModelProvider.get(AddressFragmentBtcModel::class.java)
                 } else {
