@@ -590,10 +590,6 @@
     <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
-    <string name="title_no_spvmodule_warning">No SPV Module found</string>
-    <string name="message_no_spvmodule_warning">Please install the %s spv module from Google Play.</string>
-    <string name="no_spvmodule_warning_install">Install</string>
-    <string name="no_spvmodule_warning_ignore">Close the wallet</string>
     <string name="google_play_not_found">Google Play not found</string>
     <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
     <string name="pref_legacy_backup_title">Legacy Backup</string>
@@ -927,52 +923,10 @@
     <string name="credit_card_buy_setting_description">Buy Bitcoin using credit card</string>
     <!-- Credit Card End-->
 
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
-    <string name="gd_buy_sell">Glidera</string>
-    <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
-    <string name="gd_buy_tab">Buy</string>
-    <string name="gd_sell_tab">Sell</string>
-    <string name="gd_transaction_history_tab">History</string>
-    <string name="gd_glidera">Glidera</string>
-    <string name="gd_delivery_date">Delivery Date:</string>
-    <string name="gd_date">Date:</string>
-    <string name="gd_action">Action:</string>
-    <string name="gd_amount">Amount:</string>
-    <string name="gd_pricing">Pricing:</string>
-    <string name="gd_price">Price:</string>
-    <string name="gd_status">Status:</string>
-    <string name="gd_fee">Fee:</string>
-    <string name="gd_total">Total:</string>
-    <string name="gd_transaction_hash">Transaction Hash:</string>
-    <string name="gd_glidera_transaction_number">Glidera #:</string>
-    <string name="gd_subtotal">Subtotal:</string>
-    <string name="gd_transaction_receipt">Transaction Receipt</string>
-    <string name="gd_transaction_initiated">Transaction has been initiated, details are below.</string>
-    <string name="gd_transaction_complete">Transaction is complete, details are below.</string>
-    <string name="gd_transaction_reviewed">Transaction is being reviewed, details are below.</string>
-    <string name="gd_transaction_error">An error occurred while processing this transaction.  Please contact Glidera support at support@glidera.io.</string>
-    <string name="gd_resend_code">Resend Code</string>
-    <string name="gd_cancel">Cancel</string>
-    <string name="gd_continue">Continue</string>
-    <string name="gd_amount_to_buy">Amount to Buy</string>
-    <string name="gd_sell_bitcoin">Sell Bitcoin</string>
-    <string name="gd_buy_bitcoin">Buy Bitcoin</string>
-    <string name="gd_rate">Rate:</string>
-    <string name="gd_bitcoin">Bitcoin:</string>
-    <string name="gd_summary">Summary</string>
-    <string name="gd_btc">BTC</string>
-    <string name="gd_dollar_symbol">$</string>
-    <string name="gd_btc_symbol">฿</string>
-    <string name="gd_amount_to_sell">Amount to Sell</string>
-    <string name="gd_loading">Loading…</string>
-    <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
     <string name="error_details">Error details</string>
     <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
-    <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
     <string name="tap_to_toggle_through_other_currencies">Tap to toggle through other currencies</string>
-    <!-- GlideraService End -->
 
     <string name="settings_service_enabled">Enable %1$s</string>
 
@@ -995,7 +949,6 @@
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
-    <string name="spv_sync_progress">SPV-synced to %s</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -1037,13 +990,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
 
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="get_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.getextrabtc</string>
-    <string name="get_extra_btc">Get extra BTC</string>
-    <string name="get_extra_btc_module"><![CDATA[<font color="#663aee82">Get Extra BTC</font> Module]]></string>
-    <string name="get_extra_btc_module_short">GEB</string>
-    <string name="get_extra_btc_module_desc">Get extra BTC with top trading strategies</string>
-    <string name="geb_module_change"><![CDATA[Mycelium <font color="#663aee82">Get Extra BTC</font> module has been %s!]]></string>
 
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
@@ -1288,6 +1234,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fiat_currency">Fiat Currency</string>
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
+    <string name="no_transaction_loading">Loading…</string>
     <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
@@ -1300,9 +1247,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
-    <string name="receive_option_p2pkh">Legacy (P2PKH)</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
     <string name="segwit_change_mode_title">Transaction change handling</string>
     <string name="segwit_change_mode_description">Select the way transaction change will be handled</string>
@@ -1314,8 +1258,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
     <string name="set_default">Set as default</string>
-    <string name="bech_next">Tap for Bech32</string>
-    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="tap_next">Tap for %s</string>
+    <string name="p2pkh_short">P2PKH</string>
+    <string name="p2sh_short">P2SH</string>
+    <string name="bech_short">Bech32</string>
+    <string name="p2pkh">Legacy (P2PKH)</string>
     <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
@@ -1347,6 +1294,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
     <string name="diff_type">The address %s may belong to different crypto currency types. Please choose which one it belongs to:\n</string>
+    <string name="uncompressed">(uncompressed key)</string>
+    <string name="uncompressed_key_explained">Uncompressed key based accounts are an old standard that does not support receiving to SegWit addresses.</string>
+    <string name="no_transaction_retry">Retry</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

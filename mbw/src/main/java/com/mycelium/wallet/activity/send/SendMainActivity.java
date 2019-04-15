@@ -113,6 +113,7 @@ import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
@@ -130,6 +131,7 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuSendRequest;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -274,7 +276,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private GenericAssetUri genericUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus = TransactionStatus.None;
-    protected UnsignedTransaction _unsigned;
     private SendRequest sendRequest;
     private SendRequest signedSendRequest;
     private MinerFee feeLvl;
@@ -282,7 +283,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private ProgressDialog _progress;
     private UUID _receivingAcc;
     private boolean _xpubSyncing = false;
-    private boolean _spendingUnconfirmed = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
     private ProgressDialog progress;
@@ -335,7 +335,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest);
     }
 
-    @SuppressLint("ShowToast")
+    @SuppressLint({"ShowToast", "StaticFieldLeak"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO: profile. slow!
@@ -365,7 +365,22 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         _account = Preconditions.checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
-        feeEstimation = _account.getFeeEstimations();
+        feeEstimation = _account.getDefaultFeeEstimation();
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                feeEstimation = _account.getFeeEstimations();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                updateUi();
+            }
+
+        }.execute(null, null, null);
+
         selectedFee = getCurrentFeeEstimation();
 
         showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
@@ -578,6 +593,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             return _account.getTypicalEstimatedTransactionSize();
         }
     }
+
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted
     private Value getValueToSend() {
@@ -700,7 +716,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     return;
                 }
             }
-            sendTransaction();
+            signTransaction();
         }
     };
 
@@ -983,8 +999,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
 
     void updateError() {
-        boolean tvErrorShow;
-        switch (_transactionStatus) {
+       boolean tvErrorShow;
+       boolean _spendingUnconfirmed = false;
+       switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
                 if (_account instanceof CoinapultAccount) {
@@ -1029,37 +1046,39 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (_unsigned == null) {
-            // Only show button for fee lvl, cannot calculate fee yet
-        } else {
-            int inCount = _unsigned.getFundingOutputs().length;
-            int outCount = _unsigned.getOutputs().length;
+        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
+            // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
+            UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
+            if (_unsigned != null) {
+                int inCount = _unsigned.getFundingOutputs().length;
+                int outCount = _unsigned.getOutputs().length;
 
-            FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
-                    .setArrayOfOutputs(_unsigned.getOutputs())
-                    .createFeeEstimator();
-            int size = feeEstimator.estimateTransactionSize();
+                FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
+                        .setArrayOfOutputs(_unsigned.getOutputs())
+                        .createFeeEstimator();
+                int size = feeEstimator.estimateTransactionSize();
 
-            tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
+                tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
-            long fee = _unsigned.calculateFee();
-            if (fee != size * selectedFee.value / 1000) {
-                Value value = Value.valueOf(_account.getCoinType(), fee);
-                Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
-                fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
-                feeWarning = getString(R.string.fee_change_warning
-                        , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
-                        , fiat);
-                tvFeeWarning.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new AlertDialog.Builder(SendMainActivity.this)
-                                .setMessage(R.string.fee_change_description)
-                                .setPositiveButton(R.string.button_ok, null).create()
-                                .show();
-                    }
-                });
+                long fee = _unsigned.calculateFee();
+                if (fee != size * selectedFee.value / 1000) {
+                    Value value = Value.valueOf(_account.getCoinType(), fee);
+                    Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
+                    String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
+                    fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
+                    feeWarning = getString(R.string.fee_change_warning
+                            , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
+                            , fiat);
+                    tvFeeWarning.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            new AlertDialog.Builder(SendMainActivity.this)
+                                    .setMessage(R.string.fee_change_description)
+                                    .setPositiveButton(R.string.button_ok, null).create()
+                                    .show();
+                        }
+                    });
+                }
             }
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
@@ -1135,8 +1154,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     case PRIVATE_KEY:
                         InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
-                        for (AddressType addressType : AddressType.values()) {
-                            receivingAddressesList.add((GenericAddress) publicKey.toAddress(_mbwManager.getNetwork(), addressType));
+                        for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+                            receivingAddressesList.add((GenericAddress) address);
                         }
                         setUpMultiAddressView();
                         break;
@@ -1222,7 +1241,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
                     }
                 } else {
-                    activityResultDialog = BroadcastDialog.Companion.create(_account, _isColdStorage, signedSendRequest.tx);
+                    activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
                 }
             }
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {

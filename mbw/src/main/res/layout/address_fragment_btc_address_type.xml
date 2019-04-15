@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="com.mrd.bitlib.model.AddressType" />
 
         <variable
@@ -12,14 +11,12 @@
     </data>
 
     <merge>
-
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/green"
-            android:text="@{viewModel.type == AddressType.P2SH_P2WPKH ? @string/p2sh : @string/bech}"
+            android:text="@{viewModel.getAccountAddressType}"
             tools:showIn="@layout/address_fragment_btc" />
     </merge>
-
 </layout>

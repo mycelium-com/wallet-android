@@ -25,11 +25,12 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAccountLabel() = model.accountLabel
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
+    fun isCompressedKey() = model.isCompressedKey
     fun getType() = model.type
+    fun getAccountAddressType() = model.accountAddressType
 
-    fun getDrawableForAccount(resources: Resources): Drawable? {
-        return Utils.getDrawableForAccount(model.account, true, resources)
-    }
+    fun getDrawableForAccount(resources: Resources): Drawable? =
+            Utils.getDrawableForAccount(model.account, true, resources)
 
     override fun onCleared() {
         model.onCleared()

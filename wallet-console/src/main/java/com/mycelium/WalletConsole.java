@@ -28,6 +28,7 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
@@ -156,7 +157,7 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null);
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null,null);
             walletManager.add(bitcoinHDModule);
 
             // create account
@@ -168,7 +169,7 @@ class WalletConsole {
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
             BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore
-                    , network, wapiClient, walletManager, null);
+                    , network, wapiClient, walletManager, null,null);
             walletManager.add(bitcoinSingleAddressModule);
 
 
@@ -286,14 +287,14 @@ class WalletConsole {
 
     private static void sendColuWithFundingAccount(PrivateColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
         SendRequest<ColuTransaction> sendRequest = coluAccount.getSendToRequest(
-                new BtcLegacyAddress(RMCCoin.INSTANCE
-                        , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c").getAllAddressBytes())
-                , new Value(RMCCoin.INSTANCE, 1));
+                new BtcAddress(RMCCoin.INSTANCE
+                        , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c"))
+                , Value.valueOf(RMCCoin.INSTANCE, 1));
         if (sendRequest instanceof ColuSendRequest) {
             sendRequest.fee = Value.valueOf(coluSAAccount.getCoinType(), 10000000);
             List<BtcAddress> funding = new ArrayList<>();
             for (TransactionOutputSummary transactionOutputSummary : hdAccount1.getUnspentTransactionOutputSummary()) {
-                funding.add(new BtcLegacyAddress(hdAccount1.getCoinType(), transactionOutputSummary.address.getAllAddressBytes()));
+                funding.add(new BtcAddress(hdAccount1.getCoinType(), transactionOutputSummary.address));
             }
             ((ColuSendRequest) sendRequest).setFundingAddress(funding);
         }

@@ -36,10 +36,7 @@ import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswe
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -64,7 +61,6 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
 import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getBTCBip44Accounts;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BCH;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
@@ -337,23 +333,6 @@ public class ExchangeFragment extends Fragment {
 
     //TODO call getMaxFundsTransferrable need refactoring, we should call account object
     private BigDecimal getMaxSpend(WalletAccount account) {
-        if (account instanceof Bip44BCHAccount) {
-            Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-            //Find out the type of Bip44 account
-            long satoshisTransferable;
-            if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                int accountIndex = bip44BCHAccount.getAccountIndex();
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex);
-            } else {
-                //We are dealing with unrelated HDAccount and should handle it separately
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
-            }
-            return ExactBitcoinCashValue.from(satoshisTransferable).getValue();
-        } else if (account instanceof SingleAddressBCHAccount) {
-            String accountGuid = account.getId().toString();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();
-        }
-
         return BigDecimal.valueOf(0);
     }
 

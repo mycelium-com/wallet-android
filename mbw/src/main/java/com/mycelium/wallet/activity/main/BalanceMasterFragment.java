@@ -68,7 +68,7 @@ public class BalanceMasterFragment extends Fragment {
         defineAddressAccountView(fragmentTransaction, account);
         fragmentTransaction.replace(R.id.phFragmentBalance, new BalanceFragment());
         fragmentTransaction.replace(R.id.phFragmentNotice, new NoticeFragment());
-        fragmentTransaction.replace(R.id.phFragmentGlidera, new BuySellFragment());
+        fragmentTransaction.replace(R.id.phFragmentBuySell, new BuySellFragment());
         fragmentTransaction.commitAllowingStateLoss();
         return view;
     }
@@ -99,13 +99,13 @@ public class BalanceMasterFragment extends Fragment {
             tvTor.setVisibility(View.GONE);
         }
         updateAddressView();
-        MbwManager.getInstance(this.getActivity()).getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        MbwManager.getInstance(this.getActivity()).getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onStop();
     }
 

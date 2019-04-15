@@ -247,10 +247,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       }
 
       // Fetch any missing transactions
-      if (!toFetch.isEmpty()) {
+      int chunkSize = 50;
+      for (int fromIndex = 0; fromIndex < toFetch.size(); fromIndex += chunkSize) {
          try {
-            GetTransactionsResponse response;
-            response = getTransactionsBatched(toFetch).getResult();
+            int toIndex = Math.min(fromIndex + chunkSize, toFetch.size());
+            GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
@@ -344,12 +345,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             break;
          case PRIVACY:
             result = getAddress(destinationAddress.getType());
-            if (result == null) {
-               return getAddress();
-            }
             break;
          default:
             throw new IllegalStateException();
+      }
+      if (result == null) {
+         result = getAddress();
       }
       return result;
    }
@@ -382,12 +383,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             break;
          case PRIVACY:
             result = getAddress(maxedOn);
-            if (result == null) {
-               return getAddress();
-            }
             break;
          default:
             throw new IllegalStateException();
+      }
+      if (result == null) {
+         result = getAddress();
       }
       return result;
    }
@@ -454,8 +455,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
-      for (Address address : getPublicKey().getAllSupportedAddresses(_network).values()) {
-         _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
+      if (getPublicKey() == null) {
+         _keyStore.forgetPrivateKey(getAddress().getAllAddressBytes(), cipher);
+      } else {
+         for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
+            _keyStore.forgetPrivateKey(address.getAllAddressBytes(), cipher);
+         }
       }
    }
 

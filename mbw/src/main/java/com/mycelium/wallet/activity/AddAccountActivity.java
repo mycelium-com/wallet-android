@@ -50,7 +50,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
@@ -108,13 +107,11 @@ public class AddAccountActivity extends Activity {
       final View coluCreate = findViewById(R.id.btColuCreate);
       coluCreate.setOnClickListener(createColuAccount);
       _progress = new ProgressDialog(this);
-      hdBchCreate.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
+      hdBchCreate.setVisibility(View.GONE);
    }
 
    @OnClick(R.id.btHdBchCreate)
-   void onAddBchHD(){
-      BCHHelper.bchTechnologyPreviewDialog(this);
-   }
+   void onAddBchHD(){}
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
       @Override

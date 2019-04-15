@@ -36,16 +36,20 @@ package com.mycelium.wallet.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -54,14 +58,19 @@ import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
@@ -70,6 +79,7 @@ public class TransactionDetailsActivity extends Activity {
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
     private WalletAccount account;
+    private GenericTransaction _tx;
     private GenericTransaction _txs;
     private int _white_color;
     private MbwManager _mbwManager;
@@ -93,11 +103,25 @@ public class TransactionDetailsActivity extends Activity {
         account = _mbwManager.getSelectedAccount();
         _txs = account.getTx(txid);
 
-        coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
-        updateUi();
+        loadAndUpdate(false);
+
+        startRemoteLoading(null);
     }
 
-    private void updateUi() {
+    public void startRemoteLoading(View view) {
+        new UpdateParentTask().execute();
+    }
+
+    private void loadAndUpdate(boolean isAfterRemoteUpdate) {
+        Sha256Hash txid = getTransactionFromIntent();
+        _tx = _mbwManager.getSelectedAccount().getTx(txid);
+        _txs = _mbwManager.getSelectedAccount().getTx(txid);
+
+        coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
+        updateUi(isAfterRemoteUpdate, false);
+    }
+
+    private void updateUi(boolean isAfterRemoteUpdate, boolean suggestRetryIfError) {
         // Set Hash
         TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
         tvHash.setColuMode(coluMode);
@@ -138,16 +162,27 @@ public class TransactionDetailsActivity extends Activity {
         String timeString = hourFormat.format(date);
         ((TextView) findViewById(R.id.tvTime)).setText(timeString);
 
+        TextView tvInputsAmount = findViewById(R.id.tvInputsAmount);
+        Button btInputsRetry = findViewById(R.id.btInputsRetry);
+        Button btFeeRetry = findViewById(R.id.btFeeRetry);
+        TextView tvFeeAmount = findViewById(R.id.tvFee);
+        btFeeRetry.setVisibility(View.GONE);
+        btInputsRetry.setVisibility(View.GONE);
+        tvFeeAmount.setVisibility(View.VISIBLE);
+        tvInputsAmount.setVisibility(View.VISIBLE);
+
         // Set Inputs
-        LinearLayout inputs = findViewById(R.id.llInputs);
+        final LinearLayout llInputs = findViewById(R.id.llInputs);
+        llInputs.removeAllViews();
         if (_txs.getInputs() != null) {
             long sum = 0;
             for (GenericTransaction.GenericOutput input : _txs.getInputs()) {
                 sum += input.getValue().value;
             }
             if (sum != 0) {
+                tvInputsAmount.setVisibility(View.GONE);
                 for (GenericTransaction.GenericOutput item : _txs.getInputs()) {
-                    inputs.addView(getItemView(item));
+                    llInputs.addView(getItemView(item));
                 }
             }
         }
@@ -155,15 +190,26 @@ public class TransactionDetailsActivity extends Activity {
         // Set Outputs
         LinearLayout outputs = findViewById(R.id.llOutputs);
         LinearLayout change = findViewById(R.id.llChange);
-        if(_txs.getOutputs() != null) {
-            for (GenericTransaction.GenericOutput item : _txs.getOutputs()) {
-                if (account.isMineAddress(item.getAddress())) {
-                    change.addView(getItemView(item));
-                } else {
-                    outputs.addView(getItemView(item));
+        outputs.removeAllViews();
+        change.removeAllViews();
+        TableRow changeRow = findViewById(R.id.trChange);
+        changeRow.setVisibility(View.VISIBLE);
+
+        List<GenericTransaction.GenericOutput> outputList = _txs.getOutputs();
+        if (outputList != null) {
+            if (outputList.size() == 1) {
+               outputs.addView(getItemView(outputList.get(0)));
+               changeRow.setVisibility(View.GONE);
+            } else {
+                GenericTransaction.GenericOutput changeOutput = findChangeOutput(account, _txs, outputList);
+                change.addView(getItemView(changeOutput));
+                outputList.remove(changeOutput);
+                for (GenericTransaction.GenericOutput item : outputList) {
+                   outputs.addView(getItemView(item));
                 }
             }
         }
+
 
         // Set Fee
         final long txFeeTotal = _txs.getFee().getValue();
@@ -177,10 +223,51 @@ public class TransactionDetailsActivity extends Activity {
                 fee += String.format("\n%d sat/byte", txFeePerSat);
             }
             ((TextView) findViewById(R.id.tvFee)).setText(fee);
+            tvFeeAmount.setText(fee);
+            tvFeeAmount.setVisibility(View.VISIBLE);
         } else {
-            ((TextView) findViewById(R.id.tvFee)).setText(R.string.no_transaction_details);
-            findViewById(R.id.tvInputsLabel).setVisibility(View.GONE);
+            tvFeeAmount.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
+            if (isAfterRemoteUpdate) {
+                if (suggestRetryIfError) {
+                    btFeeRetry.setVisibility(View.VISIBLE);
+                    btInputsRetry.setVisibility(View.VISIBLE);
+                    tvFeeAmount.setVisibility(View.GONE);
+                    tvInputsAmount.setVisibility(View.GONE);
+                }
+            } else {
+                int length = _tx.getInputs().size();
+                String amountLoading;
+                if (length > 0) {
+                    amountLoading = String.format("%s %s", String.valueOf(length), getString(R.string.no_transaction_loading));
+                } else {
+                    amountLoading = getString(R.string.no_transaction_loading);
+                }
+                if (tvInputsAmount.isAttachedToWindow()) {
+                    tvInputsAmount.setText(amountLoading);
+                }
+            }
         }
+    }
+
+    private GenericTransaction.GenericOutput findChangeOutput(WalletAccount account,
+                                                              GenericTransaction txs,
+                                                              List<GenericTransaction.GenericOutput> outputList) {
+        for (GenericTransaction.GenericOutput item : outputList) {
+            if (isChangeOutput(account, item, txs)) {
+               return item;
+            }
+        }
+        return outputList.get(0);
+    }
+
+    private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,
+                                   GenericTransaction txs) {
+        // If we receive a transaction - txs.isIncoming() -
+        // an output of that tx that goes to foreign address is a change output.
+        // If we send a transaction - !txs.isIncoming() -
+        // an output of that tx that goes to our address is a change output.
+        return txs.isIncoming() && !account.isMineAddress(output.getAddress()) ||
+              !txs.isIncoming() && account.isMineAddress(output.getAddress());
     }
 
     private View getItemView(GenericTransaction.GenericOutput item) {
@@ -199,7 +286,6 @@ public class TransactionDetailsActivity extends Activity {
         ll.setPadding(10, 10, 10, 10);
         return ll;
     }
-
 
     private View getCoinbaseText() {
         TextView tv = new TextView(this);
@@ -231,5 +317,40 @@ public class TransactionDetailsActivity extends Activity {
         return tv;
     }
 
+    /**
+     * Async task to perform fetching parent transactions of current transaction from server
+     */
+    private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... ignore) {
+            Sha256Hash txid = getTransactionFromIntent();
 
+            if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
+                AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
+                TransactionEx transactionEx = selectedAccount.getTransaction(txid);
+                Transaction transaction = TransactionEx.toTransaction(transactionEx);
+                try {
+                    selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
+                } catch (WapiException e) {
+                    _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isResultOk) {
+            super.onPostExecute(isResultOk);
+            if (isResultOk) {
+                loadAndUpdate(true);
+            } else {
+                updateUi(true,true);
+            }
+        }
+    }
+
+    private Sha256Hash getTransactionFromIntent() {
+        return (Sha256Hash) getIntent().getSerializableExtra("transaction");
+    }
 }

@@ -82,7 +82,6 @@ import com.mycelium.wallet.event.RefreshingExchangeRatesFailed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
-import com.mycelium.wallet.modularisation.BCHHelper;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -230,7 +229,6 @@ public class BalanceFragment extends Fragment {
     @OnClick(R.id.btSend)
     void onClickSend() {
         if (isBCH()) {
-            BCHHelper.bchTechnologyPreviewDialog(getActivity());
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
@@ -266,7 +264,6 @@ public class BalanceFragment extends Fragment {
     @OnClick(R.id.btScan)
     void onClickScan() {
         if (isBCH()) {
-            BCHHelper.bchTechnologyPreviewDialog(getActivity());
             return;
         }
         //perform a generic scan, act based upon what we find in the QR code

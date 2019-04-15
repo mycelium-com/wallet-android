@@ -80,8 +80,9 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.modularizationtools.CommunicationManager;
+import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorManager;
 import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.view.Denomination;
@@ -107,9 +108,6 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
-import com.mycelium.wallet.modularisation.GEBHelper;
-import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.SpvBchFetcher;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
@@ -127,11 +125,10 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SpvBalanceFetcher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -175,7 +172,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
@@ -272,7 +268,6 @@ public class MbwManager {
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
-    private final GEBHelper _gebHelper;
 
     private Handler mainLoopHandler;
 
@@ -318,15 +313,15 @@ public class MbwManager {
         _localTraderManager = new LocalTraderManager(_applicationContext, tradeSessionDb, getLtApi(), this);
 
         _pin = new Pin(
-            preferences.getString(Constants.PIN_SETTING, ""),
-            preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
+                preferences.getString(Constants.PIN_SETTING, ""),
+                preferences.getString(Constants.PIN_SETTING_RESETTABLE, "1").equals("1")
         );
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
         _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
         changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
-                            ChangeAddressMode.PRIVACY.name()));
+                ChangeAddressMode.PRIVACY.name()));
 
         // Get the display metrics of this device
         DisplayMetrics dm = new DisplayMetrics();
@@ -352,10 +347,10 @@ public class MbwManager {
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _currencySwitcher = new CurrencySwitcher(
-            _exchangeRateManager,
-            fiatCurrencies,
-            new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-            Denomination.Companion.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+                _exchangeRateManager,
+                fiatCurrencies,
+                new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                Denomination.Companion.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -363,8 +358,8 @@ public class MbwManager {
         int memoryClass = am.getMemoryClass();
 
         _deviceScryptParameters = memoryClass > 20
-                                  ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
-                                  : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
+                ? MrdExport.V1.ScryptParameters.DEFAULT_PARAMS
+                : MrdExport.V1.ScryptParameters.LOW_MEM_PARAMS;
 
         initPerCurrencySettings();
 
@@ -373,7 +368,6 @@ public class MbwManager {
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment);
         contentResolver = createContentResolver(getNetwork());
-        _gebHelper = new GEBHelper(_applicationContext);
 
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
@@ -392,7 +386,7 @@ public class MbwManager {
         _blockExplorerManager = new BlockExplorerManager(this,
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
-                                      _environment.getBlockExplorerList().get(0).getIdentifier()));
+                        _environment.getBlockExplorerList().get(0).getIdentifier()));
     }
 
     private ContentResolver createContentResolver(NetworkParameters network) {
@@ -482,7 +476,10 @@ public class MbwManager {
         String version = "" + BuildConfig.VERSION_CODE;
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
-        return new WapiClientElectrumX(_environment.getWapiEndpoints(), tcpEndpoints.toArray(new TcpEndpoint[tcpEndpoints.size()]), retainingWapiLogger, version);
+        List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
+        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]),
+                retainingWapiLogger, version);
     }
 
     private void initTor() {
@@ -639,12 +636,11 @@ public class MbwManager {
         });
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
-            getTrezorManager(),
-            getKeepKeyManager(),
-            getLedgerManager()
+                getTrezorManager(),
+                getKeepKeyManager(),
+                getLedgerManager()
         );
 
-        SpvBalanceFetcher spvBchFetcher = getSpvBchFetcher();
         // Create and return wallet manager
 
         walletManager.setIsNetworkConnected(Utils.isConnected(context));
@@ -656,8 +652,6 @@ public class MbwManager {
             walletManager.setActiveAccount(lastSelectedAccountId);
         }
 
-        importLabelsToBch(walletManager);
-
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
@@ -668,12 +662,12 @@ public class MbwManager {
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
                 , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
 
+        AccountEventManager accountEventManager = new AccountEventManager(walletManager);
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
-                externalSignatureProviderProxy, migrationProgressTracker));
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi, walletManager, getMetadataStorage(), migrationProgressTracker));
-        if (spvBchFetcher != null) {
-            walletManager.add(new BitcoinCashSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, spvBchFetcher, _wapi, getMetadataStorage()));
-        }
+                externalSignatureProviderProxy, migrationProgressTracker, accountEventManager));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore,
+                networkParameters, _wapi, walletManager, getMetadataStorage(),
+                migrationProgressTracker, accountEventManager));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
             addCoinapultModule(context, environment,walletManager, accountListener);
@@ -686,7 +680,7 @@ public class MbwManager {
     }
 
     private void addCoinapultModule(Context context, MbwEnvironment environment
-                                    , WalletManager walletManager, AccountListener accountListener) {
+            , WalletManager walletManager, AccountListener accountListener) {
         NetworkParameters networkParameters = environment.getNetwork();
         try {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
@@ -695,10 +689,21 @@ public class MbwManager {
                     , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes(),
                     networkParameters);
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
-                                                  , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
-                                                  , coinapultBacking, accountListener, getMetadataStorage()));
+                    , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
+                    , coinapultBacking, accountListener, getMetadataStorage()));
         } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             invalidKeyCipher.printStackTrace();
+        }
+    }
+
+    private class AccountEventManager implements AbstractBtcAccount.EventHandler {
+        private WalletManager walletManager;
+        AccountEventManager(WalletManager walletManager) {
+            this.walletManager = walletManager;
+        }
+        @Override
+        public void onEvent(UUID accountId, WalletManager.Event event) {
+            _eventTranslator.onAccountEvent(walletManager, accountId, event);
         }
     }
 
@@ -716,27 +721,6 @@ public class MbwManager {
         return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
     }
 
-    public void importLabelsToBch(WalletManager walletManager) {
-        if (getSpvBchFetcher() == null)
-            return;
-        List<WalletAccount> accounts = new ArrayList<>();
-        accounts.addAll(walletManager.getActiveAccounts());
-        accounts.addAll(walletManager.getArchivedAccounts());
-        for (WalletAccount walletAccount : accounts) {
-            if (walletAccount instanceof HDAccount
-                    || walletAccount instanceof SingleAddressAccount) {
-                UUID bchId = getBitcoinCashAccountId(walletAccount);
-                String bchLabel = getMetadataStorage().getLabelByAccount(bchId);
-                if (bchLabel == null || bchLabel.isEmpty()) {
-                    getMetadataStorage().storeAccountLabel(bchId, getMetadataStorage().getLabelByAccount(walletAccount.getId()));
-                }
-            }
-        }
-    }
-
-    public static UUID getBitcoinCashAccountId(WalletAccount walletAccount) {
-        return UUID.nameUUIDFromBytes(("BCH" + walletAccount.getId().toString()).getBytes());
-    }
 
     /**
      * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
@@ -760,10 +744,12 @@ public class MbwManager {
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
+        AccountEventManager accountEventManager = new AccountEventManager(walletManager);
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi,
-                (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(), null, null));
+                (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage()
+                , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
-                _wapi, walletManager, getMetadataStorage(), null));
+                _wapi, walletManager, getMetadataStorage(), null, accountEventManager));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -789,15 +775,6 @@ public class MbwManager {
                 }
             });
         }
-    }
-
-    public SpvBalanceFetcher getSpvBchFetcher() {
-        SpvBalanceFetcher result = null;
-        if (CommunicationManager.getInstance().getPairedModules()
-                .contains(GooglePlayModuleCollection.getModules(_applicationContext).get("bch"))) {
-            result = new SpvBchFetcher(_applicationContext);
-        }
-        return result;
     }
 
     @Synchronized
@@ -970,7 +947,7 @@ public class MbwManager {
         }
         _pin = pin;
         getEditor().putString(Constants.PIN_SETTING, _pin.getPin())
-        .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").apply();
+                .putString(Constants.PIN_SETTING_RESETTABLE, pin.isResettable() ? "1" : "0").apply();
     }
 
     private void setPinBlockheight() {
@@ -1035,23 +1012,23 @@ public class MbwManager {
                         if (_pin.isResettable()) {
                             // Show hint, that this pin is resettable
                             new AlertDialog.Builder(activity)
-                            .setTitle(R.string.pin_invalid_pin)
-                            .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    pinDialog.dismiss();
-                                }
-                            })
-                            .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    pinDialog.dismiss();
-                                    MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
-                                }
-                            })
+                                    .setTitle(R.string.pin_invalid_pin)
+                                    .setPositiveButton(activity.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            pinDialog.dismiss();
+                                        }
+                                    })
+                                    .setNeutralButton(activity.getString(R.string.reset_pin_button), new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            pinDialog.dismiss();
+                                            MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
+                                        }
+                                    })
 
-                            .setMessage(activity.getString(R.string.wrong_pin_message))
-                            .show();
+                                    .setMessage(activity.getString(R.string.wrong_pin_message))
+                                    .show();
                         } else {
                             // This pin is not resettable, you are out of luck
                             Toast.makeText(activity, R.string.pin_invalid_pin, Toast.LENGTH_LONG).show();
@@ -1412,10 +1389,6 @@ public class MbwManager {
 
     public LedgerManager getLedgerManager() {
         return _ledgerManager;
-    }
-
-    public GEBHelper getGEBHelper() {
-        return _gebHelper;
     }
 
     public WapiClientElectrumX getWapi() {

@@ -509,9 +509,6 @@
     <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
     <string name="button_continue">Продолжить</string>
     <string name="butto_show_release_notes">Показать детали</string>
-    <string name="title_no_spvmodule_warning">Не найден SPV модуль</string>
-    <string name="no_spvmodule_warning_install">Установить</string>
-    <string name="no_spvmodule_warning_ignore">Закрыть кошелек</string>
     <string name="google_play_not_found">Google Play не найден</string>
     <string name="word_does_not_exist_in_wordlist">Слово, которое вы ввели, не существует в списке слов</string>
     <string name="pref_legacy_backup_title">Резервная копия старого образца</string>
@@ -788,21 +785,6 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
-    <string name="gd_buy_sell">Glidera</string>
-    <string name="gd_buy_tab">Купить</string>
-    <string name="gd_sell_tab">Продать</string>
-    <string name="gd_transaction_history_tab">История</string>
-    <string name="gd_glidera">Glidera</string>
-    <string name="gd_date">Дата:</string>
-    <string name="gd_fee">Комиссия:</string>
-    <string name="gd_total">Всего:</string>
-    <string name="gd_cancel">Отмена</string>
-    <string name="gd_sell_bitcoin">Продать Bitcoin</string>
-    <string name="gd_buy_bitcoin">Купить Bitcoin</string>
-    <string name="gd_btc">BTC</string>
-    <string name="gd_dollar_symbol">$</string>
-    <string name="gd_btc_symbol">฿</string>
-    <string name="gd_loading">Загрузка…</string>
     <string name="error_details">Сведения об ошибке</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
@@ -889,15 +871,10 @@
     <string name="private_key_s">Приватный ключ</string>
     <string name="warning">Внимание</string>
     <string name="address_type">Тип адреса</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Тип адреса для сдачи</string>
     <string name="segwit_change_mode_title">Сдача от транзакции</string>
     <string name="segwit_change_mode_description">Выберите способ получения сдачи от транзакции</string>
     <string name="bech32_receive_mode">SegWit native (Bech32)</string>
-    <string name="bech_next">Тап для Bech32</string>
-    <string name="p2sh_next">Тап для P2SH</string>
-    <string name="p2sh">SegWit compatible (P2SH)</string>
-    <string name="bech">SegWit native (Bech32)</string>
+    <string name="tap_next">Тап для %s</string>
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
 </resources>

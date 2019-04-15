@@ -74,11 +74,6 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    }
 
    @Override
-   public void upgradeBip44AccountContext(HDAccountContext context) {
-      _backings.get(context.getId()).updateAccountContext(context);
-   }
-
-   @Override
    public List<SingleAddressAccountContext> loadSingleAddressAccountContexts() {
       // Return a list containing copies
       List<SingleAddressAccountContext> list = new ArrayList<>();

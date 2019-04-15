@@ -81,7 +81,6 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int BTC_ACTION = 3;
     public static final int MYDFS_ACTION = 4;
     public static final int APEX_ACTION = 5;
-    public static final int GEB_ACTION = 6;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -172,9 +171,6 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case APEX_ACTION:
                 Ads.INSTANCE.openApex(getActivity());
                 break;
-            case GEB_ACTION:
-                MbwManager.getInstance(getContext()).getGEBHelper().openModule(getActivity());
-                break;
         }
     }
 
@@ -209,14 +205,14 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     @Override
     public void onStart() {
-        _mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
         recreateActions();
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onStop();
     }
 

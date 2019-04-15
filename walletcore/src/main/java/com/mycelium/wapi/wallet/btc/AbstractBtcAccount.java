@@ -372,12 +372,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          GetTransactionsResponse response;
          try {
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
-         } catch (WapiException e) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-            postEvent(Event.SERVER_CONNECTION_ERROR);
-            return -1;
-         }
-         try {
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
             _logger.logError("Server connection failed with error code: " + e.errorCode, e);
@@ -460,7 +454,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Grab and handle parent transactions
-      fetchStoreAndValidateParentOutputs(txArray);
+      fetchStoreAndValidateParentOutputs(txArray,false);
 
       // Store transaction locally
       _backing.putTransactions(transactions);
@@ -470,13 +464,14 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
    }
 
-   private void fetchStoreAndValidateParentOutputs(List<Transaction> transactions) throws WapiException {
+   public void fetchStoreAndValidateParentOutputs(List<Transaction> transactions, boolean doRemoteFetching) throws WapiException {
       Map<Sha256Hash, TransactionEx> parentTransactions = new HashMap<>();
       Map<OutPoint, TransactionOutputEx> parentOutputs = new HashMap<>();
 
       // Find list of parent outputs to fetch
       Collection<Sha256Hash> toFetch = new HashSet<>();
       for (Transaction t : transactions) {
+
          for (TransactionInput in : t.inputs) {
             if (in.outPoint.txid.equals(OutPoint.COINBASE_OUTPOINT.txid)) {
                // Coinbase input, so no parent
@@ -490,11 +485,21 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                continue;
             }
             TransactionEx parentTransaction = _backing.getTransaction(in.outPoint.txid);
+            if (parentTransaction == null) {
+               // Check current transactions list for parents
+               for (Transaction transaction : transactions) {
+                  if (transaction.getId().equals(in.outPoint.txid)) {
+                     parentTransaction = TransactionEx.fromUnconfirmedTransaction(transaction);
+                     break;
+                  }
+               }
+            }
+
             if (parentTransaction != null) {
                // We had the parent transaction in our own transactions, no need to
                // fetch it remotely
                parentTransactions.put(parentTransaction.txid, parentTransaction);
-            } else {
+            } else if (doRemoteFetching) {
                // Need to fetch it
                toFetch.add(in.outPoint.txid);
             }
@@ -515,11 +520,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                parentTransactions.put(tx.txid, tx);
             } else {
                _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
-                     + " Calculated: " + hash);
+                       + " Calculated: " + hash);
                //TODO: Document what's happening here.
                //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
                throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid
-                     + " Calculated: " + hash);
+                       + " Calculated: " + hash);
             }
          }
       }
@@ -548,7 +553,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                toPersist.add(parentOutput);
                continue;
             }
-            _logger.logError("Parent transaction not found: " + in.outPoint.txid);
          }
       }
 
@@ -1316,7 +1320,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // find parent output
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
-               _logger.logError("Unable to find parent output for: " + input.outPoint);
+               funding = _backing.getUnspentOutput(input.outPoint);
+            }
+            if (funding == null) {
                continue;
             }
             if (isMine(funding)) {

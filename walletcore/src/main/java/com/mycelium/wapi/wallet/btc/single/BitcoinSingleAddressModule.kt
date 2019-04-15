@@ -15,10 +15,13 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.colu.AddressColuConfig
 import com.mycelium.wapi.wallet.colu.ColuModule
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig
+import com.mycelium.wapi.wallet.colu.PublicColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -33,7 +36,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal var _wapi: Wapi,
                                  internal var walletManager: WalletManager,
                                  internal val metaDataStorage: IMetaDataStorage,
-                                 internal val loadingProgressUpdater: LoadingProgressUpdater?) : GenericModule(metaDataStorage), WalletModule {
+                                 internal val loadingProgressUpdater: LoadingProgressUpdater?,
+                                 internal val eventHandler: AbstractBtcAccount.EventHandler) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -60,6 +64,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+            account.setEventHandler(eventHandler)
             result[account.id] = account
         }
         return result
@@ -79,14 +84,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             result = createAccount(config.publicKey)
         } else if (config is PrivateSingleConfig) {
             result = createAccount(config.privateKey, config.cipher)
-            if (config is PrivateColuConfig) {
-                walletManager.getModuleById(ColuModule.ID)?.let {
-                    val coluOfType = it.getAccounts().filter { it.coinType == config.coinType }.count()
-                    baseLabel = if (config.coinType != null) config.coinType.symbol + " " +
-                            coluOfType + " Bitcoin" else baseLabel
-                }
-            }
-            baseLabel = if (config.label.isEmpty()) baseLabel else config.label
+            baseLabel = if (config.label.isNotEmpty()) config.label else baseLabel
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -104,6 +102,10 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
+            result.setEventHandler(eventHandler)
+            if (config is PrivateColuConfig || config is PublicColuConfig || config is AddressColuConfig) {
+                baseLabel = getLinkedAccountLabel(result, baseLabel)
+            }
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")
@@ -111,9 +113,20 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return result
     }
 
+    private fun getLinkedAccountLabel(account: SingleAddressAccount, default: String): String? {
+        walletManager.getModuleById(ColuModule.ID)?.let {
+            for (walletAccount in it.getAccounts()) {
+                if (walletAccount.id != account.id && account.isMineAddress(walletAccount.receiveAddress)) {
+                    return walletAccount.label + " Bitcoin"
+                }
+            }
+        }
+        return default
+    }
+
     private fun createAccount(publicKey: PublicKey): WalletAccount<*, *>? {
         val result: WalletAccount<*, *>?
-        val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH))
+        val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
         backing.beginTransaction()
         try {
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)
