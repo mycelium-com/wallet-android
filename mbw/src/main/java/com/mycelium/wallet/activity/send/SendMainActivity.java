@@ -1073,8 +1073,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         disableButtons();
-        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, sendRequest, SIGN_TRANSACTION_REQUEST_CODE,
-                getValueToSend(), _receivingAddress);
+        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, sendRequest, SIGN_TRANSACTION_REQUEST_CODE);
     }
 
     protected void disableButtons() {

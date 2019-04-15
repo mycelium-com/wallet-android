@@ -691,8 +691,7 @@ public class TransactionHistoryFragment extends Fragment {
                                 new Value(cryptoCurrency, 0), new Value(cryptoCurrency, fee));
                         sendRequest.setUnsignedTx(unsigned);
 
-                        Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest,
-                                new Value(cryptoCurrency, 0), _mbwManager.getSelectedAccount().getDummyAddress());
+                        Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
                         startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      } else {
                         new Toaster(getActivity()).toast("Bumping fee failed", false);
