@@ -59,7 +59,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -112,13 +111,11 @@ import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -136,11 +133,9 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -267,7 +262,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     protected WalletAccount _account;
     private Value _amountToSend;
-    private BitcoinValue _lastBitcoinAmountToSend = null;
     private GenericAddress _receivingAddress;
     private List<GenericAddress> receivingAddressesList = new ArrayList<>();
     private String _receivingLabel;
@@ -284,7 +278,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private boolean _xpubSyncing = false;
     private boolean _paymentFetched = false;
     private WalletAccount fundColuAccount;
-    private ProgressDialog progress;
     private FeeEstimationsGeneric feeEstimation;
     private SharedPreferences transactionFiatValuePref;
     private FeeItemsBuilder feeItemsBuilder;
@@ -604,7 +597,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private void setAmountToSend(Value toSend) {
         _amountToSend = toSend;
-        _lastBitcoinAmountToSend = null;
     }
 
     private void verifyPaymentRequest(GenericAssetUri uri) {
@@ -948,9 +940,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
 
     void updateError() {
-       boolean tvErrorShow;
-       boolean _spendingUnconfirmed = false;
-       switch (_transactionStatus) {
+        boolean tvErrorShow;
+        boolean _spendingUnconfirmed = false;
+        switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
                 if (_account instanceof CoinapultAccount) {
@@ -997,19 +989,19 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
         if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
             // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
-            UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
-            if (_unsigned != null) {
-                int inCount = _unsigned.getFundingOutputs().length;
-                int outCount = _unsigned.getOutputs().length;
+            UnsignedTransaction unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
+            if (unsigned != null) {
+                int inCount = unsigned.getFundingOutputs().length;
+                int outCount = unsigned.getOutputs().length;
 
-                FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(_unsigned.getFundingOutputs())
-                        .setArrayOfOutputs(_unsigned.getOutputs())
+                FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(unsigned.getFundingOutputs())
+                        .setArrayOfOutputs(unsigned.getOutputs())
                         .createFeeEstimator();
                 int size = feeEstimator.estimateTransactionSize();
 
                 tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
-                long fee = _unsigned.calculateFee();
+                long fee = unsigned.calculateFee();
                 if (fee != size * selectedFee.value / 1000) {
                     Value value = Value.valueOf(_account.getCoinType(), fee);
                     Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
@@ -1148,7 +1140,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             updateUi();
         } else if (requestCode == ADDRESS_BOOK_RESULT_CODE && resultCode == RESULT_OK) {
             // Get result from address chooser
-            GenericAddress address =  (GenericAddress) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME); /*AddressUtils.fromAddress(Address.fromString(result, _mbwManager.getNetwork()));*/
+            GenericAddress address =  (GenericAddress) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME);
             if (address == null) {
                 return;
             }
