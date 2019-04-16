@@ -89,7 +89,7 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
-      ownBundle.putBoolean(AddressBookFragment.IS_SENDING, isSending);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, isSending);
       return ownBundle;
    }
 }
