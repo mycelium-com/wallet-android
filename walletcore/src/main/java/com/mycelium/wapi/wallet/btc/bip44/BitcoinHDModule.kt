@@ -173,7 +173,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
 
                 // Create actual account
                 result = if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) {
-                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
                 } else {
                     HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
                 }
