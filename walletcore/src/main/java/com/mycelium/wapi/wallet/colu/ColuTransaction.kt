@@ -4,6 +4,7 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
@@ -12,10 +13,12 @@ import java.io.Serializable
 
 
 class ColuTransaction(val _id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
-                      val tx: Transaction?, val _height: Int, var _confirmations: Int, val _isQueuedOutgoing: Boolean
-                      , val input: List<GenericTransaction.GenericInput>, val output: List<GenericTransaction.GenericOutput>
+                      val tx: Transaction?, val _height: Int, var _confirmations: Int, val _isQueuedOutgoing: Boolean,
+                      val destAddress: GenericAddress, val input: List<GenericTransaction.GenericInput>,
+                      val output: List<GenericTransaction.GenericOutput>
                       , fee: Value? = null)
     : GenericTransaction, Serializable {
+    override fun getDestinationAddress(): GenericAddress = destAddress
 
     override fun getHeight(): Int = _height
 

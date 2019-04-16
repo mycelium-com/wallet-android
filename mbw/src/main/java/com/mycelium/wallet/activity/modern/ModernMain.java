@@ -38,7 +38,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewPager;
@@ -59,7 +58,6 @@ import android.widget.Toast;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
@@ -161,7 +159,7 @@ public class ModernMain extends AppCompatActivity {
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
-        addressBookConfig.putBoolean(AddressBookFragment.IS_SENDING, false);
+        addressBookConfig.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, false);
         mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig);
         addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact

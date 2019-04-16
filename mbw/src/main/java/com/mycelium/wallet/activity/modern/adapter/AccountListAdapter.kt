@@ -42,7 +42,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val walletManager = mbwManager.getWalletManager(false)
 
     val focusedAccount: WalletAccount<out GenericTransaction, out GenericAddress>?
-        get() = if (focusedAccountId != null) walletManager.getAccount(focusedAccountId!!) else null
+        get() = focusedAccountId?.let { walletManager.getAccount(it)}
 
     init {
         layoutInflater = LayoutInflater.from(context)
@@ -135,7 +135,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
         val res = GroupTitleViewHolder(view)
-        res.tvBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
         return res
     }
 
@@ -152,7 +151,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
         val res = TotalViewHolder(view)
-        res.tcdBalance.setCurrencySwitcher(mbwManager.currencySwitcher)
         return res
     }
 

@@ -53,6 +53,7 @@ public interface GenericTransaction extends Serializable {
 
     List<GenericInput> getInputs();
     List<GenericOutput> getOutputs();
+    GenericAddress getDestinationAddress();
 
     /**
      * Amount transferred to the corresponding account.
