@@ -193,7 +193,6 @@ public class MbwManager {
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
     private static volatile MbwManager _instance = null;
-    private static final String TAG = "MbwManager";
 
     /**
      * The root index we use for generating authentication keys.
@@ -409,6 +408,7 @@ public class MbwManager {
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
+        currenciesSettingsMap.put(BitcoinSingleAddressModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -666,7 +666,7 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                 externalSignatureProviderProxy, migrationProgressTracker, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore,
-                networkParameters, _wapi, walletManager, getMetadataStorage(),
+                networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(),
                 migrationProgressTracker, accountEventManager));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -749,7 +749,7 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage()
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
-                _wapi, walletManager, getMetadataStorage(), null, accountEventManager));
+                _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
