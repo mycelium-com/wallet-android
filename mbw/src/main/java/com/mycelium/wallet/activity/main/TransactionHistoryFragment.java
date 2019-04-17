@@ -686,8 +686,8 @@ public class TransactionHistoryFragment extends Fragment {
                      // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
                      if (unsigned != null) {
                         CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                        BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).getChangeAddress()),
-                                new Value(cryptoCurrency, 0), new Value(cryptoCurrency, fee));
+                        BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
+                                new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
                         sendRequest.setUnsignedTx(unsigned);
 
                         Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);

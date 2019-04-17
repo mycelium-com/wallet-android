@@ -65,7 +65,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import com.google.common.base.Optional;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
@@ -82,6 +81,7 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
@@ -93,7 +93,14 @@ import com.mycelium.wallet.lt.api.DeleteTradeHistory;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -370,8 +377,12 @@ public class TradeActivity extends Activity {
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
             ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
-      // TODO: 9/19/18 Nuru commented this
-//      SignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
+      CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+      BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
+              new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
+      sendRequest.setUnsignedTx(unsigned);
+      Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+      startActivityForResult(intent, SIGN_TX_REQUEST_CODE);
    }
 
 
@@ -862,7 +873,8 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            Transaction tx = (Transaction) intent.getSerializableExtra("signedTx");
+            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+            Transaction tx = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
             if (tx == null) {
                Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
                return;

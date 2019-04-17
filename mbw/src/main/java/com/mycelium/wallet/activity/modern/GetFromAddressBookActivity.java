@@ -69,7 +69,6 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
               addressBookBundle(false, true));
 
-      //todo: use this check
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {

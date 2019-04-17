@@ -36,7 +36,6 @@ public class SelectAssetDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setIcon(R.drawable.ic_launcher);
-        // todo fix this, title not shown fully
         TextView title = new TextView(getContext());
         title.setText(String.format(getString(R.string.diff_type), Utils.getClipboardString(getActivity())));
         title.setTextSize(16);

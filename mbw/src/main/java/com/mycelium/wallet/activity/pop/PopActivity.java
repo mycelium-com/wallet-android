@@ -55,15 +55,22 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -241,9 +248,12 @@ public class PopActivity extends Activity {
             @Override
             public void run() {
                disableButtons();
-               // TODO: 9/19/18 Nuru commented this
-//               SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
-//                     false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
+               CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+               BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
+                       new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
+               sendRequest.setUnsignedTx(unsignedPop);
+               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
       } catch (Exception e) {
@@ -263,7 +273,8 @@ public class PopActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            Transaction pop = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+            Transaction pop = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
             ConnectivityManager connMgr = (ConnectivityManager)
                   getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
