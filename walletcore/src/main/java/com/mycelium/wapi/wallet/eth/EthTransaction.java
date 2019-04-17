@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -83,7 +84,12 @@ public class EthTransaction implements GenericTransaction {
     public List<GenericOutput> getOutputs() {
         return outputs;
     }
-    
+
+    @Override
+    public GenericAddress getDestinationAddress() {
+        return null;
+    }
+
     @Override
     public Value getTransferred() {
         return null;

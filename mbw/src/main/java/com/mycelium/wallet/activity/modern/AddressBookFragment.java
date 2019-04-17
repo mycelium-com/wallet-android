@@ -97,7 +97,7 @@ public class AddressBookFragment extends Fragment {
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";
-    public static final String IS_SENDING = "is_sending";
+    public static final String AVAILABLE_FOR_SENDING = "is_sending";
     public static final String SELECT_ONLY = "selectOnly";
     public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
@@ -106,13 +106,13 @@ public class AddressBookFragment extends Fragment {
     private Dialog _addDialog;
     private ActionMode currentActionMode;
     private Boolean ownAddresses; // set to null on purpose
-    private Boolean isSending;
+    private Boolean availableForSendingAddresses;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
         ownAddresses = getArguments().getBoolean(OWN);
-        isSending = getArguments().getBoolean(IS_SENDING);
+        availableForSendingAddresses = getArguments().getBoolean(AVAILABLE_FOR_SENDING);
         boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
         setHasOptionsMenu(!isSelectOnly);
         ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
@@ -162,7 +162,7 @@ public class AddressBookFragment extends Fragment {
         if (ownAddresses) {
             updateUiMine();
         } else {
-            if(isSending){
+            if(availableForSendingAddresses){
                 updateUiSending();
             } else {
                 updateUiForeign();
