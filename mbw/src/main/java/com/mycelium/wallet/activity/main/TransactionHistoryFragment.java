@@ -575,7 +575,6 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
                                    .setPositiveButton(R.string.yes, null)
                                    .setNegativeButton(R.string.no, null).create();
-
                            final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(record.getId(), alertDialog, _context);
                            alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                               @Override

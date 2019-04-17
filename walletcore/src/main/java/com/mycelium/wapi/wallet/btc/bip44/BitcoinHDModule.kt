@@ -129,7 +129,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     override fun createAccount(config: Config): WalletAccount<*, *> {
         var result: WalletAccount<*, *>? = null
         if (config is UnrelatedHDAccountConfig) {
-            var cfg = config
+            val cfg = config
             val accountIndex = 0  // use any index for this account, as we don't know and we don't care
             val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
             val derivationTypes = ArrayList<BipDerivationType>()

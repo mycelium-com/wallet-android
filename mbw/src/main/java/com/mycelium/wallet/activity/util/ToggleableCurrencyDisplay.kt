@@ -49,20 +49,13 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.Value
+import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.toggleable_currency_display.view.*
-import android.databinding.adapters.TextViewBindingAdapter.setText
-import com.mycelium.wallet.CurrencySwitcher
-
-
-
-
-
-
 
 
 open class ToggleableCurrencyDisplay : LinearLayout {
-    protected val eventBus = MbwManager.getEventBus()
+    protected val eventBus: Bus = MbwManager.getEventBus()
     protected val currencySwitcher by lazy { MbwManager.getInstance(context).currencySwitcher!! }
 
     private var currentValue: Value? = null
@@ -138,24 +131,21 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            tvDisplayValue.text = if (currentValue != null) currentValue!!.toString(currencySwitcher.denomination) else null
+            tvDisplayValue.text = currentValue?.toString(currencySwitcher.denomination)
             val currentCurrency = currencySwitcher.currentCurrencyIncludingDenomination
             tvCurrency.text = currentCurrency
         }
     }
 
     private fun showFiat() {
-        if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable) {
+        visibility = if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable) {
             // hide everything
-            visibility = View.GONE
+            View.GONE
         } else {
-            visibility = View.VISIBLE
-
-
             val value = currencySwitcher.getAsFiatValue(currentValue)
-
             tvCurrency.text = currencySwitcher.currentFiatCurrency.symbol
-            tvDisplayValue.setText(value?.toString())
+            tvDisplayValue.text = value?.toString()
+            View.VISIBLE
         }
     }
 
