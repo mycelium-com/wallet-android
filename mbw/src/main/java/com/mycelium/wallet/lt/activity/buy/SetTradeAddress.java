@@ -42,6 +42,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -51,14 +52,12 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.activity.SendRequestActivity;
 import com.mycelium.wallet.lt.api.SetTradeReceivingAddress;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 public class SetTradeAddress extends Activity {
-
    public static void callMe(Activity currentActivity, TradeSession tradeSession) {
       Intent intent = new Intent(currentActivity, SetTradeAddress.class);
       Preconditions.checkNotNull(tradeSession);
@@ -92,11 +91,11 @@ public class SetTradeAddress extends Activity {
          _address = ((SingleAddressAccount) account).getAddress(AddressType.P2PKH);
       } else if (account instanceof HDAccount) {
          _address = ((HDAccount) account).getReceivingAddress(AddressType.P2PKH);
-      } else  {
-         _address = (Address) ((WalletBtcAccount)(account)).getReceivingAddress().get();
+      } else {
+         _address = ((WalletBtcAccount) account).getReceivingAddress().get();
       }
       // Set label if applicable
-      TextView addressLabel = (TextView) findViewById(R.id.tvAddressLabel);
+      TextView addressLabel = findViewById(R.id.tvAddressLabel);
       String label = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
       if (label == null || label.length() == 0) {
          // Hide label
@@ -147,5 +146,4 @@ public class SetTradeAddress extends Activity {
       Preconditions.checkNotNull(_tradeSession.id);
       super.onResume();
    }
-
 }

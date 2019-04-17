@@ -127,142 +127,139 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     }
 
     override fun createAccount(config: Config): WalletAccount<*, *> {
-        var result: WalletAccount<*, *>? = null
-        if (config is UnrelatedHDAccountConfig) {
-            var cfg = config
-            val accountIndex = 0  // use any index for this account, as we don't know and we don't care
-            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-            val derivationTypes = ArrayList<BipDerivationType>()
+        val result: WalletAccount<*, *>
+        when (config) {
+            is UnrelatedHDAccountConfig -> {
+                val accountIndex = 0  // use any index for this account, as we don't know and we don't care
+                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+                val derivationTypes = ArrayList<BipDerivationType>()
 
-            // get a subKeyStorage, to ensure that the data for this key does not get mixed up
-            // with other derived or imported keys.
-            val secureStorage = secureStore.createNewSubKeyStore()
+                // get a subKeyStorage, to ensure that the data for this key does not get mixed up
+                // with other derived or imported keys.
+                val secureStorage = secureStore.createNewSubKeyStore()
 
-            for (hdKeyNode in cfg.hdKeyNodes) {
-                val derivationType = hdKeyNode.derivationType
-                derivationTypes.add(derivationType)
-                if (hdKeyNode.isPrivateHdKeyNode) {
-                    try {
-                        keyManagerMap[derivationType] = HDAccountKeyManager.createFromAccountRoot(hdKeyNode, networkParameters,
-                                accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType)
-                    } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
-                        throw RuntimeException(invalidKeyCipher)
+                for (hdKeyNode in config.hdKeyNodes) {
+                    val derivationType = hdKeyNode.derivationType
+                    derivationTypes.add(derivationType)
+                    if (hdKeyNode.isPrivateHdKeyNode) {
+                        try {
+                            keyManagerMap[derivationType] = HDAccountKeyManager.createFromAccountRoot(hdKeyNode, networkParameters,
+                                    accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType)
+                        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+                            throw RuntimeException(invalidKeyCipher)
+                        }
+
+                    } else {
+                        keyManagerMap[derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
+                                networkParameters, accountIndex, secureStorage, derivationType)
+                    }
+                }
+                val id = keyManagerMap[derivationTypes[0]]!!.accountId
+
+                // Generate the context for the account
+                val accountType = if (config.hdKeyNodes.get(0).isPrivateHdKeyNode) {
+                    ACCOUNT_TYPE_UNRELATED_X_PRIV
+                } else {
+                    ACCOUNT_TYPE_UNRELATED_X_PUB
+                }
+                val context = HDAccountContext(id, accountIndex, false, accountType,
+                        secureStorage.subId, derivationTypes)
+                backing.beginTransaction()
+                try {
+                    backing.createBip44AccountContext(context)
+                    // Get the accountBacking for the new account
+                    val accountBacking = backing.getBip44AccountBacking(context.id)
+
+                    // Create actual account
+                    result = if (config.hdKeyNodes[0].isPrivateHdKeyNode) {
+                        HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                    } else {
+                        HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
                     }
 
-                } else {
+                    // Finally persist context and add account
+                    context.persist(accountBacking)
+                    backing.setTransactionSuccessful()
+                } finally {
+                    backing.endTransaction()
+                }
+            }
+            is AdditionalHDAccountConfig -> {
+                // Get the master seed
+                val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
+
+                val accountIndex = getNextBip44Index()
+
+                // Create the base keys for the account
+                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+                for (derivationType in BipDerivationType.values()) {
+                    // Generate the root private key
+                    val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
+                    keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
+                            secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
+                }
+
+                // Generate the context for the account
+                val context = HDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId,
+                        accountIndex, false, settings.defaultAddressType)
+
+                backing.beginTransaction()
+                try {
+                    backing.createBip44AccountContext(context)
+
+                    // Get the accountBacking for the new account
+                    val accountBacking = backing.getBip44AccountBacking(context.id)
+
+                    // Create actual account
+                    result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                            settings.changeAddressModeReference)
+
+                    // Finally persist context and add account
+                    context.persist(accountBacking)
+                    backing.setTransactionSuccessful()
+                } finally {
+                    backing.endTransaction()
+                }
+            }
+            is ExternalSignaturesAccountConfig -> {
+                val accountIndex = config.accountIndex
+                val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
+                val derivationTypes = ArrayList<BipDerivationType>()
+
+                // get a subKeyStorage, to ensure that the data for this key does not get mixed up
+                // with other derived or imported keys.
+                val secureStorage = secureStore.createNewSubKeyStore()
+
+                for (hdKeyNode in config.hdKeyNodes) {
+                    val derivationType = hdKeyNode.derivationType
+                    derivationTypes.add(derivationType)
                     keyManagerMap[derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
                             networkParameters, accountIndex, secureStorage, derivationType)
                 }
-            }
-            val id = keyManagerMap[derivationTypes[0]]!!.accountId
+                val id = keyManagerMap[derivationTypes[0]]!!.accountId
 
-            // Generate the context for the account
-            val context: HDAccountContext
-            if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) {
-                context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PRIV,
-                        secureStorage.subId, derivationTypes)
-            } else {
-                context = HDAccountContext(id, accountIndex, false, ACCOUNT_TYPE_UNRELATED_X_PUB,
-                        secureStorage.subId, derivationTypes)
-            }
-            backing.beginTransaction()
-            try {
-                backing.createBip44AccountContext(context)
-                // Get the accountBacking for the new account
-                val accountBacking = backing.getBip44AccountBacking(context.id)
+                // Generate the context for the account
+                val context = HDAccountContext(id, accountIndex, false, config.provider.biP44AccountType,
+                        secureStorage.subId, derivationTypes, settings.defaultAddressType)
+                backing.beginTransaction()
+                try {
+                    backing.createBip44AccountContext(context)
 
-                // Create actual account
-                result = if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) {
-                    HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
-                } else {
-                    HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
+                    // Get the accountBacking for the new account
+                    val accountBacking = backing.getBip44AccountBacking(context.id)
+
+                    // Create actual account
+                    result = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
+                            config.provider, settings.changeAddressModeReference)
+
+                    // Finally persist context and add account
+                    context.persist(accountBacking)
+                    backing.setTransactionSuccessful()
+                } finally {
+                    backing.endTransaction()
                 }
-
-                // Finally persist context and add account
-                context.persist(accountBacking)
-                backing.setTransactionSuccessful()
-            } finally {
-                backing.endTransaction()
             }
-        } else if (config is AdditionalHDAccountConfig) {
-            // Get the master seed
-            val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
-
-            val accountIndex = getNextBip44Index()
-
-            // Create the base keys for the account
-            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-            for (derivationType in BipDerivationType.values()) {
-                // Generate the root private key
-                val root = HdKeyNode.fromSeed(masterSeed.bip32Seed, derivationType)
-                keyManagerMap[derivationType] = HDAccountKeyManager.createNew(root, networkParameters, accountIndex,
-                        secureStore, AesKeyCipher.defaultKeyCipher(), derivationType)
-            }
-
-            // Generate the context for the account
-            val context = HDAccountContext(keyManagerMap[BipDerivationType.BIP44]!!.accountId
-                    , accountIndex, false, settings.defaultAddressType)
-
-            backing.beginTransaction()
-            try {
-                backing.createBip44AccountContext(context)
-
-                // Get the accountBacking for the new account
-                val accountBacking = backing.getBip44AccountBacking(context.id)
-
-                // Create actual account
-                result = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        settings.changeAddressModeReference)
-
-                // Finally persist context and add account
-                context.persist(accountBacking)
-                backing.setTransactionSuccessful()
-            } finally {
-                backing.endTransaction()
-            }
-
-        } else if (config is ExternalSignaturesAccountConfig) {
-            val cfg = config
-            val accountIndex = cfg.accountIndex
-            val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
-            val derivationTypes = ArrayList<BipDerivationType>()
-
-            // get a subKeyStorage, to ensure that the data for this key does not get mixed up
-            // with other derived or imported keys.
-            val secureStorage = secureStore.createNewSubKeyStore()
-
-            for (hdKeyNode in cfg.hdKeyNodes) {
-                val derivationType = hdKeyNode.derivationType
-                derivationTypes.add(derivationType)
-                keyManagerMap[derivationType] = HDPubOnlyAccountKeyManager.createFromPublicAccountRoot(hdKeyNode,
-                        networkParameters, accountIndex, secureStorage, derivationType)
-            }
-            val id = keyManagerMap[derivationTypes[0]]!!.accountId
-
-            // Generate the context for the account
-            val context = HDAccountContext(id, accountIndex, false, cfg.provider.biP44AccountType,
-                    secureStorage.subId, derivationTypes, settings.defaultAddressType)
-            backing.beginTransaction()
-            try {
-                backing.createBip44AccountContext(context)
-
-                // Get the accountBacking for the new account
-                val accountBacking = backing.getBip44AccountBacking(context.id)
-
-                // Create actual account
-                result = HDAccountExternalSignature(context, keyManagerMap, networkParameters, accountBacking, _wapi,
-                        cfg.provider, settings.changeAddressModeReference)
-
-                // Finally persist context and add account
-                context.persist(accountBacking)
-                backing.setTransactionSuccessful()
-            } finally {
-                backing.endTransaction()
-            }
-        }
-
-        if (result == null) {
-            throw IllegalStateException("Account can't be created")
+            else -> throw IllegalStateException("Account can't be created")
         }
         accounts[result.id] = result as HDAccount
         result.setEventHandler(eventHandler)
