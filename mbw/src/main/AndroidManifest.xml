@@ -187,7 +187,8 @@
         <activity
             android:name=".activity.settings.SetLocalCurrencyActivity"
             android:theme="@style/MyceliumSettings" />
-        <activity android:name=".activity.export.ExportAsQrActivity" />
+        <activity android:name=".activity.export.ExportAsQrActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".activity.export.BackupToPdfActivity" />
         <activity android:name=".activity.export.MrdDecryptDataActivity" />
         <activity android:name=".activity.export.VerifyBackupActivity" />
@@ -200,7 +201,8 @@
         <activity android:name=".activity.send.SendMainActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity android:name=".activity.receive.ReceiveCoinsActivity" />
+        <activity android:name=".activity.receive.ReceiveCoinsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".simplex.SimplexMainActivity" />
         <activity android:name=".external.changelly.ChangellyActivity"
             android:screenOrientation="portrait"/>
