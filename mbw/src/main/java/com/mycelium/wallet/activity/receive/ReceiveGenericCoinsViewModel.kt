@@ -12,7 +12,7 @@ class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewM
     override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         accountLabel = account.coinType.symbol
-        model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, accountLabel, showIncomingUtxo)
     }
 
     override fun getFormattedValue(sum: Value) = sum.toStringWithUnit()

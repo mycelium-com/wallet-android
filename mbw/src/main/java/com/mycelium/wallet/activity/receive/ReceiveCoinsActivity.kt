@@ -13,8 +13,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.widget.PopupMenu
 import com.mrd.bitlib.model.AddressType
-import android.view.Window
-import android.view.WindowManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
@@ -37,8 +35,6 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         val mbwManager = MbwManager.getInstance(application)
         val account = mbwManager.selectedAccount
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)

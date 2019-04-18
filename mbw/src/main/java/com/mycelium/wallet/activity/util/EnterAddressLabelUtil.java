@@ -94,15 +94,6 @@ public class EnterAddressLabelUtil {
       }
 
       @Override
-      public boolean validateTextOnOk(String newText, String oldText) {
-         // Make sure that no address exists with that name, or that we are
-         // updating the existing entry with the same name. It is OK for the
-         // name to be empty, in which case it will get deleted
-         Optional<Address> address = _storage.getAddressByLabel(newText);
-         return !address.isPresent() || address.get().equals(_address);
-      }
-
-      @Override
       public boolean getVibrateOnInvalidOk(String newText, String oldText) {
          return true;
       }
