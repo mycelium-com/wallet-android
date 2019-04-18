@@ -233,7 +233,6 @@ public class PopActivity extends Activity {
       savedInstanceState.putSerializable("txidToProve", txidToProve);
    }
 
-
    public void sendPop(View view) {
       try {
          if (txidToProve == null) {
@@ -244,7 +243,6 @@ public class PopActivity extends Activity {
          final UnsignedTransaction unsignedPop = ((WalletBtcAccount)account).createUnsignedPop(txidToProve, popRequest.getN());
 
          _mbwManager.runPinProtectedFunction(this, new Runnable() {
-
             @Override
             public void run() {
                disableButtons();
