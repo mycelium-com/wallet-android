@@ -48,7 +48,6 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
-    implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'

@@ -63,8 +63,6 @@ import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
-import org.bitcoinj.core.ScriptException
-import org.bitcoinj.script.ScriptBuilder
 import java.util.UUID
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -74,8 +72,6 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatus
 import com.mycelium.wapi.wallet.AccountScanManager
 import com.mycelium.wapi.wallet.btc.bip44.*
 import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
-import org.bitcoinj.core.NetworkParameters.ID_MAINNET
-import org.bitcoinj.core.NetworkParameters.ID_TESTNET
 
 abstract class ExternalSignatureDeviceManager(context: Context, network: NetworkParameters, eventBus: Bus) : AbstractAccountScanManager(context, network, eventBus), ExternalSignatureProvider {
     private val pinMatrixEntry = LinkedBlockingQueue<String>(1)
@@ -419,26 +415,6 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
             postErrorMessage("Trezor TX not valid.")
             Log.e("trezor", "Trezor TX not valid " + e.message, e)
             return null
-        } catch (e: ScriptException) {
-            postErrorMessage("Probably wrong passphrase.")
-            Log.e(TAG, "bitcoinJ doesn't like this transaction: ", e)
-            return null
-        }
-    }
-
-    /**
-     * At least Trezor and KeepKey have no way of knowing the input scripts as they see only the outpoints that they are asked to sign against. Therefore, they tend to sign with wrong keys, if using a passphrase that is not stored in the app. See https://github.com/mycelium-com/wallet/issues/169
-     */
-    private fun checkSignedTransaction(unsigned: UnsignedTransaction, signedTx: ByteWriter) {
-        val networkParameters = org.bitcoinj.core.NetworkParameters.fromID(if (network.isProdnet) ID_MAINNET else ID_TESTNET)
-        val tx = org.bitcoinj.core.Transaction(networkParameters, signedTx.toBytes())
-        for (i in 0 until tx.inputs.size) {
-            val input = tx.getInput(i.toLong())
-            val scriptSig = input.scriptSig
-
-            val addressString = unsigned.fundingOutputs[i].script.getAddress(network).toString()
-            val outputScript = ScriptBuilder.createOutputScript(org.bitcoinj.core.Address.fromBase58(networkParameters, addressString))
-            scriptSig.correctlySpends(tx, i.toLong(), outputScript, org.bitcoinj.script.Script.ALL_VERIFY_FLAGS)
         }
     }
 
