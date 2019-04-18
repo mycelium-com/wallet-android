@@ -28,7 +28,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
