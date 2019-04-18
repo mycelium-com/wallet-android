@@ -25,7 +25,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static org.bitcoinj.core.Utils.formatMessageForSigning;
+import com.mrd.bitlib.util.X509Utils;
 
 public class MessageVerifyActivity extends Activity {
 
@@ -78,7 +78,7 @@ public class MessageVerifyActivity extends Activity {
         if (matcher.find()) {
             address = Address.fromString(matcher.group(6));
             String msg = matcher.group(1);
-            Sha256Hash data = HashUtils.doubleSha256(formatMessageForSigning(msg));
+            Sha256Hash data = HashUtils.doubleSha256(X509Utils.formatMessageForSigning(msg));
             try {
                 SignedMessage signedMessage = SignedMessage.validate(address, msg, matcher.group(7));
                 checkResult = signedMessage.getPublicKey().verifyDerEncodedSignature(data, signedMessage.getDerEncodedSignature());
