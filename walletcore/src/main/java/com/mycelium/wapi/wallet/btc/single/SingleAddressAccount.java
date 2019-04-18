@@ -17,6 +17,7 @@
 package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.SigningRequest;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -41,16 +42,16 @@ import com.mycelium.wapi.wallet.GenericInput;
 import com.mycelium.wapi.wallet.InputSigner;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.btc.BtcReceiver;
-import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager.Event;
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
@@ -552,9 +553,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
         if (canSpend()) {
             try {
                 PrivateKey key = getPrivateKey(keyCipher);
-                input.getTransactionInput().script = new ScriptInputStandard(
-                        key.makeStandardBitcoinSignature(input.getTransaction().getTxDigestHash(input.getIndex()))
-                        , key.getPublicKey().getPublicKeyBytes());
+                byte[] signature = StandardTransactionBuilder.generateSignatures(new SigningRequest[]{
+                                new SigningRequest(key.getPublicKey(),
+                                        input.getTransaction().getTxDigestHash(input.getIndex()))}
+                        , new PrivateKeyRing(keyCipher)).get(0);
+                input.getTransactionInput().script = new ScriptInputStandard(signature, key.getPublicKey().getPublicKeyBytes());
             } catch (InvalidKeyCipher invalidKeyCipher) {
                 invalidKeyCipher.printStackTrace();
             }

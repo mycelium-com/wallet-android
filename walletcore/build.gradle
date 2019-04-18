@@ -13,6 +13,8 @@ dependencies {
     implementation project(includePrefix +':wapi')
     implementation project(includePrefix + ':coinapult')
 
+    implementation project(includePrefix + ':bitcoincashj:core')
+
     implementation guavaArtifact
     implementation 'com.fasterxml.jackson.core:jackson-core:2.8.4'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'

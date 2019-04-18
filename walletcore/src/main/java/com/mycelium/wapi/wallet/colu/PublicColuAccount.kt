@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -33,7 +34,13 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return FeeEstimationsGeneric(
+                Value.valueOf(coinType, 1000),
+                Value.valueOf(coinType, 3000),
+                Value.valueOf(coinType, 6000),
+                Value.valueOf(coinType, 8000),
+                0
+        )
     }
 
     override fun getDummyAddress(subType: String): BtcAddress {
@@ -145,7 +152,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), System.currentTimeMillis())
+        return defaultFeeEstimation
     }
 
 

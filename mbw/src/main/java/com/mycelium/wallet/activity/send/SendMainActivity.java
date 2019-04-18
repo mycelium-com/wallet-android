@@ -133,6 +133,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuSendRequest;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -367,19 +368,20 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _account.getDefaultFeeEstimation();
 
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, FeeEstimationsGeneric>() {
+            @SuppressLint("WrongThread")
             @Override
-            protected Void doInBackground(Void... voids) {
+            protected FeeEstimationsGeneric doInBackground(Void... voids) {
                 feeEstimation = _account.getFeeEstimations();
-                return null;
+                return feeEstimation;
             }
 
             @Override
-            protected void onPostExecute(Void v) {
+            protected void onPostExecute(FeeEstimationsGeneric v) {
                 updateUi();
             }
 
-        }.execute(null, null, null);
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         selectedFee = getCurrentFeeEstimation();
 
@@ -716,7 +718,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     return;
                 }
             }
-            signTransaction();
+            if (_account instanceof PublicColuAccount) {
+                sendTransaction();
+            } else {
+                signTransaction();
+            }
         }
     };
 
@@ -1046,7 +1052,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
+        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency
+                && !(sendRequest.type instanceof ColuMain)) {
             // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
             UnsignedTransaction _unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
             if (_unsigned != null) {

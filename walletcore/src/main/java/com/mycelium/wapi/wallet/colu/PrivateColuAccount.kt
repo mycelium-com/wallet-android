@@ -8,11 +8,12 @@ import com.mrd.bitlib.model.*
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.params.TestNet3Params
+import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
 
@@ -29,10 +30,6 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
     override fun isSyncing(): Boolean {
         //TODO: implement later
         return false
-    }
-
-    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
@@ -90,8 +87,24 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                         throw Exception("input ${input.outPoint} not signed")
                     }
                 }
-                request.tx = ColuTransaction(it.id, coinType, Value.zeroValue(coinType), 0, it
-                        , 0, 0, false, listOf(), listOf())
+                val tx = Transaction(it.version, it.inputs, it.outputs, it.lockTime)
+
+                val txBytes = Hex.decodeHex(request.txHex?.toCharArray());
+                val privKey = request.fundingAccounts[0].getPrivateKey(keyCipher)
+                val signTx = org.bitcoinj.core.Transaction(TestNet3Params.get(), txBytes)
+                val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privKey.privateKeyBytes, privKey.publicKey.publicKeyBytes)
+                val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(TestNet3Params.get()))
+
+                for (i in 0..signTx.inputs.size - 1) {
+                    val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
+                    val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
+                    signTx.getInput(i.toLong()).setScriptSig(scriptSig)
+                }
+                val signedTransactionBytes = signTx.bitcoinSerialize()
+                val tx2 = Transaction.fromBytes(signedTransactionBytes)
+
+                request.tx = ColuTransaction(tx.id, coinType, Value.zeroValue(coinType), 0,
+                        tx, 0, 0, false, listOf(), listOf())
             }
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
