@@ -85,7 +85,6 @@ public class BtcSendRequest extends BitcoinBasedSendRequest<BtcTransaction> impl
             if (out.height == -1 && ((WalletBtcAccount)account).isOwnExternalAddress(address)) {
                 // this is an unconfirmed output from an external address -> we want to warn the user
                 // we allow unconfirmed spending of internal (=change addresses) without warning
-
                 return true;
             }
         }
