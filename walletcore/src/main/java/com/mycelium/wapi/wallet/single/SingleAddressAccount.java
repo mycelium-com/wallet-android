@@ -63,12 +63,12 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
       if (shouldPersistAddress) {
-          persistAddresses();
+         persistAddresses();
       }
-       _addressList.addAll(context.getAddresses().values());
-       _cachedBalance = _context.isArchived()
-               ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
-               : calculateLocalBalance();
+      _addressList.addAll(context.getAddresses().values());
+      _cachedBalance = _context.isArchived()
+              ? new Balance(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
+              : calculateLocalBalance();
    }
 
    private void persistAddresses() {
@@ -303,6 +303,9 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected Address getChangeAddress(Address destinationAddress) {
+      if (!getPublicKey().isCompressed())
+         return getAddress();
+
       Address result;
       switch (changeAddressModeReference.get()) {
          case P2WPKH:
@@ -325,8 +328,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected Address getChangeAddress(List<Address> destinationAddresses) {
+      if (!getPublicKey().isCompressed())
+         return getAddress();
+
       Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
-      for (Address address: destinationAddresses) {
+      for (Address address : destinationAddresses) {
          Integer currentValue = mostUsedTypesMap.get(address.getType());
          if (currentValue == null) {
             currentValue = 0;
@@ -423,13 +429,13 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
-       if (getPublicKey() == null) {
-           _keyStore.forgetPrivateKey(getAddress(), cipher);
-       } else {
-           for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
-               _keyStore.forgetPrivateKey(address, cipher);
-           }
-       }
+      if (getPublicKey() == null) {
+         _keyStore.forgetPrivateKey(getAddress(), cipher);
+      } else {
+         for (Address address : getPublicKey().getAllSupportedAddresses(_network, true).values()) {
+            _keyStore.forgetPrivateKey(address, cipher);
+         }
+      }
    }
 
    public InMemoryPrivateKey getPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
