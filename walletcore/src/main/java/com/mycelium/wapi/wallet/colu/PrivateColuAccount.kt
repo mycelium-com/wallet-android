@@ -2,18 +2,17 @@ package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.FeeEstimatorBuilder
-import com.mrd.bitlib.crypto.BipDerivationType
-import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.StandardTransactionBuilder
+import com.mrd.bitlib.UnsignedTransaction
+import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.*
 import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.apache.commons.codec.binary.Hex
-import org.bitcoinj.core.ECKey
-import org.bitcoinj.params.TestNet3Params
-import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
 
@@ -76,35 +75,51 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         }
         if (request is ColuSendRequest) {
             request.baseTransaction?.let {
-                for ((index, input) in it.inputs.withIndex()) {
+                val unspentTx = mutableListOf<UnspentTransactionOutput>()
+                it.inputs.forEach { txInput ->
                     for (fundingAccount in request.fundingAccounts) {
-                        val output = fundingAccount.getTx(input.outPoint.txid).outputs[input.outPoint.index]
-                        if (fundingAccount is InputSigner && fundingAccount.isMineAddress(output.address)) {
-                            fundingAccount.signInput(GenericInput(it, input, index), keyCipher)
+                        val tx = fundingAccount.getTx(txInput.outPoint.txid)
+                        if (tx != null && tx is BtcTransaction) {
+                            val script = tx.rawTransaction.outputs[txInput.outPoint.index].script
+                            unspentTx.add(UnspentTransactionOutput(txInput.outPoint, tx.height, txInput.value, script))
                         }
                     }
-                    if (input.script.scriptBytes.isEmpty()) {
-                        throw Exception("input ${input.outPoint} not signed")
+                }
+
+                val ring = object : IPublicKeyRing {
+                    override fun findPublicKeyByAddress(address: Address?): PublicKey? {
+                        var pubKey: PublicKey? = null
+                        for (fundingAccount in request.fundingAccounts) {
+                            if (fundingAccount.isMineAddress(BtcAddress(fundingAccount.coinType, address))) {
+                                pubKey = fundingAccount.getPrivateKey(keyCipher).publicKey
+                                break
+                            }
+                        }
+                        return pubKey
                     }
                 }
-                val tx = Transaction(it.version, it.inputs, it.outputs, it.lockTime)
+                val unsignedTransaction = UnsignedTransaction(it.outputs.toList(), unspentTx, ring, networkParameters, it.lockTime, it.minSequenceNumber.toInt())
 
-                val txBytes = Hex.decodeHex(request.txHex?.toCharArray());
-                val privKey = request.fundingAccounts[0].getPrivateKey(keyCipher)
-                val signTx = org.bitcoinj.core.Transaction(TestNet3Params.get(), txBytes)
-                val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privKey.privateKeyBytes, privKey.publicKey.publicKeyBytes)
-                val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(TestNet3Params.get()))
-
-                for (i in 0..signTx.inputs.size - 1) {
-                    val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
-                    val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
-                    signTx.getInput(i.toLong()).setScriptSig(scriptSig)
+                val privateRing = object : IPrivateKeyRing {
+                    override fun findSignerByPublicKey(publicKey: PublicKey?): BitcoinSigner? {
+                        var signer:BitcoinSigner? = null
+                        for (fundingAccount in request.fundingAccounts) {
+                            if(fundingAccount.getPrivateKey(keyCipher).publicKey == publicKey) {
+                                signer = fundingAccount.getPrivateKey(keyCipher)
+                                break
+                            }
+                        }
+                        return signer
+                    }
                 }
-                val signedTransactionBytes = signTx.bitcoinSerialize()
-                val tx2 = Transaction.fromBytes(signedTransactionBytes)
+                // Make all signatures, this is the CPU intensive part
+                val signatures = StandardTransactionBuilder.generateSignatures(unsignedTransaction.signingRequests, privateRing)
 
-                request.tx = ColuTransaction(tx.id, coinType, Value.zeroValue(coinType), 0,
-                        tx, 0, 0, false, listOf(), listOf())
+                // Apply signatures and finalize transaction
+                val signTx = StandardTransactionBuilder.finalizeTransaction(unsignedTransaction, signatures)
+
+                request.tx = ColuTransaction(signTx.id, coinType, Value.zeroValue(coinType), 0,
+                        signTx, 0, 0, false, listOf(), listOf())
             }
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")

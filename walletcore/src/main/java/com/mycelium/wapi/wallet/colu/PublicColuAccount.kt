@@ -7,7 +7,6 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -176,17 +175,28 @@ open class PublicColuAccount(val context: ColuAccountContext
         var confirmed = Value.zeroValue(coinType)
         var receiving = Value.zeroValue(coinType)
         var sending = Value.zeroValue(coinType)
+        var change = Value.zeroValue(coinType)
 
         for (tx in transactions) {
+            var s = Value.zeroValue(coinType)
+            var r = Value.zeroValue(coinType)
             tx.inputs.forEach {
-                if (tx.confirmations < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations == 0 && isMineAddress(it.address)) {
                     sending = sending.add(it.value)
+                    s.add(it.value)
                 }
             }
             tx.outputs.forEach {
-                if (tx.confirmations < 6 && isMineAddress(it.address)) {
+                if (tx.confirmations == 0 && isMineAddress(it.address)) {
                     receiving = receiving.add(it.value)
+                    r.add(it.value)
                 }
+            }
+            val c = s.add(r.negate())
+            if(!c.isZero) {
+                change.add(c)
+                receiving = receiving.add(c.negate())
+                sending = sending.add(c.negate())
             }
         }
         unspent.forEach {
