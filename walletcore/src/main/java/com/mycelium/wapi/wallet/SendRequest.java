@@ -34,4 +34,8 @@ public abstract class SendRequest<T extends GenericTransaction> implements Seria
     }
 
     public abstract int getEstimatedTransactionSize();
+
+    public boolean isHasUnconfirmed(WalletAccount _account) {
+        return false;
+    }
 }

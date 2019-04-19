@@ -53,13 +53,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
+import android.widget.*;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
@@ -73,11 +70,7 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
-import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -110,15 +103,7 @@ import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
-import com.mycelium.wapi.wallet.BroadcastResult;
-import com.mycelium.wapi.wallet.BroadcastResultType;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -137,30 +122,14 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.squareup.otto.Subscribe;
-
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import java.util.*;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_LONG;
-import static android.widget.Toast.LENGTH_SHORT;
-import static android.widget.Toast.makeText;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static android.widget.Toast.*;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -188,6 +157,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final String SIGNED_SEND_REQUEST = "transactionRequest";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
     private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+    private boolean _spendingUnconfirmed;
 
     private enum TransactionStatus {
         MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
@@ -736,6 +706,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (hasAddressData) {
                 sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
                 _account.completeTransaction(sendRequest);
+                _spendingUnconfirmed = sendRequest.isHasUnconfirmed(_account);
             } else {
                 return TransactionStatus.MissingArguments;
             }
@@ -941,7 +912,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     void updateError() {
         boolean tvErrorShow;
-        boolean _spendingUnconfirmed = false;
         switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
