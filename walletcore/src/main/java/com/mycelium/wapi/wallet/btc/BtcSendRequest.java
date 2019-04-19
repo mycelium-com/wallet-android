@@ -71,18 +71,18 @@ public class BtcSendRequest extends BitcoinBasedSendRequest<BtcTransaction> impl
     }
 
     @Override
-    public boolean isHasUnconfirmed(WalletAccount _account) {
+    public boolean isSpendingUnconfirmed(WalletAccount account) {
         NetworkParameters networkParameters =
                 type.equals(BitcoinMain.get()) ? NetworkParameters.productionNetwork :
                         type.equals(BitcoinTest.get()) ? NetworkParameters.testNetwork : null;
 
-        if (unsignedTx == null || networkParameters == null || !(_account instanceof WalletBtcAccount)) {
+        if (unsignedTx == null || networkParameters == null || !(account instanceof WalletBtcAccount)) {
             return false;
         }
 
         for (UnspentTransactionOutput out : unsignedTx.getFundingOutputs()) {
             Address address = out.script.getAddress(networkParameters);
-            if (out.height == -1 && ((WalletBtcAccount)_account).isOwnExternalAddress(address)) {
+            if (out.height == -1 && ((WalletBtcAccount)account).isOwnExternalAddress(address)) {
                 // this is an unconfirmed output from an external address -> we want to warn the user
                 // we allow unconfirmed spending of internal (=change addresses) without warning
 

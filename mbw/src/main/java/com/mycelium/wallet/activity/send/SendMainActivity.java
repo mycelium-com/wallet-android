@@ -706,7 +706,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (hasAddressData) {
                 sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
                 _account.completeTransaction(sendRequest);
-                _spendingUnconfirmed = sendRequest.isHasUnconfirmed(_account);
+                _spendingUnconfirmed = sendRequest.isSpendingUnconfirmed(_account);
             } else {
                 return TransactionStatus.MissingArguments;
             }
