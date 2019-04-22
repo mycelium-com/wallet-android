@@ -120,4 +120,3 @@ class MasterseedScanManager : AbstractAccountScanManager {
         }
     }
 }
-

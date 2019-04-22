@@ -75,21 +75,20 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
         $ mv local.properties local.properties.bak \
             ; docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
-            ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x \
+            ./gradlew clean test :mbw:assProdRel \
             && ./collectApks.sh
             ; sudo chown -R $USER:$USER . \
             ; mv local.properties.bak local.properties
             
   What this line does: `local.properties` can break docker compiles. Move it out of the way. Run the
-  mycelium-wallet docker with gradle test and compilation for both mbw and modulespvbch (or skip the
-  latter). `collectApks.sh` copies all apks to `/tmp/release_mbw/` for easier handling. As docker
+  mycelium-wallet docker with gradle test and compilation of mbw.
+  `collectApks.sh` copies all apks to `/tmp/release_mbw/` for easier handling. As docker
   might run as a different user, its generated files will also be "not yours". Make them yours using
   `chown` as super user. Last, restore whatever you had as `local.properties`.
   
   As maintainer with release keys you want to run a slightly different command:
   Add these docker parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
   Build all these targets `:mbw:assBtctRel :mbw:assProdRel :mbw:assBtctDeb :mbw:assProdDeb`
-  and these if needed `:modulespvbch:assBtctRel :modulespvbch:assProdRel :modulespvbch:assBtctDeb :modulespvbch:assProdDeb`
   and to turn the missing release keys into an error, add this gradle option `-PenforceReleaseSigning`
   
   After this step succeeds, all apks are in `/tmp/release_mbw/`.
