@@ -138,7 +138,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         } else {
             // P2WPKH (and native P2WSH) do not allow uncompressed public keys as per
             // [BIP143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#restrictions-on-public-key-type).
-            // although we create the addresses compressing he uncompressed key first, this is not
+            // although we create addresses compressing the uncompressed key first, this is not
             // standard, so we don't show receiving addresses of this type and neither send change
             // there in order to maintain compatibility.
             listOf(AddressType.P2PKH)
