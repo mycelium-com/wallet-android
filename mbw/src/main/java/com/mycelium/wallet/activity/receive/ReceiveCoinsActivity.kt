@@ -11,6 +11,7 @@ import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
+import android.view.View
 import android.widget.PopupMenu
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
@@ -30,6 +31,7 @@ import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
+import asStringRes
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -65,37 +67,38 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         if (viewModel is ReceiveBtcViewModel &&
                (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            createAddressDropdown((account as? AbstractAccount)?.availableAddressTypes!!)
+            val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
+                (account as AbstractAccount).availableAddressTypes
+            } else {
+                mutableListOf(AddressType.P2PKH)
+            }
+            createAddressDropdown(addressTypes)
         }
     }
 
     private fun createAddressDropdown(addressTypes: MutableList<AddressType>) {
-        val btcViewModel = (viewModel as ReceiveBtcViewModel)
-
-        val descriptionMap: Map<AddressType, Int> = addressTypes.map {
-            it to when(it) {
-                AddressType.P2PKH -> R.string.p2pkh
-                AddressType.P2WPKH -> R.string.bech
-                AddressType.P2SH_P2WPKH -> R.string.p2sh
-            }
-        }.toMap()
-
-        val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
-        addressTypes.forEach {
-            addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, descriptionMap[it]!!)
-        }
-
-        addressDropdownLayout.setOnClickListener {
-            addressTypesMenu.show()
-        }
-
+        val btcViewModel = viewModel as ReceiveBtcViewModel
         // setting initial text based on current address type
-        selectedAddressText.text = getString(descriptionMap[btcViewModel.getAccountDefaultAddressType()]!!)
+        selectedAddressText.text = getString(btcViewModel.getAccountDefaultAddressType().asStringRes())
 
-        addressTypesMenu.setOnMenuItemClickListener { item ->
-            btcViewModel.setAddressType(AddressType.values()[item.itemId])
-            selectedAddressText.text = item.title
-            false
+        address_dropdown_image_view.visibility = if (addressTypes.size > 1) {
+            val addressTypesMenu = PopupMenu(this, addressDropdownLayout)
+            addressTypes.forEach {
+                addressTypesMenu.menu.add(Menu.NONE, it.ordinal, it.ordinal, it.asStringRes())
+            }
+
+            addressDropdownLayout.setOnClickListener {
+                addressTypesMenu.show()
+            }
+
+            addressTypesMenu.setOnMenuItemClickListener { item ->
+                btcViewModel.setAddressType(AddressType.values()[item.itemId])
+                selectedAddressText.text = item.title
+                false
+            }
+            View.VISIBLE
+        } else {
+            View.GONE
         }
     }
 
@@ -126,12 +129,13 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         receiveCoinsActivityNBinding.setLifecycleOwner(this)
     }
 
-    private fun getDefaultBinding(): ReceiveCoinsActivityBinding {
-        val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
-        contentView.viewModel = viewModel
-        contentView.activity = this
-        return contentView
-    }
+    private fun getDefaultBinding(): ReceiveCoinsActivityBinding =
+            DataBindingUtil
+                    .setContentView<ReceiveCoinsActivityBinding>(this, R.layout.receive_coins_activity)
+                    .also {
+                        it.viewModel = viewModel
+                        it.activity = this
+                    }
 
     private fun activateNfc() {
         val nfc = viewModel.getNfc()

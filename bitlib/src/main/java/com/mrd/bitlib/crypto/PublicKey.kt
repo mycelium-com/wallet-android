@@ -46,7 +46,7 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     fun toAddress(networkParameters: NetworkParameters, addressType: AddressType, ignoreCompression: Boolean = false): Address {
         return when (addressType) {
             AddressType.P2PKH -> toP2PKHAddress(networkParameters)
-            AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters)
+            AddressType.P2SH_P2WPKH -> toNestedP2WPKH(networkParameters, ignoreCompression)
             AddressType.P2WPKH -> toP2WPKH(networkParameters, ignoreCompression)
         }
     }
@@ -60,11 +60,14 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
     /**
      * @return [AddressType.P2SH_P2WPKH] address
      */
-    private fun toNestedP2WPKH(networkParameters: NetworkParameters): Address {
-        val hashedPublicKey = pubKeyHashCompressed
-        val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
-        return Address.fromP2SHBytes(HashUtils.addressHash(
-                BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+    private fun toNestedP2WPKH(networkParameters: NetworkParameters, ignoreCompression: Boolean = false): Address {
+        if (ignoreCompression || isCompressed) {
+            val hashedPublicKey = pubKeyHashCompressed
+            val prefix = byteArrayOf(Script.OP_0.toByte(), hashedPublicKey.size.toByte())
+            return Address.fromP2SHBytes(HashUtils.addressHash(
+                    BitUtils.concatenate(prefix, hashedPublicKey)), networkParameters)
+        }
+        throw IllegalStateException("Can't create segwit address from uncompressed key")
     }
 
     /**
@@ -135,7 +138,10 @@ class PublicKey(val publicKeyBytes: ByteArray) : Serializable {
         } else {
             // P2WPKH (and native P2WSH) do not allow uncompressed public keys as per
             // [BIP143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki#restrictions-on-public-key-type).
-            listOf(AddressType.P2PKH, AddressType.P2SH_P2WPKH)
+            // although we create the addresses compressing he uncompressed key first, this is not
+            // standard, so we don't show receiving addresses of this type and neither send change
+            // there in order to maintain compatibility.
+            listOf(AddressType.P2PKH)
         }
     }
 }

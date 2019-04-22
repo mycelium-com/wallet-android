@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
 import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
@@ -15,6 +14,7 @@ import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Subscribe
+import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
@@ -59,12 +59,7 @@ class AddressFragmentModel(
     private fun updateAddress(account: WalletAccount) {
         account.receivingAddress.orNull()?.let { address ->
             accountAddress.value = address
-            accountAddressType.value = context.getString(when (address.type) {
-                AddressType.P2PKH -> R.string.p2pkh
-                AddressType.P2SH_P2WPKH -> R.string.p2sh
-                AddressType.P2WPKH -> R.string.bech
-                null -> R.string.error
-            })
+            accountAddressType.value = context.getString(address.type.asStringRes())
         }
     }
 

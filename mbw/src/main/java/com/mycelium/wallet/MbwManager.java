@@ -316,7 +316,7 @@ public class MbwManager {
         // additional needed fiat currencies
         setCurrencyList(fiatCurrencies);
 
-        migrateOldKeys();
+        migrate();
         createTempWalletManager();
 
         _versionManager.initBackgroundVersionChecker();
@@ -518,6 +518,27 @@ public class MbwManager {
         currencySettings.setChangeAddressMode(changeAddressMode);
         _walletManager.setCurrencySettings(Currency.BTC, currencySettings);
         getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+    }
+
+    /**
+     * One time migration tasks that require more than what is at hands on the DB level can be
+     * migrated here.
+     */
+    private void migrate() {
+        int fromVersion = getPreferences().getInt("upToDateVersion", 0);
+        if(fromVersion < 20021) {
+            migrateOldKeys();
+        }
+        if(fromVersion < 2120028) {
+            // set default address type to P2PKH for uncompressed SA accounts
+            for(UUID accountId : _walletManager.getAccountIds()) {
+                WalletAccount account = _walletManager.getAccount(accountId);
+                if (account instanceof SingleAddressAccount && !((SingleAddressAccount) account).getPublicKey().isCompressed()) {
+                    ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
+                }
+            }
+        }
+        getPreferences().edit().putInt("upToDateVersion", 2120028).apply();
     }
 
     private void migrateOldKeys() {
