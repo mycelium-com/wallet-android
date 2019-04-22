@@ -36,7 +36,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                       internal val metadataStorage: IMetaDataStorage,
                       internal val signatureProviders: ExternalSignatureProviderProxy?,
                       internal val loadingProgressUpdater: LoadingProgressUpdater?,
-                      internal val eventHandler: AbstractBtcAccount.EventHandler) :
+                      internal val eventHandler: AbstractBtcAccount.EventHandler?) :
         GenericModule(metadataStorage), WalletModule {
 
     init {

@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.bip44;
 
+import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
@@ -14,14 +15,16 @@ import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
+import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
+import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HDAccountTest {
-    private static final String MASTER_SEED_WORDS = "oil oil oil oil oil oil oil oil oil oil oil oil";
+    private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
     private static final String MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS = "32LRQQsZt2dAzZq5HADLDEw5Fn8NzLhT35";
     private static final String MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS = "38irRg7yBNjrpiAFxK2ac6GX1EHhYyjCLy";
     private HDAccount account;
@@ -49,13 +52,32 @@ public class HDAccountTest {
         // Determine the next BIP44 account index
         Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(MASTER_SEED_WORDS.split(" "), "");
 
-        Map<Currency, CurrencySettings> currenciesSettingsMap = new HashMap<>();
-        currenciesSettingsMap.put(Currency.BTC, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
+        HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
+        currenciesSettingsMap.put(BitcoinHDModule.ID, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
-        WalletManager walletManager = new WalletManager(backing, NetworkParameters.productionNetwork, fakeWapi);
+        WalletManager walletManager = new WalletManager(NetworkParameters.productionNetwork, fakeWapi,
+                currenciesSettingsMap);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher);
+
+        walletManager.add(new BitcoinHDModule(backing, store, NetworkParameters.productionNetwork,
+                fakeWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), new IMetaDataStorage() {
+            @Override
+            public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
+
+            }
+
+            @Override
+            public String getKeyCategoryValueEntry(String key, String category, String defaultValue) {
+                return "";
+            }
+
+            @Override
+            public Optional<String> getFirstKeyForCategoryValue(String category, String value) {
+                return Optional.absent();
+            }
+        }, null, fakeLoadingProgressUpdater, null));
 
         UUID account1Id = walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
 
@@ -66,7 +88,7 @@ public class HDAccountTest {
      * Test that the first two addresses we generate agree with a specific seed agree with Wallet32
      */
     @Test
-    public void addressGenerationTest() throws KeyCipher.InvalidKeyCipher {
+    public void addressGenerationTest() {
         assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_EXTERNAL_0_ADDRESS), account.getReceivingAddress().get());
         assertEquals(Address.fromString(MASTER_SEED_ACCOUNT_0_INTERNAL_0_ADDRESS), account.getChangeAddress());
     }

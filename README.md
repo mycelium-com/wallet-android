@@ -75,7 +75,7 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
         $ mv local.properties local.properties.bak \
             ; docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
-            ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x :bitcoincashj:core:test \
+            ./gradlew clean test :mbw:assProdRel :modulespvbch:assProdRel -x \
             && ./collectApks.sh
             ; sudo chown -R $USER:$USER . \
             ; mv local.properties.bak local.properties

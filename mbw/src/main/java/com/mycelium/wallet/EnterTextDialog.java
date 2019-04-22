@@ -143,7 +143,7 @@ public class EnterTextDialog {
 
          @Override
          public void onClick(View v) {
-            EditText et = (EditText) layout.findViewById(R.id.etLabel);
+            EditText et = layout.findViewById(R.id.etLabel);
             String text = et.getText().toString().trim();
             if (enterNameHandler.validateTextOnOk(text, currentText)) {
                dialog.dismiss();

@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.coins.Value
 class ReceiveBchViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
-        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
     }
 
     override fun getFormattedValue(sum: Value) =  sum.toString(mbwManager.denomination)

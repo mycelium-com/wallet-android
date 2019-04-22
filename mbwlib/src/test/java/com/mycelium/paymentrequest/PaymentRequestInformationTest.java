@@ -2,7 +2,7 @@ package com.mycelium.paymentrequest;
 
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.model.NetworkParameters;
-import org.bitcoinj.crypto.X509Utils;
+import com.mrd.bitlib.util.X509Utils;
 import org.junit.Test;
 
 import java.io.File;
