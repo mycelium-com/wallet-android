@@ -43,6 +43,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    private List<Address> _addressList;
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
+   private PublicKey publicKey;
    private SingleAddressAccountBacking _backing;
    private Reference<ChangeAddressMode> changeAddressModeReference;
 
@@ -62,6 +63,7 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
       _context = context;
       _addressList = new ArrayList<>(3);
       _keyStore = keyStore;
+      publicKey = _keyStore.getPublicKey(getAddress());
       if (shouldPersistAddress) {
          persistAddresses();
       }
@@ -303,9 +305,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected Address getChangeAddress(Address destinationAddress) {
-      if (!getPublicKey().isCompressed())
-         return getAddress();
-
       Address result;
       switch (changeAddressModeReference.get()) {
          case P2WPKH:
@@ -328,9 +327,6 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
 
    @Override
    protected Address getChangeAddress(List<Address> destinationAddresses) {
-      if (!getPublicKey().isCompressed())
-         return getAddress();
-
       Map<AddressType, Integer> mostUsedTypesMap = new HashMap<>();
       for (Address address : destinationAddresses) {
          Integer currentValue = mostUsedTypesMap.get(address.getType());
@@ -466,6 +462,11 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    }
 
    public Address getAddress(AddressType type) {
+      if (publicKey != null && !publicKey.isCompressed()) {
+         if (type == AddressType.P2SH_P2WPKH || type == AddressType.P2WPKH) {
+            return null;
+         }
+      }
       return _context.getAddresses().get(type);
    }
 
@@ -480,10 +481,12 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
          } catch (InvalidKeyCipher ignore) {
          }
       }
-
       for (AddressType type : getAvailableAddressTypes()) {
-         publicDataMap.put(BipDerivationType.Companion.getDerivationTypeByAddressType(type),
-                 getAddress(type).toString());
+         Address address = getAddress(type);
+         if (address != null) {
+            publicDataMap.put(BipDerivationType.Companion.getDerivationTypeByAddressType(type),
+                    address.toString());
+         }
       }
       return new Data(privKey, publicDataMap);
    }
