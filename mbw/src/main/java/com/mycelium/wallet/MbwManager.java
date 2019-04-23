@@ -529,16 +529,19 @@ public class MbwManager {
         if(fromVersion < 20021) {
             migrateOldKeys();
         }
-        if(fromVersion < 2120028) {
+        if(fromVersion < 2120029) {
             // set default address type to P2PKH for uncompressed SA accounts
             for(UUID accountId : _walletManager.getAccountIds()) {
                 WalletAccount account = _walletManager.getAccount(accountId);
-                if (account instanceof SingleAddressAccount && !((SingleAddressAccount) account).getPublicKey().isCompressed()) {
-                    ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
+                if (account instanceof SingleAddressAccount) {
+                    PublicKey pubKey = ((SingleAddressAccount) account).getPublicKey();
+                    if(pubKey != null && !pubKey.isCompressed()) {
+                        ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
+                    }
                 }
             }
         }
-        getPreferences().edit().putInt("upToDateVersion", 2120028).apply();
+        getPreferences().edit().putInt("upToDateVersion", 2120029).apply();
     }
 
     private void migrateOldKeys() {
