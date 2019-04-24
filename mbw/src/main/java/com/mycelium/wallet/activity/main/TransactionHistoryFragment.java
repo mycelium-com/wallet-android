@@ -681,20 +681,14 @@ public class TransactionHistoryFragment extends Fragment {
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
                   @Override
-                  @SuppressWarnings("all")
                   public void onClick(DialogInterface dialog, int which) {
-                     // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
-                     if (unsigned != null) {
-                        CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                        BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
-                                new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
-                        sendRequest.setUnsignedTx(unsigned);
+                     CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+                     BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
+                             new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
+                     sendRequest.setUnsignedTx(unsigned);
 
-                        Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
-                        startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                     } else {
-                        new Toaster(getActivity()).toast("Bumping fee failed", false);
-                     }
+                     Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+                     startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      dialog.dismiss();
                   }
                });
