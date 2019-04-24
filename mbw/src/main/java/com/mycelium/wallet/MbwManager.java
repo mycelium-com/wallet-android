@@ -349,7 +349,7 @@ public class MbwManager {
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.Companion.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -545,7 +545,6 @@ public class MbwManager {
         List<Record> records = loadClassicRecords();
 
         for (Record record : records) {
-
             // Create an account from this record
             UUID account;
             if (record.hasPrivateKey()) {
@@ -609,7 +608,6 @@ public class MbwManager {
             });
         }
     };
-
 
     /**
      * Create a Wallet Manager instance

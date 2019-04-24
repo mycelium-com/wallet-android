@@ -47,11 +47,11 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +68,7 @@ public class ExportDistiller {
     private static final int LABEL_FONT_SIZE = 15;
     private static final int RECORDS_PR_PAGE = 3;
 
-    public static class ExportEntry<T> implements Serializable {
+    public static class ExportEntry implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public String encryptedKey;
@@ -98,7 +98,7 @@ public class ExportDistiller {
         public ExportProgressTracker(Iterable<ExportEntry> entries) {
             // Sum up all the work to do
             _totalWork = WATER_MARK_WORK;
-            for (ExportEntry<?> entry : entries) {
+            for (ExportEntry entry : entries) {
                 for(Address address: entry.addresses.values()){
                     if(address != null) {
                         _totalWork += ADDRESS_WORK;
@@ -141,10 +141,9 @@ public class ExportDistiller {
         // Write document to file
         String result = exportPrivateKeys(context, params, progressTracker);
         try {
-
             FileOutputStream stream;
             stream = getOutStream(context, filePath);
-            stream.write(result.getBytes("UTF-8"));
+            stream.write(result.getBytes(StandardCharsets.UTF_8));
             stream.close();
         } catch (IOException e) {
             Log.e("ExportDistiller", "IOException while writing file", e);
@@ -212,7 +211,6 @@ public class ExportDistiller {
                     }
                 }
             } else {
-                isOneEntryOnPage = true;
                 totalPages++;
             }
         }
@@ -220,7 +218,6 @@ public class ExportDistiller {
         PdfWriter writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
         // Watermark
-
         try {
             Bitmap watermark;
             watermark = BitmapFactory.decodeResource(context.getResources(), R.drawable.mycelium_splash_notext_corner);
@@ -395,7 +392,7 @@ public class ExportDistiller {
     }
 
     private static double addRecord(OffsetWriter writer, String title,
-                                    ExportEntry<?> entry, boolean addEndLine, ExportProgressTracker progressTracker) {
+                                    ExportEntry entry, boolean addEndLine, ExportProgressTracker progressTracker) {
 
         String encryptedKey = entry.encryptedKey;
         double fromTop = 0;

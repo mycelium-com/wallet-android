@@ -203,9 +203,9 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiForeign() {
-        Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
-        List<Entry> entries = new ArrayList<Entry>();
-        for (Map.Entry<Address, String> e : rawentries.entrySet()) {
+        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        List<Entry> entries = new ArrayList<>();
+        for (Map.Entry<Address, String> e : rawEntries.entrySet()) {
             entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -222,12 +222,12 @@ public class AddressBookFragment extends Fragment {
 
     private void updateUiSending() {
         List<GenericAddress> addresses = _mbwManager.getMetadataStorage().getAllGenericAddress();
-        Map<Address, String> rawentries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = _mbwManager.getSelectedAccount();
         for (GenericAddress address : addresses) {
             if (address.getCoinType().equals(account.getCoinType())) {
-                entries.add(new Entry(address, rawentries.get(Address.fromString(address.toString()))));
+                entries.add(new Entry(address, rawEntries.get(Address.fromString(address.toString()))));
             }
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -269,11 +269,10 @@ public class AddressBookFragment extends Fragment {
                     return true;
                 }
 
-                @SuppressWarnings("deprecation")
                 @Override
                 public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
                     currentActionMode = actionMode;
-                    view.setBackgroundDrawable(getResources().getDrawable(R.color.selectedrecord));
+                    view.setBackground(getResources().getDrawable(R.color.selectedrecord));
                     return true;
                 }
 
@@ -293,10 +292,9 @@ public class AddressBookFragment extends Fragment {
                     return false;
                 }
 
-                @SuppressWarnings("deprecation")
                 @Override
                 public void onDestroyActionMode(ActionMode actionMode) {
-                    view.setBackgroundDrawable(null);
+                    view.setBackground(null);
                     currentActionMode = null;
                 }
             });
@@ -347,50 +345,51 @@ public class AddressBookFragment extends Fragment {
                         finishActionMode();
                         MbwManager.getEventBus().post(new AddressBookChanged());
                     }
-                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                finishActionMode();
-            }
-        })
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finishActionMode();
+                    }
+                })
                 .create()
                 .show();
     }
 
-private class AddDialog extends Dialog {
-    public AddDialog(final Activity activity) {
-        super(activity);
-        this.setContentView(R.layout.add_to_address_book_dialog);
-        this.setTitle(R.string.add_to_address_book_dialog_title);
+    private class AddDialog extends Dialog {
+        public AddDialog(final Activity activity) {
+            super(activity);
+            this.setContentView(R.layout.add_to_address_book_dialog);
+            this.setTitle(R.string.add_to_address_book_dialog_title);
 
-        findViewById(R.id.btScan).setOnClickListener(new View.OnClickListener() {
+            findViewById(R.id.btScan).setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
-                ScanActivity.callMe(AddressBookFragment.this.getActivity(), SCAN_RESULT_CODE, request);
-                AddDialog.this.dismiss();
-            }
-        });
-
-        Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-        findViewById(R.id.btClipboard).setEnabled(address.isPresent());
-        findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                String address = Utils.getClipboardString(activity);
-                List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
-                if (!addresses.isEmpty()) {
-                    SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                    dialog.show(getFragmentManager(), "dialog");
-                } else {
-                    Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+                @Override
+                public void onClick(View v) {
+                    StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
+                    ScanActivity.callMe(AddressBookFragment.this.getActivity(), SCAN_RESULT_CODE, request);
+                    AddDialog.this.dismiss();
                 }
-                AddDialog.this.dismiss();
-            }
-        });
+            });
+
+            Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
+            findViewById(R.id.btClipboard).setEnabled(address.isPresent());
+            findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    String address = Utils.getClipboardString(activity);
+                    List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
+                    if (!addresses.isEmpty()) {
+                        SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+                        dialog.show(getFragmentManager(), "dialog");
+                    } else {
+                        Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+                    }
+                    AddDialog.this.dismiss();
+                }
+            });
+        }
     }
-}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -454,20 +453,20 @@ private class AddDialog extends Dialog {
         addFromAddress(event.address);
     }
 
-private class SelectItemListener implements OnItemClickListener {
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        GenericAddress address = (GenericAddress) view.getTag();
-        Intent result = new Intent();
-        result.putExtra(ADDRESS_RESULT_NAME, address);
+    private class SelectItemListener implements OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            GenericAddress address = (GenericAddress) view.getTag();
+            Intent result = new Intent();
+            result.putExtra(ADDRESS_RESULT_NAME, address);
 
-        if (parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
-            AddressBookManager.IconEntry item = (AddressBookManager.IconEntry) parent.getItemAtPosition(position);
-            result.putExtra(ADDRESS_RESULT_ID, item.getId());
-            result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
+            if (parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
+                AddressBookManager.IconEntry item = (AddressBookManager.IconEntry) parent.getItemAtPosition(position);
+                result.putExtra(ADDRESS_RESULT_ID, item.getId());
+                result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
+            }
+            getActivity().setResult(Activity.RESULT_OK, result);
+            getActivity().finish();
         }
-        getActivity().setResult(Activity.RESULT_OK, result);
-        getActivity().finish();
     }
-}
 }
