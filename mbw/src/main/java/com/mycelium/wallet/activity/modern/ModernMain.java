@@ -74,6 +74,7 @@ import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
+import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
 import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncStarted;
@@ -83,6 +84,7 @@ import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.mycelium.wapi.wallet.SyncMode;
@@ -247,9 +249,31 @@ public class ModernMain extends AppCompatActivity {
         }
     }
 
+    @Subscribe
+    public void malformedOutgoingTransactionFound(MalformedOutgoingTransactionsFound event) {
+        final MalformedOutgoingTransactionsFound ev = event;
+        if (_mbwManager.isShowQueuedTransactionsRemovalAlert()) {
+            // Whatever option the user choose, the confirmation dialog will not be shown
+            // until the next application start
+            _mbwManager.setShowQueuedTransactionsRemovalAlert(false);
+
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.failed_transaction_removal_title)
+                    .setMessage(R.string.failed_transaction_removal_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
+                            account.removeAllQueuedTransactions();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .show();
+        }
+    }
+
     @Override
     protected void onStart() {
-        _mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
 
         long curTime = new Date().getTime();
         if (_lastSync == 0 || curTime - _lastSync > MIN_AUTOSYNC_INTERVAL) {
@@ -294,7 +318,7 @@ public class ModernMain extends AppCompatActivity {
     @Override
     protected void onStop() {
         stopBalanceRefreshTimer();
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         _mbwManager.getVersionManager().closeDialog();
         super.onStop();
     }
