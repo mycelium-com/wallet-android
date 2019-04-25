@@ -437,7 +437,7 @@ public class AddressBookFragment extends Fragment {
 
     private AddressLabelChangedHandler addressLabelChanged = new AddressLabelChangedHandler() {
         @Override
-        public void OnAddressLabelChanged(Address address, String label) {
+        public void OnAddressLabelChanged(String address, String label) {
             finishActionMode();
             MbwManager.getEventBus().post(new AddressBookChanged());
         }

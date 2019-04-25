@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity.util;
 import android.content.Context;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.EnterTextDialog;
 import com.mycelium.wallet.MbwManager;
@@ -51,7 +50,7 @@ import java.util.UUID;
 
 public class EnterAddressLabelUtil {
     public interface AddressLabelChangedHandler {
-        void OnAddressLabelChanged(Address address, String label);
+        void OnAddressLabelChanged(String address, String label);
     }
 
     public interface TransactionLabelChangedHandler {
@@ -119,7 +118,7 @@ public class EnterAddressLabelUtil {
             // entry will get deleted
             _storage.storeAddressLabel(_address.toString(), newText);
             if (_changeHandler != null) {
-                _changeHandler.OnAddressLabelChanged(Address.fromString(_address.toString()), newText);
+                _changeHandler.OnAddressLabelChanged(_address.toString(), newText);
             }
         }
     }
