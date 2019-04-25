@@ -138,7 +138,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
             val hdAccount = _account as HDAccount
 
-            for (o in unsigned.outputs) {
+            for (o in unsigned!!.outputs) {
                 val toAddress = o.script.getAddress(_mbwManager.network)!!
 
                 if (!(hdAccount.isOwnInternalAddress(toAddress))) {
@@ -225,7 +225,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     @Subscribe
     open fun onStatusUpdate(event: ExternalSignatureDeviceManager.OnStatusUpdate) {
-        val output = (_sendRequest as BtcSendRequest).unsignedTx.outputs[event.outputIndex]
+        val output = (_sendRequest as BtcSendRequest).unsignedTx!!.outputs[event.outputIndex]
         val address = output.script.getAddress(_mbwManager.network)
 
         val statusText = when (event.status) {
