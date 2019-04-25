@@ -50,174 +50,174 @@ import com.squareup.otto.Bus;
 import java.util.UUID;
 
 public class EnterAddressLabelUtil {
-   public interface AddressLabelChangedHandler {
-      void OnAddressLabelChanged(Address address, String label);
-   }
+    public interface AddressLabelChangedHandler {
+        void OnAddressLabelChanged(Address address, String label);
+    }
 
-   public interface TransactionLabelChangedHandler {
-      void OnTransactionLabelChanged(Sha256Hash txid, String label);
-   }
+    public interface TransactionLabelChangedHandler {
+        void OnTransactionLabelChanged(Sha256Hash txid, String label);
+    }
 
-   public static void enterAddressLabel(Context context, MetadataStorage storage, GenericAddress address,
-                                        String defaultName, AddressLabelChangedHandler changeHandler) {
-      String hintText = context.getResources().getString(R.string.name);
-      String currentName = storage.getLabelByAddress(address);
-      int title_id;
-      if (currentName.length() == 0) {
-         title_id = R.string.enter_address_label_title;
-         currentName = defaultName;
-      } else {
-         title_id = R.string.edit_address_label_title;
-      }
-      String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
-      EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(storage,
-              address, invalidOkToastMessage, changeHandler));
-   }
+    public static void enterAddressLabel(Context context, MetadataStorage storage, GenericAddress address,
+                                         String defaultName, AddressLabelChangedHandler changeHandler) {
+        String hintText = context.getResources().getString(R.string.name);
+        String currentName = storage.getLabelByAddress(address);
+        int title_id;
+        if (currentName.length() == 0) {
+            title_id = R.string.enter_address_label_title;
+            currentName = defaultName;
+        } else {
+            title_id = R.string.edit_address_label_title;
+        }
+        String invalidOkToastMessage = context.getResources().getString(R.string.address_label_not_unique);
+        EnterTextDialog.show(context, title_id, hintText, currentName, true, new EnterAddressLabelHandler(storage,
+                             address, invalidOkToastMessage, changeHandler));
+    }
 
-   private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
-      private MetadataStorage _storage;
-      private GenericAddress _address;
-      private String _invalidOkToastMessage;
-      private AddressLabelChangedHandler _changeHandler;
+    private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
+        private MetadataStorage _storage;
+        private GenericAddress _address;
+        private String _invalidOkToastMessage;
+        private AddressLabelChangedHandler _changeHandler;
 
-      EnterAddressLabelHandler(MetadataStorage storage, GenericAddress address, String invalidOkToastMessage,
-                               AddressLabelChangedHandler changeHandler) {
-         _storage = storage;
-         _address = address;
-         _invalidOkToastMessage = invalidOkToastMessage;
-         _changeHandler = changeHandler;
-      }
+        EnterAddressLabelHandler(MetadataStorage storage, GenericAddress address, String invalidOkToastMessage,
+                                 AddressLabelChangedHandler changeHandler) {
+            _storage = storage;
+            _address = address;
+            _invalidOkToastMessage = invalidOkToastMessage;
+            _changeHandler = changeHandler;
+        }
 
-      @Override
-      public boolean validateTextOnChange(String newText, String oldText) {
-         return true;
-      }
+        @Override
+        public boolean validateTextOnChange(String newText, String oldText) {
+            return true;
+        }
 
-      @Override
-      public boolean validateTextOnOk(String newText, String oldText) {
-         // Make sure that no address exists with that name, or that we are
-         // updating the existing entry with the same name. It is OK for the
-         // name to be empty, in which case it will get deleted
-         Optional<Address> address = _storage.getAddressByLabel(newText);
-         return !address.isPresent() || address.get().equals(new Address(_address.getBytes()));
-      }
+        @Override
+        public boolean validateTextOnOk(String newText, String oldText) {
+            // Make sure that no address exists with that name, or that we are
+            // updating the existing entry with the same name. It is OK for the
+            // name to be empty, in which case it will get deleted
+            Optional<Address> address = _storage.getAddressByLabel(newText);
+            return !address.isPresent() || address.get().equals(new Address(_address.getBytes()));
+        }
 
-      @Override
-      public boolean getVibrateOnInvalidOk(String newText, String oldText) {
-         return true;
-      }
+        @Override
+        public boolean getVibrateOnInvalidOk(String newText, String oldText) {
+            return true;
+        }
 
-      @Override
-      public String getToastTextOnInvalidOk(String newText, String oldText) {
-         return _invalidOkToastMessage;
-      }
+        @Override
+        public String getToastTextOnInvalidOk(String newText, String oldText) {
+            return _invalidOkToastMessage;
+        }
 
-      @Override
-      public void onNameEntered(String newText, String oldText) {
-         // No address exists with that name, or we are updating the
-         // existing entry with the same name. If the name is blank the
-         // entry will get deleted
-         _storage.storeAddressLabel(Address.fromString(_address.toString()), newText);
-         if (_changeHandler != null) {
-            _changeHandler.OnAddressLabelChanged(Address.fromString(_address.toString()), newText);
-         }
-      }
-   }
+        @Override
+        public void onNameEntered(String newText, String oldText) {
+            // No address exists with that name, or we are updating the
+            // existing entry with the same name. If the name is blank the
+            // entry will get deleted
+            _storage.storeAddressLabel(Address.fromString(_address.toString()), newText);
+            if (_changeHandler != null) {
+                _changeHandler.OnAddressLabelChanged(Address.fromString(_address.toString()), newText);
+            }
+        }
+    }
 
-   public static void enterAccountLabel(final Context context, UUID account, String defaultName, MetadataStorage storage) {
-      String hintText = context.getResources().getString(R.string.name);
-      String currentName = storage.getLabelByAccount(account);
-      int title_id;
-      if (currentName.length() == 0) {
-         title_id = R.string.enter_account_label_title;
-         currentName = defaultName;
-      } else {
-         title_id = R.string.edit_account_label_title;
-      }
-      String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
-      Bus bus = MbwManager.getEventBus();
-      EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
-         @Override
-         public void onDismiss() {
-            super.onDismiss();
-         }
-      };
-      EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
-   }
+    public static void enterAccountLabel(final Context context, UUID account, String defaultName, MetadataStorage storage) {
+        String hintText = context.getResources().getString(R.string.name);
+        String currentName = storage.getLabelByAccount(account);
+        int title_id;
+        if (currentName.length() == 0) {
+            title_id = R.string.enter_account_label_title;
+            currentName = defaultName;
+        } else {
+            title_id = R.string.edit_account_label_title;
+        }
+        String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
+        Bus bus = MbwManager.getEventBus();
+        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
+            @Override
+            public void onDismiss() {
+                super.onDismiss();
+            }
+        };
+        EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
+    }
 
-   private static class EnterAccountLabelHandler extends EnterTextDialog.EnterTextHandler {
-      private UUID account;
-      private String invalidOkToastMessage;
-      private MetadataStorage storage;
-      private Bus bus;
+    private static class EnterAccountLabelHandler extends EnterTextDialog.EnterTextHandler {
+        private UUID account;
+        private String invalidOkToastMessage;
+        private MetadataStorage storage;
+        private Bus bus;
 
-      EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
-         this.account = account;
-         this.invalidOkToastMessage = invalidOkToastMessage;
-         this.storage = storage;
-         this.bus = bus;
-      }
+        EnterAccountLabelHandler(UUID account, String invalidOkToastMessage, MetadataStorage storage, Bus bus) {
+            this.account = account;
+            this.invalidOkToastMessage = invalidOkToastMessage;
+            this.storage = storage;
+            this.bus = bus;
+        }
 
-      @Override
-      public boolean validateTextOnOk(String newText, String oldText) {
-         Optional<UUID> existing = storage.getAccountByLabel(newText);
-         return !existing.isPresent() || existing.get().equals(account);
-      }
+        @Override
+        public boolean validateTextOnOk(String newText, String oldText) {
+            Optional<UUID> existing = storage.getAccountByLabel(newText);
+            return !existing.isPresent() || existing.get().equals(account);
+        }
 
-      @Override
-      public boolean getVibrateOnInvalidOk(String newText, String oldText) {
-         return true;
-      }
+        @Override
+        public boolean getVibrateOnInvalidOk(String newText, String oldText) {
+            return true;
+        }
 
-      @Override
-      public String getToastTextOnInvalidOk(String newText, String oldText) {
-         return invalidOkToastMessage;
-      }
+        @Override
+        public String getToastTextOnInvalidOk(String newText, String oldText) {
+            return invalidOkToastMessage;
+        }
 
-      @Override
-      public void onNameEntered(String newText, String oldText) {
-         storage.storeAccountLabel(account, newText);
-         bus.post(new AccountChanged(account));
-      }
-   }
+        @Override
+        public void onNameEntered(String newText, String oldText) {
+            storage.storeAccountLabel(account, newText);
+            bus.post(new AccountChanged(account));
+        }
+    }
 
-   public static void enterTransactionLabel(Context context, Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
-      String hintText = context.getResources().getString(R.string.enter_transaction_label_title);
-      String currentName = storage.getLabelByTransaction(txid);
-      int title_id;
-      title_id = R.string.enter_transaction_label_title;
+    public static void enterTransactionLabel(Context context, Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
+        String hintText = context.getResources().getString(R.string.enter_transaction_label_title);
+        String currentName = storage.getLabelByTransaction(txid);
+        int title_id;
+        title_id = R.string.enter_transaction_label_title;
 
-      EnterTransactionLabelHandler handler = new EnterTransactionLabelHandler(txid, storage, changeHandler);
-      EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
-   }
+        EnterTransactionLabelHandler handler = new EnterTransactionLabelHandler(txid, storage, changeHandler);
+        EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
+    }
 
-   private static class EnterTransactionLabelHandler extends EnterTextDialog.EnterTextHandler {
-      private Sha256Hash txid;
-      private MetadataStorage storage;
-      private TransactionLabelChangedHandler changeHandler;
+    private static class EnterTransactionLabelHandler extends EnterTextDialog.EnterTextHandler {
+        private Sha256Hash txid;
+        private MetadataStorage storage;
+        private TransactionLabelChangedHandler changeHandler;
 
-      EnterTransactionLabelHandler(Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
-         this.txid = txid;
-         this.storage = storage;
-         this.changeHandler = changeHandler;
-      }
+        EnterTransactionLabelHandler(Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
+            this.txid = txid;
+            this.storage = storage;
+            this.changeHandler = changeHandler;
+        }
 
-      @Override
-      public boolean validateTextOnChange(String newText, String oldText) {
-         return true;
-      }
+        @Override
+        public boolean validateTextOnChange(String newText, String oldText) {
+            return true;
+        }
 
-      @Override
-      public boolean validateTextOnOk(String newText, String oldText) {
-         return true;
-      }
+        @Override
+        public boolean validateTextOnOk(String newText, String oldText) {
+            return true;
+        }
 
-      @Override
-      public void onNameEntered(String newText, String oldText) {
-         storage.storeTransactionLabel(txid, newText);
-         if (changeHandler != null) {
-            changeHandler.OnTransactionLabelChanged(txid, newText);
-         }
-      }
-   }
+        @Override
+        public void onNameEntered(String newText, String oldText) {
+            storage.storeTransactionLabel(txid, newText);
+            if (changeHandler != null) {
+                changeHandler.OnTransactionLabelChanged(txid, newText);
+            }
+        }
+    }
 }
