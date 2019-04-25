@@ -55,7 +55,7 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
     }
 
     companion object {
-
+        @JvmStatic
         fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcSendRequest {
             return BtcSendRequest(destination.coinType, destination, amount, feePerkb)
         }
