@@ -17,7 +17,6 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.io.Serializable;
 
 public class BtcSendRequest extends BitcoinBasedSendRequest<BtcTransaction> implements Serializable {
-
     private Value amount;
     private BtcAddress destination;
     private UnsignedTransaction unsignedTx;

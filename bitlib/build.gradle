@@ -21,7 +21,7 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     implementation guavaArtifact
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'org.bouncycastle:bcprov-jdk16:1.46'
 }
 buildscript {

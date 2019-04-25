@@ -49,8 +49,8 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
     List<T> getTransactions(int offset, int limit);
 
     /**
-     * Get the transaction history of this account since the stated timestamp
-     * @param receivingSince only include tx older than this
+     * Get the transaction history of this account since the stated timestamp in milliseconds
+     * @param receivingSince only include tx younger than this
      */
     List<T> getTransactionsSince(long receivingSince);
 

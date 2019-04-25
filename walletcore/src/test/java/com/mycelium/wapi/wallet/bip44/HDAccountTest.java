@@ -65,7 +65,6 @@ public class HDAccountTest {
                 fakeWapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), new IMetaDataStorage() {
             @Override
             public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
-
             }
 
             @Override
