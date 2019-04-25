@@ -145,7 +145,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
-   public CryptoCurrency coinTypeFromString(String coinType){
+   private CryptoCurrency coinTypeFromString(String coinType){
       switch (coinType){
          case "Bitcoin Cash": return BchMain.INSTANCE;
          case "Bitcoin Cash Test": return BchTest.INSTANCE;
@@ -183,19 +183,19 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteAllByKey(address.toString());
    }
 
-   public Optional<Address> getAddressByLabel(String label) {
+   public Optional<String> getAddressByLabel(String label) {
       Optional<String> address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label);
 
       if (address.isPresent()) {
-         return Optional.of(Address.fromString(address.get()));
+         return Optional.of(address.get());
       } else {
          return Optional.absent();
       }
    }
 
-   public void storeAddressLabel(Address address, String label) {
+   public void storeAddressLabel(String address, String label) {
       if (!Strings.isNullOrEmpty(label)) {
-         storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
+         storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address), label);
       }
    }
 
@@ -465,7 +465,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       final Optional<String> lastDateStr = getKeyCategoryValueEntry(SYNC_LAST_FULLSYNC);
       if (lastDateStr.isPresent()) {
          try {
-            return Optional.fromNullable(Long.parseLong(lastDateStr.get()));
+            return Optional.of(Long.parseLong(lastDateStr.get()));
          } catch (NumberFormatException ex){
             return Optional.absent();
          }

@@ -98,8 +98,8 @@ public class EnterAddressLabelUtil {
          // Make sure that no address exists with that name, or that we are
          // updating the existing entry with the same name. It is OK for the
          // name to be empty, in which case it will get deleted
-         Optional<Address> address = _storage.getAddressByLabel(newText);
-         return !address.isPresent() || address.get().equals(new Address(_address.getBytes()));
+         Optional<String> address = _storage.getAddressByLabel(newText);
+         return !address.isPresent() || address.get().equals(_address.toString());
       }
 
       @Override
@@ -117,7 +117,7 @@ public class EnterAddressLabelUtil {
          // No address exists with that name, or we are updating the
          // existing entry with the same name. If the name is blank the
          // entry will get deleted
-         _storage.storeAddressLabel(Address.fromString(_address.toString()), newText);
+         _storage.storeAddressLabel(_address.toString(), newText);
          if (_changeHandler != null) {
             _changeHandler.OnAddressLabelChanged(Address.fromString(_address.toString()), newText);
          }
