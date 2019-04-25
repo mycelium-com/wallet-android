@@ -70,7 +70,6 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
@@ -732,7 +731,7 @@ public class TransactionHistoryFragment extends Fragment {
 
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
       @Override
-      public void OnAddressLabelChanged(Address address, String label) {
+      public void OnAddressLabelChanged(String address, String label) {
          MbwManager.getEventBus().post(new AddressBookChanged());
       }
    };
