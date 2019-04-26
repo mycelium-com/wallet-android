@@ -140,7 +140,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final int REQUEST_PICK_ACCOUNT = 5;
     protected static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
     private static final int REQUEST_PAYMENT_HANDLER = 8;
-    private static final int REQUET_BTC_ACCOUNT = 9;
+    private static final int REQUEST_BTC_ACCOUNT = 9;
     public static final String RAW_PAYMENT_REQUEST = "rawPaymentRequest";
 
     public static final String ACCOUNT = "account";
@@ -209,8 +209,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     View llEnterRecipient;
     @BindView(R.id.llRecipientAddress)
     LinearLayout llRecipientAddress;
-    @BindView(R.id.btFromBtcAccount)
-    Button btFeeFromAccount;
     @BindView(R.id.colu_tips_check_address)
     View tips_check_address;
     @BindView(R.id.tvFeeWarning)
@@ -605,7 +603,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @OnClick(R.id.btFromBtcAccount)
     void feeFromAcc() {
         Intent intent = new Intent(this, GetBtcAccountForFeeActivity.class);
-        startActivityForResult(intent, REQUET_BTC_ACCOUNT);
+        startActivityForResult(intent, REQUEST_BTC_ACCOUNT);
     }
 
     @OnClick(R.id.btScan)
@@ -1172,7 +1170,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 setResult(RESULT_CANCELED);
                 finish();
             }
-        } else if(requestCode == REQUET_BTC_ACCOUNT){
+        } else if(requestCode == REQUEST_BTC_ACCOUNT){
             if(resultCode == RESULT_OK) {
                 UUID id = (UUID) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_ID);
                 fundColuAccount = _mbwManager.getWalletManager(false).getAccount(id);
