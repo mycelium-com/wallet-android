@@ -299,7 +299,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking {
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight, addressType"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "addressType"}, null, null,
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));

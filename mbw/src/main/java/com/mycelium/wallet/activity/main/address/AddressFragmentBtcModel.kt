@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.main.address
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import android.support.v4.app.FragmentActivity
+import asShortStringRes
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
@@ -31,11 +32,7 @@ class AddressFragmentBtcModel(val app: Application) : AddressFragmentViewModel(a
     }
 
     private fun setNextLabel() {
-        val nextTypeShort = app.getString(when (getNextType()) {
-            AddressType.P2SH_P2WPKH -> R.string.p2sh_short
-            AddressType.P2PKH -> R.string.p2pkh_short
-            AddressType.P2WPKH -> R.string.bech_short
-        })
+        val nextTypeShort = app.getString(getNextType().asShortStringRes())
         nextTypeLabel.value = app.getString(R.string.tap_next, nextTypeShort)
     }
 
