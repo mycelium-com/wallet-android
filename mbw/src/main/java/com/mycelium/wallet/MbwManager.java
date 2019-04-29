@@ -71,6 +71,7 @@ import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
@@ -520,9 +521,11 @@ public class MbwManager {
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
         BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrenySettings(BitcoinHDModule.ID);
-        currencySettings.setChangeAddressMode(changeAddressMode);
-        _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
-        getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+        if (currencySettings != null) {
+           currencySettings.setChangeAddressMode(changeAddressMode);
+           _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+           getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+        }
     }
 
     /**
