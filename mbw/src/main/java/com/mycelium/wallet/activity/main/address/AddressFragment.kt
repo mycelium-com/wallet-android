@@ -11,11 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.AddressFragmentBinding
-import com.mycelium.wallet.databinding.AddressFragmentBtcBinding
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
+import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
@@ -26,55 +26,38 @@ class AddressFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         val viewModelProvider = ViewModelProviders.of(this)
-        val account = mbwManager.selectedAccount
-        this.viewModel = viewModelProvider.get(when (account) {
-            is SingleAddressBCHAccount, is Bip44BCHAccount -> AddressFragmentCoinsModel::class.java
-            is AbstractBtcAccount -> {
-                // HACK:
-                if (account.availableAddressTypes.size > 1) {
+        this.viewModel = viewModelProvider.get(
+                if (accountSupportsMultipleBtcReceiveAddresses(mbwManager.selectedAccount)) {
                     AddressFragmentBtcModel::class.java
                 } else {
                     AddressFragmentCoinsModel::class.java
-                }
-            }
-            else -> AddressFragmentCoinsModel::class.java
-        })
+                })
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding =
-                when (mbwManager.selectedAccount) {
-                    is Bip44BCHAccount, is SingleAddressBCHAccount -> {
-                        createDefaultBinding(inflater, container)
+                if (accountSupportsMultipleBtcReceiveAddresses(mbwManager.selectedAccount)) {
+                    DataBindingUtil.inflate<AddressFragmentBtcBindingImpl>(inflater, R.layout.address_fragment_btc,
+                            container, false).also {
+                        it.activity = activity
+                        it.viewModel = viewModel as AddressFragmentBtcModel
                     }
-                    is AbstractBtcAccount -> {
-                        if ((mbwManager.selectedAccount as AbstractBtcAccount).availableAddressTypes.size > 1) {
-                            val contentView = DataBindingUtil.inflate<AddressFragmentBtcBinding>(inflater, R.layout.address_fragment_btc,
-                                    container, false)
-                            contentView.activity = activity
-                            contentView.viewModel = viewModel as AddressFragmentBtcModel
-                            contentView
-                        } else {
-                            createDefaultBinding(inflater, container)
-                        }
-                    }
-                    else -> {
-                        createDefaultBinding(inflater, container)
+                } else {
+                    DataBindingUtil.inflate<AddressFragmentBindingImpl>(inflater, R.layout.address_fragment,
+                            container, false).also {
+                        it.activity = activity
+                        it.viewModel = viewModel as AddressFragmentCoinsModel
                     }
                 }
-
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
         return binding.root
     }
 
-    private fun createDefaultBinding(inflater: LayoutInflater, container: ViewGroup?): AddressFragmentBinding {
-        val contentView = DataBindingUtil.inflate<AddressFragmentBinding>(inflater, R.layout.address_fragment,
-                container, false)
-        contentView.activity = activity
-        contentView.viewModel = viewModel as AddressFragmentCoinsModel
-        return contentView
-    }
+    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*, *>): Boolean =
+            account is AbstractBtcAccount &&
+            account.availableAddressTypes.size > 1 &&
+            (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
