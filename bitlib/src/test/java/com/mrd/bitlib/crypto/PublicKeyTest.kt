@@ -24,8 +24,7 @@ class PublicKeyTest {
         assertFalse(pk.Q.isCompressed)
         val allAddresses = pk.getAllSupportedAddresses(NetworkParameters.testNetwork)
         assertNotNull("We should get a p2pkh address ... ", allAddresses[AddressType.P2PKH])
-        assertNotNull("We should get a p2sh_p2wpkh address ... ", allAddresses[AddressType.P2SH_P2WPKH])
-        assertEquals("and only those two addresses.", 2, allAddresses.size)
+        assertEquals("and only those two addresses.", 1, allAddresses.size)
     }
 
     @Test(expected = IllegalStateException::class)
