@@ -1,28 +1,30 @@
 package com.mycelium.wallet.activity.news
 
 import android.content.Context
+import android.graphics.Color
 import android.text.format.DateUtils
 import com.mycelium.wallet.R
 import com.mycelium.wallet.external.mediaflow.model.News
 
 
 object NewsUtils {
-    fun getCategoryBackground(category: String) = when (category) {
-        "News" -> R.drawable.background_news_category_news
-        "Announcements" -> R.drawable.background_news_category_announcements
-        "Must read" -> R.drawable.background_news_category_must_read
-        "Jobs & Partnership" -> R.drawable.background_news_category_job
-        else -> R.drawable.background_news_category
+    fun getCategoryTextColor(category: String) = when (category) {
+        "All" -> Color.WHITE
+        "News" -> Color.parseColor("#e31a62")
+        "Features" -> Color.parseColor("#4276ff")
+        "Announcements" -> Color.parseColor("#fa9f01")
+        "How to" -> Color.parseColor("#00a9ff")
+        "Buy/Sell" -> Color.parseColor("#67b032")
+        else -> Color.parseColor("#4276ff")
     }
 
     const val myceliumAuthor = "myceliumholding"
     const val MEDIA_FLOW_ACTION: String = "media_flow"
 
     fun getDateAuthorString(context: Context, news: News): String {
-        return "${DateUtils.getRelativeTimeSpanString(context, news.date.time)}" +
-                if (news.author.name != NewsUtils.myceliumAuthor) {
-                    "${context.getString(R.string.bullet)} ${news.author.name}"
-                } else ""
+        return (if (news.author.name != NewsUtils.myceliumAuthor) {
+            "${news.author.name} ${context.getString(R.string.bullet)} "
+        } else "") + "${DateUtils.getRelativeTimeSpanString(context, news.date.time)}"
     }
 
     data class ParsedData(val news: String, val images: Map<String, List<String>>)

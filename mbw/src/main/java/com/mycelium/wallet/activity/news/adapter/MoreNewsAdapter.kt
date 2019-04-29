@@ -31,7 +31,7 @@ class MoreNewsAdapter : RecyclerView.Adapter<MoreNewsAdapter.ViewHolder>() {
         holder.itemView.title.text = news.title
         val category = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
         holder.itemView.category.text = category
-        holder.itemView.category.setBackgroundResource(NewsUtils.getCategoryBackground(category))
+        holder.itemView.category.setBackgroundColor(NewsUtils.getCategoryTextColor(category))
         holder.itemView.date.text = NewsUtils.getDateAuthorString(holder.itemView.context, news)
         val requestOptions = RequestOptions()
                 .transforms(CenterCrop(), NewsMoreRoundedCorners(holder.itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))

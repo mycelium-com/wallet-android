@@ -268,12 +268,23 @@
             android:theme="@style/MyceliumSettings"/>
         <activity
             android:name=".activity.news.NewsActivity"
-            android:theme="@style/MyceliumNews" />
+            android:theme="@style/MyceliumNews" >
+            <meta-data android:name="android.app.default_searchable"
+                android:value=".activity.news.NewsSearchableActivity" />
+        </activity>
+        <activity android:name=".activity.news.NewsSearchableActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/news_searchable"/>
+        </activity>
+
 
         <service
             android:name=".external.mediaflow.NewsSyncService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
     </application>
 </manifest>

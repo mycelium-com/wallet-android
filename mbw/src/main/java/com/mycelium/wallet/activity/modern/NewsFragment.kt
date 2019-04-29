@@ -4,33 +4,32 @@ import android.content.*
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
 import android.view.*
-import butterknife.ButterKnife
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.adapter.MediaFlowFilterAdapter
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
+import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
-import com.mycelium.wallet.external.mediaflow.NewsConstants.CATEGORY_FILTER
-import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
-import kotlinx.android.synthetic.main.dialog_mediaflow_filter.view.*
 import kotlinx.android.synthetic.main.fragment_news.*
+import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 
 
 class NewsFragment : Fragment() {
 
-    private val adapter: NewsAdapter = NewsAdapter()
+    private lateinit var adapter: NewsAdapter
     private lateinit var preference: SharedPreferences
     var searchActive = false
+
+    var currentNews: News? = null
 
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -44,6 +43,7 @@ class NewsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         preference = activity?.getSharedPreferences(NewsConstants.NEWS_PREF, MODE_PRIVATE)!!
+        adapter = NewsAdapter(preference)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,15 +57,10 @@ class NewsFragment : Fragment() {
         newsList.adapter = adapter
         newsList.setHasFixedSize(false)
         newsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            var scrollY = 0;
+            var scrollY = 0
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 scrollY += dy
-                if (scrollY > recyclerView.height && scrollTop.visibility == View.GONE) {
-                    scrollTop.visibility = View.VISIBLE
-                } else if (scrollY <= recyclerView.height && scrollTop.visibility == View.VISIBLE) {
-                    scrollTop.visibility = View.GONE
-                }
                 if (layoutManager.findLastVisibleItemPosition() > adapter.itemCount - 5 && !adapter.searchMode) {
                     startUpdate(null, adapter.itemCount - 2)
                 }
@@ -82,9 +77,21 @@ class NewsFragment : Fragment() {
             intent.putExtra("news", it)
             startActivity(intent)
         }
-        scrollTop.setOnClickListener {
-            newsList.smoothScrollToPosition(0)
+        adapter.categoryClickListener = {
+            val tab = getTab(it, tabs)
+            tab?.select()
         }
+        tabs.addOnTabSelectedListener(object : TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
+            override fun onTabReselected(p0: TabLayout.Tab?) {
+            }
+
+            override fun onTabUnselected(p0: TabLayout.Tab?) {
+            }
+
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                adapter.setCategory(tab.tag as Category)
+            }
+        })
         startUpdate()
     }
 
@@ -100,62 +107,31 @@ class NewsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.news, menu)
-
-        val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
-        searchView.maxWidth = Integer.MAX_VALUE;
-        searchView.setOnSearchClickListener {
-            searchActive = true
+        if (currentNews == null) {
+            inflater?.inflate(R.menu.news, menu)
         }
-        searchView.setOnCloseListener {
-            searchActive = false
-            false
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                startUpdate(s)
-                return true
-            }
 
-            override fun onQueryTextChange(s: String): Boolean {
-                startUpdate(s)
-                return true
-            }
-        })
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.action_filter ->
-                ShowFilterTask { result ->
-                    activity?.let { context ->
-                        val view = LayoutInflater.from(context).inflate(R.layout.dialog_mediaflow_filter, null)
-                        view.title.text = getString(R.string.select_flows)
-                        view.list.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-                        val filterAdapter = MediaFlowFilterAdapter(result)
-                        filterAdapter.checked.addAll(preference.getStringSet(CATEGORY_FILTER, setOf())!!)
-                        view.list.adapter = filterAdapter
-                        val dialog = AlertDialog.Builder(context, R.style.MyceliumSettings_Dialog_Small)
-                                .setView(view)
-                                .create()
-
-                        dialog.show()
-                        filterAdapter.checkListener = {
-                            view.btOk.isEnabled = filterAdapter.checked.size > 0
-                        }
-                        view.btCancel.setOnClickListener {
-                            dialog.dismiss()
-                        }
-                        view.btOk.setOnClickListener {
-                            dialog.dismiss()
-                            preference.edit().putStringSet(CATEGORY_FILTER, filterAdapter.checked).apply()
-                            startUpdate()
-                        }
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-        }
-        return super.onOptionsItemSelected(item)
+//        val searchItem = menu?.findItem(R.id.action_search)
+//        val searchView = searchItem?.actionView as SearchView
+//        searchView.maxWidth = Integer.MAX_VALUE;
+//        searchView.setOnSearchClickListener {
+//            searchActive = true
+//        }
+//        searchView.setOnCloseListener {
+//            searchActive = false
+//            false
+//        }
+//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(s: String): Boolean {
+//                startUpdate(s)
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(s: String): Boolean {
+//                startUpdate(s)
+//                return true
+//            }
+//        })
     }
 
     private var loading = false
@@ -163,7 +139,22 @@ class NewsFragment : Fragment() {
         if (loading) {
             return
         }
-        val categories = preference.getStringSet(CATEGORY_FILTER, null)?.map { Category(it) } ?: listOf()
+        GetCategoriesTask {
+            val list = mutableListOf(Category("All"))
+            list.addAll(it)
+            list.forEach { category ->
+                if (getTab(category, tabs) == null) {
+                    val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
+                    view.text.text = category.name
+                    view.text.setTextColor(NewsUtils.getCategoryTextColor(category.name))
+                    val tab = tabs.newTab().setCustomView(view)
+                    tab.tag = category
+                    tabs.addTab(tab)
+                }
+            }
+
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+
         val taskListener: (List<News>) -> Unit = {
             loading = false
             adapter.searchMode = search != null && search.isNotEmpty()
@@ -171,28 +162,26 @@ class NewsFragment : Fragment() {
                 if (offset == 0) {
                     adapter.setData(it)
                 } else {
-                    adapter.addData(it)
+//                    adapter.addData(it)
                 }
             }
         }
         val task = if (search != null) {
-            GetNewsTask(search, categories, listener = taskListener)
+            GetNewsTask(search, listOf(), listener = taskListener)
         } else {
-            GetNewsTask(search, categories, 30, offset, taskListener)
+            GetNewsTask(search, listOf(), 30, offset, taskListener)
         }
 
         loading = true
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
-    class ShowFilterTask(val listener: ((List<Category>) -> Unit)) : AsyncTask<Void, Void, List<Category>>() {
-        override fun doInBackground(vararg args: Void?): List<Category> {
-            return NewsDatabase.getCategories()
+    private fun getTab(category: Category, tabLayout: TabLayout): TabLayout.Tab? {
+        for (i in 0..tabLayout.tabCount - 1) {
+            if (tabLayout.getTabAt(i)?.tag == category) {
+                return tabLayout.getTabAt(i)
+            }
         }
-
-        override fun onPostExecute(result: List<Category>?) {
-            super.onPostExecute(result)
-            result?.let { listener.invoke(it) }
-        }
+        return null
     }
 }

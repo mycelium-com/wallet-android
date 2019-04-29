@@ -366,4 +366,8 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
+    <style name="MediaFlowTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
 </resources>
