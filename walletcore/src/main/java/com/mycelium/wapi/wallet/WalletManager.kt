@@ -21,7 +21,7 @@ class WalletManager(val network: NetworkParameters,
     private val _logger = wapi.logger
 
     fun getCurrenySettings(moduleID: String): CurrencySettings? {
-        return currenciesSettingsMap.get(moduleID)
+        return currenciesSettingsMap[moduleID]
     }
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {

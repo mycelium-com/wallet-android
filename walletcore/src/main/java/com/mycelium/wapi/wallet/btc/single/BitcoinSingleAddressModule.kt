@@ -85,7 +85,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
             try {
-                val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0, settings.defaultAddressType)
+                val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0, config.address.address.type)
                 backing.createSingleAddressAccountContext(context)
                 val accountBacking = backing.getSingleAddressAccountBacking(context.id)
                 result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
