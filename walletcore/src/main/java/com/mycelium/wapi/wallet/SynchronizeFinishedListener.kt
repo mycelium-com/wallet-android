@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mycelium.wapi.wallet.manager.WalletListener
 import java.util.concurrent.CountDownLatch
 
-class SynchronizeFinishedListener: Runnable, WalletListener{
+class SynchronizeFinishedListener: WalletListener{
     var latch: CountDownLatch? = null
 
     init {
@@ -12,14 +12,13 @@ class SynchronizeFinishedListener: Runnable, WalletListener{
 
     override fun syncStarted() {
         println("SynchronizeFinishedListener: Sync started")
-        Thread(this).start()
     }
 
     override fun syncStopped() {
         latch?.countDown()
     }
 
-    override fun run() {
+    fun waitForSyncFinished() {
         try {
             latch?.await()
         } catch (exc: InterruptedException) {
