@@ -156,6 +156,24 @@
                     android:textSize="16sp" />
 
                 <ImageView
+                    android:id="@+id/shareFacebookBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#060606"
+                    android:scaleType="center"
+                    app:srcCompat="@drawable/ic_facebook" />
+
+                <ImageView
+                    android:id="@+id/shareTwitterBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="2dp"
+                    android:background="#060606"
+                    android:scaleType="center"
+                    app:srcCompat="@drawable/ic_twitter" />
+
+                <ImageView
                     android:id="@+id/shareBtn2"
                     android:layout_width="40dp"
                     android:layout_height="40dp"

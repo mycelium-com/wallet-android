@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v7.app.AppCompatActivity
@@ -112,6 +113,14 @@ class NewsActivity : AppCompatActivity() {
         }
         shareBtn2.setOnClickListener {
             share()
+        }
+        shareFacebookBtn.setOnClickListener {
+            val sharerUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=${news.link}")
+            startActivity(Intent(Intent.ACTION_VIEW, sharerUrl))
+        }
+        shareTwitterBtn.setOnClickListener {
+            val tweetUrl = Uri.parse("https://twitter.com/intent/tweet?text=${news.link}")
+            startActivity(Intent(Intent.ACTION_VIEW, tweetUrl))
         }
         val bundle = Bundle()
         bundle.putSerializable(NewsConstants.NEWS, news)

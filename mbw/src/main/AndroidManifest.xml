@@ -272,7 +272,7 @@
             <meta-data android:name="android.app.default_searchable"
                 android:value=".activity.news.NewsSearchableActivity" />
         </activity>
-        <activity android:name=".activity.news.NewsSearchableActivity" >
+        <activity android:name=".activity.news.NewsSearchActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

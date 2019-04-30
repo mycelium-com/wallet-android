@@ -22,7 +22,6 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
     var dataMap = mutableMapOf<Category, MutableList<News>>()
     private var category: Category = ALL
 
-    var shareClickListener: ((news: News) -> Unit)? = null
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
 

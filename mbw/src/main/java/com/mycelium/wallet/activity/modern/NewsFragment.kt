@@ -10,9 +10,11 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import android.widget.SearchView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
+import com.mycelium.wallet.activity.news.NewsSearchActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
@@ -66,12 +68,6 @@ class NewsFragment : Fragment() {
                 }
             }
         })
-        adapter.shareClickListener = { news ->
-            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
-                    .putExtra(Intent.EXTRA_SUBJECT, news.title)
-                    .putExtra(Intent.EXTRA_TEXT, news.link)
-                    .setType("text/plain"), getString(R.string.share_news)))
-        }
         adapter.openClickListener = {
             val intent = Intent(activity, NewsActivity::class.java)
             intent.putExtra("news", it)
@@ -132,6 +128,14 @@ class NewsFragment : Fragment() {
 //                return true
 //            }
 //        })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.action_search) {
+            startActivity(Intent(activity, NewsSearchActivity::class.java))
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private var loading = false
