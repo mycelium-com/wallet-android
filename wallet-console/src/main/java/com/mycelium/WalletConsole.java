@@ -29,6 +29,7 @@ import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -83,6 +84,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 class WalletConsole {
     public static final String[] ColoredCoinsApiURLs = {"http://testnet.api.coloredcoins.org/v3/"};
@@ -114,7 +116,7 @@ class WalletConsole {
             }
             return Optional.absent();
         }
-    };
+    }
 
     private static class MyRandomSource implements RandomSource {
         SecureRandom _rnd;
@@ -190,7 +192,15 @@ class WalletConsole {
             final HDAccount hdAccount2 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
             HDAccount hdAccount3 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
 
-            new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3)).run();
+            //new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3)).run();
+            CountDownLatch syncLock = new CountDownLatch(1);
+            walletManager.setWalletListener(new SynchronizeFinishedListener(syncLock));
+            walletManager.startSynchronization();
+            try {
+                syncLock.await();
+            } catch (InterruptedException exc) {
+                System.out.println("WalletConsole: Sync account exception");
+            }
 
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
