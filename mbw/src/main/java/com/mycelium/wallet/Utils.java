@@ -778,10 +778,17 @@ public class Utils {
          //but I think it's unnecessary
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            if(input instanceof HDAccount || input instanceof Bip44BCHAccount){
+            // the intended ordering is:
+            // HDAccount
+            // SingleAddressAccount non-linked (BTC and BCH)
+            // "anything else"????
+            // PrivateColuAccount and their linked SingleAddressAccount
+            // PublicColuAccount (never has anything linked)
+            // CoinapultAccount
+            if(input instanceof HDAccount) { // also covers Bip44BCHAccount
                return 0;
             }
-            if(input instanceof SingleAddressAccount || input instanceof SingleAddressBCHAccount) {
+            if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
             if(input instanceof PrivateColuAccount) {
@@ -797,7 +804,6 @@ public class Utils {
          }
       });
       Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
-         @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
             if (input instanceof HDAccount) {

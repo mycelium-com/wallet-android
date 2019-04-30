@@ -1,38 +1,21 @@
 package com.mycelium;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder;
-import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.Bip39;
-import com.mrd.bitlib.crypto.BitcoinSigner;
-import com.mrd.bitlib.crypto.IPrivateKeyRing;
-import com.mrd.bitlib.crypto.IPublicKeyRing;
-import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.ScriptInputStandard;
-import com.mrd.bitlib.model.ScriptOutput;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
-import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.model.TransactionDetails;
-import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.model.TransactionOutputSummary;
-import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SendRequest;
@@ -40,7 +23,6 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
@@ -49,40 +31,21 @@ import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.ColuApiImpl;
-import com.mycelium.wapi.wallet.colu.ColuClient;
-import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.ColuSendRequest;
-import com.mycelium.wapi.wallet.colu.ColuTransaction;
-import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthTransaction;
 import com.mycelium.wapi.wallet.eth.coins.EthMain;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
-import com.mycelium.wapi.wallet.manager.Synchronizer;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.jetbrains.annotations.NotNull;
-
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 class WalletConsole {
     public static final String[] ColoredCoinsApiURLs = {"http://testnet.api.coloredcoins.org/v3/"};
@@ -114,7 +77,7 @@ class WalletConsole {
             }
             return Optional.absent();
         }
-    };
+    }
 
     private static class MyRandomSource implements RandomSource {
         SecureRandom _rnd;
@@ -190,7 +153,10 @@ class WalletConsole {
             final HDAccount hdAccount2 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
             HDAccount hdAccount3 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
 
-            new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3)).run();
+            SynchronizeFinishedListener listener = new SynchronizeFinishedListener();
+            walletManager.setWalletListener(listener);
+            walletManager.startSynchronization();
+            listener.waitForSyncFinished();
 
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 

@@ -32,7 +32,7 @@ enum class Denomination(val base10: Int, val asciiString: String, val unicodeStr
                 "uBTC" //back compatibility
                     , "micro" -> MICRO
                 "bits" -> BITS
-                else -> UNIT
+                else -> throw IllegalArgumentException("Unknown denomination $string.")
             }
         }
     }
