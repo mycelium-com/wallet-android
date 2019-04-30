@@ -3,16 +3,16 @@ package com.mycelium.wapi.wallet
 import com.mycelium.wapi.wallet.manager.WalletListener
 import java.util.concurrent.CountDownLatch
 
-class SynchronizeFinishedListener(syncLock: CountDownLatch): Runnable, WalletListener{
+class SynchronizeFinishedListener: Runnable, WalletListener{
     var latch: CountDownLatch? = null
 
     init {
-        latch = syncLock
-        Thread(this).start()
+        latch = CountDownLatch(1)
     }
 
     override fun syncStarted() {
         println("SynchronizeFinishedListener: Sync started")
+        Thread(this).start()
     }
 
     override fun syncStopped() {
@@ -20,7 +20,11 @@ class SynchronizeFinishedListener(syncLock: CountDownLatch): Runnable, WalletLis
     }
 
     override fun run() {
-        //todo
+        try {
+            latch?.await()
+        } catch (exc: InterruptedException) {
+            System.out.println("WalletConsole: Sync account exception");
+        }
     }
 
 }
