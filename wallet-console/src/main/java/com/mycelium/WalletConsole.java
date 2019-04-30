@@ -153,7 +153,6 @@ class WalletConsole {
             final HDAccount hdAccount2 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
             HDAccount hdAccount3 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
 
-            //new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3)).run();
             SynchronizeFinishedListener listener = new SynchronizeFinishedListener();
             walletManager.setWalletListener(listener);
             walletManager.startSynchronization();
