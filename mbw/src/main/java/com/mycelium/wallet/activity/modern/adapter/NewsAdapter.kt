@@ -15,7 +15,6 @@ import com.mycelium.wallet.external.mediaflow.model.News
 
 
 class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
     private var data = mutableListOf<News>()
     private var nativeData = mutableListOf<News>()
 
@@ -37,7 +36,7 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
     fun setData(data: List<News>) {
         dataMap.clear()
         data.forEach { news ->
-            val list = dataMap.getOrElse(news.categories.values.elementAt(0)) {
+            val list = dataMap.getOrElse(news.categories.values.first()) {
                 mutableListOf()
             }
             list.add(news)
@@ -151,6 +150,6 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
     }
 }
 
-fun News.getCategory(): Category = if (this.categories.values.isNotEmpty()) this.categories.values.elementAt(0) else Category("Uncategorized")
+fun News.getCategory(): Category = if (this.categories.values.isNotEmpty()) this.categories.values.first() else Category("Uncategorized")
 
 

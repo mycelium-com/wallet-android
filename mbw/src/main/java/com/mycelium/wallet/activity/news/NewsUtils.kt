@@ -22,7 +22,7 @@ object NewsUtils {
     const val MEDIA_FLOW_ACTION: String = "media_flow"
 
     fun getDateAuthorString(context: Context, news: News): String {
-        return (if (news.author.name != NewsUtils.myceliumAuthor) {
+        return (if (news.author.name != myceliumAuthor) {
             "${news.author.name} ${context.getString(R.string.bullet)} "
         } else "") + "${DateUtils.getRelativeTimeSpanString(context, news.date.time)}"
     }

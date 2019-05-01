@@ -41,7 +41,7 @@ class NewsSyncService : Service() {
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, updateTime)
                     .apply()
-            if (it != null && it.isNotEmpty()) {
+            if (it?.isNotEmpty() == true) {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
             }
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
@@ -53,7 +53,6 @@ class NewsSyncService : Service() {
                     }
                 }
 
-
                 val builder = NotificationCompat.Builder(this, NewsConstants.NEWS)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(true)
@@ -62,7 +61,7 @@ class NewsSyncService : Service() {
 
                     val remoteViews = RemoteViews(packageName, R.layout.layout_news_notification)
                     remoteViews.setTextViewText(R.id.title, news.title)
-                    remoteViews.setTextViewText(R.id.category, news.categories.values.elementAt(0).name)
+                    remoteViews.setTextViewText(R.id.category, news.categories.values.first().name)
                     remoteViews.setTextViewText(R.id.date, DateUtils.getRelativeTimeSpanString(this, news.date.time))
 
                     val activityIntent = Intent(this, StartupActivity::class.java)
@@ -92,7 +91,6 @@ class NewsSyncService : Service() {
                             .setGroup(mediaFlowNotificationGroup)
                     notificationManager?.notify(mediaFlowNotificationId, builder.build())
                 }
-
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }

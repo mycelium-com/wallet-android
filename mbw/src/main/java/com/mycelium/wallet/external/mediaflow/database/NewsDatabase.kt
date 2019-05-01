@@ -90,7 +90,7 @@ object NewsDatabase {
                 insertOrReplaceNews.bindLong(4, it.date.time)
                 insertOrReplaceNews.bindString(5, it.author.name)
                 insertOrReplaceNews.bindString(6, it.link)
-                insertOrReplaceNews.bindString(7, it.categories.values.elementAt(0).name)
+                insertOrReplaceNews.bindString(7, it.categories.values.first().name)
                 insertOrReplaceNews.bindString(8, it.image)
                 insertOrReplaceNews.bindString(9, it.excerpt)
                 insertOrReplaceNews.executeInsert()
@@ -124,7 +124,7 @@ object NewsDatabase {
 
     fun getCategories(): List<Category> {
         val builder = SQLiteQueryBuilder()
-        builder.tables = NewsSQLiteHelper.NEWS
+        builder.tables = NEWS
         val cursor = builder.query(database, arrayOf("category"), null, null
                 , "category", null, null)
         val result = mutableListOf<Category>()
@@ -138,6 +138,6 @@ object NewsDatabase {
     }
 
     fun delete(id: String) {
-        database.delete(NewsSQLiteHelper.NEWS, "id=?", arrayOf(id))
+        database.delete(NEWS, "id=?", arrayOf(id))
     }
 }
