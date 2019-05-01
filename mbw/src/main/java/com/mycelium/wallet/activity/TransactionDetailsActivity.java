@@ -43,7 +43,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,13 +68,11 @@ import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private WalletAccount account;
     private GenericTransaction tx;
     private int _white_color;
     private MbwManager _mbwManager;
@@ -95,7 +92,7 @@ public class TransactionDetailsActivity extends Activity {
 
         Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
-        account = _mbwManager.getSelectedAccount();
+        WalletAccount account = _mbwManager.getSelectedAccount();
         tx = account.getTx(txid);
 
         loadAndUpdate(false);
@@ -183,24 +180,11 @@ public class TransactionDetailsActivity extends Activity {
 
         // Set Outputs
         LinearLayout outputs = findViewById(R.id.llOutputs);
-        LinearLayout change = findViewById(R.id.llChange);
         outputs.removeAllViews();
-        change.removeAllViews();
-        TableRow changeRow = findViewById(R.id.trChange);
-        changeRow.setVisibility(View.VISIBLE);
 
-        List<GenericTransaction.GenericOutput> outputList = tx.getOutputs();
-        if (outputList != null) {
-            if (outputList.size() == 1) {
-               outputs.addView(getItemView(outputList.get(0)));
-               changeRow.setVisibility(View.GONE);
-            } else {
-                GenericTransaction.GenericOutput changeOutput = findChangeOutput(account, tx, outputList);
-                change.addView(getItemView(changeOutput));
-                outputList.remove(changeOutput);
-                for (GenericTransaction.GenericOutput item : outputList) {
-                   outputs.addView(getItemView(item));
-                }
+        if(tx.getOutputs() != null) {
+            for (GenericTransaction.GenericOutput item : tx.getOutputs()) {
+                outputs.addView(getItemView(item));
             }
         }
 
@@ -241,27 +225,6 @@ public class TransactionDetailsActivity extends Activity {
                 }
             }
         }
-    }
-
-    private GenericTransaction.GenericOutput findChangeOutput(WalletAccount account,
-                                                              GenericTransaction txs,
-                                                              List<GenericTransaction.GenericOutput> outputList) {
-        for (GenericTransaction.GenericOutput item : outputList) {
-            if (isChangeOutput(account, item, txs)) {
-               return item;
-            }
-        }
-        return outputList.get(0);
-    }
-
-    private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,
-                                   GenericTransaction txs) {
-        // If we receive a transaction - txs.isIncoming() -
-        // an output of that tx that goes to foreign address is a change output.
-        // If we send a transaction - !txs.isIncoming() -
-        // an output of that tx that goes to our address is a change output.
-        return txs.isIncoming() && !account.isMineAddress(output.getAddress()) ||
-              !txs.isIncoming() && account.isMineAddress(output.getAddress());
     }
 
     private View getItemView(GenericTransaction.GenericOutput item) {
