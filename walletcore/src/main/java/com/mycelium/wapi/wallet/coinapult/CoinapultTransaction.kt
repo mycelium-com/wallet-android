@@ -65,4 +65,8 @@ class CoinapultTransaction(val _hash: Sha256Hash, val value: Value, val incoming
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun getTxBytes(): ByteArray {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }
