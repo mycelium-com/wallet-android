@@ -26,7 +26,7 @@ abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : Wa
         // we just put the default name into storage first, if there is none
         // if the user cancels entry or it gets somehow aborted, we at least have a valid entry
         if (metaDataStorage.getKeyCategoryValueEntry(metadataKeyCategory.of(accountId.toString()).key,
-                        metadataKeyCategory.category, "") == null) {
+                        metadataKeyCategory.category, "").isEmpty()) {
             metaDataStorage.storeKeyCategoryValueEntry(metadataKeyCategory.of(accountId.toString()), defaultName)
         }
 
