@@ -31,13 +31,11 @@ import java.util.Arrays
 import java.util.HashMap
 
 import org.junit.Test as test
+import com.mycelium.wapi.wallet.SynchronizeFinishedListener
+
+
 
 class AddressBookTest {
-    val ColoredCoinsApiURLs = arrayOf("http://testnet.api.coloredcoins.org/v3/")
-    val ColuBlockExplorerApiURLs = arrayOf("http://testnet.explorer.coloredcoins.org/api/")
-    //    public static final String[] ColoredCoinsApiURLs = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
-    //    public static final String[] ColuBlockExplorerApiURLs = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
-
 
     private class MemoryBasedStorage : IMetaDataStorage {
 
@@ -83,19 +81,19 @@ class AddressBookTest {
 
         val wapiLogger = object : WapiLogger {
             override fun logError(message: String) {
-                Exception(message).printStackTrace()
+                println(message)
             }
 
             override fun logError(message: String, e: Exception) {
-                Exception(message).printStackTrace()
+                println(message)
             }
 
             override fun logInfo(message: String) {
-                Exception(message).printStackTrace()
+                println(message)
             }
         }
 
-        val tcpEndpoints = arrayOf(TcpEndpoint("electrumx.mycelium.com", 4432))
+        val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
         val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
 
         val externalSignatureProviderProxy = ExternalSignatureProviderProxy()
@@ -111,11 +109,14 @@ class AddressBookTest {
         val btcSettings = BTCSettings(AddressType.P2SH_P2WPKH, Reference(ChangeAddressMode.P2SH_P2WPKH))
         currenciesSettingsMap[BitcoinHDModule.ID] = btcSettings
 
+        val listener = SynchronizeFinishedListener()
+
         val walletManager = WalletManager(
                 network,
                 wapiClient,
                 currenciesSettingsMap)
         walletManager.setIsNetworkConnected(true)
+        walletManager.walletListener = listener
 
         val masterSeedManager = MasterSeedManager(store)
         try {
@@ -142,6 +143,9 @@ class AddressBookTest {
             val address_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
             val address_P2SH_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
 
+
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
 
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
 
