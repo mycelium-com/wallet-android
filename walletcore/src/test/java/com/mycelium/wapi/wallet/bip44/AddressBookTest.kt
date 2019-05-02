@@ -153,12 +153,18 @@ class AddressBookTest {
             createTransaction(hdAccount, address_P2WPKH)
             createTransaction(hdAccount, address_P2SH_P2WPKH)
 
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
+
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
             println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
 
             createTransaction(saAccount, address_P2PKH )
             createTransaction(saAccount, address_P2WPKH)
             createTransaction(saAccount, address_P2SH_P2WPKH)
+
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
 
             println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
 

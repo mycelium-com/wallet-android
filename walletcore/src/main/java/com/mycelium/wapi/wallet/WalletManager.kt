@@ -80,7 +80,6 @@ class WalletManager(val network: NetworkParameters,
             }
         }
         accounts.putAll(result)
-        startSynchronization(SyncMode.NORMAL, result.values.toList())
         return result.keys.toList()
     }
 
