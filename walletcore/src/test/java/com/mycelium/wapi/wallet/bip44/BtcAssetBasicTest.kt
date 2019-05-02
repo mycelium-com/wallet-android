@@ -35,7 +35,7 @@ import com.mycelium.wapi.wallet.SynchronizeFinishedListener
 
 
 
-class AddressBookTest {
+class BtcAssetBasicTest {
 
     private class MemoryBasedStorage : IMetaDataStorage {
 
@@ -150,8 +150,20 @@ class AddressBookTest {
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
 
             createTransaction(hdAccount, address_P2PKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(hdAccount, address_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(hdAccount, address_P2SH_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
 
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
@@ -159,10 +171,18 @@ class AddressBookTest {
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
             println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
 
-            createTransaction(saAccount, address_P2PKH )
+            createTransaction(saAccount, address_P2PKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(saAccount, address_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(saAccount, address_P2SH_P2WPKH)
-
+            Thread.sleep(1000)
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
 
