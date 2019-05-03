@@ -47,6 +47,7 @@ import android.view.WindowManager;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.HdAccountCreated;
@@ -111,6 +112,11 @@ public class AddAccountActivity extends Activity {
       BCHHelper.bchTechnologyPreviewDialog(this);
    }
 
+   @OnClick(R.id.btCoinapultCreate)
+   void onAddCoinapultAccount() {
+       Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
+   }
+
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -158,7 +164,7 @@ public class AddAccountActivity extends Activity {
       _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
       _progress.setMessage(getString(R.string.hd_account_creation_started));
       _progress.show();
-      new HdCreationAsyncTask(_mbwManager.getEventBus()).execute();
+      new HdCreationAsyncTask(MbwManager.getEventBus()).execute();
    }
 
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
@@ -221,14 +227,14 @@ public class AddAccountActivity extends Activity {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
       _progress.dismiss();
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onPause();
    }

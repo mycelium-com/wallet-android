@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
-    <release version="2.12.0.31" versioncode="2120031">
+    <release version="2.12.0.32" versioncode="2120032">
         <change>Coinapult functionality disabled due to the service being unavailable from Coinapult side</change>
     </release>
     <release version="2.12.0.28" versioncode="2120028">
