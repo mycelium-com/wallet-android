@@ -101,7 +101,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       // Populate the active and archived entries to export
       _active = new LinkedList<>();
       _archived = new LinkedList<>();
-      List<WalletAccount<?,?>> accounts = walletManager.getAccounts();
+      List<WalletAccount<?,?>> accounts = walletManager.getSpendingAccounts();
       accounts = Utils.sortAccounts(accounts, storage);
       EntryToExport entry;
       for (WalletAccount account : accounts) {
