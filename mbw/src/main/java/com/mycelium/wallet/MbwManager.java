@@ -644,7 +644,7 @@ public class MbwManager {
      * @return a new wallet manager instance
      */
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
-        // Create persisted account accountBacking
+        // Create persisted account backing
         WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
@@ -754,7 +754,7 @@ public class MbwManager {
      * @return a new in memory backed wallet manager instance
      */
     private WalletManager createTempWalletManager(MbwEnvironment environment) {
-        // Create in-memory account accountBacking
+        // Create in-memory account backing
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
         // Create secure storage instance

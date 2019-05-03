@@ -80,7 +80,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -135,14 +134,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public FeeEstimationsGeneric getDefaultFeeEstimation() {
-       FeeEstimationsGeneric result = new FeeEstimationsGeneric(
-               Value.valueOf(getCoinType(), 1000),
-               Value.valueOf(getCoinType(), 3000),
-               Value.valueOf(getCoinType(), 6000),
-               Value.valueOf(getCoinType(), 8000),
-               0
-       );
-       return result;
+      return new FeeEstimationsGeneric(
+              Value.valueOf(getCoinType(), 1000),
+              Value.valueOf(getCoinType(), 3000),
+              Value.valueOf(getCoinType(), 6000),
+              Value.valueOf(getCoinType(), 8000),
+              0
+      );
    }
 
 
