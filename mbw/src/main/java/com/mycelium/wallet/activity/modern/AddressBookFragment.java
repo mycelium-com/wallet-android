@@ -83,7 +83,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AddressBookFragment extends Fragment {
-
    public static final int SCAN_RESULT_CODE = 0;
    public static final String ADDRESS_RESULT_NAME = "address_result";
    public static final String ADDRESS_RESULT_ID = "address_result_id";
@@ -100,7 +99,7 @@ public class AddressBookFragment extends Fragment {
    private ActionMode currentActionMode;
    private Boolean ownAddresses; // set to null on purpose
    private Boolean spendableOnly;
-   private Boolean excudeSelected;
+   private Boolean excludeSelected;
 
    @Override
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -108,7 +107,7 @@ public class AddressBookFragment extends Fragment {
       ownAddresses = getArguments().getBoolean(OWN);
       spendableOnly = getArguments().getBoolean(SPENDABLE_ONLY);
       boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
-      excudeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
+      excludeSelected = getArguments().getBoolean(EXCLUDE_SELECTED, false);
       setHasOptionsMenu(!isSelectOnly);
       ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
       if (isSelectOnly) {
@@ -131,14 +130,14 @@ public class AddressBookFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       updateUi();
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -177,7 +176,7 @@ public class AddressBookFragment extends Fragment {
          WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
          if (receivingAddress.isPresent()) {
             if ((spendableOnly && account.canSpend()
-                    && (!excudeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
+                    && (!excludeSelected || !account.getReceivingAddress().equals(_mbwManager.getSelectedAccount().getReceivingAddress()))
                     && !account.getCurrencyBasedBalance().confirmed.isZero()
                     && account.getCurrencyBasedBalance().confirmed.isBtc()) || !spendableOnly) {
                if (selectedAccount instanceof ColuAccount && account instanceof ColuAccount
