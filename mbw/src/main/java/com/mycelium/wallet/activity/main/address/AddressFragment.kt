@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.coinapult.CoinapultAccount
 import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.AbstractAccount
@@ -68,7 +67,7 @@ class AddressFragment : Fragment() {
         }
 
         ivQR.tapToCycleBrightness = false
-        ivQR.qrCode = protectIfCoinapult(viewModel.getAccountAddress().value.toString())
+        ivQR.qrCode = viewModel.getAddressString()
 
         val drawableForAccount = viewModel.getDrawableForAccount(resources)
         if (drawableForAccount != null) {
@@ -76,15 +75,8 @@ class AddressFragment : Fragment() {
         }
         viewModel.getAccountAddress().observe(this, Observer { newAddress ->
             if (newAddress != null) {
-                ivQR.qrCode = protectIfCoinapult(newAddress.toString())
+                ivQR.qrCode = viewModel.getAddressString()
             }
         })
     }
-
-    fun protectIfCoinapult(addressString: String): String =
-            if (mbwManager.selectedAccount is CoinapultAccount) {
-                "Coinapult stopped working! " + addressString.chunked(5).joinToString(" ")
-            } else {
-                addressString
-            }
 }

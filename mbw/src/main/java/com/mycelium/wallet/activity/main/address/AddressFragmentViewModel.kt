@@ -39,14 +39,20 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     }
 
     fun addressClick() {
-        val copyString = if(mbwManager.selectedAccount is CoinapultAccount) {
-            "Don't send to Coinapult addresses! Their API is down since months! Only for documentation: "
-        } else {""} + getAccountAddress().value!!.toString()
-        Utils.setClipboardString(copyString, context)
+        Utils.setClipboardString(getAddressString(), context)
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
+    fun getAddressString(): String {
+        val addressString = getAccountAddress().value!!.toString()
+        return if(mbwManager.selectedAccount is CoinapultAccount) {
+            "Coinapult stopped working! Handle with care: " + addressString.chunked(5).joinToString(" ")
+        } else { addressString }
+    }
+
     fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
+
+    fun isCoinapult() = mbwManager.selectedAccount is CoinapultAccount
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 

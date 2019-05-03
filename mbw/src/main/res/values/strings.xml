@@ -855,6 +855,8 @@
     <string name="coinapult_create_account">Creating Coinapult account…</string>
     <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
     <string name="coinapult_currency_account">%1$s Account</string>
+    <string name="coinapult_gone">Out of service! Tap to learn more!</string>
+    <string name="coinapult_gone_details">Coinapult is currently out of service and not responding to Mycelium requests. According to Coinapult Locks Services Agreement and in order to reduce financial risks for our users, Coinapult functionality has been disabled.\n\nAll questions related to Coinapult accounts should be addressed to Coinapult support since it is a third-party service and Mycelium has no control over Coinapult accounts and funds on them.</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>

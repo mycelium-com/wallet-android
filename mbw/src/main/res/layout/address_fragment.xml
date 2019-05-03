@@ -47,6 +47,15 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@string/coinapult_gone"
+                    android:visibility="@{viewModel.coinapult ? View.VISIBLE : View.GONE}"
+                    android:textColor="@color/brightred"
+                    android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/coinapult_gone_details) }"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="@string/uncompressed"
                     android:visibility="@{viewModel.compressedKey ? View.GONE : View.VISIBLE }"
                     android:textColor="@color/brightred"
