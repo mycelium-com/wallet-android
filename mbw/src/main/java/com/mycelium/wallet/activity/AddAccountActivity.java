@@ -94,8 +94,6 @@ public class AddAccountActivity extends Activity {
 
       findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
       findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
-      final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
-      coinapultUSD.setOnClickListener(createCoinapultAccount);
       //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
       if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
          findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
@@ -135,17 +133,6 @@ public class AddAccountActivity extends Activity {
                createNewHdAccount();
             }
          });
-      }
-   };
-
-   View.OnClickListener createCoinapultAccount = new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-         Intent intent = AddCoinapultAccountActivity.getIntent(AddAccountActivity.this);
-         intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-         AddAccountActivity.this.startActivity(intent);
-         AddAccountActivity.this.finish();
-
       }
    };
 

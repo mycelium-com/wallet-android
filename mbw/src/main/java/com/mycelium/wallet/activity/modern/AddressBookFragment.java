@@ -166,7 +166,8 @@ public class AddressBookFragment extends Fragment {
       List<WalletAccount> activeAccounts = AccountManager.INSTANCE.getActiveAccounts().values().asList();
       for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
          // TODO rework on full bch release
-         if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT)) {
+         if (AccountDisplayType.getAccountType(account).equals(AccountDisplayType.BCH_ACCOUNT) ||
+                 AccountDisplayType.getAccountType(account).equals(AccountDisplayType.COINAPULT_ACCOUNT)) {
             continue;
          }
          String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
