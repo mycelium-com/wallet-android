@@ -11,6 +11,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.coinapult.CoinapultAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -38,7 +39,10 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     }
 
     fun addressClick() {
-        Utils.setClipboardString(getAccountAddress().value!!.toString(), context)
+        val copyString = if(mbwManager.selectedAccount is CoinapultAccount) {
+            "Don't send to Coinapult addresses! Their API is down since months! Only for documentation: "
+        } else {""} + getAccountAddress().value!!.toString()
+        Utils.setClipboardString(copyString, context)
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
