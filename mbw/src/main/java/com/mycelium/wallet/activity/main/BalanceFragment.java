@@ -48,6 +48,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -227,6 +228,9 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
+        if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COINAPULT) {
+            return;
+        }
         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();
         if (receivingAddress.isPresent()) {
             ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
