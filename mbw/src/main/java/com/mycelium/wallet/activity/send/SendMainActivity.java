@@ -100,9 +100,9 @@ import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.GenericAssetUriParser;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.content.btc.BitcoinUri;
-import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
@@ -628,7 +628,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btClipboard)
     void onClickClipboard() {
-        BitcoinUri uri = getUriFromClipboard();
+        GenericAssetUri uri = getUriFromClipboard();
         if (uri != null) {
             makeText(this, getResources().getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show();
             _receivingAddress = uri.getAddress();
@@ -1214,8 +1214,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-    //TODO: make it generic
-    private BitcoinUri getUriFromClipboard() {
+    private GenericAssetUri getUriFromClipboard() {
         String content = Utils.getClipboardString(SendMainActivity.this);
         if (content.length() == 0) {
             return null;
@@ -1223,14 +1222,22 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         String string = content.trim();
         if (string.matches("[a-zA-Z0-9]*")) {
             // Raw format
-            GenericAddress address = AddressUtils.from(Utils.getBtcCoinType(), string);
-            if (address == null) {
-                return null;
+            List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(string);
+            if (addresses.size() == 0) {
+               return null;
             }
-            return BitcoinUri.from(address, null, null, null);
+            for (GenericAddress address: addresses) {
+               if (address.getCoinType() == _account.getCoinType()) {
+                  return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
+               }
+            }
+            return null;
         } else {
-            GenericAssetUri b = (new BitcoinUriParser(_mbwManager.getNetwork())).parse(string);
-            return (BitcoinUri) b;
+            GenericAssetUri uri = _mbwManager.getContentResolver().resolveUri(string);
+            if (uri == null || uri.getAddress() == null) {
+               return null;
+            }
+            return (uri.getAddress().getCoinType() == _account.getCoinType()) ? uri : null;
         }
     }
 
