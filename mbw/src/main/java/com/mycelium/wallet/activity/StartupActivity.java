@@ -57,6 +57,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -80,6 +81,7 @@ import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.PrivateKeyUri;
+import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -549,7 +551,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          final PrivateKeyUri privateKeyUri = (PrivateKeyUri) uri;
          DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.getKeyString(), StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         if (uri.getAddress() == null /*&& Strings.isNullOrEmpty(uri.callbackURL) TODO implement correct check*/) {
+         if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
             // Invalid Bitcoin URI
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();
