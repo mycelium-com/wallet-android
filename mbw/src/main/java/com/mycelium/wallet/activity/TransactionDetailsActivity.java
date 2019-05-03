@@ -232,14 +232,19 @@ public class TransactionDetailsActivity extends Activity {
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setLayoutParams(WCWC);
-        // Add BTC value
-        String address = item.getAddress().toString();
-        ll.addView(getValue(item.getValue(), address));
-        AddressLabel adrLabel = new AddressLabel(this);
-        adrLabel.setColuMode(coluMode);
-        adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
-        ll.addView(adrLabel);
-
+        if (item.isCoinbase()) {
+            // Coinbase input
+            ll.addView(getValue(item.getValue(), null));
+            ll.addView(getCoinbaseText());
+        } else {
+            // Add BTC value
+            String address = item.getAddress().toString();
+            ll.addView(getValue(item.getValue(), address));
+            AddressLabel adrLabel = new AddressLabel(this);
+            adrLabel.setColuMode(coluMode);
+            adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
+            ll.addView(adrLabel);
+        }
         ll.setPadding(10, 10, 10, 10);
         return ll;
     }

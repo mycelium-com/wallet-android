@@ -12,10 +12,12 @@ public interface GenericTransaction extends Serializable {
     class GenericOutput implements Serializable {
         final GenericAddress genericAddress;
         final Value value;
+        final boolean isCoinbase;
 
-        public GenericOutput(GenericAddress genericAddress, Value value) {
+        public GenericOutput(GenericAddress genericAddress, Value value, boolean isCoinbase) {
             this.genericAddress = genericAddress;
             this.value = value;
+            this.isCoinbase = isCoinbase;
         }
 
         public GenericAddress getAddress() {
@@ -25,11 +27,15 @@ public interface GenericTransaction extends Serializable {
         public Value getValue() {
             return value;
         }
+
+        public boolean isCoinbase() {
+            return isCoinbase;
+        }
     }
 
     class GenericInput extends GenericOutput{
-        public GenericInput(GenericAddress genericAddress, Value value) {
-            super(genericAddress, value);
+        public GenericInput(GenericAddress genericAddress, Value value, boolean isCoinbase) {
+            super(genericAddress, value, isCoinbase);
         }
     }
 
