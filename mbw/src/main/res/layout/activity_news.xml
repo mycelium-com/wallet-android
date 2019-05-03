@@ -92,6 +92,14 @@
                 app:navigationIcon="@drawable/ic_back_arrow"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:title="" />
+
+            <View
+                android:id="@+id/scrollBar"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_gravity="bottom"
+                android:background="#ffffff" />
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -116,7 +124,6 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="16dp"
-                android:layout_weight="1"
                 android:fontFamily="@font/geometriabold"
                 android:textColor="@color/white"
                 android:textSize="16sp"

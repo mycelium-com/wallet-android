@@ -10,5 +10,6 @@ import kotlinx.android.synthetic.main.item_all_news_search.view.*
 class NewsSearchItemAllHolder(val preferences: SharedPreferences, itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     val category = itemView.category
+    val showAll = itemView.showAll
     val listHolder = NewsV2ListHolder(preferences, itemView.list)
 }

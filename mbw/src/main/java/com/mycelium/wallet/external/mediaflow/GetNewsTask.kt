@@ -6,7 +6,7 @@ import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 
 
-class GetNewsTask(val search: String?, val categories: List<Category>,
+class GetNewsTask(val search: String? = null, val categories: List<Category> = listOf(),
                   val limit: Int = -1, val offset: Int = 0,
                   var listener: (List<News>) -> Unit) : AsyncTask<Void, Void, List<News>>() {
 

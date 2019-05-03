@@ -8,9 +8,7 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
-import android.widget.SearchView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -58,19 +56,9 @@ class NewsFragment : Fragment() {
         newsList.layoutManager = layoutManager
         newsList.adapter = adapter
         newsList.setHasFixedSize(false)
-        newsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            var scrollY = 0
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                scrollY += dy
-                if (layoutManager.findLastVisibleItemPosition() > adapter.itemCount - 5 && !adapter.searchMode) {
-                    startUpdate(null, adapter.itemCount - 2)
-                }
-            }
-        })
         adapter.openClickListener = {
             val intent = Intent(activity, NewsActivity::class.java)
-            intent.putExtra("news", it)
+            intent.putExtra(NewsConstants.NEWS, it)
             startActivity(intent)
         }
         adapter.categoryClickListener = {
@@ -93,6 +81,7 @@ class NewsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        startUpdate()
         LocalBroadcastManager.getInstance(activity!!).registerReceiver(updateReceiver, IntentFilter(NewsConstants.NEWS_UPDATE_ACTION))
     }
 
@@ -106,40 +95,20 @@ class NewsFragment : Fragment() {
         if (currentNews == null) {
             inflater?.inflate(R.menu.news, menu)
         }
-
-//        val searchItem = menu?.findItem(R.id.action_search)
-//        val searchView = searchItem?.actionView as SearchView
-//        searchView.maxWidth = Integer.MAX_VALUE;
-//        searchView.setOnSearchClickListener {
-//            searchActive = true
-//        }
-//        searchView.setOnCloseListener {
-//            searchActive = false
-//            false
-//        }
-//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//            override fun onQueryTextSubmit(s: String): Boolean {
-//                startUpdate(s)
-//                return true
-//            }
-//
-//            override fun onQueryTextChange(s: String): Boolean {
-//                startUpdate(s)
-//                return true
-//            }
-//        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == R.id.action_search) {
             startActivity(Intent(activity, NewsSearchActivity::class.java))
             return true
+        } else if (item?.itemId == R.id.action_favorite) {
+
         }
         return super.onOptionsItemSelected(item)
     }
 
     private var loading = false
-    private fun startUpdate(search: String? = null, offset: Int = 0) {
+    private fun startUpdate() {
         if (loading) {
             return
         }
@@ -161,23 +130,12 @@ class NewsFragment : Fragment() {
 
         val taskListener: (List<News>) -> Unit = {
             loading = false
-            adapter.searchMode = search != null && search.isNotEmpty()
             if (it.isNotEmpty()) {
-                if (offset == 0) {
-                    adapter.setData(it)
-                } else {
-//                    adapter.addData(it)
-                }
+                adapter.setData(it)
             }
         }
-        val task = if (search != null) {
-            GetNewsTask(search, listOf(), listener = taskListener)
-        } else {
-            GetNewsTask(search, listOf(), 30, offset, taskListener)
-        }
-
         loading = true
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        GetNewsTask(listener = taskListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun getTab(category: Category, tabLayout: TabLayout): TabLayout.Tab? {

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.news
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.AsyncTask
 import android.os.Bundle
@@ -25,24 +26,27 @@ class NewsSearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news_search)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
-        supportActionBar?.title = ""
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
         adapter = NewsSearchAdapter(preference)
         newsList.adapter = adapter
+        adapter.openClickListener = {
+            val intent = Intent(this, NewsActivity::class.java)
+            intent.putExtra(NewsConstants.NEWS, it)
+            startActivity(intent)
+        }
         startUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.news_search, menu)
         val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
-        searchView.setOnSearchClickListener {
-
-        }
+        searchView.queryHint = getString(R.string.search_topics_and_articles)
         searchView.setOnCloseListener {
-            true
+            adapter.setSearchData(null)
+            false
         }
-
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
                 startUpdate(s)
@@ -54,7 +58,6 @@ class NewsSearchActivity : AppCompatActivity() {
                 return true
             }
         })
-
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -67,8 +70,10 @@ class NewsSearchActivity : AppCompatActivity() {
 
     private fun startUpdate(search: String? = null) {
         val taskListener: (List<News>) -> Unit = {
-            if (it.isNotEmpty()) {
+            if (search == null) {
                 adapter.setData(it)
+            } else {
+                adapter.setSearchData(it)
             }
         }
 

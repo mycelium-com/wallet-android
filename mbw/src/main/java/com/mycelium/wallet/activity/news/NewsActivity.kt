@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -89,7 +90,22 @@ class NewsActivity : AppCompatActivity() {
                 params.height = content.measuredHeight
                 content.layoutParams = params
             }
+
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url != null) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    return true
+                }
+                return false
+            }
         }
+
+        scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
+            val layoutParams = scrollBar.layoutParams
+            val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight
+            layoutParams.width = scrollView.measuredWidth * scrollY / scrollHeight
+            scrollBar.layoutParams = layoutParams
+        })
 
         tvTitle.text = news.title
         tvDate.text = NewsUtils.getDateAuthorString(this, news)
