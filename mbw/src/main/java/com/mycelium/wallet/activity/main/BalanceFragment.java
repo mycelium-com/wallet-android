@@ -229,6 +229,7 @@ public class BalanceFragment extends Fragment {
     @OnClick(R.id.btReceive)
     void onClickReceive() {
         if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COINAPULT) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
             return;
         }
         Optional<Address> receivingAddress = _mbwManager.getSelectedAccount().getReceivingAddress();

@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/coinapult_gone"
                     android:visibility="@{viewModel.coinapult ? View.VISIBLE : View.GONE}"
-                    android:textColor="@color/brightred"
+                    android:textColor="@color/red"
                     android:onClick="@{_ -> Utils.showSimpleMessageDialog(activity, @string/coinapult_gone_details) }"
                     />
 
