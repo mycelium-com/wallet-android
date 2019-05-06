@@ -35,7 +35,7 @@ import com.mycelium.wapi.wallet.SynchronizeFinishedListener
 
 
 
-class AddressBookTest {
+class BtcAssetBasicTest {
 
     private class MemoryBasedStorage : IMetaDataStorage {
 
@@ -143,15 +143,31 @@ class AddressBookTest {
             val address_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
             val address_P2SH_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
 
+            val address_sa_P2PKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2PKH).toString()) as BtcAddress
+            val address_sa_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+            val address_sa_P2SH_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+
 
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
 
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
 
-            createTransaction(hdAccount, address_P2PKH)
-            createTransaction(hdAccount, address_P2WPKH)
-            createTransaction(hdAccount, address_P2SH_P2WPKH)
+            createTransaction(hdAccount, address_sa_P2PKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
+            createTransaction(hdAccount, address_sa_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
+            createTransaction(hdAccount, address_sa_P2SH_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
 
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
@@ -159,10 +175,18 @@ class AddressBookTest {
             println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
             println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
 
-            createTransaction(saAccount, address_P2PKH )
+            createTransaction(saAccount, address_P2PKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(saAccount, address_P2WPKH)
+            walletManager.startSynchronization()
+            Thread.sleep(1000)
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
             createTransaction(saAccount, address_P2SH_P2WPKH)
-
+            Thread.sleep(1000)
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
 
@@ -180,11 +204,11 @@ class AddressBookTest {
         } catch (ex: KeyCipher.InvalidKeyCipher) {
             ex.printStackTrace()
         }
-
+        assert(true)
     }
 
     fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
-        val sendRequest = account.getSendToRequest(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), Value.valueOf(account.coinType, 10000))
+        val sendRequest = account.getSendToRequest(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 100000L), Value.valueOf(account.coinType, 2000))
         account.completeTransaction(sendRequest as SendRequest<BtcTransaction>)
         account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher())
         account.broadcastTx(sendRequest.tx)
