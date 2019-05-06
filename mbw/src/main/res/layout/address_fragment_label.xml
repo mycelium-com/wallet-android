@@ -31,6 +31,5 @@
                 android:textSize="18sp"
                 android:visibility="@{viewModel.isLabelNullOrEmpty() ? View.GONE : View.VISIBLE}"
                 android:text="@{viewModel.accountLabel}"/>
-
     </LinearLayout>
 </layout>
