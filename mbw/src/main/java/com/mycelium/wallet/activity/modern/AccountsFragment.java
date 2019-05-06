@@ -78,7 +78,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
-import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
@@ -214,14 +213,7 @@ public class AccountsFragment extends Fragment {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       ActivityCompat.invalidateOptionsMenu(getActivity());
-      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
-         UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-         CoinapultAccount account = (CoinapultAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
-         _mbwManager.setSelectedAccount(accountId);
-         accountListAdapter.setFocusedAccountId(account.getId());
-         updateIncludingMenus();
-
-      } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+      if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
          UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
          if (accountid != null) {
             //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -991,10 +983,6 @@ public class AccountsFragment extends Fragment {
       }
       if (item.getItemId() == R.id.miAddRecord) {
          AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
-         return true;
-      } else if (item.getItemId() == R.id.miAddFiatAccount) {
-         Intent intent = AddCoinapultAccountActivity.getIntent(getActivity());
-         this.startActivityForResult(intent, ADD_RECORD_RESULT_CODE);
          return true;
       } else if (item.getItemId() == R.id.miLockKeys) {
          lock();

@@ -78,7 +78,6 @@
                 android:paddingRight="10dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/coinapult_account_notes"
-                android:id="@+id/textView"
                 android:layout_marginBottom="20dp"
                 />
 
