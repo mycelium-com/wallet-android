@@ -118,8 +118,10 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                 // Apply signatures and finalize transaction
                 val signTx = StandardTransactionBuilder.finalizeTransaction(unsignedTransaction, signatures)
 
+                val  outputs = listOf<GenericTransaction.GenericOutput>()
+
                 request.tx = ColuTransaction(signTx.id, coinType, Value.zeroValue(coinType), 0,
-                        signTx, 0, 0, false, listOf(), listOf())
+                        signTx, 0, 0, false, outputs[0].address, listOf(), outputs)
             }
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")

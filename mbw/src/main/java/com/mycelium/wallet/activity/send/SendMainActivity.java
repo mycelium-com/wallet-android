@@ -123,6 +123,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 import org.bitcoin.protocols.payments.PaymentACK;
 
@@ -691,11 +692,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     };
 
     private void sendTransaction() {
-        progress = new ProgressDialog(SendMainActivity.this);
-        progress.setCancelable(false);
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setMessage(getString(R.string.sending_assets, _account.getCoinType().getSymbol()));
-        progress.show();
+        _progress = new ProgressDialog(SendMainActivity.this);
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(R.string.sending_assets, _account.getCoinType().getSymbol()));
+        _progress.show();
         disableButtons();
 
         new AsyncTask<Void, Void, Boolean>() {
@@ -718,7 +719,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             @Override
             protected void onPostExecute(Boolean aBoolean) {
                 super.onPostExecute(aBoolean);
-                progress.dismiss();
+                _progress.dismiss();
                 if (aBoolean) {
                     _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
                     Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
