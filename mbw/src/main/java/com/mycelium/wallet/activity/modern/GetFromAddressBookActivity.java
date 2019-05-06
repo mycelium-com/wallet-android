@@ -69,7 +69,6 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
               addressBookBundle(false, true));
 
-      //todo: use this check
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {
@@ -89,7 +88,7 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
-      ownBundle.putBoolean(AddressBookFragment.IS_SENDING, isSending);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, isSending);
       return ownBundle;
    }
 }

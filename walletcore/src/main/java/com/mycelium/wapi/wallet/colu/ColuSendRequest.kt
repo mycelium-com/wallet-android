@@ -19,13 +19,6 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcAddress, val am
 
     val fundingAccounts = mutableListOf<WalletAccount<*, BtcAddress>>()
 
-    fun setTransaction(tx: Transaction) {
-        baseTransaction = tx
-        this.tx = ColuTransaction(tx.id, this.type, Value.zeroValue(type)
-                , 0, tx, 0, 0, false
-                , listOf(), listOf())
-    }
-
     override fun getEstimatedTransactionSize(): Int {
         if (baseTransaction != null) {
             return baseTransaction?.txRawSize!!

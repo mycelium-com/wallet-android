@@ -68,13 +68,12 @@ import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import nordpol.android.TagDispatcher;
 
 public class LedgerSignTransactionActivity extends SignTransactionActivity {
-
    private final LedgerManager ledgerManager = MbwManager.getInstance(this).getLedgerManager();
    private boolean showTx;
    private TagDispatcher dispatcher;
@@ -97,7 +96,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    protected void onResume() {
       super.onResume();
       // setup the handlers for the Ledger manager to this activity
-      MbwManager.getInstance(this).getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       updateUi();
       dispatcher.enableExclusiveNfc();
    }
@@ -106,7 +105,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    protected void onPause() {
       super.onPause();
       // unregister me as event handler for Ledger
-      MbwManager.getInstance(this).getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       dispatcher.disableExclusiveNfc();
    }
 
@@ -123,7 +122,6 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       dispatcher.interceptIntent(intent);
    }
 
-
    private void updateUi() {
       if ((ledgerManager.getCurrentState() != AccountScanManager.Status.unableToScan) &&
             (ledgerManager.getCurrentState() != AccountScanManager.Status.initializing)) {
@@ -138,7 +136,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
          findViewById(R.id.llShowTx).setVisibility(View.VISIBLE);
 
-         ArrayList<String> toAddresses = new ArrayList<String>(1);
+         ArrayList<String> toAddresses = new ArrayList<>(1);
 
          long totalSending = 0;
          UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
@@ -167,15 +165,13 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       } else {
          findViewById(R.id.llShowTx).setVisibility(View.GONE);
       }
-
    }
 
-   private boolean showPinPad(int title, final PinDialog.OnPinEntered callback) {
+   private void showPinPad(int title, final PinDialog.OnPinEntered callback) {
       LedgerPinDialog pin = new LedgerPinDialog(LedgerSignTransactionActivity.this, true);
       pin.setTitle(title);
       pin.setOnPinValid(callback);
       pin.show();
-      return true;
    }
 
    final Handler disconnectHandler = new Handler(new Handler.Callback() {
@@ -199,7 +195,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
    private void onUserConfirmationRequest2FA(BTChipOutput outputParam) {
       BTChipOutputKeycard output = (BTChipOutputKeycard) outputParam;
-      ArrayList<String> toAddresses = new ArrayList<String>(1);
+      ArrayList<String> toAddresses = new ArrayList<>(1);
       UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
       for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
@@ -227,14 +223,11 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
    @NonNull
    private String convertPin2Fa(String pin) {
-      try {
-         byte[] binaryPin = new byte[pin.length()];
-         for (int i = 0; i < pin.length(); i++) {
-            binaryPin[i] = (byte) Integer.parseInt(pin.substring(i, i + 1), 16);
-         }
-         pin = new String(binaryPin, "ISO-8859-1");
-      } catch (UnsupportedEncodingException e) {
+      byte[] binaryPin = new byte[pin.length()];
+      for (int i = 0; i < pin.length(); i++) {
+         binaryPin[i] = (byte) Integer.parseInt(pin.substring(i, i + 1), 16);
       }
+      pin = new String(binaryPin, StandardCharsets.ISO_8859_1);
       return pin;
    }
 
@@ -279,7 +272,6 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       // there is already the signing task running - run this on a different thread to get it executed now
       asyncCheckUnpluggedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, 1);
    }
-
 
    private void onUserConfirmationRequestKeyboard() {
       showTx = true;
@@ -341,8 +333,5 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
          onUserConfirmationRequest2FA(event.output);
       }
-
    }
-
-
 }

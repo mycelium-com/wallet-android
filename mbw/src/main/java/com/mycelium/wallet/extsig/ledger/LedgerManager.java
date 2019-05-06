@@ -109,8 +109,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private BTChipDongle dongle;
    private boolean disableTee;
    private byte[] aid;
-   protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<String>(1);
-   protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<String>(1);
+   protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<>(1);
+   protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<>(1);
 
    private static final String LOG_TAG = "LedgerManager";
 
@@ -153,7 +153,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
       aid = Dump.hexToBin(preferences.getString(Constants.LEDGER_UNPLUGGED_AID_SETTING, DEFAULT_UNPLUGGED_AID));
    }
 
-
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
    }
@@ -179,7 +178,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                proxy.setNVM(nvm);
             }
             // Check if the TEE can be connected
-            final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
+            final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<>(1);
             boolean result = transportFactory.connect(getContext(), new BTChipTransportFactoryCallback() {
 
                @Override
@@ -299,7 +298,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
             inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
          }
       }
-
 
       if (isSegwit) {
          // Sending first input is kind of mark of p2sh/SegWit transaction
@@ -638,7 +636,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private boolean initialize() {
       Log.d(LOG_TAG, "Initialize");
-      final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
+      final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<>(1);
       while (!getTransport().isPluggedIn()) {
          dongle = null;
          try {

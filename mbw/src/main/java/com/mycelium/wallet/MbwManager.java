@@ -193,7 +193,6 @@ public class MbwManager {
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
     private static volatile MbwManager _instance = null;
-    private static final String TAG = "MbwManager";
 
     /**
      * The root index we use for generating authentication keys.
@@ -350,7 +349,7 @@ public class MbwManager {
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.Companion.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -409,6 +408,7 @@ public class MbwManager {
     private void initBTCSettings() {
         BTCSettings btcSettings = new BTCSettings(defaultAddressType, new Reference<>(changeAddressMode));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
+        currenciesSettingsMap.put(BitcoinSingleAddressModule.ID, btcSettings);
     }
 
     private void createTempWalletManager() {
@@ -545,7 +545,6 @@ public class MbwManager {
         List<Record> records = loadClassicRecords();
 
         for (Record record : records) {
-
             // Create an account from this record
             UUID account;
             if (record.hasPrivateKey()) {
@@ -610,7 +609,6 @@ public class MbwManager {
         }
     };
 
-
     /**
      * Create a Wallet Manager instance
      *
@@ -666,7 +664,7 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),
                 externalSignatureProviderProxy, migrationProgressTracker, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore,
-                networkParameters, _wapi, walletManager, getMetadataStorage(),
+                networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(),
                 migrationProgressTracker, accountEventManager));
 
         if (masterSeedManager.hasBip32MasterSeed()) {
@@ -749,7 +747,7 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage()
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
-                _wapi, walletManager, getMetadataStorage(), null, accountEventManager));
+                _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

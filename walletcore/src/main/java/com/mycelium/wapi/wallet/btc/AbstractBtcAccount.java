@@ -1670,11 +1670,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       long satoshisSent = 0;
       long satoshisTransferred = 0;
 
+      GenericAddress destinationAddress = null;
+
       ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
          Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
             satoshisTransferred += output.value;
+         } else {
+            destinationAddress = AddressUtils.fromAddress(address);
          }
          satoshisReceived += output.value;
 
@@ -1711,7 +1715,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
       return new BtcTransaction(getCoinType(), tx, satoshisTransferred, tex.time, tex.height,
-              confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+              confirmations, isQueuedOutgoing, destinationAddress, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tx.toBytes(false).length, Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
    }
 

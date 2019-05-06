@@ -28,7 +28,6 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.wallet.AccountListener;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
@@ -86,12 +85,36 @@ import java.util.Map;
 import java.util.UUID;
 
 class WalletConsole {
-
     public static final String[] ColoredCoinsApiURLs = {"http://testnet.api.coloredcoins.org/v3/"};
     public static final String[] ColuBlockExplorerApiURLs = {"http://testnet.explorer.coloredcoins.org/api/"};
 //    public static final String[] ColoredCoinsApiURLs = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
 //    public static final String[] ColuBlockExplorerApiURLs = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
 
+
+    private static class MemoryBasedStorage implements IMetaDataStorage {
+
+        private HashMap<String, String> map = new HashMap<>();
+        @Override
+        public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
+            map.put(keyCategory.category + "_" + keyCategory.key, value);
+        }
+
+        @Override
+        public String getKeyCategoryValueEntry(String key, String category, String defaultValue) {
+            return map.get(category + "_" + key);
+        }
+
+        @Override
+        public Optional<String> getFirstKeyForCategoryValue(String category, String value) {
+            for(Map.Entry<String, String> entry : map.entrySet()) {
+                String[] keyAndCategory = entry.getKey().split("_");
+                if (category.equals(keyAndCategory[1]) && entry.getValue().equals(value)) {
+                    return Optional.of(keyAndCategory[0]);
+                }
+            }
+            return Optional.absent();
+        }
+    };
 
     private static class MyRandomSource implements RandomSource {
         SecureRandom _rnd;
@@ -157,81 +180,23 @@ class WalletConsole {
 
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, null, null,null);
+
+
+            BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, new MemoryBasedStorage(), null,null, null);
             walletManager.add(bitcoinHDModule);
 
-            // create account
+            // create sample HD accounts
             final HDAccount hdAccount1 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
             final HDAccount hdAccount2 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
             HDAccount hdAccount3 = (HDAccount) walletManager.getAccount(walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0));
 
+            new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3)).run();
 
             PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(store);
 
             BitcoinSingleAddressModule bitcoinSingleAddressModule = new BitcoinSingleAddressModule(backing, publicPrivateKeyStore
-                    , network, wapiClient, walletManager, null,null);
+                    , network, wapiClient, btcSettings, walletManager,null, null, null);
             walletManager.add(bitcoinSingleAddressModule);
-
-
-
-            ColuClient coluClient = new ColuClient(network, ColoredCoinsApiURLs, ColuBlockExplorerApiURLs);
-            ColuModule coluModule = new ColuModule(network, publicPrivateKeyStore,
-                    new ColuApiImpl(coluClient), new ColuWalletBacking(), new AccountListener() {
-                @Override
-                public void balanceUpdated(@NotNull WalletAccount<?, ?> walletAccount) {
-
-                }
-            }, new IMetaDataStorage() {
-                @Override
-                public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
-
-                }
-
-                @Override
-                public String getKeyCategoryValueEntry(String key, String category, String defaultValue) {
-                    return null;
-                }
-
-                @Override
-                public Optional<String> getFirstKeyForCategoryValue(String category, String value) {
-                    return null;
-                }
-            });
-
-            walletManager.add(coluModule);
-            List<UUID> colu = walletManager.createAccounts(new PrivateColuConfig(
-                    new InMemoryPrivateKey("", network)
-                    , RMCCoin.INSTANCE, AesKeyCipher.defaultKeyCipher()));
-
-            SingleAddressAccount coluSAAccount = null;
-            PrivateColuAccount coluAccount = null;
-            if (walletManager.getAccount(colu.get(0)) instanceof PrivateColuAccount) {
-                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(0));
-            } else {
-                coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(0));
-            }
-            if (walletManager.getAccount(colu.get(1)) instanceof PrivateColuAccount) {
-                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(1));
-            } else {
-                coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(1));
-            }
-
-
-            new Synchronizer(walletManager, SyncMode.NORMAL
-                    , Arrays.asList(/*hdAccount1, hdAccount2, hdAccount3,*/ coluAccount, coluSAAccount)).run();
-
-            coluParseAndSign("010000000310d7fc7204151a520798363c6cc239c12d807b6e49f0ae51979faea17c58bf" +
-                            "280100000000ffffffff4e193a5a9c123cd896bf2ca368b82f0f336bf9ab1d74ad7acdf" +
-                            "4b05189aed8920000000000ffffffff56827cfa76e22baa3186b7a61aad57d22d7fafd2" +
-                            "952c91f15ecbae9eae090b4f0100000000ffffffff0470170000000000001976a914e3d" +
-                            "60320db38011d6b36d1a62382bc679e444f7688ac0000000000000000086a0643430215" +
-                            "00015bfa6501000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388a" +
-                            "c70170000000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388ac00000000"
-                    ,coluAccount, coluSAAccount);
-
-//            sendBtcFrom2Account(network, hdAccount1, hdAccount2, hdAccount3);
-
-//            sendColuWithFundingAccount(coluAccount, coluSAAccount, hdAccount2);
 
 
             WalletAccount ethAccount1 = new EthAccount();
@@ -264,6 +229,73 @@ class WalletConsole {
             ex.printStackTrace();
         }
 
+    }
+
+    /*
+
+    This code should be rewritten and moved to colu-related unit tests
+
+    private void addColuModule() {
+
+              new ColuApiImpl(coluClient), new ColuWalletBacking(), new AccountListener() {
+                @Override
+                public void balanceUpdated(@NotNull WalletAccount<?, ?> walletAccount) {
+
+                }
+            }, new IMetaDataStorage() {
+                @Override
+                public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
+
+                }
+
+                @Override
+                public String getKeyCategoryValueEntry(String key, String category, String defaultValue) {
+                    return null;
+                }
+
+                @Override
+                public Optional<String> getFirstKeyForCategoryValue(String category, String value) {
+                    return null;
+                }
+            });
+
+
+            ColuClient coluClient = new ColuClient(network, ColoredCoinsApiURLs, ColuBlockExplorerApiURLs);
+            ColuModule coluModule = new ColuModule(network, publicPrivateKeyStore,
+
+                walletManager.add(coluModule);
+            List<UUID> colu = walletManager.createAccounts(new PrivateColuConfig(
+                    new InMemoryPrivateKey("", network)
+                    , RMCCoin.INSTANCE, AesKeyCipher.defaultKeyCipher()));
+
+            SingleAddressAccount coluSAAccount = null;
+            PrivateColuAccount coluAccount = null;
+            if (walletManager.getAccount(colu.get(0)) instanceof PrivateColuAccount) {
+                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(0));
+            } else {
+                coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(0));
+            }
+            if (walletManager.getAccount(colu.get(1)) instanceof PrivateColuAccount) {
+                coluAccount = (PrivateColuAccount) walletManager.getAccount(colu.get(1));
+            } else {
+                coluSAAccount = (SingleAddressAccount) walletManager.getAccount(colu.get(1));
+            }
+
+
+            new Synchronizer(walletManager, SyncMode.NORMAL , Arrays.asList(hdAccount1, hdAccount2, hdAccount3, coluAccount, coluSAAccount)).run();
+
+            coluParseAndSign("010000000310d7fc7204151a520798363c6cc239c12d807b6e49f0ae51979faea17c58bf" +
+                             "280100000000ffffffff4e193a5a9c123cd896bf2ca368b82f0f336bf9ab1d74ad7acdf" +
+                             "4b05189aed8920000000000ffffffff56827cfa76e22baa3186b7a61aad57d22d7fafd2" +
+                             "952c91f15ecbae9eae090b4f0100000000ffffffff0470170000000000001976a914e3d" +
+                             "60320db38011d6b36d1a62382bc679e444f7688ac0000000000000000086a0643430215" +
+                             "00015bfa6501000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388a" +
+                             "c70170000000000001976a914ac1e4e536ebb4403ad8fac14686ae4812a76c6e388ac00000000"
+                             ,coluAccount, coluSAAccount);
+
+//            sendBtcFrom2Account(network, hdAccount1, hdAccount2, hdAccount3);
+
+//            sendColuWithFundingAccount(coluAccount, coluSAAccount, hdAccount2);
     }
 
     private static void coluParseAndSign(String data, PrivateColuAccount coluAccount, SingleAddressAccount singleAddressAccount) {
@@ -380,4 +412,6 @@ class WalletConsole {
         }
         return outputs;
     }
+
+    */
 }

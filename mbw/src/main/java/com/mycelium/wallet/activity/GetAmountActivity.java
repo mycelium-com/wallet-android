@@ -41,7 +41,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -376,7 +375,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public void onEntryChanged(String entry, boolean wasSet) {
       if (!wasSet) {
          // if it was change by the user pressing buttons (show it unformatted)
-         Log.d("multi-currency-spl-log", "onEntryChanged: " + _numberEntry.getEntry());
          setEnteredAmount(entry);
       }
       updateAmountsDisplay(entry);

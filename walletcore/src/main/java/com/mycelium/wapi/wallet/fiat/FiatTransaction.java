@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.fiat;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -71,6 +72,11 @@ public class FiatTransaction implements GenericTransaction {
 
     @Override
     public List<GenericOutput> getOutputs() {
+        return null;
+    }
+
+    @Override
+    public GenericAddress getDestinationAddress() {
         return null;
     }
 

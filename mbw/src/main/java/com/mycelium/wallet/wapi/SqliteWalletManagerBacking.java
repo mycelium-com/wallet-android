@@ -490,7 +490,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    }
 
    private byte[] calcChecksum(byte[] key, byte[] value) {
-      byte toHash[] = BitUtils.concatenate(key, value);
+      byte[] toHash = BitUtils.concatenate(key, value);
       return HashUtils.sha256(toHash).firstNBytes(8);
    }
 
@@ -571,7 +571,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
           private long lastCheck;
 
           FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
-              super();
               this.low = low;
               this.economy = economy;
               this.normal = normal;
@@ -632,13 +631,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
              feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
          }
          catch(Exception ignore) { return null; }
-         FeeEstimationsGeneric feeEstimation = new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                                                                         Value.valueOf(assetType, feeValues.economy),
-                                                                         Value.valueOf(assetType, feeValues.normal),
-                                                                         Value.valueOf(assetType, feeValues.high),
-                                                                         feeValues.lastCheck);
 
-         return feeEstimation;
+         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
+                 Value.valueOf(assetType, feeValues.economy),
+                 Value.valueOf(assetType, feeValues.normal),
+                 Value.valueOf(assetType, feeValues.high),
+                 feeValues.lastCheck);
       }
 
       @Override

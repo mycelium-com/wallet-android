@@ -66,17 +66,12 @@ public class SignTransactionActivity extends Activity {
    protected SendRequest _sendRequest;
    private Transaction _transaction;
    private AsyncTask<Void, Integer, SendRequest> signingTask;
-   private Value amountToSend;
-   private GenericAddress receivingAddress;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest, int requestCode,
-                             Value amountToSend, GenericAddress receivingAddress) {
-      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, sendRequest,
-              amountToSend, receivingAddress), requestCode);
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest, int requestCode) {
+      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, sendRequest), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest,
-                                  Value amountToSend, GenericAddress receivingAddress) {
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
@@ -103,9 +98,7 @@ public class SignTransactionActivity extends Activity {
       return new Intent(currentActivity, targetClass)
               .putExtra("account", account)
               .putExtra("isColdStorage", isColdStorage)
-              .putExtra("sendRequest", sendRequest)
-              .putExtra("amountToSend", amountToSend)
-              .putExtra("receivingAddress", receivingAddress);
+              .putExtra("sendRequest", sendRequest);
    }
 
    @Override
@@ -119,8 +112,6 @@ public class SignTransactionActivity extends Activity {
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _sendRequest = Preconditions.checkNotNull((SendRequest) getIntent().getSerializableExtra("sendRequest"));
-      amountToSend = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra("amountToSend"));
-      receivingAddress = (GenericAddress) Preconditions.checkNotNull(getIntent().getSerializableExtra("receivingAddress"));
 
       // Load state
       if (savedInstanceState != null) {

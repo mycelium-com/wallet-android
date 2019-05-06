@@ -105,8 +105,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private static final String LAST_STARTUP_TIME = "startupTme";
 
-   private boolean _hasClipboardExportedPrivateKeys;
-   private boolean hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -214,33 +212,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          sharedPreferences.edit()
                  .putLong(LAST_STARTUP_TIME, timeSpent)
                  .apply();
-      }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
-      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
-         // do we have a public key on the clipboard?
-         try {
-            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
       }
    };
 
@@ -393,13 +364,13 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+         boolean _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         boolean hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
 
          if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys(false);
          }
-         else if ( _hasClipboardExportedPrivateKeys) {
+         else if (_hasClipboardExportedPrivateKeys) {
             warnUserOnClipboardKeys(true);
          }
          else {

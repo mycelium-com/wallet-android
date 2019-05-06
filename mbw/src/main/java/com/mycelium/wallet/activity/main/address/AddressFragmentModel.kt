@@ -2,6 +2,8 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.text.Html
+import android.text.Spanned
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wallet.MbwManager
@@ -22,7 +24,7 @@ class AddressFragmentModel(
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
-    val accountLabel: MutableLiveData<String> = MutableLiveData()
+    val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<GenericAddress> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
@@ -49,12 +51,13 @@ class AddressFragmentModel(
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         val acc = account
         isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
-        accountLabel.value = when (account) {
+        // Deprecated but not resolvable until we stop supporting API <24
+        accountLabel.value = Html.fromHtml(when (account) {
             is Bip44BCHAccount,
             is SingleAddressBCHAccount ->
                 context.getString(R.string.bitcoin_cash) + " - " + label
             else -> label
-        }
+        })
     }
 
     private fun updateAddress(account: WalletAccount<*,*>) {

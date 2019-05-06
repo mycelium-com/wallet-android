@@ -97,7 +97,6 @@ class MasterseedScanManager : AbstractAccountScanManager {
             // Account already exists
             uuids[0].uuid
         } else {
-            //TODO - check this method
             walletManager.createAccounts(UnrelatedHDAccountConfig(accountRoots)).get(0)
         }
     }
@@ -121,4 +120,3 @@ class MasterseedScanManager : AbstractAccountScanManager {
         }
     }
 }
-

@@ -67,7 +67,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                     transactions.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), address.coinType
                             , transferred
                             , transaction.time / 1000, null, transaction.blockheight.toInt()
-                            , transaction.confirmations, false, input, output))
+                            , transaction.confirmations, false, output[0].address, input, output))
                 }
             }
             val utxos = mutableListOf<TransactionOutputEx>()

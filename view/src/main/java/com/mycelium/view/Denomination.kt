@@ -22,6 +22,7 @@ enum class Denomination(val base10: Int, val asciiString: String, val unicodeStr
             }
 
     companion object {
+        @JvmStatic
         fun fromString(string: String): Denomination {
             return when (string) {
                 "BTC"//back compatibility

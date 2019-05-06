@@ -5,17 +5,8 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.KeyCipher
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.LoadingProgressTracker
-import com.mycelium.wapi.wallet.LoadingProgressUpdater
-import com.mycelium.wapi.wallet.LoadingProgressStatus
-import com.mycelium.wapi.wallet.btc.BtcTransaction
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode
-import com.mycelium.wapi.wallet.btc.Reference
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
+import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.colu.AddressColuConfig
@@ -34,6 +25,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                                  internal val networkParameters: NetworkParameters,
                                  internal var _wapi: Wapi,
+                                 internal var settings: BTCSettings,
                                  internal var walletManager: WalletManager,
                                  internal val metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
@@ -45,6 +37,10 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID
+
+    override fun setCurrencySettings(currencySettings: CurrencySettings) {
+        this.settings = currencySettings as BTCSettings
+    }
 
     override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
 
@@ -63,7 +59,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             }
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-            val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+            val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
             account.setEventHandler(eventHandler)
             result[account.id] = account
         }
@@ -92,7 +88,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                 val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0)
                 backing.createSingleAddressAccountContext(context)
                 val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-                result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
                 context.persist(accountBacking)
                 backing.setTransactionSuccessful()
             } finally {
@@ -132,7 +128,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
             val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0)
             backing.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+            result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
             context.persist(accountBacking)
             backing.setTransactionSuccessful()
         } finally {

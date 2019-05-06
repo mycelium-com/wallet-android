@@ -819,6 +819,7 @@
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
+    <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block explorers</string>
@@ -947,6 +948,7 @@
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
+    <string name="buy_sell_select_activity_warning">This feature is only for BTC accounts</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>

@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.main;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -69,7 +70,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
 import com.mrd.bitlib.StandardTransactionBuilder.UnableToBuildTransactionException;
 import com.mrd.bitlib.UnsignedTransaction;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.DataExport;
@@ -94,6 +95,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.api.WapiException;
+import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -110,6 +113,7 @@ import com.squareup.otto.Subscribe;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -133,7 +137,7 @@ public class TransactionHistoryFragment extends Fragment {
     * This field shows if {@link Preloader} may be started (initial - true).
     * After {@link TransactionHistoryFragment#selectedAccountChanged} it's true
     * Before {@link Preloader} started it's set to false to prevent multiple-loadings.
-    * When {@link Preloader#doInBackground(Void...)} finishes it's routine it's setting true if limit was reached, else false
+    * When {@link Preloader}#doInBackground() finishes it's routine it's setting true if limit was reached, else false
     */
    private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.no_transaction_message)
@@ -222,10 +226,10 @@ public class TransactionHistoryFragment extends Fragment {
          if (resultCode == RESULT_OK) {
             SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
 
-             _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), "CPFP");
+            _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), "CPFP");
 
-             BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), false, signedSendRequest.tx);
-             broadcastDialog.show(getFragmentManager(), "ActivityResultDialog");
+            BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), false, signedSendRequest.tx);
+            broadcastDialog.show(getFragmentManager(), "ActivityResultDialog");
          }
       } else {
          super.onActivityResult(requestCode, resultCode, intent);
@@ -565,41 +569,22 @@ public class TransactionHistoryFragment extends Fragment {
                                    .create().show();
                            break;
                         case R.id.miBumpFee:
-                           final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
-                           final UnsignedTransaction unsigned = tryCreateBumpTransaction(record.getId(), fee);
-                           if(unsigned != null) {
-                              long txFee = unsigned.calculateFee();
-                              Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-                              String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
-                              Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
-                              if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                                 txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
+                           AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                                   .setTitle(_context.getString(R.string.bump_fee_title))
+                                   .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
+                                   .setPositiveButton(R.string.yes, null)
+                                   .setNegativeButton(R.string.no, null).create();
+                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(record.getId(), alertDialog, _context);
+                           alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                              @Override
+                              public void onDismiss(DialogInterface dialog) {
+                                 updateParentTask.cancel(true);
                               }
-                              new AlertDialog.Builder(getActivity())
-                                      .setTitle(_context.getString(R.string.bump_fee_title))
-                                      .setMessage(_context.getString(R.string.description_bump_fee, fee / 1000, txFeeString))
-                                      .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                         @Override
-                                         public void onClick(DialogInterface dialog, int which) {
-                                            // 'unsigned' Object might become null when the dialog is displayed and not used for a long time
-                                            if(unsigned != null) {
-                                                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                                                BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount)_mbwManager.getSelectedAccount()).getChangeAddress()),
-                                                        new Value(cryptoCurrency, 0), new Value(cryptoCurrency, fee));
-                                                sendRequest.setUnsignedTx(unsigned);
+                           });
 
-                                                Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest,
-                                                        new Value(cryptoCurrency, 0), _mbwManager.getSelectedAccount().getDummyAddress());
-                                                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                                            } else {
-                                                new Toaster(getActivity()).toast("Bumping fee failed", false);
-                                            }
-                                            dialog.dismiss();
-                                         }
-                                      })
-                                      .setNegativeButton(R.string.no, null)
-                                      .create().show();
-                           }
+                           alertDialog.show();
+                           alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+                           updateParentTask.execute();
                            break;
                         case R.id.miShare:
                            new AlertDialog.Builder(getActivity())
@@ -648,6 +633,74 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    /**
+    * Async task to perform fetching parent transactions of current transaction from server
+    */
+   @SuppressLint("StaticFieldLeak")
+   private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+      private final Sha256Hash txid;
+      private final AlertDialog alertDialog;
+      private final Context context;
+
+      UpdateParentTask(Sha256Hash txid, AlertDialog alertDialog, Context context) {
+         this.txid = txid;
+         this.alertDialog = alertDialog;
+         this.context = context;
+      }
+
+      @Override
+      protected Boolean doInBackground(Void... voids) {
+         if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
+            AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
+            TransactionEx transactionEx = selectedAccount.getTransaction(txid);
+            Transaction transaction = TransactionEx.toTransaction(transactionEx);
+            try {
+               selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
+            } catch (WapiException e) {
+               _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               return false;
+            }
+         }
+         return true;
+      }
+
+      @Override
+      protected void onPostExecute(Boolean isResultOk) {
+         super.onPostExecute(isResultOk);
+         if (isResultOk) {
+            final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
+            final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
+            if(unsigned != null) {
+               long txFee = unsigned.calculateFee();
+               Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
+               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
+               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
+               if(!Value.isNullOrZero(txFeeCurrencyValue)) {
+                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
+               }
+               alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
+               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialog, int which) {
+                     CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+                     BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
+                             new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
+                     sendRequest.setUnsignedTx(unsigned);
+
+                     Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+                     startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                     dialog.dismiss();
+                  }
+               });
+               alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+            } else {
+               alertDialog.dismiss();
+            }
+         } else {
+            alertDialog.dismiss();
+         }
+      }
+   }
+   /**
     * This method determins the parent's size and fee and builds a transaction that spends from its outputs but with a fee that lifts the parent and the child to high priority.
     * TODO: consider upstream chains of unconfirmed
     * TODO: consider parallel attempts to PFP
@@ -678,7 +731,7 @@ public class TransactionHistoryFragment extends Fragment {
 
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
       @Override
-      public void OnAddressLabelChanged(Address address, String label) {
+      public void OnAddressLabelChanged(String address, String label) {
          MbwManager.getEventBus().post(new AddressBookChanged());
       }
    };
@@ -733,5 +786,4 @@ public class TransactionHistoryFragment extends Fragment {
          e.printStackTrace();
       }
    }
-
 }

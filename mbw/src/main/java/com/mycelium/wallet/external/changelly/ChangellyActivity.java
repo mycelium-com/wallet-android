@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.changelly;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
+import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 
@@ -34,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
+import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getBTCBip44Accounts;
 import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
@@ -104,16 +107,14 @@ public class ChangellyActivity extends AppCompatActivity {
     private Double minAmount;
 
     private void requestOfferFunction(String amount, String fromCurrency, String toCurrency) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
             Toast.makeText(ChangellyActivity.this, "Error parsing double values", Toast.LENGTH_SHORT).show();
             return;
         }
-        /* TODO - restore this piece of code
         changellyAPIService.getExchangeAmount(fromCurrency, toCurrency, dblAmount).enqueue(new GetOfferCallback(fromCurrency, toCurrency, dblAmount));
-        */
     }
 
     @Override
@@ -158,10 +159,8 @@ public class ChangellyActivity extends AppCompatActivity {
                     toValue.setText("");
 
                     // load min amount
-                    /* TODO - restore this piece of code
                     changellyAPIService.getMinAmount(item.currency, BTC)
                             .enqueue(new GetMinCallback(item.currency));
-                    */
                 }
             }
         });
@@ -303,7 +302,7 @@ public class ChangellyActivity extends AppCompatActivity {
     @OnClick(R.id.btChangellyCreateTransaction)
     void offerClick() {
         String txtAmount = fromValue.getText().toString();
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(txtAmount);
         } catch (NumberFormatException e) {
@@ -312,27 +311,14 @@ public class ChangellyActivity extends AppCompatActivity {
             return;
         }
 
-        /* TODO - restore this piece of code
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
-        String destination = walletAccount.getReceivingAddress().get().toString();
-        if (walletAccount instanceof CoinapultAccount) {
-            destination = walletAccount.getReceivingAddress().get().toString();
-        } else {
-            AbstractAccount account = (AbstractAccount) walletAccount;
-            if (account.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-                destination = account.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
-            } else if (account.getReceivingAddress(AddressType.P2PKH) != null) {
-                destination = account.getReceivingAddress(AddressType.P2PKH).toString();
-            }
-        }
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyAPIService.FROM, item.currency)
                 .putExtra(ChangellyAPIService.TO, BTC)
                 .putExtra(ChangellyAPIService.AMOUNT, dblAmount)
-                .putExtra(ChangellyAPIService.DESTADDRESS, destination), REQUEST_OFFER);
+                .putExtra(ChangellyAPIService.DESTADDRESS, walletAccount.getReceiveAddress().toString()), REQUEST_OFFER);
 
-         */
     }
 
     boolean isValueForOfferOk() {
@@ -382,8 +368,6 @@ public class ChangellyActivity extends AppCompatActivity {
         }
         return false;
     }
-
-    /* TODO - restore this piece of code
 
     class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
         String from;
@@ -467,7 +451,4 @@ public class ChangellyActivity extends AppCompatActivity {
             toast("Service unavailable " + t);
         }
     }
-
-   */
-
 }
