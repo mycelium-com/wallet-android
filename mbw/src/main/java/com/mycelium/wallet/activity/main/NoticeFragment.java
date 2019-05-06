@@ -74,7 +74,6 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class NoticeFragment extends Fragment {
-
    public static final String LATER_CLICK_TIME = "later_click_time";
    public static final String NOTICE = "notice";
    private static final String LATER_CLICK_TIME_MASTER_SEED = "later_click_time_master_seed";
@@ -82,7 +81,7 @@ public class NoticeFragment extends Fragment {
    private enum Notice {
       BACKUP_MISSING
       , SINGLEKEY_BACKUP_MISSING, SINGLEKEY_VERIFY_MISSING
-      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE;
+      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
    }
 
    private MbwManager _mbwManager;
@@ -377,6 +376,4 @@ public class NoticeFragment extends Fragment {
    public void selectedAccountChanged(SelectedAccountChanged event) {
       recheckNotice();
    }
-
-
 }

@@ -47,6 +47,7 @@ import android.view.WindowManager;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -98,7 +99,7 @@ public class AddAccountActivity extends Activity {
       findViewById(R.id.btEthCreate).setOnClickListener(createEthAccount);
       final View coinapultUSD = findViewById(R.id.btCoinapultCreate);
       coinapultUSD.setOnClickListener(createCoinapultAccount);
-      coinapultUSD.setEnabled(_mbwManager.getWalletManager(false).getModuleById(CoinapultModule.ID) != null);
+      //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
       if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
          findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
       } else {
@@ -112,6 +113,11 @@ public class AddAccountActivity extends Activity {
 
    @OnClick(R.id.btHdBchCreate)
    void onAddBchHD(){}
+
+   @OnClick(R.id.btCoinapultCreate)
+   void onAddCoinapultAccount() {
+       Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
+   }
 
    View.OnClickListener advancedClickListener = new View.OnClickListener() {
       @Override
@@ -185,7 +191,7 @@ public class AddAccountActivity extends Activity {
       _progress.setMessage(getString(R.string.hd_account_creation_started));
       _progress.show();
       new HdCreationAsyncTask().execute();
-   }
+      }
 
    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
       @Override

@@ -75,7 +75,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
-import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;

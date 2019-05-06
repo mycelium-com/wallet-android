@@ -49,6 +49,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipSss;

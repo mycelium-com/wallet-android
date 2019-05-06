@@ -19,7 +19,6 @@
                 android:paddingBottom="5dp"
                 tools:layout="@layout/backup_verification_warning_dialog"/>
 
-
             <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
