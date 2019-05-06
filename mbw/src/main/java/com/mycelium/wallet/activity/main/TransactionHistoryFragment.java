@@ -101,7 +101,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction;
@@ -682,10 +681,7 @@ public class TransactionHistoryFragment extends Fragment {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                      CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                     BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
-                             new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
-                     sendRequest.setUnsignedTx(unsigned);
-
+                     BtcSendRequest sendRequest = BtcSendRequest.to(cryptoCurrency, unsigned);
                      Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
                      startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      dialog.dismiss();

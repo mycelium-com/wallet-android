@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.btc
 
-import com.mrd.bitlib.FeeEstimator
 import com.mrd.bitlib.FeeEstimatorBuilder
+import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.BitcoinBasedSendRequest
@@ -13,20 +13,20 @@ import com.mycelium.wapi.wallet.coins.Value
 
 import java.io.Serializable
 
-class BtcSendRequest private constructor(type: CryptoCurrency, val destination: BtcAddress, val amount: Value, feePerKb: Value) : BitcoinBasedSendRequest<BtcTransaction>(type, feePerKb), Serializable {
+class BtcSendRequest private constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, feePerKb: Value?)
+    : BitcoinBasedSendRequest<BtcTransaction>(type, feePerKb), Serializable {
     fun setTransaction(tx: Transaction) {
         this.tx = BtcTransaction(this.type, tx)
     }
 
     override fun getEstimatedTransactionSize(): Int {
         val estimatorBuilder = FeeEstimatorBuilder()
-        val estimator: FeeEstimator
-        if (unsignedTx != null) {
-            estimator = estimatorBuilder.setArrayOfInputs(unsignedTx!!.fundingOutputs)
+        val estimator = if (unsignedTx != null) {
+            estimatorBuilder.setArrayOfInputs(unsignedTx!!.fundingOutputs)
                     .setArrayOfOutputs(unsignedTx!!.outputs)
                     .createFeeEstimator()
         } else {
-            estimator = estimatorBuilder.setLegacyInputs(1)
+            estimatorBuilder.setLegacyInputs(1)
                     .setLegacyOutputs(2)
                     .createFeeEstimator()
         }
@@ -58,6 +58,12 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
         @JvmStatic
         fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcSendRequest {
             return BtcSendRequest(destination.coinType, destination, amount, feePerkb)
+        }
+        @JvmStatic
+        fun to(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction): BtcSendRequest {
+            val sendRequest = BtcSendRequest(coinType, null, null, null)
+            sendRequest.unsignedTx = unsignedTx
+            return sendRequest
         }
     }
 }

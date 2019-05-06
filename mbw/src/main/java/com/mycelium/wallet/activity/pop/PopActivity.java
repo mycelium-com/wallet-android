@@ -64,8 +64,6 @@ import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -247,9 +245,7 @@ public class PopActivity extends Activity {
             public void run() {
                disableButtons();
                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-               BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
-                       new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
-               sendRequest.setUnsignedTx(unsignedPop);
+               BtcSendRequest sendRequest = BtcSendRequest.to(cryptoCurrency, unsignedPop);
                Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
