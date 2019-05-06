@@ -192,7 +192,7 @@ public class BalanceFragment extends Fragment {
 
     @Override
     public void onStop() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onStop();
     }
 
@@ -203,6 +203,10 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        if (account.getType() == WalletAccount.Type.COINAPULT) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
+            return;
+        }
         if (account.canSpend()) {
             if (account.getType() == WalletAccount.Type.COLU && ((ColuAccount) account).getSatoshiAmount() == 0) {
                 new AlertDialog.Builder(getActivity())
