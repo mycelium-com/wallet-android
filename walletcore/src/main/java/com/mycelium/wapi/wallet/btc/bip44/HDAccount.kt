@@ -738,7 +738,7 @@ open class HDAccount(
     override fun completeTransaction(request: SendRequest<BtcTransaction>) {
         val btcSendRequest = request as BtcSendRequest
         val receivers = ArrayList<BtcReceiver>()
-        receivers.add(BtcReceiver(btcSendRequest.destination.address, btcSendRequest.amount.value))
+        receivers.add(BtcReceiver(btcSendRequest.destination!!.address, btcSendRequest.amount!!.value))
         try {
             btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
             request.isCompleted = true
