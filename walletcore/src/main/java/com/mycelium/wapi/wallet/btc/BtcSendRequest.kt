@@ -19,6 +19,10 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
         this.tx = BtcTransaction(this.type, tx)
     }
 
+    constructor(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction) : this(coinType, null, null, null){
+        this.unsignedTx = unsignedTx
+    }
+
     override fun getEstimatedTransactionSize(): Int {
         val estimatorBuilder = FeeEstimatorBuilder()
         val estimator = if (unsignedTx != null) {
@@ -58,12 +62,6 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
         @JvmStatic
         fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcSendRequest {
             return BtcSendRequest(destination.coinType, destination, amount, feePerkb)
-        }
-        @JvmStatic
-        fun to(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction): BtcSendRequest {
-            val sendRequest = BtcSendRequest(coinType, null, null, null)
-            sendRequest.unsignedTx = unsignedTx
-            return sendRequest
         }
     }
 }
