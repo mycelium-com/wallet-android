@@ -22,12 +22,10 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
-import com.mycelium.wapi.wallet.manager.Synchronizer
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
 import java.security.SecureRandom
-import java.util.Arrays
 import java.util.HashMap
 
 import org.junit.Test as test
@@ -45,7 +43,7 @@ class BtcAssetBasicTest {
         }
 
         override fun getKeyCategoryValueEntry(key: String, category: String, defaultValue: String): String? {
-            return keyCategoryValueMap[category + "_" + key]
+            return ""
         }
 
         override fun getFirstKeyForCategoryValue(category: String, value: String): Optional<String> {
@@ -95,8 +93,6 @@ class BtcAssetBasicTest {
 
         val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
         val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
-
-        val externalSignatureProviderProxy = ExternalSignatureProviderProxy()
 
         val store = SecureKeyValueStore(backing, MyRandomSource())
 
