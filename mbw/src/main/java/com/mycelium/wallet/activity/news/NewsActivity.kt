@@ -1,11 +1,13 @@
 package com.mycelium.wallet.activity.news
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
 import android.support.v4.widget.NestedScrollView
@@ -14,6 +16,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.AbsoluteLayout
@@ -91,9 +94,18 @@ class NewsActivity : AppCompatActivity() {
                 content.layoutParams = params
             }
 
+            @TargetApi(Build.VERSION_CODES.N)
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                return handleUri(request?.url)
+            }
+
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                if (url != null) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                return handleUri(Uri.parse(url))
+            }
+
+            private fun handleUri(uri: Uri?): Boolean {
+                if (uri != null) {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
                     return true
                 }
                 return false
