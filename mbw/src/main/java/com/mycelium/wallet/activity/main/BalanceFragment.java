@@ -245,6 +245,10 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btScan)
     void onClickScan() {
+        if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COINAPULT) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
+            return;
+        }
         if (isBCH()) {
             BCHHelper.bchTechnologyPreviewDialog(getActivity());
             return;
