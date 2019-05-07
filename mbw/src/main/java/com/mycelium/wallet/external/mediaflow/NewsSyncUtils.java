@@ -14,14 +14,12 @@ import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 public class NewsSyncUtils {
-
-    public static final int REQUEST_CODE = 1001;
-    public static final String MEDIA_OPERATION = "operation";
-    public static final String OPERATION_DELETE = "delete";
+    private static final int REQUEST_CODE = 1001;
+    private static final String MEDIA_OPERATION = "operation";
+    private static final String OPERATION_DELETE = "delete";
     public static final String ID = "id";
 
     public static void startNewsUpdateRepeating(Context context) {
@@ -30,7 +28,7 @@ public class NewsSyncUtils {
         PendingIntent alarmIntent = PendingIntent.getBroadcast(context, REQUEST_CODE, intent, 0);
 
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP
-                , Calendar.getInstance().getTimeInMillis() + TimeUnit.SECONDS.toMillis(30)
+                , System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10)
                 , AlarmManager.INTERVAL_HOUR, alarmIntent);
     }
 
@@ -56,7 +54,7 @@ public class NewsSyncUtils {
             JSONObject dataObject = new JSONObject(data);
             String operation = dataObject.getString(MEDIA_OPERATION);
             if (OPERATION_DELETE.equalsIgnoreCase(operation) && dataObject.has(ID)) {
-                NewsSyncUtils.delete(context, dataObject.getString(ID));
+                delete(context, dataObject.getString(ID));
             } else {
                 context.startService(new Intent(context, NewsSyncService.class));
             }
