@@ -359,8 +359,10 @@ open class HDAccount(
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
-        val transactions = getTransactionsBatched(ids).result.transactions
-        handleNewExternalTransactions(transactions)
+        ids.chunked(50).forEach { fewIds ->
+            val transactions = getTransactionsBatched(fewIds).result.transactions
+            handleNewExternalTransactions(transactions)
+        }
         return derivePaths.map { derivationType ->
             // Return true if the last external or internal index has changed
             derivationType to

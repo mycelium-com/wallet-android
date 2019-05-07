@@ -820,6 +820,7 @@
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
+    <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block explorers</string>
@@ -854,6 +855,8 @@
     <string name="coinapult_create_account">Creating Coinapult account…</string>
     <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
     <string name="coinapult_currency_account">%1$s Account</string>
+    <string name="coinapult_gone">Disabled! Tap to learn more!</string>
+    <string name="coinapult_gone_details">Coinapult is currently out of service and not responding to Mycelium requests. According to Coinapult Locks Services Agreement and in order to reduce financial risks for our users, Coinapult functionality has been disabled.\n\nAll questions related to Coinapult accounts should be addressed to Coinapult support since it is a third-party service and Mycelium has no control over Coinapult accounts.</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
@@ -924,52 +927,10 @@
     <string name="credit_card_buy_setting_description">Buy Bitcoin using credit card</string>
     <!-- Credit Card End-->
 
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
-    <string name="gd_buy_sell">Glidera</string>
-    <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
-    <string name="gd_buy_tab">Buy</string>
-    <string name="gd_sell_tab">Sell</string>
-    <string name="gd_transaction_history_tab">History</string>
-    <string name="gd_glidera">Glidera</string>
-    <string name="gd_delivery_date">Delivery Date:</string>
-    <string name="gd_date">Date:</string>
-    <string name="gd_action">Action:</string>
-    <string name="gd_amount">Amount:</string>
-    <string name="gd_pricing">Pricing:</string>
-    <string name="gd_price">Price:</string>
-    <string name="gd_status">Status:</string>
-    <string name="gd_fee">Fee:</string>
-    <string name="gd_total">Total:</string>
-    <string name="gd_transaction_hash">Transaction Hash:</string>
-    <string name="gd_glidera_transaction_number">Glidera #:</string>
-    <string name="gd_subtotal">Subtotal:</string>
-    <string name="gd_transaction_receipt">Transaction Receipt</string>
-    <string name="gd_transaction_initiated">Transaction has been initiated, details are below.</string>
-    <string name="gd_transaction_complete">Transaction is complete, details are below.</string>
-    <string name="gd_transaction_reviewed">Transaction is being reviewed, details are below.</string>
-    <string name="gd_transaction_error">An error occurred while processing this transaction.  Please contact Glidera support at support@glidera.io.</string>
-    <string name="gd_resend_code">Resend Code</string>
-    <string name="gd_cancel">Cancel</string>
-    <string name="gd_continue">Continue</string>
-    <string name="gd_amount_to_buy">Amount to Buy</string>
-    <string name="gd_sell_bitcoin">Sell Bitcoin</string>
-    <string name="gd_buy_bitcoin">Buy Bitcoin</string>
-    <string name="gd_rate">Rate:</string>
-    <string name="gd_bitcoin">Bitcoin:</string>
-    <string name="gd_summary">Summary</string>
-    <string name="gd_btc">BTC</string>
-    <string name="gd_dollar_symbol">$</string>
-    <string name="gd_btc_symbol">฿</string>
-    <string name="gd_amount_to_sell">Amount to Sell</string>
-    <string name="gd_loading">Loading…</string>
-    <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
     <string name="error_details">Error details</string>
     <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
-    <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
     <string name="tap_to_toggle_through_other_currencies">Tap to toggle through other currencies</string>
-    <!-- GlideraService End -->
 
     <string name="settings_service_enabled">Enable %1$s</string>
 
@@ -1285,6 +1246,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fiat_currency">Fiat Currency</string>
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
+    <string name="no_transaction_loading">Loading…</string>
     <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
@@ -1304,9 +1266,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
-    <string name="receive_option_p2pkh">Legacy (P2PKH)</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
     <string name="segwit_change_mode_title">Transaction change handling</string>
     <string name="segwit_change_mode_description">Select the way transaction change will be handled</string>
@@ -1318,8 +1277,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
     <string name="set_default">Set as default</string>
-    <string name="bech_next">Tap for Bech32</string>
-    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="tap_next">Tap for %s</string>
+    <string name="p2pkh_short">P2PKH</string>
+    <string name="p2sh_short">P2SH</string>
+    <string name="bech_short">Bech32</string>
+    <string name="p2pkh">Legacy (P2PKH)</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
     <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>
@@ -1350,6 +1312,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
+    <string name="uncompressed">(uncompressed key)</string>
+    <string name="uncompressed_key_explained">Uncompressed key based accounts are an old standard that does not support receiving to SegWit addresses.</string>
+    <string name="no_transaction_retry">Retry</string>
     <string name="media_flow_category_text">%s  •  VIEW MORE</string>
     <string name="share">Share</string>
     <string name="explorer_topics">Explorer topics</string>

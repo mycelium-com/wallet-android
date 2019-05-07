@@ -753,42 +753,8 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">买/卖比特币</string>
-    <string name="gd_buy_sell_description">使用银行帐户从Glidera 买/卖比特币,　仅限美国或加拿大地区。</string>
-    <string name="gd_buy_tab">购买</string>
-    <string name="gd_sell_tab">出售</string>
-    <string name="gd_transaction_history_tab">历史</string>
-    <string name="gd_delivery_date">交货日期 ︰</string>
-    <string name="gd_date">日期:</string>
-    <string name="gd_action">动作 ︰</string>
-    <string name="gd_amount">数额：</string>
-    <string name="gd_pricing">定价 ︰</string>
-    <string name="gd_price">价格：</string>
-    <string name="gd_status">状态：</string>
-    <string name="gd_fee">费用：</string>
-    <string name="gd_total">总数：</string>
-    <string name="gd_transaction_hash">交易哈希 ︰</string>
-    <string name="gd_subtotal">小计：</string>
-    <string name="gd_transaction_receipt">交易收据</string>
-    <string name="gd_transaction_initiated">交易已经开始，详细信息如下。</string>
-    <string name="gd_transaction_complete">交易已完毕，详细信息如下。</string>
-    <string name="gd_transaction_reviewed">交易正在被审查，详细信息如下。</string>
-    <string name="gd_transaction_error">处理此交易时出错。 请联系Glidera的客户支持，support@glidera.io 。</string>
-    <string name="gd_resend_code">重新发送验证码</string>
-    <string name="gd_cancel">取消</string>
-    <string name="gd_continue">下一步</string>
-    <string name="gd_amount_to_buy">购买量</string>
-    <string name="gd_sell_bitcoin">出售比特币</string>
-    <string name="gd_buy_bitcoin">购买比特币</string>
-    <string name="gd_rate">费率</string>
-    <string name="gd_bitcoin">比特币 ︰</string>
-    <string name="gd_summary">摘要：</string>
-    <string name="gd_amount_to_sell">出售金额</string>
-    <string name="gd_loading">正在加载...</string>
-    <string name="gd_error_unable_to_connect">无法连接到 glidera-%s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%2$s %1$s</string>
     <string name="error_details">详细错误信息</string>
     <string name="warning_sync_failed_reusing_first">同步失败 ！重用此 xpub #1 地址 ！</string>
-    <string name="glidera_setting_show_button_summary">显示 Glidera 的买入/卖出选项</string>
     <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->

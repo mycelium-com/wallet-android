@@ -490,23 +490,8 @@ public class CoinapultAccount extends SynchronizeAbleWalletAccount {
       // try to recreate the coinapult account, this fails if it already exists
       // otherwise it will fix a locked state where the wallet thinks it has an account
       // but it does not
-      new AddCoinapultAsyncTask().execute();
-   }
-
-   private class AddCoinapultAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      @Override
-      protected UUID doInBackground(Void... params) {
-         try {
-            manager.activateAccount(Optional.<String>absent());
-         } catch (CoinapultClient.CoinapultBackendException e) {
-            return null;
-         }
-         return getId();
-      }
-
-      @Override
-      protected void onPostExecute(UUID account) {
-      }
+      // TODO: remove Coinapult
+      // new AddCoinapultAsyncTask().execute();
    }
 
    private void refreshReceivingAddress() {

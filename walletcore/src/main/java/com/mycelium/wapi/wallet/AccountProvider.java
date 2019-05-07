@@ -37,11 +37,9 @@ package com.mycelium.wapi.wallet;
 import java.util.*;
 
 public interface AccountProvider {
-
    Map<UUID, WalletAccount> getAccounts();
 
    WalletAccount getAccount(UUID id);
 
    boolean hasAccount(UUID uuid);
-
 }

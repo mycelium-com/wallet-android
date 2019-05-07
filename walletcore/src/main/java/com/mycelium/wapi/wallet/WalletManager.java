@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet;
 
-import com.google.api.client.util.ArrayMap;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -220,7 +219,7 @@ public class WalletManager {
             _backing.beginTransaction();
             try {
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id, ImmutableMap.of(address.getType(), address),
-                        false, 0);
+                        false, 0, address.getType());
                 _backing.createSingleAddressAccountContext(context);
                 BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 SingleAddressAccountBacking accountBacking = checkNotNull(_backing.getSingleAddressAccountBacking(context.getId()));
@@ -252,7 +251,7 @@ public class WalletManager {
      */
     public UUID createSingleAddressAccount(PublicKey publicKey) {
         final List<UUID> uuidList = getAccountVirtualIds(publicKey);
-        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH));
+        UUID id = SingleAddressAccount.calculateId(publicKey.toAddress(_network, AddressType.P2SH_P2WPKH, true));
         synchronized (_walletAccounts) {
             boolean isUpgrade = false;
             for (UUID uuid : uuidList) {
@@ -274,6 +273,9 @@ public class WalletManager {
             try {
                 BTCSettings btcSettings = (BTCSettings) currenciesSettingsMap.get(Currency.BTC);
                 AddressType defaultAddressType = btcSettings.getDefaultAddressType();
+                if (!publicKey.isCompressed()) {
+                    defaultAddressType = AddressType.P2PKH;
+                }
                 SingleAddressAccountContext context = new SingleAddressAccountContext(id,
                         publicKey.getAllSupportedAddresses(_network), false, 0, defaultAddressType);
                 _backing.createSingleAddressAccountContext(context);
@@ -494,16 +496,10 @@ public class WalletManager {
             }
             if (account instanceof SingleAddressAccount) {
                 SingleAddressAccount singleAddressAccount = (SingleAddressAccount) account;
-                if (singleAddressAccount.getAvailableAddressTypes().size() > 1) {
-                    // as remove() returns true we can remove all records with given account
-                    while (_walletAccounts.values().remove(account));
-                    singleAddressAccount.forgetPrivateKey(cipher);
-                    _backing.deleteSingleAddressAccountContext(id);
-
-                } else {
-                    _backing.deleteSingleAddressAccountContext(id);
-                    _walletAccounts.remove(id);
-                }
+                // as remove() returns true we can remove all records with given account
+                while (_walletAccounts.values().remove(account));
+                singleAddressAccount.forgetPrivateKey(cipher);
+                _backing.deleteSingleAddressAccountContext(id);
                 if (_spvBalanceFetcher != null) {
                     _spvBalanceFetcher.requestUnrelatedAccountRemoval(id.toString());
                 }
@@ -1552,16 +1548,12 @@ public class WalletManager {
      */
     @Nonnull
     public List<UUID> getAccountVirtualIds(SingleAddressAccount account) {
-        final List<UUID> uuidList = new ArrayList<>();
-        for (AddressType addressType: account.getAvailableAddressTypes()) {
-            PublicKey publicKey = account.getPublicKey();
-            if (publicKey != null) {
-                uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
-            } else {
-                uuidList.add(SingleAddressAccount.calculateId(account.getAddress()));
-            }
+        PublicKey publicKey = account.getPublicKey();
+        if (publicKey != null) {
+            return getAccountVirtualIds(publicKey);
+        } else {
+            return Collections.singletonList(SingleAddressAccount.calculateId(account.getAddress()));
         }
-        return uuidList;
     }
 
     /**
@@ -1570,8 +1562,8 @@ public class WalletManager {
     @Nonnull
     public List<UUID> getAccountVirtualIds(PublicKey publicKey) {
         final List<UUID> uuidList = new ArrayList<>();
-        for (AddressType addressType: AddressType.values()) {
-            uuidList.add(SingleAddressAccount.calculateId(publicKey.toAddress(_network, addressType)));
+        for (Address address: publicKey.getAllSupportedAddresses(_network, true).values()) {
+            uuidList.add(SingleAddressAccount.calculateId(address));
         }
         return uuidList;
     }

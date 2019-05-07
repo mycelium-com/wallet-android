@@ -416,8 +416,8 @@ public class AddAdvancedAccountActivity extends Activity implements ImportCoCoHD
 
          try {
             //Check whether this address is already used in any account
-            for (AddressType addressType : AddressType.values()) {
-               address = key.getPublicKey().toAddress(_mbwManager.getNetwork(), addressType);
+            for (Address add : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+               address = add;
                Optional<UUID> accountId = _mbwManager.getAccountId(address, null);
                if (accountId.isPresent()) {
                   return null;

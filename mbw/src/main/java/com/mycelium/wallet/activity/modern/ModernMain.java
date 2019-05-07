@@ -411,7 +411,6 @@ public class ModernMain extends AppCompatActivity {
       final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
       final boolean locked = _mbwManager.isKeyManagementLocked();
       Preconditions.checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
-      Preconditions.checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
 
       // Lock menu
       final boolean hasPin = _mbwManager.isPinProtected();

@@ -63,6 +63,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                         notify("server.version", RpcParams.mapParams(
                                 "client_name" to "wapi",
                                 "protocol_version" to "1.4"))
+                        logger.logInfo("Connected to ${currentEndpoint.host}:${currentEndpoint.port}")
                         isConnected.set(true)
                         connectionAttempt = 0
 
@@ -88,7 +89,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                         }
                     }
                 } catch (exception: Exception) {
-                    logger.logError("Socket creation or receiving failed: ${exception.message}")
+                    logger.logError("Socket creation or receiving failed: ${exception.message} - ${currentEndpoint.host}:${currentEndpoint.port}")
                 }
                 close()
                 isConnected.set(false)

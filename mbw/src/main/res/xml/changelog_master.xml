@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="2.12.0.33" versioncode="2120033">
+        <change>Coinapult functionality disabled due to the service being unavailable from Coinapult side</change>
+    </release>
+    <release version="2.12.0.28" versioncode="2120028">
+        <change>Bugfix: SegWit addresses generated for pre 2013 standard uncompressed single key accounts were removed, while keeping funds on those addresses spendable.</change>
+        <change>Fixed fee bumping (CPFP)</change>
+    </release>
+    <release version="2.12.0.26" versioncode="2120026">
+        <change>removed obsolete Glidera integration. If you need to contact Glidera support, please use https://krakendirect.zendesk.com</change>
+        <change>improved loading of big accounts for speed and memory use</change>
+        <change>fixed a bug with very old uncompressed key single address accounts</change>
+    </release>
     <release version="2.12.0.10" versioncode="2120010">
         <change>Full SegWit support with bech32, hardware wallets and mixed-spending improved privacy.</change>
         <change>Hardware wallets compatibility improved.</change>

@@ -86,10 +86,10 @@ class ReceiveCoinsModel(
     }
 
     fun getPaymentUri(): String {
-        val prefix = accountLabel
-
-        val uri = StringBuilder(prefix).append(':')
-        uri.append(receivingAddress.value)
+        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val uri = StringBuilder(prefix)
+                .append(':')
+                .append(receivingAddress.value)
         if (!CurrencyValue.isNullOrZero(amountData.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amountData.value!!.value.toPlainString())
@@ -97,7 +97,6 @@ class ReceiveCoinsModel(
                 val currency = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) CurrencyValue.BTC else account.accountDefaultCurrency
                 val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
                         currency, mbwManager.exchangeRateManager).value
-
                 if (value != null) {
                     uri.append("?amount=").append(CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false))
                 } else {

@@ -3,8 +3,10 @@ package com.satoshilabs.trezor.lib;
 import android.content.Context;
 
 public class KeepKey extends ExternalSignatureDevice {
-   public static final int KEEPKEY_USB_VENDOR_ID = 0x2B24;
-   public static final int KEEPKEY_USB_PROD_ID = 0x0001;
+   public static final UsbDeviceIds USB_IDS = new UsbDeviceIds(
+           new SingleUsbDeviceId(0x2B24, 0x0001), // KeepKey
+           new SingleUsbDeviceId(0x2B24, 0x0002) // KeepKey after firmware update
+   );
    private static final String DEFAULT_LABEL = "KeepKey";
    private static final VersionNumber MOST_RECENT_VERSION = new VersionNumber(1, 1, 0);
 
@@ -12,10 +14,9 @@ public class KeepKey extends ExternalSignatureDevice {
       super(context);
    }
 
-
    @Override
    UsbDeviceId getUsbId() {
-      return new SingleUsbDeviceId(KEEPKEY_USB_VENDOR_ID, KEEPKEY_USB_PROD_ID);
+      return USB_IDS;
    }
 
    @Override

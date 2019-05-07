@@ -96,7 +96,7 @@ public class InMemoryPrivateKey extends PrivateKey implements KeyExporter, Seria
    }
 
    public InMemoryPrivateKey(Sha256Hash hash, boolean compressed) {
-       this(hash.getBytes(),compressed);
+       this(hash.getBytes(), compressed);
    }
 
    /**

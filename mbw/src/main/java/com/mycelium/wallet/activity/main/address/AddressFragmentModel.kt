@@ -11,9 +11,10 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
+import com.mycelium.wapi.wallet.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
 import com.squareup.otto.Subscribe
+import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
@@ -24,6 +25,8 @@ class AddressFragmentModel(
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<Address> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
+    var isCompressedKey: Boolean = true
+    val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
     init {
         updateLabel()
@@ -43,6 +46,8 @@ class AddressFragmentModel(
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
+        val acc = account
+        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
         accountLabel.value =
                 Html.fromHtml(if (account is Bip44BCHAccount || account is SingleAddressBCHAccount) {
                     context.getString(R.string.bitcoin_cash) + " - " + label
@@ -52,8 +57,9 @@ class AddressFragmentModel(
     }
 
     private fun updateAddress(account: WalletAccount) {
-        if (account.receivingAddress.isPresent) {
-            accountAddress.value = account.receivingAddress.get()
+        account.receivingAddress.orNull()?.let { address ->
+            accountAddress.value = address
+            accountAddressType.value = context.getString(address.type.asStringRes())
         }
     }
 
