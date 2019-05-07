@@ -681,7 +681,7 @@ public class TransactionHistoryFragment extends Fragment {
                   @Override
                   public void onClick(DialogInterface dialog, int which) {
                      CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                     BtcSendRequest sendRequest = BtcSendRequest.to(cryptoCurrency, unsigned);
+                     BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsigned);
                      Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, sendRequest);
                      startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      dialog.dismiss();

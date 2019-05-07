@@ -95,12 +95,9 @@ import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -378,9 +375,7 @@ public class TradeActivity extends Activity {
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
             ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
       CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-      BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
-              new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
-      sendRequest.setUnsignedTx(unsigned);
+      BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsigned);
       Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
       startActivityForResult(intent, SIGN_TX_REQUEST_CODE);
    }

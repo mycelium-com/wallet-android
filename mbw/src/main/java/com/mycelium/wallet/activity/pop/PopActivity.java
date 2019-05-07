@@ -245,7 +245,7 @@ public class PopActivity extends Activity {
             public void run() {
                disableButtons();
                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-               BtcSendRequest sendRequest = BtcSendRequest.to(cryptoCurrency, unsignedPop);
+               BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsignedPop);
                Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
