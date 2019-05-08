@@ -52,7 +52,7 @@ object NewsDatabase {
         val cursor = builder.query(database
                 , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
                 , where.toString(), null, null, null, "date desc"
-                , if (limit != -1) offset.toString() + "," + limit.toString() else null)
+                , if (limit != -1) "$offset,$limit" else null)
         val result = mutableListOf<News>()
         while (cursor.moveToNext()) {
             val news = News()
