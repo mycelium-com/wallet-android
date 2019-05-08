@@ -60,7 +60,7 @@ class NewsActivity : AppCompatActivity() {
                 .replace("width: .*?px", "width: 100%")
                 .replace("height=\".*?\"", "")
         content.settings.defaultFontSize = 14
-        content.settings.javaScriptEnabled = true
+//        content.settings.javaScriptEnabled = true
         content.settings.fixedFontFamily = "geometria"
 
         val html = getString(R.string.media_flow_html_template
@@ -76,6 +76,7 @@ class NewsActivity : AppCompatActivity() {
         content.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                content.settings.javaScriptEnabled = true
                 parsedContent.images.entries.forEach { entry ->
                     view?.evaluateJavascript("(function() {return document.getElementById('${entry.key}').offsetTop;})();") {
                         val top = it.toInt()
@@ -88,6 +89,7 @@ class NewsActivity : AppCompatActivity() {
                                 , 0, resources.fromWebViewPx(top)))
                     }
                 }
+                content.settings.javaScriptEnabled = false
                 val params = content.layoutParams
                 content.measure(0, 0)
                 params.height = content.measuredHeight
