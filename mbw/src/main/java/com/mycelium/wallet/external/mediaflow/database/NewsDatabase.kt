@@ -47,7 +47,7 @@ object NewsDatabase {
             where.delete(where.length - 3, where.length)
         }
         val builder = SQLiteQueryBuilder()
-        builder.tables = NewsSQLiteHelper.NEWS
+        builder.tables = NEWS
 
         val cursor = builder.query(database
                 , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
