@@ -6,19 +6,12 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.json.AddressInfo;
-import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo;
-import com.mycelium.wapi.wallet.colu.json.AssetMetadata;
-import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
-import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxId;
-import com.mycelium.wapi.wallet.colu.json.ColuTransactionRequest;
-import com.mycelium.wapi.wallet.colu.json.ColuTxDest;
-import com.mycelium.wapi.wallet.colu.json.ColuTxFlags;
-
+import com.mycelium.wapi.wallet.colu.json.*;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
+import javax.annotation.Nullable;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.security.Security;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,9 +31,10 @@ public class ColuClient {
     private AdvancedHttpClient coloredCoinsClient;
     private AdvancedHttpClient blockExplorerClient;
 
-    public ColuClient(NetworkParameters network, String[] apiUrls, String[] explorerUrls) {
-        this.coloredCoinsClient = new AdvancedHttpClient(apiUrls/*BuildConfig.ColoredCoinsApiURLs*/);
-        this.blockExplorerClient = new AdvancedHttpClient(explorerUrls/*BuildConfig.ColuBlockExplorerApiURLs*/);
+    public ColuClient(NetworkParameters network, String[] apiUrls, String[] explorerUrls, @Nullable SSLSocketFactory socketFactory) {
+
+        this.coloredCoinsClient = new AdvancedHttpClient(apiUrls/*BuildConfig.ColoredCoinsApiURLs*/, socketFactory);
+        this.blockExplorerClient = new AdvancedHttpClient(explorerUrls/*BuildConfig.ColuBlockExplorerApiURLs*/, socketFactory);
         this.network = network;
 
         // Level.CONFIG logs everything but Authorization header
