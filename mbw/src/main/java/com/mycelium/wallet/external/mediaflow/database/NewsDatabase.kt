@@ -40,11 +40,7 @@ object NewsDatabase {
             if (where.isNotEmpty()) {
                 where.append(" AND ")
             }
-
-            categories.forEach {
-                where.append("category = '${it.name}' OR ")
-            }
-            where.delete(where.length - 3, where.length)
+            where.append(categories.map { "category = '${it.name}'" }.joinToString(" OR "))
         }
         val builder = SQLiteQueryBuilder()
         builder.tables = NewsSQLiteHelper.NEWS
@@ -107,7 +103,7 @@ object NewsDatabase {
         return result
     }
 
-    fun read(news: News) {
+    fun markRead(news: News) {
         try {
             database.beginTransaction()
             readNews.clearBindings()

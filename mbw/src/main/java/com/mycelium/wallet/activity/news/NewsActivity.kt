@@ -51,7 +51,7 @@ class NewsActivity : AppCompatActivity() {
             collapsing_toolbar.title = if (scrollDelta == 1f) news.title else ""
         })
         news = intent.getSerializableExtra(NewsConstants.NEWS) as News
-        NewsDatabase.read(news)
+        NewsDatabase.markRead(news)
         content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val parsedContent = NewsUtils.parseNews(news.content)
@@ -150,8 +150,6 @@ class NewsActivity : AppCompatActivity() {
             val tweetUrl = Uri.parse("https://twitter.com/intent/tweet?text=${news.link}")
             startActivity(Intent(Intent.ACTION_VIEW, tweetUrl))
         }
-        val bundle = Bundle()
-        bundle.putSerializable(NewsConstants.NEWS, news)
         val fragment = supportFragmentManager.findFragmentById(R.id.otherNews) as NewsFragment
         fragment.currentNews = news
     }
@@ -179,8 +177,9 @@ class NewsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when {
-            item?.itemId == android.R.id.home -> finish()
+        if (item?.itemId == android.R.id.home) {
+            finish()
+            return true
         }
         return super.onOptionsItemSelected(item)
     }
