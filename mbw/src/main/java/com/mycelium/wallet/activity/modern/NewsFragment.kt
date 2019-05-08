@@ -101,8 +101,6 @@ class NewsFragment : Fragment() {
         if (item?.itemId == R.id.action_search) {
             startActivity(Intent(activity, NewsSearchActivity::class.java))
             return true
-        } else if (item?.itemId == R.id.action_favorite) {
-
         }
         return super.onOptionsItemSelected(item)
     }

@@ -41,23 +41,24 @@ class NewsSearchActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.news_search, menu)
-        val searchView = menu?.findItem(R.id.action_search)?.actionView as SearchView
-        searchView.queryHint = getString(R.string.search_topics_and_articles)
-        searchView.setOnCloseListener {
-            adapter.setSearchData(null)
-            false
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                startUpdate(s)
-                return true
+        (menu?.findItem(R.id.action_search)?.actionView as SearchView?)?.let { searchView ->
+            searchView.queryHint = getString(R.string.search_topics_and_articles)
+            searchView.setOnCloseListener {
+                adapter.setSearchData(null)
+                false
             }
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(s: String): Boolean {
+                    startUpdate(s)
+                    return true
+                }
 
-            override fun onQueryTextChange(s: String): Boolean {
-                startUpdate(s)
-                return true
-            }
-        })
+                override fun onQueryTextChange(s: String): Boolean {
+                    startUpdate(s)
+                    return true
+                }
+            })
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
