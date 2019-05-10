@@ -156,6 +156,11 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
+    public byte[] getTxBytes() {
+        return tx.toBytes(true);
+    }
+
+    @Override
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return confirmationRiskProfile;
     }
