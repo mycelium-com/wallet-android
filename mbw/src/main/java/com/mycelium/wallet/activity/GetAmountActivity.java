@@ -169,7 +169,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private int getMaxDecimal(GenericAssetInfo assetInfo) {
       if (!(assetInfo instanceof FiatType)) {
-         return assetInfo.getUnitExponent() - _mbwManager.getDenomination().getBase10();
+         return assetInfo.getUnitExponent() - _mbwManager.getDenomination().getScale();
       } else {
          return assetInfo.getUnitExponent();
       }
@@ -326,7 +326,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getBase10();
+            int toTargetUnit = _mbwManager.getDenomination().getScale();
             newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(toTargetUnit));
          }
          _numberEntry.setEntry(newAmount, getMaxDecimal(_amount.type));
@@ -386,7 +386,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             _amount = val;
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getBase10();
+            int toTargetUnit = _mbwManager.getDenomination().getScale();
             _amount = val.divide((long) Math.pow(10,toTargetUnit ));
          }
       }catch (NumberFormatException e){
