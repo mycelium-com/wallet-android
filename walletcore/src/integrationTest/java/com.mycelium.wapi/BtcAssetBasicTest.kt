@@ -43,7 +43,7 @@ class BtcAssetBasicTest {
         }
 
         override fun getKeyCategoryValueEntry(key: String, category: String, defaultValue: String): String? {
-            return keyCategoryValueMap[category + "_" + key]
+            return ""
         }
 
         override fun getFirstKeyForCategoryValue(category: String, value: String): Optional<String> {
@@ -93,8 +93,6 @@ class BtcAssetBasicTest {
 
         val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
         val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
-
-        val externalSignatureProviderProxy = ExternalSignatureProviderProxy()
 
         val store = SecureKeyValueStore(backing, MyRandomSource())
 

@@ -64,4 +64,8 @@ class ColuTransaction(val _id: Sha256Hash, val _type: CryptoCurrency, val _trans
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun getTxBytes(): ByteArray {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

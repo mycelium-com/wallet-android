@@ -60,7 +60,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initDatabinding(account)
 
         if (viewModel is ReceiveBtcViewModel &&
-               (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
+                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
                 (account as AbstractBtcAccount).availableAddressTypes
             } else {
@@ -99,7 +99,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        viewModel.getReceivingAddress().observe(this, Observer { ivQrCode.qrCode = viewModel.getPaymentUri() })
+        viewModel.getReceivingAddress().observe(this, Observer {
+            ivQrCode.qrCode = viewModel.getPaymentUri()
+        })
     }
 
     private fun initDatabinding(account: WalletAccount<*,*>) {

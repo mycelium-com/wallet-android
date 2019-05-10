@@ -13,5 +13,4 @@ interface CoinapultApi {
     fun broadcast(amount: BigDecimal, currency: Currency, address: BtcAddress)
     fun setMail(mail: String): Boolean
     fun verifyMail(link: String, email: String): Boolean
-    fun activate(mail: String?)
 }
