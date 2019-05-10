@@ -344,8 +344,8 @@ public class Record implements Serializable, Comparable<Record> {
                                                              // throw
 
          // BackupState
-         BackupState backupState = BackupState.fromInt(Integer.parseInt(backupStateString)); // May
-                                                                                             // throw
+         BackupState backupState = BackupState.Companion.fromInt(Integer.parseInt(backupStateString)); // May
+                                                                                                       // throw
 
          return new Record(key, address, timestamp, source, tag, backupState);
       } catch (Exception e) {
