@@ -1,4 +1,4 @@
-package com.mycelium.wapi.wallet.bip44
+package com.mycelium.wapi
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.Bip39
@@ -22,12 +22,10 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
-import com.mycelium.wapi.wallet.manager.Synchronizer
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
 import java.security.SecureRandom
-import java.util.Arrays
 import java.util.HashMap
 
 import org.junit.Test as test
