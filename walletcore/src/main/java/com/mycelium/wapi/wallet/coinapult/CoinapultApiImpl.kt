@@ -19,32 +19,10 @@ import java.security.NoSuchAlgorithmException
 
 
 class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : CoinapultApi {
-
     data class Entry(override val key: Long, override val value: MutableList<AccountInfo.Balance>?)
         : Map.Entry<Long, MutableList<AccountInfo.Balance>?>
 
     var lastInfo: Entry = Entry(0, null)
-
-    override fun activate(mail: String?) {
-        try {
-            lastInfo()
-        } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException(e)
-        } catch (e: HttpResponseException) {
-            val options = mutableMapOf<String, String>()
-            if (mail != null && mail.isNotEmpty()) {
-                options["email"] = mail
-            }
-            client.createAccount(options)
-        } catch (e: IOException) {
-            throw CoinapultClient.CoinapultBackendException(e)
-        }
-        try {
-            client.activateAccount(true)
-        } catch (e: Exception) {
-            throw CoinapultClient.CoinapultBackendException()
-        }
-    }
 
     override fun setMail(mail: String): Boolean {
         try {

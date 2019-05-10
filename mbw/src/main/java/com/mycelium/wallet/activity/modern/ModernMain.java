@@ -91,7 +91,6 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.squareup.otto.Subscribe;
 
-
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -102,7 +101,6 @@ import java.util.UUID;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
@@ -157,13 +155,13 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
         mRecommendationsTab = bar.newTab();
         mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)),
-                RecommendationsFragment.class, null);
+                            RecommendationsFragment.class, null);
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
         addressBookConfig.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, false);
         mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
-                addressBookConfig);
+                            addressBookConfig);
         addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
         bar.selectTab(mBalanceTab);
         _toaster = new Toaster(this);
@@ -195,32 +193,31 @@ public class ModernMain extends AppCompatActivity {
         if (gaps != null && !gaps.isEmpty()) {
             checkNotNull(module);
             final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
-            final String gapsString = Joiner.on(", ").join(gapAddresses);
-
-            Log.d("Gaps", gapsString);
+                final String gapsString = Joiner.on(", ").join(gapAddresses);
+                Log.d("Gaps", gapsString);
 
             final SpannableString s = new SpannableString(getResources().getString(R.string.check_gap_bug_spannable_string));
-            Linkify.addLinks(s, Linkify.ALL);
+                Linkify.addLinks(s, Linkify.ALL);
 
             final AlertDialog d = new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.account_gap)).setMessage(s)
-                    .setPositiveButton(getResources().getString(R.string.gaps_button_ok), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            createPlaceHolderAccounts(gaps);
-                            _mbwManager.reportIgnoredException(new RuntimeException(getResources().getString(R.string.address_gaps) + gapsString));
-                        }
-                    }).setNegativeButton(getResources().getString(R.string.gaps_button_ignore), null).show();
+            .setPositiveButton(getResources().getString(R.string.gaps_button_ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        createPlaceHolderAccounts(gaps);
+                    _mbwManager.reportIgnoredException(new RuntimeException(getResources().getString(R.string.address_gaps) + gapsString));
+                    }
+            }).setNegativeButton(getResources().getString(R.string.gaps_button_ignore), null).show();
 
-            // Make the textview clickable. Must be called after show()
+                // Make the textview clickable. Must be called after show()
             ((TextView) Objects.requireNonNull(d.findViewById(android.R.id.message))).setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
     private void createPlaceHolderAccounts(Set<Integer> gapIndex) {
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
-        for (Integer index : gapIndex) {
+        for (Integer index: gapIndex) {
             final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index);
-            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index + 1));
+                _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
         }
     }
 
@@ -258,16 +255,16 @@ public class ModernMain extends AppCompatActivity {
             _mbwManager.setShowQueuedTransactionsRemovalAlert(false);
 
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.failed_transaction_removal_title)
-                    .setMessage(R.string.failed_transaction_removal_message)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface arg0, int arg1) {
-                            WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
-                            account.removeAllQueuedTransactions();
-                        }
-                    })
-                    .setNegativeButton(R.string.no, null)
-                    .show();
+            .setTitle(R.string.failed_transaction_removal_title)
+            .setMessage(R.string.failed_transaction_removal_message)
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                    WalletAccount account = _mbwManager.getWalletManager(false).getAccount(ev.getAccount());
+                    account.removeAllQueuedTransactions();
+                }
+            })
+            .setNegativeButton(R.string.no, null)
+            .show();
         }
     }
 
@@ -327,11 +324,11 @@ public class ModernMain extends AppCompatActivity {
     public void onBackPressed() {
         ActionBar bar = getSupportActionBar();
         if (bar.getSelectedTab() == mBalanceTab) {
-            // if(Build.VERSION.SDK_INT >= 21) {
-            // finishAndRemoveTask();
-            // } else {
-            // finish();
-            // }
+//         if(Build.VERSION.SDK_INT >= 21) {
+//            finishAndRemoveTask();
+//         } else {
+//            finish();
+//         }
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
@@ -378,7 +375,6 @@ public class ModernMain extends AppCompatActivity {
         final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
         final boolean locked = _mbwManager.isKeyManagementLocked();
         checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
-        checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
 
         // Lock menu
         final boolean hasPin = _mbwManager.isPinProtected();
@@ -414,57 +410,61 @@ public class ModernMain extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         final int itemId = item.getItemId();
         switch (itemId) {
-            case R.id.miColdStorage:
-                InstantWalletActivity.callMe(this);
-                return true;
-            case R.id.miSettings: {
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivityForResult(intent, REQUEST_SETTING_CHANGED);
-                return true;
+        case R.id.miColdStorage:
+            InstantWalletActivity.callMe(this);
+            return true;
+        case R.id.miSettings: {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, REQUEST_SETTING_CHANGED);
+            return true;
+        }
+        case R.id.miBackup:
+            Utils.pinProtectedWordlistBackup(this);
+            return true;
+        //with wordlists, we just need to backup and verify in one step
+        //} else if (itemId == R.id.miVerifyBackup) {
+        //   VerifyBackupActivity.callMe(this);
+        //   return true;
+        case R.id.miRefresh:
+            // default only sync the current account
+            SyncMode syncMode = SyncMode.NORMAL_FORCED;
+            // every 5th manual refresh make a full scan
+            if (counter == 4) {
+                syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
+                counter = 0;
+            } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
+                // if we are in the accounts tab, sync all accounts if the users forces a sync
+                syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
+                counter++;
             }
-            case R.id.miBackup:
-                Utils.pinProtectedWordlistBackup(this);
-                return true;
-            // with wordlists, we just need to backup and verify in one step
-            // } else if (itemId == R.id.miVerifyBackup) {
-            // VerifyBackupActivity.callMe(this);
-            // return true;
-            case R.id.miRefresh:
-                // default only sync the current account
-                SyncMode syncMode = SyncMode.NORMAL_FORCED;
-                // every 5th manual refresh make a full scan
-                if (counter == 4) {
-                    syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
-                    counter = 0;
-                } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
-                    // if we are in the accounts tab, sync all accounts if the users forces a sync
-                    syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
-                    counter++;
-                }
-                _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-                // also fetch a new exchange rate, if necessary
-                _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-                showRefresh(); // without this call sometime user not see click feedback
-                return true;
-            case R.id.miHelp:
-                openMyceliumHelp();
-                break;
-            case R.id.miAbout: {
-                Intent intent = new Intent(this, AboutActivity.class);
-                startActivity(intent);
-                break;
-            }
-            case R.id.miRescanTransactions:
-                _mbwManager.getSelectedAccount().dropCachedData();
-                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-                break;
 
-            case R.id.miVerifyMessage:
-                startActivity(new Intent(this, MessageVerifyActivity.class));
-                break;
-            }
+                _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+
+            // also fetch a new exchange rate, if necessary
+            _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+            showRefresh(); // without this call sometime user not see click feedback
+            return true;
+        case R.id.miHelp:
+            openMyceliumHelp();
+            break;
+        case R.id.miAbout: {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            break;
+        }
+        case R.id.miRescanTransactions:
+            _mbwManager.getSelectedAccount().dropCachedData();
+            _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+
+            break;
+
+        case R.id.miVerifyMessage:
+            startActivity(new Intent(this, MessageVerifyActivity.class));
+            break;
+        }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -75,7 +75,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
-import com.mycelium.wallet.activity.AddCoinapultAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
@@ -118,11 +117,9 @@ import com.squareup.otto.Subscribe;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
 import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
-
 
 public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
@@ -222,13 +219,7 @@ public class AccountsFragment extends Fragment {
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
         ActivityCompat.invalidateOptionsMenu(getActivity());
-        if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == AddCoinapultAccountActivity.RESULT_COINAPULT) {
-            UUID accountId = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
-            WalletAccount account  = _mbwManager.getWalletManager(false).getAccount(accountId);
-            _mbwManager.setSelectedAccount(accountId);
-            accountListAdapter.setFocusedAccountId(account.getId());
-            updateIncludingMenus();
-        } else if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == ADD_RECORD_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             UUID accountid = (UUID) intent.getSerializableExtra(AddAccountActivity.RESULT_KEY);
             if (accountid != null) {
                 //check whether the account is active - we might have scanned the priv key for an archived watchonly
@@ -320,6 +311,7 @@ public class AccountsFragment extends Fragment {
                     }
                     if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
                         if (label != null && label.length() != 0) {
+
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                       getResources().getQuantityString(R.plurals.account_label, labelCount, label),
@@ -327,7 +319,7 @@ public class AccountsFragment extends Fragment {
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                       !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
+                                      ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         }
                     } else {
                         if (label != null && label.length() != 0) {
@@ -359,7 +351,7 @@ public class AccountsFragment extends Fragment {
                                         } else {
                                             config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
                                         }
-                                       _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
                                         walletManager.createAccounts(config);
                                     } else {
                                         ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
@@ -375,7 +367,7 @@ public class AccountsFragment extends Fragment {
                                         WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                                         if (linkedAccount != null) {
                                             walletManager.deleteAccount(linkedAccount.getId());
-                                           _storage.deleteAccountMetadata(linkedAccount.getId());
+                                            _storage.deleteAccountMetadata(linkedAccount.getId());
                                         }
                                         if (keepAddrCheckbox.isChecked()) {
                                             ColuAccountContext context = ((PublicColuAccount) accountToDelete).getContext();
@@ -383,10 +375,10 @@ public class AccountsFragment extends Fragment {
                                             Config config;
                                             if (context.getPublicKey() != null) {
                                                 config = new PublicColuConfig(context.getPublicKey(), coluMain);
-                                            } else {
+                                        } else {
                                                 config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
                                             }
-                                           _storage.deleteAccountMetadata(accountToDelete.getId());
+                                            _storage.deleteAccountMetadata(accountToDelete.getId());
                                             walletManager.createAccounts(config);
                                         } else {
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
@@ -403,10 +395,9 @@ public class AccountsFragment extends Fragment {
                                     WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                                     if (linkedColuAccount instanceof PublicColuAccount) {
                                         walletManager.deleteAccount(linkedColuAccount.getId());
-                                       _storage.deleteAccountMetadata(linkedColuAccount.getId());
-                                    }
+                                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                                        }
                                     walletManager.deleteAccount(accountToDelete.getId());
-
                                     _storage.deleteAccountMetadata(accountToDelete.getId());
                                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
                                     _toaster.toast(R.string.account_deleted, false);
@@ -422,12 +413,12 @@ public class AccountsFragment extends Fragment {
                     // account has no private data - dont make a fuzz about it and just delete it
                     walletManager.deleteAccount(accountToDelete.getId());
                     _storage.deleteAccountMetadata(accountToDelete.getId());
-                    //Check if this SingleAddress account is related with ColuAccount
+                        //Check if this SingleAddress account is related with ColuAccount
                     WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
                     if (linkedColuAccount != null) {
                         walletManager.deleteAccount(linkedColuAccount.getId());
-                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
-                    }
+                            _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                            }
                     finishCurrentActionMode();
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
                     _toaster.toast(R.string.account_deleted, false);
@@ -452,6 +443,7 @@ public class AccountsFragment extends Fragment {
 
         });
         deleteDialog.setNegativeButton(R.string.no, null).show();
+
     }
 
     @NonNull
@@ -747,11 +739,11 @@ public class AccountsFragment extends Fragment {
                 String mailText = mailField.getText().toString();
                 if (Utils.isValidEmailAddress(mailText)) {
                     if (!mailText.isEmpty()) {
-                        _progress.setCancelable(false);
-                        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        _progress.setMessage(getString(R.string.coinapult_setting_email));
-                        _progress.show();
-                        _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
+                    _progress.setCancelable(false);
+                    _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    _progress.setMessage(getString(R.string.coinapult_setting_email));
+                    _progress.show();
+                    _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
                         new SetCoinapultMailAsyncTask(mailText).execute();
                     }
                     dialog.dismiss();
@@ -908,7 +900,6 @@ public class AccountsFragment extends Fragment {
                     return;
                 }
                 WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-
                 MessageSigningActivity.callMe(getActivity(), _focusedAccount);
             }
         });
@@ -938,10 +929,6 @@ public class AccountsFragment extends Fragment {
         }
         if (item.getItemId() == R.id.miAddRecord) {
             AddAccountActivity.callMe(this, ADD_RECORD_RESULT_CODE);
-            return true;
-        } else if (item.getItemId() == R.id.miAddFiatAccount) {
-            Intent intent = AddCoinapultAccountActivity.getIntent(getActivity());
-            this.startActivityForResult(intent, ADD_RECORD_RESULT_CODE);
             return true;
         } else if (item.getItemId() == R.id.miLockKeys) {
             lock();
@@ -1094,6 +1081,7 @@ public class AccountsFragment extends Fragment {
         }
         if (_focusedAccount instanceof CoinapultAccount) {
             _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
                 @Override
                 public void run() {
                     if (!AccountsFragment.this.isAdded()) {
@@ -1114,6 +1102,7 @@ public class AccountsFragment extends Fragment {
             }
         }
         _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+
             @Override
             public void run() {
                 if (!AccountsFragment.this.isAdded()) {
@@ -1134,14 +1123,12 @@ public class AccountsFragment extends Fragment {
         if (!toRemove.isDerivedFromInternalMasterseed()) {
             return false;
         }
-
         List<WalletAccount<?,?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
 
         // If we have more than one master-seed derived account, we can remove it
         if (accountsList.size() > 1) {
-            return false;
-        }
-
+                return false;
+            }
         return true;
     }
 
@@ -1241,9 +1228,11 @@ public class AccountsFragment extends Fragment {
     }
 
     OnClickListener unlockClickedListener = new OnClickListener() {
+
         @Override
         public void onClick(View v) {
             _mbwManager.runPinProtectedFunction(AccountsFragment.this.getActivity(), new Runnable() {
+
                 @Override
                 public void run() {
                     _mbwManager.setKeyManagementLocked(false);
@@ -1252,9 +1241,11 @@ public class AccountsFragment extends Fragment {
                         getActivity().supportInvalidateOptionsMenu();
                     }
                 }
+
             });
         }
     };
+
 
     @Subscribe
     public void addressChanged(ReceivingAddressChanged event) {

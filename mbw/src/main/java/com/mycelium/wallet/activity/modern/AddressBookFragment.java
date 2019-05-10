@@ -91,8 +91,8 @@ import java.util.UUID;
 
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
-
 public class AddressBookFragment extends Fragment {
+
     public static final int SCAN_RESULT_CODE = 0;
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
@@ -100,6 +100,7 @@ public class AddressBookFragment extends Fragment {
     public static final String AVAILABLE_FOR_SENDING = "is_sending";
     public static final String SELECT_ONLY = "selectOnly";
     public static final String ADDRESS_RESULT_LABEL = "address_result_label";
+
 
     private GenericAddress mSelectedAddress;
     private MbwManager _mbwManager;
@@ -162,17 +163,16 @@ public class AddressBookFragment extends Fragment {
         if (ownAddresses) {
             updateUiMine();
         } else {
-            if(availableForSendingAddresses){
+            if(availableForSendingAddresses) {
                 updateUiSending();
-            } else {
-                updateUiForeign();
-            }
+        } else {
+            updateUiForeign();
         }
+    }
     }
 
     private void updateUiMine() {
         List<Entry> entries = new ArrayList<>();
-
         List<WalletAccount<?, ?>> activeAccounts = new ArrayList<>(_mbwManager.getWalletManager(false).getAllActiveAccounts());
         for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
             String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
@@ -184,7 +184,7 @@ public class AddressBookFragment extends Fragment {
                         && (account instanceof CoinapultAccount || account.getCoinType() == BitcoinMain.get() || account.getCoinType() == BitcoinTest.get())) {
                     entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
                 } else if ((selectedAccount.getCoinType().equals(BitcoinMain.get()) || selectedAccount.getCoinType().equals(BitcoinTest.get()))
-                        && account instanceof CoinapultAccount) {
+                           && account instanceof CoinapultAccount) {
                     entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
                 } else if (selectedAccount.getCoinType().equals(account.getCoinType())) {
                     entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
@@ -302,6 +302,7 @@ public class AddressBookFragment extends Fragment {
     };
 
     final Runnable pinProtectedEditEntry = new Runnable() {
+
         @Override
         public void run() {
             doEditEntry();
@@ -310,7 +311,7 @@ public class AddressBookFragment extends Fragment {
 
     private void doEditEntry() {
         EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
-                mSelectedAddress, "", addressLabelChanged);
+                                                mSelectedAddress, "", addressLabelChanged);
     }
 
     private void doShowQrCode() {
@@ -323,7 +324,7 @@ public class AddressBookFragment extends Fragment {
         boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKey(mSelectedAddress);
         UUID tempAccount = _mbwManager.createOnTheFlyAccount(mSelectedAddress);
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
-                hasPrivateKey, false, true);
+                                    hasPrivateKey, false, true);
         finishActionMode();
     }
 
@@ -336,26 +337,27 @@ public class AddressBookFragment extends Fragment {
 
     private void doDeleteEntry() {
         new AlertDialog.Builder(getActivity())
-                .setMessage(R.string.delete_address_confirmation)
-                .setCancelable(false)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                        _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress) mSelectedAddress).getAddress());
-                        finishActionMode();
-                        MbwManager.getEventBus().post(new AddressBookChanged());
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        finishActionMode();
-                    }
-                })
-                .create()
-                .show();
+        .setMessage(R.string.delete_address_confirmation)
+        .setCancelable(false)
+        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+                _mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress) mSelectedAddress).getAddress());
+                finishActionMode();
+                MbwManager.getEventBus().post(new AddressBookChanged());
+            }
+        })
+        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finishActionMode();
+            }
+        })
+        .create()
+        .show();
     }
 
     private class AddDialog extends Dialog {
+
         public AddDialog(final Activity activity) {
             super(activity);
             this.setContentView(R.layout.add_to_address_book_dialog);
@@ -369,6 +371,7 @@ public class AddressBookFragment extends Fragment {
                     ScanActivity.callMe(AddressBookFragment.this.getActivity(), SCAN_RESULT_CODE, request);
                     AddDialog.this.dismiss();
                 }
+
             });
 
             Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
@@ -418,15 +421,15 @@ public class AddressBookFragment extends Fragment {
         }
         ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
         switch (type) {
-            case PRIVATE_KEY:
-                Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
-                break;
-            case ASSET_URI:
-                addFromAddress(getAssetUri(intent).getAddress());
-                break;
-            case ADDRESS:
-                getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
-                break;
+        case PRIVATE_KEY:
+            Utils.showSimpleMessageDialog(getActivity(), R.string.addressbook_cannot_add_private_key);
+            break;
+        case ASSET_URI:
+            addFromAddress(getAssetUri(intent).getAddress());
+            break;
+        case ADDRESS:
+            getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
+            break;
         }
     }
 
@@ -460,8 +463,8 @@ public class AddressBookFragment extends Fragment {
             Intent result = new Intent();
             result.putExtra(ADDRESS_RESULT_NAME, address);
 
-            if (parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
-                AddressBookManager.IconEntry item = (AddressBookManager.IconEntry) parent.getItemAtPosition(position);
+            if( parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
+                AddressBookManager.IconEntry item  = (AddressBookManager.IconEntry)parent.getItemAtPosition(position);
                 result.putExtra(ADDRESS_RESULT_ID, item.getId());
                 result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
             }
