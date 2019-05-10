@@ -49,7 +49,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipSss;
@@ -172,7 +171,7 @@ public class BalanceFragment extends Fragment {
             String source = sources.get(i);
             ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
-                           : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
+                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
             String item;
             if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
                 item = COINMARKETCAP + "/" + source;
@@ -232,22 +231,22 @@ public class BalanceFragment extends Fragment {
         if (account.canSpend()) {
             if (account instanceof PrivateColuAccount && ((PrivateColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
-                .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
-                .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
-                    }
-                })
-                .create()
-                .show();
+                        .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
+                        .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
+                            }
+                        })
+                        .create()
+                        .show();
             } else {
                 SendInitializationActivity.callMe(BalanceFragment.this.getActivity(), _mbwManager.getSelectedAccount().getId(), false);
             }
         } else {
             new AlertDialog.Builder(getActivity())
-            .setMessage(R.string.this_is_read_only_account)
-            .setPositiveButton(R.string.button_ok, null).create().show();
+                    .setMessage(R.string.this_is_read_only_account)
+                    .setPositiveButton(R.string.button_ok, null).create().show();
 
         }
     }
@@ -259,7 +258,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
-                                    _mbwManager.getSelectedAccount().canSpend(), true);
+                _mbwManager.getSelectedAccount().canSpend(), true);
     }
 
     @OnClick(R.id.btScan)
@@ -274,7 +273,7 @@ public class BalanceFragment extends Fragment {
 
     private boolean isBCH() {
         return _mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-               || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
+                || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
     }
 
     private void updateUi() {
@@ -286,26 +285,26 @@ public class BalanceFragment extends Fragment {
 
         TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
 
-            // Set BTC rate
-            if (!_mbwManager.hasFiatCurrency()) {
-                // No fiat currency selected by user
-                tvBtcRate.setVisibility(View.INVISIBLE);
-                exchangeSourceLayout.setVisibility(View.GONE);
+        // Set BTC rate
+        if (!_mbwManager.hasFiatCurrency()) {
+            // No fiat currency selected by user
+            tvBtcRate.setVisibility(View.INVISIBLE);
+            exchangeSourceLayout.setVisibility(View.GONE);
         } else {
             Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(), _mbwManager.getFiatCurrency());
             if (value == null) {
                 // We have no price, exchange not available
                 tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
-                                  , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
             } else {
                 tvBtcRate.setText(getResources().getString(R.string.balance_rate
-                                  , account.getCoinType().getSymbol()
-                                  , _mbwManager.getFiatCurrency().getSymbol()
-                                  , ValueExtensionsKt.toString(value)));
+                        , account.getCoinType().getSymbol()
+                        , _mbwManager.getFiatCurrency().getSymbol()
+                        , ValueExtensionsKt.toString(value)));
             }
-                tvBtcRate.setVisibility(View.VISIBLE);
-                exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
-                exchangeSourceLayout.setVisibility(View.VISIBLE);
+            tvBtcRate.setVisibility(View.VISIBLE);
+            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+            exchangeSourceLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -375,60 +374,60 @@ public class BalanceFragment extends Fragment {
             } else {
                 ResultType type = (ResultType) data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
                 switch (type) {
-                case PRIVATE_KEY:
-                    InMemoryPrivateKey key = getPrivateKey(data);
-                    UUID account = _mbwManager.createOnTheFlyAccount(key);
-                    //we dont know yet where at what to send
-                    SendInitializationActivity.callMeWithResult(getActivity(), account, true,
-                            StringHandlerActivity.SEND_INITIALIZATION_CODE);
-                    break;
-                case ADDRESS:
-                    GenericAddress address = getAddress(data);
-                    startActivity(SendMainActivity.getIntent(getActivity()
-                                  , _mbwManager.getSelectedAccount().getId(), 0, address, false)
-                                  .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-                    break;
-                case ASSET_URI: {
-                    GenericAssetUri uri = getAssetUri(data);
-                    startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
-                                  .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-                    break;
-                }
-                case HD_NODE:
-                    HdKeyNode hdKeyNode = getHdKeyNode(data);
-                    if (hdKeyNode.isPrivateHdKeyNode()) {
-                        //its an xPriv, we want to cold-spend from it
-                        final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
-                        UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
-                        tempWalletManager.setActiveAccount(acc);
-                        SendInitializationActivity.callMeWithResult(getActivity(), acc, true,
+                    case PRIVATE_KEY:
+                        InMemoryPrivateKey key = getPrivateKey(data);
+                        UUID account = _mbwManager.createOnTheFlyAccount(key);
+                        //we dont know yet where at what to send
+                        SendInitializationActivity.callMeWithResult(getActivity(), account, true,
                                 StringHandlerActivity.SEND_INITIALIZATION_CODE);
-                    } else {
-                        //its xPub, we want to send to it
-                        Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), hdKeyNode);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-                        startActivity(intent);
+                        break;
+                    case ADDRESS:
+                        GenericAddress address = getAddress(data);
+                        startActivity(SendMainActivity.getIntent(getActivity()
+                                , _mbwManager.getSelectedAccount().getId(), 0, address, false)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    case ASSET_URI: {
+                        GenericAssetUri uri = getAssetUri(data);
+                        startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
                     }
-                    break;
-                case SHARE:
-                    BipSss.Share share = getShare(data);
-                    BipSsImportActivity.callMe(getActivity(), share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
-                    break;
-                case URI:
-                    // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
-                    Uri uri = getUri(data);
-                    startActivity(HandleUrlActivity.getIntent(getActivity(), uri));
-                    break;
-                case POP_REQUEST:
-                    PopRequest popRequest = getPopRequest(data);
-                    startActivity(new Intent(getActivity(), PopActivity.class)
-                                  .putExtra("popRequest", popRequest)
-                                  .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-                    break;
-                case BIT_ID_REQUEST:
-                    BitIDSignRequest request = getBitIdRequest(data);
-                    BitIDAuthenticationActivity.callMe(getActivity(), request);
-                    break;
+                    case HD_NODE:
+                        HdKeyNode hdKeyNode = getHdKeyNode(data);
+                        if (hdKeyNode.isPrivateHdKeyNode()) {
+                            //its an xPriv, we want to cold-spend from it
+                            final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
+                            UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
+                            tempWalletManager.setActiveAccount(acc);
+                            SendInitializationActivity.callMeWithResult(getActivity(), acc, true,
+                                    StringHandlerActivity.SEND_INITIALIZATION_CODE);
+                        } else {
+                            //its xPub, we want to send to it
+                            Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), hdKeyNode);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                            startActivity(intent);
+                        }
+                        break;
+                    case SHARE:
+                        BipSss.Share share = getShare(data);
+                        BipSsImportActivity.callMe(getActivity(), share, StringHandlerActivity.IMPORT_SSS_CONTENT_CODE);
+                        break;
+                    case URI:
+                        // open HandleUrlActivity and let it decide what to do with this URL (check if its a payment request)
+                        Uri uri = getUri(data);
+                        startActivity(HandleUrlActivity.getIntent(getActivity(), uri));
+                        break;
+                    case POP_REQUEST:
+                        PopRequest popRequest = getPopRequest(data);
+                        startActivity(new Intent(getActivity(), PopActivity.class)
+                                .putExtra("popRequest", popRequest)
+                                .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+                        break;
+                    case BIT_ID_REQUEST:
+                        BitIDSignRequest request = getBitIdRequest(data);
+                        BitIDAuthenticationActivity.callMe(getActivity(), request);
+                        break;
                 }
             }
         }

@@ -260,22 +260,22 @@ public class NoticeFragment extends Fragment {
       // delay is still remaining, provide option to abort
       String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
       new AlertDialog.Builder(getActivity())
-            .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
-            .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
-            .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  _mbwManager.getMetadataStorage().clearResetPinStartBlockheight();
-                  recheckNotice();
-               }
-            })
-            .setNegativeButton(this.getActivity().getString(R.string.no), new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  // nothing to do here
-               }
-            })
-            .show();
+              .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
+              .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
+              .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                    _mbwManager.getMetadataStorage().clearResetPinStartBlockheight();
+                    recheckNotice();
+                 }
+              })
+              .setNegativeButton(this.getActivity().getString(R.string.no), new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                    // nothing to do here
+                 }
+              })
+              .show();
    }
 
    private OnClickListener warningClickListener = new OnClickListener() {
@@ -325,9 +325,9 @@ public class NoticeFragment extends Fragment {
       // Only show the "Secure My Funds" button when necessary
       backupMissingLayout.setVisibility(
               (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 0)
-              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
-              || _notice == Notice.SINGLEKEY_VERIFY_MISSING
-              ? View.VISIBLE : View.GONE);
+                      || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
+                      || _notice == Notice.SINGLEKEY_VERIFY_MISSING
+                      ? View.VISIBLE : View.GONE);
 
       if(_notice == Notice.SINGLEKEY_VERIFY_MISSING) {
          backupMissing.setText(R.string.singlekey_verify_notice);

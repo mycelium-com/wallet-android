@@ -81,12 +81,12 @@ public class CoinapultClient {
         Security.addProvider(new BouncyCastleProvider());
         rng = new SecureRandom();
         requestFactory = HTTP_TRANSPORT
-        .createRequestFactory(new HttpRequestInitializer() {
-            @Override
-            public void initialize(HttpRequest request) {
-                request.setParser(new JsonObjectParser(JSON_FACTORY));
-            }
-        });
+                .createRequestFactory(new HttpRequestInitializer() {
+                    @Override
+                    public void initialize(HttpRequest request) {
+                        request.setParser(new JsonObjectParser(JSON_FACTORY));
+                    }
+                });
     }
 
     private <T> T sendGetRequest(Class<T> t, GenericUrl url) throws IOException {
@@ -105,7 +105,7 @@ public class CoinapultClient {
 
     private <T> T sendSignedRequest(Class<T> t, String endpoint,
                                     Map<String, String> options) throws
-        NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         return sendECCRequest(t, endpoint, options, false);
     }
 
@@ -115,7 +115,7 @@ public class CoinapultClient {
 
     private <T> T sendECCRequest(Class<T> t, String endpoint,
                                  Map<String, String> options, boolean newAccount)
-    throws NoSuchAlgorithmException, IOException {
+            throws NoSuchAlgorithmException, IOException {
         GenericUrl url = new GenericUrl(getBaseUrl() + endpoint);
         HttpHeaders headers = new HttpHeaders();
 
@@ -125,7 +125,7 @@ public class CoinapultClient {
             headers.set("cpt-ecc-pub", sha256(eccPubPEM));
         } else {
             headers.set("cpt-ecc-new",
-                        Base64.encodeBase64String(eccPubPEM.getBytes()));
+                    Base64.encodeBase64String(eccPubPEM.getBytes()));
             //this puts our referral code in, for new accounts
             //so we get credited towards developers@mycelium.com on coinapult
             options.put("tag", MYCELIUM_REFERRAL_CODE);
@@ -133,7 +133,7 @@ public class CoinapultClient {
         options.put("timestamp", CoinapultClient.timestampNow());
 
         String signdata = Base64.encodeBase64String(JSON_FACTORY
-                          .toByteArray(options));
+                .toByteArray(options));
         headers.set("cpt-ecc-sign", eccUtil.generateSign(signdata, eccPriv));
         try {
             return makePostRequest(t, url, headers, signdata);
@@ -163,8 +163,8 @@ public class CoinapultClient {
     }
 
     private JsonParser receiveECC(SignedJson resp) throws
-        IOException,
-        CoinapultExceptionECC {
+            IOException,
+            CoinapultExceptionECC {
         if (resp.sign != null && resp.data != null) {
             if (!eccUtil.verifySign(resp.sign, resp.data, coinapultPubkey)) {
                 throw new CoinapultExceptionECC("Invalid ECC signature");
@@ -204,7 +204,7 @@ public class CoinapultClient {
      * @throws IOException
      */
     public TickerHistory.Json tickerHistory(long begin, long end, String market)
-    throws IOException {
+            throws IOException {
         String endpoint = "/api/ticker";
         TickerHistory.Url url = new TickerHistory.Url(getBaseUrl() + endpoint);
         if (begin > 0) {
@@ -220,7 +220,7 @@ public class CoinapultClient {
     }
 
     public TickerHistory.Json tickerHistory(long begin, long end)
-    throws IOException {
+            throws IOException {
         return tickerHistory(begin, end, null);
     }
 
@@ -232,7 +232,7 @@ public class CoinapultClient {
                                  String address, Number outAmount, String callback,
                                  String extOID,
                                  String otp) throws IOException,
-        NoSuchAlgorithmException {
+            NoSuchAlgorithmException {
         String endpoint = "/api/t/send";
 
         BigDecimal inputAmount = new BigDecimal(amount.toString());
@@ -258,13 +258,13 @@ public class CoinapultClient {
         }
 
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     public Transaction.Json convert(Number amount, String currency,
                                     Number outAmount, String outCurrency, String callback)
-    throws IOException,
-        NoSuchAlgorithmException {
+            throws IOException,
+            NoSuchAlgorithmException {
         String endpoint = "/api/t/convert";
 
         BigDecimal inputAmount = new BigDecimal(amount.toString());
@@ -284,7 +284,7 @@ public class CoinapultClient {
         }
 
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     /**
@@ -293,8 +293,8 @@ public class CoinapultClient {
      * @param criteria this will be modified, pass a copy if necessary.
      */
     public Transaction.Json search(Map<String, String> criteria)
-    throws IOException,
-        NoSuchAlgorithmException, CoinapultException {
+            throws IOException,
+            NoSuchAlgorithmException, CoinapultException {
         String endpoint = "/api/t/search";
 
         Map<String, String> options;
@@ -306,12 +306,12 @@ public class CoinapultClient {
         }
 
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     public SearchMany.Json searchMany(Map<String, String> criteria, int page)
-    throws IOException,
-        NoSuchAlgorithmException, CoinapultException {
+            throws IOException,
+            NoSuchAlgorithmException, CoinapultException {
         String endpoint = "/api/t/search";
 
         Map<String, String> options;
@@ -320,7 +320,7 @@ public class CoinapultClient {
             options = criteria;
         } else {
             throw new CoinapultError.CoinapultException(
-                "Invalid search criteria");
+                    "Invalid search criteria");
         }
         options.put("many", "1");
         if (page > 0) {
@@ -328,7 +328,7 @@ public class CoinapultClient {
         }
 
         return sendSignedRequest(SearchMany.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     public SearchMany.Json history(int page) throws CoinapultBackendException {
@@ -340,7 +340,7 @@ public class CoinapultClient {
             options.put("many", "1");
             options.put("page", String.valueOf(page));
             result = sendSignedRequest(SearchMany.Json.class,
-                                       endpoint, options);
+                    endpoint, options);
 
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
@@ -352,7 +352,7 @@ public class CoinapultClient {
 
     public Transaction.Json lock(Number amount, Number outAmount,
                                  String outCurrency, String callback) throws IOException,
-        NoSuchAlgorithmException {
+            NoSuchAlgorithmException {
         String endpoint = "/api/t/lock";
 
         BigDecimal inputAmount = new BigDecimal(amount.toString());
@@ -371,7 +371,7 @@ public class CoinapultClient {
         }
 
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     /**
@@ -388,8 +388,8 @@ public class CoinapultClient {
     public Transaction.Json unlock(Number amount, String inCurrency,
                                    Number outAmount, String address, String callback,
                                    boolean acceptNow)
-    throws IOException,
-        NoSuchAlgorithmException {
+            throws IOException,
+            NoSuchAlgorithmException {
         String endpoint = "/api/t/unlock";
 
         BigDecimal inputAmount = new BigDecimal(amount.toString());
@@ -412,40 +412,40 @@ public class CoinapultClient {
         options.put("acceptNow", acceptNow ? "1" : "0");
 
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     public Transaction.Json unlockConfirm(String tid) throws IOException,
-        NoSuchAlgorithmException {
+            NoSuchAlgorithmException {
         String endpoint = "/api/t/unlock/confirm";
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("transaction_id", tid);
         return sendSignedRequest(Transaction.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     /**
      * Get a new bitcoin address.
      */
     public Address.Json getBitcoinAddress() throws
-        NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         String endpoint = "/api/getBitcoinAddress";
 
         Map<String, String> options = new HashMap<String, String>();
         return sendSignedRequest(Address.Json.class, endpoint,
-                                 options);
+                options);
     }
 
     public Config.Json config(String address, String lockTo) throws
-        NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         String endpoint = "/api/address/config";
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("address", address);
         options.put("lockTo", lockTo);
         return sendSignedRequest(Config.Json.class, endpoint,
-                                 options);
+                options);
     }
 
 
@@ -455,19 +455,19 @@ public class CoinapultClient {
      * @param balanceType one of "all", "normal", "locks"
      */
     public AccountInfo.Json accountInfo(String balanceType, boolean locksAsBTC)
-    throws
-        NoSuchAlgorithmException, IOException {
+            throws
+            NoSuchAlgorithmException, IOException {
         String endpoint = "/api/accountInfo";
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("balanceType", balanceType);
         options.put("locksAsBTC", locksAsBTC ? "1" : "0");
         return sendSignedRequest(AccountInfo.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     public AccountInfo.Json accountInfo() throws
-        NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         return accountInfo("all", false);
     }
 
@@ -475,14 +475,14 @@ public class CoinapultClient {
      * Verify if an address belongs to the current account.
      */
     public AddressInfo.Json accountAddress(String address)
-    throws
-        NoSuchAlgorithmException, IOException {
+            throws
+            NoSuchAlgorithmException, IOException {
         String endpoint = "/api/accountInfo/address";
 
         Map<String, String> options = new HashMap<String, String>();
         options.put("address", address);
         return sendSignedRequest(AddressInfo.Json.class,
-                                 endpoint, options);
+                endpoint, options);
     }
 
     /**
@@ -504,7 +504,7 @@ public class CoinapultClient {
     }
 
     static public String sha256(String val)
-    throws UnsupportedEncodingException, NoSuchAlgorithmException {
+            throws UnsupportedEncodingException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(val.getBytes("UTF-8"));
         byte[] digest = md.digest();

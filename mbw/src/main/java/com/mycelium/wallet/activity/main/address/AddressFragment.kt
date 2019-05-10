@@ -56,8 +56,8 @@ class AddressFragment : Fragment() {
 
     private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*, *>): Boolean =
             account is AbstractBtcAccount &&
-            account.availableAddressTypes.size > 1 &&
-            (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
+                    account.availableAddressTypes.size > 1 &&
+                    (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
