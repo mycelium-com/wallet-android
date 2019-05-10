@@ -147,12 +147,17 @@ public class BtcTransaction implements GenericTransaction, Serializable {
 
     @Override
     public String getHashAsString() {
-        return getId().toString();
+        return tx.getHash().toString();
     }
 
     @Override
     public byte[] getHashBytes() {
-        return getId().getBytes();
+        return tx.getHash().getBytes();
+    }
+
+    @Override
+    public byte[] getTxBytes() {
+        return tx.toBytes(true);
     }
 
     @Override

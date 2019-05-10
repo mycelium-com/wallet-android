@@ -91,7 +91,6 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.squareup.otto.Subscribe;
 
-
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -102,7 +101,6 @@ import java.util.UUID;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
@@ -196,7 +194,6 @@ public class ModernMain extends AppCompatActivity {
             checkNotNull(module);
             final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
             final String gapsString = Joiner.on(", ").join(gapAddresses);
-
             Log.d("Gaps", gapsString);
 
             final SpannableString s = new SpannableString(getResources().getString(R.string.check_gap_bug_spannable_string));
@@ -218,9 +215,9 @@ public class ModernMain extends AppCompatActivity {
 
     private void createPlaceHolderAccounts(Set<Integer> gapIndex) {
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
-        for (Integer index : gapIndex) {
+        for (Integer index: gapIndex) {
             final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index);
-            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index + 1));
+            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
         }
     }
 
@@ -327,11 +324,11 @@ public class ModernMain extends AppCompatActivity {
     public void onBackPressed() {
         ActionBar bar = getSupportActionBar();
         if (bar.getSelectedTab() == mBalanceTab) {
-            // if(Build.VERSION.SDK_INT >= 21) {
-            // finishAndRemoveTask();
-            // } else {
-            // finish();
-            // }
+//         if(Build.VERSION.SDK_INT >= 21) {
+//            finishAndRemoveTask();
+//         } else {
+//            finish();
+//         }
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
@@ -378,7 +375,6 @@ public class ModernMain extends AppCompatActivity {
         final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
         final boolean locked = _mbwManager.isKeyManagementLocked();
         checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
-        checkNotNull(menu.findItem(R.id.miAddFiatAccount)).setVisible(isAccountTab);
 
         // Lock menu
         final boolean hasPin = _mbwManager.isPinProtected();
@@ -425,10 +421,10 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miBackup:
                 Utils.pinProtectedWordlistBackup(this);
                 return true;
-            // with wordlists, we just need to backup and verify in one step
-            // } else if (itemId == R.id.miVerifyBackup) {
-            // VerifyBackupActivity.callMe(this);
-            // return true;
+            //with wordlists, we just need to backup and verify in one step
+            //} else if (itemId == R.id.miVerifyBackup) {
+            //   VerifyBackupActivity.callMe(this);
+            //   return true;
             case R.id.miRefresh:
                 // default only sync the current account
                 SyncMode syncMode = SyncMode.NORMAL_FORCED;
@@ -441,7 +437,9 @@ public class ModernMain extends AppCompatActivity {
                     syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                     counter++;
                 }
+
                 _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
                 showRefresh(); // without this call sometime user not see click feedback
@@ -457,14 +455,16 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+
                 break;
 
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
                 break;
-            }
+        }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

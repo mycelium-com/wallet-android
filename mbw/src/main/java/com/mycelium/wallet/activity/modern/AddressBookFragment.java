@@ -91,40 +91,38 @@ import java.util.UUID;
 
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
-
 public class AddressBookFragment extends Fragment {
-   public static final int SCAN_RESULT_CODE = 0;
-   public static final String ADDRESS_RESULT_NAME = "address_result";
-   public static final String ADDRESS_RESULT_ID = "address_result_id";
-   public static final String OWN = "own";
-   public static final String AVAILABLE_FOR_SENDING = "is_sending";
-   public static final String SELECT_ONLY = "selectOnly";
-   public static final String ADDRESS_RESULT_LABEL = "address_result_label";
+    public static final int SCAN_RESULT_CODE = 0;
+    public static final String ADDRESS_RESULT_NAME = "address_result";
+    public static final String ADDRESS_RESULT_ID = "address_result_id";
+    public static final String OWN = "own";
+    public static final String AVAILABLE_FOR_SENDING = "is_sending";
+    public static final String SELECT_ONLY = "selectOnly";
+    public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
 
-   private Address mSelectedAddress;
-   private MbwManager _mbwManager;
-   private Dialog _addDialog;
-   private ActionMode currentActionMode;
-   private Boolean ownAddresses; // set to null on purpose
-   private Boolean availableForSendingAddresses;
-   private Boolean spendableOnly;
+    private GenericAddress mSelectedAddress;
+    private MbwManager _mbwManager;
+    private Dialog _addDialog;
+    private ActionMode currentActionMode;
+    private Boolean ownAddresses; // set to null on purpose
+    private Boolean availableForSendingAddresses;
 
-   @Override
-   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
-      ownAddresses = getArguments().getBoolean(OWN);
-      availableForSendingAddresses = getArguments().getBoolean(AVAILABLE_FOR_SENDING);
-      boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
-      setHasOptionsMenu(!isSelectOnly);
-      ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
-      if (isSelectOnly) {
-         foreignList.setOnItemClickListener(new SelectItemListener());
-      } else {
-         foreignList.setOnItemClickListener(itemListClickListener);
-      }
-      return ret;
-   }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View ret = Preconditions.checkNotNull(inflater.inflate(R.layout.address_book, container, false));
+        ownAddresses = getArguments().getBoolean(OWN);
+        availableForSendingAddresses = getArguments().getBoolean(AVAILABLE_FOR_SENDING);
+        boolean isSelectOnly = getArguments().getBoolean(SELECT_ONLY);
+        setHasOptionsMenu(!isSelectOnly);
+        ListView foreignList = ret.findViewById(R.id.lvForeignAddresses);
+        if (isSelectOnly) {
+            foreignList.setOnItemClickListener(new SelectItemListener());
+        } else {
+            foreignList.setOnItemClickListener(itemListClickListener);
+        }
+        return ret;
+    }
 
     private View findViewById(int id) {
         return getView().findViewById(id);
@@ -164,7 +162,7 @@ public class AddressBookFragment extends Fragment {
         if (ownAddresses) {
             updateUiMine();
         } else {
-            if(availableForSendingAddresses){
+            if(availableForSendingAddresses) {
                 updateUiSending();
             } else {
                 updateUiForeign();
@@ -174,7 +172,6 @@ public class AddressBookFragment extends Fragment {
 
     private void updateUiMine() {
         List<Entry> entries = new ArrayList<>();
-
         List<WalletAccount<?, ?>> activeAccounts = new ArrayList<>(_mbwManager.getWalletManager(false).getAllActiveAccounts());
         for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
             String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
@@ -182,7 +179,13 @@ public class AddressBookFragment extends Fragment {
             //TODO a lot of pr
             WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
             if (account.getReceiveAddress() != null) {
-                if (account.canSpend() && selectedAccount.getCoinType().equals(account.getCoinType())) {
+                if (selectedAccount instanceof CoinapultAccount
+                        && (account instanceof CoinapultAccount || account.getCoinType() == BitcoinMain.get() || account.getCoinType() == BitcoinTest.get())) {
+                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
+                } else if ((selectedAccount.getCoinType().equals(BitcoinMain.get()) || selectedAccount.getCoinType().equals(BitcoinTest.get()))
+                        && account instanceof CoinapultAccount) {
+                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
+                } else if (selectedAccount.getCoinType().equals(account.getCoinType())) {
                     entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
                 }
             }
@@ -298,6 +301,7 @@ public class AddressBookFragment extends Fragment {
     };
 
     final Runnable pinProtectedEditEntry = new Runnable() {
+
         @Override
         public void run() {
             doEditEntry();
@@ -352,6 +356,7 @@ public class AddressBookFragment extends Fragment {
     }
 
     private class AddDialog extends Dialog {
+
         public AddDialog(final Activity activity) {
             super(activity);
             this.setContentView(R.layout.add_to_address_book_dialog);
@@ -365,6 +370,7 @@ public class AddressBookFragment extends Fragment {
                     ScanActivity.callMe(AddressBookFragment.this.getActivity(), SCAN_RESULT_CODE, request);
                     AddDialog.this.dismiss();
                 }
+
             });
 
             Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
@@ -456,8 +462,8 @@ public class AddressBookFragment extends Fragment {
             Intent result = new Intent();
             result.putExtra(ADDRESS_RESULT_NAME, address);
 
-            if (parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
-                AddressBookManager.IconEntry item = (AddressBookManager.IconEntry) parent.getItemAtPosition(position);
+            if( parent.getItemAtPosition(position) instanceof AddressBookManager.IconEntry) {
+                AddressBookManager.IconEntry item  = (AddressBookManager.IconEntry)parent.getItemAtPosition(position);
                 result.putExtra(ADDRESS_RESULT_ID, item.getId());
                 result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
             }

@@ -142,7 +142,7 @@ class BroadcastDialog : DialogFragment() {
             }
             BroadcastResultType.REJECT_MALFORMED -> {
                 // Transaction rejected, display message and exit
-                Utils.setClipboardString(HexUtils.toHex(transaction.hashBytes), context)
+                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes), context)
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_malformed) {
                     returnResult(broadcastResult)
                 }
@@ -150,7 +150,7 @@ class BroadcastDialog : DialogFragment() {
             BroadcastResultType.REJECT_NONSTANDARD -> {
                 // Transaction rejected, display message and exit
                 val message = String.format(getString(R.string.transaction_not_sent_nonstandard), broadcastResult.errorMessage)
-                Utils.setClipboardString(HexUtils.toHex(transaction.hashBytes), context)
+                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes), context)
                 Utils.showSimpleMessageDialog(activity, message) {
                     returnResult(broadcastResult)
                 }

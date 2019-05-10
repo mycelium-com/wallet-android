@@ -49,7 +49,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipSss;
@@ -92,6 +91,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
@@ -119,110 +119,108 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getUri;
-
 public class BalanceFragment extends Fragment {
-   public static final String COINMARKETCAP = "Coinmarketcap";
-   public static final int GENERIC_SCAN_REQUEST = 4;
+    public static final String COINMARKETCAP = "Coinmarketcap";
+    public static final int GENERIC_SCAN_REQUEST = 4;
+    private MbwManager _mbwManager;
+    private View _root;
+    private Double _exchangeRatePrice;
+    private Toaster _toaster;
+    @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
 
-   private MbwManager _mbwManager;
-   private View _root;
-   private Double _exchangeRatePrice;
-   private Toaster _toaster;
-   @BindView(R.id.tcdFiatDisplay) ToggleableCurrencyButton _tcdFiatDisplay;
-
-   @BindView(R.id.exchangeSource) TextView exchangeSource;
-   @BindView(R.id.exchangeSourceLayout) View exchangeSourceLayout;
+    @BindView(R.id.exchangeSource) TextView exchangeSource;
+    @BindView(R.id.exchangeSourceLayout) View exchangeSourceLayout;
 
 
-   @Override
-   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-      _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_balance_view, container, false));
-      final View balanceArea = Preconditions.checkNotNull(_root.findViewById(R.id.llBalance));
-      balanceArea.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            _mbwManager.getWalletManager(false).startSynchronization();
-         }
-      });
-      ButterKnife.bind(this, _root);
-      updateExchangeSourceMenu();
-      return _root;
-   }
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        _root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_balance_view, container, false));
+        final View balanceArea = Preconditions.checkNotNull(_root.findViewById(R.id.llBalance));
+        balanceArea.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _mbwManager.getWalletManager(false).startSynchronization();
+            }
+        });
+        ButterKnife.bind(this, _root);
+        updateExchangeSourceMenu();
+        return _root;
+    }
 
-   private void updateExchangeSourceMenu() {
-      final PopupMenu exchangeMenu = new PopupMenu(getActivity(), exchangeSourceLayout);
-      exchangeSourceLayout.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            exchangeMenu.show();
-         }
-      });
+    private void updateExchangeSourceMenu() {
+        final PopupMenu exchangeMenu = new PopupMenu(getActivity(), exchangeSourceLayout);
+        exchangeSourceLayout.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exchangeMenu.show();
+            }
+        });
 
-      ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
-      final List<String> sources = exchangeRateManager.getExchangeSourceNames();
-      final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
+        ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
+        final List<String> sources = exchangeRateManager.getExchangeSourceNames();
+        final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
 
-      Collections.sort(sources, new Comparator<String>() {
-         @Override
-         public int compare(String rate1, String rate2) {
-            return rate1.compareToIgnoreCase(rate2);
-         }
-      });
+        Collections.sort(sources, new Comparator<String>() {
+            @Override
+            public int compare(String rate1, String rate2) {
+                return rate1.compareToIgnoreCase(rate2);
+            }
+        });
 
-      for (int i = 0; i < sources.size(); i++) {
-         String source = sources.get(i);
-         ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
-         String price = exchangeRate == null || exchangeRate.price == null ? "not available"
-                 : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
-         String item;
-         if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
-            item = COINMARKETCAP + "/" + source;
-         } else {
-            item = source + " (" + price + ")";
-         }
+        for (int i = 0; i < sources.size(); i++) {
+            String source = sources.get(i);
+            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
+            String price = exchangeRate == null || exchangeRate.price == null ? "not available"
+                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
+            String item;
+            if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
+                item = COINMARKETCAP + "/" + source;
+            } else {
+                item = source + " (" + price + ")";
+            }
+            sourcesAndValues.put(item, source);
+            exchangeMenu.getMenu().add(item);
+        }
 
-         sourcesAndValues.put(item, source);
-         exchangeMenu.getMenu().add(item);
-      }
+        exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+                return false;
+            }
+        });
+    }
 
-      exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-         @Override
-         public boolean onMenuItemClick(MenuItem item) {
-            _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
-            return false;
-         }
-      });
-   }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      setHasOptionsMenu(true);
-      super.onCreate(savedInstanceState);
-   }
+    @Override
+    public void onAttach(Context context) {
+        _mbwManager = MbwManager.getInstance(context);
+        _toaster = new Toaster(this);
+        super.onAttach(context);
+    }
 
-   @Override
-   public void onAttach(Context context) {
-      _mbwManager = MbwManager.getInstance(context);
-      _toaster = new Toaster(this);
-      super.onAttach(context);
-   }
+    @Override
+    public void onStart() {
+        MbwManager.getEventBus().register(this);
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        if (_exchangeRatePrice == null) {
+            _mbwManager.getExchangeRateManager().requestRefresh();
+        }
 
-   @Override
-   public void onStart() {
-       MbwManager.getEventBus().register(this);
-       _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-       if (_exchangeRatePrice == null) {
-           _mbwManager.getExchangeRateManager().requestRefresh();
-       }
-       updateUi();
-       super.onStart();
-   }
+        updateUi();
+        super.onStart();
+    }
 
-   @Override
-   public void onStop() {
-      MbwManager.getEventBus().unregister(this);
-      super.onStop();
-   }
+    @Override
+    public void onStop() {
+        MbwManager.getEventBus().unregister(this);
+        super.onStop();
+    }
 
     @OnClick(R.id.btSend)
     void onClickSend() {
@@ -255,8 +253,12 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
+        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
+            return;
+        }
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
-                    _mbwManager.getSelectedAccount().canSpend(), true);
+                _mbwManager.getSelectedAccount().canSpend(), true);
     }
 
     @OnClick(R.id.btScan)
@@ -271,18 +273,18 @@ public class BalanceFragment extends Fragment {
 
     private boolean isBCH() {
         return _mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-               || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
+                || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount;
     }
 
     private void updateUi() {
         if (!isAdded() || _mbwManager.getSelectedAccount().isArchived()) {
             return;
         }
-
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
 
         TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
+
         // Set BTC rate
         if (!_mbwManager.hasFiatCurrency()) {
             // No fiat currency selected by user
@@ -306,59 +308,60 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-   private void updateUiKnownBalance(Balance balance) {
-      CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
-      ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
-      // Show alternative values
-      _tcdFiatDisplay.setFiatOnly(true);
-      _tcdFiatDisplay.setValue(balance.confirmed);
+    private void updateUiKnownBalance(Balance balance) {
+        CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
+        ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
-      // Show/Hide Receiving
-      if (balance.pendingReceiving.isPositive()) {
-         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
-         String receivingText = getResources().getString(R.string.receiving, receivingString);
-         TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
-         tvReceiving.setText(receivingText);
-         tvReceiving.setVisibility(View.VISIBLE);
-      } else {
-         _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
-      }
-      // show fiat value (if balance is in btc)
-      setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
+        // Show alternative values
+        _tcdFiatDisplay.setFiatOnly(true);
+        _tcdFiatDisplay.setValue(balance.confirmed);
 
-      // Show/Hide Sending
-      if (balance.getSendingToForeignAddresses().isPositive()) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
-         String sendingText = getResources().getString(R.string.sending, sendingString);
-         TextView tvSending = _root.findViewById(R.id.tvSending);
-         tvSending.setText(sendingText);
-         tvSending.setVisibility(View.VISIBLE);
-      } else {
-         _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
-      }
-      // show fiat value (if balance is in btc)
-      setFiatValue(R.id.tvSendingFiat, balance.getSendingToForeignAddresses(), true);
+        // Show/Hide Receiving
+        if (balance.pendingReceiving.isPositive()) {
+            String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
+            String receivingText = getResources().getString(R.string.receiving, receivingString);
+            TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
+            tvReceiving.setText(receivingText);
+            tvReceiving.setVisibility(View.VISIBLE);
+        } else {
+            _root.findViewById(R.id.tvReceiving).setVisibility(View.GONE);
+        }
+        // show fiat value (if balance is in btc)
+        setFiatValue(R.id.tvReceivingFiat, balance.pendingReceiving, true);
 
-      // set exchange item
-      exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
-   }
+        // Show/Hide Sending
+        if (balance.getSendingToForeignAddresses().isPositive()) {
+            String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
+            String sendingText = getResources().getString(R.string.sending, sendingString);
+            TextView tvSending = _root.findViewById(R.id.tvSending);
+            tvSending.setText(sendingText);
+            tvSending.setVisibility(View.VISIBLE);
+        } else {
+            _root.findViewById(R.id.tvSending).setVisibility(View.GONE);
+        }
+        // show fiat value (if balance is in btc)
+        setFiatValue(R.id.tvSendingFiat, balance.getSendingToForeignAddresses(), true);
 
-   private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
-      TextView tv = _root.findViewById(textViewResourceId);
-      if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null
-            || (hideOnZeroBalance && value.isZero())) {
-         tv.setVisibility(View.GONE);
-      } else {
-          try {
-              tv.setVisibility(View.VISIBLE);
-              Value converted = _mbwManager.getExchangeRateManager().get(value,  _mbwManager.getFiatCurrency());
-              tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
-          } catch (IllegalArgumentException ex) {
-              // something failed while calculating the bitcoin amount
-              tv.setVisibility(View.GONE);
-          }
-      }
-   }
+        // set exchange item
+        exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+    }
+
+    private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
+        TextView tv = _root.findViewById(textViewResourceId);
+        if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null
+                || (hideOnZeroBalance && value.isZero())) {
+            tv.setVisibility(View.GONE);
+        } else {
+            try {
+                tv.setVisibility(View.VISIBLE);
+                Value converted = _mbwManager.getExchangeRateManager().get(value,  _mbwManager.getFiatCurrency());
+                tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
+            } catch (IllegalArgumentException ex) {
+                // something failed while calculating the bitcoin amount
+                tv.setVisibility(View.GONE);
+            }
+        }
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -430,56 +433,56 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-   @Subscribe
-   public void refreshingExchangeRatesFailed(RefreshingExchangeRatesFailed event){
-      _toaster.toastConnectionError();
-      _exchangeRatePrice = null;
-   }
+    @Subscribe
+    public void refreshingExchangeRatesFailed(RefreshingExchangeRatesFailed event) {
+        _toaster.toastConnectionError();
+        _exchangeRatePrice = null;
+    }
 
-   @Subscribe
-   public void exchangeRatesRefreshed(ExchangeRatesRefreshed event){
-      _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      updateUi();
-      updateExchangeSourceMenu();
-   }
+    @Subscribe
+    public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        updateUi();
+        updateExchangeSourceMenu();
+    }
 
-   @Subscribe
-   public void exchangeSourceChanged(ExchangeSourceChanged event) {
-      _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      updateUi();
-   }
+    @Subscribe
+    public void exchangeSourceChanged(ExchangeSourceChanged event) {
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        updateUi();
+    }
 
-   @Subscribe
-   public void selectedCurrencyChanged(SelectedCurrencyChanged event){
-      _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-      updateUi();
-      updateExchangeSourceMenu();
-   }
+    @Subscribe
+    public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        updateUi();
+        updateExchangeSourceMenu();
+    }
 
-   /**
-    * The selected Account changed, update UI to reflect other BalanceSatoshis
-    */
-   @Subscribe
-   public void selectedAccountChanged(SelectedAccountChanged event) {
-      updateUi();
-      updateExchangeSourceMenu();
-   }
+    /**
+     * The selected Account changed, update UI to reflect other BalanceSatoshis
+     */
+    @Subscribe
+    public void selectedAccountChanged(SelectedAccountChanged event) {
+        updateUi();
+        updateExchangeSourceMenu();
+    }
 
-   /**
-    * balance has changed, update UI
-    */
-   @Subscribe
-   public void balanceChanged(BalanceChanged event) {
-      updateUi();
-   }
+    /**
+     * balance has changed, update UI
+     */
+    @Subscribe
+    public void balanceChanged(BalanceChanged event) {
+        updateUi();
+    }
 
-   @Subscribe
-   public void accountChanged(AccountChanged event) {
-      updateUi();
-   }
+    @Subscribe
+    public void accountChanged(AccountChanged event) {
+        updateUi();
+    }
 
-   @Subscribe
-   public void syncStopped(SyncStopped event) {
-      updateUi();
-   }
+    @Subscribe
+    public void syncStopped(SyncStopped event) {
+        updateUi();
+    }
 }

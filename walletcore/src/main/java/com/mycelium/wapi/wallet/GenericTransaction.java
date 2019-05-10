@@ -44,6 +44,7 @@ public interface GenericTransaction extends Serializable {
     Sha256Hash getId();
     String getHashAsString();
     byte[] getHashBytes();
+    byte[] getTxBytes();
 
     int getHeight();
 
