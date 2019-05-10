@@ -95,6 +95,8 @@ import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
 import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -275,13 +277,12 @@ public class TradeActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          // if we are a buyer, verify that the address is still in our wallet and spendable
-      /* TODO - should be fixed in order to switch to multi-currency architecture
          if (_tradeSession.isBuyer) {
             final WalletManager walletManager = _mbwManager.getWalletManager(false);
-            final Optional<UUID> accountByAddress = walletManager.getAccountByAddress(_tradeSession.buyerAddress);
-            if (!accountByAddress.isPresent()
-                  || !walletManager.hasAccount(accountByAddress.get())
-                  || !walletManager.getAccount(accountByAddress.get()).canSpend()) {
+            final UUID accountByAddress = walletManager.getAccountByAddress(new BtcAddress(Utils.getBtcCoinType(), _tradeSession.buyerAddress));
+            if (accountByAddress == null
+                  || !walletManager.hasAccount(accountByAddress)
+                  || !walletManager.getAccount(accountByAddress).canSpend()) {
 
                new AlertDialog.Builder(TradeActivity.this)
                      .setMessage(String.format(getString(R.string.lt_warn_account_not_spandable), _tradeSession.buyerAddress))
@@ -297,7 +298,7 @@ public class TradeActivity extends Activity {
                            // if the current selected account is also not spendable, try to select the first
                            // spendable one - there should always at least one HD account be available
                            if (!_mbwManager.getSelectedAccount().canSpend()) {
-                              final List<WalletAccount> spendingAccounts = walletManager.getSpendingAccounts();
+                              final List<WalletAccount<?, ?>> spendingAccounts = walletManager.getSpendingAccounts();
                               if (spendingAccounts.size() > 0) {
                                  _mbwManager.setSelectedAccount(spendingAccounts.get(0).getId());
                               }
@@ -315,7 +316,6 @@ public class TradeActivity extends Activity {
          } else {
             doAcceptTrade();
          }
-         */
       }
    };
 
