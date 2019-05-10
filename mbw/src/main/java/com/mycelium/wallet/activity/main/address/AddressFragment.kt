@@ -56,8 +56,8 @@ class AddressFragment : Fragment() {
 
     private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*, *>): Boolean =
             account is AbstractBtcAccount &&
-            account.availableAddressTypes.size > 1 &&
-            (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
+                    account.availableAddressTypes.size > 1 &&
+                    (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,7 +67,7 @@ class AddressFragment : Fragment() {
         }
 
         ivQR.tapToCycleBrightness = false
-        ivQR.qrCode = viewModel.getAccountAddress().value.toString()
+        ivQR.qrCode = viewModel.getAddressString()
 
         val drawableForAccount = viewModel.getDrawableForAccount(resources)
         if (drawableForAccount != null) {
@@ -75,7 +75,7 @@ class AddressFragment : Fragment() {
         }
         viewModel.getAccountAddress().observe(this, Observer { newAddress ->
             if (newAddress != null) {
-                ivQR.qrCode = newAddress.toString()
+                ivQR.qrCode = viewModel.getAddressString()
             }
         })
     }
