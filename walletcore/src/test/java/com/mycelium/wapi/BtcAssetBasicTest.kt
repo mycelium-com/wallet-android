@@ -193,7 +193,7 @@ class BtcAssetBasicTest {
     }
 
     fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
-        val sendRequest = account.getSendToRequest(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 100000L), Value.valueOf(account.coinType, 2000))
+        val sendRequest = account.getSendToRequest(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), Value.valueOf(account.coinType, 2000L))
         account.completeTransaction(sendRequest as SendRequest<BtcTransaction>)
         account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher())
         account.broadcastTx(sendRequest.tx)
