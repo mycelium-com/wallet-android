@@ -1,4 +1,4 @@
-
+package com.mycelium.wapi
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.Bip39
