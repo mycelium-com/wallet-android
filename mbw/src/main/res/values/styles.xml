@@ -194,7 +194,7 @@
     </style>
 
     <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
-        <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
+        <!--<item name="android:background">@drawable/action_bar_tab_bar_bg</item>-->
     </style>
 
     <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">

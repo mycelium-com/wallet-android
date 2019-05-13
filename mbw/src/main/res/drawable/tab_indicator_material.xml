@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true" android:drawable="@drawable/tab_indicator_selected" />
+    <item android:state_selected="true">
+        <layer-list>
+            <item android:gravity="bottom" android:top="46dp">
+                <shape>
+                    <size android:width="2dp" />
+                    <solid android:color="#ebedf0" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
     <item android:drawable="@android:color/transparent" />
 </selector>
