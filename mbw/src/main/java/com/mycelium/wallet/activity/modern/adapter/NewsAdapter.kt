@@ -24,14 +24,6 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
 
-    var searchMode = false
-        set(value) {
-            if (field != value) {
-                field = value
-                notifyDataSetChanged()
-            }
-        }
-
     fun setData(data: List<News>) {
         dataMap.clear()
         data.forEach { news ->
@@ -46,12 +38,6 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
 
     fun setCategory(category: Category) {
         this.category = category
-        notifyDataSetChanged()
-    }
-
-    fun addData(data: List<News>) {
-        this.data.addAll(data)
-        this.nativeData.addAll(data)
         notifyDataSetChanged()
     }
 

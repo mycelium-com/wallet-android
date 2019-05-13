@@ -15,6 +15,7 @@ object NewsUtils {
         "Announcements" -> Color.parseColor("#fa9f01")
         "How to" -> Color.parseColor("#00a9ff")
         "Buy/Sell" -> Color.parseColor("#67b032")
+        "Uncategorized" -> Color.parseColor("#3E167E")
         else -> Color.parseColor("#4276ff")
     }
 
@@ -24,7 +25,8 @@ object NewsUtils {
     fun getDateAuthorString(context: Context, news: News): String {
         return (if (news.author.name != myceliumAuthor) {
             "${news.author.name} ${context.getString(R.string.bullet)} "
-        } else "") + "${DateUtils.getRelativeTimeSpanString(context, news.date.time)}"
+        } else "") + "${DateUtils.getRelativeTimeSpanString(news.date.time, System.currentTimeMillis(),
+                0L, DateUtils.FORMAT_ABBREV_MONTH.or(DateUtils.FORMAT_ABBREV_TIME))}"
     }
 
     data class ParsedData(val news: String, val images: Map<String, List<String>>)

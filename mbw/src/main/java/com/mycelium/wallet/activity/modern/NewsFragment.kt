@@ -101,6 +101,11 @@ class NewsFragment : Fragment() {
         if (item?.itemId == R.id.action_search) {
             startActivity(Intent(activity, NewsSearchActivity::class.java))
             return true
+        } else if (item?.itemId == R.id.action_favorite) {
+            preference.edit()
+                    .putBoolean("favorite", preference.getBoolean("favorite", false).not())
+                    .apply()
+            startUpdate()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -128,9 +133,11 @@ class NewsFragment : Fragment() {
 
         val taskListener: (List<News>) -> Unit = {
             loading = false
-            if (it.isNotEmpty()) {
-                adapter.setData(it)
+            var list = it
+            if(preference.getBoolean("favorite", false)) {
+                list = it.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
             }
+            adapter.setData(list)
         }
         loading = true
         GetNewsTask(listener = taskListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)

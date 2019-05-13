@@ -35,7 +35,7 @@
             android:lineSpacingExtra="6sp"
             android:maxLines="2"
             android:textColor="#ebedf0"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="@tools:sample/lorem/random" />
 
         <Space

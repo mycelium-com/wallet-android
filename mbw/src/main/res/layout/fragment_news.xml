@@ -9,11 +9,13 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:layout_marginTop="20dp"
-        app:tabContentStart="20dp"
         app:tabIndicatorColor="#000000"
         app:tabIndicatorHeight="48dp"
         app:tabMode="scrollable"
+        android:clipToPadding="false"
         app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
 
     <android.support.v7.widget.RecyclerView
