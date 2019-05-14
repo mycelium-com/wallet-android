@@ -15,6 +15,8 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
+import org.bitcoinj.core.NetworkParameters.ID_MAINNET
+import org.bitcoinj.core.NetworkParameters.ID_TESTNET
 import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
@@ -51,24 +53,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
             val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
             fromAddresses.addAll(request.fundingAddress)
             val json = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
-
-            val signTransaction = signTransaction(json, this)
-
-//            request.txHex = json
-//            if (request.txHex == null) {
-//                throw Exception("transaction not complete")
-//            }
-//            val txBytes: ByteArray?
-//            try {
-//                txBytes = Hex.decodeHex(request.txHex?.toCharArray())
-//            } catch (e: org.apache.commons.codec.DecoderException) {
-//                return
-//            }
-//            if (txBytes == null) {
-//                return
-//            }
-
-            request.baseTransaction = signTransaction
+            request.baseTransaction = json
             request.isCompleted = true
         } else {
             TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
@@ -80,55 +65,11 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
             return
         }
         if (request is ColuSendRequest) {
-            request.baseTransaction?.let {
-                val unspentTx = mutableListOf<UnspentTransactionOutput>()
-                it.inputs.forEach { txInput ->
-                    for (fundingAccount in request.fundingAccounts) {
-                        val tx = fundingAccount.getTx(txInput.outPoint.txid)
-                        if (tx != null && tx is BtcTransaction) {
-                            val script = tx.rawTransaction.outputs[txInput.outPoint.index].script
-                            unspentTx.add(UnspentTransactionOutput(txInput.outPoint, tx.height, txInput.value, script))
-                        }
-                    }
-                }
 
-                val ring = object : IPublicKeyRing {
-                    override fun findPublicKeyByAddress(address: Address?): PublicKey? {
-                        var pubKey: PublicKey? = null
-                        for (fundingAccount in request.fundingAccounts) {
-                            if (fundingAccount.isMineAddress(BtcAddress(fundingAccount.coinType, address))) {
-                                pubKey = fundingAccount.getPrivateKey(keyCipher).publicKey
-                                break
-                            }
-                        }
-                        return pubKey
-                    }
-                }
-                val unsignedTransaction = UnsignedTransaction(it.outputs.toList(), unspentTx, ring, networkParameters, it.lockTime, it.minSequenceNumber.toInt())
+            val signTransaction = signTransaction(request.baseTransaction, this)
 
-                val privateRing = object : IPrivateKeyRing {
-                    override fun findSignerByPublicKey(publicKey: PublicKey?): BitcoinSigner? {
-                        var signer:BitcoinSigner? = null
-                        for (fundingAccount in request.fundingAccounts) {
-                            if(fundingAccount.getPrivateKey(keyCipher).publicKey == publicKey) {
-                                signer = fundingAccount.getPrivateKey(keyCipher)
-                                break
-                            }
-                        }
-                        return signer
-                    }
-                }
-                // Make all signatures, this is the CPU intensive part
-                val signatures = StandardTransactionBuilder.generateSignatures(unsignedTransaction.signingRequests, privateRing)
-
-                // Apply signatures and finalize transaction
-                val signTx = StandardTransactionBuilder.finalizeTransaction(unsignedTransaction, signatures)
-
-                val  outputs = listOf<GenericTransaction.GenericOutput>()
-
-                request.tx = ColuTransaction(signTx.id, coinType, Value.zeroValue(coinType), 0,
-                        signTx, 0, 0, false, outputs[0].address, listOf(), outputs)
-            }
+//            request.tx = signTransaction
+            request.transaction = signTransaction
         } else {
             TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
         }
@@ -169,14 +110,20 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         }
 
 
-        val fromID = org.bitcoinj.core.NetworkParameters.fromID(networkParameters.networkType.name)
-        val signTx = org.bitcoinj.core.Transaction(fromID, txBytes)
+        val id =
+                when (networkParameters.networkType){
+                    NetworkParameters.NetworkType.PRODNET -> ID_MAINNET
+                    NetworkParameters.NetworkType.TESTNET -> ID_TESTNET
+                    NetworkParameters.NetworkType.REGTEST -> TODO()
+                }
+        val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
+        val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
 
         val privateKeyBytes = coluAccount.getPrivateKey(null).getPrivateKeyBytes()
         val publicKeyBytes = coluAccount.getPrivateKey(null).publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
-        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(fromID))
+        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
 
         for (i in 0 until signTx.inputs.size) {
             val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
