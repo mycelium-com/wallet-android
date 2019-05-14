@@ -348,8 +348,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
             setAmountToSend((Value) savedInstanceState.getSerializable(AMOUNT));
-            Address address = (Address) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
-            _receivingAddress = AddressUtils.fromAddress(address);
+            _receivingAddress = (GenericAddress) savedInstanceState.getSerializable(RECEIVING_ADDRESS);
             _transactionLabel = savedInstanceState.getString(TRANSACTION_LABEL);
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             genericUri = (GenericAssetUri) savedInstanceState.getSerializable(ASSET_URI);
