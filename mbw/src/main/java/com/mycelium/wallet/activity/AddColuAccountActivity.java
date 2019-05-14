@@ -169,7 +169,7 @@ public class AddColuAccountActivity extends Activity {
 
         public AddColuAsyncTask(ColuMain coluAsset) {
             this.coluAsset = coluAsset;
-            this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.Companion.getPAIRED_SERVICE_COLU());
+            this.alreadyHadColuAccount = _mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COLU);
             progressDialog = ProgressDialog.show(AddColuAccountActivity.this, getString(R.string.colu), getString(R.string.colu_creating_account, coluAsset.getName()));
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -178,7 +178,7 @@ public class AddColuAccountActivity extends Activity {
 
         @Override
         protected UUID doInBackground(Void... params) {
-            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.Companion.getPAIRED_SERVICE_COLU(), true);
+            _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, true);
             try {
                 InMemoryPrivateKey key = new InMemoryPrivateKey(_mbwManager.getRandomSource(), true);
                 return _mbwManager.getWalletManager(false)
@@ -199,7 +199,7 @@ public class AddColuAccountActivity extends Activity {
             } else {
                 // something went wrong - clean up the half ready coluManager
                 Toast.makeText(AddColuAccountActivity.this, R.string.colu_unable_to_create_account, Toast.LENGTH_SHORT).show();
-                _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.Companion.getPAIRED_SERVICE_COLU(), alreadyHadColuAccount);
+                _mbwManager.getMetadataStorage().setPairedService(MetadataStorage.PAIRED_SERVICE_COLU, alreadyHadColuAccount);
             }
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();

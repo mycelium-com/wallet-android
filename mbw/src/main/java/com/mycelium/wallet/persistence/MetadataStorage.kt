@@ -476,11 +476,11 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         }
 
         companion object {
-
             fun fromString(state: String): BackupState {
                 return fromInt(Integer.parseInt(state))
             }
 
+            @JvmStatic
             fun fromInt(integer: Int): BackupState {
                 return when (integer) {
                     0 -> UNKNOWN
@@ -522,6 +522,7 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
         private val EMAIL = "email"
         val PAIRED_SERVICE_COINAPULT = "coinapult"
+        @JvmField
         val PAIRED_SERVICE_COLU = "colu"
     }
 }
