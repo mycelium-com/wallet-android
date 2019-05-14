@@ -339,7 +339,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateUi();
             }
 
-        } .execute(null, null, null);
+        }.execute(null, null, null);
 
         selectedFee = getCurrentFeeEstimation();
 
@@ -858,7 +858,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         if (!primaryAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                             // on an FX rate
-                            sendAmount = "~ " + sendAmount;
+                            sendAmount = "~" + sendAmount;
                         }
                         tvAmount.setText(sendAmount);
                         if (Value.isNullOrZero(alternativeAmount)) {
@@ -871,7 +871,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                             if (!alternativeAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                                 // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
                                 // on a FX rate
-                                alternativeAmountString = "~ " + alternativeAmountString;
+                                alternativeAmountString = "~" + alternativeAmountString;
                             }
 
                             tvAmountFiat.setText(alternativeAmountString);
