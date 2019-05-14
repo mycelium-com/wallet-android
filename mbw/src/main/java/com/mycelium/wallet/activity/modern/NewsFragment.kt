@@ -102,9 +102,11 @@ class NewsFragment : Fragment() {
             startActivity(Intent(activity, NewsSearchActivity::class.java))
             return true
         } else if (item?.itemId == R.id.action_favorite) {
+            val newValue = preference.getBoolean("favorite", false).not()
             preference.edit()
-                    .putBoolean("favorite", preference.getBoolean("favorite", false).not())
+                    .putBoolean("favorite", newValue)
                     .apply()
+            item.icon = resources.getDrawable(if(newValue) R.drawable.ic_favorite else R.drawable.ic_not_favorite_menu)
             startUpdate()
         }
         return super.onOptionsItemSelected(item)

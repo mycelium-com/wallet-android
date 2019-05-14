@@ -35,34 +35,35 @@
 package com.mycelium.wallet.activity.modern.adapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.event.PageSelectedEvent;
 
-public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
+public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener {
    private final Activity mContext;
-   private final ActionBar mActionBar;
-   private final ViewPager mViewPager;
-   private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+   private final List<TabInfo> mTabs = new ArrayList<>();
    private final MbwManager _mbwManager;
 
    private static final class TabInfo {
       private final Class<?> clss;
       private final Bundle args;
+      private final CharSequence title;
 
-      TabInfo(Class<?> _class, Bundle _args) {
+      TabInfo(Class<?> _class, Bundle _args, CharSequence title) {
          clss = _class;
          args = _args;
+         this.title = title;
       }
    }
 
@@ -70,18 +71,14 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
       super(activity.getSupportFragmentManager());
       mContext = activity;
       _mbwManager = mbwManager;
-      mActionBar = activity.getSupportActionBar();
-      mViewPager = pager;
-      mViewPager.setAdapter(this);
-      mViewPager.setOnPageChangeListener(this);
+      pager.setAdapter(this);
+      pager.addOnPageChangeListener(this);
    }
 
-   public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
-      TabInfo info = new TabInfo(clss, args);
+   public void addTab(TabLayout.Tab tab, Class<?> clss, Bundle args) {
+      TabInfo info = new TabInfo(clss, args, tab.getText());
       tab.setTag(info);
-      tab.setTabListener(this);
       mTabs.add(info);
-      mActionBar.addTab(tab);
       notifyDataSetChanged();
    }
 
@@ -102,34 +99,21 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
    @Override
    public void onPageSelected(int position) {
-      mActionBar.setSelectedNavigationItem(position);
       // This ensures that any cached encryption key is flushed when we swipe to
       // another tab
       _mbwManager.clearCachedEncryptionParameters();
       // redraw menu - not working yet
       ActivityCompat.invalidateOptionsMenu(mContext);
-      _mbwManager.getEventBus().post(new PageSelectedEvent(position));
+      MbwManager.getEventBus().post(new PageSelectedEvent(position));
    }
 
    @Override
    public void onPageScrollStateChanged(int state) {
    }
 
+   @Nullable
    @Override
-   public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-      Object tag = tab.getTag();
-      for (int i = 0; i < mTabs.size(); i++) {
-         if (mTabs.get(i) == tag) {
-            mViewPager.setCurrentItem(i);
-         }
-      }
-   }
-
-   @Override
-   public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-   }
-
-   @Override
-   public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+   public CharSequence getPageTitle(int position) {
+      return mTabs.get(position).title;
    }
 }

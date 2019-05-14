@@ -9,10 +9,12 @@
     <android.support.design.widget.TabLayout
         android:id="@+id/pager_tabs"
         style="@style/MyceliumTabBarStyle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabIndicatorColor="#ebedf0"
-        app:tabMode="scrollable"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        app:tabMode="fixed"
         app:tabTextAppearance="@style/MyceliumTabTextStyle" />
 
     <android.support.v4.view.ViewPager

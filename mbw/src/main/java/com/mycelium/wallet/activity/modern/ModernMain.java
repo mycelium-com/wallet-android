@@ -42,6 +42,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -101,7 +102,6 @@ import com.squareup.otto.Subscribe;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -126,10 +126,10 @@ public class ModernMain extends AppCompatActivity {
 
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
-   ActionBar.Tab mBalanceTab;
-   ActionBar.Tab mNewsTab;
-   ActionBar.Tab mAccountsTab;
-   ActionBar.Tab mRecommendationsTab;
+   TabLayout.Tab mBalanceTab;
+   TabLayout.Tab mNewsTab;
+   TabLayout.Tab mAccountsTab;
+   TabLayout.Tab mRecommendationsTab;
    private MenuItem refreshItem;
    private Toaster _toaster;
    private volatile long _lastSync = 0;
@@ -143,11 +143,11 @@ public class ModernMain extends AppCompatActivity {
       super.onCreate(savedInstanceState);
       _mbwManager = MbwManager.getInstance(this);
       WalletApplication.applyLanguageChange(getBaseContext(), _mbwManager.getLanguage());
-      mViewPager = new ViewPager(this);
-      mViewPager.setId(R.id.pager);
-      setContentView(mViewPager);
+      setContentView(R.layout.modern_main);
+      TabLayout tabLayout = findViewById(R.id.pager_tabs);
+      mViewPager = findViewById(R.id.pager);
+      tabLayout.setupWithViewPager(mViewPager);
       ActionBar bar = getSupportActionBar();
-      bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
       bar.setDisplayShowTitleEnabled(false);
       bar.setDisplayShowHomeEnabled(true);
       bar.setIcon(R.drawable.action_bar_logo);
@@ -156,28 +156,28 @@ public class ModernMain extends AppCompatActivity {
 
       mViewPager.setOffscreenPageLimit(5);
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-      mNewsTab = bar.newTab();
-      mTabsAdapter.addTab(mNewsTab.setText(getString(R.string.media_flow)), NewsFragment.class, null);
-      mAccountsTab = bar.newTab();
-      mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
-      mBalanceTab = bar.newTab();
-      mTabsAdapter.addTab(mBalanceTab.setText(getString(R.string.tab_balance)), BalanceMasterFragment.class, null);
-      mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
-      mRecommendationsTab = bar.newTab();
-      mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)), RecommendationsFragment.class, null);
+      mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
+      mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
+      mAccountsTab = tabLayout.newTab().setText(getString(R.string.tab_accounts));
+      mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null);
+      mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
+      mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null);
+      mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
+      mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
+      mTabsAdapter.addTab(mRecommendationsTab, RecommendationsFragment.class, null);
       final Bundle addressBookConfig = new Bundle();
       addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
-      mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class, addressBookConfig);
+      mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class, addressBookConfig);
       addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
       if (Objects.equals(getIntent().getAction(), "media_flow")) {
-         bar.selectTab(mNewsTab);
+         mNewsTab.select();
          if (getIntent().hasExtra(NewsConstants.NEWS)) {
             Intent intent = new Intent(this, NewsActivity.class);
             intent.putExtras(getIntent().getExtras());
             startActivity(intent);
          }
       } else {
-         bar.selectTab(mBalanceTab);
+          mBalanceTab.select();
       }
       _toaster = new Toaster(this);
 
@@ -308,7 +308,7 @@ public class ModernMain extends AppCompatActivity {
 
    @Override
    protected void onStart() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
 
       long curTime = new Date().getTime();
       if (_lastSync == 0 || curTime - _lastSync > MIN_AUTOSYNC_INTERVAL) {
@@ -352,15 +352,14 @@ public class ModernMain extends AppCompatActivity {
    @Override
    protected void onStop() {
       stopBalanceRefreshTimer();
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       _mbwManager.getVersionManager().closeDialog();
       super.onStop();
    }
 
    @Override
    public void onBackPressed() {
-      ActionBar bar = getSupportActionBar();
-      if (bar.getSelectedTab() == mBalanceTab) {
+      if (mBalanceTab.isSelected()) {
 //         if(Build.VERSION.SDK_INT >= 21) {
 //            finishAndRemoveTask();
 //         } else {
@@ -371,7 +370,7 @@ public class ModernMain extends AppCompatActivity {
          _mbwManager.setStartUpPinUnlocked(false);
          super.onBackPressed();
       } else {
-         bar.selectTab(mBalanceTab);
+          mBalanceTab.select();
       }
    }
 

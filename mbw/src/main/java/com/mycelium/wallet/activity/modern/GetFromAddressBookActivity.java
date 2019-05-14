@@ -35,9 +35,8 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.AppCompatActivity;
 
 import com.mycelium.wallet.MbwManager;
@@ -52,28 +51,25 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       MbwManager _mbwManager = MbwManager.getInstance(this);
-      mViewPager = new ViewPager(this);
-      mViewPager.setId(R.id.pager);
-
-      setContentView(mViewPager);
-
-      ActionBar bar = getSupportActionBar();
-      bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+      setContentView(R.layout.activity_get_from_addressbook);
+      mViewPager = findViewById(R.id.pager);
+      TabLayout tabLayout = findViewById(R.id.pager_tabs);
+      tabLayout.setupWithViewPager(mViewPager);
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
-      Tab myAddressesTab = bar.newTab();
+      TabLayout.Tab myAddressesTab = tabLayout.newTab().setText(getResources().getString(R.string.my_accounts));
       Bundle bundle = addressBookBundle(true);
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
-      Tab contactsTab = bar.newTab();
-      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
+      mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class, bundle);
+      TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.foreign_addresses));
+      mTabsAdapter.addTab(contactsTab, AddressBookFragment.class, addressBookBundle(false));
 
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {
-         bar.selectTab(contactsTab);
+         contactsTab.select();
       } else {
-         bar.selectTab(myAddressesTab);
+         myAddressesTab.select();
       }
    }
 
