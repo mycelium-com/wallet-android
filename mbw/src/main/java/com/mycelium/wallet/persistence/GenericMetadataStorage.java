@@ -51,7 +51,7 @@ import java.util.*;
 /**
  * Most of Mycelium's meta data is stored this way.
  */
-abstract class GenericMetadataStorage implements IMetaDataStorage {
+public abstract class GenericMetadataStorage implements IMetaDataStorage {
    // the actual and only table
    private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
    private final SQLiteStatement getKeyCategoryQuery;
@@ -84,7 +84,7 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
    private SQLiteDatabase _db;
    private SQLiteStatement _insertOrReplaceKeyValueEntry;
 
-   GenericMetadataStorage(Context context) {
+   protected GenericMetadataStorage(Context context) {
       OpenHelper openHelper = new OpenHelper(context);
       _db = openHelper.getWritableDatabase();
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");

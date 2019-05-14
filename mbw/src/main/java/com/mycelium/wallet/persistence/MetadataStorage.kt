@@ -61,7 +61,7 @@ import java.util.*
 class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
 
     //todo: check only available addresses (need rewrite it with GenericAddress)
-    val allAddressLabels: Map<Address, String>
+    val allAddressLabels: MutableMap<Address, String>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY)
             val addresses = HashMap<Address, String>()
