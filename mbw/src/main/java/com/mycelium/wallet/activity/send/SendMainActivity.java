@@ -43,6 +43,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -488,7 +490,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 selectedFee = Value.valueOf(_account.getCoinType(), item.feePerKb);
                 updateRecipient();
                 updateAmount();
-                updateFeeText();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateFeeText();
+                    }
+                }).start();
                 updateError();
                 btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
                 ScrollView scrollView = findViewById(R.id.root);
@@ -771,18 +778,33 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private void updateUi() {
         // TODO: profile. slow!
-        updateRecipient();
-        updateAmount();
-        updateFeeText();
-        updateError();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        // Enable/disable send button
-        btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
-        findViewById(R.id.root).invalidate();
+                updateFeeText();
 
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
-        feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(selectedFee.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateRecipient();
+                        updateAmount();
+                        updateError();
+
+                        // Enable/disable send button
+                        btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
+                        findViewById(R.id.root).invalidate();
+
+                        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
+                        feeViewAdapter.setDataset(feeItems);
+                        feeValueList.setSelectedItem(new FeeItem(selectedFee.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                    }
+                });
+            }
+        }).start();
+
+
+
     }
 
     private void updateRecipient() {
@@ -1169,8 +1191,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             // this is where colusend is calling tryCreateUnsigned
             // why is amountToSend not set ?
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    _transactionStatus = tryCreateUnsignedTransaction();
+                    updateUi();
+                }
+            }).start();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
             _receivingAddress = (GenericAddress) Preconditions.checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
@@ -1181,10 +1208,16 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // Get result from AmountEntry
             Value enteredAmount = (Value) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
             setAmountToSend(enteredAmount);
-            if (!Value.isNullOrZero(_amountToSend)) {
-                _transactionStatus = tryCreateUnsignedTransaction();
-            }
-            updateUi();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!Value.isNullOrZero(_amountToSend)) {
+                        _transactionStatus = tryCreateUnsignedTransaction();
+                    }
+                    updateUi();
+                }
+            }).start();
+
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));

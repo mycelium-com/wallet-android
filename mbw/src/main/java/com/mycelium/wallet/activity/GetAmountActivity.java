@@ -40,6 +40,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
@@ -437,7 +439,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             tvAmount.setTextColor(getResources().getColor(R.color.white));
             btOk.setEnabled(false);
          } else {
-            checkTransaction();
+            new Handler(Looper.myLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  checkTransaction();
+               }
+            });
          }
       } else {
          btOk.setEnabled(true);
