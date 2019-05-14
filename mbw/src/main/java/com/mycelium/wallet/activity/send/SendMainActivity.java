@@ -122,7 +122,6 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.squareup.otto.Subscribe;
-
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.util.*;
@@ -134,7 +133,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
-
     private static final int GET_AMOUNT_RESULT_CODE = 1;
     private static final int SCAN_RESULT_CODE = 2;
     private static final int ADDRESS_BOOK_RESULT_CODE = 3;
@@ -257,13 +255,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     int addressFirstItemWidth;
 
     private DialogFragment activityResultDialog;
-    private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {
-        {
+
+    private Map<GenericAssetInfo, Feature> featureMap = new HashMap<GenericAssetInfo, Feature>() {{
             put(MTCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
             put(MASSCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
             put(RMCCoin.INSTANCE, Feature.COLU_PREPARE_OUTGOING_TX);
-        }
-    };
+    }};
 
     public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage) {
         return new Intent(currentActivity, SendMainActivity.class)
@@ -358,7 +355,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
             signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
             selectedFee = (Value) savedInstanceState.getSerializable(SELECTED_FEE);
-
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
             _paymentRequestHandlerUuid = savedInstanceState.getString(PAYMENT_REQUEST_HANDLER_ID);
@@ -418,7 +414,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         // Amount Hint
-
         tvAmount.setHint(getResources().getString(R.string.amount_hint_denomination,
                          _mbwManager.getDenomination().getUnicodeString(_account.getCoinType().getSymbol())));
         tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
@@ -431,12 +426,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         initFeeLvlView();
 
         transactionFiatValuePref = getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
-
     }
 
     private FeeViewAdapter feeViewAdapter;
     private boolean showSendBtn = true;
-
 
     private void setUpMultiAddressView() {
         tvReceiverAddress.setVisibility(View.GONE);
@@ -561,7 +554,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-
     // returns the amcountToSend in Bitcoin - it tries to get it from the entered amount and
     // only uses the ExchangeRate-Manager if we dont have it already converted
     private Value getValueToSend() {
@@ -685,7 +677,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                                 }
                             }
             signTransaction();
-
                     }
     };
 
@@ -702,7 +693,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         .setIcon(android.R.drawable.ic_dialog_alert)
         .show();
     }
-
 
     private TransactionStatus tryCreateUnsignedTransaction() {
         Value toSend = getValueToSend();
@@ -833,9 +823,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // Get the name of the account
             return _mbwManager.getMetadataStorage().getLabelByAccount(accountId);
         }
-            // We don't have it in our accounts, look in address book, returns empty string by default
-            return _mbwManager.getMetadataStorage().getLabelByAddress(address);
-        }
+        // We don't have it in our accounts, look in address book, returns empty string by default
+        return _mbwManager.getMetadataStorage().getLabelByAddress(address);
+    }
 
     private void updateAmount() {
         // Update Amount
@@ -1030,7 +1020,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _mbwManager.getVersionManager().closeDialog();
         super.onPause();
     }
-
 
     protected void signTransaction() {
         // if we have a payment request, check if it is expired
