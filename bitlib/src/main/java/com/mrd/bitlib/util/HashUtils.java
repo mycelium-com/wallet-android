@@ -116,8 +116,7 @@ public class HashUtils {
       byte[] out = new byte[20];
       RIPEMD160Digest ripeMD160 = new RIPEMD160Digest();
       ripeMD160.update(sha256, 0, sha256.length);
-      ripeMD160.doFinal(out, 0); // This also resets the hash function for
-      // next use
+      ripeMD160.doFinal(out, 0);
       return out;
    }
 }

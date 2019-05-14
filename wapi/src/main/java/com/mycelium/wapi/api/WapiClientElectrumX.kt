@@ -18,10 +18,10 @@ import com.mycelium.wapi.api.request.*
 import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -134,17 +134,42 @@ class WapiClientElectrumX(
     }
 
     override fun broadcastTransaction(request: BroadcastTransactionRequest): WapiResponse<BroadcastTransactionResponse> {
-        try {
+        val responseList = try {
             val txHex = HexUtils.toHex(request.rawTransaction)
-            val responseList = connectionManager.broadcast(BROADCAST_METHOD, RpcParams.listParams(txHex))
+            connectionManager.broadcast(BROADCAST_METHOD, RpcParams.listParams(txHex))
+        } catch (ex: CancellationException) {
+            return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+        return handleBroadcastResponse(responseList)
+    }
+
+    fun handleBroadcastResponse(responseList: List<RpcResponse>): WapiResponse<BroadcastTransactionResponse> {
+        try {
             if (responseList.all { it.hasError }) {
-                responseList.filter { it.hasError }.forEach{ response -> logger.logError(response.error?.toString()) }
-                return WapiResponse(BroadcastTransactionResponse(false, null))
+                responseList.forEach { response -> logger.logError(response.error?.toString()) }
+                val firstError = responseList[0].error
+                        ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                val (errorCode, errorMessage) = if (firstError.code > 0) {
+                    val electrumError = Wapi.ElectrumxError.getErrorByCode(firstError.code)
+                    Pair(electrumError.errorCode, firstError.message)
+                } else {
+                    // This regexp is intended to calculate error code. Error codes are defined on bitcoind side, while
+                    // message is constructed on Electrumx side, so this might change one day, so this code is not perfectly failsafe.
+                    val errorMessageGroups = errorRegex.matchEntire(firstError.message)?.groups
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val errorCode = errorMessageGroups[1]?.value?.toInt()
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val errorMessage = errorMessageGroups[2]?.value
+                            ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
+                    val error = Wapi.ElectrumxError.getErrorByCode(errorCode)
+                    Pair(error.errorCode, errorMessage)
+                }
+                return WapiResponse<BroadcastTransactionResponse>(errorCode, errorMessage, null)
             }
             val txId = responseList.filter { !it.hasError }[0].getResult(String::class.java)!!
             return WapiResponse(BroadcastTransactionResponse(true, Sha256Hash.fromString(txId)))
-        } catch (ex: CancellationException) {
-            return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        } catch (ex: Exception) {
+            return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
         }
     }
 
@@ -247,7 +272,7 @@ class WapiClientElectrumX(
     }
 
     private fun <A, B>List<A>.pFlatMap(f: suspend (A) -> List<B>): List<B> = runBlocking {
-        map { async(CommonPool) { f(it) } }
+        map { async(Dispatchers.Default) { f(it) } }
                 .flatMap { it.await() }
     }
 
@@ -292,6 +317,7 @@ class WapiClientElectrumX(
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
         private const val GET_HISTORY_METHOD = "blockchain.scripthash.get_history"
         private const val GET_TRANSACTION_BATCH_LIMIT = 10
+        private val errorRegex = Regex("the transaction was rejected by network rules.\\n\\n([0-9]*): (.*)\\n.*")
     }
 }
 

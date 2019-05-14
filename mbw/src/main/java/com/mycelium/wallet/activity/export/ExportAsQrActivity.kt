@@ -21,7 +21,6 @@ import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
 import java.util.*
 
 class ExportAsQrActivity : AppCompatActivity() {
-
     private lateinit var viewModel: ExportAsQrViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,24 +28,25 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         val accountData = intent.getSerializableExtra(ACCOUNT_DATA) as ExportableAccount.Data
         val accountUUID = intent.getSerializableExtra(ACCOUNT_UUID) as UUID
-
         val account = MbwManager.getInstance(this)
                 .getWalletManager(false)
                 .getAccount(accountUUID)
 
-        if (!accountData.publicData.isPresent && !accountData.privateData.isPresent) {
+        if (accountData.publicDataMap?.size == 0 && !accountData.privateData.isPresent) {
             finish()
             return
         }
 
         val viewModelProvider = ViewModelProviders.of(this)
-        viewModel = when {
+        viewModel = viewModelProvider.get(when {
             account is HDAccount && (accountData.publicDataMap?.size ?: 0 > 1) ->
-                viewModelProvider.get(ExportAsQrBtcHDViewModel::class.java)
-            account is SingleAddressAccount && account.availableAddressTypes.size > 1 ->
-                viewModelProvider.get(ExportAsQrBtcSAViewModel::class.java)
-            else -> viewModelProvider.get(ExportAsQrViewModel::class.java)
-        }
+                ExportAsQrBtcHDViewModel::class.java
+            account is SingleAddressAccount && accountData.publicDataMap!!.size > 1
+                    && account.availableAddressTypes.size > 1
+                    && account.publicKey.isCompressed ->
+                ExportAsQrBtcSAViewModel::class.java
+            else -> ExportAsQrViewModel::class.java
+        })
 
         if (!viewModel.isInitialized()) {
             viewModel.init(accountData)
@@ -54,27 +54,21 @@ class ExportAsQrActivity : AppCompatActivity() {
 
         // Inflate view and obtain an instance of the binding class.
 
-        val binding = when {
-            account is HDAccount && accountData.publicDataMap != null && accountData.publicDataMap!!.size > 1 -> {
-                val binding = DataBindingUtil.setContentView<ExportAsQrBtcHdActivityBinding>(this, R.layout.export_as_qr_btc_hd_activity)
-                binding.viewModel = viewModel as ExportAsQrMultiKeysViewModel
-                binding.activity = this
-                binding
+        val binding = when(viewModel) {
+            is ExportAsQrBtcHDViewModel -> DataBindingUtil.setContentView<ExportAsQrBtcHdActivityBinding>(this, R.layout.export_as_qr_btc_hd_activity).also {
+                it.viewModel = viewModel as ExportAsQrMultiKeysViewModel
+                it.activity = this
             }
-            account is SingleAddressAccount && accountData.privateData.isPresent -> {
-                val binding = DataBindingUtil.setContentView<ExportAsQrBtcSaActivityBinding>(this, R.layout.export_as_qr_btc_sa_activity)
-                binding.viewModel = viewModel as ExportAsQrMultiKeysViewModel
-                binding.activity = this
-                binding
+            is ExportAsQrBtcSAViewModel -> DataBindingUtil.setContentView<ExportAsQrBtcSaActivityBinding>(this, R.layout.export_as_qr_btc_sa_activity).also {
+                it.viewModel = viewModel as ExportAsQrMultiKeysViewModel
+                it.activity = this
             }
-            else -> {
-                val binding = DataBindingUtil.setContentView<ExportAsQrActivityBinding>(this, R.layout.export_as_qr_activity)
-                binding.viewModel = viewModel
-                binding.activity = this
-                binding
+            else -> DataBindingUtil.setContentView<ExportAsQrActivityBinding>(this, R.layout.export_as_qr_activity).also {
+                it.viewModel = viewModel
+                it.activity = this
             }
         }
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
 
         // Prevent the OS from taking screenshots of this activity
         Utils.preventScreenshots(this)
@@ -100,8 +94,8 @@ class ExportAsQrActivity : AppCompatActivity() {
         @JvmStatic
         fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount<*,*>) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
-            intent.putExtra(ACCOUNT_DATA, accountData)
-            intent.putExtra(ACCOUNT_UUID, account.id)
+                    .putExtra(ACCOUNT_DATA, accountData)
+                    .putExtra(ACCOUNT_UUID, account.id)
             currentActivity.startActivity(intent)
         }
     }

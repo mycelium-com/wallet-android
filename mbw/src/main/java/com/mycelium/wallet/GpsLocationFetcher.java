@@ -34,20 +34,28 @@
 
 package com.mycelium.wallet;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Handler;
+import android.widget.Toast;
 
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.location.*;
-import com.mycelium.wallet.lt.AddressDescription;
+import com.mycelium.lt.location.Geocode;
+import com.mycelium.lt.location.GeocodeResponse;
+import com.mycelium.lt.location.RemoteGeocodeException;
+import com.mycelium.wallet.lt.BackendGeocoder;
 
 public class GpsLocationFetcher {
-
+   private BackendGeocoder backendGeocoder;
    public static class GpsLocationEx extends GpsLocation {
       private static final long serialVersionUID = 1L;
 
@@ -65,10 +73,28 @@ public class GpsLocationFetcher {
          return new GpsLocationEx(location.latitude, location.longitude, location.name, "");
       }
 
+      public static GpsLocationEx fromAddress(Address addr) {
+         if (addr == null) {
+            return null;
+         }
+         String addressString = addr.getCountryName();
+         if (addr.getLocality() != null) {
+            addressString = addr.getLocality() + ", " + addressString;
+         }
+         if (addr.getThoroughfare() != null) {
+            addressString = addr.getThoroughfare() + ", " + addressString;
+         }
+         return new GpsLocationEx(addr.getLatitude(), addr.getLongitude(), addressString,
+                 addr.getCountryCode());
+      }
+
+      @Override
+      public String toString() {
+         return name;
+      }
    }
 
    public static abstract class Callback {
-
       private Context _context;
       private Handler _handler;
       private boolean _cancelled;
@@ -87,9 +113,6 @@ public class GpsLocationFetcher {
        * null if no location could be found
        */
       protected abstract void onGpsLocationObtained(GpsLocationEx location);
-
-      protected abstract void onGpsError(RemoteGeocodeException error);
-
    }
 
    public void getNetworkLocation(final Callback callback) {
@@ -98,28 +121,15 @@ public class GpsLocationFetcher {
          @Override
          public void run() {
             final GpsLocationEx location;
-            try {
-               location = getNetworkLocation(callback._context);
-               callback._handler.post(new Runnable() {
-
-                  @Override
-                  public void run() {
-                     if (!callback._cancelled) {
-                        callback.onGpsLocationObtained(location);
-                     }
+            location = getNetworkLocation(callback._context);
+            callback._handler.post(new Runnable() {
+               @Override
+               public void run() {
+                  if (!callback._cancelled) {
+                     callback.onGpsLocationObtained(location);
                   }
-               });
-            } catch (final RemoteGeocodeException e) {
-               callback._handler.post(new Runnable() {
-
-                  @Override
-                  public void run() {
-                     if (!callback._cancelled) {
-                        callback.onGpsError(e);
-                     }
-                  }
-               });
-            }
+               }
+            });
 
          }
       });
@@ -127,28 +137,19 @@ public class GpsLocationFetcher {
       t.start();
    }
 
-   private GpsLocationEx getNetworkLocation(Context context) throws RemoteGeocodeException {
+   private GpsLocationEx getNetworkLocation(Context context) {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
       LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+      @SuppressLint("MissingPermission")
       Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-      if (lastKnownLocation == null)
-         return null;
-      final List<Geocode> list;
-
-      Geocoder geocoder = MbwManager.getInstance(context).getLocalTraderManager().getGeocoder();
-      GeocodeResponse response = geocoder.getFromLocation(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-
-      list = response.results;
-      if (list.isEmpty()) {
+      if (lastKnownLocation == null) {
          return null;
       }
 
-      Geocode geocode = list.get(0);
-
-      return new GpsLocationEx(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
-            new AddressDescription(geocode).toString(), geocode.getCountryCode());
+      Address address = getAddress(context, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+      return GpsLocationEx.fromAddress(address);
    }
 
    private static boolean canObtainGpsPosition(Context context) {
@@ -161,4 +162,38 @@ public class GpsLocationFetcher {
       return (res == PackageManager.PERMISSION_GRANTED);
    }
 
+   private Address getAddress(Context context, double lat, double lng) {
+      if (Geocoder.isPresent()) {
+         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+         try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && addresses.size() > 0) {
+               return addresses.get(0);
+            }
+         } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+         }
+      }
+      if (backendGeocoder == null) {
+         backendGeocoder = new BackendGeocoder(MbwManager.getInstance(context).getLocalTraderManager());
+      }
+      try {
+         // TODO: 21.10.18 don't turn geocodes into addresses if they are only turned into geocodes later anyway. 
+         GeocodeResponse location = backendGeocoder.getFromLocation(lat, lng);
+         if (location.results != null && location.results.size() > 0) {
+            Geocode geocode = location.results.get(0);
+            Address address = new Address(Locale.getDefault());
+            address.setCountryCode(geocode.getCountryCode());
+            address.setLatitude(geocode.getLatitude());
+            address.setLongitude(geocode.getLongitude());
+            address.setCountryName(geocode.getCountryCode());
+            return address;
+         }
+      } catch (RemoteGeocodeException e) {
+         e.printStackTrace();
+         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+      }
+      return null;
+   }
 }

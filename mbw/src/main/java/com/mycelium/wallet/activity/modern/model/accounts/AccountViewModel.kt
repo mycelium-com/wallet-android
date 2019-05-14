@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount
+import com.mycelium.wapi.wallet.colu.PublicColuAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
 
 /**
@@ -26,6 +26,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     var showBackupMissingWarning = showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager.metadataStorage.getLabelByAccount(accountId)
     var displayAddress: String
+    val isSyncing = account.isSyncing
 
     init {
         val receivingAddress = account.receiveAddress
@@ -63,6 +64,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
         if (showBackupMissingWarning != other.showBackupMissingWarning) return false
         if (label != other.label) return false
         if (displayAddress != other.displayAddress) return false
+        if (isSyncing != other.isSyncing) return false
 
         return true
     }
@@ -77,17 +79,14 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
         result = 31 * result + showBackupMissingWarning.hashCode()
         result = 31 * result + label.hashCode()
         result = 31 * result + displayAddress.hashCode()
+        result = 31 * result + isSyncing.hashCode()
         return result
     }
 
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
-            if (linked != null && linked is ColuPubOnlyAccount
-                    && linked.coinType == RMCCoin) {
-                return true
-            }
-            return false
+            return linked is PublicColuAccount && linked.coinType == RMCCoin
         }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {

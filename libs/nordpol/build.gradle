@@ -17,9 +17,8 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 28
     }
-//    we are just embedding the zxing lib here, we are not maintaining it.
     lintOptions {
         ignoreWarnings true
     }

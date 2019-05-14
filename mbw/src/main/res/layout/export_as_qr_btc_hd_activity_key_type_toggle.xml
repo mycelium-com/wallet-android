@@ -18,13 +18,14 @@
         android:layout_marginTop="4dp"
         android:gravity="center">
 
+        <!--We use viewModel.privateDataSelected ? @id/rb_key_x : @id/rb_key_x as we need to select this button in case
+        of type change, and if we wouldn't provide alternatives update wouldn't be executed.-->
         <RadioGroup
             android:id="@+id/rg_key_types"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checkedButton="@{viewModel.privateDataSelected ? @id/rb_key_x : @id/rb_key_x}"
             android:orientation="horizontal">
-
             <RadioButton
                 android:id="@+id/rb_key_x"
                 android:layout_width="wrap_content"

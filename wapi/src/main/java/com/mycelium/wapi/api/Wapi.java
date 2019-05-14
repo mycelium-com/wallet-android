@@ -20,7 +20,6 @@ import com.mycelium.wapi.api.request.*;
 import com.mycelium.wapi.api.response.*;
 
 public interface Wapi {
-
    /**
     * The current version of the API
     */
@@ -32,7 +31,39 @@ public interface Wapi {
    int ERROR_CODE_INTERNAL_CLIENT_ERROR = 3;
    int ERROR_CODE_INVALID_SESSION = 4;
    int ERROR_CODE_INVALID_ARGUMENT = 5;
+   int ERROR_CODE_PARSING_ERROR = 6000;
    int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
+
+    /**
+     * This codes are used to identify Bitcoind errors which are passed through electrumx.
+     * https://github.com/bitcoin/bitcoin/blob/bcffd8743e7f9cf286e641a0df8df25241a9238c/src/consensus/validation.h#L16
+     */
+    enum ElectrumxError {
+        REJECT_MALFORMED(0x01, 101),
+        REJECT_DUPLICATE(0x12, 102),
+        REJECT_NONSTANDARD(0x40, 103),
+        REJECT_INSUFFICIENT_FEE(0x42, 104);
+        private int externalErrorCode;
+        private int errorCode;
+
+        ElectrumxError(int externalErrorCode, int errorCode) {
+            this.externalErrorCode = externalErrorCode;
+            this.errorCode = errorCode;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
+
+        static ElectrumxError getErrorByCode(int errorCode) {
+            for (ElectrumxError error : ElectrumxError.values()) {
+                if (error.externalErrorCode == errorCode) {
+                    return error;
+                }
+            }
+            throw new IllegalArgumentException("");
+        }
+    }
 
    String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
 
@@ -49,7 +80,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"addresses":["msxh4zZoVwdRXfgmAYYo2MpNrJi4snrH6C","mfv9QuzUD7ZtnHxfpVX2859hs2ZHC8TG16","mpii6kiLM5HffaJdeD4Smnpv5eWo7qfKQ5"]}'
     *       https://144.76.165.115/wapitestnet/wapi/queryUnspentOutputs
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<QueryUnspentOutputsResponse> queryUnspentOutputs(QueryUnspentOutputsRequest request);
 
    /**
@@ -58,7 +91,9 @@ public interface Wapi {
     *curl   -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"addresses":["mfd7QG4vn2U4U5BgnTuw7dmjKsutDxkK6b","mysJrGMsYht9u3gBvKHFcNJsVEmaEPhUGA","mvMyQXzaHk7Z6u3vsbzT7qmQJo225ma9g3"],"limit":1000}'
     *       https://144.76.165.115/wapitestnet/wapi/queryTransactionInventory
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<QueryTransactionInventoryResponse> queryTransactionInventory(QueryTransactionInventoryRequest request);
 
    /**
@@ -67,7 +102,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
     *       https://144.76.165.115/wapitestnet/wapi/getTransactions
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<GetTransactionsResponse> getTransactions(GetTransactionsRequest request);
 
    /**
@@ -76,7 +113,9 @@ public interface Wapi {
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"rawTransaction":"AQAAAAHqHGsQSIun5hjDDWm7iFMwm85xNLt+HBfI3LS3uQHnSQEAAABrSDBFAiEA6rlGk4wgIL3TvC2YHK4XiBW2vPYg82iCgnQi+YOUwqACIBpzVk756/07SRORT50iRZvEGUIn3Lh3bhaRE1aUMgZZASECDFl9wEYDCvB1cJY6MbsakfKQ9tbQhn0eH9C//RI2iE//////ApHwGgAAAAAAGXapFIzWtPXZR7lk8RtvE0FDMHaLtsLCiKyghgEAAAAAABl2qRSuzci59wapXUEzwDzqKV9nIaqwz4isAAAAAA=="}'
     *       https://144.76.165.115/wapitestnet/wapi/broadcastTransaction
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<BroadcastTransactionResponse> broadcastTransaction(BroadcastTransactionRequest request);
 
    /**
@@ -88,7 +127,9 @@ public interface Wapi {
     *curl   -k -X POST -H "Content-Type: application/json"
     *       -d '{"txIds":["1513b9b160ef6b20bbb06b7bb6e7364e58e27e1df53f8f7e12e67f17d46ad198"]}'
     *       https://144.76.165.115/wapitestnet/wapi/checkTransactions
+    * @deprecated this service has reached end of life and will be replaced by electrumx
     */
+   @Deprecated
    WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request);
 
    /**
@@ -134,7 +175,6 @@ public interface Wapi {
     * included in the next n-Blocks, in satoshis
     *
     * curl -k -X POST -H "Content-Type: application/json" -d '{}' https://144.76.165.115/wapitestnet/wapi/getMinerFeeEstimations
-    *
     */
    WapiResponse<MinerFeeEstimationResponse> getMinerFeeEstimations();
 }

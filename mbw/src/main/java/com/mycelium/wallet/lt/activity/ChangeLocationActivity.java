@@ -43,7 +43,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mycelium.lt.api.model.GpsLocation;
-import com.mycelium.lt.location.RemoteGeocodeException;
 import com.mycelium.wallet.GpsLocationFetcher;
 import com.mycelium.wallet.GpsLocationFetcher.GpsLocationEx;
 import com.mycelium.wallet.MbwManager;
@@ -84,8 +83,8 @@ public class ChangeLocationActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this);
       LocalTraderManager ltManager = _mbwManager.getLocalTraderManager();
 
-      _btUse = (Button) findViewById(R.id.btUse);
-      _tvLocation = (TextView) findViewById(R.id.tvLocation);
+      _btUse = findViewById(R.id.btUse);
+      _tvLocation = findViewById(R.id.tvLocation);
 
       // Load intent parameters
       _persist = getIntent().getBooleanExtra("persist", false);
@@ -108,7 +107,7 @@ public class ChangeLocationActivity extends Activity {
       _gpsLocationCallback = new GpsLocationFetcher.Callback(this) {
          @Override
          protected void onGpsLocationObtained(GpsLocationEx location) {
-            TextView tvError = (TextView) findViewById(R.id.tvError);
+            TextView tvError = findViewById(R.id.tvError);
             tvError.setVisibility(View.VISIBLE);
 
             if (location != null) {
@@ -119,14 +118,6 @@ public class ChangeLocationActivity extends Activity {
                      .show();
             }
          }
-
-         @Override
-         protected void onGpsError(RemoteGeocodeException error) {
-            TextView tvError = (TextView) findViewById(R.id.tvError);
-            tvError.setVisibility(View.VISIBLE);
-            tvError.setText(String.format(getString(R.string.geocode_error), error.status));
-            MbwManager.getInstance(ChangeLocationActivity.this).reportIgnoredException(error);
-         }
       };
    }
 
@@ -135,7 +126,6 @@ public class ChangeLocationActivity extends Activity {
    }
 
    OnClickListener crossHairClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View arg0) {
          if(!Utils.hasOrRequestLocationAccess(ChangeLocationActivity.this)) {
@@ -148,7 +138,6 @@ public class ChangeLocationActivity extends Activity {
    };
 
    OnClickListener useClickListener = new OnClickListener() {
-
       @Override
       public void onClick(View arg0) {
          if (_persist) {

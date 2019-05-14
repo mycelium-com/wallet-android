@@ -25,21 +25,20 @@ import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Geocode {
-
    @JsonProperty
    private static final String COUNTRY = "country";
 
    @JsonProperty
-   public Collection<String> types = new ArrayList<String>();
+   public Collection<String> types = new ArrayList<>();
 
    @JsonProperty
    public String formattedAddress;
 
    @JsonProperty
-   public Collection<AddressComponent> addressComponents = new ArrayList<AddressComponent>();
+   public Collection<AddressComponent> addressComponents = new ArrayList<>();
 
    @JsonProperty
-   public Collection<String> postcodeLocalities = new ArrayList<String>();
+   public Collection<String> postcodeLocalities = new ArrayList<>();
 
    @JsonProperty
    public Geometry geometry;
@@ -77,5 +76,4 @@ public class Geocode {
       }
       return "";
    }
-
 }

@@ -57,7 +57,7 @@ public abstract class ExchangeBasedCurrencyValue extends CurrencyValue {
       if (currencyValue.hasExactValue()) {
          return fromExactValue(currencyValue.getExactValue(), targetCurrency, exchangeRateManager);
       } else {
-         return ExchangeBasedCurrencyValue.convertFromValue(currencyValue, targetCurrency, exchangeRateManager);
+         return convertFromValue(currencyValue, targetCurrency, exchangeRateManager);
       }
    }
 

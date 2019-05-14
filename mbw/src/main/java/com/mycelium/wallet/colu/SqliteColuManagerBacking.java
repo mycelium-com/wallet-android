@@ -65,11 +65,12 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -153,7 +154,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             if(addressStringsList != null) {
                for (String addressString : addressStringsList) {
                   Address address = Address.fromString(addressString);
-                  addresses.put(address.getType(), new BtcLegacyAddress(coinType, address.getAllAddressBytes()));
+                  addresses.put(address.getType(), new BtcAddress(coinType, address));
                }
             }
             list.add(new ColuAccountContext(id, coinType, publicKey, addresses
@@ -626,8 +627,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             for (ColuTransaction transaction: transactions) {
                int index = i * 5;
                updateStatement.bindBlob(index + 1, transaction.getId().getBytes());
-               updateStatement.bindBlob(index + 2, transaction.getHash().getBytes());
-               updateStatement.bindLong(index + 3, transaction.getAppearedAtChainHeight() == -1 ? Integer.MAX_VALUE : transaction.getAppearedAtChainHeight());
+               updateStatement.bindBlob(index + 2, transaction.getId().getBytes());
+               updateStatement.bindLong(index + 3, transaction.getHeight() == -1 ? Integer.MAX_VALUE : transaction.getHeight());
                updateStatement.bindLong(index + 4, transaction.getTime());
 
                byte[] txData = null;
@@ -659,6 +660,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             _database.endTransaction();
          }
 
+      }
+
+      @Override
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
+
+      }
+
+      @Override
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
+         return null;
       }
 
       @Override
@@ -1111,6 +1122,30 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
          if(oldVersion < 7) {
+            List<UUID> listForRemove = new ArrayList<>();
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
+                    null, null, null, null)) {
+               while (cursor.moveToNext()) {
+                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+                  listForRemove.add(id);
+                  Type type = new TypeToken<Collection<String>>() {}.getType();
+                  Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+                  for (String addressString : addressStringsList) {
+                     Address address = Address.fromString(addressString);
+                     if (address.getType() == AddressType.P2PKH) {
+                        listForRemove.remove(id);
+                        break;
+                     }
+                  }
+               }
+            }
+            SQLiteStatement deleteSingleAddressAccount = db.compileStatement("DELETE FROM single WHERE id = ?");
+            for (UUID uuid : listForRemove) {
+               Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
+               deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
+               deleteSingleAddressAccount.execute();
+            }
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
          }
       }

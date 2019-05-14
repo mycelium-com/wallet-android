@@ -1,39 +1,29 @@
 package com.mycelium.wapi.wallet;
 
-import com.megiontechnologies.Bitcoins;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
 
+    FeeEstimationsGeneric getDefaultFeeEstimation();
+
     void setAllowZeroConfSpending(boolean b);
 
-    class WalletAccountException extends Exception {
-        public WalletAccountException(Throwable cause) {
-            super(cause);
-        }
+    void completeTransaction(SendRequest<T> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
-        public WalletAccountException(String s) {
-            super(s);
-        }
-    }
+    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
 
-    void completeAndSignTx(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
-
-    void completeTransaction(SendRequest<T> request) throws WalletAccountException;
-
-    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws WalletAccountException;
-
-    BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException;
+    BroadcastResult broadcastTx(T tx) throws GenericTransactionBroadcastException;
 
     /**
      * Get current receive address
@@ -52,24 +42,19 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     boolean isMineAddress(GenericAddress address);
 
+    boolean isExchangeable();
+
     T getTx(Sha256Hash transactionId);
 
     List<T> getTransactions(int offset, int limit);
 
     /**
-     * Get the transaction history of this account since the stated timestamp
-     * @param receivingSince only include tx older than this
+     * Get the transaction history of this account since the stated timestamp in milliseconds
+     * @param receivingSince only include tx younger than this
      */
     List<T> getTransactionsSince(long receivingSince);
 
-
-    void checkAmount(Receiver receiver, long kbMinerFee, Value enteredAmount)
-            throws StandardTransactionBuilder.InsufficientFundsException,
-            StandardTransactionBuilder.OutputTooSmallException,
-            StandardTransactionBuilder.UnableToBuildTransactionException;
-
-
-    SendRequest<T> getSendToRequest(A destination, Value amount);
+    SendRequest<T> getSendToRequest(A destination, Value amount, Value fee);
 
     List<GenericTransaction.GenericOutput> getUnspentOutputs();
 
@@ -101,6 +86,11 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      * Can this account be used for spending, or is it read-only?
      */
     boolean canSpend();
+
+    /**
+     * Get is account sync in progress
+     */
+    boolean isSyncing();
 
     /**
      * Is this account archived?
@@ -176,10 +166,13 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     boolean broadcastOutgoingTransactions();
 
+    void removeAllQueuedTransactions();
+
     /**
      * Determine the maximum spendable amount you can send in a transaction
+     * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(long minerFeeToUse);
+    Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization
@@ -195,29 +188,7 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
      */
     InMemoryPrivateKey getPrivateKey(KeyCipher cipher)  throws KeyCipher.InvalidKeyCipher;
 
-    /**
-     * Class representing a receiver of funds
-     */
-    class Receiver implements Serializable {
-        private static final long serialVersionUID = 1L;
+    A getDummyAddress();
 
-        /**
-         * The address to send funds to
-         */
-        public final GenericAddress address;
-
-        /**
-         * The amount to send measured in satoshis
-         */
-        public final long amount;
-
-        public Receiver(GenericAddress address, long amount) {
-            this.address = address;
-            this.amount = amount;
-        }
-
-        public Receiver(GenericAddress address, Bitcoins amount) {
-            this(address, amount.getLongValue());
-        }
-    }
+    A getDummyAddress(String subType);
 }

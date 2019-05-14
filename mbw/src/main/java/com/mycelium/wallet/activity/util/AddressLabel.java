@@ -37,7 +37,6 @@ package com.mycelium.wallet.activity.util;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
@@ -47,7 +46,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
-   private Address address;
+   private GenericAddress address;
    private boolean coluMode;
 
    public AddressLabel(Context context) {
@@ -81,7 +80,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       this.coluMode = coluMode;
    }
 
-   public void setAddress(final Address address) {
+   public void setAddress(final GenericAddress address) {
       this.address = address;
       update_ui();
       NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();
@@ -89,8 +88,6 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          String baseUrl;
          if (networkParameters.isProdnet()) {
             baseUrl = "http://coloredcoins.org/explorer/";
-         } else if (networkParameters.isTestnet()) {
-            baseUrl = "http://coloredcoins.org/explorer/testnet/";
          } else {
             baseUrl = "http://coloredcoins.org/explorer/testnet/";
          }
@@ -114,7 +111,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
    }
-   public Address getAddress() {
+   public GenericAddress getAddress() {
       return address;
    }
 

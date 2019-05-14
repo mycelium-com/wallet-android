@@ -1,0 +1,26 @@
+sourceSets {
+    integrationTestWalletCore {
+        java.srcDir('src/integrationTest/java')
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        resources.srcDir file('src/integrationTest/resources')
+    }
+}
+
+configurations {
+    integrationTestWalletCoreImplementation.extendsFrom testImplementation
+    integrationTestWalletCoreRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestWalletCoreAnnotationProcessor.extendsFrom testAnnotationProcessor
+}
+
+task integrationTestWalletCore(type: Test) {
+    description = 'Runs the integration tests for WalletCore.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTestWalletCore.output.classesDirs
+    classpath = sourceSets.integrationTestWalletCore.runtimeClasspath
+    outputs.upToDateWhen { false }
+    println 'task: integrationTestWalletCore'
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}

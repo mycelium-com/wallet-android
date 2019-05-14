@@ -732,34 +732,7 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Comprar / Vender Bitcoin</string>
-    <string name="gd_buy_tab">Comprar</string>
-    <string name="gd_sell_tab">Vender</string>
-    <string name="gd_transaction_history_tab">Histórico</string>
-    <string name="gd_delivery_date">Data de Entrega:</string>
-    <string name="gd_date">Data:</string>
-    <string name="gd_action">Ação:</string>
-    <string name="gd_amount">Quantia:</string>
-    <string name="gd_pricing">Preços:</string>
-    <string name="gd_price">Preço:</string>
-    <string name="gd_fee">Taxa:</string>
-    <string name="gd_transaction_hash">Hash da Transação:</string>
-    <string name="gd_transaction_receipt">Recibo da Transação</string>
-    <string name="gd_transaction_complete">Transação concluída, os detalhes estão abaixo.</string>
-    <string name="gd_transaction_reviewed">A transição está sendo examinada, os detalhes estão abaixo.</string>
-    <string name="gd_resend_code">Reenviar Código</string>
-    <string name="gd_cancel">Cancelar</string>
-    <string name="gd_continue">Continuar</string>
-    <string name="gd_amount_to_buy">Quantidade para Comprar</string>
-    <string name="gd_sell_bitcoin">Vender Bitcoin</string>
-    <string name="gd_buy_bitcoin">Comprar Bitcoin</string>
-    <string name="gd_rate">Cotação:</string>
-    <string name="gd_summary">Resumo</string>
-    <string name="gd_amount_to_sell">Quantidade para Vender</string>
-    <string name="gd_loading">Carregando&#8230;</string>
-    <string name="gd_error_unable_to_connect">Não é possível conectar-se a glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s por %2$s</string>
     <string name="error_details">Detalhes do erro</string>
-    <string name="glidera_setting_show_button_summary">Mostrar a opção de compra/venda do Glidera</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->

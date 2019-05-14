@@ -49,9 +49,6 @@ import android.util.Log;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
-import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 import java.security.Security;
 import java.util.*;
@@ -90,8 +87,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         super.onCreate();
         CommunicationManager.init(this);
-        pairSpvModules(CommunicationManager.getInstance());
-        cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         applyLanguageChange(getBaseContext(), getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
@@ -111,27 +106,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
-    private void pairSpvModules(CommunicationManager communicationManager) {
-
-        try {
-            communicationManager.requestPair(BuildConfig.appIdSpvBch);
-        } catch(SecurityException se) {
-            String message = se.getMessage();
-            if(message.contains("Version conflict")) {
-                String[] strings = message.split("\\|");
-                int otherModuleApiVersion = Integer.decode(strings[1]);
-                moduleVersionErrors.add(new ModuleVersionError(BuildConfig.appIdSpvBch, otherModuleApiVersion));
-            } else {
-                Log.w("WalletApplication", message);
-            }
-        }
-    }
-
-    private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
-        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false) && BCHHelper.isModulePaired(context)) {
-            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
-        }
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -182,23 +156,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
-    }
-
-    public static <T> String getSpvModuleName(Class<T> type) {
-        if (type.isAssignableFrom(Bip44BCHAccount.class) ||
-                type.isAssignableFrom(SingleAddressBCHAccount.class)) {
-            return BuildConfig.appIdSpvBch;
-        } else {
-            throw new RuntimeException("No spv module defined for account type " + type.getSimpleName());
-        }
-    }
-
-    public static <T> void sendToSpv(Intent intent, Class<T> type) {
-        CommunicationManager.getInstance().send(getSpvModuleName(type), intent);
-    }
-
-    public static void sendToGeb(Intent intent) {
-        CommunicationManager.getInstance().send(BuildConfig.appIdGeb, intent);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {

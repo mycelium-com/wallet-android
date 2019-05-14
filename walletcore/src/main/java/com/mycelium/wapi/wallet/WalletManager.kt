@@ -1,35 +1,33 @@
 package com.mycelium.wapi.wallet
 
-import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.api.lib.FeeEstimation
-import com.mycelium.wapi.wallet.bch.coins.BchMain
-import com.mycelium.wapi.wallet.bch.coins.BchTest
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.colu.coins.*
-import com.mycelium.wapi.wallet.eth.coins.EthMain
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
-import kotlin.collections.ArrayList
+import java.util.concurrent.TimeUnit
 
 
-class WalletManager(val backing: WalletManagerBacking<*,*>,
-                    val network: NetworkParameters,
-                    val wapi: Wapi) {
-    private val MAX_AGE_FEE_ESTIMATION = (2 * 60 * 60 * 1000).toLong() // 2 hours
+class WalletManager(val network: NetworkParameters,
+                    val wapi: Wapi,
+                    var currenciesSettingsMap: HashMap<String, CurrencySettings>) {
+    val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
-    private val _lastFeeEstimations = backing.loadLastFeeEstimation();
     private val _logger = wapi.logger
+
+    fun getCurrenySettings(moduleID: String): CurrencySettings? {
+        return currenciesSettingsMap[moduleID]
+    }
+
+    fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
+        currenciesSettingsMap[moduleID] = settings
+        walletModules.get(moduleID)?.setCurrencySettings(settings)
+    }
 
     var isNetworkConnected: Boolean = false
     var walletListener: WalletListener? = null
@@ -58,14 +56,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
 
     fun getAccountBy(address: GenericAddress): UUID? {
-        var result: UUID? = null
-        for (account in accounts.values) {
-            if (account.isMineAddress(address)) {
-                result = account.id
-                break
-            }
-        }
-        return result
+        return accounts.values.firstOrNull { it.isMineAddress(address) }?.id
     }
 
     fun setIsNetworkConnected(connected: Boolean) {
@@ -73,45 +64,32 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     }
 
     fun hasPrivateKey(address: GenericAddress): Boolean {
-        var result = false
-        for (account in accounts.values) {
-            if (account.canSpend() && account.isMineAddress(address)) {
-                result = true
-                break
-            }
-        }
-        return result
-    }
-
-
-    fun getLastFeeEstimations(): FeeEstimation {
-        if (Date().time - _lastFeeEstimations.getValidFor().getTime() >= MAX_AGE_FEE_ESTIMATION) {
-            _logger.logError("Using stale fee estimation!") // this is still better
-        }
-        return _lastFeeEstimations
+        return accounts.values.any { it.canSpend() && it.isMineAddress(address) }
     }
 
     fun createAccounts(config: Config): List<UUID> {
         val result = mutableMapOf<UUID, WalletAccount<*, *>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
-                val account = it.createAccount(config)
-                account?.let {
+                try {
+                    val account = it.createAccount(config)
                     result[account.id] = account
+                } catch (exception: IllegalStateException){
+                    _logger.logError("Account", exception)
                 }
             }
         }
         accounts.putAll(result)
-        startSynchronization(SyncMode.NORMAL, result.values.toList())
         return result.keys.toList()
     }
 
     @TestOnly
     fun addAccount(account: WalletAccount<*,*>) {
-        accounts[account.id] = account;
+        accounts[account.id] = account
     }
 
-    fun deleteAccount(id: UUID, keyCipher: KeyCipher) {
+    @JvmOverloads
+    fun deleteAccount(id: UUID, keyCipher: KeyCipher = AesKeyCipher.defaultKeyCipher()) {
         val account = accounts[id]
         account?.let {
             accounts.remove(id)
@@ -129,7 +107,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
      * @param accounts - list of any accounts
      * @return only active accounts
      */
-    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { !it.isArchived }
+    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { it.isActive }
 
     @JvmOverloads
     fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*, *>> = listOf()) {
@@ -142,7 +120,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
         val activeAccount = getAccount(acc)
-        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount)))
+        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
         return isNetworkConnected
     }
 
@@ -187,10 +165,6 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         return null
     }
 
-    fun activateFirstAccount() {
-//        filterAndConvert(MAIN_SEED_BTC_HD_ACCOUNT).get(0).activateAccount()
-    }
-
     /**
      * Add an observer that gets callbacks when the wallet manager state changes
      * or account events occur.
@@ -213,7 +187,7 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
 
 
     fun getArchivedAccounts(): List<WalletAccount<*, *>> {
-        return accounts.values.filter { it.isArchived && it.canSpend() }
+        return accounts.values.filter { it.isArchived }
     }
 
     /**
@@ -226,24 +200,31 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         return accounts.values.filter { it.isActive && it.canSpend() }
     }
 
+    fun getAllActiveAccounts():  List<WalletAccount<*, *>> {
+        return accounts.values.filter { it.isActive }
+    }
+
     fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> {
-        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id }
-        return coinTypes.filter {it -> it.isMineAddress(address)}.toList()
+        return walletModules.values
+                .flatMap { it.getSupportedAssets() }
+                .distinctBy { it.id }
+                .filter { it.isMineAddress(address)}
+                .toList()
+    }
+
+    fun getAssetTypes(): List<GenericAssetInfo> {
+        return accounts.values.map { it.coinType }.distinct()
     }
 
     fun parseAddress(address: String): List<GenericAddress> {
-        val coinTypes = walletModules.values.flatMap { acc -> acc.getSupportedAssets() }.distinctBy { it -> it.id}
-        val addressesList = ArrayList<GenericAddress>()
-        for(asset in coinTypes) {
+        return walletModules.values
+                .flatMap { it.getSupportedAssets() }
+                .distinctBy { it.id }
+                .mapNotNull { genericAssetInfo ->
             try {
-                val addr = asset.parseAddress(address)
-                if (addr != null) {
-                    addressesList.add(addr)
+                        genericAssetInfo.parseAddress(address)
+                    } catch (ex: AddressMalformedException) { null }
                 }
-            } catch (ex : AddressMalformedException) {
-            }
-        }
-        return addressesList
     }
 
     /**
@@ -313,6 +294,10 @@ class WalletManager(val backing: WalletManagerBacking<*,*>,
         /**
          * Sync progress updated
          */
-        SYNC_PROGRESS_UPDATED
+        SYNC_PROGRESS_UPDATED,
+        /**
+         * Malformed outgoing transaction detected
+         */
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
     }
 }

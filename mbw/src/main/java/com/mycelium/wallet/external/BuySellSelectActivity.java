@@ -17,7 +17,6 @@ import com.google.common.collect.Iterables;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
-import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.List;
@@ -26,7 +25,6 @@ import javax.annotation.Nullable;
 
 
 public class BuySellSelectActivity extends FragmentActivity {
-
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -39,7 +37,7 @@ public class BuySellSelectActivity extends FragmentActivity {
       final MbwManager mbwManager = MbwManager.getInstance(this);
 
 
-      final ListView lvServices = (ListView) findViewById(R.id.lvServices);
+      final ListView lvServices = findViewById(R.id.lvServices);
       final List<BuySellServiceDescriptor> buySellServices = mbwManager.getEnvironmentSettings().getBuySellServices();
 
       BuySellServiceDescriptor onlyOneEnabled = null;
@@ -57,7 +55,11 @@ public class BuySellSelectActivity extends FragmentActivity {
       }
 
       if (onlyOneEnabled != null){
-         onlyOneEnabled.launchService(this, mbwManager, ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress());
+         if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount) {
+            onlyOneEnabled.launchService(this, mbwManager, ((WalletBtcAccount) (mbwManager.getSelectedAccount())).getReceivingAddress());
+         } else {
+            Toast.makeText(getApplicationContext(), R.string.buy_sell_select_activity_warning, Toast.LENGTH_SHORT).show();
+         }
       }
 
       final List<BuySellServiceDescriptor> enabledServices = Lists.newArrayList(Iterables.filter(buySellServices, new Predicate<BuySellServiceDescriptor>() {
@@ -68,19 +70,17 @@ public class BuySellSelectActivity extends FragmentActivity {
       }));
 
       lvServices.setAdapter(new ServicesListAdapter(this, enabledServices));
-
    }
 
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      switch (item.getItemId()) {
-         case android.R.id.home:
-            Intent intent = new Intent(this, ModernMain.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-            return true;
+      if (item.getItemId() == android.R.id.home) {
+         Intent intent = new Intent(this, ModernMain.class);
+         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+         startActivity(intent);
+         finish();
+         return true;
       }
       return super.onOptionsItemSelected(item);
    }
@@ -118,7 +118,7 @@ public class BuySellSelectActivity extends FragmentActivity {
                if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount) {
                   service.launchService(BuySellSelectActivity.this, mbwManager, ((WalletBtcAccount) (mbwManager.getSelectedAccount())).getReceivingAddress());
                } else {
-                  Toast.makeText(context,"It's only for btc accounts",Toast.LENGTH_SHORT).show();
+                  Toast.makeText(context, R.string.buy_sell_select_activity_warning, Toast.LENGTH_SHORT).show();
                }
             }
          });

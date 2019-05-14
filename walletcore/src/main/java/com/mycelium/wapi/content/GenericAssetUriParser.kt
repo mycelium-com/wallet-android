@@ -13,9 +13,10 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
-import org.apache.http.client.utils.URLEncodedUtils
-import java.math.BigDecimal
+import java.io.UnsupportedEncodingException
 import java.net.URI
+import java.net.URLDecoder
+
 
 abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriParser {
 
@@ -24,46 +25,78 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         var address: GenericAddress? = null
         val addressString = uri.host
         if (addressString != null && addressString.isNotEmpty()) {
-            address = AddressUtils.from(coinType, addressString.trim { it <= ' ' })
+            address = AddressUtils.from(coinType, addressString)
         }
-        val params = URLEncodedUtils.parse(uri, "UTF-8")
 
-        // Amount
-        val amountStr = params.first { it.name == "amount" }.value
+        val params = splitQuery(uri.rawQuery)
+
         var amount: Value? = null
-        if (amountStr != null) {
-            amount = Value.valueOf(coinType, BigDecimal(amountStr).movePointRight(8).toBigIntegerExact().toLong())
+        // Amount
+        try {
+            val amountStr = params["amount"]
+
+            if (amountStr != null) {
+                amount = Value.valueOf(coinType, (java.lang.Double.parseDouble(amountStr) * Math.pow(10.0, 8.0)).toLong())
+            }
+        } catch (e: NoSuchElementException) {
         }
 
         // Label
         // Bip21 defines "?label" and "?message" - lets try "label" first and if it does not
         // exist, lets use "message"
-        var label = params.first { it.name == "label" }.value
+        var label: String? = null
+        try {
+            label = params["label"]
+        } catch (e: NoSuchElementException) {
+        }
         if (label == null) {
-            label = params.first { it.name == "message" }.value
+            try {
+                label = params["message"]
+            } catch (e: NoSuchElementException) {
+            }
         }
 
         // Check if the supplied "address" is actually an encrypted private key
-        if (Bip38.isBip38PrivateKey(addressString)) {
-            return PrivateKeyUri(addressString, label)
+        if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
+            if (coinType == BitcoinMain.get() || coinType == BitcoinTest.get()) {
+                return PrivateKeyUri(addressString, label, "bitcoin")
+            }
+            return PrivateKeyUri(addressString, label, coinType.symbol.decapitalize())
         }
 
         // Payment Uri
-        val paymentUri = params.first { it.name == "r" }.value
+        var paymentUri: String? = null
+        try {
+            paymentUri = params["r"]
+        } catch (e: NoSuchElementException) {
+        }
 
         return if (address == null && paymentUri == null) {
             null
         } else {
-            createUriByCoinType(coinType, address!!, amount, label, paymentUri)
+            createUriByCoinType(coinType, address, amount, label, paymentUri)
         }
     }
 
+    @Throws(UnsupportedEncodingException::class)
+    fun splitQuery(query: String?): Map<String, String> {
+        val result = mutableMapOf<String, String>()
+        query?.let { query ->
+            val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            for (pair in pairs) {
+                val idx = pair.indexOf("=")
+                result[URLDecoder.decode(pair.substring(0, idx), "UTF-8")] = URLDecoder.decode(pair.substring(idx + 1), "UTF-8")
+            }
+        }
+        return result
+    }
+
     private fun createUriByCoinType(coinType: CryptoCurrency,
-                                    address: GenericAddress,
+                                    address: GenericAddress?,
                                     amount: Value?,
                                     label: String?,
-                                    paymentUri: String): GenericAssetUri?{
-        return when(coinType){
+                                    paymentUri: String?): GenericAssetUri? {
+        return when (coinType) {
             is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
             is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
             is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)

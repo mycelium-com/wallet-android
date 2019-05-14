@@ -63,7 +63,6 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataCategory ADDRESSLABEL_CATEGORY = new MetadataCategory("addresslabel");
    private static final MetadataCategory ADDRESSCOINTYPE_CATEGORY = new MetadataCategory("addresscointype");
    private static final MetadataCategory ACCOUNTLABEL_CATEGORY = new MetadataCategory("al");
-   private static final MetadataCategory IGNORE_LEGACY_WARNING_CATEGORY = new MetadataCategory("ibw");
    private static final MetadataCategory ARCHIVED = new MetadataCategory("archived");
    private static final MetadataCategory TRANSACTION_LABEL_CATEGORY = new MetadataCategory("tl");
    private static final MetadataCategory OTHER_ACCOUNT_BACKUPSTATE = new MetadataCategory("single_key_bs");
@@ -83,7 +82,6 @@ public class MetadataStorage extends GenericMetadataStorage {
    private static final MetadataKeyCategory PIN_BLOCKHEIGHT = new MetadataKeyCategory("pin", "blockheight");
    private static final MetadataKeyCategory SYNC_LAST_FULLSYNC = new MetadataKeyCategory("lastFull", "sync");
    private static final MetadataKeyCategory SHOW_BIP44_PATH = new MetadataKeyCategory("ui", "show_bip44_path");
-   private static final MetadataKeyCategory GLIDERA_IS_ENABLED = new MetadataKeyCategory("glidera", "enable");
    private static final MetadataKeyCategory SWISH_CREDIT_CARD_IS_ENABLED = new MetadataKeyCategory("swish_cc", "enable");
    private static final MetadataKeyCategory SIMPLEX_IS_ENABLED = new MetadataKeyCategory("simplex", "enable");
    private static final MetadataKeyCategory CHANGELLY_IS_ENABLED = new MetadataKeyCategory("changelly", "enable");
@@ -136,7 +134,7 @@ public class MetadataStorage extends GenericMetadataStorage {
    //todo: check only available addresses (need rewrite it with GenericAddress)
    public Map<Address, String> getAllAddressLabels() {
       Map<String, String> entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY);
-      Map<Address, String> addresses = new HashMap<Address, String>();
+      Map<Address, String> addresses = new HashMap<>();
       for (Map.Entry<String, String> e : entries.entrySet()) {
          String val = e.getValue();
          String key = e.getKey();
@@ -147,7 +145,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       return addresses;
    }
 
-   public CryptoCurrency coinTypeFromString(String coinType){
+   private CryptoCurrency coinTypeFromString(String coinType){
       switch (coinType){
          case "Bitcoin Cash": return BchMain.INSTANCE;
          case "Bitcoin Cash Test": return BchTest.INSTANCE;
@@ -185,19 +183,19 @@ public class MetadataStorage extends GenericMetadataStorage {
       deleteAllByKey(address.toString());
    }
 
-   public Optional<Address> getAddressByLabel(String label) {
+   public Optional<String> getAddressByLabel(String label) {
       Optional<String> address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label);
 
       if (address.isPresent()) {
-         return Optional.of(Address.fromString(address.get()));
+         return Optional.of(address.get());
       } else {
          return Optional.absent();
       }
    }
 
-   public void storeAddressLabel(Address address, String label) {
+   public void storeAddressLabel(String address, String label) {
       if (!Strings.isNullOrEmpty(label)) {
-         storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), label);
+         storeKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address), label);
       }
    }
 
@@ -439,14 +437,6 @@ public class MetadataStorage extends GenericMetadataStorage {
       return uuids;
    }
 
-   public boolean getGlideraIsEnabled() {
-      return getKeyCategoryValueEntry(GLIDERA_IS_ENABLED, "1").equals("1");
-   }
-
-   public void setGlideraIsEnabled(boolean enable) {
-      storeKeyCategoryValueEntry(GLIDERA_IS_ENABLED, enable ? "1" : "0");
-   }
-
    public boolean getSwishCreditCardIsEnabled() {
       return getKeyCategoryValueEntry(SWISH_CREDIT_CARD_IS_ENABLED, "1").equals("1");
    }
@@ -475,7 +465,7 @@ public class MetadataStorage extends GenericMetadataStorage {
       final Optional<String> lastDateStr = getKeyCategoryValueEntry(SYNC_LAST_FULLSYNC);
       if (lastDateStr.isPresent()) {
          try {
-            return Optional.fromNullable(Long.parseLong(lastDateStr.get()));
+            return Optional.of(Long.parseLong(lastDateStr.get()));
          } catch (NumberFormatException ex){
             return Optional.absent();
          }

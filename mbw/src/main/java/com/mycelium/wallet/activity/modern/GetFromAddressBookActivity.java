@@ -63,25 +63,32 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       Tab myAddressesTab = bar.newTab();
-      Bundle bundle = addressBookBundle(true);
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class,
+              addressBookBundle(true, false));
       Tab contactsTab = bar.newTab();
-      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
+      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
+              addressBookBundle(false, true));
 
-      //todo: use this check
-      //int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
+      int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
-//      if (countContactsEntries > 0) {
-//         bar.selectTab(contactsTab);
-//      } else {
+      if (countContactsEntries > 0) {
+         bar.selectTab(contactsTab);
+      } else {
          bar.selectTab(myAddressesTab);
-//      }
+      }
    }
 
-   private Bundle addressBookBundle(boolean own) {
+   /**
+    * Method for creating address book configuration which used in SendMainActivity
+    * @param own need for definition necessary configuration - print addresses from our wallet or not
+    * @param isSending need for definition necessary configuration - print only addresses available for sending or all addresses
+    * @return Bundle for address book
+    */
+   private Bundle addressBookBundle(boolean own, boolean isSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, isSending);
       return ownBundle;
    }
 }

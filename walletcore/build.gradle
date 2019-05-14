@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply from: 'integration-test.gradle'
 
 repositories {
     google()
@@ -35,12 +36,6 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
     }
 }
 

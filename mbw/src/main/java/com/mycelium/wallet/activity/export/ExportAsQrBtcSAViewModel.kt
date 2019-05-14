@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Application
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
@@ -16,12 +17,18 @@ class ExportAsQrBtcSAViewModel(context: Application) : ExportAsQrMultiKeysViewMo
      * Updates account data based on extra toggles
      */
     override fun onToggleClicked(toggleNum: Int) {
-        val privateData = model.accountData.privateData.get()!!
+        val privateData = model.accountData.privateData
 
         model.accountDataString.value = if (model.privateDataSelected.value!!) {
-            privateData
+            privateData.get()
         } else {
-            publicData(privateData, toggleNum)
+            val publicDataMap = model.accountData.publicDataMap
+            publicDataMap?.get(when (toggleNum) {
+                1 -> BipDerivationType.BIP44
+                2 -> BipDerivationType.BIP49
+                3 -> BipDerivationType.BIP84
+                else -> throw  java.lang.IllegalStateException("Unexpected toggle position")
+            })
         }
     }
 

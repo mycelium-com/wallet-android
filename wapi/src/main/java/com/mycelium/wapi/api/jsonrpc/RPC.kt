@@ -3,6 +3,8 @@ package com.mycelium.wapi.api.jsonrpc
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
+import com.google.gson.stream.JsonReader
+import java.io.BufferedReader
 import java.lang.reflect.Type
 
 const val JSON_RPC_VERSION = "2.0"
@@ -29,7 +31,6 @@ const val INVALID_PARAMS_CODE = -32602
 const val INTERNAL_ERROR_CODE = -32603
 
 object RPC {
-
     private val builder = GsonBuilder()
             .registerTypeAdapter(RpcParams::class.java, RpcParamsTypeAdapter())
             .serializeNulls()
@@ -44,13 +45,12 @@ object RPC {
 
     internal fun <T> fromJson(json: JsonElement, type: Class<T>) = jsonParser.fromJson(json, type)
 
-    fun <T> fromJson(json: String, type: Class<T>): T = jsonParser.fromJson(json, type)
+    fun <T> fromJson(json: BufferedReader, type: Class<T>): T = jsonParser.fromJson(JsonReader(json), type)
 
-    inline fun <reified T> fromJson(json: String): T = jsonParser.fromJson(json, T::class.java)
+    inline fun <reified T> fromJson(json: BufferedReader): T = jsonParser.fromJson(JsonReader(json), T::class.java)
 
     @JvmStatic
     fun registerTypeAdapter(type: Type, typeAdapter: Any) {
         builder.registerTypeAdapter(type, typeAdapter)
     }
-
 }

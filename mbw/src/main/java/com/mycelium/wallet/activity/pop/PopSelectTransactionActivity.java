@@ -248,7 +248,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               ((PopSelectTransactionActivity) getContext()).onTxClick(getItem(position).getHash());
+               ((PopSelectTransactionActivity) getContext()).onTxClick(getItem(position).getId());
             }
          });
          return view;

@@ -9,9 +9,6 @@ import org.mockito.Mockito.mock
 
 class ConnectionManagerTest {
     val logger = mock(WapiLogger::class.java)
-    @Before
-    fun setup() {
-    }
 
     @Test
     fun changeEndpointsEmptyTest() {

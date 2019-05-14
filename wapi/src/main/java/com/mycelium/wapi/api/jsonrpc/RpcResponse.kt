@@ -3,12 +3,13 @@ package com.mycelium.wapi.api.jsonrpc
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
+import java.io.BufferedReader
 
 open class AbstractResponse
 
 class RpcResponse : AbstractResponse() {
     companion object {
-        fun fromJson(json: String): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
+        fun fromJson(json: BufferedReader): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
     }
 
     @SerializedName(JSON_RPC_IDENTIFIER)
@@ -58,7 +59,7 @@ class BatchedRpcResponse (responsessArr: Array<RpcResponse>): AbstractResponse()
     val responses = responsessArr
 
     companion object {
-        fun fromJson(json: String) =
+        fun fromJson(json: BufferedReader) =
                 BatchedRpcResponse(RPC.fromJson(json, Array<RpcResponse>::class.java))
     }
 }

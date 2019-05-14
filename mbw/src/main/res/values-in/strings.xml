@@ -339,23 +339,6 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Jual / Beli Bitcoin</string>
-    <string name="gd_buy_tab">Beli</string>
-    <string name="gd_sell_tab">Jual</string>
-    <string name="gd_transaction_history_tab">Riwayat</string>
-    <string name="gd_delivery_date">Tanggal Pengriman:</string>
-    <string name="gd_date">Tanggal:</string>
-    <string name="gd_amount">Jumlah:</string>
-    <string name="gd_price">Harga:</string>
-    <string name="gd_fee">Biaya:</string>
-    <string name="gd_total">Jumlah:</string>
-    <string name="gd_transaction_receipt">Bukti transaksi</string>
-    <string name="gd_resend_code">Lirm ulang Kode</string>
-    <string name="gd_cancel">Batal</string>
-    <string name="gd_continue">Lanjut</string>
-    <string name="gd_sell_bitcoin">Jual Bitcoin</string>
-    <string name="gd_buy_bitcoin">Beli Bitcoin</string>
-    <string name="gd_dollar_symbol">Rp</string>
-    <string name="gd_loading">Memuat&#8230;</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->

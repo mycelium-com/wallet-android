@@ -42,7 +42,9 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    private GenericTransaction transaction;
@@ -66,12 +68,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.getHash().toString();
+      return transaction.getId().toString();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.getHash().toString(), 4, " ");
+      return Utils.stringChopper(transaction.getId().toString(), 4, " ");
    }
 
    @Override
@@ -83,20 +85,19 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       this.transaction = tx;
       update_ui();
       NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();
+      WalletAccount account = MbwManager.getInstance(getContext()).getSelectedAccount();
       if (coluMode) {
          String baseUrl;
          if (networkParameters.isProdnet()) {
             baseUrl = "http://coloredcoins.org/explorer/";
-         } else if (networkParameters.isTestnet()) {
-            baseUrl = "http://coloredcoins.org/explorer/testnet/";
          } else {
             baseUrl = "http://coloredcoins.org/explorer/testnet/";
          }
          setHandler(new BlockExplorer("CCO", "coloredcoins.org"
                  , baseUrl + "address/", baseUrl + "tx/"
                  , baseUrl + "address/", baseUrl + "tx/"));
-      } else if (transaction.getType() == BitcoinMain.get()) {
-         if (networkParameters.getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+      } else if (account instanceof SingleAddressBCHAccount || account instanceof Bip44BCHAccount) {
+         if (networkParameters.isProdnet()) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",
                     "https://www.blocktrail.com/BCC/tx/",

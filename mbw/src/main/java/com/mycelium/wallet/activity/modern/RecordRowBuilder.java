@@ -49,7 +49,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -58,13 +58,13 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wallet.AccountManagerKt.getColuAccounts;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class RecordRowBuilder {
     private final MbwManager mbwManager;
@@ -119,7 +119,7 @@ public class RecordRowBuilder {
         holder.tvAddress.setText(model.displayAddress);
         holder.tvAddress.setTextColor(textColor);
 
-        if (model.syncTotalRetrievedTransactions == 0) {
+        if (model.syncTotalRetrievedTransactions == 0 && !model.isSyncing) {
             holder.tvProgressLayout.setVisibility(View.GONE);
         } else {
             holder.tvProgressLayout.setVisibility(View.VISIBLE);
@@ -132,7 +132,7 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtentionsKt.toStringWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 

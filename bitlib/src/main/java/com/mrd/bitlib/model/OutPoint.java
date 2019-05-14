@@ -18,7 +18,6 @@ package com.mrd.bitlib.model;
 
 import java.io.Serializable;
 
-import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HexUtils;

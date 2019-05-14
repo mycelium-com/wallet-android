@@ -128,7 +128,6 @@ public class SelectableRecyclerView extends RecyclerView {
         }
     }
 
-
     public static abstract class Adapter<VH extends ViewHolder> extends RecyclerView.Adapter<VH> implements Selectable {
         public static final int VIEW_TYPE_PADDING = 1;
         public static final int VIEW_TYPE_ITEM = 2;
@@ -179,5 +178,4 @@ public class SelectableRecyclerView extends RecyclerView {
 
         public abstract int findIndex(Object selected);
     }
-
 }

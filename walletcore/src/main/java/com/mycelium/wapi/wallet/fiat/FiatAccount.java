@@ -14,7 +14,10 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,27 +25,28 @@ import java.util.UUID;
 
 public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> {
     @Override
+    public FeeEstimationsGeneric getDefaultFeeEstimation() {
+        return null;
+    }
+
+    @Override
     public void setAllowZeroConfSpending(boolean b) {
 
     }
 
     @Override
-    public void completeAndSignTx(SendRequest<FiatTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
+    public void completeTransaction(SendRequest<FiatTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
 
     }
 
     @Override
-    public void completeTransaction(SendRequest<FiatTransaction> request) throws WalletAccountException {
+    public void signTransaction(SendRequest<FiatTransaction> request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher {
 
     }
 
-    @Override
-    public void signTransaction(SendRequest<FiatTransaction> request, KeyCipher keyCipher) throws WalletAccountException {
-
-    }
 
     @Override
-    public BroadcastResult broadcastTx(FiatTransaction tx) throws TransactionBroadcastException {
+    public BroadcastResult broadcastTx(FiatTransaction tx) throws GenericTransactionBroadcastException {
         return null;
     }
 
@@ -67,6 +71,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
+    public boolean isExchangeable() {
+        return false;
+    }
+
+    @Override
     public FiatTransaction getTx(Sha256Hash transactionId) {
         return null;
     }
@@ -82,8 +91,8 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public void checkAmount(WalletAccount.Receiver receiver, long kbMinerFee, Value enteredAmount) throws StandardTransactionBuilder.InsufficientFundsException, StandardTransactionBuilder.OutputTooSmallException, StandardTransactionBuilder.UnableToBuildTransactionException {
-
+    public SendRequest<FiatTransaction> getSendToRequest(FiatAddress destination, Value amount, Value fee) {
+        return null;
     }
 
     @Override
@@ -98,6 +107,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
 
     @Override
     public boolean canSpend() {
+        return false;
+    }
+
+    @Override
+    public boolean isSyncing() {
         return false;
     }
 
@@ -152,7 +166,11 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public Value calculateMaxSpendableAmount(long minerFeeToUse) {
+    public void removeAllQueuedTransactions() {
+    }
+
+    @Override
+    public Value calculateMaxSpendableAmount(long minerFeeToUse, FiatAddress destinationAddress) {
         return null;
     }
 
@@ -163,7 +181,12 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
 
     @Override
     public FeeEstimationsGeneric getFeeEstimations() {
-        return new FeeEstimationsGeneric(Value.valueOf(getCoinType(), 1000), Value.valueOf(getCoinType(), 1000),Value.valueOf(getCoinType(), 1000));
+        return new FeeEstimationsGeneric(
+                Value.valueOf(getCoinType(), 1000),
+                Value.valueOf(getCoinType(), 1000),
+                Value.valueOf(getCoinType(), 1000),
+                Value.valueOf(getCoinType(), 1000),
+                System.currentTimeMillis());
     }
 
     @Override
@@ -177,9 +200,15 @@ public class FiatAccount implements WalletAccount<FiatTransaction, FiatAddress> 
     }
 
     @Override
-    public SendRequest getSendToRequest(FiatAddress destination, Value amount) {
+    public FiatAddress getDummyAddress() {
         return null;
     }
+
+    @Override
+    public FiatAddress getDummyAddress(String subType) {
+        return null;
+    }
+
 
     @Override
     public List<GenericTransaction.GenericOutput> getUnspentOutputs() {

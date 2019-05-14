@@ -39,4 +39,10 @@ public class EthAddress implements GenericAddress {
     public String toString() {
         return address;
     }
+
+    @NotNull
+    @Override
+    public String getSubType() {
+        return "";
+    }
 }

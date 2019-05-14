@@ -39,11 +39,17 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DataExport {
@@ -55,23 +61,36 @@ public class DataExport {
       OutputStreamWriter osw = new OutputStreamWriter(fos);
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
-      for (GenericTransaction summary : history) {
-         String txLabel = storage.getLabelByTransaction(summary.getHash());
-         osw.write(getTxLine(accountLabel, txLabel, summary));
+      Collections.sort(history, new Comparator<GenericTransaction>() {
+         @Override
+         public int compare(GenericTransaction t1, GenericTransaction t2) {
+            return (int) (t2.getTimestamp() - t1.getTimestamp());
+         }
+      });
+      for (GenericTransaction transaction : history) {
+         String txLabel = storage.getLabelByTransaction(transaction.getId());
+         StringBuilder destAddresses = new StringBuilder();
+         for (GenericTransaction.GenericOutput output : transaction.getOutputs()) {
+            if(!account.isMineAddress(output.getAddress())) {
+               destAddresses.append(output.getAddress().toString()).append(" ");
+            }
+         }
+         osw.write(getTxLine(accountLabel, txLabel, destAddresses.toString(), transaction));
       }
       osw.close();
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, GenericTransaction transaction) {
+   private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransaction transaction) {
       TimeZone tz = TimeZone.getDefault();
-      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
       df.setTimeZone(tz);
       String date = df.format(new Date(transaction.getTimestamp() * 1000L));
-      double value = (transaction.isIncoming() ? transaction.getReceived().getValue() : transaction.getSent().getValue());
+      String value = transaction.getTransferred().toPlainString();
       return
             escape(accountLabel) + "," +
-                  transaction.getHash() + "," +
+                  transaction.getId() + "," +
+                  destAddresses + "," +
                   date + "," +
                   value + "," +
                   transaction.getType().getName() + "," +

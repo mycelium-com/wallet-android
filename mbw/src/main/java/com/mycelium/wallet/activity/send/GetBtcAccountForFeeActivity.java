@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.SegwitAddress;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -21,7 +21,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.send.model.AccountForFee;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
@@ -31,7 +31,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 
 public class GetBtcAccountForFeeActivity extends AppCompatActivity {
@@ -72,11 +72,12 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
             tvNoRecords.setVisibility(View.GONE);
             lvAccounts.setVisibility(View.VISIBLE);
             lvAccounts.setAdapter(new AddressBookAdapter(this, R.layout.btc_account_for_fee_row, entries) {
+                @NonNull
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     AccountForFee accountForFee = (AccountForFee) getItem(position);
-                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtentionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
+                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getDenomination()));
                     return view;
                 }
             });

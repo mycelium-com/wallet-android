@@ -12,12 +12,21 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.AccountBacking
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.io.*
 import java.util.*
 
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : AccountBacking<CoinapultTransaction> {
+    override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: GenericAssetInfo?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun loadLastFeeEstimation(assetType: GenericAssetInfo?): FeeEstimationsGeneric {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val txTableName = "tx${HexUtils.toHex(uuidToBytes(id))}"
 
@@ -37,9 +46,9 @@ class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : Ac
                 var i = 0
                 transactions.forEach { transaction ->
                     val index = i * 5
-                    updateStatement.bindBlob(index + 1, transaction.hash.bytes)
-                    updateStatement.bindBlob(index + 2, transaction.hash.bytes)
-                    updateStatement.bindLong(index + 3, (if (transaction.appearedAtChainHeight == -1) Integer.MAX_VALUE else transaction.getAppearedAtChainHeight()).toLong())
+                    updateStatement.bindBlob(index + 1, transaction.id!!.bytes)
+                    updateStatement.bindBlob(index + 2, transaction.id!!.bytes)
+                    updateStatement.bindLong(index + 3, (if (transaction.height == -1) Integer.MAX_VALUE else transaction.height).toLong())
                     updateStatement.bindLong(index + 4, transaction.time)
 
                     var txData: ByteArray? = null

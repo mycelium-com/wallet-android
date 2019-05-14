@@ -42,18 +42,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.HDSigningActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 /*
 todo HD: root seeds will for now not support signing directly. only support single addresses.
@@ -62,13 +64,10 @@ todo HD: instead, there can be two possibilities. select address for signing fro
 
 */
 public class MessageSigningActivity extends Activity {
-
-
     public static final String PRIVATE_KEY = "privateKey";
-    public static final String ADDRESS_TYPE = "addressType";
+    public static final String ADDRESS = "address";
     private String base64Signature;
     private String messageText;
-    private NetworkParameters network;
     public static final String TEMPLATE =
            /**/"-----BEGIN BITCOIN SIGNED MESSAGE-----\n" +
            /**/"%s\n" +
@@ -79,31 +78,37 @@ public class MessageSigningActivity extends Activity {
            /**/"%s\n" +
            /**/"-----END BITCOIN SIGNATURE-----";
 
-    public static void callMe(Context currentActivity, SingleAddressAccount account, AddressType addressType) {
-       InMemoryPrivateKey privateKey;
-       try {
-          privateKey = account.getPrivateKey(AesKeyCipher.defaultKeyCipher());
-       } catch (KeyCipher.InvalidKeyCipher e) {
-          throw new RuntimeException(e);
-       }
-       callMe(currentActivity, privateKey, addressType);
+    public static void callMe(Context currentActivity, WalletAccount focusedAccount) {
+        try {
+            if (focusedAccount instanceof HDAccount) {
+                Intent intent = new Intent(currentActivity, HDSigningActivity.class)
+                        .putExtra("account", focusedAccount.getId());
+                currentActivity.startActivity(intent);
+            } else {
+                InMemoryPrivateKey key = focusedAccount.getPrivateKey(AesKeyCipher.defaultKeyCipher());
+                callMe(currentActivity, key, focusedAccount.getReceiveAddress());
+            }
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            invalidKeyCipher.printStackTrace();
+        }
     }
 
-   public static void callMe(Context currentActivity, InMemoryPrivateKey key, AddressType addressType) {
-      Intent intent = new Intent(currentActivity, MessageSigningActivity.class);
-      String privKey = key.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
-      intent.putExtra(PRIVATE_KEY, privKey);
-      intent.putExtra(ADDRESS_TYPE, addressType);
-      currentActivity.startActivity(intent);
-   }
+    public static void callMe(Context currentActivity, InMemoryPrivateKey privateKey, GenericAddress address) {
+        String privKey = privateKey.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
+
+        Intent intent = new Intent(currentActivity, MessageSigningActivity.class)
+                .putExtra(PRIVATE_KEY, privKey)
+                .putExtra(ADDRESS, address);
+        currentActivity.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.sign_message);
         String encoded = getIntent().getStringExtra(PRIVATE_KEY);
-        final AddressType addressType = (AddressType) getIntent().getSerializableExtra(ADDRESS_TYPE);
-        network = MbwManager.getInstance(this).getNetwork();
+        final GenericAddress address = (GenericAddress) getIntent().getSerializableExtra(ADDRESS);
+        NetworkParameters network = MbwManager.getInstance(this).getNetwork();
         final InMemoryPrivateKey privateKey = new InMemoryPrivateKey(encoded, network);
 
         setContentView(R.layout.message_signing);
@@ -159,10 +164,8 @@ public class MessageSigningActivity extends Activity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                Address address = privateKey.getPublicKey().toAddress(network, addressType);
                 String body = String.format(TEMPLATE, messageText, address, base64Signature);
 
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
@@ -170,6 +173,5 @@ public class MessageSigningActivity extends Activity {
                 startActivity(Intent.createChooser(sharingIntent, getString(R.string.signed_message_share)));
             }
         });
-
     }
 }

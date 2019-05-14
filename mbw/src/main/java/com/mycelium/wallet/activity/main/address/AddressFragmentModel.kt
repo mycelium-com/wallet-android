@@ -4,20 +4,21 @@ import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
-import com.mrd.bitlib.model.Address
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
+import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
@@ -25,11 +26,13 @@ class AddressFragmentModel(
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
-    val accountLabel: MutableLiveData<String> = MutableLiveData()
+    val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<GenericAddress> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
     val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    var isCompressedKey: Boolean = true
+    val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
     init {
         updateLabel()
@@ -39,27 +42,33 @@ class AddressFragmentModel(
     }
 
     private fun updateAddressPath(showBip44Path: Boolean) {
-        addressPath.value =
-                when (showBip44Path && bip32Path.value != null) {
-                    true -> bip32Path.value.toString()
-                    false -> ""
-                }
+        addressPath.value = if (showBip44Path && bip32Path.value != null) {
+            bip32Path.value.toString()
+        } else {
+            ""
+        }
     }
 
     private fun updateLabel() {
         val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        accountLabel.value =
-                when (account) {
-                    is Bip44BCHAccount, is SingleAddressBCHAccount ->
-                        context.getString(R.string.bitcoin_cash) + " - " + label
-                    else -> label
-                }
+        val acc = account
+        isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
+        // Deprecated but not resolvable until we stop supporting API <24
+        accountLabel.value = Html.fromHtml(when (account) {
+            is Bip44BCHAccount,
+            is SingleAddressBCHAccount ->
+                context.getString(R.string.bitcoin_cash) + " - " + label
+            else -> label
+        })
     }
 
-    private fun updateAddress(account: WalletAccount<*,*>) {
-        if(account is WalletBtcAccount) {
-            bip32Path.value = account.receivingAddress.get().bip32Path
-            type.value = account.receivingAddress.get().type
+    private fun updateAddress(account: WalletAccount<*, *>) {
+        if (account is WalletBtcAccount) {
+            account.receivingAddress.orNull()?.let { address ->
+                bip32Path.value = address.bip32Path
+                type.value = address.type
+                accountAddressType.value = context.getString(address.type.asStringRes())
+            }
         }
         accountAddress.value = account.receiveAddress
     }
@@ -71,7 +80,9 @@ class AddressFragmentModel(
      * or because our HD Account received Coins and changed the Address
      */
     @Subscribe
-    fun receivingAddressChanged(event: ReceivingAddressChanged) = ::onAddressChange
+    fun receivingAddressChanged(event: ReceivingAddressChanged) {
+        onAddressChange()
+    }
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {

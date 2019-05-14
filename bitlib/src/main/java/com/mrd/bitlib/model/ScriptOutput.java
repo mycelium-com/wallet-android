@@ -29,21 +29,25 @@ public abstract class ScriptOutput extends Script {
       if (chunks == null) {
          return null;
       }
-      if (ScriptOutputStandard.isScriptOutputStandard(chunks)) {
-         return new ScriptOutputStandard(chunks, scriptBytes);
-      } else if (ScriptOutputPubkey.isScriptOutputPubkey(chunks)) {
-         return new ScriptOutputPubkey(chunks, scriptBytes);
-      } else if (ScriptOutputP2SH.isScriptOutputP2SH(chunks)) {
-         return new ScriptOutputP2SH(chunks, scriptBytes);
-      } else if (ScriptOutputMsg.isScriptOutputMsg(chunks)) {
-         return new ScriptOutputMsg(chunks, scriptBytes);
-      } else if (ScriptOutputOpReturn.isScriptOutputOpReturn(chunks)) {
-         return new ScriptOutputOpReturn(chunks, scriptBytes);
-      } else if (ScriptOutputP2WPKH.isScriptOutputP2WPKH(chunks)) {
+      if (ScriptOutputP2WPKH.isScriptOutputP2WPKH(chunks)) {
          return new ScriptOutputP2WPKH(chunks, scriptBytes);
-      } else {
-         return new ScriptOutputStrange(chunks, scriptBytes);
       }
+      if (ScriptOutputP2SH.isScriptOutputP2SH(chunks)) {
+         return new ScriptOutputP2SH(chunks, scriptBytes);
+      }
+      if (ScriptOutputP2PKH.isScriptOutputP2PKH(chunks)) {
+         return new ScriptOutputP2PKH(chunks, scriptBytes);
+      }
+      if (ScriptOutputOpReturn.isScriptOutputOpReturn(chunks)) {
+         return new ScriptOutputOpReturn(chunks, scriptBytes);
+      }
+      if (ScriptOutputPubkey.isScriptOutputPubkey(chunks)) {
+         return new ScriptOutputPubkey(chunks, scriptBytes);
+      }
+      if (ScriptOutputMsg.isScriptOutputMsg(chunks)) {
+         return new ScriptOutputMsg(chunks, scriptBytes);
+      }
+      return new ScriptOutputStrange(chunks, scriptBytes);
    }
 
    protected ScriptOutput(byte[] scriptBytes) {

@@ -19,9 +19,7 @@ package com.mrd.bitlib.util;
 import com.mrd.bitlib.model.CompactInt;
 
 public class ByteReader {
-
    public static class InsufficientBytesException extends Exception {
-
       private static final long serialVersionUID = 1L;
    }
 
@@ -49,26 +47,36 @@ public class ByteReader {
 
    public int getShortLE() throws InsufficientBytesException {
       checkAvailable(2);
-      return (((_buf[_index++] & 0xFF) << 0) | ((_buf[_index++] & 0xFF) << 8)) & 0xFFFF;
+      return (((_buf[_index++] & 0xFF)) |
+              ((_buf[_index++] & 0xFF) << 8)) & 0xFFFF;
    }
 
    public int getIntLE() throws InsufficientBytesException {
       checkAvailable(4);
-      return ((_buf[_index++] & 0xFF) << 0) | ((_buf[_index++] & 0xFF) << 8) | ((_buf[_index++] & 0xFF) << 16)
+      return ((_buf[_index++] & 0xFF)) |
+              ((_buf[_index++] & 0xFF) << 8) |
+              ((_buf[_index++] & 0xFF) << 16)
             | ((_buf[_index++] & 0xFF) << 24);
    }
 
    public int getIntBE() throws InsufficientBytesException {
       checkAvailable(4);
-      return ((_buf[_index++] & 0xFF) << 24) | ((_buf[_index++] & 0xFF) << 16) | ((_buf[_index++] & 0xFF) << 8)
-            | ((_buf[_index++] & 0xFF) << 0);
+      return ((_buf[_index++] & 0xFF) << 24) |
+              ((_buf[_index++] & 0xFF) << 16) |
+              ((_buf[_index++] & 0xFF) << 8) |
+              ((_buf[_index++] & 0xFF));
    }
 
    public long getLongLE() throws InsufficientBytesException {
       checkAvailable(8);
-      return ((_buf[_index++] & 0xFFL) << 0) | ((_buf[_index++] & 0xFFL) << 8) | ((_buf[_index++] & 0xFFL) << 16)
-            | ((_buf[_index++] & 0xFFL) << 24) | ((_buf[_index++] & 0xFFL) << 32) | ((_buf[_index++] & 0xFFL) << 40)
-            | ((_buf[_index++] & 0xFFL) << 48) | ((_buf[_index++] & 0xFFL) << 56);
+      return ((_buf[_index++] & 0xFFL)) |
+              ((_buf[_index++] & 0xFFL) << 8) |
+              ((_buf[_index++] & 0xFFL) << 16) |
+              ((_buf[_index++] & 0xFFL) << 24) |
+              ((_buf[_index++] & 0xFFL) << 32) |
+              ((_buf[_index++] & 0xFFL) << 40) |
+              ((_buf[_index++] & 0xFFL) << 48) |
+              ((_buf[_index++] & 0xFFL) << 56);
    }
 
    public byte[] getBytes(int size) throws InsufficientBytesException {
@@ -115,7 +123,7 @@ public class ByteReader {
       return _buf.length - _index;
    }
 
-   private final void checkAvailable(int num) throws InsufficientBytesException {
+   private void checkAvailable(int num) throws InsufficientBytesException {
       if (_buf.length - _index < num) {
          throw new InsufficientBytesException();
       }

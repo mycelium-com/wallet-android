@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
@@ -46,19 +47,18 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.MessageSigningActivity;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
 import java.util.List;
 import java.util.UUID;
 
 public class HDSigningActivity extends Activity {
-
    private static final LinearLayout.LayoutParams WCWC = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-
 
    private SigningClickListener _signingClickListener;
    private MbwManager _mbwManager;
@@ -78,8 +78,7 @@ public class HDSigningActivity extends Activity {
    }
 
    private void updateUi() {
-
-      LinearLayout addressView = (LinearLayout) findViewById(R.id.listPrivateKeyAddresses);
+      LinearLayout addressView = findViewById(R.id.listPrivateKeyAddresses);
       HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
 
       //sort addresses by alphabet for easier selection
@@ -99,16 +98,14 @@ public class HDSigningActivity extends Activity {
 
       // Add address chunks
       AddressLabel addressLabel = new AddressLabel(this);
-      addressLabel.setAddress(address);
+      addressLabel.setAddress(AddressUtils.fromAddress(address));
       ll.addView(addressLabel);
       //Make address clickable
       addressLabel.setOnClickListener(_signingClickListener);
       return ll;
    }
 
-
    private class SigningClickListener implements View.OnClickListener {
-
       @Override
       public void onClick(View v) {
          AddressLabel addressLabel = (AddressLabel) v;
@@ -117,12 +114,13 @@ public class HDSigningActivity extends Activity {
          }
          HDAccount account = (HDAccount) _mbwManager.getWalletManager(false).getAccount(_accountid);
          InMemoryPrivateKey key;
+         BtcAddress btcAddress = (BtcAddress)addressLabel.getAddress();
          try {
-            key = account.getPrivateKeyForAddress(addressLabel.getAddress(), AesKeyCipher.defaultKeyCipher());
+            key = account.getPrivateKeyForAddress(btcAddress.getAddress(), AesKeyCipher.defaultKeyCipher());
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }
-         MessageSigningActivity.callMe(HDSigningActivity.this, key, addressLabel.getAddress().getType());
+         MessageSigningActivity.callMe(HDSigningActivity.this, key, btcAddress);
       }
    }
 }

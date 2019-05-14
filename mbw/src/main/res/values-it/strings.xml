@@ -718,37 +718,7 @@
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Compra / Vendi bitcoin</string>
-    <string name="gd_buy_sell_description">Compra/vendi bitcoin da Glidera tramite conto bancario USA o Canadese.</string>
-    <string name="gd_buy_tab">Compra</string>
-    <string name="gd_sell_tab">Vendi</string>
-    <string name="gd_transaction_history_tab">Cronologia</string>
-    <string name="gd_delivery_date">Data di invio:</string>
-    <string name="gd_date">Data:</string>
-    <string name="gd_action">Azione:</string>
-    <string name="gd_amount">Importo:</string>
-    <string name="gd_pricing">Prezzi:</string>
-    <string name="gd_price">Prezzo:</string>
-    <string name="gd_status">Stato:</string>
-    <string name="gd_fee">Commissione:</string>
-    <string name="gd_total">Totale:</string>
-    <string name="gd_transaction_hash">Hash della transazione:</string>
-    <string name="gd_subtotal">Subtotale:</string>
-    <string name="gd_transaction_receipt">Ricevuta della transazione</string>
-    <string name="gd_transaction_error">Si è verificato un errore durante l\'elaborazione di questa transazione.  Si prega contattare il supporto Glidera all\'indirizzo support@glidera.io.</string>
-    <string name="gd_resend_code">Invia di nuovo il codice</string>
-    <string name="gd_cancel">Annulla</string>
-    <string name="gd_continue">Continua</string>
-    <string name="gd_amount_to_buy">Importo da comprare</string>
-    <string name="gd_sell_bitcoin">Vendi bitcoin</string>
-    <string name="gd_buy_bitcoin">Compra bitcoin</string>
-    <string name="gd_rate">Tasso:</string>
-    <string name="gd_summary">Riepilogo</string>
-    <string name="gd_amount_to_sell">Importo da vendere</string>
-    <string name="gd_loading">Caricamento&#8230;</string>
-    <string name="gd_error_unable_to_connect">Impossibile connettersi a Glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s per %2$s</string>
     <string name="error_details">Dettagli dell\'errore</string>
-    <string name="glidera_setting_show_button_summary">Visualizza l\'opzione di acquisto/vendita di Glidera</string>
     <!-- GlideraService End -->
     <string name="settings_service_enabled">Attiva %1$s</string>
     <!-- Simplex start -->

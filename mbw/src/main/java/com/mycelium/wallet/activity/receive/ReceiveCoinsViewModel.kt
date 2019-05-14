@@ -12,6 +12,8 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -37,7 +39,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         model.saveInstance(outState)
     }
 
-    abstract fun getHint(): String
+    open fun getHint() = context.getString(R.string.amount_hint_denomination,
+            mbwManager.denomination.getUnicodeString(account.coinType.symbol))
 
     abstract fun getFormattedValue(sum: Value): String
 
@@ -52,11 +55,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun isReceivingAmountWrong() = model.receivingAmountWrong
 
     fun getCurrentlyReceivingFormatted() = Transformations.map(model.receivingAmount) {
-        if (it != null) {
-            getFormattedValue(it)
-        } else {
-            getFormattedValue(Value.zeroValue(mbwManager.selectedAccount.coinType))
-        }
+        getFormattedValue(it ?: Value.zeroValue(mbwManager.selectedAccount.coinType))
     }
 
     fun getCurrentlyReceivingAmount() = model.receivingAmount
@@ -67,7 +66,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            it.toString()
+            it?.toStringWithUnit(mbwManager.denomination)
         } else {
             ""
         }
@@ -77,7 +76,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
-            "~ " + Utils.getFiatValueAsString(it!!.value, mbwManager.currencySwitcher.exchangeRatePrice) + " USD" //todo: make method in Utils
+            "~ " + it?.toStringWithUnit(mbwManager.denomination)
         } else {
             ""
         }
@@ -90,17 +89,17 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun getPaymentUri() = model.getPaymentUri()
 
     fun shareRequest() {
-        val s = Intent(Intent.ACTION_SEND)
-        s.type = "text/plain"
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
         if (Value.isNullOrZero(model.amount.value)) {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
-            s.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_bitcoin_address))
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.bitcoin_address_title))
+            intent.putExtra(Intent.EXTRA_TEXT, model.receivingAddress.value.toString())
+            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_bitcoin_address))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         } else {
-            s.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
-            s.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
-            context.startActivity(Intent.createChooser(s, context.getString(R.string.share_payment_request))
+            intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.payment_request))
+            intent.putExtra(Intent.EXTRA_TEXT, getPaymentUri())
+            context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_payment_request))
                     .addFlags(FLAG_ACTIVITY_NEW_TASK))
         }
     }
@@ -116,7 +115,13 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: Value) {
-        model.setAmount(amount)
+        if(amount.getType() == account.coinType) {
+            model.setAmount(amount)
+            model.setAlternativeAmount(mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency))
+        } else {
+            model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType))
+            model.setAlternativeAmount(amount)
+        }
     }
 
     fun onEnterClick(activity: AppCompatActivity) {

@@ -25,7 +25,6 @@ class ReceiveCoinsModel(
         val context: Application,
         val account: WalletAccount<*, *>,
         private val accountLabel: String,
-        val havePrivateKey: Boolean,
         showIncomingUtxo: Boolean = false
 ) {
     val amount: MutableLiveData<Value?> = MutableLiveData()
@@ -62,27 +61,34 @@ class ReceiveCoinsModel(
     }
 
     fun setAmount(newAmount: Value) {
-        if (!Value.isNullOrZero(newAmount)) {
-            alternativeAmountData.value = newAmount
-            amount.value = newAmount
+        amount.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            amount.value = null
-            alternativeAmountData.value = null
+            null
+        }
+    }
+
+    fun setAlternativeAmount(newAmount: Value) {
+        alternativeAmountData.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
+        } else {
+            null
         }
     }
 
     fun getPaymentUri(): String {
-        val prefix = accountLabel
-
-        val uri = StringBuilder(prefix).append(':')
-        uri.append(receivingAddress.value)
+        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val uri = StringBuilder(prefix)
+                .append(':')
+                .append(receivingAddress.value)
         if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.toPlainString())
+                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+
                 if (value != null) {
-                    uri.append("?amount=").append(value.valueAsBigDecimal.toPlainString())
+                    uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
@@ -122,17 +128,17 @@ class ReceiveCoinsModel(
         var sum = if (interesting.isEmpty()) {
             null
         } else {
-            if (interesting.first().isIncoming) interesting.first().received else interesting.first().sent
+            interesting.first().transferred.abs()
         }
-        interesting.drop(1).forEach { sum = sum!!.add(if (it.isIncoming) it.received else it.sent) }
+        interesting.drop(1).forEach { sum = sum!!.add(it.transferred.abs())}
         receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 
         if (!Value.isNullOrZero(amount.value) && sum != null) {
             // if the user specified an amount, check it if it matches up...
-            receivingAmountWrong.value = sum!! != amount.value
+            receivingAmountWrong.value = sum!! != Value.valueOf(account.coinType, amount.value!!.value)
             if (sum != lastAddressBalance) {
-                //makeNotification(sum)
+                makeNotification(sum)
             }
         }
     }
@@ -140,16 +146,15 @@ class ReceiveCoinsModel(
     private fun makeNotification(sum: Value?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
-        val mBuilder = NotificationCompat.Builder(context) //TODO api 28 change, broken.
+        val mBuilder = NotificationCompat.Builder(context, "coins received channel")
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setSound(soundUri, AudioManager.STREAM_NOTIFICATION) //This sets the sound to play
         notificationManager!!.notify(0, mBuilder.build())
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<out GenericTransaction>) =
-            transactionsSince.filter { tx -> tx.outputs.contains(GenericTransaction.GenericOutput(receivingAddress.value,
-                    if (tx.isIncoming) tx.received else tx.sent)) }
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransaction>) =
+            transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

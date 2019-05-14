@@ -2,23 +2,34 @@ package com.mycelium.wallet.paymentrequest;
 
 import android.os.AsyncTask;
 import android.os.Build;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.BitcoinUri;
-import com.squareup.okhttp.*;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.WithCallback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import com.squareup.otto.Bus;
 import com.squareup.wire.Wire;
-import org.bitcoin.protocols.payments.*;
+
+import org.bitcoin.protocols.payments.Payment;
+import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.*;
-import java.security.cert.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 public class PaymentRequestHandler {
    public static final String MIME_PAYMENTREQUEST = "application/bitcoin-paymentrequest";
@@ -34,7 +45,7 @@ public class PaymentRequestHandler {
       this.networkParameters = networkParameters;
    }
 
-   public void fetchPaymentRequest(final BitcoinUri uri) {
+   public void fetchPaymentRequest(final GenericAssetUri uri) {
       if (hasValidPaymentRequest()) {
          // dont refresh from the server, if we already have fetched it
          eventBus.post(paymentRequestInformation);
@@ -103,20 +114,21 @@ public class PaymentRequestHandler {
    }
 
 
-   public PaymentRequestInformation fromBitcoinUri(BitcoinUri bitcoinUri) {
-      Preconditions.checkNotNull(bitcoinUri.callbackURL);
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(bitcoinUri.callbackURL));
+   public PaymentRequestInformation fromBitcoinUri(GenericAssetUri assetUri) {
+      WithCallback withCallback = (WithCallback) assetUri;
+      Preconditions.checkNotNull(withCallback.getCallbackURL());
+      Preconditions.checkArgument(!Strings.isNullOrEmpty(withCallback.getCallbackURL()));
 
       // try to get the payment request from the server
-      PaymentRequestInformation paymentRequestInformation = fromCallback(bitcoinUri.callbackURL);
+      PaymentRequestInformation paymentRequestInformation = fromCallback(withCallback.getCallbackURL());
 
       // if the BIP21-URI has an amount specified, check it if it matches the payment-request amount
-      boolean hasBip21Amount = bitcoinUri.amount != null && bitcoinUri.amount > 0;
+      boolean hasBip21Amount = assetUri.getValue() != null && assetUri.getValue().isPositive();
       boolean hasBip70Amount = paymentRequestInformation.hasAmount();
       if (hasBip21Amount && hasBip70Amount) {
          final long totalAmount = paymentRequestInformation.getOutputs().getTotalAmount();
-         if (bitcoinUri.amount != totalAmount) {
-            throw new PaymentRequestException(String.format("Uri amount does not match payment request amount, %d vs. %d", bitcoinUri.amount, totalAmount));
+         if (assetUri.getValue().value != totalAmount) {
+            throw new PaymentRequestException(String.format("Uri amount does not match payment request amount, %d vs. %d", assetUri.getValue().value, totalAmount));
          }
       }
       return paymentRequestInformation;

@@ -81,6 +81,7 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.TradeSessionChangeMonitor;
@@ -92,7 +93,13 @@ import com.mycelium.wallet.lt.api.DeleteTradeHistory;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -106,6 +113,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TradeActivity extends Activity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
@@ -155,18 +163,18 @@ public class TradeActivity extends Activity {
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();
 
-      _btRefresh = (Button) findViewById(R.id.btRefresh);
-      _btChangePrice = (Button) findViewById(R.id.btChangePrice);
-      _etMessage = (EditText) findViewById(R.id.etMessage);
-      _btSendMessage = (ImageButton) findViewById(R.id.btSendMessage);
-      _btAccept = (Button) findViewById(R.id.btAccept);
-      _btCashReceived = (Button) findViewById(R.id.btCashReceived);
-      _btAbort = (Button) findViewById(R.id.btAbort);
-      _tvStatus = (TextView) findViewById(R.id.tvStatus);
-      _tvOldStatus = (TextView) findViewById(R.id.tvOldStatus);
+      _btRefresh = findViewById(R.id.btRefresh);
+      _btChangePrice = findViewById(R.id.btChangePrice);
+      _etMessage = findViewById(R.id.etMessage);
+      _btSendMessage = findViewById(R.id.btSendMessage);
+      _btAccept = findViewById(R.id.btAccept);
+      _btCashReceived = findViewById(R.id.btCashReceived);
+      _btAbort = findViewById(R.id.btAbort);
+      _tvStatus = findViewById(R.id.tvStatus);
+      _tvOldStatus = findViewById(R.id.tvOldStatus);
       _flConfidence = findViewById(R.id.flConfidence);
-      _pbConfidence = (ProgressBar) findViewById(R.id.pbConfidence);
-      _tvConfidence = (TextView) findViewById(R.id.tvConfidence);
+      _pbConfidence = findViewById(R.id.pbConfidence);
+      _tvConfidence = findViewById(R.id.tvConfidence);
 
       _btRefresh.setOnClickListener(refreshClickListener);
       _btChangePrice.setOnClickListener(changePriceClickListener);
@@ -189,7 +197,7 @@ public class TradeActivity extends Activity {
 
       _chatAdapter = new ChatAdapter(this, new ArrayList<ChatEntry>());
 
-      _lvChat = (ListView) findViewById(R.id.lvChat);
+      _lvChat = findViewById(R.id.lvChat);
       _lvChat.setAdapter(_chatAdapter);
       //to follow urls
       _lvChat.setOnItemClickListener(chatItemClickListener);
@@ -238,10 +246,11 @@ public class TradeActivity extends Activity {
    }
 
    private ChatMessageEncryptionKey getChatMessageEncryptionKey() {
-      Preconditions.checkState(_tradeSession != null);
+      checkNotNull(_tradeSession);
       if (_key == null) {
          PublicKey foreignPublicKey = _tradeSession.isOwner ? _tradeSession.peerPublicKey
                : _tradeSession.ownerPublicKey;
+         checkNotNull(foreignPublicKey);
          _key = _ltManager.generateChatMessageEncryptionKey(foreignPublicKey, _tradeSession.id);
       }
       return _key;
@@ -268,13 +277,12 @@ public class TradeActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          // if we are a buyer, verify that the address is still in our wallet and spendable
-      /* TODO - should be fixed in order to switch to multi-currency architecture
          if (_tradeSession.isBuyer) {
             final WalletManager walletManager = _mbwManager.getWalletManager(false);
-            final Optional<UUID> accountByAddress = walletManager.getAccountByAddress(_tradeSession.buyerAddress);
-            if (!accountByAddress.isPresent()
-                  || !walletManager.hasAccount(accountByAddress.get())
-                  || !walletManager.getAccount(accountByAddress.get()).canSpend()) {
+            final UUID accountByAddress = walletManager.getAccountByAddress(new BtcAddress(Utils.getBtcCoinType(), _tradeSession.buyerAddress));
+            if (accountByAddress == null
+                  || !walletManager.hasAccount(accountByAddress)
+                  || !walletManager.getAccount(accountByAddress).canSpend()) {
 
                new AlertDialog.Builder(TradeActivity.this)
                      .setMessage(String.format(getString(R.string.lt_warn_account_not_spandable), _tradeSession.buyerAddress))
@@ -290,7 +298,7 @@ public class TradeActivity extends Activity {
                            // if the current selected account is also not spendable, try to select the first
                            // spendable one - there should always at least one HD account be available
                            if (!_mbwManager.getSelectedAccount().canSpend()) {
-                              final List<WalletAccount> spendingAccounts = walletManager.getSpendingAccounts();
+                              final List<WalletAccount<?, ?>> spendingAccounts = walletManager.getSpendingAccounts();
                               if (spendingAccounts.size() > 0) {
                                  _mbwManager.setSelectedAccount(spendingAccounts.get(0).getId());
                               }
@@ -308,7 +316,6 @@ public class TradeActivity extends Activity {
          } else {
             doAcceptTrade();
          }
-         */
       }
    };
 
@@ -361,14 +368,16 @@ public class TradeActivity extends Activity {
    }
 
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
-      Preconditions.checkNotNull(ts.buyerAddress);
+      checkNotNull(ts.buyerAddress);
       WalletAccount acc = mbwManager.getSelectedAccount();
 
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, _ltManager.getMinerFeeEstimation().getLongValue());
-      // TODO: 9/19/18 Nuru commented this
-//      SignTransactionActivity.callMe(this, mbwManager.getSelectedAccount().getId(), false, unsigned, SIGN_TX_REQUEST_CODE);
+            ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
+      CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+      BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsigned);
+      Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+      startActivityForResult(intent, SIGN_TX_REQUEST_CODE);
    }
 
 
@@ -473,7 +482,7 @@ public class TradeActivity extends Activity {
       @Override
       public void onItemClick(AdapterView<?> adapter, View view, int arg2, long arg3) {
          if (view != null) {
-            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            TextView tvMessage = view.findViewById(R.id.tvMessage);
             if (tvMessage != null) {
                String text = tvMessage.getText().toString();
                Uri uri = getUriFromAnyText(text);
@@ -522,7 +531,7 @@ public class TradeActivity extends Activity {
       @Override
       public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
          if (view != null) {
-            TextView tvMessage = (TextView) view.findViewById(R.id.tvMessage);
+            TextView tvMessage = view.findViewById(R.id.tvMessage);
             if (tvMessage != null) {
                String text = tvMessage.getText().toString();
                //set the message to clipboard
@@ -716,14 +725,14 @@ public class TradeActivity extends Activity {
 
          if (v == null) {
             LayoutInflater vi = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = Preconditions.checkNotNull(vi.inflate(R.layout.lt_chat_entry_row, null));
+            v = checkNotNull(vi.inflate(R.layout.lt_chat_entry_row, null));
          }
          ChatEntry o = getItem(position);
 
          addDateString(v, o);
 
          // Message text and color
-         TextView tvMessage = (TextView) v.findViewById(R.id.tvMessage);
+         TextView tvMessage = v.findViewById(R.id.tvMessage);
          String text;
          int color;
          // Message Color
@@ -759,8 +768,8 @@ public class TradeActivity extends Activity {
          tvMessage.setText(text);
          v.setBackgroundColor(color);
 
-         LinearLayout llExtra = (LinearLayout) v.findViewById(R.id.llExtra);
-         ImageView ivExtra = (ImageView) v.findViewById(R.id.ivExtra);
+         LinearLayout llExtra = v.findViewById(R.id.llExtra);
+         ImageView ivExtra = v.findViewById(R.id.ivExtra);
          if (o.subtype == ChatEntry.EVENT_SUBTYPE_CASH_ONLY_WARNING) {
             llExtra.setVisibility(View.VISIBLE);
             ivExtra.setImageResource(R.drawable.lt_local_only_warning);
@@ -790,7 +799,7 @@ public class TradeActivity extends Activity {
        * @param chatEntry    the ChatEntry
        */
       private void addDateString(View chatEntryRow, ChatEntry chatEntry) {
-         TextView tvDate = (TextView) chatEntryRow.findViewById(R.id.tvDate);
+         TextView tvDate = chatEntryRow.findViewById(R.id.tvDate);
          long unixTime = chatEntry.time;
          if (unixTime > 0) {
             // we have a date
@@ -859,7 +868,8 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            Transaction tx = (Transaction) intent.getSerializableExtra("signedTx");
+            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+            Transaction tx = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
             if (tx == null) {
                Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
                return;

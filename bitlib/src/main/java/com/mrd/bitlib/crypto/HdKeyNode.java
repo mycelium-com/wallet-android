@@ -34,15 +34,12 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import org.jetbrains.annotations.Nullable;
 
-import static com.mrd.bitlib.util.HexUtils.toBytes;
-
 /**
  * Implementation of BIP 32 HD wallet key derivation.
  * <p>
  * https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
  */
 public class HdKeyNode implements Serializable {
-
    public static final int HARDENED_MARKER = 0x80000000;
    private BipDerivationType derivationType;
 

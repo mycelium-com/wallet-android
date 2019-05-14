@@ -1,14 +1,15 @@
 package com.mycelium.wapi.wallet.coinapult
 
+import com.coinapult.api.httpclient.AccountInfo
 import com.coinapult.api.httpclient.CoinapultClient
 import com.coinapult.api.httpclient.SearchMany
 import com.coinapult.api.httpclient.Transaction
+import com.google.api.client.http.HttpResponseException
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcLegacyAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import java.io.IOException
@@ -18,6 +19,11 @@ import java.security.NoSuchAlgorithmException
 
 
 class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : CoinapultApi {
+    data class Entry(override val key: Long, override val value: MutableList<AccountInfo.Balance>?)
+        : Map.Entry<Long, MutableList<AccountInfo.Balance>?>
+
+    var lastInfo: Entry = Entry(0, null)
+
     override fun setMail(mail: String): Boolean {
         try {
             val result = client.setMail(mail)
@@ -45,41 +51,60 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
 
     override fun getAddress(currency: Currency, currentAddress: GenericAddress?): GenericAddress? {
         var address: GenericAddress? = null
-        if (currentAddress == null) {
-            address = BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
-        } else {
-            val criteria = HashMap<String, String>(1)
-            criteria["to"] = address.toString()
-            val search = client.search(criteria)
-            val alreadyUsed = search.containsKey("transaction_id")
-            if (alreadyUsed) {
-                // get a new one
-                address = BtcLegacyAddress(currency, Address.fromString(client.bitcoinAddress.address).allAddressBytes)
+        try {
+            if (currentAddress == null) {
+                address = BtcAddress(currency, Address.fromString(client.bitcoinAddress.address))
             } else {
-                address = currentAddress
+                val criteria = HashMap<String, String>(1)
+                criteria["to"] = address.toString()
+                val search = client.search(criteria)
+                val alreadyUsed = search.containsKey("transaction_id")
+                address = if (alreadyUsed) {
+                    // get a new one
+                    BtcAddress(currency, Address.fromString(client.bitcoinAddress.address))
+                } else {
+                    currentAddress
+                }
+                client.config(address.toString(), currency.name)
             }
-            client.config(address.toString(), currency.name)
+        } catch (e: IOException) {
+
         }
         return address
     }
 
     override fun getBalance(currency: Currency): Balance? {
         try {
-            val balance = client.accountInfo().balances
-            val filters = balance.filter {
-                it.currency == currency.name
-            }
-            if (filters.isNotEmpty()) {
-                return Balance(Value.valueOf(currency
-                        , filters[0].amount.multiply(BigDecimal.TEN.pow(currency.getUnitExponent())).toLong())
-                        , Value.zeroValue(currency), Value.zeroValue(currency), Value.zeroValue(currency))
+            val balance = lastInfo()
+            if (balance != null) {
+                val filters = balance.filter {
+                    it.currency == currency.name
+                }
+                if (filters.isNotEmpty()) {
+                    return Balance(Value.valueOf(currency
+                            , filters[0].amount.multiply(BigDecimal.TEN.pow(currency.unitExponent)).toLong())
+                            , Value.zeroValue(currency), Value.zeroValue(currency), Value.zeroValue(currency))
+                }
             }
         } catch (e: CoinapultClient.CoinapultBackendException) {
             logger.logError("CoinapultApiImpl error while getting balance", e)
         } catch (e: SocketTimeoutException) {
             logger.logError("CoinapultApiImpl error while getting balance", e)
+        } catch (e: HttpResponseException) {
+            logger.logError("CoinapultApiImpl error while getting balance", e)
         }
         return null
+    }
+
+    private fun lastInfo(): MutableList<AccountInfo.Balance>? {
+        val balance = if (System.currentTimeMillis() - lastInfo.key > 10000 || lastInfo.value == null)
+            client.accountInfo().balances
+        else
+            lastInfo.value
+        if (balance != null) {
+            lastInfo = Entry(System.currentTimeMillis(), balance)
+        }
+        return balance
     }
 
     override fun getTransactions(currency: Currency): List<CoinapultTransaction>? {
@@ -113,9 +138,12 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
                 val txCurrency = Currency.all[half.currency]!!
                 if (currency == txCurrency) {
                     val data = it.tid.toByteArray().plus(ByteArray(Sha256Hash.HASH_LENGTH - it.tid.toByteArray().size))
-                    tmpResult.add(CoinapultTransaction(Sha256Hash.of(data)
+
+                    val tx = CoinapultTransaction(Sha256Hash.of(data)
                             , Value.valueOf(currency, half.amount.multiply(BigDecimal.TEN.pow(currency.unitExponent)).toLong())
-                            , isIncoming, it.completeTime, it.state, it.timestamp))
+                            , isIncoming, it.completeTime, it.state, it.timestamp)
+                    tx.debugInfo = it.toString()
+                    tmpResult.add(tx)
                 }
             }
         }

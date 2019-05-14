@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -19,12 +20,12 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     protected CryptoCurrency type;
     protected Sha256Hash hash;
     private Transaction tx;
-    protected Value valueSent;
-    protected Value valueReceived;
-    protected Value value;
-    protected int timestamp;
+    protected Value transferred;
+    protected long timestamp;
+    protected GenericAddress destinationAddress;
     protected ArrayList<GenericInput> inputs;
     protected ArrayList<GenericOutput> outputs;
+    protected int height;
     protected int confirmations;
     protected int rawSize;
     protected boolean isQueuedOutgoing;
@@ -36,12 +37,12 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
-        this.valueSent = Value.zeroValue(type);
-        this.valueReceived = Value.zeroValue(type);
-        this.value = Value.zeroValue(type);
+        this.transferred = Value.zeroValue(type);
         this.timestamp = 0;
+        this.height = 0;
         this.confirmations = 0;
         this.isQueuedOutgoing = false;
+        this.destinationAddress = null;
         this.inputs = new ArrayList<>();
         this.outputs = new ArrayList<>();
         this.confirmationRiskProfile = null;
@@ -50,19 +51,19 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long valueSent, long valueReceived, int timestamp, int confirmations,
-                          boolean isQueuedOutgoing, ArrayList<GenericInput> inputs,
+                          long transferred, long timestamp, int height, int confirmations,
+                          boolean isQueuedOutgoing, GenericAddress destinationAddress, ArrayList<GenericInput> inputs,
                           ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
                           int rawSize, @Nullable Value fee) {
         this.type = type;
         this.tx = transaction;
         this.hash = tx.getId();
-        this.valueSent = Value.valueOf(type, valueSent);
-        this.valueReceived = Value.valueOf(type, valueReceived);
-        this.value = this.valueReceived.subtract(this.valueSent);
+        this.transferred = Value.valueOf(type, transferred);
         this.timestamp = timestamp;
         this.confirmations = confirmations;
+        this.height = height;
         this.isQueuedOutgoing = isQueuedOutgoing;
+        this.destinationAddress = destinationAddress;
         this.inputs = inputs;
         this.outputs = outputs;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
@@ -83,22 +84,13 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return confirmations;
     }
 
     @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-        this.confirmations = appearedAtChainHeight;
-    }
-
-    @Override
-    public int getDepthInBlocks() {
-        return 0;
-    }
-
-    @Override
-    public void setDepthInBlocks(int depthInBlocks) {
+    public int getHeight() {
+        return height;
     }
 
     @Override
@@ -107,7 +99,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -129,18 +121,18 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public Value getSent() {
-        return valueSent;
+    public GenericAddress getDestinationAddress() {
+        return destinationAddress;
     }
 
     @Override
-    public Value getReceived() {
-        return valueReceived;
+    public Value getTransferred() {
+        return transferred;
     }
 
     @Override
     public boolean isIncoming() {
-        return value.value >= 0;
+        return transferred.value >= 0;
     }
 
     @Override
@@ -149,20 +141,23 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     }
 
     @Override
-    public Sha256Hash getHash() {
-        // TODO: Find out should we return tx.getHash() or tx.getId().
-        // This is related with latest SEGWIT changes
+    public Sha256Hash getId() {
         return tx.getId();
     }
 
     @Override
     public String getHashAsString() {
-        return getHash().toString();
+        return tx.getHash().toString();
     }
 
     @Override
     public byte[] getHashBytes() {
-        return getHash().getBytes();
+        return tx.getHash().getBytes();
+    }
+
+    @Override
+    public byte[] getTxBytes() {
+        return tx.toBytes(true);
     }
 
     @Override
@@ -175,7 +170,7 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BtcTransaction other = (BtcTransaction) o;
-        return getHash().equals(other.getHash());
+        return getId().equals(other.getId());
     }
 
     public Transaction getRawTransaction() {

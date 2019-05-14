@@ -716,20 +716,6 @@
     <!-- Credit Card -->
     <!-- Credit Card End-->
     <!-- GlideraService Start -->
-    <string name="gd_buy_tab">Comprar</string>
-    <string name="gd_sell_tab">Vender</string>
-    <string name="gd_transaction_history_tab">Historial</string>
-    <string name="gd_date">Fecha:</string>
-    <string name="gd_action">Acción:</string>
-    <string name="gd_amount">Cantidad:</string>
-    <string name="gd_price">Precio:</string>
-    <string name="gd_status">Estado:</string>
-    <string name="gd_cancel">Cancelar</string>
-    <string name="gd_continue">Continuar</string>
-    <string name="gd_amount_to_buy">Cantidad a comprar</string>
-    <string name="gd_sell_bitcoin">Vender Bitcoin</string>
-    <string name="gd_buy_bitcoin">Comprar Bitcoin</string>
-    <string name="gd_summary">Resumen</string>
     <string name="error_details">Detalles del error</string>
     <!-- GlideraService End -->
     <!-- Simplex start -->

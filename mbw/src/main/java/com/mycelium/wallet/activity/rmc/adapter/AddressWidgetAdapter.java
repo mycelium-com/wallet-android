@@ -14,7 +14,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.colu.ColuPubOnlyAccount;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -38,7 +38,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
     private MbwManager mbwManager;
     private BtcPoolStatisticsManager.PoolStatisticInfo poolStatisticInfo;
     private SharedPreferences sharedPreferences;
-    private ColuPubOnlyAccount coluAccount;
+    private PublicColuAccount coluAccount;
 
     private int angle = 0;
     private float value = 0;
@@ -50,8 +50,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
         this.mbwManager = mbwManager;
         sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
         WalletAccount account = mbwManager.getSelectedAccount();
-        if(account instanceof ColuPubOnlyAccount) {
-            coluAccount = (ColuPubOnlyAccount) mbwManager.getSelectedAccount();
+        if(account instanceof PublicColuAccount) {
+            coluAccount = (PublicColuAccount) mbwManager.getSelectedAccount();
 
 
             poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
@@ -207,11 +207,6 @@ public class AddressWidgetAdapter extends PagerAdapter {
             String name = mbwManager.getMetadataStorage().getLabelByAccount(mbwManager.getSelectedAccount().getId());
             tvLabel.setText(name);
             tvAddress.setText(mbwManager.getSelectedAccount().getReceiveAddress().toString());
-//            AssetMetadata assetMetadata = mbwManager.getColuManager().getAssetMetadata(ColuAccount.ColuAssetType.RMC);
-//            tvTotalIssued.setText(assetMetadata != null ?
-//                    assetMetadata.getTotalSupply().stripTrailingZeros().toPlainString()
-//                    : context.getString(R.string.not_available));
-
             if (poolStatisticInfo != null) {
                 if (poolStatisticInfo.totalRmcHashrate != 0) {
                     // peta flops
@@ -233,9 +228,9 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
     class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
 
-        private ColuPubOnlyAccount coluAccount;
+        private PublicColuAccount coluAccount;
 
-        public BtcPoolStatisticsTask(ColuPubOnlyAccount coluAccount) {
+        public BtcPoolStatisticsTask(PublicColuAccount coluAccount) {
             this.coluAccount = coluAccount;
         }
 

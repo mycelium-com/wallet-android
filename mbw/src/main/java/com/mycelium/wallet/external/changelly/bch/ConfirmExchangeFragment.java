@@ -24,14 +24,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
-import com.mrd.bitlib.model.Address;
-import com.mycelium.spvmodule.IntentContract;
-import com.mycelium.spvmodule.TransactionFee;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.WalletApplication;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.SpvSendFundsResult;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyTransaction;
@@ -40,12 +37,10 @@ import com.mycelium.wallet.external.changelly.ExchangeLoggingService;
 import com.mycelium.wallet.external.changelly.model.Order;
 import com.mycelium.wallet.pdf.BCHExchangeReceiptBuilder;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyValue;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -78,7 +73,6 @@ import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
-import static com.mycelium.wapi.wallet.btc.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
 
 public class ConfirmExchangeFragment extends Fragment {
     public static final String TAG = "BCHExchange";
@@ -165,6 +159,7 @@ public class ConfirmExchangeFragment extends Fragment {
                     e.printStackTrace();
                 }
 
+                /*
                 Intent service;
                 if(fromAccount instanceof Bip44BCHAccount){
                         Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) fromAccount;
@@ -180,12 +175,12 @@ public class ConfirmExchangeFragment extends Fragment {
                         SingleAddressBCHAccount singleAddressAccount = (SingleAddressBCHAccount) fromAccount;
                         service = IntentContract.SendFundsUnrelated.createIntent(lastOperationId, singleAddressAccount.getId().toString(), payAddress, fromValue, TransactionFee.NORMAL, 1.0f, IntentContract.UNRELATED_ACCOUNT_TYPE_SA);
                         WalletApplication.sendToSpv(service, SingleAddressBCHAccount.class);
-
                 }
                 progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setIndeterminate(true);
                 progressDialog.setMessage(getString(R.string.sending, "..."));
                 progressDialog.show();
+                */
             }
         });
     }
@@ -208,8 +203,8 @@ public class ConfirmExchangeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fromAddress.setText(((Address)((WalletBtcAccount)(fromAccount)).getReceivingAddress().get()).getShortAddress());
-        toAddress.setText(((Address)(((WalletBtcAccount)toAccount)).getReceivingAddress().get()).getShortAddress());
+        fromAddress.setText(((WalletBtcAccount)fromAccount).getReceivingAddress().get().getShortAddress());
+        toAddress.setText((((WalletBtcAccount)toAccount)).getReceivingAddress().get().getShortAddress());
 
         fromLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(fromAccount.getId()));
         toLabel.setText(mbwManager.getMetadataStorage().getLabelByAccount(toAccount.getId()));
@@ -223,14 +218,14 @@ public class ConfirmExchangeFragment extends Fragment {
 
     private void updateRate() {
         if (offer != null) {
-            CurrencyValue currencyValueTo = null;
+            Value currencyValueTo = null;
             try {
-                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                        ExactBitcoinValue.from(new BigDecimal(toValue)));
+                Value btcValue = Utils.getBtcCoinType().value(toValue);
+                currencyValueTo = mbwManager.getCurrencySwitcher().getAsFiatValue(btcValue);
             } catch (NumberFormatException ignore) {
             }
-            if (currencyValueTo != null && currencyValueTo.getValue() != null) {
-                toFiat.setText(ABOUT + Utils.formatFiatWithUnit(currencyValueTo));
+            if (currencyValueTo != null) {
+                toFiat.setText(ABOUT + ValueExtensionsKt.toStringWithUnit(currencyValueTo));
                 toFiat.setVisibility(View.VISIBLE);
             } else {
                 toFiat.setVisibility(View.INVISIBLE);
@@ -362,7 +357,6 @@ public class ConfirmExchangeFragment extends Fragment {
             }
         });
         downloadConfirmationDialog = new AlertDialog.Builder(getActivity(), R.style.MyceliumModern_Dialog)
-
                 .setView(view)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override

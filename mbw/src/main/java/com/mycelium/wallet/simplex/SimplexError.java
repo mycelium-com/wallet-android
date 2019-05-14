@@ -2,13 +2,12 @@ package com.mycelium.wallet.simplex;
 
 import android.os.Handler;
 
-/**
- * Created by tomb on 11/23/16.
- */
-
 public class SimplexError {
+    public final Handler handler;
+    public final String message;
 
-    public Handler activityHandler;
-
-    public String message;
+    public SimplexError(Handler handler, String message) {
+        this.handler = handler;
+        this.message = message;
+    }
 }

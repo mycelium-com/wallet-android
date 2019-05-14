@@ -57,6 +57,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -76,10 +77,11 @@ import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
-import com.mycelium.wallet.external.glidera.activities.GlideraSendToNextStep;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.PrivateKeyUri;
+import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -103,11 +105,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
 
-   private static final String URI_HOST_GLIDERA_REGISTRATION = "glideraRegistration";
    private static final String LAST_STARTUP_TIME = "startupTme";
 
-   private boolean _hasClipboardExportedPrivateKeys;
-   private boolean hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -138,7 +137,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    @Override
    protected void onStart() {
       super.onStart();
-      eventBus = _mbwManager.getEventBus();
+      eventBus = MbwManager.getEventBus();
       eventBus.register(this);
       new Thread(delayedInitialization).start();
    }
@@ -216,33 +215,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
                  .putLong(LAST_STARTUP_TIME, timeSpent)
                  .apply();
       }
-
-      private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
-         // do we have a private key on the clipboard?
-         try {
-            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
-
-      private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
-         // do we have a public key on the clipboard?
-         try {
-            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
-               return true;
-            }
-            HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
-            return true;
-         } catch (HdKeyNode.KeyGenerationException ex) {
-            return false;
-         }
-      }
    };
 
    private void initMasterSeed() {
@@ -308,11 +280,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         MbwManager.getEventBus().post(new AccountCreated(accountid));
          //finish initialization
          activity.delayedFinish.run();
       }
    }
-
 
    /**
     * This is used to create an account if it failed to be created in ConfigureSeedAsyncTask.
@@ -392,16 +364,15 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+         boolean _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         boolean hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
 
          if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys(false);
          }
-         else if ( _hasClipboardExportedPrivateKeys) {
+         else if (_hasClipboardExportedPrivateKeys) {
             warnUserOnClipboardKeys(true);
          }
          else {
@@ -435,7 +406,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return false;
          }
       }
-
    };
 
    private void warnUserOnClipboardKeys(boolean isPrivate) {
@@ -533,15 +503,9 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private void handleMyceliumUri(Uri intentUri) {
       final String host = intentUri.getHost();
-      if (host.equals(URI_HOST_GLIDERA_REGISTRATION)) {
-         Intent glideraIntent = new Intent(this, GlideraSendToNextStep.class);
-         glideraIntent.putExtra("uri", intentUri.toString());
-         startActivity(glideraIntent);
-      } else {
-         // If we dont understand the url, just call the balance screen
-         Intent balanceIntent = new Intent(this, ModernMain.class);
-         startActivity(balanceIntent);
-      }
+      // If we dont understand the url, just call the balance screen
+      Intent balanceIntent = new Intent(this, ModernMain.class);
+      startActivity(balanceIntent);
       // close the startup activity to not pollute the backstack
       finish();
    }
@@ -573,7 +537,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
-      MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
+      MbwManager mbwManager = MbwManager.getInstance(getApplication());
       GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
@@ -587,7 +551,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          final PrivateKeyUri privateKeyUri = (PrivateKeyUri) uri;
          DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.getKeyString(), StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         if (uri.getAddress() == null /*&& Strings.isNullOrEmpty(uri.callbackURL) TODO implement correct check*/) {
+         if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
             // Invalid Bitcoin URI
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();

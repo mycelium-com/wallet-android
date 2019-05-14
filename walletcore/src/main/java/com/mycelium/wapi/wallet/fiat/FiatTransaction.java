@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.fiat;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -17,7 +18,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public Sha256Hash getHash() {
+    public Sha256Hash getId() {
         return null;
     }
 
@@ -32,23 +33,18 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public int getDepthInBlocks() {
+    public byte[] getTxBytes() {
+        return null;
+    }
+
+    @Override
+    public int getHeight() {
         return 0;
     }
 
     @Override
-    public void setDepthInBlocks(int depthInBlocks) {
-
-    }
-
-    @Override
-    public int getAppearedAtChainHeight() {
+    public int getConfirmations() {
         return 0;
-    }
-
-    @Override
-    public void setAppearedAtChainHeight(int appearedAtChainHeight) {
-
     }
 
     @Override
@@ -57,9 +53,7 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public void setTimestamp(int timestamp) {
-
-    }
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public boolean isQueuedOutgoing() {
@@ -69,10 +63,6 @@ public class FiatTransaction implements GenericTransaction {
     @Override
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return null;
-    }
-
-    public void setTimestamp(long timestamp) {
-
     }
 
     @Override
@@ -91,12 +81,12 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
-    public Value getSent() {
+    public GenericAddress getDestinationAddress() {
         return null;
     }
 
     @Override
-    public Value getReceived() {
+    public Value getTransferred() {
         return null;
     }
 

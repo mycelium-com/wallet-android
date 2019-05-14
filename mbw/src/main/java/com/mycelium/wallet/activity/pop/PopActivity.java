@@ -47,7 +47,6 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
@@ -56,15 +55,21 @@ import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -94,7 +99,7 @@ public class PopActivity extends Activity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi(null);
+         updateUi((_mbwManager.getSelectedAccount().getTx(txidToProve)));
          return;
       }
 
@@ -116,7 +121,7 @@ public class PopActivity extends Activity {
             launchSelectTransactionActivity();
             return;
          }
-         txidToProve = matchingTransaction.getHash();
+         txidToProve = matchingTransaction.getId();
          txToProve = matchingTransaction;
       }
 
@@ -141,7 +146,7 @@ public class PopActivity extends Activity {
    }
 
    private void setText(int viewId, String value) {
-      TextView textView = (TextView) findViewById(viewId);
+      TextView textView = findViewById(viewId);
       textView.setText(value);
    }
 
@@ -168,18 +173,16 @@ public class PopActivity extends Activity {
       // Set amount
       long amountSatoshis = getPaymentAmountSatoshis(transaction);
       String value = _mbwManager.getBtcValueString(amountSatoshis);
-      String fiatValue = _mbwManager.getCurrencySwitcher().getFormattedFiatValue(
-            ExactBitcoinValue.from(amountSatoshis),
-            true
-      );
+      Value btcValue = Utils.getBtcCoinType().value(amountSatoshis);
+      Value fiatValue = _mbwManager.getCurrencySwitcher().getAsFiatValue(btcValue);
       String fiatAppendment = "";
-      if (!Strings.isNullOrEmpty(fiatValue)) {
-         fiatAppendment = " (" + fiatValue + ")";
+      if (fiatValue != null) {
+         fiatAppendment = " (" + ValueExtensionsKt.toStringWithUnit(fiatValue) + ")";
       }
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
       // Set label
-      String label = metadataStorage.getLabelByTransaction(transaction.getHash());
+      String label = metadataStorage.getLabelByTransaction(transaction.getId());
       setText(R.id.pop_transaction_label, label);
 
       URL url = getUrl(popRequest.getP());
@@ -189,7 +192,7 @@ public class PopActivity extends Activity {
          return;
       }
 
-      TextView textView = (TextView) findViewById(R.id.pop_recipient_host);
+      TextView textView = findViewById(R.id.pop_recipient_host);
       textView.setText(url.getHost());
       String protocol = url.getProtocol();
       if ("https".equals(protocol)) {
@@ -215,13 +218,10 @@ public class PopActivity extends Activity {
    }
 
    private long getPaymentAmountSatoshis(GenericTransaction transaction) {
-      if (!(transaction.getType() == BitcoinMain.get())) {
+      if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
-      long amountSatoshis = (transaction.isIncoming()?transaction.getReceived():transaction.getSent()).getValue();
-      GenericTransaction genericTransaction = _mbwManager.getSelectedAccount().getTx(transaction.getHash());
-      amountSatoshis -= genericTransaction.getFee().getValue();
-      return amountSatoshis;
+      return transaction.getTransferred().abs().getValue();
    }
 
    @Override
@@ -230,7 +230,6 @@ public class PopActivity extends Activity {
       savedInstanceState.putSerializable("popRequest", popRequest);
       savedInstanceState.putSerializable("txidToProve", txidToProve);
    }
-
 
    public void sendPop(View view) {
       try {
@@ -242,13 +241,13 @@ public class PopActivity extends Activity {
          final UnsignedTransaction unsignedPop = ((WalletBtcAccount)account).createUnsignedPop(txidToProve, popRequest.getN());
 
          _mbwManager.runPinProtectedFunction(this, new Runnable() {
-
             @Override
             public void run() {
                disableButtons();
-               // TODO: 9/19/18 Nuru commented this
-//               SignTransactionActivity.callMe(PopActivity.this, _mbwManager.getSelectedAccount().getId(),
-//                     false, unsignedPop, SIGN_TRANSACTION_REQUEST_CODE);
+               CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+               BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsignedPop);
+               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+               startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
       } catch (Exception e) {
@@ -268,7 +267,8 @@ public class PopActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            Transaction pop = (Transaction) Preconditions.checkNotNull(intent.getSerializableExtra("signedTx"));
+            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+            Transaction pop = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
             ConnectivityManager connMgr = (ConnectivityManager)
                   getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

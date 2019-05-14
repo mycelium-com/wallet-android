@@ -42,28 +42,42 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.*;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTouch;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.wallet.*;
 import com.mycelium.paymentrequest.PaymentRequestException;
-import com.mycelium.wallet.event.ExchangeRatesRefreshed;
-import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.paymentrequest.PkiVerificationData;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wallet.CurrencySwitcher;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.WithCallback;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.otto.Subscribe;
+
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.units.JustNow;
 import org.ocpsoft.prettytime.units.Millisecond;
 
-import java.util.*;
+import java.util.Date;
+import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnTouch;
 
 public class VerifyPaymentRequestActivity extends AppCompatActivity {
    private static final String CALLBACK_URI = "payment_uri";
@@ -98,7 +112,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    private Runnable expiredUpdater;
 
 
-   public static Intent getIntent(Activity currentActivity, BitcoinUri uri) {
+   public static Intent getIntent(Activity currentActivity, GenericAssetUri uri) {
       return new Intent(currentActivity, VerifyPaymentRequestActivity.class)
               .putExtra(CALLBACK_URI, uri);
    }
@@ -119,13 +133,13 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       // only popup the keyboard if the user taps the textbox
       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-      BitcoinUri bitcoinUri = (BitcoinUri) getIntent().getSerializableExtra(CALLBACK_URI);
+      GenericAssetUri assetUri = (GenericAssetUri) getIntent().getSerializableExtra(CALLBACK_URI);
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...
-      Preconditions.checkArgument(
-            (bitcoinUri !=null && !Strings.isNullOrEmpty(bitcoinUri.callbackURL))
-            || rawPaymentRequest !=null
+      Preconditions.checkArgument((assetUri instanceof WithCallback
+              && !Strings.isNullOrEmpty(((WithCallback) assetUri).getCallbackURL()))
+                      || rawPaymentRequest != null
       );
 
       btAccept.setEnabled(false);
@@ -165,7 +179,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       if (rawPaymentRequest != null) {
          requestHandler.parseRawPaymentRequest(rawPaymentRequest);
       } else {
-         requestHandler.fetchPaymentRequest(bitcoinUri);
+         requestHandler.fetchPaymentRequest(assetUri);
       }
 
       checkExpired = new Handler();
@@ -181,7 +195,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    @OnTouch(R.id.etMerchantMemo)
    public boolean scrollIntoView() {
       etMerchantMemo.requestLayout();
-      VerifyPaymentRequestActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
       return false;
    }
 
@@ -275,10 +289,9 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
             if (currencySwitcher.isFiatExchangeRateAvailable()){
                tvFiatAmount.setVisibility(View.VISIBLE);
-               tvFiatAmount.setText(
-                     String.format("(~%s)",
-                     currencySwitcher.getFormattedFiatValue(ExactBitcoinValue.from(totalAmount), true))
-               );
+               Value btcValue = Utils.getBtcCoinType().value(totalAmount);
+               Value fiatValue = currencySwitcher.getAsFiatValue(btcValue);
+               tvFiatAmount.setText(String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue)));
             } else {
                tvFiatAmount.setVisibility(View.GONE);
             }

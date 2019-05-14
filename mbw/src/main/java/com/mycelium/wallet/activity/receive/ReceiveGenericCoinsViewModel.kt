@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
@@ -12,12 +12,10 @@ class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewM
     override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         accountLabel = account.coinType.symbol
-        model = ReceiveCoinsModel(getApplication(), account, accountLabel, hasPrivateKey, showIncomingUtxo)
+        model = ReceiveCoinsModel(getApplication(), account, accountLabel, showIncomingUtxo)
     }
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination, account.coinType.symbol)
-
-    override fun getFormattedValue(sum: Value) = Utils.getFormattedValueWithUnit(sum)
+    override fun getFormattedValue(sum: Value) = sum.toStringWithUnit()
 
     override fun getCurrencyName() = account.coinType.symbol
 

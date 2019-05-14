@@ -14,7 +14,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Value implements Comparable<Value>, Serializable {
-
     /**
      * The type of this value
      */
@@ -98,7 +97,7 @@ public class Value implements Comparable<Value>, Serializable {
     }
 
     public static boolean isNullOrZero(Value value) {
-        return value == null || value.getValue() == 0 || value.isZero();
+        return value == null || value.isZero();
     }
 
     public GenericAssetInfo getType() {
@@ -293,5 +292,9 @@ public class Value implements Comparable<Value>, Serializable {
 
     public static boolean canCompare(@Nullable Value amount1, @Nullable Value amount2) {
         return amount1 != null && amount2 != null && amount1.isOfType(amount2);
+    }
+
+    public Value abs() {
+        return new Value(type, Math.abs(value));
     }
 }

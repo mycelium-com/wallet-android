@@ -12,22 +12,18 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
         walletManager.walletListener?.syncStarted()
 
         try {
-            synchronized(walletManager.getAccounts()) {
+            synchronized(walletManager.getAllActiveAccounts()) {
                 if (walletManager.isNetworkConnected) {
-//                    if (!syncMode.ignoreMinerFeeFetch && (_lastFeeEstimations == null || _lastFeeEstimations.isExpired(MIN_AGE_FEE_ESTIMATION))) {
-//                        // only fetch the fee estimations if the latest available fee is older than MIN_AGE_FEE_ESTIMATION
-//                        fetchFeeEstimation()
-//                    }
 
                     // If we have any lingering outgoing transactions broadcast them now
                     // this function goes over all accounts - it is reasonable to
                     // exclude this from SyncMode.onlyActiveAccount behaviour
-//                    if (!broadcastOutgoingTransactions()) {
-//                        return
-//                    }
+                    if (!broadcastOutgoingTransactions()) {
+                        return
+                    }
 
                     // Synchronize selected accounts with the blockchain
-                    val list = if (accounts.isEmpty()) walletManager.getActiveAccounts() else accounts
+                    val list = if (accounts.isEmpty()) walletManager.getAllActiveAccounts() else accounts
                     list.forEach { it!!.synchronize(syncMode) }
                 }
 
@@ -36,5 +32,19 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
             walletManager.state = State.READY
             walletManager.walletListener?.syncStopped()
         }
+    }
+
+    private fun broadcastOutgoingTransactions(): Boolean {
+        for (account in accounts) {
+            if (account!!.isArchived) {
+                continue
+            }
+            if (!account.broadcastOutgoingTransactions()) {
+                // We failed to broadcast due to API error, we will have to try
+                // again later
+                return false
+            }
+        }
+        return true
     }
 }

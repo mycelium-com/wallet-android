@@ -43,15 +43,13 @@ import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.ScriptOutputStandard;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
-import org.bitcoinj.core.DumpedPrivateKey;
-import org.bitcoinj.core.ECKey;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -155,18 +153,14 @@ public class StandardTransactionBuilderTest {
     }
 
     @Test
-    public void testTransactionEstimation() throws Exception {
-        int txNonSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
-        assertEquals(txNonSegwitSize, 192);
-
-        int txSegwitSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 1);
-        assertEquals(txSegwitSize, 111);
-    }
-
-    @Test
     public void testCreateUnsignedTransactionWithoutChange() throws Exception {
-        int txSize = StandardTransactionBuilder.estimateTransactionSize(1, 1, 0);
-        int feeExpected = txSize * 200; //68000
+        int feeExpected = (int) new FeeEstimatorBuilder().setLegacyInputs(1)
+                .setLegacyOutputs(1)
+                .setMinerFeePerKb(200000)
+                .createFeeEstimator()
+                .estimateFee();
+
+        System.out.println(feeExpected);//38400
         long utxoAvailable = 2 * SATOSHIS_PER_BITCOIN + feeExpected + MINIMUM_OUTPUT_VALUE - 10;
         // UTXOs worth utxoAvailable satoshis, should result in 1 in 1 out.
         // MINIMUM_OUTPUT_VALUE - 10 satoshis will be
@@ -195,7 +189,11 @@ public class StandardTransactionBuilderTest {
                 getUtxo(ADDRS[0], 10 * SATOSHIS_PER_BITCOIN)
         );
         testme.addOutput(ADDRS[1], SATOSHIS_PER_BITCOIN);
-        int feeExpected = StandardTransactionBuilder.estimateTransactionSize(1, 2, 0) * 200;
+        int feeExpected = (int) new FeeEstimatorBuilder().setLegacyInputs(1)
+                .setLegacyOutputs(2)
+                .setMinerFeePerKb(200000)
+                .createFeeEstimator()
+                .estimateFee();
 
         UnsignedTransaction tx = testme.createUnsignedTransaction(inventory, ADDRS[2], KEY_RING,
             testNetwork, 200000); // miner fees to use = 200 satoshis per bytes.
@@ -223,7 +221,7 @@ public class StandardTransactionBuilderTest {
     }
 
     private static UnspentTransactionOutput getUtxo(Address address, long value) {
-        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputStandard(address.getTypeSpecificBytes()));
+        return new UnspentTransactionOutput(new OutPoint(Sha256Hash.ZERO_HASH, 0), 0, value, new ScriptOutputP2PKH(address.getTypeSpecificBytes()));
     }
 
     /**
@@ -246,24 +244,5 @@ public class StandardTransactionBuilderTest {
             requests.add(new SigningRequest(PUBLIC_KEYS[i % COUNT], HashUtils.sha256(("bla" + i).getBytes())));
         }
         StandardTransactionBuilder.generateSignatures(requests.toArray(new SigningRequest[]{}), PRIVATE_KEY_RING);
-    }
-
-    // to compare with the bitlib signing test that allows 10ms per signature, the bitcoinJ version allows
-    // 500ms for 1000 sigs or 0.5ms per sig or 20 times faster. Not sure if comparing apples and bananas here.
-    @Test(timeout=500)
-    @Ignore("This is not really a requirement but was meant to show the supperior performance of bitcoinJ")
-    public void generateSignaturesBitcoinJ() {
-        int keyCount = PRIVATE_KEYS.length;
-        ECKey keys[] = new ECKey[keyCount];
-        for(int i = 0; i<keyCount; i++) {
-            keys[i] = DumpedPrivateKey.fromBase58(null, PRIVATE_KEYS[i].getBase58EncodedPrivateKey(productionNetwork)).getKey();
-        }
-
-        // bitlib is slow to sign. 6ms per signature. figure out how to replace that with bitcoinJ and whether that is faster.
-        for(int i = 0; i<300; i++) {
-            ECKey key = keys[i % keyCount];
-            org.bitcoinj.core.Sha256Hash hash = org.bitcoinj.core.Sha256Hash.of(("bla foo " + i).getBytes());
-            key.sign(hash);
-        }
     }
 }

@@ -31,8 +31,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
     protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
     protected byte[] signedMessageHeader;
 
-    private static FeeProvider feeProvider = null;
-
     @Override
     public String getName() {
         return checkNotNull(name, "A coin failed to set a name");
@@ -43,14 +41,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return checkNotNull(symbol, "A coin failed to set a symbol");
     }
 
-    public String getUriScheme() {
-        return checkNotNull(uriScheme, "A coin failed to set a URI scheme");
-    }
-
-    public int getBip44Index() {
-        return checkNotNull(bip44Index, "A coin failed to set a BIP 44 index");
-    }
-
     @Override
     public int getUnitExponent() {
         return checkNotNull(unitExponent, "A coin failed to set a unit exponent");
@@ -59,42 +49,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
     @Override
     public int getFriendlyDigits() {
         return friendlyDigits;
-    }
-
-    public Value getFeeValue() {
-        if (feeProvider != null) {
-            return feeProvider.getFeeValue(this);
-        } else {
-            return getDefaultFeeValue();
-        }
-    }
-
-    public Value getDefaultFeeValue() {
-        return checkNotNull(feeValue, "A coin failed to set a fee value");
-    }
-
-    public Value getMinNonDust() {
-        return checkNotNull(minNonDust, "A coin failed to set a minimum amount to be considered not dust");
-    }
-
-    public Value getSoftDustLimit() {
-        return checkNotNull(softDustLimit, "A coin failed to set a soft dust limit");
-    }
-
-    public SoftDustPolicy getSoftDustPolicy() {
-        return checkNotNull(softDustPolicy, "A coin failed to set a soft dust policy");
-    }
-
-    public FeePolicy getFeePolicy() {
-        return checkNotNull(feePolicy, "A coin failed to set a fee policy");
-    }
-
-    public byte[] getSignedMessageHeader() {
-        return checkNotNull(signedMessageHeader, "A coin failed to set signed message header bytes");
-    }
-
-    public boolean canSignVerifyMessages() {
-        return signedMessageHeader != null;
     }
 
     protected static byte[] toBytes(String str) {
@@ -117,6 +71,10 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return oneCoin;
     }
 
+    public FeePolicy getFeePolicy() {
+        return feePolicy;
+    }
+
     @Override
     public Value value(String string) {
         return Value.parse(this, string);
@@ -134,14 +92,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
                 ", symbol='" + symbol + '\'' +
                 ", bip44Index=" + (bip44Index != null ?  bip44Index : "null") +
                 '}';
-    }
-
-    public static void setFeeProvider(FeeProvider feeProvider) {
-        CryptoCurrency.feeProvider = feeProvider;
-    }
-
-    public interface FeeProvider {
-        Value getFeeValue(CryptoCurrency type);
     }
 
     public String getId() {

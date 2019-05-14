@@ -1,6 +1,8 @@
 package com.mrd.bitlib
 
+import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.IPublicKeyRing
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.CoinUtil
@@ -27,13 +29,13 @@ open class UnsignedTransaction constructor(
 
         for (i in fundingOutputs.indices) {
             if (isSegWitOutput(i)) {
-                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
+                inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
             }
             val utxo = fundingOutputs[i]
 
             // Make sure that we only work on supported scripts
-            when (utxo.script.javaClass) {
-                !in SUPPORTED_SCRIPTS -> throw RuntimeException("Unsupported script")
+            if (utxo.script.javaClass !in SUPPORTED_SCRIPTS) {
+                throw RuntimeException("Unsupported script")
             }
 
             // Find the address of the funding
@@ -47,18 +49,10 @@ open class UnsignedTransaction constructor(
 
             when (utxo.script) {
                 is ScriptOutputP2SH  -> {
-                    val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-                    val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
-                    (inputScript as ScriptInputP2WPKH).isNested = true
-                    transaction.inputs[i].script = inputScript
-                    inputs[i].script = inputScript
+                    getInputScript(publicKey, transaction, i, true)
                 }
                 is ScriptOutputP2WPKH -> {
-                    val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
-                    val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
-                    (inputScript as ScriptInputP2WPKH).isNested = false
-                    transaction.inputs[i].script = inputScript
-                    inputs[i].script = inputScript
+                    getInputScript(publicKey, transaction, i, false)
                 }
             }
 
@@ -68,7 +62,7 @@ open class UnsignedTransaction constructor(
                     scriptsList.add(it.script)
                     it.script = ScriptInput.EMPTY
                 }
-                inputs[i].script = ScriptInput.fromOutputScript(funding[i].script)
+                inputs[i].script = ScriptInput.fromOutputScript(fundingOutputs[i].script)
             }
 
             // Calculate the transaction hash that has to be signed
@@ -85,6 +79,14 @@ open class UnsignedTransaction constructor(
         }
     }
 
+    private fun getInputScript(publicKey: PublicKey, transaction: Transaction, i: Int, isNested: Boolean) {
+        val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
+        val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
+        (inputScript as ScriptInputP2WPKH).isNested = isNested
+        transaction.inputs[i].script = inputScript
+        inputs[i].script = inputScript
+    }
+
     fun isSegwit() = fundingOutputs.asSequence()
             .map(UnspentTransactionOutput::script)
             .any(this::isSegwitOutputScript)
@@ -98,39 +100,21 @@ open class UnsignedTransaction constructor(
     /**
      * @return fee in satoshis
      */
-    fun calculateFee(): Long {
-        var `in`: Long = 0
-        var out: Long = 0
-        for (funding in fundingOutputs) {
-            `in` += funding.value
-        }
-        for (output in outputs) {
-            out += output.value
-        }
-        return `in` - out
-    }
+    fun calculateFee() = fundingOutputs.map { it.value }.sum() - outputs.map { it.value}.sum()
+
 
     override fun toString(): String {
-        val sb = StringBuilder()
+        val inStrings = fundingOutputs.map {
+            String.format("%36s %13s", it.script.getAddress(network), getValue(it.value))
+        }
+        val outStrings = outputs.map {
+            String.format("%36s %13s", it.script.getAddress(network), getValue(it.value))
+        }
         val fee = CoinUtil.valueString(calculateFee(), false)
-        sb.append(String.format("Fee: %s", fee)).append('\n')
-        val max = Math.max(fundingOutputs.size, outputs.size)
-        for (i in 0 until max) {
-            val `in` = if (i < fundingOutputs.size) fundingOutputs[i] else null
-            val out = if (i < outputs.size) outputs[i] else null
-            val line = if (`in` != null && out != null) {
-                String.format("%36s %13s -> %36s %13s", `in`.script.getAddress(network), getValue(`in`.value),
-                        out.script.getAddress(network), getValue(out.value))
-            } else if (`in` != null) {
-                String.format("%36s %13s    %36s %13s", `in`.script.getAddress(network), getValue(`in`.value), "",
-                        "")
-            } else if (out != null) {
-                String.format("%36s %13s    %36s %13s", "", "", out.script.getAddress(network),
-                        getValue(out.value))
-            } else {
-                ""
-            }
-            sb.append(line).append('\n')
+        val sb = StringBuilder(String.format("Fee: %s\n", fee))
+        val empty = Strings.repeat(" ", 50)
+        for (i in 0 until Math.max(fundingOutputs.size, outputs.size)) {
+            sb.append(inStrings.getOrNull(i) ?: empty).append(" -> ").append(outStrings.getOrNull(i) ?: empty).append('\n')
         }
         return sb.toString()
     }
@@ -144,7 +128,7 @@ open class UnsignedTransaction constructor(
         private const val serialVersionUID = 1L
         const val NO_SEQUENCE = -1
         private val SUPPORTED_SCRIPTS = listOf(
-                ScriptOutputStandard::class.java,
+                ScriptOutputP2PKH::class.java,
                 ScriptOutputP2SH::class.java,
                 ScriptOutputP2WPKH::class.java
         )

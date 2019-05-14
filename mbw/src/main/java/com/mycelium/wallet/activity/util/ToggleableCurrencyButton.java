@@ -41,6 +41,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
@@ -69,8 +70,8 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi(){
       super.updateUi();
 
-      final List<GenericAssetInfo> currencies = fiatOnly ? currencySwitcher.getCurrencyList()
-              : currencySwitcher.getCurrencyList(currencySwitcher.getDefaultCurrency());
+      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
+              : getCurrencySwitcher().getCurrencyList(getCurrencySwitcher().getWalletCurrencies());
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -95,10 +96,10 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               currencySwitcher.setCurrency(itemMap.get(item));
-               if (eventBus != null) {
+               getCurrencySwitcher().setCurrency(itemMap.get(item));
+               if (MbwManager.getEventBus() != null) {
                   // update UI via event bus, also inform other parts of the app about the change
-                  eventBus.post(new SelectedCurrencyChanged());
+                  MbwManager.getEventBus().post(new SelectedCurrencyChanged());
                } else {
                   updateUi();
                }

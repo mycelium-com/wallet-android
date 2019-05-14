@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet.btc;
 
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
@@ -37,8 +36,6 @@ public interface WalletManagerBacking<AccountContext, T extends GenericTransacti
 
     void createBip44AccountContext(HDAccountContext context);
 
-    void upgradeBip44AccountContext(HDAccountContext context);
-
     List<HDAccountContext> loadBip44AccountContexts();
 
     Bip44AccountBacking getBip44AccountBacking(UUID accountId);
@@ -52,8 +49,4 @@ public interface WalletManagerBacking<AccountContext, T extends GenericTransacti
     SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
     void deleteSingleAddressAccountContext(UUID accountId);
-
-    void saveLastFeeEstimation(FeeEstimation feeEstimation);
-
-    FeeEstimation loadLastFeeEstimation();
 }

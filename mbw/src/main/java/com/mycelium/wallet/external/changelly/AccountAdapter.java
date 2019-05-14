@@ -11,15 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wallet.activity.util.ValueExtentionsKt;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +62,9 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
-            items.add(new Item(account, VIEW_TYPE_ITEM));
+            if(account.isExchangeable()) {
+                items.add(new Item(account, VIEW_TYPE_ITEM));
+            }
         }
         items.add(new Item(null, VIEW_TYPE_PADDING));
     }
@@ -124,10 +124,10 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
-            viewHolder.itemTextView.setText(ValueExtentionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
-            if (((WalletBtcAccount)(item.account)).getReceivingAddress().isPresent()) {
-                viewHolder.valueTextView.setText(((WalletBtcAccount)(item.account)).getReceivingAddress().get().toString());
+            Denomination denomination = mbwManager.getDenomination();
+            viewHolder.itemTextView.setText(ValueExtensionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
+            if (item.account.getReceiveAddress() != null) {
+                viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());
             }
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
@@ -165,7 +165,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             super(v);
             categoryTextView = v.findViewById(R.id.categorytextView);
             itemTextView = v.findViewById(R.id.itemTextView);
-            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+            valueTextView = v.findViewById(R.id.valueTextView);
         }
     }
 

@@ -33,6 +33,8 @@ import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class ChatMessageEncryptionKey implements Serializable {
    private static final long serialVersionUID = 1L;
 
@@ -70,7 +72,9 @@ public class ChatMessageEncryptionKey implements Serializable {
     */
    public static ChatMessageEncryptionKey fromEcdh(PublicKey foreignPublicKey, InMemoryPrivateKey privateKey,
          UUID tradeSessionId) {
-      byte[] sharedSecret = Ecdh.calculateSharedSecret(foreignPublicKey, privateKey);
+      byte[] sharedSecret = Ecdh.calculateSharedSecret(
+              checkNotNull(foreignPublicKey),
+              checkNotNull(privateKey));
       ByteWriter writer = new ByteWriter(sharedSecret.length + 8 + 8);
       writer.putLongBE(tradeSessionId.getMostSignificantBits());
       writer.putLongBE(tradeSessionId.getLeastSignificantBits());
@@ -107,7 +111,6 @@ public class ChatMessageEncryptionKey implements Serializable {
     * @return An encrypted message
     */
    public String encryptChatMessage(String message) {
-
       // Get the UTF-8 byte encoding of the message
       byte[] messageBytes = utf8StringToBytes(message);
 
@@ -142,7 +145,6 @@ public class ChatMessageEncryptionKey implements Serializable {
     *            if the message fails integrity checks
     */
    public String decryptAndCheckChatMessage(String encryptedChatMessage) throws InvalidChatMessage {
-
       // Base-64 decode without padding
       byte[] encryptedMessageBytes;
       try {
@@ -203,7 +205,6 @@ public class ChatMessageEncryptionKey implements Serializable {
    }
 
    private byte[] aesCbcEncryption(byte[] IV, byte[] data) {
-
       // Prepare AES key
       Rijndael aes = new Rijndael();
       aes.makeKey(encryptionKey, encryptionKey.length * 8, Rijndael.DIR_ENCRYPT);

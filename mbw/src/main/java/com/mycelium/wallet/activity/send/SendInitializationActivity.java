@@ -127,14 +127,13 @@ public class SendInitializationActivity extends Activity {
       _rawPr =  getIntent().getByteArrayExtra("rawPr");
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
-      WalletAccount account;
-      account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
+      WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _account = Preconditions.checkNotNull(account, crashHint);
    }
 
    @Override
    protected void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
 
       // Show delayed messages so the user does not grow impatient
       _synchronizingHandler = new Handler();
@@ -164,7 +163,7 @@ public class SendInitializationActivity extends Activity {
       if (_slowNetworkHandler != null) {
          _slowNetworkHandler.removeCallbacks(showSlowNetwork);
       }
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 

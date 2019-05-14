@@ -48,7 +48,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -62,10 +61,9 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wallet.activity.util.ValueExtentionsKt.isBtc;
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 public class GetSpendingRecordActivity extends Activity {
-
    private GenericAssetUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
@@ -136,7 +134,6 @@ public class GetSpendingRecordActivity extends Activity {
       }
    }
 
-
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       super.onSaveInstanceState(outState);
@@ -181,12 +178,7 @@ public class GetSpendingRecordActivity extends Activity {
          listView.setVisibility(View.GONE);
          warningNoSpendingAccounts.setVisibility(View.VISIBLE);
       } else {
-         //remove it later
-         List<WalletAccount<?,?>> spendingAccountsBtc = new ArrayList<>();
-         for(WalletAccount account : spendingAccounts){
-            spendingAccountsBtc.add(account);
-         }
-         List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccountsBtc, storage));
+         List<ViewAccountModel> list = builder.convertList(Utils.sortAccounts(spendingAccounts, storage));
          accountsAdapter = new AccountsAdapter(this, list);
          listView.setAdapter(accountsAdapter);
          listView.setVisibility(View.VISIBLE);
@@ -202,17 +194,17 @@ public class GetSpendingRecordActivity extends Activity {
          inflater = LayoutInflater.from(context);
       }
 
-       @Override
-       @NonNull
-       public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-           ViewAccountModel account = getItem(position);
-           if (convertView == null) {
-               convertView = inflater.inflate(R.layout.record_row, null, false);
-               convertView.setTag(new AccountViewHolder(convertView));
-           }
-           RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources());
-           recordRowBuilder.buildRecordView((AccountViewHolder) convertView.getTag(), account, false, false);
-           return convertView;
-       }
+      @Override
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+         ViewAccountModel account = getItem(position);
+         if (convertView == null) {
+            convertView = inflater.inflate(R.layout.record_row, null, false);
+            convertView.setTag(new AccountViewHolder(convertView));
+         }
+         RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources());
+         recordRowBuilder.buildRecordView((AccountViewHolder) convertView.getTag(), account, false, false);
+         return convertView;
+      }
    }
 }

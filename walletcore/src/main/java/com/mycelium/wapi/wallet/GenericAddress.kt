@@ -8,5 +8,11 @@ interface GenericAddress : Serializable {
     val coinType: CryptoCurrency
     val id: Long
 
+    // An address for the particular asset could have some subtypes.
+    // For example, for BTC we have
+    // To have an ability to detect and compare types in generic way
+    // the subType is stored as string
+    fun getSubType(): String
+
     fun getBytes():ByteArray
 }

@@ -40,7 +40,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import android.support.v4.app.FragmentManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.Bip38;
@@ -59,18 +58,14 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Record;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.export.MrdDecryptDataActivity;
-import com.mycelium.wallet.activity.modern.adapter.SelectAssetDialog;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
 import com.mycelium.wallet.content.Action;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.WalletManager;
 
-import java.util.List;
 import java.util.UUID;
 
 public class StringHandlerActivity extends Activity {
@@ -79,7 +74,6 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_ERROR = "error";
    public static final String RESULT_PRIVATE_KEY = "privkey";
    public static final String RESULT_HD_NODE = "hdnode";
-   public static final String RESULT_URI_WITH_ADDRESS_KEY = "uri_with_address";
    public static final String RESULT_URI_KEY = "uri";
    public static final String RESULT_SHARE_KEY = "share";
    public static final String RESULT_ADDRESS_KEY = "address";
@@ -87,8 +81,8 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_TYPE_KEY = "type";
    public static final String RESULT_ACCOUNT_KEY = "account";
    public static final String RESULT_MASTER_SEED_KEY = "master_seed";
-   private static final String RESULT_POP_REQUEST = "pop_request";
-   private static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
+   public static final String RESULT_POP_REQUEST = "pop_request";
+   public static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
 
    public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
       Intent intent = new Intent(currentActivity, StringHandlerActivity.class);
@@ -98,13 +92,9 @@ public class StringHandlerActivity extends Activity {
    }
 
    public static ParseAbility canHandle(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {
-      if (isMrdEncryptedPrivateKey(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (isMrdEncryptedMasterSeed(contentString)) {
-         return ParseAbility.MAYBE;
-      }
-      if (Bip38.isBip38PrivateKey(contentString)) {
+      if (isMrdEncryptedPrivateKey(contentString)
+              || isMrdEncryptedMasterSeed(contentString)
+              || Bip38.isBip38PrivateKey(contentString)) {
          return ParseAbility.MAYBE;
       }
       for (Action action : stringHandleConfig.getAllActions()) {
@@ -139,9 +129,6 @@ public class StringHandlerActivity extends Activity {
    @Override
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_CANCELED == resultCode) {
-          if (requestCode == SEND_INITIALIZATION_CODE) {
-             _mbwManager.forgetColdStorageWalletManager();
-          }
          finishError(R.string.cancelled);
          return;
       }
@@ -160,10 +147,6 @@ public class StringHandlerActivity extends Activity {
          case IMPORT_SSS_CONTENT_CODE:
             content = intent.getStringExtra("secret");
             break;
-         case SEND_INITIALIZATION_CODE:
-            _mbwManager.forgetColdStorageWalletManager();
-            finishOk();
-            return;
          default:
             //todo: what kind of error should we throw?
             return;
@@ -383,89 +366,6 @@ public class StringHandlerActivity extends Activity {
       result.putExtra(RESULT_TYPE_KEY, ResultType.NONE);
       setResult(RESULT_OK, result);
       finish();
-   }
-
-   public static InMemoryPrivateKey getPrivateKey(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.PRIVATE_KEY);
-      InMemoryPrivateKey key = (InMemoryPrivateKey) intent.getSerializableExtra(RESULT_PRIVATE_KEY);
-      Preconditions.checkNotNull(key);
-      return key;
-   }
-
-   public static HdKeyNode getHdKeyNode(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.HD_NODE);
-      HdKeyNode hdKeyNode = (HdKeyNode) intent.getSerializableExtra(RESULT_HD_NODE);
-      Preconditions.checkNotNull(hdKeyNode);
-      return hdKeyNode;
-   }
-
-   public static void getAddress(Intent intent, WalletManager walletManager, FragmentManager fragmentManager) {
-      StringHandlerActivity.checkType(intent, ResultType.ADDRESS_STRING);
-      String address = intent.getStringExtra(RESULT_ADDRESS_STRING_KEY);
-      Preconditions.checkNotNull(address);
-      List<GenericAddress> addresses = walletManager.parseAddress(address);
-      SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-      dialog.show(fragmentManager, "dialog");
-   }
-
-   public static GenericAddress getAddress(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ADDRESS);
-      GenericAddress address = (GenericAddress) intent.getSerializableExtra(RESULT_ADDRESS_KEY);
-      Preconditions.checkNotNull(address);
-      return address;
-   }
-
-   public static GenericAssetUri getAssetUri(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ASSET_URI);
-      GenericAssetUri uri = (GenericAssetUri) intent.getSerializableExtra(RESULT_URI_KEY);
-      Preconditions.checkNotNull(uri);
-      return uri;
-   }
-
-   public static Uri getUri(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.URI);
-      Uri uri = (Uri) intent.getSerializableExtra(RESULT_URI_KEY);
-      Preconditions.checkNotNull(uri);
-      return uri;
-   }
-
-   public static BipSss.Share getShare(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.SHARE);
-      BipSss.Share share = (BipSss.Share) intent.getSerializableExtra(RESULT_SHARE_KEY);
-      Preconditions.checkNotNull(share);
-      return share;
-   }
-
-   public static UUID getAccount(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.ACCOUNT);
-      UUID account = (UUID) intent.getSerializableExtra(RESULT_ACCOUNT_KEY);
-      Preconditions.checkNotNull(account);
-      return account;
-   }
-
-   public static Bip39.MasterSeed getMasterSeed(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.MASTER_SEED);
-      Bip39.MasterSeed result = (Bip39.MasterSeed) intent.getSerializableExtra(RESULT_MASTER_SEED_KEY);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static PopRequest getPopRequest(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.POP_REQUEST);
-      PopRequest result = (PopRequest) intent.getSerializableExtra(RESULT_POP_REQUEST);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static BitIDSignRequest getBitIdRequest(Intent intent) {
-      StringHandlerActivity.checkType(intent, ResultType.BIT_ID_REQUEST);
-      BitIDSignRequest result = (BitIDSignRequest) intent.getSerializableExtra(RESULT_BIT_ID_REQUEST);
-      Preconditions.checkNotNull(result);
-      return result;
-   }
-
-   public static void checkType(Intent intent, ResultType type) {
-      Preconditions.checkState(type == intent.getSerializableExtra(RESULT_TYPE_KEY));
    }
 
    public NetworkParameters getNetwork() {

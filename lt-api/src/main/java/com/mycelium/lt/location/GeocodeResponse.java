@@ -16,12 +16,18 @@
 
 package com.mycelium.lt.location;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeocodeResponse {
+   @JsonProperty
+   public Map<String, String> plus_code = new HashMap<>();
 
    @JsonProperty
    public String status = "";
@@ -30,8 +36,7 @@ public class GeocodeResponse {
    public String errorMessage = "";
 
    @JsonProperty
-   public List<Geocode> results = new ArrayList<Geocode>();
-
+   public List<Geocode> results = new ArrayList<>();
 }
 
 

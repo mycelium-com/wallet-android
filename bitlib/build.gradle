@@ -15,14 +15,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:3.4.0@jar'
+    implementation 'com.google.protobuf:protobuf-java:3.4.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     testImplementation "junit:junit:$junitVersion"
     implementation guavaArtifact
-    implementation project(includePrefix +':bitcoincashj:core')
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 buildscript {
     repositories {

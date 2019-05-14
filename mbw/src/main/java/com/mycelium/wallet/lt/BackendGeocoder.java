@@ -26,7 +26,6 @@ import com.mycelium.lt.location.Geocoder;
 import com.mycelium.lt.location.RemoteGeocodeException;
 
 public class BackendGeocoder extends Geocoder {
-
    private final LocalTraderManager ltManager;
 
    public BackendGeocoder(LocalTraderManager ltManager) {
@@ -34,7 +33,7 @@ public class BackendGeocoder extends Geocoder {
    }
 
    @Override
-   public GeocodeResponse query(String address, int maxResults) throws RemoteGeocodeException {
+   public GeocodeResponse query(String address, int maxResults) {
       LtResponse<GeocoderSearchResults> geocodeResult = ltManager.getApi().searchGeocoder(ltManager.getSession().id, address, maxResults);
 
       try {
@@ -43,7 +42,6 @@ public class BackendGeocoder extends Geocoder {
          throw new RuntimeException("Backend Exception; " + e.getMessage());
       }
    }
-
 
    @Override
    public GeocodeResponse getFromLocation(double latitude, double longitude) throws RemoteGeocodeException {

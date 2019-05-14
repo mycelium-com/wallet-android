@@ -16,7 +16,6 @@
 
 package com.mycelium.wapi.wallet.btc.bip44
 
-import com.google.common.collect.ImmutableMap
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
 import com.mrd.bitlib.model.AddressType

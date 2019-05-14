@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.coinapult
 
+import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
@@ -15,11 +16,37 @@ import java.util.*
 
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val api: CoinapultApi
-                       , val backing: AccountBacking<CoinapultTransaction>
+                       , val accountBacking: AccountBacking<CoinapultTransaction>
+                       , val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>
                        , val _network: NetworkParameters
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<CoinapultTransaction, BtcAddress> {
+
+    override fun isSyncing(): Boolean {
+        //TODO: implement later
+        return false
+    }
+
+    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getDummyAddress(subType: String?): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getDummyAddress(): BtcAddress {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun removeAllQueuedTransactions() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun isExchangeable(): Boolean {
+        return true
+    }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return accountKey
@@ -30,7 +57,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
         val history = ArrayList<CoinapultTransaction>()
         checkNotArchived()
-        val list = backing.getTransactionsSince(receivingSince)
+        val list = accountBacking.getTransactionsSince(receivingSince)
         for (tex in list) {
             val tx = getTx(tex.txid)
             history.add(tx)
@@ -61,17 +88,18 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun isMineAddress(address: GenericAddress?): Boolean = receiveAddress == address
 
     override fun getTx(transactionId: Sha256Hash?): CoinapultTransaction {
-        return backing.getTx(transactionId)
+        return accountBacking.getTx(transactionId)
     }
 
     override fun getTransactions(offset: Int, limit: Int): List<CoinapultTransaction> {
-        return backing.getTransactions(offset, limit)
+        return accountBacking.getTransactions(offset, limit)
     }
 
     override fun isActive() = !context.isArchived()
 
     override fun archiveAccount() {
         context.setArchived(true)
+        backing.updateAccountContext(context)
     }
 
     override fun broadcastOutgoingTransactions(): Boolean {
@@ -89,6 +117,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun activateAccount() {
         context.setArchived(false)
+        backing.updateAccountContext(context)
     }
 
     override fun isDerivedFromInternalMasterseed(): Boolean = true
@@ -102,7 +131,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun getBlockChainHeight(): Int = 0
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddress: BtcAddress): Value {
         return Value.zeroValue(if (_network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
@@ -110,12 +139,12 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcAddress, amount: Value): SendRequest<CoinapultTransaction> {
-        return CoinapultSendRequest(currency, destination, amount)
+    override fun getSendToRequest(destination: BtcAddress, amount: Value, fee: Value): SendRequest<CoinapultTransaction> {
+        return CoinapultSendRequest(currency, destination, amount, fee)
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+        return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), System.currentTimeMillis())
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -124,14 +153,11 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isVisible(): Boolean = true
 
-    override fun completeAndSignTx(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
-        completeTransaction(request)
-        signTransaction(request, keyCipher)
-    }
-
     override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
         if (request is CoinapultSendRequest) {
-
+            request.tx = CoinapultTransaction(Sha256Hash.ZERO_HASH, request.amount, false
+                    , 0, "", 0, request.destination)
+            request.isCompleted = true
         } else {
             TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
         }
@@ -151,17 +177,13 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun broadcastTx(tx: CoinapultTransaction): BroadcastResult {
         return try {
             api.broadcast(tx.value.valueAsBigDecimal, tx.value.getType() as Currency, tx.address!!)
-            BroadcastResult.SUCCESS
+            BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
-            BroadcastResult.REJECTED
+            BroadcastResult(BroadcastResultType.REJECTED)
         }
     }
 
     override fun getAccountBalance(): Balance = cachedBalance
-
-    override fun checkAmount(receiver: WalletAccount.Receiver?, kbMinerFee: Long, enteredAmount: Value?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun synchronize(mode: SyncMode?): Boolean {
         _isSynchronizing = true
@@ -179,7 +201,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
             listener?.balanceUpdated(this)
         }
         val transactions = api.getTransactions(currency)
-        backing.putTransactions(transactions)
+        accountBacking.putTransactions(transactions)
 //        transactions?.forEach {
 //            if (it.state == "processing" || it.completeTime * 1000 > oneMinuteAgo) {
 //                if (!it.incoming) {

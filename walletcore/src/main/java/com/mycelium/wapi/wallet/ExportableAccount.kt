@@ -10,18 +10,16 @@ interface ExportableAccount {
     class Data : Serializable {
         val privateData: Optional<String>
         var privateDataMap: Map<BipDerivationType, String>? = null
-        val publicData: Optional<String>
         var publicDataMap: Map<BipDerivationType, String>? = null
 
-        constructor(privateData: Optional<String>, publicData: Optional<String>) {
+        constructor(privateData: Optional<String>, publicDataMap: Map<BipDerivationType, String>?) {
             this.privateData = privateData
-            this.publicData = publicData
+            this.publicDataMap = publicDataMap
         }
 
         constructor(privateDataMap: Map<BipDerivationType, String>?, publicDataMap: Map<BipDerivationType, String>?) {
             this.privateData = Optional.fromNullable(privateDataMap?.get(privateDataMap.keys.iterator().next()))
             this.privateDataMap = privateDataMap
-            this.publicData = Optional.fromNullable(publicDataMap?.get(publicDataMap.keys.iterator().next()))
             this.publicDataMap = publicDataMap
         }
     }

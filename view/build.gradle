@@ -1,6 +1,9 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 repositories {
     google()
+    mavenCentral()
 }
 
 android {
@@ -9,7 +12,7 @@ android {
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }
@@ -24,5 +27,6 @@ android {
 dependencies {
     implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
     implementation "com.android.support:appcompat-v7:$androidSupportVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 

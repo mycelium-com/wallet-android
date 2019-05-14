@@ -6,6 +6,7 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
+import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -20,12 +21,15 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 open class HDAccount(
         protected var context: HDAccountContext,
-        protected val keyManagerMap: Map<BipDerivationType, HDAccountKeyManager>,
+        protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
         protected val backing: Bip44AccountBacking,
         wapi: Wapi,
@@ -35,8 +39,8 @@ open class HDAccount(
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
 
-    private var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
-    private var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
     @Volatile
     private var isSynchronizing = false
@@ -74,6 +78,10 @@ open class HDAccount(
                 2 + context.getLastInternalIndexWithActivity(it) + 1
     }
 
+    fun getPublicKey(): PublicKey? {
+        //TODO: implement later
+        return null
+    }
 
     val accountType = context.accountType
 
@@ -166,7 +174,7 @@ open class HDAccount(
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
-    private fun ensureAddressIndexes() {
+    protected fun ensureAddressIndexes() {
         derivePaths.forEachIndexed { index, derivationType ->
             ensureAddressIndexes(true, true, derivationType)
             ensureAddressIndexes(false, true, derivationType)
@@ -359,8 +367,10 @@ open class HDAccount(
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
-        val transactions = getTransactionsBatched(ids).result.transactions
-        handleNewExternalTransactions(transactions)
+        ids.chunked(50).forEach { fewIds ->
+            val transactions = getTransactionsBatched(fewIds).result.transactions
+            handleNewExternalTransactions(transactions)
+        }
         return derivePaths.map { derivationType ->
             // Return true if the last external or internal index has changed
             derivationType to
@@ -725,16 +735,20 @@ open class HDAccount(
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 
-    override fun completeAndSignTx(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {
-        completeTransaction(request)
-        signTransaction(request, keyCipher)
-    }
-
     override fun completeTransaction(request: SendRequest<BtcTransaction>) {
         val btcSendRequest = request as BtcSendRequest
-        val receivers = ArrayList<WalletAccount.Receiver>()
-        receivers.add(WalletAccount.Receiver(btcSendRequest.destination, btcSendRequest.amount.value))
-        btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+        val receivers = ArrayList<BtcReceiver>()
+        receivers.add(BtcReceiver(btcSendRequest.destination!!.address, btcSendRequest.amount!!.value))
+        try {
+            btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
+            request.isCompleted = true
+        } catch (e: StandardTransactionBuilder.OutputTooSmallException) {
+            throw GenericOutputTooSmallException(e)
+        } catch (e: StandardTransactionBuilder.InsufficientFundsException) {
+            throw GenericInsufficientFundsException(e)
+        } catch (e: StandardTransactionBuilder.UnableToBuildTransactionException) {
+            throw GenericBuildTransactionException(e)
+        }
     }
 
     override fun signTransaction(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {

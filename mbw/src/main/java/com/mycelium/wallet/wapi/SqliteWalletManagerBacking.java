@@ -35,8 +35,7 @@
 package com.mycelium.wallet.wapi;
 
 import android.util.ArrayMap;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+
 import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
@@ -59,30 +58,27 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.btc.Bip44AccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
-import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,7 +96,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    private static final String LOG_TAG = "SqliteAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
-   private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
+   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteAccountBacking> _backings;
@@ -159,25 +155,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
             cursor.close();
          }
       }
-   }
-
-   @Override
-   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
-      Gson gson = new Gson();
-      byte[] value = gson.toJson(feeEstimation).getBytes();
-      setValue(LAST_FEE_ESTIMATE, value);
-   }
-
-   @Override
-   public FeeEstimation loadLastFeeEstimation() {
-      Gson gson = new Gson();
-      byte[] value = getValue(LAST_FEE_ESTIMATE);
-      FeeEstimation feeEstimation = FeeEstimation.DEFAULT;
-      try {
-         String valueString = new String(value);
-         feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
-      } catch(Exception ignore) { }
-      return feeEstimation;
    }
 
    @Override
@@ -306,11 +283,6 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       }
    }
 
-   @Override
-   public void upgradeBip44AccountContext(HDAccountContext context) {
-      updateBip44AccountContext(context);
-   }
-
    private void updateBip44AccountContext(HDAccountContext context) {
       _database.beginTransaction();
       //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
@@ -336,7 +308,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight, addressType"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "addressType"}, null, null,
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
@@ -518,7 +490,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
    }
 
    private byte[] calcChecksum(byte[] key, byte[] value) {
-      byte toHash[] = BitUtils.concatenate(key, value);
+      byte[] toHash = BitUtils.concatenate(key, value);
       return HashUtils.sha256(toHash).firstNBytes(8);
    }
 
@@ -591,6 +563,22 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
+      private class FeeEstimationSerialized implements Serializable {
+          private long low;
+          private long economy;
+          private long normal;
+          private long high;
+          private long lastCheck;
+
+          FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
+              this.low = low;
+              this.economy = economy;
+              this.normal = normal;
+              this.high = high;
+              this.lastCheck = lastCheck;
+          }
+      }
+
       private SqliteAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
@@ -618,6 +606,37 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
          _db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getOutgoingTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getTxRefersPtxoTableName(tableSuffix));
+      }
+
+      @Override
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String assetTypeName = assetType.getName();
+         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
+                                                                         feeEstimation.getEconomy().value,
+                                                                         feeEstimation.getNormal().value,
+                                                                         feeEstimation.getHigh().value,
+                                                                         feeEstimation.getLastCheck());
+         byte[] value = gson.toJson(feeValues).getBytes();
+         setValue(key, value);
+      }
+
+      @Override
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String key = assetType.getName() + LAST_FEE_ESTIMATE;
+          FeeEstimationSerialized feeValues;
+         try {
+             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
+         }
+         catch(Exception ignore) { return null; }
+
+         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
+                 Value.valueOf(assetType, feeValues.economy),
+                 Value.valueOf(assetType, feeValues.normal),
+                 Value.valueOf(assetType, feeValues.high),
+                 feeValues.lastCheck);
       }
 
       @Override
@@ -656,21 +675,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Collection<TransactionOutputEx> getAllUnspentOutputs() {
-         Cursor cursor = null;
          List<TransactionOutputEx> list = new LinkedList<>();
-         try {
-            cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
-                  "script"}, null, null, null, null, null, null);
+         try (Cursor cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
+                 "script"}, null, null, null, null, null, null)) {
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
-                     .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
+                       .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -926,36 +939,28 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Collection<TransactionEx> getUnconfirmedTransactions() {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            // 2147483647 == Integer.MAX_VALUE
-            cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
-                  new String[]{});
+         // 2147483647 == Integer.MAX_VALUE
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
+                 new String[]{})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, -1, cursor.getInt(2),
-                     cursor.getBlob(3));
+                       cursor.getBlob(3));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
       @Override
       public Collection<TransactionEx> getYoungTransactions(int maxConfirmations, int blockChainHeight) {
          int maxHeight = blockChainHeight - maxConfirmations + 1;
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
+                 new String[]{Integer.toString(maxHeight)})) {
             // return all transaction younger than maxConfirmations or have no confirmations at all
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
-                  new String[]{Integer.toString(maxHeight)});
             while (cursor.moveToNext()) {
                int height = cursor.getInt(2);
                if (height == Integer.MAX_VALUE) {
@@ -964,14 +969,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, height, cursor.getInt(3),
-                     cursor.getBlob(4));
+                       cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -986,18 +987,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
-         Cursor cursor = null;
          HashMap<Sha256Hash, byte[]> list = new HashMap<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{});
+         try (Cursor cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{})) {
             while (cursor.moveToNext()) {
                list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -1025,48 +1020,36 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " ORDER BY height desc limit ? offset ?",
-                  new String[]{Integer.toString(limit), Integer.toString(offset)});
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+                         + " ORDER BY height desc limit ? offset ?",
+                 new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
+                       cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
       @Override
       public List<TransactionEx> getTransactionsSince(long since) {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " WHERE time >= ?"
-                        + " ORDER BY height desc",
-                  new String[]{Long.toString(since / 1000)});
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+                         + " WHERE time >= ?"
+                         + " ORDER BY height desc",
+                 new String[]{Long.toString(since / 1000)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
+                       cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 

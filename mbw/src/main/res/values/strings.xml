@@ -48,6 +48,8 @@
     <string name="miner_fee_title">Miner Fee</string>
     <string name="synchronizing">Synchronizing</string>
     <string name="transaction_not_sent">Failed to broadcast transaction</string>
+    <string name="transaction_not_sent_nonstandard">Failed to broadcast transaction because of an error:\n%1$s\nPlease report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
+    <string name="transaction_not_sent_small_fee">Failed to broadcast transaction. Fee is too small. Please try setting a higher one.</string>
     <string name="queue_transaction_message">Failed to broadcast transaction.\nWould you like to queue the transaction so it gets sent automatically once you get online?</string>
     <string name="transaction_sent">Transaction sent.</string>
     <string name="export">Export account keys</string>
@@ -140,7 +142,7 @@
     <string name="found_clipboard_public_key_title">Public Key Found on Clipboard</string>
     <string name="found_clipboard_private_keys_message">The clipboard contains a private key.\nDo you want to clear the clipboard?</string>
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
-    <string name="btc_rate">1 BTC ~ %1$s %2$s</string>
+    <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
     <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
     <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
@@ -162,8 +164,8 @@
     <string name="active_accounts_empty">(Empty)</string>
     <string name="activate_action">Activate</string>
     <string name="archive_action">Archive</string>
-    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
-    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived account won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
+    <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
+    <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -183,6 +185,7 @@
     <string name="broadcasting_transaction">Broadcasting Transaction</string>
     <string name="transaction_rejected_message">The transaction was rejected by the network. This indicates that your wallet is out of sync</string>
     <string name="transaction_rejected_double_spending_message">Failed to broadcast transaction due to a double spend or malleability issue.</string>
+    <string name="transaction_rejected_malformed">Transaction signing failed. Please report this incident to tech support.\nRaw transaction was copied to clipboard, if possible please attach it to your request.</string>
     <string name="enter_bitcoin_address">Enter Bitcoin Address</string>
     <string name="bitcoin_address_invalid">Invalid Bitcoin Address</string>
     <string name="bitcoin_address_valid">Bitcoin Address Valid</string>
@@ -191,6 +194,7 @@
     <string name="using_address_from_clipboard">Using address from clipboard</string>
     <string name="my_accounts">My Accounts</string>
     <string name="foreign_addresses">Address Book</string>
+    <string name="sending_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
     <string name="delete_archived_account_message"><![CDATA[Do you want to delete accounts <b>\"%1$s\"</b> and <b>\"%2$s\"</b>?]]></string>
@@ -586,10 +590,6 @@
     <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
-    <string name="title_no_spvmodule_warning">No SPV Module found</string>
-    <string name="message_no_spvmodule_warning">Please install the %s spv module from Google Play.</string>
-    <string name="no_spvmodule_warning_install">Install</string>
-    <string name="no_spvmodule_warning_ignore">Close the wallet</string>
     <string name="google_play_not_found">Google Play not found</string>
     <string name="word_does_not_exist_in_wordlist">The word you typed does not exist in the word list</string>
     <string name="pref_legacy_backup_title">Legacy Backup</string>
@@ -819,6 +819,7 @@
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
+    <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
     <string name="message_rebroadcast_successfull">The transaction was successfully broadcast.</string>
     <string name="message_rebroadcast_failed">Broadcast failed, please check your internet connection and synchronize your wallet.</string>
     <string name="block_explorer_title">Block explorers</string>
@@ -853,6 +854,8 @@
     <string name="coinapult_create_account">Creating Coinapult account…</string>
     <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
     <string name="coinapult_currency_account">%1$s Account</string>
+    <string name="coinapult_gone">Disabled! Tap to learn more!</string>
+    <string name="coinapult_gone_details">Coinapult is currently out of service and not responding to Mycelium requests. According to Coinapult Locks Services Agreement and in order to reduce financial risks for our users, Coinapult functionality has been disabled.\n\nAll questions related to Coinapult accounts should be addressed to Coinapult support since it is a third-party service and Mycelium has no control over Coinapult accounts.</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
@@ -875,9 +878,9 @@
     <!--RELIANCE UPON COLU’S INFORMATION AND SERVICES.</string>-->
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <string name="colu_backup_info">Your Colored Coin account access key is generated and stored independently from your other accounts. You will need to back it up separately from your main account.</string>
-    <string name="colu_sending_via_colu">Sending Colored Coin assets.</string>
+    <string name="sending_assets">Sending %s assets.</string>
     <string name="colu_failed_to_prepare">Failed to prepare Colored Coin transaction! Make sure you have funded one of your Bitcoin accounts with BTC ( up to $100) to perform transactions.</string>
-    <string name="colu_failed_to_broadcast">Colored Coin failed to broadcast transaction.</string>
+    <string name="asset_failed_to_broadcast">%s failed to broadcast transaction.</string>
     <string name="colu_succeeded_to_broadcast">Transaction sent.</string>
     <string name="copy">Copy</string>
     <string name="lt_backup_lt_id">Backup Trader Identity</string>
@@ -923,52 +926,10 @@
     <string name="credit_card_buy_setting_description">Buy Bitcoin using credit card</string>
     <!-- Credit Card End-->
 
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Buy / Sell Bitcoin</string>
-    <string name="gd_buy_sell">Glidera</string>
-    <string name="gd_buy_sell_description">Buy/Sell bitcoin from Glidera using a bank account in the US or Canada.</string>
-    <string name="gd_buy_tab">Buy</string>
-    <string name="gd_sell_tab">Sell</string>
-    <string name="gd_transaction_history_tab">History</string>
-    <string name="gd_glidera">Glidera</string>
-    <string name="gd_delivery_date">Delivery Date:</string>
-    <string name="gd_date">Date:</string>
-    <string name="gd_action">Action:</string>
-    <string name="gd_amount">Amount:</string>
-    <string name="gd_pricing">Pricing:</string>
-    <string name="gd_price">Price:</string>
-    <string name="gd_status">Status:</string>
-    <string name="gd_fee">Fee:</string>
-    <string name="gd_total">Total:</string>
-    <string name="gd_transaction_hash">Transaction Hash:</string>
-    <string name="gd_glidera_transaction_number">Glidera #:</string>
-    <string name="gd_subtotal">Subtotal:</string>
-    <string name="gd_transaction_receipt">Transaction Receipt</string>
-    <string name="gd_transaction_initiated">Transaction has been initiated, details are below.</string>
-    <string name="gd_transaction_complete">Transaction is complete, details are below.</string>
-    <string name="gd_transaction_reviewed">Transaction is being reviewed, details are below.</string>
-    <string name="gd_transaction_error">An error occurred while processing this transaction.  Please contact Glidera support at support@glidera.io.</string>
-    <string name="gd_resend_code">Resend Code</string>
-    <string name="gd_cancel">Cancel</string>
-    <string name="gd_continue">Continue</string>
-    <string name="gd_amount_to_buy">Amount to Buy</string>
-    <string name="gd_sell_bitcoin">Sell Bitcoin</string>
-    <string name="gd_buy_bitcoin">Buy Bitcoin</string>
-    <string name="gd_rate">Rate:</string>
-    <string name="gd_bitcoin">Bitcoin:</string>
-    <string name="gd_summary">Summary</string>
-    <string name="gd_btc">BTC</string>
-    <string name="gd_dollar_symbol">$</string>
-    <string name="gd_btc_symbol">฿</string>
-    <string name="gd_amount_to_sell">Amount to Sell</string>
-    <string name="gd_loading">Loading…</string>
-    <string name="gd_error_unable_to_connect">Unable to connect to glidera - %s</string>
-    <string name="gd_buy_sell_amount_x_in_btc_for_amount_y_in_fiat">%1$s for %2$s</string>
     <string name="error_details">Error details</string>
     <string name="warning_sync_failed_reusing_first">Synchronization failed! Reusing Address #1 of this xpub!</string>
-    <string name="glidera_setting_show_button_summary">Show Glidera\'s Buy/Sell option</string>
     <string name="tap_to_toggle_through_other_currencies">Tap to toggle through other currencies</string>
-    <!-- GlideraService End -->
 
     <string name="settings_service_enabled">Enable %1$s</string>
 
@@ -989,9 +950,9 @@
     <string name="label_list_activity_indicator">had activity</string>
     <string name="buy_with_cc_spend_only_warning_title">Receive only account</string>
     <string name="buy_with_cc_spend_only_warning">The current selected account is receive-only.\n\nAre you sure you want to use this account to buy your bitcoin?</string>
+    <string name="buy_sell_select_activity_warning">This feature is only for BTC accounts</string>
     <string name="requires_btc_amount">Colored Coin transaction can not be done. You need to have some small amount of BTC to pay miners fee. Please fund one of you Bitcoin addresses and then try again.</string>
     <string name="colu_rmc_tokens">RMC</string>
-    <string name="spv_sync_progress">SPV-synced to %s</string>
     <string name="gd_buy_sell_rmc_button">Buy RMC</string>
     <string name="learn_more_rmc"><u>Learn more about RMC</u></string>
     <string name="mycelium_no_responaility_rmc">If you continue, you agree to proceed to RMC, a third party service. All your interactions with RMC are outside of Mycelium\'s control and are subjects to RMC\'s User Agreement,  Terms of Use and Privacy Policy. Please read them carefully. No personal information  will be collected,  stored or used by Mycelium.\n\nMYCELIUM ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON RMC ISSUER\'S INFORMATION AND SERVICES</string>
@@ -1033,13 +994,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
 
     <string name="partner_header_title">New to crypto?</string>
     <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="get_extra_btc_url">https://play.google.com/store/apps/details?id=com.modules.tradingbots.getextrabtc</string>
-    <string name="get_extra_btc">Get extra BTC</string>
-    <string name="get_extra_btc_module"><![CDATA[<font color="#663aee82">Get Extra BTC</font> Module]]></string>
-    <string name="get_extra_btc_module_short">GEB</string>
-    <string name="get_extra_btc_module_desc">Get extra BTC with top trading strategies</string>
-    <string name="geb_module_change"><![CDATA[Mycelium <font color="#663aee82">Get Extra BTC</font> module has been %s!]]></string>
 
     <string name="partner_ledger">Ledger</string>
     <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
@@ -1264,8 +1218,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
     <string name="what_is_sync_description" >Sync is a process of retrieving your account\'s transactions from a blockchain. A number of retrieved transaction is shown upon every successful sync attempt.\n\nSync speed depends on your network connection and number of transactions. If you have thousands of transactions this process might take a couple of hours or more.</string>
-    <string name="what_is_address_type">What is address type?</string>
-    <string name="what_is_address_type_description">There are three Bitcoin address formats:\n\nP2PKH - Legacy, starting with a \"%1$s\"\nP2SH - SegWit compatible, starting with a \"%2$s\". Set by default\nBech32 - Segwit native, starting with \"%3$s\"\n\nUse either P2SH or Bech32 to receive funds if you would like to send low-fee SegWit transactions in the future.\n\nBech32 is the newest and most cost-effective standard, but is not yet widely adopted, which may reduce your privacy since using it makes your transaction more unique.</string>
+    <string name="what_is_address_type">What is an address type?</string>
+    <string name="what_is_address_type_description"><![CDATA[There are three Bitcoin address formats:<p><b>P2PKH – Legacy</b>, starting with \"%1$s\".</p><p><b>P2SH – SegWit compatible</b>, starting with \"%2$s\". This is the default.</p><p><b>Bech32 – SegWit native</b>, starting with \"%3$s\".</p><p>Use either <b>P2SH</b> or <b>Bech32</b> to receive funds if you would like to send low-fee SegWit transactions in the future.</p><p>Bech32 is the newest and most cost-effective standard, but it is not yet widely adopted, so not everybody can send bitcoins to it. Since Bech32 is not yet widely used, it might be a bit easier for blockchain analysts to discover your cash flow.</p>]]></string>
     <string name="pref_language">Language</string>
     <string name="version">version</string>
     <string name="updates">Updates</string>
@@ -1284,6 +1238,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="fiat_currency">Fiat Currency</string>
     <string name="search">Search</string>
     <string name="no_transaction_details">Сheck in Block Explorer using the hash link above.</string>
+    <string name="no_transaction_loading">Loading…</string>
     <string name="show_bip_description">Show the BIP44 address path for the current address on the home screen</string>
     <string name="public_key">Public key</string>
     <string name="private_key_s">Private key</string>
@@ -1296,12 +1251,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
-    <string name="receive_option_p2pkh">Legacy (P2PKH)</string>
-    <string name="receive_option_p2sh">SegWit compatible (P2SH)</string>
-    <string name="receive_option_bech">SegWit native (Bech32)</string>
     <string name="change_address_type">Transaction change address type</string>
-    <string name="segwit_change_mode_title">SegWit change mode</string>
-    <string name="segwit_change_mode_description">Select the way SegWit transactions change will be handled</string>
+    <string name="segwit_change_mode_title">Transaction change handling</string>
+    <string name="segwit_change_mode_description">Select the way transaction change will be handled</string>
+    <string name="change_address_description">In Bitcoin you always spend the full amount you received in an earlier transaction. To pay exact amounts, you send the amount that exceeds what you are paying to a new address in your wallet. That is the change address.\n\nAn outside observer usually cannot see if a transaction was sending the amount you paid or the amount you sent to yourself as change.</string>
     <string name="change_settings_p2sh_p2wpkh">P2SH_P2WPKH (legacy compatible)</string>
     <string name="change_settings_bech32">Bech32 (native SegWit)</string>
     <string name="change_settings_privacy_guard_mode">Privacy guard mode (default)</string>
@@ -1309,16 +1262,19 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="p2sh_receive_mode">P2SH mode</string>
     <string name="bech32_receive_mode">SegWit native (Bech32).</string>
     <string name="set_default">Set as default</string>
-    <string name="bech_next">Tap for Bech32</string>
-    <string name="p2sh_next">Tap for P2SH</string>
+    <string name="tap_next">Tap for %s</string>
+    <string name="p2pkh_short">P2PKH</string>
+    <string name="p2sh_short">P2SH</string>
+    <string name="bech_short">Bech32</string>
+    <string name="p2pkh">Legacy (P2PKH)</string>
     <string name="stale_fee_warning">The fee rates are older than 2h! Proceed with caution!</string>
     <string name="p2sh">SegWit compatible (P2SH)</string>
     <string name="bech">SegWit native (Bech32)</string>
-    <string name="bech_description">Native SegWit address will be used for change. Latest Bitcoin standard, always the smallest fee possible, might affect privacy due to Bech32 addresses still haven\'t been used widely.</string>
-    <string name="p2sh_p2wpkh">P2SH-P2WPKH</string>
-    <string name="p2sh_p2wpkh_description">Legacy compatible SegWit address will be used for change. Has no privacy issues.</string>
-    <string name="privacy_guard">Privacy guard (default)</string>
-    <string name="privacy_guard_description">With "mixed mode" accounts hiding change address will be even more effective. As most of the transactions have only one output we mask your output type according to destination address type. Transaction fee might be a bit higher.</string>
+    <string name="bech_description">All change will be returned to a native SegWit address. These transactions will be the cheapest possible, but transactions will be more identifiable on the blockchain because Bech32 addresses are not yet widely used.</string>
+    <string name="p2sh_p2wpkh">Segwit compatible (P2SH)</string>
+    <string name="p2sh_p2wpkh_description">All change will be returned to a legacy compatible SegWit address (P2SH). There are no additional privacy implications. This option has slightly higher fees than SegWit native.</string>
+    <string name="privacy_guard">Privacy Guard (default)</string>
+    <string name="privacy_guard_description">All change will be returned to the address type of the receiver, making it more difficult for blockchain analytics to identify which is the receiving address and which is the change address. These transactions cost 20 to 30 percent more in fees when sending to non-Bech32 addresses.</string>
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
@@ -1336,6 +1292,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
     <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
     <string name="account_upgraded">Account %d just received SegWit support</string>
+    <string name="hardware_account_create">Creating new hadrware wallet account</string>
+    <string name="please_wait_hardware">Please wait</string>
+    <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
+    <string name="failed_transaction_removal_title">Failed transactions removal</string>
+    <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
+    <string name="diff_type">The address %s may belong to different crypto currency types. Please choose which one it belongs to:\n</string>
+    <string name="uncompressed">(uncompressed key)</string>
+    <string name="uncompressed_key_explained">Uncompressed key based accounts are an old standard that does not support receiving to SegWit addresses.</string>
+    <string name="no_transaction_retry">Retry</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
@@ -1348,4 +1313,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
     </plurals>
+    <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
+    <string name="account_gap">Account Gap</string>
+    <string name="address_gaps">Address gaps: </string>
+    <string name="gaps_button_ok">OK</string>
+    <string name="gaps_button_ignore">Ignore</string>
 </resources>

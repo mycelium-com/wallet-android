@@ -5,6 +5,8 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.AccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
 
 import java.util.ArrayList;
@@ -171,4 +173,15 @@ public class ColuAccountBacking implements AccountBacking<ColuTransaction> {
         transactions.addAll(txList);
 
     }
+
+    @Override
+    public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
+
+    }
+
+    @Override
+    public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
+        return null;
+    }
+
 }
