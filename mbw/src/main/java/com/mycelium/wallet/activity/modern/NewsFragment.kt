@@ -94,6 +94,9 @@ class NewsFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         if (currentNews == null) {
             inflater?.inflate(R.menu.news, menu)
+            menu?.findItem(R.id.action_favorite)?.let {
+                updateFavoriteMenu(it)
+            }
         }
     }
 
@@ -102,14 +105,17 @@ class NewsFragment : Fragment() {
             startActivity(Intent(activity, NewsSearchActivity::class.java))
             return true
         } else if (item?.itemId == R.id.action_favorite) {
-            val newValue = preference.getBoolean("favorite", false).not()
             preference.edit()
-                    .putBoolean("favorite", newValue)
+                    .putBoolean("favorite", preference.getBoolean("favorite", false).not())
                     .apply()
-            item.icon = resources.getDrawable(if(newValue) R.drawable.ic_favorite else R.drawable.ic_not_favorite_menu)
+            updateFavoriteMenu(item)
             startUpdate()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun updateFavoriteMenu(item: MenuItem) {
+        item.icon = resources.getDrawable(if (preference.getBoolean("favorite", false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite_menu)
     }
 
     private var loading = false
@@ -136,7 +142,7 @@ class NewsFragment : Fragment() {
         val taskListener: (List<News>) -> Unit = {
             loading = false
             var list = it
-            if(preference.getBoolean("favorite", false)) {
+            if (preference.getBoolean("favorite", false)) {
                 list = it.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
             }
             adapter.setData(list)
