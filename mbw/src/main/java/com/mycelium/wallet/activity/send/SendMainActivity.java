@@ -311,7 +311,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
 
         // May be null
-        _receivingAddress = (BtcAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
+        _receivingAddress = (GenericAddress) getIntent().getSerializableExtra(RECEIVING_ADDRESS);
         //May be null
         _transactionLabel = getIntent().getStringExtra(TRANSACTION_LABEL);
         //May be null
@@ -440,9 +440,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         // these labels needed for readability
         Map<AddressType, String[]> addressLabels = new HashMap<>();
-        addressLabels.put(AddressType.P2PKH, new String[]{"Legacy", "P2PKH"});
-        addressLabels.put(AddressType.P2WPKH, new String[]{"SegWit native", "Bech32"});
-        addressLabels.put(AddressType.P2SH_P2WPKH, new String[]{"SegWit compat.", "P2SH"});
+        addressLabels.put(AddressType.P2PKH, new String[] {"Legacy", "P2PKH"});
+        addressLabels.put(AddressType.P2WPKH, new String[] {"SegWit native", "Bech32"});
+        addressLabels.put(AddressType.P2SH_P2WPKH, new String[] {"SegWit compat.", "P2SH"});
 
         List<AddressItem> addressesList = new ArrayList<>();
         addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
@@ -502,7 +502,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : MinerFee.values()) {
             int blocks = 0;
-            switch (fee){
+            switch (fee) {
                 case LOWPRIO:
                     blocks = 20;
                     break;
@@ -891,8 +891,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-    private Value getCurrentFeeEstimation(){
-        switch (feeLvl){
+    private Value getCurrentFeeEstimation() {
+        switch (feeLvl) {
             case LOWPRIO:
                 return Value.valueOf(_account.getCoinType(), feeEstimation.getLow().value);
             case ECONOMIC:
@@ -940,7 +940,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         if(tvErrorShow && tvError.getVisibility() != VISIBLE) {
             AnimationUtils.expand(tvError, null);
-        }else if(!tvErrorShow && tvError.getVisibility() == VISIBLE) {
+        } else if(!tvErrorShow && tvError.getVisibility() == VISIBLE) {
             AnimationUtils.collapse(tvError, null);
         }
     }
@@ -1008,7 +1008,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         updateUi();
         super.onResume();
-
         if(activityResultDialog != null) {
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
@@ -1169,7 +1168,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 setResult(RESULT_CANCELED);
                 finish();
             }
-        } else if(requestCode == REQUEST_BTC_ACCOUNT){
+        } else if(requestCode == REQUEST_BTC_ACCOUNT) {
             if(resultCode == RESULT_OK) {
                 UUID id = (UUID) intent.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_ID);
                 fundColuAccount = _mbwManager.getWalletManager(false).getAccount(id);
@@ -1277,6 +1276,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (_progress != null) {
             _progress.dismiss();
         }
-        makeText(this, R.string.warning_sync_failed_reusing_first , LENGTH_LONG).show();
+        makeText(this, R.string.warning_sync_failed_reusing_first, LENGTH_LONG).show();
     }
 }
