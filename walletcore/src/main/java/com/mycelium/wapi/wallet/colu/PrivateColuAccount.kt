@@ -12,7 +12,10 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 import org.apache.commons.codec.binary.Hex
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
 
@@ -47,22 +50,25 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         if (request is ColuSendRequest) {
             val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
             fromAddresses.addAll(request.fundingAddress)
-            val hexString = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
-            request.txHex = hexString
-            if (request.txHex == null) {
-                throw Exception("transaction not complete")
-            }
-            val txBytes: ByteArray?
-            try {
-                txBytes = Hex.decodeHex(request.txHex?.toCharArray())
-            } catch (e: org.apache.commons.codec.DecoderException) {
-                return
-            }
-            if (txBytes == null) {
-                return
-            }
+            val json = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
 
-            request.baseTransaction = Transaction.fromBytes(txBytes)
+            val signTransaction = signTransaction(json, this)
+
+//            request.txHex = json
+//            if (request.txHex == null) {
+//                throw Exception("transaction not complete")
+//            }
+//            val txBytes: ByteArray?
+//            try {
+//                txBytes = Hex.decodeHex(request.txHex?.toCharArray())
+//            } catch (e: org.apache.commons.codec.DecoderException) {
+//                return
+//            }
+//            if (txBytes == null) {
+//                return
+//            }
+
+            request.baseTransaction = signTransaction
             request.isCompleted = true
         } else {
             TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
@@ -130,6 +136,64 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
 
     override fun setAllowZeroConfSpending(allowZeroConfSpending: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: PrivateColuAccount?): Transaction? {
+        if (txid == null) {
+//            Log.e(TAG, "signTransaction: No transaction to sign !")
+            return null
+        }
+        if (coluAccount == null) {
+//            Log.e(TAG, "signTransaction: No colu account associated to transaction to sign !")
+            return null
+        }
+
+        // use bitcoinj classes and two methods above to generate signatures
+        // and sign transaction
+        // then convert to mycelium wallet transaction format
+        // Step 1: map to bitcoinj classes
+
+        // DEV only 1 key
+        val txBytes: ByteArray?
+
+        try {
+            txBytes = Hex.decodeHex(txid.txHex.toCharArray())
+        } catch (e: org.apache.commons.codec.DecoderException) {
+//            Log.e(TAG, "signTransaction: exception while decoding transaction hex code.")
+            return null
+        }
+
+        if (txBytes == null) {
+//            Log.e(TAG, "signTransaction: failed to decode transaction hex code.")
+            return null
+        }
+
+
+        val fromID = org.bitcoinj.core.NetworkParameters.fromID(networkParameters.networkType.name)
+        val signTx = org.bitcoinj.core.Transaction(fromID, txBytes)
+
+        val privateKeyBytes = coluAccount.getPrivateKey(null).getPrivateKeyBytes()
+        val publicKeyBytes = coluAccount.getPrivateKey(null).publicKey.publicKeyBytes
+        val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
+
+        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(fromID))
+
+        for (i in 0 until signTx.inputs.size) {
+            val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
+            val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
+            signTx.getInput(i.toLong()).scriptSig = scriptSig
+        }
+
+        val signedTransactionBytes = signTx.bitcoinSerialize()
+        val signedBitlibTransaction: Transaction
+        try {
+            signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes)
+        } catch (e: Transaction.TransactionParsingException) {
+//            Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.message)
+            return null
+        }
+
+        return signedBitlibTransaction
     }
 
     override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
