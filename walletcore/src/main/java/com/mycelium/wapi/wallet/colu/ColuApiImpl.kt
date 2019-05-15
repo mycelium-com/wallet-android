@@ -10,17 +10,18 @@ import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 import java.io.IOException
 
 
 class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
-    override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): String? {
+    override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json? {
         val fromAddress = mutableListOf<Address>()
         fromBtcAddress.forEach {
             fromAddress.add(it.address)
         }
-        val result = coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.getValue())
-        return result?.txHex
+        return coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.getValue())
+
     }
 
     @Throws(IOException::class)
@@ -43,7 +44,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vin.previousOutput.addresses[0])
                         input.add(GenericTransaction.GenericInput(
-                                BtcAddress(address.coinType, _address), value))
+                                BtcAddress(address.coinType, _address), value, false))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
                             transferred = transferred.subtract(value)
                         }
@@ -56,7 +57,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vout.scriptPubKey.addresses[0])
                         output.add(GenericTransaction.GenericOutput(
-                                BtcAddress(address.coinType, _address), value))
+                                BtcAddress(address.coinType, _address), value, false))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
                             transferred = transferred.add(value)
                         }

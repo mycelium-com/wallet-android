@@ -40,6 +40,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
@@ -171,7 +173,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private int getMaxDecimal(GenericAssetInfo assetInfo) {
       if (!(assetInfo instanceof FiatType)) {
-         return assetInfo.getUnitExponent() - _mbwManager.getDenomination().getBase10();
+         return assetInfo.getUnitExponent() - _mbwManager.getDenomination().getScale();
       } else {
          return assetInfo.getUnitExponent();
       }
@@ -328,7 +330,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getBase10();
+            int toTargetUnit = _mbwManager.getDenomination().getScale();
             newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(toTargetUnit));
          }
          _numberEntry.setEntry(newAmount, getMaxDecimal(_amount.type));
@@ -388,7 +390,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             _amount = val;
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getBase10();
+            int toTargetUnit = _mbwManager.getDenomination().getScale();
             _amount = val.divide((long) Math.pow(10,toTargetUnit ));
          }
       }catch (NumberFormatException e){
@@ -437,7 +439,12 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
             tvAmount.setTextColor(getResources().getColor(R.color.white));
             btOk.setEnabled(false);
          } else {
-            checkTransaction();
+            new Handler(Looper.myLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  checkTransaction();
+               }
+            });
          }
       } else {
          btOk.setEnabled(true);

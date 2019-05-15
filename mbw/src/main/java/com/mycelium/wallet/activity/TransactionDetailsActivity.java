@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,7 +43,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,17 +68,12 @@ import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
-
-    @SuppressWarnings("deprecation")
-    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1);
+    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private WalletAccount account;
-    private GenericTransaction _tx;
-    private GenericTransaction _txs;
+    private GenericTransaction tx;
     private int _white_color;
     private MbwManager _mbwManager;
     private boolean coluMode = false;
@@ -88,7 +81,6 @@ public class TransactionDetailsActivity extends Activity {
     /**
      * Called when the activity is first created.
      */
-    @SuppressLint("ShowToast")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -100,8 +92,8 @@ public class TransactionDetailsActivity extends Activity {
 
         Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
-        account = _mbwManager.getSelectedAccount();
-        _txs = account.getTx(txid);
+        WalletAccount account = _mbwManager.getSelectedAccount();
+        tx = account.getTx(txid);
 
         loadAndUpdate(false);
 
@@ -114,8 +106,7 @@ public class TransactionDetailsActivity extends Activity {
 
     private void loadAndUpdate(boolean isAfterRemoteUpdate) {
         Sha256Hash txid = getTransactionFromIntent();
-        _tx = _mbwManager.getSelectedAccount().getTx(txid);
-        _txs = _mbwManager.getSelectedAccount().getTx(txid);
+        tx = _mbwManager.getSelectedAccount().getTx(txid);
 
         coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
         updateUi(isAfterRemoteUpdate, false);
@@ -125,14 +116,14 @@ public class TransactionDetailsActivity extends Activity {
         // Set Hash
         TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
         tvHash.setColuMode(coluMode);
-        tvHash.setTransaction(_txs);
+        tvHash.setTransaction(tx);
 
         // Set Confirmed
-        int confirmations = _txs.getConfirmations();
+        int confirmations = tx.getConfirmations();
 
         String confirmed;
         if (confirmations > 0) {
-            confirmed = getResources().getString(R.string.confirmed_in_block, _txs.getHeight());
+            confirmed = getResources().getString(R.string.confirmed_in_block, tx.getHeight());
         } else {
             confirmed = getResources().getString(R.string.no);
         }
@@ -141,7 +132,7 @@ public class TransactionDetailsActivity extends Activity {
         TransactionConfirmationsDisplay confirmationsDisplay = findViewById(R.id.tcdConfirmations);
         TextView confirmationsCount = findViewById(R.id.tvConfirmations);
 
-        if (_txs != null && _txs.isQueuedOutgoing()) {
+        if (tx != null && tx.isQueuedOutgoing()) {
             confirmationsDisplay.setNeedsBroadcast();
             confirmationsCount.setText("");
             confirmed = getResources().getString(R.string.transaction_not_broadcasted_info);
@@ -153,7 +144,7 @@ public class TransactionDetailsActivity extends Activity {
         ((TextView) findViewById(R.id.tvConfirmed)).setText(confirmed);
 
         // Set Date & Time
-        Date date = new Date(_txs.getTimestamp() * 1000L);
+        Date date = new Date(tx.getTimestamp() * 1000L);
         Locale locale = getResources().getConfiguration().locale;
         DateFormat dayFormat = DateFormat.getDateInstance(DateFormat.LONG, locale);
         String dateString = dayFormat.format(date);
@@ -174,14 +165,14 @@ public class TransactionDetailsActivity extends Activity {
         // Set Inputs
         final LinearLayout llInputs = findViewById(R.id.llInputs);
         llInputs.removeAllViews();
-        if (_txs.getInputs() != null) {
+        if (tx.getInputs() != null) {
             long sum = 0;
-            for (GenericTransaction.GenericOutput input : _txs.getInputs()) {
+            for (GenericTransaction.GenericOutput input : tx.getInputs()) {
                 sum += input.getValue().value;
             }
             if (sum != 0) {
                 tvInputsAmount.setVisibility(View.GONE);
-                for (GenericTransaction.GenericOutput item : _txs.getInputs()) {
+                for (GenericTransaction.GenericOutput item : tx.getInputs()) {
                     llInputs.addView(getItemView(item));
                 }
             }
@@ -189,37 +180,24 @@ public class TransactionDetailsActivity extends Activity {
 
         // Set Outputs
         LinearLayout outputs = findViewById(R.id.llOutputs);
-        LinearLayout change = findViewById(R.id.llChange);
         outputs.removeAllViews();
-        change.removeAllViews();
-        TableRow changeRow = findViewById(R.id.trChange);
-        changeRow.setVisibility(View.VISIBLE);
 
-        List<GenericTransaction.GenericOutput> outputList = _txs.getOutputs();
-        if (outputList != null) {
-            if (outputList.size() == 1) {
-               outputs.addView(getItemView(outputList.get(0)));
-               changeRow.setVisibility(View.GONE);
-            } else {
-                GenericTransaction.GenericOutput changeOutput = findChangeOutput(account, _txs, outputList);
-                change.addView(getItemView(changeOutput));
-                outputList.remove(changeOutput);
-                for (GenericTransaction.GenericOutput item : outputList) {
-                   outputs.addView(getItemView(item));
-                }
+        if(tx.getOutputs() != null) {
+            for (GenericTransaction.GenericOutput item : tx.getOutputs()) {
+                outputs.addView(getItemView(item));
             }
         }
 
 
         // Set Fee
-        final long txFeeTotal = _txs.getFee().getValue();
+        final long txFeeTotal = tx.getFee().getValue();
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
             findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
-            fee = ValueExtensionsKt.toStringWithUnit(_txs.getFee(), _mbwManager.getDenomination());
-            if (_txs.getRawSize() > 0) {
-                final long txFeePerSat = txFeeTotal / _txs.getRawSize();
+            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination());
+            if (tx.getRawSize() > 0) {
+                final long txFeePerSat = txFeeTotal / tx.getRawSize();
                 fee += String.format("\n%d sat/byte", txFeePerSat);
             }
             ((TextView) findViewById(R.id.tvFee)).setText(fee);
@@ -235,7 +213,7 @@ public class TransactionDetailsActivity extends Activity {
                     tvInputsAmount.setVisibility(View.GONE);
                 }
             } else {
-                int length = _tx.getInputs().size();
+                int length = tx.getInputs().size();
                 String amountLoading;
                 if (length > 0) {
                     amountLoading = String.format("%s %s", String.valueOf(length), getString(R.string.no_transaction_loading));
@@ -249,40 +227,24 @@ public class TransactionDetailsActivity extends Activity {
         }
     }
 
-    private GenericTransaction.GenericOutput findChangeOutput(WalletAccount account,
-                                                              GenericTransaction txs,
-                                                              List<GenericTransaction.GenericOutput> outputList) {
-        for (GenericTransaction.GenericOutput item : outputList) {
-            if (isChangeOutput(account, item, txs)) {
-               return item;
-            }
-        }
-        return outputList.get(0);
-    }
-
-    private boolean isChangeOutput(WalletAccount account, GenericTransaction.GenericOutput output,
-                                   GenericTransaction txs) {
-        // If we receive a transaction - txs.isIncoming() -
-        // an output of that tx that goes to foreign address is a change output.
-        // If we send a transaction - !txs.isIncoming() -
-        // an output of that tx that goes to our address is a change output.
-        return txs.isIncoming() && !account.isMineAddress(output.getAddress()) ||
-              !txs.isIncoming() && account.isMineAddress(output.getAddress());
-    }
-
     private View getItemView(GenericTransaction.GenericOutput item) {
         // Create vertical linear layout
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setLayoutParams(WCWC);
-        // Add BTC value
-        String address = item.getAddress().toString();
-        ll.addView(getValue(item.getValue(), address));
-        AddressLabel adrLabel = new AddressLabel(this);
-        adrLabel.setColuMode(coluMode);
-        adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
-        ll.addView(adrLabel);
-
+        if (item.isCoinbase()) {
+            // Coinbase input
+            ll.addView(getValue(item.getValue(), null));
+            ll.addView(getCoinbaseText());
+        } else {
+            // Add BTC value
+            String address = item.getAddress().toString();
+            ll.addView(getValue(item.getValue(), address));
+            AddressLabel adrLabel = new AddressLabel(this);
+            adrLabel.setColuMode(coluMode);
+            adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
+            ll.addView(adrLabel);
+        }
         ll.setPadding(10, 10, 10, 10);
         return ll;
     }
@@ -312,7 +274,6 @@ public class TransactionDetailsActivity extends Activity {
                 return true;
             }
         });
-
 
         return tv;
     }

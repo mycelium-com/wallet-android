@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 import java.io.IOException
 
 
@@ -19,7 +20,7 @@ interface ColuApi {
 
     fun getCoinTypes(address: Address): List<ColuMain>
 
-    fun prepareTransaction(toAddress: BtcAddress, fromAddress: List<BtcAddress>, amount: Value, txFee: Value): String?
+    fun prepareTransaction(toAddress: BtcAddress, fromAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json?
 
     data class ColuTransactionsInfo(val transactions: List<ColuTransaction>,
                                     val unspent: List<TransactionOutputEx>,

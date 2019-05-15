@@ -308,7 +308,7 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight, addressType"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "addressType"}, null, null,
                null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
@@ -675,21 +675,15 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Collection<TransactionOutputEx> getAllUnspentOutputs() {
-         Cursor cursor = null;
          List<TransactionOutputEx> list = new LinkedList<>();
-         try {
-            cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
-                  "script"}, null, null, null, null, null, null);
+         try (Cursor cursor = _db.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
+                 "script"}, null, null, null, null, null, null)) {
             while (cursor.moveToNext()) {
                TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
-                     .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
+                       .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -945,36 +939,28 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Collection<TransactionEx> getUnconfirmedTransactions() {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            // 2147483647 == Integer.MAX_VALUE
-            cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
-                  new String[]{});
+         // 2147483647 == Integer.MAX_VALUE
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
+                 new String[]{})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, -1, cursor.getInt(2),
-                     cursor.getBlob(3));
+                       cursor.getBlob(3));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
       @Override
       public Collection<TransactionEx> getYoungTransactions(int maxConfirmations, int blockChainHeight) {
          int maxHeight = blockChainHeight - maxConfirmations + 1;
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
+                 new String[]{Integer.toString(maxHeight)})) {
             // return all transaction younger than maxConfirmations or have no confirmations at all
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
-                  new String[]{Integer.toString(maxHeight)});
             while (cursor.moveToNext()) {
                int height = cursor.getInt(2);
                if (height == Integer.MAX_VALUE) {
@@ -983,14 +969,10 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, height, cursor.getInt(3),
-                     cursor.getBlob(4));
+                       cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -1005,18 +987,12 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
-         Cursor cursor = null;
          HashMap<Sha256Hash, byte[]> list = new HashMap<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{});
+         try (Cursor cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{})) {
             while (cursor.moveToNext()) {
                list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
@@ -1044,48 +1020,36 @@ public class SqliteWalletManagerBacking implements WalletManagerBacking<SingleAd
 
       @Override
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " ORDER BY height desc limit ? offset ?",
-                  new String[]{Integer.toString(limit), Integer.toString(offset)});
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+                         + " ORDER BY height desc limit ? offset ?",
+                 new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
+                       cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 
       @Override
       public List<TransactionEx> getTransactionsSince(long since) {
-         Cursor cursor = null;
          List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " WHERE time >= ?"
-                        + " ORDER BY height desc",
-                  new String[]{Long.toString(since / 1000)});
+         try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+                         + " WHERE time >= ?"
+                         + " ORDER BY height desc",
+                 new String[]{Long.toString(since / 1000)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
+                       cursor.getInt(3), cursor.getBlob(4));
                list.add(tex);
             }
             return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
          }
       }
 

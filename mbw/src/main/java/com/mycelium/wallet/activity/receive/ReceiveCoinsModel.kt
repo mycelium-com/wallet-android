@@ -61,31 +61,32 @@ class ReceiveCoinsModel(
     }
 
     fun setAmount(newAmount: Value) {
-        if (!Value.isNullOrZero(newAmount)) {
-            amount.value = newAmount
+        amount.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            amount.value = null
+            null
         }
     }
 
-    fun setAlternativeAmount(newAmount: Value?) {
-        if (!Value.isNullOrZero(newAmount)) {
-            alternativeAmountData.value = newAmount
+    fun setAlternativeAmount(newAmount: Value) {
+        alternativeAmountData.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            alternativeAmountData.value = null
+            null
         }
     }
 
     fun getPaymentUri(): String {
-        val prefix = accountLabel
-
-        val uri = StringBuilder(prefix).append(':')
-        uri.append(receivingAddress.value)
+        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val uri = StringBuilder(prefix)
+                .append(':')
+                .append(receivingAddress.value)
         if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+
                 if (value != null) {
                     uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {

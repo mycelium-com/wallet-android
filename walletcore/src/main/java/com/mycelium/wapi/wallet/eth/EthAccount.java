@@ -61,8 +61,8 @@ public class EthAccount implements WalletAccount<EthTransaction, EthAddress> {
     public void completeTransaction(SendRequest<EthTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
         EthSendRequest sendRequest = (EthSendRequest)request;
         Balance balance = getAccountBalance();
-        List<GenericTransaction.GenericInput> inputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericInput(this.address, balance.confirmed)));
-        List<GenericTransaction.GenericOutput> outputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericOutput(sendRequest.getDestination(), balance.confirmed.subtract(sendRequest.getAmount()))));
+        List<GenericTransaction.GenericInput> inputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericInput(this.address, balance.confirmed, false)));
+        List<GenericTransaction.GenericOutput> outputs = new ArrayList<>(Arrays.asList(new GenericTransaction.GenericOutput(sendRequest.getDestination(), balance.confirmed.subtract(sendRequest.getAmount()), false)));
         sendRequest.tx = new EthTransaction(sendRequest.getAmount(), inputs, outputs);
     }
 
