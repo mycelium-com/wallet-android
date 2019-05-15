@@ -43,7 +43,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
@@ -460,7 +459,6 @@ public class SendMainActivity extends Activity {
     private void setUpMultiAddressView() {
         tvReceiverAddress.setVisibility(View.GONE);
         tvReceiver.setVisibility(View.GONE);
-        receiversAddressesList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         receiversAddressesList.setHasFixedSize(true);
         receiversAddressesList.setItemWidth(getResources().getDimensionPixelSize(R.dimen.item_addr_width));
 
@@ -471,14 +469,12 @@ public class SendMainActivity extends Activity {
         addressLabels.put(AddressType.P2SH_P2WPKH, new String[]{"SegWit compat.", "P2SH"});
 
         List<AddressItem> addressesList = new ArrayList<>();
-        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (Address address : receivingAddressesList) {
             addressesList.add(new AddressItem(address,
                     addressLabels.get(address.getType())[1],
                     addressLabels.get(address.getType())[0],
                     SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         AddressViewAdapter adapter  = new AddressViewAdapter(addressesList, addressFirstItemWidth);
         receiversAddressesList.setAdapter(adapter);
@@ -491,15 +487,15 @@ public class SendMainActivity extends Activity {
                 updateUi();
             }
         });
-        receiversAddressesList.setSelectedItem(3);
+        receiversAddressesList.setSelectedItem(2);
     }
 
     private void initFeeView() {
-        feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
         feeItemsBuilder = new FeeItemsBuilder(_mbwManager);
         feeValueList.setAdapter(feeViewAdapter);
+        feeValueList.setSelectedItem(feePerKbValue);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -522,28 +518,17 @@ public class SendMainActivity extends Activity {
     }
 
     private void initFeeLvlView() {
-        feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeLvlList.setHasFixedSize(true);
         MinerFee[] fees = MinerFee.values();
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
-        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : fees) {
             String duration = Utils.formatBlockcountAsApproxDuration(this, fee.getNBlocks());
             feeLvlItems.add(new FeeLvlItem(fee, "~" + duration, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
         feeLvlList.setAdapter(feeLvlViewAdapter);
-
-        int selectedIndex = -1;
-        for (int i = 0; i < feeLvlItems.size(); i++) {
-            FeeLvlItem feeLvlItem = feeLvlItems.get(i);
-            if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
-                selectedIndex = i;
-                break;
-            }
-        }
+        feeLvlList.setSelectedItem(feeLvl);
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -552,10 +537,17 @@ public class SendMainActivity extends Activity {
                 _transactionStatus = tryCreateUnsignedTransaction();
                 List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                if (isInRange(feeItems, feePerKbValue)) {
+                    feeValueList.setSelectedItem(feePerKbValue);
+                } else {
+                    feeValueList.setSelectedItem(feeLvl.getFeePerKb(feeEstimation).getLongValue());
+                }
             }
         });
-        feeLvlList.setSelectedItem(selectedIndex);
+    }
+
+    private boolean isInRange(List<FeeItem> feeItems, long fee) {
+        return feeItems.get(0).feePerKb <= fee && fee <= feeItems.get(feeItems.size() - 1).feePerKb;
     }
 
     private int estimateTxSize() {
@@ -1178,10 +1170,6 @@ public class SendMainActivity extends Activity {
         // Enable/disable send button
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
-
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
-        feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(feePerKbValue, null, null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {

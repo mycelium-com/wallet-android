@@ -36,15 +36,8 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
     }
 
     public void setDataset(List<FeeItem> mDataset) {
-        List<FeeItem> oldDataset = this.mDataset;
         this.mDataset = mDataset;
-        if (oldDataset.size() != this.mDataset.size()) {
-            notifyDataSetChanged();
-        } else {
-            for (int i = 1; i < mDataset.size() - 2; i++) {
-                notifyItemChanged(i);
-            }
-        }
+        notifyDataSetChanged();
     }
 
     public FeeItem getItem(int position) {
@@ -109,14 +102,20 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
     @Override
     public int findIndex(Object object) {
         int selected = -1;
+        int bestNear = -1;
+        long bestNearPerKb = Long.MAX_VALUE;
         for (int i = 0; i < mDataset.size(); i++) {
             FeeItem feeItem = mDataset.get(i);
             if (feeItem.equals(object)) {
                 selected = i;
                 break;
+            } else if (object instanceof Long
+                    && Math.abs((Long) object - feeItem.feePerKb) < Math.abs((Long) object - bestNearPerKb)) {
+                bestNear = i;
+                bestNearPerKb = feeItem.feePerKb;
             }
         }
-        return selected;
+        return selected == -1 ? bestNear : selected;
     }
 
     @Override
