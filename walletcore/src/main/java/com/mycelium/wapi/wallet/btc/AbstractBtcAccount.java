@@ -106,6 +106,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import sun.net.www.content.text.Generic;
+
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -156,7 +158,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction createTransaction(GenericAddress address, Value amount, GenericFee fee)
+   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
@@ -1674,7 +1676,21 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-   public List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit) {
+    @Override
+    public List<GenericTransaction> getTransactions(int offset, int limit) {
+        checkNotArchived();
+        List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
+        List<GenericTransaction> history = new ArrayList<>();
+        for (TransactionEx tex: list) {
+            GenericTransaction tx = getTx(tex.txid);
+            if(tx != null) {
+                history.add(tx);
+            }
+        }
+        return history;
+    }
+
+    public List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
@@ -1875,4 +1891,23 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       return result;
    }
+
+    @Override
+    public boolean isSpendingUnconfirmed(GenericTransaction tx) {
+        BtcTransaction btcTx = (BtcTransaction)tx;
+        if (tx.isSigned) {
+            return false;
+        }
+
+        for (UnspentTransactionOutput out : btcTx.getUnsignedTx().getFundingOutputs()) {
+            Address address = out.script.getAddress(getNetwork());
+            if (out.height == -1 && isOwnExternalAddress(address)) {
+                // this is an unconfirmed output from an external address -> we want to warn the user
+                // we allow unconfirmed spending of internal (=change addresses) without warning
+                return true;
+            }
+        }
+        //no unconfirmed outputs are used as inputs, we are fine
+        return false;
+    }
 }

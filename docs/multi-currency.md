@@ -6,18 +6,13 @@ and interfaces to provide the ability to describe any type of asset.
 An asset implementation involves *WalletAccount* interface methods' realization:
 
 ```
-public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
+public interface WalletAccount<A extends GenericAddress> {
 
-    void completeAndSignTx(SendRequest<T> request) throws WalletAccountException;
-    void completeTransaction(SendRequest<T> request) throws WalletAccountException;
-    void signTransaction(SendRequest<T> request) throws WalletAccountException; 
-    BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException; 
-    GenericAddress getReceiveAddress();
-    CryptoCurrency getCoinType();
-    Balance getAccountBalance();  
-    T getTx(Sha256Hash transactionId); 
-    List<GenericTransaction> getTransactions(int offset, int limit); 
-    SendRequest getSendToRequest(GenericAddress destination, Value amount); 
+    GenericTransaction createTransaction(GenericAddress address, Value amount, GenericFee fee);
+    void signTx(GenericTransaction request, KeyCipher keyCipher);
+    BroadcastResult broadcastTx(GenericTransaction tx);
+    Balance getAccountBalance();
+    List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit);
 
     ...
 }
@@ -30,7 +25,7 @@ prepare a transaction by signing it, broadcast the transaction to the network.
 As long as a majority of crypto-currencies have their own transaction formats
 and address representation, the *WalletAccount* interface use templates. To describe the specific 
 assets' transactions and its address representation, the custom classes implementing *GenericAddress* and *GenericTransaction*
-should be created and used as templates.
+should be created.
  
 Below is an example of some assets implementing *WalletAccount* interface:
 
@@ -65,25 +60,36 @@ and a number of transferred currency units:
      Value amountToSend = Value.valueOf(asset, 1000000);
 ``` 
 
-A send request object contains all the nesessary information to prepare a transaction,
-including fee size. If a fee size is not specified, a default value is taken.
+Before creating a transaction, we should specify fee size.Crypto-currencies have different fee
+ policies. For example, bitcoin-based cryptocurrencies use well-known Fee-per-KB strategy.
+For example we can specify 30000 satoshis per kilobyte:
+
+```
+     GenericFee fee = new FeePerKb(Value.valueOf(asset, 30000)
+```
+
+
 It's time to create a send request object using the information about the receiving address and the 
 amount to send:
 
 ```      
-     SendRequest transaction = account.getSendToRequest(toAddress, amountToSend);
+     GenericTransaction tx = account.createTx(toAddress, amountToSend, fee);
 ```      
 
-Since, the send request is ready, the transaction need to be completed and signed:
+
+If the account does not have enough funds to execute the transaction, an appropriate exception will
+be thrown.  
+
+Since the transaction object is ready, the transaction need to be signed:
 
 ``` 
-     account.completeAndSignTx(transaction);
+     account.signTx(tx);
 ```    
 
 And we can broadcast the transaction:    
     
 ``` 
-     account.broadcastTx(request.tx);
+     account.broadcastTx(tx);
 ```    
 
 ## Retrieving fee estimations

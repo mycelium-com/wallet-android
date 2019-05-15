@@ -193,7 +193,7 @@ class BtcAssetBasicTest {
     }
 
     fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
-        val tx = account.createTransaction(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), FeePerKbFee(Value.valueOf(account.coinType, 2000L)))
+        val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), FeePerKbFee(Value.valueOf(account.coinType, 2000L)))
         account.signTx(tx, AesKeyCipher.defaultKeyCipher())
         account.broadcastTx(tx)
     }

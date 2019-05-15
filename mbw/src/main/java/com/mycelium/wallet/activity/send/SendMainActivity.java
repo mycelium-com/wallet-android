@@ -69,7 +69,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.*;
@@ -759,8 +758,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (hasAddressData) {
-                transaction = _account.createTransaction(_receivingAddress, toSend, new FeePerKbFee(selectedFee));
-                _spendingUnconfirmed = transaction.isSpendingUnconfirmed(_account);
+                transaction = _account.createTx(_receivingAddress, toSend, new FeePerKbFee(selectedFee));
+                _spendingUnconfirmed = _account.isSpendingUnconfirmed(transaction);
             } else {
                 return TransactionStatus.MissingArguments;
             }

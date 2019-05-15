@@ -9,7 +9,7 @@ import java.io.Serializable;
 public abstract class GenericTransaction implements Serializable {
 
     /**
-     * The blockchain network that this request is going to transact
+     * Type of cryptocurrency the transaction operates with
      */
     public CryptoCurrency type;
 
@@ -25,8 +25,4 @@ public abstract class GenericTransaction implements Serializable {
     public abstract byte[] txBytes();
 
     public abstract int getEstimatedTransactionSize();
-
-    public boolean isSpendingUnconfirmed(WalletAccount account) {
-        return false;
-    }
 }

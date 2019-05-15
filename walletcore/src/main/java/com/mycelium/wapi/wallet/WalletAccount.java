@@ -19,7 +19,7 @@ public interface WalletAccount<A extends GenericAddress> {
 
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTransaction(GenericAddress addres, Value amount, GenericFee fee)
+    GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
             throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
     void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
@@ -57,11 +57,15 @@ public interface WalletAccount<A extends GenericAddress> {
      */
     List<TransactionSummaryGeneric> getTransactionsSince(long receivingSince);
 
+    List<GenericTransaction> getTransactions(int offset, int limit);
+
     List<GenericOutput> getUnspentOutputs();
 
     String getLabel();
 
     void setLabel(String label);
+
+    boolean isSpendingUnconfirmed(GenericTransaction tx);
 
     /**
      * Synchronize this account

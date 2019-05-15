@@ -26,6 +26,15 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val accountBacking: ColuAccountBacking
                              , val backing: WalletBacking<ColuAccountContext>
                              , val listener: AccountListener? = null) : WalletAccount<BtcAddress> {
+
+    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
+        return ArrayList<GenericTransaction>()
+    }
+
+    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
+        return false
+    }
+
     override fun getTx(transactionId: Sha256Hash?): GenericTransaction {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -231,7 +240,7 @@ open class PublicColuAccount(val context: ColuAccountContext
         return 0;
     }
 
-    override fun createTransaction(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
         return null
     }
 

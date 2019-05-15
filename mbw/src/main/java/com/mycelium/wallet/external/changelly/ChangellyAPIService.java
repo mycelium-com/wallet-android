@@ -66,7 +66,7 @@ public interface ChangellyAPIService {
     @POST("getExchangeAmount")
     Call<ChangellyAnswerDouble> getExchangeAmount(@Query("from") String from, @Query("to") String to, @Query("amount") double amount);
 
-    @POST("createTransaction")
+    @POST("createTx")
     Call<ChangellyTransaction> createTransaction(@Query("from") String from, @Query("to") String to, @Query("amount") double amount, @Query("address") String address);
 
 //    @POST("getStatus")

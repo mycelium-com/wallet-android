@@ -23,11 +23,19 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
 
+    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getTx(transactionId: Sha256Hash?): GenericTransaction {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun createTransaction(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
         return null;
     }
 

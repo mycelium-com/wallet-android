@@ -42,27 +42,6 @@ class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddre
         return estimator.estimateTransactionSize()
     }
 
-    override fun isSpendingUnconfirmed(account: WalletAccount<*>): Boolean {
-        val networkParameters = if (type == BitcoinMain.get())
-            NetworkParameters.productionNetwork
-        else if (type == BitcoinTest.get()) NetworkParameters.testNetwork else null
-
-        if (unsignedTx == null || networkParameters == null || account !is WalletBtcAccount) {
-            return false
-        }
-
-        for (out in unsignedTx!!.fundingOutputs) {
-            val address = out.script.getAddress(networkParameters)
-            if (out.height == -1 && account.isOwnExternalAddress(address)) {
-                // this is an unconfirmed output from an external address -> we want to warn the user
-                // we allow unconfirmed spending of internal (=change addresses) without warning
-                return true
-            }
-        }
-        //no unconfirmed outputs are used as inputs, we are fine
-        return false
-    }
-
     companion object {
         @JvmStatic
         fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcTransaction {

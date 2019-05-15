@@ -44,7 +44,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         return false
     }
 
-    override fun createTransaction(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
         val feePerKb = (fee as FeePerKbFee).feePerKb
         val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
         val fromAddresses = mutableListOf(receiveAddress as BtcAddress)

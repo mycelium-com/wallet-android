@@ -61,7 +61,6 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
@@ -463,7 +462,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
-               _account.createTransaction(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(Value.valueOf(_account.getCoinType(), _kbMinerFee)));
+               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(Value.valueOf(_account.getCoinType(), _kbMinerFee)));
             } catch (GenericOutputTooSmallException e) {
                return AmountValidation.ValueTooSmall;
             } catch (GenericInsufficientFundsException e) {
