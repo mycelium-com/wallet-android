@@ -6,8 +6,11 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -40,24 +43,18 @@ public class ColuUtils {
             coinType = MASSCoin.INSTANCE;
         } else if (RMCCoin.INSTANCE.getId().equals(coinId)) {
             coinType = RMCCoin.INSTANCE;
+        } else if (MTCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = MTCoinTest.INSTANCE;
+        } else if (MASSCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = MASSCoinTest.INSTANCE;
+        } else if (RMCCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = RMCCoinTest.INSTANCE;
         }
         return coinType;
     }
-
-    public static ColuMain getColuCoinBySheme(String scheme) {
-        ColuMain coinType = null;
-        if (MTCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = MTCoin.INSTANCE;
-        } else if (MASSCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = MASSCoin.INSTANCE;
-        } else if (RMCCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = RMCCoin.INSTANCE;
-        }
-        return coinType;
-    }
-
 
     public static List<ColuMain> allColuCoins() {
-        return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+        return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE
+                , MTCoinTest.INSTANCE, MASSCoinTest.INSTANCE, RMCCoinTest.INSTANCE);
     }
 }

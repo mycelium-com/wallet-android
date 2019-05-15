@@ -17,6 +17,9 @@ class ExchangeValue(value: Value, val baseValue: Value) : Value(value.type, valu
 }
 
 fun ExchangeRateManager.get(value: Value, toCurrency: GenericAssetInfo): Value? {
+    if(toCurrency == value.type) {
+        return value
+    }
     var fromValue = value
     if (value is ExchangeValue) {
         fromValue = value.baseValue

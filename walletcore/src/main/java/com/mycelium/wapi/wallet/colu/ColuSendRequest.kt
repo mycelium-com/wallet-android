@@ -7,6 +7,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 
 
 class ColuSendRequest(type: CryptoCurrency?, val destination: BtcAddress, val amount: Value, var _fee: Value)
@@ -15,13 +16,16 @@ class ColuSendRequest(type: CryptoCurrency?, val destination: BtcAddress, val am
 
     var fundingAddress: List<BtcAddress> = listOf()
 
-    var baseTransaction: Transaction? = null
+    var baseTransaction: ColuBroadcastTxHex.Json? = null
+
+    var transaction : Transaction? = null
 
     val fundingAccounts = mutableListOf<WalletAccount<*, BtcAddress>>()
 
     override fun getEstimatedTransactionSize(): Int {
         if (baseTransaction != null) {
-            return baseTransaction?.txRawSize!!
+            //TODO fix length
+            return baseTransaction?.txHex?.length!!
         } else {
             var estimatorBuilder = FeeEstimatorBuilder()
             val estimator = estimatorBuilder.setLegacyInputs(2)

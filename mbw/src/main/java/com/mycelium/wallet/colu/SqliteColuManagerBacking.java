@@ -573,7 +573,39 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public ColuTransaction getTx(Sha256Hash hash) {
-         return null;
+         Cursor cursor = null;
+         ColuTransaction result = null;
+         try {
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
+            blobQuery.bindBlob(1, hash.getBytes());
+            cursor = blobQuery.raw( "SELECT hash, height, time, binary FROM " + txTableName + " WHERE id = ?" , txTableName);
+//         query(false, txTableName, new String[]{"hash", "height", "time", "binary"}, "id = ?", null,
+//                    null, null, null, null);
+
+            if (cursor.moveToNext()) {
+               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
+               ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(3));
+               ObjectInput in = null;
+               try {
+                  in = new ObjectInputStream(bis);
+                  result = (ColuTransaction) in.readObject();
+               } catch (IOException | ClassNotFoundException e) {
+                  e.printStackTrace();
+               } finally {
+                  try {
+                     if (in != null) {
+                        in.close();
+                     }
+                  } catch (IOException ignore) {
+                  }
+               }
+            }
+         } finally {
+            if (cursor != null) {
+               cursor.close();
+            }
+         }
+         return result;
       }
 
       @Override
@@ -1010,144 +1042,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-         if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE kv ADD COLUMN checksum BLOB");
-         }
-         if (oldVersion < 3) {
-            // add column to the secure kv table to indicate sub-stores
-            // use a temporary table to migrate the table, as sqlite does not allow to change primary keys constraints
-            db.execSQL("CREATE TABLE kv_new (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
-            db.execSQL("INSERT INTO kv_new SELECT k, v, checksum, 0 FROM kv");
-            db.execSQL("ALTER TABLE kv RENAME TO kv_old");
-            db.execSQL("ALTER TABLE kv_new RENAME TO kv");
-            db.execSQL("DROP TABLE kv_old");
-         }
-         if (oldVersion < 4) {
-            try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'tx^_%' ESCAPE '^'", new String[]{})) {
-               while (cursor.moveToNext()) {
-                  String tableName = cursor.getString(0);
-                  String newPostfix = "_new";
-                  String oldPostfix = "_old";
-                  db.execSQL("CREATE TABLE IF NOT EXISTS " + tableName + newPostfix
-                          + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB)");
-                  db.execSQL("INSERT INTO " + tableName + newPostfix + " SELECT id, id, height, time, binary FROM " + tableName);
-                  db.execSQL("ALTER TABLE " + tableName + " RENAME TO " + tableName + oldPostfix);
-                  db.execSQL("ALTER TABLE " + tableName + newPostfix + " RENAME TO " + tableName);
-                  db.execSQL("DROP TABLE " + tableName + oldPostfix);
-               }
-            }
-         }
-         if (oldVersion < 5) {
-            // Migrate SA
-            List<SingleAddressAccountContext> list = new ArrayList<>();
-            Cursor cursor = null;
-            try {
-               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-               cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
-                       null, null, null, null);
-               MetadataStorage metadataStorage = new MetadataStorage(context);
 
-               Map<UUID, ColuMain> coluUUIDs = new ArrayMap<>();
-               for (ColuMain coin : ColuUtils.allColuCoins()) {
-                  if (!Strings.isNullOrEmpty(coin.getId())) {
-                     UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                     for (UUID uuid : uuids) {
-                        coluUUIDs.put(uuid, coin);
-                     }
-                  }
-               }
-               while (cursor.moveToNext()) {
-                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-                  byte[] addressBytes = cursor.getBlob(1);
-                  String addressString = cursor.getString(2);
-                  Address address = new Address(addressBytes, addressString);
-                  UUID newId = ColuUtils.getGuidForAsset(coluUUIDs.get(id), address.getAllAddressBytes());
-
-                  metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
-                  metadataStorage.setOtherAccountBackupState(newId, metadataStorage.getOtherAccountBackupState(id));
-                  metadataStorage.storeArchived(newId, metadataStorage.getArchived(id));
-                  if (coluUUIDs.keySet().contains(id)) {
-                     String assetId = coluUUIDs.get(id).getId();
-                     metadataStorage.addColuAssetUUIDs(assetId, newId);
-                     metadataStorage.removeColuAssetUUIDs(assetId, id);
-                     Optional<String> coluBalance = metadataStorage.getColuBalance(id);
-                     if (coluBalance.isPresent()) {
-                        metadataStorage.storeColuBalance(newId, coluBalance.get());
-                     }
-                  }
-                  metadataStorage.deleteAccountMetadata(id);
-                  metadataStorage.deleteOtherAccountBackupState(id);
-
-                  boolean isArchived = cursor.getInt(3) == 1;
-                  int blockHeight = cursor.getInt(4);
-                  list.add(new SingleAddressAccountContext(newId, ImmutableMap.of(address.getType(), address), isArchived, blockHeight, AddressType.P2SH_P2WPKH));
-               }
-            } finally {
-               if (cursor != null) {
-                  cursor.close();
-               }
-            }
-            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
-            SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
-            for (SingleAddressAccountContext context : list) {
-               statement.bindBlob(1, uuidToBytes(context.getId()));
-               List<String> addresses = new ArrayList<>();
-               for (Address address: context.getAddresses().values()){
-                  addresses.add(address.toString());
-               }
-               statement.bindString(2, gson.toJson(addresses));
-               statement.bindLong(3, context.isArchived() ? 1 : 0);
-               statement.bindLong(4, context.getBlockHeight());
-               statement.bindString(5, gson.toJson(context.getDefaultAddressType()));
-
-               statement.executeInsert();
-            }
-            db.execSQL("ALTER TABLE single RENAME TO single_old");
-            db.execSQL("ALTER TABLE single_new RENAME TO single");
-            db.execSQL("DROP TABLE single_old");
-         }
-         if(oldVersion < 6) {
-            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins()) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
-                  }
-               }
-            }
-         }
-         if(oldVersion < 7) {
-            List<UUID> listForRemove = new ArrayList<>();
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
-                    null, null, null, null)) {
-               while (cursor.moveToNext()) {
-                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-                  listForRemove.add(id);
-                  Type type = new TypeToken<Collection<String>>() {}.getType();
-                  Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-                  for (String addressString : addressStringsList) {
-                     Address address = Address.fromString(addressString);
-                     if (address.getType() == AddressType.P2PKH) {
-                        listForRemove.remove(id);
-                        break;
-                     }
-                  }
-               }
-            }
-            SQLiteStatement deleteSingleAddressAccount = db.compileStatement("DELETE FROM single WHERE id = ?");
-            for (UUID uuid : listForRemove) {
-               Log.d("SColuManagerBacking", "onUpgrade: deleting account " + uuid);
-               deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
-               deleteSingleAddressAccount.execute();
-            }
-            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
-         }
       }
 
       @Override

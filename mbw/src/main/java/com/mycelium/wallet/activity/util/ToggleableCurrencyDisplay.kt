@@ -144,7 +144,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         } else {
             val value = currencySwitcher.getAsFiatValue(currentValue)
             tvCurrency.text = currencySwitcher.currentFiatCurrency.symbol
-            tvDisplayValue.text = value?.toString()
+            tvDisplayValue.text = value?.toString(currencySwitcher.denomination)
             View.VISIBLE
         }
     }
