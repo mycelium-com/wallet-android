@@ -46,17 +46,19 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.*;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
@@ -70,7 +72,11 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.Transaction;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.Constants;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.MinerFee;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.GetAmountActivity;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
@@ -103,7 +109,15 @@ import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.BitcoinBasedSendRequest;
+import com.mycelium.wapi.wallet.BroadcastResult;
+import com.mycelium.wapi.wallet.BroadcastResultType;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -122,14 +136,30 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.squareup.otto.Subscribe;
+
 import org.bitcoin.protocols.payments.PaymentACK;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.*;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -434,7 +464,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void setUpMultiAddressView() {
         tvReceiverAddress.setVisibility(View.GONE);
         tvReceiver.setVisibility(View.GONE);
-        receiversAddressesList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         receiversAddressesList.setHasFixedSize(true);
         receiversAddressesList.setItemWidth(getResources().getDimensionPixelSize(R.dimen.item_addr_width));
 
@@ -445,7 +474,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         addressLabels.put(AddressType.P2SH_P2WPKH, new String[]{"SegWit compat.", "P2SH"});
 
         List<AddressItem> addressesList = new ArrayList<>();
-        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (GenericAddress address : receivingAddressesList) {
             BtcAddress btcAddress = (BtcAddress)address;
             addressesList.add(new AddressItem(address,
@@ -453,7 +481,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     addressLabels.get(btcAddress.getType())[0],
                     SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        addressesList.add(new AddressItem(null, null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         AddressViewAdapter adapter  = new AddressViewAdapter(addressesList, addressFirstItemWidth);
         receiversAddressesList.setAdapter(adapter);
@@ -466,20 +493,20 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateUi();
             }
         });
-        receiversAddressesList.setSelectedItem(3);
+        receiversAddressesList.setSelectedItem(2);
     }
 
     private void initFeeView() {
-        feeValueList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
         feeItemsBuilder = new FeeItemsBuilder(_mbwManager.getExchangeRateManager(), _mbwManager.getFiatCurrency());
         feeValueList.setAdapter(feeViewAdapter);
+        feeValueList.setSelectedItem(selectedFee);
         feeValueList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
-                selectedFee = Value.valueOf(_account.getCoinType(), item.feePerKb);
+                selectedFee = Value.valueOf(item.value.type, item.feePerKb);
                 updateRecipient();
                 updateAmount();
                 updateFeeText();
@@ -496,10 +523,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private void initFeeLvlView() {
-        feeLvlList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         feeLvlList.setHasFixedSize(true);
         List<FeeLvlItem> feeLvlItems = new ArrayList<>();
-        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
         for (MinerFee fee : MinerFee.values()) {
             int blocks = 0;
             switch (fee){
@@ -519,19 +544,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             String duration = Utils.formatBlockcountAsApproxDuration(this, blocks);
             feeLvlItems.add(new FeeLvlItem(fee, "~" + duration, SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
-        feeLvlItems.add(new FeeLvlItem(null, null, SelectableRecyclerView.Adapter.VIEW_TYPE_PADDING));
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
         feeLvlList.setAdapter(feeLvlViewAdapter);
-
-        int selectedIndex = -1;
-        for (int i = 0; i < feeLvlItems.size(); i++) {
-            FeeLvlItem feeLvlItem = feeLvlItems.get(i);
-            if (feeLvlItem.minerFee == _mbwManager.getMinerFee()) {
-                selectedIndex = i;
-                break;
-            }
-        }
+        feeLvlList.setSelectedItem(feeLvl);
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -540,10 +556,17 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _transactionStatus = tryCreateUnsignedTransaction();
                 List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
-                feeValueList.setSelectedItem(new FeeItem(getCurrentFeeEstimation().value, Value.zeroValue(_account.getCoinType()), null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                if (isInRange(feeItems, selectedFee)) {
+                    feeValueList.setSelectedItem(selectedFee);
+                } else {
+                    feeValueList.setSelectedItem(getCurrentFeeEstimation());
+                }
             }
         });
-        feeLvlList.setSelectedItem(selectedIndex);
+    }
+
+    private boolean isInRange(List<FeeItem> feeItems, Value fee) {
+        return feeItems.get(0).feePerKb <= fee.value && fee.value <= feeItems.get(feeItems.size() - 1).feePerKb;
     }
 
     private int estimateTxSize() {
@@ -727,10 +750,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Enable/disable send button
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
-
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
-        feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(selectedFee.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
     }
 
     private void updateRecipient() {
