@@ -1,71 +1,47 @@
 package com.mycelium.wapi.wallet.colu
 
-import com.google.common.base.Optional
+import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal
-import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
-import java.io.Serializable
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 
 
-class ColuTransaction(val _id: Sha256Hash, val _type: CryptoCurrency, val _transferred: Value, var time: Long,
-                      val tx: Transaction?, val _height: Int, var _confirmations: Int, val _isQueuedOutgoing: Boolean,
-                      val destAddress: GenericAddress, val input: List<GenericTransaction.GenericInput>,
-                      val output: List<GenericTransaction.GenericOutput>
-                      , fee: Value? = null)
-    : GenericTransaction, Serializable {
-    override fun getDestinationAddress(): GenericAddress = destAddress
+class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress, val amount: Value, val feePerKb: Value?)
+    : GenericTransaction(type) {
+    var txHex: String? = null
 
-    override fun getHeight(): Int = _height
+    var fundingAddress: List<BtcAddress> = listOf()
 
-    override fun getConfirmations(): Int = _confirmations
+    var baseTransaction: ColuBroadcastTxHex.Json? = null
 
-    override fun getType(): GenericAssetInfo = _type
+    var transaction : Transaction? = null
 
-    override fun getId(): Sha256Hash? = _id
+    val fundingAccounts = mutableListOf<WalletAccount<BtcAddress>>()
 
-    override fun getHashAsString(): String = _id.toString()
+    override fun getEstimatedTransactionSize(): Int {
+        if (baseTransaction != null) {
+            //TODO fix length
+            return baseTransaction?.txHex?.length!!
+        } else {
+            var estimatorBuilder = FeeEstimatorBuilder()
+            val estimator = estimatorBuilder.setLegacyInputs(2)
+                    .setLegacyOutputs(4)
+                    .createFeeEstimator()
+            return estimator.estimateTransactionSize()
 
-    override fun getHashBytes(): ByteArray = _id.bytes
-
-    override fun getTimestamp(): Long = time
-
-    override fun setTimestamp(timestamp: Long) {
-        time = timestamp
+        }
     }
 
-    override fun isQueuedOutgoing(): Boolean = _isQueuedOutgoing
-
-    override fun getConfirmationRiskProfile(): Optional<ConfirmationRiskProfileLocal> {
-        return Optional.absent()
+    override fun getId(): Sha256Hash? {
+        return transaction?.id
     }
 
-    override fun getFee(): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun txBytes(): ByteArray? {
+        return transaction?.toBytes()
     }
-
-    override fun getInputs(): List<GenericTransaction.GenericInput> {
-        return input
-    }
-
-    override fun getOutputs(): List<GenericTransaction.GenericOutput> {
-        return output
-    }
-
-    override fun getTransferred(): Value = _transferred
-
-    override fun isIncoming() = transferred.value > 0
-
-    override fun getRawSize(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getTxBytes(): ByteArray {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 }

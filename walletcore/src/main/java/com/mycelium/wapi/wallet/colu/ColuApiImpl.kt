@@ -5,8 +5,7 @@ import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.TransactionOutputEx
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
@@ -34,16 +33,16 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         var result: ColuApi.ColuTransactionsInfo? = null
         try {
             val json = coluClient.getAddressTransactions(address.toString())
-            val transactions = mutableListOf<ColuTransaction>()
+            val transactions = mutableListOf<TransactionSummaryGeneric>()
             for (transaction in json.transactions) {
                 var transferred = Value.zeroValue(address.coinType)
 
-                val input = mutableListOf<GenericTransaction.GenericInput>()
+                val input = mutableListOf<GenericInput>()
                 transaction.vin.forEach { vin ->
                     vin.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vin.previousOutput.addresses[0])
-                        input.add(GenericTransaction.GenericInput(
+                        input.add(GenericInput(
                                 BtcAddress(address.coinType, _address), value, false))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
                             transferred = transferred.subtract(value)
@@ -51,12 +50,12 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                     }
                 }
 
-                val output = mutableListOf<GenericTransaction.GenericOutput>()
+                val output = mutableListOf<GenericOutput>()
                 transaction.vout.forEach { vout ->
                     vout.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vout.scriptPubKey.addresses[0])
-                        output.add(GenericTransaction.GenericOutput(
+                        output.add(GenericOutput(
                                 BtcAddress(address.coinType, _address), value, false))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
                             transferred = transferred.add(value)
@@ -65,10 +64,22 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 }
 
                 if (input.size > 0 || output.size > 0) {
-                    transactions.add(ColuTransaction(Sha256Hash.fromString(transaction.txid), address.coinType
-                            , transferred
-                            , transaction.time / 1000, null, transaction.blockheight.toInt()
-                            , transaction.confirmations, false, output[0].address, input, output))
+                    transactions.add(TransactionSummaryGeneric(
+                            address.coinType,
+                            Sha256Hash.fromString(transaction.txid),
+                            Sha256Hash.fromString(transaction.hash),
+                            transferred,
+                            transaction.time / 1000,
+                            transaction.blockheight.toInt(),
+                            transaction.confirmations,
+                            false,
+                            output[0].address,
+                            input,
+                            output,
+                            ConfirmationRiskProfileLocal(0, false, false),
+                            0,
+                            Value.valueOf(address.coinType, 0)
+                            ))
                 }
             }
             val utxos = mutableListOf<TransactionOutputEx>()

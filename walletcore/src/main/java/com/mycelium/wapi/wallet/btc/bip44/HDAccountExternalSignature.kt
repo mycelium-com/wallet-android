@@ -7,7 +7,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.Reference
 
@@ -15,7 +15,7 @@ class HDAccountExternalSignature(
         context: HDAccountContext,
         keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
-        backing: Bip44AccountBacking,
+        backing: Bip44BtcAccountBacking,
         wapi: Wapi,
         private val sigProvider: ExternalSignatureProvider,
         changeAddressModeReference: Reference<ChangeAddressMode>

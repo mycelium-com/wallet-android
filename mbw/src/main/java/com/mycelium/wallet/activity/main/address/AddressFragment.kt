@@ -55,7 +55,7 @@ class AddressFragment : Fragment() {
         return binding.root
     }
 
-    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*, *>): Boolean =
+    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
             account is AbstractBtcAccount &&
                     account.availableAddressTypes.size > 1 &&
                     (account as? SingleAddressAccount)?.publicKey?.isCompressed != false

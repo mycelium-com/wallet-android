@@ -1,13 +1,14 @@
 package com.mycelium.wapi.wallet.coinapult
 
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.TransactionSummaryGeneric
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import java.math.BigDecimal
 
 
 interface CoinapultApi {
-    fun getTransactions(currency: Currency): List<CoinapultTransaction>?
+    fun getTransactions(currency: Currency): List<TransactionSummaryGeneric>?
     fun getBalance(currency: Currency): Balance?
     fun getAddress(currency: Currency, currentAddress: GenericAddress?): GenericAddress?
     fun broadcast(amount: BigDecimal, currency: Currency, address: BtcAddress)

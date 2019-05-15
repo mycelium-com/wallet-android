@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
 import org.junit.Test
 
 import org.junit.Assert.assertEquals
@@ -26,7 +26,7 @@ class BitIdKeyDerivationTest {
     fun bitIdDefaultAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, "")
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
+        val store = SecureKeyValueStore(InMemoryBtcWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
         val identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher)
@@ -43,7 +43,7 @@ class BitIdKeyDerivationTest {
     fun bitIdOtherAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, PWD)
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
+        val store = SecureKeyValueStore(InMemoryBtcWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
         val identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher)
@@ -60,7 +60,7 @@ class BitIdKeyDerivationTest {
     fun bitIdBipTestVector() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST_BITID, "")
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val store = SecureKeyValueStore(InMemoryWalletManagerBacking(), MyRandomSource())
+        val store = SecureKeyValueStore(InMemoryBtcWalletManagerBacking(), MyRandomSource())
         val cipher = AesKeyCipher.defaultKeyCipher()
 
         val identityManager = IdentityAccountKeyManager.createNew(rootNode, store, cipher)

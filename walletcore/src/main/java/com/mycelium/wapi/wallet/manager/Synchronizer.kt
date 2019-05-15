@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
-                   , val accounts: List<WalletAccount<*, *>?> = listOf()) : Runnable {
+                   , val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
 
     override fun run() {
         walletManager.state = State.SYNCHRONIZING

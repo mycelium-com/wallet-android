@@ -2,14 +2,11 @@ package com.mycelium.wapi.wallet.colu
 
 import com.google.common.base.Optional
 import com.mrd.bitlib.FeeEstimatorBuilder
-import com.mrd.bitlib.StandardTransactionBuilder
-import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.*
-import com.mycelium.wapi.model.TransactionOutputSummary
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
@@ -25,8 +22,8 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                          , coluCoinType: CryptoCurrency
                          , networkParameters: NetworkParameters
                          , coluClient: ColuApi
-                         , accountBacking: AccountBacking<ColuTransaction>
-                         , backing: WalletBacking<ColuAccountContext, ColuTransaction>
+                         , accountBacking: ColuAccountBacking
+                         , backing: WalletBacking<ColuAccountContext>
                          , listener: AccountListener? = null)
     : PublicColuAccount(context, coluCoinType, networkParameters
         , coluClient, accountBacking, backing, listener), ExportableAccount {
@@ -35,7 +32,6 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         //TODO: implement later
         return false
     }
-
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         return privateKey
     }
@@ -48,30 +44,21 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         return false
     }
 
-    override fun completeTransaction(request: SendRequest<ColuTransaction>) {
-        if (request is ColuSendRequest) {
-            val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
-            fromAddresses.addAll(request.fundingAddress)
-            val json = coluClient.prepareTransaction(request.destination, fromAddresses, request.amount, request.fee)
-            request.baseTransaction = json
-            request.isCompleted = true
-        } else {
-            TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
-        }
+    override fun createTransaction(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+        val feePerKb = (fee as FeePerKbFee).feePerKb
+        val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
+        val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
+        val json = coluClient.prepareTransaction(coluTx.destination, fromAddresses, coluTx.amount, feePerKb)
+        coluTx.baseTransaction = json
+        return coluTx
     }
 
-    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
-        if (!request.isCompleted) {
-            return
-        }
-        if (request is ColuSendRequest) {
-
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+        if (request is ColuTransaction) {
             val signTransaction = signTransaction(request.baseTransaction, this)
-
-//            request.tx = signTransaction
             request.transaction = signTransaction
         } else {
-            TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
+            TODO("signTx not implemented for ${request.javaClass.simpleName}")
         }
     }
 
@@ -81,11 +68,11 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
 
     fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: PrivateColuAccount?): Transaction? {
         if (txid == null) {
-//            Log.e(TAG, "signTransaction: No transaction to sign !")
+//            Log.e(TAG, "signTx: No transaction to sign !")
             return null
         }
         if (coluAccount == null) {
-//            Log.e(TAG, "signTransaction: No colu account associated to transaction to sign !")
+//            Log.e(TAG, "signTx: No colu account associated to transaction to sign !")
             return null
         }
 
@@ -100,12 +87,12 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         try {
             txBytes = Hex.decodeHex(txid.txHex.toCharArray())
         } catch (e: org.apache.commons.codec.DecoderException) {
-//            Log.e(TAG, "signTransaction: exception while decoding transaction hex code.")
+//            Log.e(TAG, "signTx: exception while decoding transaction hex code.")
             return null
         }
 
         if (txBytes == null) {
-//            Log.e(TAG, "signTransaction: failed to decode transaction hex code.")
+//            Log.e(TAG, "signTx: failed to decode transaction hex code.")
             return null
         }
 
@@ -136,23 +123,20 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         try {
             signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes)
         } catch (e: Transaction.TransactionParsingException) {
-//            Log.e(TAG, "signTransaction: Error parsing bitcoinj transaction ! msg: " + e.message)
+//            Log.e(TAG, "signTx: Error parsing bitcoinj transaction ! msg: " + e.message)
             return null
         }
 
         return signedBitlibTransaction
     }
 
-    override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
-        return if (tx.tx != null && coluClient.broadcastTx(tx.tx) != null) {
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+        var coluTx = tx as ColuTransaction
+        return if (coluTx.transaction != null && coluClient.broadcastTx(coluTx.transaction!!) != null) {
             BroadcastResult(BroadcastResultType.SUCCESS)
         } else {
             BroadcastResult(BroadcastResultType.REJECTED)
         }
-    }
-
-    override fun getSendToRequest(destination: BtcAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
-        return ColuSendRequest(coinType, destination, amount, feePerKb)
     }
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
@@ -172,37 +156,6 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
         publicDataMap[BipDerivationType.getDerivationTypeByAddressType(AddressType.P2PKH)] = receiveAddress.toString()
         return ExportableAccount.Data(privKey, publicDataMap)
 
-    }
-
-    fun getUnspentTransactionOutputSummary(): List<TransactionOutputSummary> {
-        // Get all unspent outputs for this account
-        val outputs = accountBacking.allUnspentOutputs
-
-        // Transform it to a list of summaries
-        val list = ArrayList<TransactionOutputSummary>()
-        val blockChainHeight = blockChainHeight
-        for (output in outputs) {
-
-            val script = ScriptOutput.fromScriptBytes(output.script)
-            val address: Address
-            address = if (script == null) {
-                Address.getNullAddress(networkParameters)
-                // This never happens as we have parsed this script before
-            } else {
-                script.getAddress(networkParameters)
-            }
-            val confirmations: Int = if (output.height == -1) {
-                0
-            } else {
-                Math.max(0, blockChainHeight - output.height + 1)
-            }
-
-            val summary = TransactionOutputSummary(output.outPoint, output.value, output.height, confirmations, address)
-            list.add(summary)
-        }
-        // Sort & return
-        list.sort()
-        return list
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {

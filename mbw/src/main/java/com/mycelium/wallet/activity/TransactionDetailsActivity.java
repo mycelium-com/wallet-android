@@ -59,7 +59,8 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericOutput;
+import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -73,7 +74,7 @@ import java.util.Locale;
 public class TransactionDetailsActivity extends Activity {
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private GenericTransaction tx;
+    private TransactionSummaryGeneric tx;
     private int _white_color;
     private MbwManager _mbwManager;
     private boolean coluMode = false;
@@ -93,7 +94,7 @@ public class TransactionDetailsActivity extends Activity {
         Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
         WalletAccount account = _mbwManager.getSelectedAccount();
-        tx = account.getTx(txid);
+        tx = account.getTxSummary(txid);
 
         loadAndUpdate(false);
 
@@ -106,7 +107,7 @@ public class TransactionDetailsActivity extends Activity {
 
     private void loadAndUpdate(boolean isAfterRemoteUpdate) {
         Sha256Hash txid = getTransactionFromIntent();
-        tx = _mbwManager.getSelectedAccount().getTx(txid);
+        tx = _mbwManager.getSelectedAccount().getTxSummary(txid);
 
         coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
         updateUi(isAfterRemoteUpdate, false);
@@ -167,12 +168,12 @@ public class TransactionDetailsActivity extends Activity {
         llInputs.removeAllViews();
         if (tx.getInputs() != null) {
             long sum = 0;
-            for (GenericTransaction.GenericOutput input : tx.getInputs()) {
+            for (GenericOutput input : tx.getInputs()) {
                 sum += input.getValue().value;
             }
             if (sum != 0) {
                 tvInputsAmount.setVisibility(View.GONE);
-                for (GenericTransaction.GenericOutput item : tx.getInputs()) {
+                for (GenericOutput item : tx.getInputs()) {
                     llInputs.addView(getItemView(item));
                 }
             }
@@ -183,7 +184,7 @@ public class TransactionDetailsActivity extends Activity {
         outputs.removeAllViews();
 
         if(tx.getOutputs() != null) {
-            for (GenericTransaction.GenericOutput item : tx.getOutputs()) {
+            for (GenericOutput item : tx.getOutputs()) {
                 outputs.addView(getItemView(item));
             }
         }
@@ -227,7 +228,7 @@ public class TransactionDetailsActivity extends Activity {
         }
     }
 
-    private View getItemView(GenericTransaction.GenericOutput item) {
+    private View getItemView(GenericOutput item) {
         // Create vertical linear layout
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);

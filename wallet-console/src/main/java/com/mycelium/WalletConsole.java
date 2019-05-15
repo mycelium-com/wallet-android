@@ -12,34 +12,26 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
-import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
-import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.eth.EthAccount;
-import com.mycelium.wapi.wallet.eth.EthTransaction;
-import com.mycelium.wapi.wallet.eth.coins.EthMain;
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 import java.security.SecureRandom;
@@ -93,7 +85,7 @@ class WalletConsole {
     }
 
     public static void main(String[] args) {
-        WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+        BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
 
         final ServerEndpoints testnetWapiEndpoints = new ServerEndpoints(new HttpEndpoint[]{
                 new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
@@ -164,33 +156,11 @@ class WalletConsole {
                     , network, wapiClient, btcSettings, walletManager,null, null, null);
             walletManager.add(bitcoinSingleAddressModule);
 
-
-            WalletAccount ethAccount1 = new EthAccount();
-            walletManager.addAccount(ethAccount1);
-
-            WalletAccount ethAccount2 = new EthAccount();
-            walletManager.addAccount(ethAccount2);
-
-            System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
-            System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
-
-            SendRequest<EthTransaction> sendRequest = ethAccount1.getSendToRequest(ethAccount2.getReceiveAddress(), Value.valueOf(EthMain.INSTANCE, 10000), Value.valueOf(EthMain.INSTANCE, 10000));
-            ethAccount1.completeTransaction(sendRequest);
-            ethAccount1.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
-            ethAccount1.broadcastTx(sendRequest.tx);
-
-            System.out.println("ETH Account 1 balance: " + ethAccount1.getAccountBalance().getSpendable().toString());
-            System.out.println("ETH Account 2 balance: " + ethAccount2.getAccountBalance().getSpendable().toString());
-
 //             display HD account balance
-            List<WalletAccount<?,?>> accounts = walletManager.getActiveAccounts();
+            List<WalletAccount<?>> accounts = walletManager.getActiveAccounts();
             WalletAccount account = accounts.get(0);
             account.synchronize(SyncMode.NORMAL);
-             System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());
-        } catch (GenericTransactionBroadcastException ex) {
-            ex.printStackTrace();
-        } catch (GenericBuildTransactionException | GenericInsufficientFundsException | GenericOutputTooSmallException ex) {
-            ex.printStackTrace();
+            System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());
         } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();
         }
@@ -284,20 +254,20 @@ class WalletConsole {
     }
 
     private static void sendColuWithFundingAccount(PrivateColuAccount coluAccount, SingleAddressAccount coluSAAccount, HDAccount hdAccount1) {
-        SendRequest<ColuTransaction> sendRequest = coluAccount.getSendToRequest(
+        GenericTransaction<ColuTransactionSummary> sendRequest = coluAccount.getSendToRequest(
                 new BtcAddress(RMCCoin.INSTANCE
                         , Address.fromString("1MmgmNmKTzaNmQRi3DEmzULrxpPnxszh1c"))
                 , Value.valueOf(RMCCoin.INSTANCE, 1));
-        if (sendRequest instanceof ColuSendRequest) {
+        if (sendRequest instanceof ColuTransaction) {
             sendRequest.fee = Value.valueOf(coluSAAccount.getCoinType(), 10000000);
             List<BtcAddress> funding = new ArrayList<>();
             for (TransactionOutputSummary transactionOutputSummary : hdAccount1.getUnspentTransactionOutputSummary()) {
                 funding.add(new BtcAddress(hdAccount1.getCoinType(), transactionOutputSummary.address));
             }
-            ((ColuSendRequest) sendRequest).setFundingAddress(funding);
+            ((ColuTransaction) sendRequest).setFundingAddress(funding);
         }
         coluAccount.completeTransaction(sendRequest);
-        coluAccount.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
+        coluAccount.signTx(sendRequest, AesKeyCipher.defaultKeyCipher());
     }
 
     private static void sendBtcFrom2Account(final NetworkParameters network, final HDAccount hdAccount1, final HDAccount hdAccount2, HDAccount hdAccount3) throws KeyCipher.InvalidKeyCipher {

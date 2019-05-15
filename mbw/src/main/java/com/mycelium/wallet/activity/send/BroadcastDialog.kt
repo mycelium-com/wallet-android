@@ -14,10 +14,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.GenericTransaction
-import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import java.util.*
 
@@ -30,8 +27,16 @@ class BroadcastDialog : DialogFragment() {
 
         @JvmOverloads
         @JvmStatic
-        fun create(account: WalletAccount<GenericTransaction, *>, isColdStorage: Boolean = false
-                   , transaction: GenericTransaction): BroadcastDialog? {
+        fun createFromSummary(account: WalletAccount<*>, isColdStorage: Boolean = false
+                   , transactionSummary: TransactionSummaryGeneric): BroadcastDialog? {
+            val transaction = account.getTx(transactionSummary.id)
+            return create(account, isColdStorage, transaction)
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
+                              , transaction: GenericTransaction): BroadcastDialog? {
             val dialog = BroadcastDialog()
             val bundle = Bundle()
             bundle.putSerializable(accountId, account.id)
@@ -42,7 +47,7 @@ class BroadcastDialog : DialogFragment() {
         }
     }
 
-    lateinit var account: WalletAccount<GenericTransaction, *>
+    lateinit var account: WalletAccount<*>
     lateinit var transaction: GenericTransaction
     var isCold: Boolean = false
     private var task: BroadcastTask? = null
@@ -52,7 +57,7 @@ class BroadcastDialog : DialogFragment() {
         arguments?.let {
             isCold = it.getBoolean(coldStorage, false)
             val manager = MbwManager.getInstance(activity)
-            account = manager.getWalletManager(isCold).getAccount(it[accountId] as UUID) as WalletAccount<GenericTransaction, *>
+            account = manager.getWalletManager(isCold).getAccount(it[accountId] as UUID) as WalletAccount<*>
             transaction = it[tx] as GenericTransaction
         }
         startBroadcastingTask()
@@ -93,7 +98,7 @@ class BroadcastDialog : DialogFragment() {
     }
 
     class BroadcastTask(
-            val account: WalletAccount<GenericTransaction, *>,
+            val account: WalletAccount<*>,
             val transaction: GenericTransaction,
             val listener: ((BroadcastResult) -> Unit)) : AsyncTask<Void, Int, BroadcastResult>() {
         override fun doInBackground(vararg args: Void): BroadcastResult {
@@ -142,7 +147,7 @@ class BroadcastDialog : DialogFragment() {
             }
             BroadcastResultType.REJECT_MALFORMED -> {
                 // Transaction rejected, display message and exit
-                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes), context)
+                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes()), context)
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_malformed) {
                     returnResult(broadcastResult)
                 }
@@ -150,7 +155,7 @@ class BroadcastDialog : DialogFragment() {
             BroadcastResultType.REJECT_NONSTANDARD -> {
                 // Transaction rejected, display message and exit
                 val message = String.format(getString(R.string.transaction_not_sent_nonstandard), broadcastResult.errorMessage)
-                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes), context)
+                Utils.setClipboardString(HexUtils.toHex(transaction.txBytes()), context)
                 Utils.showSimpleMessageDialog(activity, message) {
                     returnResult(broadcastResult)
                 }

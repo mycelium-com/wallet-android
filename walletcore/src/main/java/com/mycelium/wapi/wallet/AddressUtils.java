@@ -1,14 +1,12 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
+
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
-import com.mycelium.wapi.wallet.eth.EthAddress;
-import com.mycelium.wapi.wallet.eth.coins.EthMain;
 
 public class AddressUtils {
 
@@ -30,8 +28,6 @@ public class AddressUtils {
             } else {
                 return null;
             }
-        } else if (currencyType instanceof EthMain) {
-            return new EthAddress(address);
         } else {
             return null;
         }
@@ -48,7 +44,7 @@ public class AddressUtils {
         if (Address.fromString(address.toString()) != null) {
             return true;
         }
-        return address.getCoinType() == EthMain.INSTANCE;
+        return false;
     }
 
     public static String toMultiLineString(String address) {

@@ -20,10 +20,10 @@ import com.mycelium.wapi.wallet.coins.Value
 abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
     protected lateinit var model: ReceiveCoinsModel
-    protected lateinit var account: WalletAccount<*,*>
+    protected lateinit var account: WalletAccount<*>
     var hasPrivateKey: Boolean = false
 
-    open fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
+    open fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }

@@ -71,13 +71,13 @@ It's time to create a send request object using the information about the receiv
 amount to send:
 
 ```      
-     SendRequest sendRequest = account.getSendToRequest(toAddress, amountToSend);     
+     SendRequest transaction = account.getSendToRequest(toAddress, amountToSend);
 ```      
 
 Since, the send request is ready, the transaction need to be completed and signed:
 
 ``` 
-     account.completeAndSignTx(sendRequest);
+     account.completeAndSignTx(transaction);
 ```    
 
 And we can broadcast the transaction:    

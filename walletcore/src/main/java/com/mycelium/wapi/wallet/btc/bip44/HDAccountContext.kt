@@ -17,7 +17,7 @@
 package com.mycelium.wapi.wallet.btc.bip44
 
 import com.mrd.bitlib.crypto.BipDerivationType
-import com.mycelium.wapi.wallet.btc.Bip44AccountBacking
+import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
 import com.mrd.bitlib.model.AddressType
 import java.io.Serializable
 import java.util.UUID
@@ -139,7 +139,7 @@ class HDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context if it is marked as dirty
      */
-    fun persistIfNecessary(backing: Bip44AccountBacking) {
+    fun persistIfNecessary(backing: Bip44BtcAccountBacking) {
         if (isDirty) {
             persist(backing)
         }
@@ -148,7 +148,7 @@ class HDAccountContext @JvmOverloads constructor(
     /**
      * Persist this context
      */
-    fun persist(backing: Bip44AccountBacking) {
+    fun persist(backing: Bip44BtcAccountBacking) {
         backing.updateAccountContext(this)
         isDirty = false
     }

@@ -19,7 +19,7 @@ import java.util.*
 class ColuModule(val networkParameters: NetworkParameters,
                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                  val coluApi: ColuApi,
-                 val backing: WalletBacking<ColuAccountContext, ColuTransaction>,
+                 val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
                  val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
@@ -31,15 +31,15 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
     }
 
-    private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
+    private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
     private val MAX_ACCOUNTS_NUMBER = 1000
     override fun getId(): String = ID
 
-    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
+    override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> {
         val contexts = backing.loadAccountContexts()
-        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
         for (context in contexts) {
             try {
                 val addresses = context.publicKey?.getAllSupportedBtcAddresses(context.coinType, networkParameters)
@@ -47,11 +47,11 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val accountKey = getPrivateKey(addresses)
                 val account = if (accountKey == null) {
                     PublicColuAccount(context, context.coinType, networkParameters, coluApi
-                            , backing.getAccountBacking(context.id), backing
+                            , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
                             , listener)
                 } else {
                     PrivateColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
-                            , backing.getAccountBacking(context.id), backing
+                            , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
                             , listener)
                 }
                 result[account.id] = account
@@ -75,8 +75,8 @@ class ColuModule(val networkParameters: NetworkParameters,
         return result
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *> {
-        var result: WalletAccount<*, *>? = null
+    override fun createAccount(config: Config): WalletAccount<*> {
+        var result: WalletAccount<*>? = null
         var coinType: ColuMain? = null
 
         if (config is PrivateColuConfig) {
@@ -88,7 +88,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PrivateColuAccount(context, config.privateKey, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
         } else if (config is PublicColuConfig) {
@@ -100,7 +100,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
             }
         } else if (config is AddressColuConfig) {
             coinType = coluMain(config.address.address, config.coinType)
@@ -110,7 +110,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id), backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
             }
         }
 
@@ -170,7 +170,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         return false
     }
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is PublicColuAccount || walletAccount is PrivateColuAccount ) {
             accounts.remove(walletAccount.id)
             publicPrivateKeyStore.forgetPrivateKey(walletAccount.receiveAddress.getBytes(), keyCipher)
@@ -199,4 +199,4 @@ fun PublicKey.getAllSupportedBtcAddresses(coin: ColuMain, networkParameters: Net
  *
  * @return list of accounts
  */
-fun WalletManager.getColuAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is PublicColuAccount && it.isVisible && it.isActive }
+fun WalletManager.getColuAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is PublicColuAccount && it.isVisible && it.isActive }

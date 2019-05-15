@@ -5,8 +5,7 @@ import android.arch.lifecycle.LiveData
 import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*
-import com.mycelium.wapi.model.TransactionSummary
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.TransactionSummaryGeneric
 import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
@@ -16,12 +15,12 @@ import kotlin.collections.ArrayList
 /**
  * This class is intended to manage transaction history for current selected account.
  */
-class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<GenericTransaction>>() {
+class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<TransactionSummaryGeneric>>() {
     private var account = mbwManager.selectedAccount!!
-    private var historyList = mutableSetOf<GenericTransaction>()
+    private var historyList = mutableSetOf<TransactionSummaryGeneric>()
     // Used to store reference for task from syncProgressUpdated().
     // Using weak reference as as soon as task completed it's irrelevant.
-    private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>>>? = null
+    private var syncProgressTaskWR: WeakReference<AsyncTask<Void, List<TransactionSummaryGeneric>, List<TransactionSummaryGeneric>>>? = null
     @Volatile
     private var executorService: ExecutorService
 
@@ -31,7 +30,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
         startHistoryUpdate()
     }
 
-    fun appendList(list: List<GenericTransaction>) {
+    fun appendList(list: List<TransactionSummaryGeneric>) {
         historyList.addAll(list)
         value = historyList
     }
@@ -50,7 +49,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
         MbwManager.getEventBus().unregister(this)
     }
 
-    private fun startHistoryUpdate(): AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>> =
+    private fun startHistoryUpdate(): AsyncTask<Void, List<TransactionSummaryGeneric>, List<TransactionSummaryGeneric>> =
             UpdateTxHistoryTask().executeOnExecutor(executorService)
 
 
@@ -58,7 +57,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
      * Leak might not occur, as only application context passed and whole class don't contains any Activity related contexts
      */
     @SuppressLint("StaticFieldLeak")
-    private inner class UpdateTxHistoryTask : AsyncTask<Void, List<GenericTransaction>, List<GenericTransaction>>() {
+    private inner class UpdateTxHistoryTask : AsyncTask<Void, List<TransactionSummaryGeneric>, List<TransactionSummaryGeneric>>() {
         var account = mbwManager.selectedAccount!!
         override fun onPreExecute() {
             if (account.isArchived) {
@@ -66,17 +65,17 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
             }
         }
 
-        override fun doInBackground(vararg voids: Void): List<GenericTransaction>  =
-                account.getTransactions(0, Math.max(20, value!!.size)) as List<GenericTransaction>
+        override fun doInBackground(vararg voids: Void): List<TransactionSummaryGeneric>  =
+                account.getTransactionSummaries(0, Math.max(20, value!!.size)) as List<TransactionSummaryGeneric>
 
-        override fun onPostExecute(transactions: List<GenericTransaction>) {
+        override fun onPostExecute(transactions: List<TransactionSummaryGeneric>) {
             if (account === mbwManager.selectedAccount) {
                 updateValue(transactions)
             }
         }
     }
 
-    private fun updateValue(newValue: List<GenericTransaction>) {
+    private fun updateValue(newValue: List<TransactionSummaryGeneric>) {
         historyList = newValue.toMutableSet()
         value = historyList
     }

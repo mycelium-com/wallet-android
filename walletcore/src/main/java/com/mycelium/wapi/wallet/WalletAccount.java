@@ -13,17 +13,18 @@ import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
+public interface WalletAccount<A extends GenericAddress> {
 
     FeeEstimationsGeneric getDefaultFeeEstimation();
 
     void setAllowZeroConfSpending(boolean b);
 
-    void completeTransaction(SendRequest<T> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
+    GenericTransaction createTransaction(GenericAddress addres, Value amount, GenericFee fee)
+            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
-    void signTransaction(SendRequest<T> request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
+    void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
 
-    BroadcastResult broadcastTx(T tx) throws GenericTransactionBroadcastException;
+    BroadcastResult broadcastTx(GenericTransaction tx) throws GenericTransactionBroadcastException;
 
     /**
      * Get current receive address
@@ -44,19 +45,19 @@ public interface WalletAccount<T extends GenericTransaction, A extends GenericAd
 
     boolean isExchangeable();
 
-    T getTx(Sha256Hash transactionId);
+    GenericTransaction getTx(Sha256Hash transactionId);
 
-    List<T> getTransactions(int offset, int limit);
+    TransactionSummaryGeneric getTxSummary(Sha256Hash transactionId);
+
+    List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit);
 
     /**
      * Get the transaction history of this account since the stated timestamp in milliseconds
      * @param receivingSince only include tx younger than this
      */
-    List<T> getTransactionsSince(long receivingSince);
+    List<TransactionSummaryGeneric> getTransactionsSince(long receivingSince);
 
-    SendRequest<T> getSendToRequest(A destination, Value amount, Value fee);
-
-    List<GenericTransaction.GenericOutput> getUnspentOutputs();
+    List<GenericOutput> getUnspentOutputs();
 
     String getLabel();
 

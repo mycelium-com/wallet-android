@@ -1120,7 +1120,7 @@ public class AccountsFragment extends Fragment {
         if (!toRemove.isDerivedFromInternalMasterseed()) {
             return false;
         }
-        List<WalletAccount<?,?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
+        List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
 
         // If we have more than one master-seed derived account, we can remove it
         if (accountsList.size() > 1) {

@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.wallet;
+package com.mycelium.wapi.wallet.btc;
 
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
+import com.mycelium.wapi.wallet.CommonAccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public interface AccountBacking<T extends GenericTransaction> {
-
-   void beginTransaction();
-
-   void setTransactionSuccessful();
-
-   void endTransaction();
-
-   void clear();
+public interface BtcAccountBacking extends CommonAccountBacking {
 
    Collection<TransactionOutputEx> getAllUnspentOutputs();
 
@@ -83,13 +77,6 @@ public interface AccountBacking<T extends GenericTransaction> {
    Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint);
 
    void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs);
-
-
-   T getTx(Sha256Hash hash);
-
-   List<T> getTransactions(int offset, int limit);
-
-   void putTransactions(List<T> txList);
 
    void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType);
 

@@ -1,10 +1,10 @@
 package com.mycelium.wapi.wallet.coinapult
 
-import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -16,12 +16,20 @@ import java.util.*
 
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val api: CoinapultApi
-                       , val accountBacking: AccountBacking<CoinapultTransaction>
-                       , val backing: WalletBacking<CoinapultAccountContext, CoinapultTransaction>
+                       , val accountBacking: BtcAccountBacking
+                       , val backing: WalletBacking<CoinapultAccountContext>
                        , val _network: NetworkParameters
                        , val currency: Currency
                        , val listener: AccountListener?)
-    : WalletAccount<CoinapultTransaction, BtcAddress> {
+    : WalletAccount<BtcAddress> {
+
+    override fun getTx(transactionId: Sha256Hash?): GenericTransaction {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun createTransaction(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+        return null;
+    }
 
     override fun isSyncing(): Boolean {
         //TODO: implement later
@@ -54,14 +62,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     var accountLabel: String = ""
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<CoinapultTransaction> {
-        val history = ArrayList<CoinapultTransaction>()
-        checkNotArchived()
-        val list = accountBacking.getTransactionsSince(receivingSince)
-        for (tex in list) {
-            val tx = getTx(tex.txid)
-            history.add(tx)
-        }
+    override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummaryGeneric> {
+        // Coinapult is currently disabled
+        val history = ArrayList<TransactionSummaryGeneric>()
         return history
     }
 
@@ -87,12 +90,12 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isMineAddress(address: GenericAddress?): Boolean = receiveAddress == address
 
-    override fun getTx(transactionId: Sha256Hash?): CoinapultTransaction {
-        return accountBacking.getTx(transactionId)
+    override fun getTxSummary(transactionId: Sha256Hash?): TransactionSummaryGeneric? {
+        return null
     }
 
-    override fun getTransactions(offset: Int, limit: Int): List<CoinapultTransaction> {
-        return accountBacking.getTransactions(offset, limit)
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummaryGeneric> {
+        return ArrayList<TransactionSummaryGeneric>()
     }
 
     override fun isActive() = !context.isArchived()
@@ -139,10 +142,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getSendToRequest(destination: BtcAddress, amount: Value, fee: Value): SendRequest<CoinapultTransaction> {
-        return CoinapultSendRequest(currency, destination, amount, fee)
-    }
-
     override fun getFeeEstimations(): FeeEstimationsGeneric {
         return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), System.currentTimeMillis())
     }
@@ -153,70 +152,20 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isVisible(): Boolean = true
 
-    override fun completeTransaction(request: SendRequest<CoinapultTransaction>) {
-        if (request is CoinapultSendRequest) {
-            request.tx = CoinapultTransaction(Sha256Hash.ZERO_HASH, request.amount, false
-                    , 0, "", 0, request.destination)
-            request.isCompleted = true
-        } else {
-            TODO("completeTransaction not implemented for ${request.javaClass.simpleName}")
-        }
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+        // Coinapult is currently disabled
     }
 
-    override fun signTransaction(request: SendRequest<CoinapultTransaction>, keyCipher: KeyCipher) {
-        if (!request.isCompleted) {
-            return
-        }
-        if (request is CoinapultSendRequest) {
-
-        } else {
-            TODO("signTransaction not implemented for ${request.javaClass.simpleName}")
-        }
-    }
-
-    override fun broadcastTx(tx: CoinapultTransaction): BroadcastResult {
-        return try {
-            api.broadcast(tx.value.valueAsBigDecimal, tx.value.getType() as Currency, tx.address!!)
-            BroadcastResult(BroadcastResultType.SUCCESS)
-        } catch (e: Exception) {
-            BroadcastResult(BroadcastResultType.REJECTED)
-        }
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+        // Coinapult is currently disabled
+        return BroadcastResult(BroadcastResultType.REJECTED)
     }
 
     override fun getAccountBalance(): Balance = cachedBalance
 
     override fun synchronize(mode: SyncMode?): Boolean {
         _isSynchronizing = true
-        try {
-            val newAddress = api.getAddress(currency, address)
-            newAddress?.let {
-                address = it
-                context.address = it
-            }
-        } catch (e: Exception) {
-        }
-        val balance = api.getBalance(currency)
-        if (balance != null && balance != cachedBalance) {
-            cachedBalance = balance
-            listener?.balanceUpdated(this)
-        }
-        val transactions = api.getTransactions(currency)
-        accountBacking.putTransactions(transactions)
-//        transactions?.forEach {
-//            if (it.state == "processing" || it.completeTime * 1000 > oneMinuteAgo) {
-//                if (!it.incoming) {
-//                    sendingFiatNotIncludedInBalance = sendingFiatNotIncludedInBalance.add(json.`in`.expected)
-//                } else {
-//                    receivingFiat = receivingFiat.add(json.out.amount)
-//                }
-//            } else if (it.state == "confirming") {
-//                if (!it.incoming) {
-//                    sendingFiatNotIncludedInBalance = sendingFiatNotIncludedInBalance.add(json.`in`.expected)
-//                } else {
-//                    receivingFiatNotIncludedInBalance = receivingFiatNotIncludedInBalance.add(json.out.expected)
-//                }
-//            }
-//        }
+        // Coinapult is currently disabled
         _isSynchronizing = false
         return true
     }
@@ -225,7 +174,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         return 0
     }
 
-    override fun getUnspentOutputs(): MutableList<GenericTransaction.GenericOutput> {
+    override fun getUnspentOutputs(): MutableList<GenericOutput> {
         return mutableListOf()
     }
 }

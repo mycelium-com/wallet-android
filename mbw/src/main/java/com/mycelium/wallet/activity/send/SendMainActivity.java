@@ -107,6 +107,8 @@ import com.mycelium.wapi.content.btc.BitcoinUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.FeePerKbFee;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
@@ -116,7 +118,7 @@ import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
-import com.mycelium.wapi.wallet.colu.ColuSendRequest;
+import com.mycelium.wapi.wallet.colu.ColuTransaction;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -242,8 +244,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private GenericAssetUri genericUri;
     protected boolean _isColdStorage;
     private TransactionStatus _transactionStatus;
-    private SendRequest sendRequest;
-    private SendRequest signedSendRequest;
+    private GenericTransaction transaction;
+    private GenericTransaction signedTransaction;
     private MinerFee feeLvl;
     private Value selectedFee;
     private ProgressDialog _progress;
@@ -358,7 +360,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             genericUri = (GenericAssetUri) savedInstanceState.getSerializable(ASSET_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
-            signedSendRequest = (SendRequest) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
+            signedTransaction = (GenericTransaction) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
             selectedFee = (Value) savedInstanceState.getSerializable(SELECTED_FEE);
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
@@ -557,8 +559,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private int estimateTxSize() {
-        if (sendRequest != null) {
-            return sendRequest.getEstimatedTransactionSize();
+        if (transaction != null) {
+            return transaction.getEstimatedTransactionSize();
         } else {
             return _account.getTypicalEstimatedTransactionSize();
         }
@@ -597,7 +599,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
-        savedInstanceState.putSerializable(SIGNED_SEND_REQUEST, signedSendRequest);
+        savedInstanceState.putSerializable(SIGNED_SEND_REQUEST, signedTransaction);
     }
 
     @OnClick(R.id.colu_tips_check_address)
@@ -707,11 +709,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             @Override
             protected Boolean doInBackground(Void... voids) {
                 try {
-                    if(sendRequest instanceof ColuSendRequest) {
-                        ((ColuSendRequest) sendRequest).getFundingAccounts().add(Utils.getLinkedAccount(_account, _mbwManager.getWalletManager(false).getAccounts()));
+                    if(transaction instanceof ColuTransaction) {
+                        ((ColuTransaction) transaction).getFundingAccounts().add(Utils.getLinkedAccount(_account, _mbwManager.getWalletManager(false).getAccounts()));
                     }
-                    _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
-                    _account.broadcastTx(sendRequest.tx);
+                    _account.signTx(transaction, AesKeyCipher.defaultKeyCipher());
+                    _account.broadcastTx(transaction);
                     return true;
                 } catch (GenericTransactionBroadcastException |
                         KeyCipher.InvalidKeyCipher e) {
@@ -757,9 +759,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (hasAddressData) {
-                sendRequest = _account.getSendToRequest(_receivingAddress, toSend, selectedFee);
-                _account.completeTransaction(sendRequest);
-                _spendingUnconfirmed = sendRequest.isSpendingUnconfirmed(_account);
+                transaction = _account.createTransaction(_receivingAddress, toSend, new FeePerKbFee(selectedFee));
+                _spendingUnconfirmed = transaction.isSpendingUnconfirmed(_account);
             } else {
                 return TransactionStatus.MissingArguments;
             }
@@ -1025,10 +1026,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency
-                && !(sendRequest.type instanceof ColuMain)) {
+        if (transaction != null && transaction.type instanceof BitcoinBasedCryptoCurrency
+                && !(transaction.type instanceof ColuMain)) {
             // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
-            UnsignedTransaction unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
+            UnsignedTransaction unsigned = ((BitcoinBasedGenericTransaction) transaction).getUnsignedTx();
             if (unsigned != null) {
                 int inCount = unsigned.getFundingOutputs().length;
                 int outCount = unsigned.getOutputs().length;
@@ -1103,7 +1104,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         disableButtons();
-        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, sendRequest, SIGN_TRANSACTION_REQUEST_CODE);
+        SignTransactionActivity.callMe(this, _account.getId(), _isColdStorage, transaction, SIGN_TRANSACTION_REQUEST_CODE);
     }
 
     protected void disableButtons() {
@@ -1216,7 +1217,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));
+                signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
                         && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
@@ -1226,13 +1227,14 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     if (!_paymentRequestHandler.getPaymentRequestInformation().isExpired()) {
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
-                        _paymentRequestHandler.sendResponse((Transaction) signedSendRequest.tx, (Address) _account.getReceiveAddress());
+                        BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
+                        _paymentRequestHandler.sendResponse(btcTransaction.getTx(), (Address) _account.getReceiveAddress());
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
 
                     }
                 } else {
-                    activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
+                    activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedTransaction);
                 }
             }
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
@@ -1266,9 +1268,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
-                _mbwManager.getMetadataStorage().storeTransactionLabel(signedSendRequest.tx.getId(), _transactionLabel);
+                _mbwManager.getMetadataStorage().storeTransactionLabel(signedTransaction.getId(), _transactionLabel);
             }
-            String hash = signedSendRequest.tx.getId().toString();
+            String hash = signedTransaction.getId().toString();
             String fiat = getFiatValue();
             transactionFiatValuePref.edit().putString(hash, fiat).apply();
 
@@ -1326,7 +1328,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     @Subscribe
     public void paymentRequestAck(PaymentACK paymentACK) {
         if (paymentACK != null) {
-            activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedSendRequest.tx);
+            activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedTransaction);
         }
     }
 

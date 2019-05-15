@@ -1,11 +1,7 @@
-package com.mycelium.wapi.wallet.btc;
+package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -16,49 +12,42 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-public class BtcTransaction implements GenericTransaction, Serializable {
+public class TransactionSummaryGeneric implements Serializable {
+
     protected CryptoCurrency type;
+    protected Sha256Hash id;
     protected Sha256Hash hash;
-    private Transaction tx;
     protected Value transferred;
     protected long timestamp;
     protected GenericAddress destinationAddress;
-    protected ArrayList<GenericInput> inputs;
-    protected ArrayList<GenericOutput> outputs;
+    protected List<GenericInput> inputs;
+    protected List<GenericOutput> outputs;
     protected int height;
     protected int confirmations;
     protected int rawSize;
     protected boolean isQueuedOutgoing;
+    protected long time;
     public  Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     protected Value fee;
 
-    public BtcTransaction(CryptoCurrency type, Transaction transaction) {
-        this.type = type;
-        this.tx = transaction;
-        this.hash = tx.getId();
-        this.transferred = Value.zeroValue(type);
-        this.timestamp = 0;
-        this.height = 0;
-        this.confirmations = 0;
-        this.isQueuedOutgoing = false;
-        this.destinationAddress = null;
-        this.inputs = new ArrayList<>();
-        this.outputs = new ArrayList<>();
-        this.confirmationRiskProfile = null;
-        this.rawSize = 0;
-        this.fee = Value.zeroValue(type);
-    }
 
-    public BtcTransaction(CryptoCurrency type, Transaction transaction,
-                          long transferred, long timestamp, int height, int confirmations,
-                          boolean isQueuedOutgoing, GenericAddress destinationAddress, ArrayList<GenericInput> inputs,
-                          ArrayList<GenericOutput> outputs, ConfirmationRiskProfileLocal risk,
-                          int rawSize, @Nullable Value fee) {
+    public TransactionSummaryGeneric(CryptoCurrency type,
+                                     Sha256Hash id, Sha256Hash hash,
+                                     Value transferred,
+                                     long timestamp,
+                                     int height,
+                                     int confirmations,
+                                     boolean isQueuedOutgoing,
+                                     GenericAddress destinationAddress,
+                                     List<GenericInput> inputs,
+                                     List<GenericOutput> outputs,
+                                     ConfirmationRiskProfileLocal risk,
+                                     int rawSize, @Nullable Value fee) {
         this.type = type;
-        this.tx = transaction;
-        this.hash = tx.getId();
-        this.transferred = Value.valueOf(type, transferred);
+        this.id = id;
+        this.hash = hash;
+        this.transferred = transferred;
         this.timestamp = timestamp;
         this.confirmations = confirmations;
         this.height = height;
@@ -71,96 +60,77 @@ public class BtcTransaction implements GenericTransaction, Serializable {
         this.fee = fee;
     }
 
-    public BtcTransaction(){}
-
-    @Override
     public boolean isQueuedOutgoing() {
         return isQueuedOutgoing;
     }
 
-    @Override
     public GenericAssetInfo getType() {
         return type;
     }
 
-    @Override
     public int getConfirmations() {
         return confirmations;
     }
 
-    @Override
     public int getHeight() {
         return height;
     }
 
-    @Override
     public long getTimestamp() {
         return timestamp;
     }
 
-    @Override
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
-
-    @Override
     @Nullable
     public Value getFee() {
         return fee;
     }
 
-    @Override
     public List<GenericInput> getInputs() {
         return inputs;
     }
 
-    @Override
     public List<GenericOutput> getOutputs() {
         return outputs;
     }
 
-    @Override
     public GenericAddress getDestinationAddress() {
         return destinationAddress;
     }
 
-    @Override
     public Value getTransferred() {
         return transferred;
     }
 
-    @Override
     public boolean isIncoming() {
         return transferred.value >= 0;
     }
 
-    @Override
     public int getRawSize() {
         return rawSize;
     }
 
-    @Override
     public Sha256Hash getId() {
-        return tx.getId();
+        return id;
     }
 
-    @Override
     public String getHashAsString() {
-        return tx.getHash().toString();
+        return hash.toString();
     }
 
-    @Override
     public byte[] getHashBytes() {
-        return tx.getHash().getBytes();
+        return hash.getBytes();
     }
 
-    @Override
     public byte[] getTxBytes() {
-        return tx.toBytes(true);
+        return null;
     }
 
-    @Override
+    public long getTime() {return time;}
+
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return confirmationRiskProfile;
     }
@@ -169,12 +139,8 @@ public class BtcTransaction implements GenericTransaction, Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BtcTransaction other = (BtcTransaction) o;
+        TransactionSummaryGeneric other = (TransactionSummaryGeneric) o;
         return getId().equals(other.getId());
-    }
-
-    public Transaction getRawTransaction() {
-        return tx;
     }
 
     @Override

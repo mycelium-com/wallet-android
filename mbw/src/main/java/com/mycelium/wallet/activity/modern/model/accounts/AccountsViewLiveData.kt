@@ -9,7 +9,6 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.G
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
@@ -17,7 +16,6 @@ import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.coinapult.getCoinapultAccounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
-import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -64,7 +62,6 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts(),
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
-                    R.string.eth_accounts_name to walletManager.getEthAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
                     R.string.active_other_accounts_name to walletManager.getCoinapultAccounts()
             ).forEach {
@@ -88,8 +85,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun getColuAccounts(walletManager: WalletManager): ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>> {
-            val coluAccounts = ArrayList<WalletAccount<out GenericTransaction, out GenericAddress>>()
+        private fun getColuAccounts(walletManager: WalletManager): ArrayList<WalletAccount<out GenericAddress>> {
+            val coluAccounts = ArrayList<WalletAccount<out GenericAddress>>()
             coluAccounts.addAll(walletManager.getColuAccounts())
             for (walletAccount in walletManager.getColuAccounts()) {
                 val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
@@ -100,10 +97,10 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return coluAccounts
         }
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
 
-        private fun sortAccounts(accounts: Collection<WalletAccount<out GenericTransaction, out GenericAddress>>) =
+        private fun sortAccounts(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 Utils.sortAccounts(accounts, mbwManager.metadataStorage)
 
         @SafeVarargs

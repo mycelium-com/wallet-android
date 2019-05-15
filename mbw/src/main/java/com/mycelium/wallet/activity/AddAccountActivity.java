@@ -55,7 +55,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.eth.EthConfig;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -94,7 +93,6 @@ public class AddAccountActivity extends Activity {
 
         findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
         findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
-        findViewById(R.id.btEthCreate).setOnClickListener(createEthAccount);
         if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
             findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
         } else {
@@ -136,17 +134,6 @@ public class AddAccountActivity extends Activity {
                     createNewHdAccount();
                 }
             });
-        }
-    };
-
-    View.OnClickListener createEthAccount = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            final WalletManager wallet = _mbwManager.getWalletManager(false);
-            UUID createdId = wallet.createAccounts(new EthConfig()).get(0);
-
-            MbwManager.getEventBus().post(new AccountCreated(createdId));
-            MbwManager.getEventBus().post(new AccountChanged(createdId));
         }
     };
 

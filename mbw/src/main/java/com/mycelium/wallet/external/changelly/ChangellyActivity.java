@@ -164,7 +164,7 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-        List<WalletAccount<?,?>> toAccounts = new ArrayList<>();
+        List<WalletAccount<?>> toAccounts = new ArrayList<>();
         WalletManager walletManager = mbwManager.getWalletManager(false);
         toAccounts.addAll(getBTCBip44Accounts(walletManager));
         toAccounts.addAll(getBTCSingleAddressAccounts(walletManager));

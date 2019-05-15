@@ -31,10 +31,10 @@ open class HDAccount(
         protected var context: HDAccountContext,
         protected val keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters,
-        protected val backing: Bip44AccountBacking,
+        protected val backing: Bip44BtcAccountBacking,
         wapi: Wapi,
         protected val changeAddressModeReference: Reference<ChangeAddressMode>
-) : AbstractBtcAccount(backing, network, wapi), ExportableAccount, InputSigner{
+) : AbstractBtcAccount(backing, network, wapi), ExportableAccount {
 
     // Used to determine which bips this account support
     private val derivePaths = context.indexesMap.keys
@@ -735,49 +735,15 @@ open class HDAccount(
         private val FORCED_DISCOVERY_INTERVAL_MS = TimeUnit.DAYS.toMillis(1)
     }
 
-    override fun completeTransaction(request: SendRequest<BtcTransaction>) {
-        val btcSendRequest = request as BtcSendRequest
-        val receivers = ArrayList<BtcReceiver>()
-        receivers.add(BtcReceiver(btcSendRequest.destination!!.address, btcSendRequest.amount!!.value))
-        try {
-            btcSendRequest.unsignedTx = createUnsignedTransaction(receivers, request.fee.value)
-            request.isCompleted = true
-        } catch (e: StandardTransactionBuilder.OutputTooSmallException) {
-            throw GenericOutputTooSmallException(e)
-        } catch (e: StandardTransactionBuilder.InsufficientFundsException) {
-            throw GenericInsufficientFundsException(e)
-        } catch (e: StandardTransactionBuilder.UnableToBuildTransactionException) {
-            throw GenericBuildTransactionException(e)
-        }
-    }
 
-    override fun signTransaction(request: SendRequest<BtcTransaction>, keyCipher: KeyCipher) {
-        val btcSendRequest = request as BtcSendRequest
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+        val btcSendRequest = request as BtcTransaction
         btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher()))
     }
 
-    override fun broadcastTx(tx: BtcTransaction) :BroadcastResult {
-        return broadcastTransaction(tx.rawTransaction)
-    }
-
-    override fun signInput(genericInput: GenericInput, keyCipher: KeyCipher) {
-        if (canSpend()) {
-            try {
-                genericInput.transactionInput
-                val output = getTx(genericInput.transactionInput.outPoint.txid).outputs[genericInput.transactionInput.outPoint.index]
-                val publicKey = getPublicKeyForAddress((output.address as BtcAddress).address)
-
-                publicKey?.let {
-                    getPrivateKey(it, keyCipher)?.let { key ->
-                        genericInput.transactionInput.script = ScriptInputStandard(
-                                key.makeStandardBitcoinSignature(genericInput.transaction.getTxDigestHash(genericInput.index))
-                                , key.publicKey.publicKeyBytes)
-                    }
-                }
-            } catch (invalidKeyCipher: InvalidKeyCipher) {
-                invalidKeyCipher.printStackTrace()
-            }
-        }
+    override fun broadcastTx(tx: GenericTransaction) :BroadcastResult {
+        var btcTx = tx as BtcTransaction
+        return broadcastTransaction(btcTx.tx)
     }
 
     @Throws(InvalidKeyCipher::class)

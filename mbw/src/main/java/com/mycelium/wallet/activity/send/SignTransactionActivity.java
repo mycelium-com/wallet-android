@@ -49,29 +49,27 @@ import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivit
 import com.mycelium.wallet.extsig.ledger.activity.LedgerSignTransactionActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorSignTransactionActivity;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.UUID;
 
 public class SignTransactionActivity extends Activity {
    protected MbwManager _mbwManager;
-   protected WalletAccount<?,?> _account;
+   protected WalletAccount<?> _account;
    protected boolean _isColdStorage;
-   protected SendRequest _sendRequest;
-   private Transaction _transaction;
-   private AsyncTask<Void, Integer, SendRequest> signingTask;
+   protected GenericTransaction _transaction;
+   private Transaction _tx;
+   private AsyncTask<Void, Integer, GenericTransaction> signingTask;
 
-   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest, int requestCode) {
-      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, sendRequest), requestCode);
+   public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, GenericTransaction transaction, int requestCode) {
+      currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, transaction), requestCode);
    }
 
-   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, SendRequest sendRequest) {
+   public static Intent getIntent(Activity currentActivity, UUID account, boolean isColdStorage, GenericTransaction transaction) {
       WalletAccount walletAccount = MbwManager.getInstance(currentActivity).getWalletManager(isColdStorage).getAccount(account);
 
       Class targetClass;
@@ -98,7 +96,7 @@ public class SignTransactionActivity extends Activity {
       return new Intent(currentActivity, targetClass)
               .putExtra("account", account)
               .putExtra("isColdStorage", isColdStorage)
-              .putExtra("sendRequest", sendRequest);
+              .putExtra("transaction", transaction);
    }
 
    @Override
@@ -111,12 +109,12 @@ public class SignTransactionActivity extends Activity {
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _sendRequest = Preconditions.checkNotNull((SendRequest) getIntent().getSerializableExtra("sendRequest"));
+      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra("sendRequest"));
 
       // Load state
       if (savedInstanceState != null) {
          // May be null
-         _transaction = (Transaction) savedInstanceState.getSerializable("transaction");
+         _tx = (Transaction) savedInstanceState.getSerializable("transaction");
       }
    }
 
@@ -141,15 +139,15 @@ public class SignTransactionActivity extends Activity {
    }
 
    @SuppressLint("StaticFieldLeak")
-   protected AsyncTask<Void, Integer, SendRequest> startSigningTask() {
+   protected AsyncTask<Void, Integer, GenericTransaction> startSigningTask() {
       cancelSigningTask();
       // Sign transaction in the background
-      signingTask = new AsyncTask<Void, Integer, SendRequest>() {
+      signingTask = new AsyncTask<Void, Integer, GenericTransaction>() {
          @Override
-         protected SendRequest doInBackground(Void... args) {
+         protected GenericTransaction doInBackground(Void... args) {
             try {
-               _account.signTransaction(_sendRequest, AesKeyCipher.defaultKeyCipher());
-               return _sendRequest;
+               _account.signTx(_transaction, AesKeyCipher.defaultKeyCipher());
+               return _transaction;
             }
             catch (KeyCipher.InvalidKeyCipher e) {
                throw new RuntimeException("doInBackground" + e.getMessage());
@@ -157,7 +155,7 @@ public class SignTransactionActivity extends Activity {
          }
 
          @Override
-         protected void onPostExecute(SendRequest transactionRequest) {
+         protected void onPostExecute(GenericTransaction transactionRequest) {
             if (transactionRequest != null) {
                Intent ret = new Intent();
                ret.putExtra("transactionRequest", transactionRequest);

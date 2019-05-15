@@ -20,7 +20,7 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -37,7 +37,7 @@ import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIA
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
+public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummaryGeneric> {
    private final MetadataStorage _storage;
    protected Context _context;
    private DateFormat _dateFormat;
@@ -48,12 +48,12 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<GenericTransaction> transactions, Map<Address, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<TransactionSummaryGeneric> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
-                                  List<GenericTransaction> transactions,
+                                  List<TransactionSummaryGeneric> transactions,
                                   Fragment containerFragment,
                                   Map<Address, String> addressBook,
                                   boolean alwaysShowAddress) {
@@ -88,7 +88,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
          return rowView;
       }
 
-      final GenericTransaction record = getItem(position);
+      final TransactionSummaryGeneric record = getItem(position);
 
       // Determine Color
       int color;

@@ -46,7 +46,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericOutput;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -75,7 +75,7 @@ public class UnspentOutputsActivity extends Activity {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
 
-      List<GenericTransaction.GenericOutput> outputs = account.getUnspentOutputs();
+      List<GenericOutput> outputs = account.getUnspentOutputs();
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
@@ -83,7 +83,7 @@ public class UnspentOutputsActivity extends Activity {
          findViewById(R.id.tvNoOutputs).setVisibility(View.GONE);
       }
 
-      for (GenericTransaction.GenericOutput item : outputs) {
+      for (GenericOutput item : outputs) {
          outputView.addView(getItemView(item));
       }
       if (!(outputs.size()<=5)) {
@@ -92,7 +92,7 @@ public class UnspentOutputsActivity extends Activity {
       }
    }
 
-   private View getItemView(GenericTransaction.GenericOutput item) {
+   private View getItemView(GenericOutput item) {
       // Create vertical linear layout for address
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);

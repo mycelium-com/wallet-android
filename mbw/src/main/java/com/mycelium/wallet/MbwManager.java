@@ -94,7 +94,7 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
@@ -115,7 +115,6 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.eth.EthModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
@@ -575,7 +574,7 @@ public class MbwManager {
 
     private AccountListener accountListener = new AccountListener() {
         @Override
-        public void balanceUpdated(final WalletAccount<?, ?> walletAccount) {
+        public void balanceUpdated(final WalletAccount<?> walletAccount) {
             mainLoopHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -594,7 +593,7 @@ public class MbwManager {
      */
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
         // Create persisted account backing
-        WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
+        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -656,7 +655,6 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
-        walletManager.add(new EthModule(getMetadataStorage()));
         walletManager.init();
 
         return walletManager;
@@ -668,9 +666,7 @@ public class MbwManager {
         try {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
             InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
-            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
-                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes(),
-                    networkParameters);
+            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking();
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                     , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
                     , coinapultBacking, accountListener, getMetadataStorage()));
@@ -713,7 +709,7 @@ public class MbwManager {
      */
     private WalletManager createTempWalletManager(MbwEnvironment environment) {
         // Create in-memory account backing
-        WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+        BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
 
         // Create secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
@@ -1434,7 +1430,7 @@ public class MbwManager {
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                List<WalletAccount<?,?>> list = new ArrayList<>();
+                List<WalletAccount<?>> list = new ArrayList<>();
                 list.add(getSelectedAccount());
                 getWalletManager(false).startSynchronization(new SyncMode(address), list);
             }

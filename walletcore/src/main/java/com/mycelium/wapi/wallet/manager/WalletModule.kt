@@ -10,18 +10,18 @@ import java.util.*
 
 interface WalletModule {
     fun getId(): String
-    fun loadAccounts(): Map<UUID, WalletAccount<*, *>>
+    fun loadAccounts(): Map<UUID, WalletAccount<*>>
 
     @Throws(IllegalStateException::class)
-    fun createAccount(config: Config): WalletAccount<*, *>
+    fun createAccount(config: Config): WalletAccount<*>
 
     fun canCreateAccount(config: Config): Boolean
 
-    fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean
+    fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean
 
     fun getSupportedAssets(): List<GenericAssetInfo>
 
-    fun getAccounts(): List<WalletAccount<*, *>>
+    fun getAccounts(): List<WalletAccount<*>>
 
     fun setCurrencySettings(currencySettings: CurrencySettings)
 }

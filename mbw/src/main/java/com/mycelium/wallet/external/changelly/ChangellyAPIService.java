@@ -72,7 +72,7 @@ public interface ChangellyAPIService {
 //    @POST("getStatus")
 //    Call<ChangellyStatus> getStatus(@Query("transaction") String transaction);
 
-    @POST("getTransactions")
+    @POST("getTransactionSummaries")
     Call<List<ChangellyTransaction>> getTransactions();
 
     //public static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);

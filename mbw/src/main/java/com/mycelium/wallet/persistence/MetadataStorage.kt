@@ -50,8 +50,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
-import com.mycelium.wapi.wallet.eth.coins.EthMain
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -266,8 +264,6 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             "Mass Token Test" -> MASSCoinTest
             "RMC" -> RMCCoin
             "RMC Test" -> RMCCoinTest
-            "Etherium" -> EthMain
-            "Etherium Test" -> EthTest
             else -> null
         }
     }

@@ -56,7 +56,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -187,11 +187,11 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
-         List<GenericTransaction> history = account.getTransactions(0, 1000);
+         List<TransactionSummaryGeneric> history = account.getTransactionSummaries(0, 1000);
 
-         List<GenericTransaction> list = new ArrayList<>();
+         List<TransactionSummaryGeneric> list = new ArrayList<>();
 
-         for (GenericTransaction transaction : history) {
+         for (TransactionSummaryGeneric transaction : history) {
             if (transaction.isIncoming()) {
                // We are only interested in payments
                continue;
@@ -238,7 +238,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    }
 
    public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<GenericTransaction> objects, Map<Address, String> addressBook) {
+      TransactionHistoryAdapter(Context context, List<TransactionSummaryGeneric> objects, Map<Address, String> addressBook) {
          super(context, objects, addressBook);
       }
 

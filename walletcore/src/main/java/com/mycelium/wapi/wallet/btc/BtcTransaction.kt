@@ -4,7 +4,7 @@ import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
-import com.mycelium.wapi.wallet.BitcoinBasedSendRequest
+import com.mycelium.wapi.wallet.BitcoinBasedGenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -13,10 +13,15 @@ import com.mycelium.wapi.wallet.coins.Value
 
 import java.io.Serializable
 
-class BtcSendRequest private constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, feePerKb: Value?)
-    : BitcoinBasedSendRequest<BtcTransaction>(type, feePerKb), Serializable {
+class BtcTransaction constructor(type: CryptoCurrency, val destination: BtcAddress?, val amount: Value?, val feePerKb: Value?)
+    : BitcoinBasedGenericTransaction(type, feePerKb), Serializable {
     fun setTransaction(tx: Transaction) {
-        this.tx = BtcTransaction(this.type, tx)
+        this.tx = tx
+        this.isSigned = true
+    }
+
+    constructor(coinType: CryptoCurrency, tx: Transaction): this (coinType, null, null, null) {
+        setTransaction(tx)
     }
 
     constructor(coinType: CryptoCurrency, unsignedTx: UnsignedTransaction) : this(coinType, null, null, null){
@@ -37,7 +42,7 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
         return estimator.estimateTransactionSize()
     }
 
-    override fun isSpendingUnconfirmed(account: WalletAccount<*, *>): Boolean {
+    override fun isSpendingUnconfirmed(account: WalletAccount<*>): Boolean {
         val networkParameters = if (type == BitcoinMain.get())
             NetworkParameters.productionNetwork
         else if (type == BitcoinTest.get()) NetworkParameters.testNetwork else null
@@ -60,8 +65,8 @@ class BtcSendRequest private constructor(type: CryptoCurrency, val destination: 
 
     companion object {
         @JvmStatic
-        fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcSendRequest {
-            return BtcSendRequest(destination.coinType, destination, amount, feePerkb)
+        fun to(destination: BtcAddress, amount: Value, feePerkb: Value): BtcTransaction {
+            return BtcTransaction(destination.coinType, destination, amount, feePerkb)
         }
     }
 }
