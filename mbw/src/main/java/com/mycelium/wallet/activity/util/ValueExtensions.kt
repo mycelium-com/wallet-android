@@ -25,7 +25,7 @@ fun Value.toString(denomination: Denomination = Denomination.UNIT): String {
     CoinFormat.minimumFractionDigits = 0
     var result = valueAsBigDecimal
     if (type !is FiatType && denomination != Denomination.UNIT) {
-        result = result.movePointRight(denomination.base10)
+        result = result.movePointRight(denomination.scale)
     } else if (type is FiatType) {
         CoinFormat.minimumFractionDigits = 2
     }

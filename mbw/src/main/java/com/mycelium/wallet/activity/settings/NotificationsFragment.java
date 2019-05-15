@@ -1,8 +1,6 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;

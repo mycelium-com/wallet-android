@@ -44,7 +44,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vin.previousOutput.addresses[0])
                         input.add(GenericTransaction.GenericInput(
-                                BtcAddress(address.coinType, _address), value))
+                                BtcAddress(address.coinType, _address), value, false))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
                             transferred = transferred.subtract(value)
                         }
@@ -57,7 +57,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vout.scriptPubKey.addresses[0])
                         output.add(GenericTransaction.GenericOutput(
-                                BtcAddress(address.coinType, _address), value))
+                                BtcAddress(address.coinType, _address), value, false))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
                             transferred = transferred.add(value)
                         }

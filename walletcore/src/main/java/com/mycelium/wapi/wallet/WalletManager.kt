@@ -21,7 +21,7 @@ class WalletManager(val network: NetworkParameters,
     private val _logger = wapi.logger
 
     fun getCurrenySettings(moduleID: String): CurrencySettings? {
-        return currenciesSettingsMap.get(moduleID)
+        return currenciesSettingsMap[moduleID]
     }
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
@@ -80,7 +80,6 @@ class WalletManager(val network: NetworkParameters,
             }
         }
         accounts.putAll(result)
-        startSynchronization(SyncMode.NORMAL, result.values.toList())
         return result.keys.toList()
     }
 

@@ -11,7 +11,7 @@ import com.mycelium.wallet.MbwManager
 class TransactionHistoryModel(application: Application) : AndroidViewModel(application) {
     val mbwManager = MbwManager.getInstance(application)!!
     val transactionHistory = TransactionHistoryLiveData(mbwManager)
-    val addressBook = mbwManager.metadataStorage.allAddressLabels!!
+    val addressBook = mbwManager.metadataStorage.allAddressLabels
 
     fun cacheAddressBook() {
         addressBook.clear()

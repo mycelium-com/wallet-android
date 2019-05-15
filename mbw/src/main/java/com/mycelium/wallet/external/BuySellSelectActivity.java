@@ -75,13 +75,12 @@ public class BuySellSelectActivity extends FragmentActivity {
 
    @Override
    public boolean onOptionsItemSelected(MenuItem item) {
-      switch (item.getItemId()) {
-         case android.R.id.home:
-            Intent intent = new Intent(this, ModernMain.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-            return true;
+      if (item.getItemId() == android.R.id.home) {
+         Intent intent = new Intent(this, ModernMain.class);
+         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+         startActivity(intent);
+         finish();
+         return true;
       }
       return super.onOptionsItemSelected(item);
    }

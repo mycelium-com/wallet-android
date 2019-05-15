@@ -80,7 +80,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
@@ -135,14 +134,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public FeeEstimationsGeneric getDefaultFeeEstimation() {
-       FeeEstimationsGeneric result = new FeeEstimationsGeneric(
-               Value.valueOf(getCoinType(), 1000),
-               Value.valueOf(getCoinType(), 3000),
-               Value.valueOf(getCoinType(), 6000),
-               Value.valueOf(getCoinType(), 8000),
-               0
-       );
-       return result;
+      return new FeeEstimationsGeneric(
+              Value.valueOf(getCoinType(), 1000),
+              Value.valueOf(getCoinType(), 3000),
+              Value.valueOf(getCoinType(), 6000),
+              Value.valueOf(getCoinType(), 8000),
+              0
+      );
    }
 
 
@@ -1683,13 +1681,21 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          satoshisReceived += output.value;
 
          if (address != null && address != Address.getNullAddress(_network)) {
-            outputs.add(new GenericTransaction.GenericOutput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value)));
+            outputs.add(new GenericTransaction.GenericOutput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
          }
       }
       ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
 
       // Inputs
-      if (!tx.isCoinbase()) {
+      if (tx.isCoinbase()) {
+         // We have a coinbase transaction. Create one input with the sum of the outputs as its value,
+         // and make the address the null address
+         long value = 0;
+         for (TransactionOutput out : tx.outputs) {
+            value += out.value;
+         }
+         inputs.add(new GenericTransaction.GenericInput(getDummyAddress(), Value.valueOf(getCoinType(), value), true));
+      } else {
          for (TransactionInput input : tx.inputs) {
             // find parent output
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
@@ -1703,7 +1709,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             satoshisSent += funding.value;
 
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            inputs.add(new GenericTransaction.GenericInput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value)));
+            inputs.add(new GenericTransaction.GenericInput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value), false));
          }
       }
 
@@ -1830,7 +1836,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       List<GenericTransaction.GenericOutput> result = new ArrayList<>();
       for(TransactionOutputSummary output : outputSummaryList) {
          GenericAddress addr = new BtcAddress(getCoinType(), output.address);
-         result.add(new GenericTransaction.GenericOutput(addr, Value.valueOf(getCoinType(), output.value)));
+         result.add(new GenericTransaction.GenericOutput(addr, Value.valueOf(getCoinType(), output.value), false));
       }
       return result;
    }

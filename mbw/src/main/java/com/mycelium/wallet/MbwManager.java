@@ -61,7 +61,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -292,7 +299,7 @@ public class MbwManager {
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString().toLowerCase()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -320,7 +327,7 @@ public class MbwManager {
         // additional needed fiat currencies
         setCurrencyList(fiatCurrencies);
 
-        migrateOldKeys();
+        migrate();
         createTempWalletManager();
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
 
@@ -463,9 +470,35 @@ public class MbwManager {
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
         BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrenySettings(BitcoinHDModule.ID);
-        currencySettings.setChangeAddressMode(changeAddressMode);
-        _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
-        getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+        if (currencySettings != null) {
+           currencySettings.setChangeAddressMode(changeAddressMode);
+           _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+           getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+        }
+    }
+
+    /**
+     * One time migration tasks that require more than what is at hands on the DB level can be
+     * migrated here.
+     */
+    private void migrate() {
+        int fromVersion = getPreferences().getInt("upToDateVersion", 0);
+        if(fromVersion < 20021) {
+            migrateOldKeys();
+        }
+        if(fromVersion < 2120029) {
+            // set default address type to P2PKH for uncompressed SA accounts
+            for(UUID accountId : _walletManager.getAccountIds()) {
+                WalletAccount account = _walletManager.getAccount(accountId);
+                if (account instanceof SingleAddressAccount) {
+                    PublicKey pubKey = ((SingleAddressAccount) account).getPublicKey();
+                    if(pubKey != null && !pubKey.isCompressed()) {
+                        ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
+                    }
+                }
+            }
+        }
+        getPreferences().edit().putInt("upToDateVersion", 2120029).apply();
     }
 
     private void migrateOldKeys() {
@@ -560,7 +593,7 @@ public class MbwManager {
      * @return a new wallet manager instance
      */
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
-        // Create persisted account accountBacking
+        // Create persisted account backing
         WalletManagerBacking backing = new SqliteWalletManagerBackingWrapper(context);
 
         // Create persisted secure storage instance
@@ -679,7 +712,7 @@ public class MbwManager {
      * @return a new in memory backed wallet manager instance
      */
     private WalletManager createTempWalletManager(MbwEnvironment environment) {
-        // Create in-memory account accountBacking
+        // Create in-memory account backing
         WalletManagerBacking backing = new InMemoryWalletManagerBacking();
 
         // Create secure storage instance

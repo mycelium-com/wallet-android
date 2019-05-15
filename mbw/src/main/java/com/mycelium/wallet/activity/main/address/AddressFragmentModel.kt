@@ -4,19 +4,21 @@ import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
+import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
@@ -60,17 +62,12 @@ class AddressFragmentModel(
         })
     }
 
-    private fun updateAddress(account: WalletAccount<*,*>) {
+    private fun updateAddress(account: WalletAccount<*, *>) {
         if (account is WalletBtcAccount) {
             account.receivingAddress.orNull()?.let { address ->
                 bip32Path.value = address.bip32Path
                 type.value = address.type
-                accountAddressType.value = context.getString(when (address.type) {
-                    AddressType.P2PKH -> R.string.p2pkh
-                    AddressType.P2SH_P2WPKH -> R.string.p2sh
-                    AddressType.P2WPKH -> R.string.bech
-                    null -> R.string.error
-                })
+                accountAddressType.value = context.getString(address.type.asStringRes())
             }
         }
         accountAddress.value = account.receiveAddress

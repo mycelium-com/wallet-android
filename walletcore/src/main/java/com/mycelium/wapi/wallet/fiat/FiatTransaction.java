@@ -33,6 +33,11 @@ public class FiatTransaction implements GenericTransaction {
     }
 
     @Override
+    public byte[] getTxBytes() {
+        return null;
+    }
+
+    @Override
     public int getHeight() {
         return 0;
     }

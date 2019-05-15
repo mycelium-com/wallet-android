@@ -51,11 +51,7 @@ import java.util.*;
 /**
  * Most of Mycelium's meta data is stored this way.
  */
-abstract class GenericMetadataStorage implements IMetaDataStorage {
-   // legacy table names, only to be deleted
-   private static final String TABLE_ACCOUNT_LABELS = "accountlabels";
-   private static final String TABLE_BACKUP_STATUS = "backupstatus";
-   private static final String TABLE_TRANSACTION_LABELS = "transactionlabels";
+public abstract class GenericMetadataStorage implements IMetaDataStorage {
    // the actual and only table
    private static final String TABLE_KEY_VALUE_STORE = "keyValueStore";
    private final SQLiteStatement getKeyCategoryQuery;
@@ -76,9 +72,10 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
          if (oldVersion < 3) {
-            db.execSQL("DROP TABLE " + TABLE_ACCOUNT_LABELS + ";");
-            db.execSQL("DROP TABLE " + TABLE_BACKUP_STATUS + ";");
-            db.execSQL("DROP TABLE " + TABLE_TRANSACTION_LABELS + ";");
+            // delete legacy tables
+            db.execSQL("DROP TABLE accountlabels;");
+            db.execSQL("DROP TABLE backupstatus;");
+            db.execSQL("DROP TABLE transactionlabels;");
             db.execSQL("CREATE TABLE " + TABLE_KEY_VALUE_STORE + " (key TEXT, category TEXT, value TEXT, PRIMARY KEY (key, category) );");
          }
       }
@@ -87,7 +84,7 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
    private SQLiteDatabase _db;
    private SQLiteStatement _insertOrReplaceKeyValueEntry;
 
-   GenericMetadataStorage(Context context) {
+   protected GenericMetadataStorage(Context context) {
       OpenHelper openHelper = new OpenHelper(context);
       _db = openHelper.getWritableDatabase();
       _insertOrReplaceKeyValueEntry = _db.compileStatement("INSERT OR REPLACE INTO " + TABLE_KEY_VALUE_STORE + " VALUES (?,?,?)");
@@ -103,10 +100,6 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
       _insertOrReplaceKeyValueEntry.bindString(2, category);
       _insertOrReplaceKeyValueEntry.bindString(3, value);
       _insertOrReplaceKeyValueEntry.executeInsert();
-   }
-
-   private String getKeyValueEntry(final String key, final String defaultValue){
-      return getKeyCategoryValueEntry(key, "", defaultValue);
    }
 
    public String getKeyCategoryValueEntry(final String key, final String category, final String defaultValue){
@@ -155,7 +148,7 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
    private Map<String, String> getKeysAndValuesByCategory(final String category){
       Cursor cursor = null;
       try {
-         Map<String, String> entries = new HashMap<String, String>();
+         Map<String, String> entries = new HashMap<>();
          cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key", "value"}, " category = ?", new String[]{category}, null, null, null, null);
          while (cursor.moveToNext()) {
             entries.put(cursor.getString(0), cursor.getString(1));
@@ -173,21 +166,11 @@ abstract class GenericMetadataStorage implements IMetaDataStorage {
    }
 
    public Optional<String> getFirstKeyForCategoryValue(final String category, final String value){
-      Cursor cursor = null;
-      try {
-         cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key"}, " value = ? and category = ?", new String[]{value, category}, null, null, null, "1");
+      try (Cursor cursor = _db.query(false, TABLE_KEY_VALUE_STORE, new String[]{"key"}, " value = ? and category = ?", new String[]{value, category}, null, null, null, "1")) {
          if (cursor.moveToNext()) {
             return Optional.of(cursor.getString(0));
          }
          return Optional.absent();
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
       }
-   }
-
-   private void storeKeyValueEntry(final String key, final String value) {
-      storeKeyCategoryValueEntry(key, "", value);
    }
 }

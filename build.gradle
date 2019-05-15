@@ -1,6 +1,7 @@
 apply from: 'tools.gradle'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-kapt'
+apply from: 'integration-test.gradle'
 
 repositories {
     google()

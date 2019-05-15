@@ -18,9 +18,7 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
 import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
 import com.mycelium.wapi.wallet.coinapult.Currency
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.ObjectOutputStream
 import java.util.*
 
 
