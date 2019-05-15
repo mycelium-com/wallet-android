@@ -272,7 +272,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     override fun getUnspentOutputs(): List<GenericTransaction.GenericOutput> {
         val result = mutableListOf<GenericTransaction.GenericOutput>()
         accountBacking.allUnspentOutputs.forEach {
-            result.add(GenericTransaction.GenericOutput(receiveAddress, Value.valueOf(coinType, it.value)))
+            result.add(GenericTransaction.GenericOutput(receiveAddress, Value.valueOf(coinType, it.value), false))
         }
         return result
     }
