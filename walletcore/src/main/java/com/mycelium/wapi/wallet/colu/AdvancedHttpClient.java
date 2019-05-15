@@ -15,6 +15,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
+import javax.annotation.Nullable;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.security.Security;
 
@@ -30,11 +33,16 @@ public class AdvancedHttpClient {
     private String[] hostsList;
     private HttpRequestFactory requestFactory;
 
-    public AdvancedHttpClient(String[] hostsList) {
+    public AdvancedHttpClient(String[] hostsList, @Nullable SSLSocketFactory socketFactory) {
         this.hostsList = hostsList;
         Security.addProvider(new BouncyCastleProvider());
+        NetHttpTransport.Builder builder = new NetHttpTransport.Builder();
+        if (socketFactory != null) {
+            builder.setSslSocketFactory(socketFactory);
+        }
+        NetHttpTransport netHttpTransport = builder.build();
 
-        this.requestFactory = new NetHttpTransport()
+        this.requestFactory = netHttpTransport
                 .createRequestFactory(new HttpRequestInitializer() {
                     @Override
                     public void initialize(HttpRequest request) {
@@ -66,6 +74,7 @@ public class AdvancedHttpClient {
                 return makePostRequest(t, url, headers, data);
             } catch (Exception ex) {
 //                Log.e(TAG, "Failed to make POST request to host " + host + " : " + ex.getMessage());
+                ex.printStackTrace();
             }
         }
         throw new IOException("Cannot connect to servers");

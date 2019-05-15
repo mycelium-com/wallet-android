@@ -6,21 +6,15 @@ object MTCoin : ColuMain() {
         id = "LaA8aiRBha2BcC6PCqMuK8xzZqdA3Lb6VVv41K"
         name = "Mycelium Token"
         symbol = "MT"
-    }
-
-    override fun getUnitExponent(): Int {
-        return 7
+        unitExponent = 7
     }
 }
 
 object MTCoinTest : ColuMain() {
     init {
-        id = "La3JCiNMGmc74rcfYiBAyTUstFgmGDRDkGGCRM"
+        id = "La7C2gJZWeyqwxRPovbhBwtZKzCZxbG6SeYWMA"
         name = "Mycelium Token Test"
-        symbol = "MT"
-    }
-
-    override fun getUnitExponent(): Int {
-        return 7
+        symbol = "MTt"
+        unitExponent = 7
     }
 }

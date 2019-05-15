@@ -43,6 +43,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -114,6 +116,8 @@ import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
+import com.mycelium.wapi.wallet.colu.ColuSendRequest;
+import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -121,6 +125,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
 import org.bitcoin.protocols.payments.PaymentACK;
 
@@ -482,7 +487,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 selectedFee = Value.valueOf(_account.getCoinType(), item.feePerKb);
                 updateRecipient();
                 updateAmount();
-                updateFeeText();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateFeeText();
+                    }
+                }).start();
                 updateError();
                 btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
                 ScrollView scrollView = findViewById(R.id.root);
@@ -644,7 +654,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Value presetAmount = _amountToSend;
         if (Value.isNullOrZero(presetAmount)) {
             // if no amount is set so far, use an unknown amount but in the current accounts currency
-            presetAmount = Value.valueOf(Utils.getBtcCoinType(), 0);
+            presetAmount = Value.valueOf(_account.getCoinType(), 0);
         }
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, selectedFee.value,
                 _account.getCoinType(), _isColdStorage, _receivingAddress);
@@ -676,9 +686,55 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                     return;
                 }
             }
-            signTransaction();
+
+            if (_account instanceof PublicColuAccount) {
+                sendTransaction();
+            } else {
+                signTransaction();
+            }
         }
     };
+
+    private void sendTransaction() {
+        _progress = new ProgressDialog(SendMainActivity.this);
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(R.string.sending_assets, _account.getCoinType().getSymbol()));
+        _progress.show();
+        disableButtons();
+
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    if(sendRequest instanceof ColuSendRequest) {
+                        ((ColuSendRequest) sendRequest).getFundingAccounts().add(Utils.getLinkedAccount(_account, _mbwManager.getWalletManager(false).getAccounts()));
+                    }
+                    _account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher());
+                    _account.broadcastTx(sendRequest.tx);
+                    return true;
+                } catch (GenericTransactionBroadcastException |
+                        KeyCipher.InvalidKeyCipher e) {
+                    Log.e(TAG, "", e);
+                }
+                return false;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                _progress.dismiss();
+                if (aBoolean) {
+                    _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
+                    Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
+                    SendMainActivity.this.finish();
+                } else {
+                    Toast.makeText(SendMainActivity.this, getString(R.string.asset_failed_to_broadcast, _account.getCoinType().getSymbol()), Toast.LENGTH_SHORT).show();
+                    updateUi();
+                }
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
     @OnClick(R.id.tvUnconfirmedWarning)
     void onClickUnconfirmedWarning() {
@@ -719,18 +775,33 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private void updateUi() {
         // TODO: profile. slow!
-        updateRecipient();
-        updateAmount();
-        updateFeeText();
-        updateError();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        // Enable/disable send button
-        btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
-        findViewById(R.id.root).invalidate();
+                updateFeeText();
 
-        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
-        feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(new FeeItem(selectedFee.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateRecipient();
+                        updateAmount();
+                        updateError();
+
+                        // Enable/disable send button
+                        btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
+                        findViewById(R.id.root).invalidate();
+
+                        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getCoinType(), feeEstimation, feeLvl, estimateTxSize());
+                        feeViewAdapter.setDataset(feeItems);
+                        feeValueList.setSelectedItem(new FeeItem(selectedFee.value, Value.zeroValue(_account.getCoinType()),  null, FeeViewAdapter.VIEW_TYPE_ITEM));
+                    }
+                });
+            }
+        }).start();
+
+
+
     }
 
     private void updateRecipient() {
@@ -954,7 +1025,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         if (selectedFee.value == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
-        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency) {
+        if (sendRequest != null && sendRequest.type instanceof BitcoinBasedCryptoCurrency
+                && !(sendRequest.type instanceof ColuMain)) {
             // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
             UnsignedTransaction unsigned = ((BitcoinBasedSendRequest) sendRequest).getUnsignedTx();
             if (unsigned != null) {
@@ -1115,8 +1187,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             // this is where colusend is calling tryCreateUnsigned
             // why is amountToSend not set ?
-            _transactionStatus = tryCreateUnsignedTransaction();
-            updateUi();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    _transactionStatus = tryCreateUnsignedTransaction();
+                    updateUi();
+                }
+            }).start();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
             _receivingAddress = (GenericAddress) Preconditions.checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
@@ -1127,10 +1204,16 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // Get result from AmountEntry
             Value enteredAmount = (Value) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
             setAmountToSend(enteredAmount);
-            if (!Value.isNullOrZero(_amountToSend)) {
-                _transactionStatus = tryCreateUnsignedTransaction();
-            }
-            updateUi();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!Value.isNullOrZero(_amountToSend)) {
+                        _transactionStatus = tryCreateUnsignedTransaction();
+                    }
+                    updateUi();
+                }
+            }).start();
+
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));

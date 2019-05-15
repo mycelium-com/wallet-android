@@ -183,5 +183,4 @@ public class ColuAccountBacking implements AccountBacking<ColuTransaction> {
     public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
         return null;
     }
-
 }
