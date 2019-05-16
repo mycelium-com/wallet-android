@@ -35,7 +35,7 @@ Below is an example of some assets implementing *WalletAccount* interface:
 ## Creating a new Wallet
 
 Mycelium Wallet Core provides the *WalletManager* class to manage user's crypto assets. Before starting
-to use its methods, a a configuration of data storage and master seed setup should be provided.
+to use its methods, a configuration of data storage and master seed setup should be provided.
 
 ### Data storage configuration
 
