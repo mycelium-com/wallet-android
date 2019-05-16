@@ -32,6 +32,63 @@ Below is an example of some assets implementing *WalletAccount* interface:
 
 ![Image](images/accs.png)
 
+## Creating a new Wallet
+
+Mycelium Wallet Core provides the *WalletManager* class to manage user's crypto assets. Before starting
+to use its methods, a a configuration of data storage and master seed setup should be provided.
+
+### Data storage configuration
+
+Since the Wallet Core library is able to run on different environments supporting Java platform 
+(Android, Desktop, ...) , it is flexible to use any required data storage.
+To implement it, *WalletBacking* interface is used. There are some existing implementation like
+InMemoryBtcWalletManagerBacking for in-memory storage or SqliteBtcWalletManagerBacking for Android's
+Sqlite database.
+
+```
+val backing = InMemoryBtcWalletManagerBacking()
+
+```
+
+### Master seed configuration
+
+Master seed could be created randomly or restored from known list of works.
+It is stored inside the dedicated store called *SecureKeyValueStore*.
+
+```
+val store =  SecureKeyValueStore(backing, MyRandomSource());
+val masterSeedManager = MasterSeedManager(store);
+val randomMasterSeed = createRandomMasterSeed();
+val restoredMasterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
+masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+
+```
+
+### Creating WalletManager instance
+
+To create a WalletManager object, it should be configured by setting up ElectrumX servers and 
+network to work with (mainnet, testnet)
+
+```
+val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
+val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
+val walletManager = WalletManager(
+                network,
+                wapiClient,
+                currenciesSettingsMap)
+```
+
+### Adding modules
+
+A Wallet Core module is a set of classes that supports the specific crypto-asset. In order to
+add bitcoin cryptocurrency support, an object of class *BitcoinHDModule* should be added to
+WalletManager:
+
+```
+    val bitcoinHDModule = BitcoinHDModule(backing as BtcWalletManagerBacking<HDAccountContext>, store, network, wapiClient, btcSettings, storage, null, null, null)
+    walletManager.add(bitcoinHDModule)
+```
+
 ## Getting account balance
 
 ```
