@@ -345,7 +345,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateUi();
             }
 
-        }.execute(null, null, null);
+        }.execute();
 
         selectedFee = getCurrentFeeEstimation();
 
@@ -1020,50 +1020,55 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void updateFeeText() {
         // Update Fee-Display
         _transactionStatus = tryCreateUnsignedTransaction();
-        String feeWarning = null;
-        tvFeeWarning.setOnClickListener(null);
-        if (selectedFee.value == 0) {
-            feeWarning = getString(R.string.fee_is_zero);
-        }
-        if (transaction != null && transaction.type instanceof BitcoinBasedCryptoCurrency
-                && !(transaction.type instanceof ColuMain)) {
-            // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
-            UnsignedTransaction unsigned = ((BitcoinBasedGenericTransaction) transaction).getUnsignedTx();
-            if (unsigned != null) {
-                int inCount = unsigned.getFundingOutputs().length;
-                int outCount = unsigned.getOutputs().length;
-
-                FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(unsigned.getFundingOutputs())
-                        .setArrayOfOutputs(unsigned.getOutputs())
-                        .createFeeEstimator();
-                int size = feeEstimator.estimateTransactionSize();
-
-                tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
-
-                long fee = unsigned.calculateFee();
-                if (fee != size * selectedFee.value / 1000) {
-                    Value value = Value.valueOf(_account.getCoinType(), fee);
-                    Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                    String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
-                    fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
-                    feeWarning = getString(R.string.fee_change_warning
-                            , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
-                            , fiat);
-                    tvFeeWarning.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            new AlertDialog.Builder(SendMainActivity.this)
-                                    .setMessage(R.string.fee_change_description)
-                                    .setPositiveButton(R.string.button_ok, null).create()
-                                    .show();
-                        }
-                    });
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                String feeWarning = null;
+                tvFeeWarning.setOnClickListener(null);
+                if (selectedFee.value == 0) {
+                    feeWarning = getString(R.string.fee_is_zero);
                 }
+                if (transaction != null && transaction.type instanceof BitcoinBasedCryptoCurrency
+                        && !(transaction.type instanceof ColuMain)) {
+                    // shows number of Ins/Outs and estimated size of transaction for bitcoin based currencies
+                    UnsignedTransaction unsigned = ((BitcoinBasedGenericTransaction) transaction).getUnsignedTx();
+                    if (unsigned != null) {
+                        int inCount = unsigned.getFundingOutputs().length;
+                        int outCount = unsigned.getOutputs().length;
+
+                        FeeEstimator feeEstimator = new FeeEstimatorBuilder().setArrayOfInputs(unsigned.getFundingOutputs())
+                                .setArrayOfOutputs(unsigned.getOutputs())
+                                .createFeeEstimator();
+                        int size = feeEstimator.estimateTransactionSize();
+
+                        tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
+
+                        long fee = unsigned.calculateFee();
+                        if (fee != size * selectedFee.value / 1000) {
+                            Value value = Value.valueOf(_account.getCoinType(), fee);
+                            Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
+                            String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
+                            fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
+                            feeWarning = getString(R.string.fee_change_warning
+                                    , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
+                                    , fiat);
+                            tvFeeWarning.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    new AlertDialog.Builder(SendMainActivity.this)
+                                            .setMessage(R.string.fee_change_description)
+                                            .setPositiveButton(R.string.button_ok, null).create()
+                                            .show();
+                                }
+                            });
+                        }
+                    }
+                }
+                tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
+                tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
+                tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
             }
-        }
-        tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
-        tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
-        tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
+        });
     }
 
     @Override

@@ -109,7 +109,7 @@ public class SignTransactionActivity extends Activity {
       UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
       _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra("sendRequest"));
+      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra("transaction"));
 
       // Load state
       if (savedInstanceState != null) {
