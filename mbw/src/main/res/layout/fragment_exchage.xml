@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:clickable="true"
     android:orientation="vertical">
 
@@ -108,7 +109,9 @@
                     android:id="@+id/from_account_list"
                     android:layout_width="match_parent"
                     android:layout_height="75dp"
-                    android:background="#fb746d" />
+                    android:background="#fb746d"
+                    android:orientation="horizontal"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
                 <View
                     android:layout_width="40dp"
@@ -132,7 +135,9 @@
                     android:id="@+id/to_account_list"
                     android:layout_width="match_parent"
                     android:layout_height="75dp"
-                    android:background="#77c298" />
+                    android:background="#77c298"
+                    android:orientation="horizontal"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                 <View
                     android:layout_width="40dp"
