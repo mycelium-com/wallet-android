@@ -45,8 +45,7 @@ class EthModule(metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStora
     }
 
     companion object {
-        @JvmField
-        val ID: String = "ETH"
+        const val ID: String = "ETH"
     }
 }
 
