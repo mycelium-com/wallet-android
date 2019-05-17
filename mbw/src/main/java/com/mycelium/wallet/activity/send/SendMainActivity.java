@@ -549,7 +549,6 @@ public class SendMainActivity extends Activity {
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
-                feePerKbValue = feeLvl.getFeePerKb(feeEstimation).getLongValue();
                 _transactionStatus = tryCreateUnsignedTransaction();
                 List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(feeLvl, estimateTxSize());
                 feeViewAdapter.setDataset(feeItems);
