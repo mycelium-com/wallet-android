@@ -183,7 +183,7 @@ public class ExchangeFragment extends Fragment {
         });
         View fromHeader = inflater.inflate(AccountAdapter.AccountUseType.OUT.paddingLayout, fromRecyclerView, false);
         fromHeader.setBackground(null);
-        toRecyclerView.setHeader(fromHeader);
+        fromRecyclerView.setHeader(fromHeader);
         toRecyclerView.setFooter(fromHeader);
 
         valueKeyboard.setMaxDecimals(8);
