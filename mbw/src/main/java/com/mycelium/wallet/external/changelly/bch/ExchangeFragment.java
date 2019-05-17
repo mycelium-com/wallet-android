@@ -184,7 +184,7 @@ public class ExchangeFragment extends Fragment {
         View fromHeader = inflater.inflate(AccountAdapter.AccountUseType.OUT.paddingLayout, fromRecyclerView, false);
         fromHeader.setBackground(null);
         fromRecyclerView.setHeader(fromHeader);
-        toRecyclerView.setFooter(fromHeader);
+        fromRecyclerView.setFooter(fromHeader);
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {
