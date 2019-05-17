@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/root"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical">
 
     <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
 
         <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:gravity="center"
@@ -27,7 +28,7 @@
                     android:textSize="24sp"/>
 
             <FrameLayout
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center">
@@ -36,7 +37,7 @@
 
                 <LinearLayout
                     android:id="@+id/llEnterRecipient"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -144,14 +145,17 @@
                                 android:textSize="12sp"
                                 android:visibility="gone"
                                 android:typeface="monospace"/>
+
                         <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
                             android:id="@+id/receiversAddressList"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@color/fee_recycler_item"
                             android:orientation="horizontal"
                             android:scrollbars="none"
                             android:textColor="@color/horizontalpicker_text_color"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -335,19 +339,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="75dp"
                     android:layout_marginTop="@dimen/margin_medium"
+                    android:background="@color/fee_recycler_item"
                     android:orientation="horizontal"
                     android:scrollbars="none"
                     android:textColor="@color/horizontalpicker_text_color"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                 <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
                     android:id="@+id/feeValueList"
                     android:layout_width="match_parent"
                     android:layout_height="75dp"
+                    android:background="@color/fee_recycler_item"
                     android:orientation="horizontal"
                     android:scrollbars="none"
                     android:textColor="@color/horizontalpicker_text_color"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                 <!--&lt;!&ndash; Fiat Fee &ndash;&gt;-->
                 <!--<TextView-->

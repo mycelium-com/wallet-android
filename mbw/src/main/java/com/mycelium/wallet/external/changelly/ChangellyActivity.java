@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
@@ -147,9 +146,6 @@ public class ChangellyActivity extends AppCompatActivity {
         fromLayout.setAlpha(Constants.INACTIVE_ALPHA);
         toLayout.setAlpha(Constants.INACTIVE_ALPHA);
 
-        currencySelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        accountSelector.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
         int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
@@ -194,6 +190,10 @@ public class ChangellyActivity extends AppCompatActivity {
         accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
         accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
+        View view = getLayoutInflater().inflate(AccountAdapter.AccountUseType.IN.paddingLayout, accountSelector, false);
+        view.setBackground(null);
+        accountSelector.setHeader(view);
+        accountSelector.setFooter(view);
 
         //display the loading spinner
         setLayout(ChangellyActivity.ChangellyUITypes.Loading);
@@ -207,7 +207,6 @@ public class ChangellyActivity extends AppCompatActivity {
                 Log.d(TAG, "currencies=" + response.body().result);
                 Collections.sort(response.body().result);
                 List<CurrencyAdapter.Item> itemList = new ArrayList<>();
-                itemList.add(new CurrencyAdapter.Item(null, CurrencyAdapter.VIEW_TYPE_PADDING));
                 String[] skipCurrencies = getResources().getStringArray(R.array.changelly_skip_currencies);
                 for (String curr : response.body().result) {
                     if (!curr.equalsIgnoreCase("btc") &&
@@ -215,7 +214,6 @@ public class ChangellyActivity extends AppCompatActivity {
                         itemList.add(new CurrencyAdapter.Item(curr.toUpperCase(), CurrencyAdapter.VIEW_TYPE_ITEM));
                     }
                 }
-                itemList.add(new CurrencyAdapter.Item(null, CurrencyAdapter.VIEW_TYPE_PADDING));
                 currencyAdapter.setItems(itemList);
                 setLayout(ChangellyUITypes.Main);
             }
