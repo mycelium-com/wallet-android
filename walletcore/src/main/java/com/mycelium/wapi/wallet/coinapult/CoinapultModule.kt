@@ -28,6 +28,8 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
             val id = CoinapultUtils.getGuidForAsset(context.currency, accountKey.publicKey.publicKeyBytes)
             val account = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id)
                     , backing, networkParameters, context.currency, listener)
+            account.label = readLabel(account.id)
+            accounts[account.id] = account
             result[account.id] = account
         }
         return result
@@ -55,8 +57,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
     }
 
     companion object {
-        @JvmField
-        val ID: String = "coinapult module"
+        const val ID: String = "coinapult module"
     }
 }
 

@@ -33,6 +33,14 @@ abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : Wa
         return defaultName
     }
 
+    // reads label from the database by account UUID
+    fun readLabel(accountId: UUID) : String {
+        val metadataKeyCategory = MetadataCategory("al")
+
+        return metaDataStorage.getKeyCategoryValueEntry(metadataKeyCategory.of(accountId.toString()).key,
+                metadataKeyCategory.category, "")
+    }
+
     override fun getSupportedAssets(): List<GenericAssetInfo> {
         return assetsList
     }
