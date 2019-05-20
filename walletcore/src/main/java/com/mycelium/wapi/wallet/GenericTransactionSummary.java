@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -11,11 +12,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-public class TransactionSummaryGeneric implements Serializable {
+public class GenericTransactionSummary implements Serializable {
 
     protected CryptoCurrency type;
-    protected Sha256Hash id;
-    protected Sha256Hash hash;
+    protected byte[] id;
+    protected byte[] hash;
     protected Value transferred;
     protected long timestamp;
     protected GenericAddress destinationAddress;
@@ -31,8 +32,8 @@ public class TransactionSummaryGeneric implements Serializable {
     protected Value fee;
 
 
-    public TransactionSummaryGeneric(CryptoCurrency type,
-                                     Sha256Hash id, Sha256Hash hash,
+    public GenericTransactionSummary(CryptoCurrency type,
+                                     byte[] id, byte[] hash,
                                      Value transferred,
                                      long timestamp,
                                      int height,
@@ -112,20 +113,8 @@ public class TransactionSummaryGeneric implements Serializable {
         return rawSize;
     }
 
-    public Sha256Hash getId() {
+    public byte[] getId() {
         return id;
-    }
-
-    public String getHashAsString() {
-        return hash.toString();
-    }
-
-    public byte[] getHashBytes() {
-        return hash.getBytes();
-    }
-
-    public byte[] getTxBytes() {
-        return null;
     }
 
     public long getTime() {return time;}
@@ -138,12 +127,12 @@ public class TransactionSummaryGeneric implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransactionSummaryGeneric other = (TransactionSummaryGeneric) o;
+        GenericTransactionSummary other = (GenericTransactionSummary) o;
         return getId().equals(other.getId());
     }
 
     @Override
     public String toString(){
-        return hash.toString();
+        return HexUtils.toHex(hash);
     }
 }

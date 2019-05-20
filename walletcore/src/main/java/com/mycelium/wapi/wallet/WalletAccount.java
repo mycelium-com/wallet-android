@@ -45,17 +45,17 @@ public interface WalletAccount<A extends GenericAddress> {
 
     boolean isExchangeable();
 
-    GenericTransaction getTx(Sha256Hash transactionId);
+    GenericTransaction getTx(byte[] transactionId);
 
-    TransactionSummaryGeneric getTxSummary(Sha256Hash transactionId);
+    GenericTransactionSummary getTxSummary(byte[] transactionId);
 
-    List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit);
+    List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit);
 
     /**
      * Get the transaction history of this account since the stated timestamp in milliseconds
      * @param receivingSince only include tx younger than this
      */
-    List<TransactionSummaryGeneric> getTransactionsSince(long receivingSince);
+    List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
 
     List<GenericTransaction> getTransactions(int offset, int limit);
 

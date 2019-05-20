@@ -74,7 +74,7 @@ import com.mycelium.wapi.wallet.GenericFee;
 import com.mycelium.wapi.wallet.GenericInputViewModel;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
 import com.mycelium.wapi.wallet.WalletManager.Event;
@@ -186,8 +186,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction getTx(Sha256Hash transactionId) {
-      TransactionEx tex = _backing.getTransaction(transactionId);
+   public GenericTransaction getTx(byte[] transactionId) {
+      TransactionEx tex = _backing.getTransaction(Sha256Hash.of(transactionId));
       Transaction tx = TransactionEx.toTransaction(tex);
       if (tx == null) {
          return null;
@@ -1661,12 +1661,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<TransactionSummaryGeneric> getTransactionsSince(long receivingSince) {
-      List<TransactionSummaryGeneric> history = new ArrayList<>();
+   public List<GenericTransactionSummary> getTransactionsSince(long receivingSince) {
+      List<GenericTransactionSummary> history = new ArrayList<>();
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
       for (TransactionEx tex : list) {
-         TransactionSummaryGeneric tx = getTxSummary(tex.txid);
+         GenericTransactionSummary tx = getTxSummary(tex.txid.getBytes());
          if(tx != null) {
             history.add(tx);
          }
@@ -1680,7 +1680,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
         List<GenericTransaction> history = new ArrayList<>();
         for (TransactionEx tex: list) {
-            GenericTransaction tx = getTx(tex.txid);
+            GenericTransaction tx = getTx(tex.txid.getBytes());
             if(tx != null) {
                 history.add(tx);
             }
@@ -1688,15 +1688,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         return history;
     }
 
-    public List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit) {
+    public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      List<TransactionSummaryGeneric> history = new ArrayList<>();
+      List<GenericTransactionSummary> history = new ArrayList<>();
       for (TransactionEx tex: list) {
-         TransactionSummaryGeneric tx = getTxSummary(tex.txid);
+         GenericTransactionSummary tx = getTxSummary(tex.txid.getBytes());
          if(tx != null) {
             history.add(tx);
          }
@@ -1705,9 +1705,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public TransactionSummaryGeneric getTxSummary(Sha256Hash transactionId){
+   public GenericTransactionSummary getTxSummary(byte[] transactionId){
       checkNotArchived();
-      TransactionEx tex = _backing.getTransaction(transactionId);
+      TransactionEx tex = _backing.getTransaction(Sha256Hash.of(transactionId));
       Transaction tx = TransactionEx.toTransaction(tex);
       if (tx == null) {
          return null;
@@ -1769,7 +1769,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
-      return new TransactionSummaryGeneric(getCoinType(), tx.getId(), tx.getHash(), Value.valueOf(getCoinType(), satoshisTransferred), tex.time, tex.height,
+      return new GenericTransactionSummary(getCoinType(), tx.getId().getBytes(), tx.getHash().getBytes(), Value.valueOf(getCoinType(), satoshisTransferred), tex.time, tex.height,
               confirmations, isQueuedOutgoing, destinationAddress, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tx.toBytes(false).length, Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
    }

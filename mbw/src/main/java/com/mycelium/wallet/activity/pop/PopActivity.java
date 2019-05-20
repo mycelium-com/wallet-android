@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
@@ -62,7 +63,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
@@ -98,7 +99,7 @@ public class PopActivity extends Activity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi((_mbwManager.getSelectedAccount().getTxSummary(txidToProve)));
+         updateUi((_mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes())));
          return;
       }
 
@@ -108,19 +109,19 @@ public class PopActivity extends Activity {
       }
 
       Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-      TransactionSummaryGeneric txToProve;
+      GenericTransactionSummary txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
          txToProve = null;
       } else {
          // Get history ordered by block height descending
-         List<TransactionSummaryGeneric> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
-         TransactionSummaryGeneric matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+         List<GenericTransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
+         GenericTransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
             return;
          }
-         txidToProve = matchingTransaction.getId();
+         txidToProve = Sha256Hash.of(matchingTransaction.getId());
          txToProve = matchingTransaction;
       }
 
@@ -134,9 +135,9 @@ public class PopActivity extends Activity {
       finish();
    }
 
-   private TransactionSummaryGeneric findFirstMatchingTransaction(PopRequest popRequest, List<TransactionSummaryGeneric> transactions) {
+   private GenericTransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<GenericTransactionSummary> transactions) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-      for (TransactionSummaryGeneric transaction: transactions) {
+      for (GenericTransactionSummary transaction: transactions) {
          if (PopUtils.matches(popRequest, metadataStorage, transaction)) {
             return transaction;
          }
@@ -161,7 +162,7 @@ public class PopActivity extends Activity {
       return sum;
    }
 
-   private void updateUi(TransactionSummaryGeneric transaction) {
+   private void updateUi(GenericTransactionSummary transaction) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
 
       // Set Date
@@ -181,7 +182,7 @@ public class PopActivity extends Activity {
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
       // Set label
-      String label = metadataStorage.getLabelByTransaction(transaction.getId());
+      String label = metadataStorage.getLabelByTransaction(HexUtils.toHex(transaction.getId()));
       setText(R.id.pop_transaction_label, label);
 
       URL url = getUrl(popRequest.getP());
@@ -216,7 +217,7 @@ public class PopActivity extends Activity {
       return url;
    }
 
-   private long getPaymentAmountSatoshis(TransactionSummaryGeneric transaction) {
+   private long getPaymentAmountSatoshis(GenericTransactionSummary transaction) {
       if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }

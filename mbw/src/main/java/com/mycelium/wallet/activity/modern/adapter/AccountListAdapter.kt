@@ -23,7 +23,6 @@ import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 import kotlin.collections.ArrayList

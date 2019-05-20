@@ -6,10 +6,9 @@ import com.coinapult.api.httpclient.SearchMany
 import com.coinapult.api.httpclient.Transaction
 import com.google.api.client.http.HttpResponseException
 import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric
+import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
@@ -108,11 +107,11 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
         return balance
     }
 
-    override fun getTransactions(currency: Currency): List<TransactionSummaryGeneric>? {
-        return ArrayList<TransactionSummaryGeneric>()
+    override fun getTransactions(currency: Currency): List<GenericTransactionSummary>? {
+        return ArrayList<GenericTransactionSummary>()
     }
 
-    private fun add(currency: Currency, batch: SearchMany.Json?, tmpResult: MutableList<TransactionSummaryGeneric>) {
+    private fun add(currency: Currency, batch: SearchMany.Json?, tmpResult: MutableList<GenericTransactionSummary>) {
     }
 
     override fun broadcast(amount: BigDecimal, currency: Currency, address: BtcAddress) {

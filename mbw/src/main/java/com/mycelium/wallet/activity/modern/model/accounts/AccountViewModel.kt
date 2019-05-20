@@ -5,7 +5,6 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount

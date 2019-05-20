@@ -1,10 +1,9 @@
 package com.mycelium.wapi.wallet.colu;
 
-import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 
 import java.util.List;
 
@@ -13,10 +12,10 @@ import java.util.List;
  * We store only generic information for Colu
  */
 public interface ColuAccountBacking extends CommonAccountBacking {
-    void putTransactions(List<TransactionSummaryGeneric> transactionSummaries);
-    List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int length);
-    List<TransactionSummaryGeneric> getTransactionsSince(long receivingSince);
-    TransactionSummaryGeneric getTxSummary(Sha256Hash txId);
+    void putTransactions(List<GenericTransactionSummary> transactionSummaries);
+    List<GenericTransactionSummary> getTransactionSummaries(int offset, int length);
+    List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
+    GenericTransactionSummary getTxSummary(Sha256Hash txId);
     List<TransactionOutputEx> getUnspentOutputs();
     void putUnspentOutputs(List<TransactionOutputEx> unspentOutputs);
 }

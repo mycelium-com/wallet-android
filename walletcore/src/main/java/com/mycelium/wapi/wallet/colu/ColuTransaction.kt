@@ -37,8 +37,8 @@ class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress, val am
         }
     }
 
-    override fun getId(): Sha256Hash? {
-        return transaction?.id
+    override fun getId(): ByteArray? {
+        return transaction?.id!!.bytes
     }
 
     override fun txBytes(): ByteArray? {

@@ -93,7 +93,7 @@ import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
@@ -140,7 +140,7 @@ public class TransactionHistoryFragment extends Fragment {
    private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
    @BindView(R.id.no_transaction_message)
    TextView noTransactionMessage;
-   private List<TransactionSummaryGeneric> history = new ArrayList<>();
+   private List<GenericTransactionSummary> history = new ArrayList<>();
 
    @BindView(R.id.btRescan)
    View btnReload;
@@ -171,14 +171,14 @@ public class TransactionHistoryFragment extends Fragment {
       if (adapter == null) {
          adapter = new TransactionHistoryAdapter(getActivity(), history);
          updateWrapper(adapter);
-         model.getTransactionHistory().observe(this, new Observer<Set<? extends TransactionSummaryGeneric>>() {
+         model.getTransactionHistory().observe(this, new Observer<Set<? extends GenericTransactionSummary>>() {
             @Override
-            public void onChanged(@Nullable Set<? extends TransactionSummaryGeneric> transaction) {
+            public void onChanged(@Nullable Set<? extends GenericTransactionSummary> transaction) {
                history.clear();
                history.addAll(transaction);
-               adapter.sort(new Comparator<TransactionSummaryGeneric>() {
+               adapter.sort(new Comparator<GenericTransactionSummary>() {
                   @Override
-                  public int compare(TransactionSummaryGeneric ts1, TransactionSummaryGeneric ts2) {
+                  public int compare(GenericTransactionSummary ts1, GenericTransactionSummary ts2) {
                      return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
                   }
                });
@@ -266,7 +266,7 @@ public class TransactionHistoryFragment extends Fragment {
       isLoadingPossible.set(true);
    }
 
-   private void doShowDetails(TransactionSummaryGeneric selected) {
+   private void doShowDetails(GenericTransactionSummary selected) {
       if (selected == null) {
          return;
       }
@@ -286,7 +286,7 @@ public class TransactionHistoryFragment extends Fragment {
       listView.setAdapter(adapter);
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
          private static final int OFFSET = 20;
-         private final List<TransactionSummaryGeneric> toAdd = new ArrayList<>();
+         private final List<GenericTransactionSummary> toAdd = new ArrayList<>();
          @Override
          public void onScrollStateChanged(AbsListView view, int scrollState) {
             synchronized (toAdd) {
@@ -322,14 +322,14 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    static class Preloader extends AsyncTask<Void, Void, Void> {
-      private final List<TransactionSummaryGeneric> toAdd;
+      private final List<GenericTransactionSummary> toAdd;
       private final WalletAccount account;
       private final int offset;
       private final int limit;
       private final AtomicBoolean success;
       private final MbwManager _mbwManager;
 
-      Preloader(List<TransactionSummaryGeneric> toAdd, WalletAccount account, MbwManager _mbwManager
+      Preloader(List<GenericTransactionSummary> toAdd, WalletAccount account, MbwManager _mbwManager
               , int offset, int limit, AtomicBoolean success) {
          this.toAdd = toAdd;
          this.account = account;
@@ -341,7 +341,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       protected Void doInBackground(Void... voids) {
-         List<TransactionSummaryGeneric> preloadedData = account.getTransactionSummaries(offset, limit);
+         List<GenericTransactionSummary> preloadedData = account.getTransactionSummaries(offset, limit);
          if(account.equals(_mbwManager.getSelectedAccount())) {
             synchronized (toAdd) {
                toAdd.addAll(preloadedData);
@@ -386,7 +386,7 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<TransactionSummaryGeneric> transactions) {
+      TransactionHistoryAdapter(Context context, List<GenericTransactionSummary> transactions) {
          super(context, transactions, TransactionHistoryFragment.this, model.getAddressBook(), false);
       }
 
@@ -402,7 +402,7 @@ public class TransactionHistoryFragment extends Fragment {
             return rowView;
          }
 
-         final TransactionSummaryGeneric record = checkNotNull(getItem(position));
+         final GenericTransactionSummary record = checkNotNull(getItem(position));
          final AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
 
          rowView.setOnClickListener(new View.OnClickListener() {
@@ -423,7 +423,7 @@ public class TransactionHistoryFragment extends Fragment {
                      return true;
                   }
 
-                  //We need implementations of TransactionSummaryGeneric for using something like
+                  //We need implementations of GenericTransactionSummary for using something like
                   //hasDetails|canCoinapult|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
@@ -482,7 +482,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(record.getId());
+                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
@@ -506,7 +506,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(record.getId());
+                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
                                       }
                                    })
@@ -525,7 +525,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         BroadcastDialog broadcastDialog = BroadcastDialog.createFromSummary(_mbwManager.getSelectedAccount(), record);
+                                         BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), record);
                                          broadcastDialog.show(getFragmentManager(), "broadcast");
                                          dialog.dismiss();
                                       }
@@ -544,7 +544,7 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setMessage(_context.getString(R.string.description_bump_fee_placeholder))
                                    .setPositiveButton(R.string.yes, null)
                                    .setNegativeButton(R.string.no, null).create();
-                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(record.getId(), alertDialog, _context);
+                           final AsyncTask<Void, Void, Boolean> updateParentTask = new UpdateParentTask(Sha256Hash.of(record.getId()), alertDialog, _context);
                            alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                               @Override
                               public void onDismiss(DialogInterface dialog) {
@@ -568,12 +568,12 @@ public class TransactionHistoryFragment extends Fragment {
                                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
                                             //TODO Module should provide full bytes of transaction.
                                             transaction = HexUtils.toHex(((WalletBtcAccount)_mbwManager.getSelectedAccount()).
-                                                    getTransactionSummary(record.getId()).txid.getBytes());
+                                                    getTransactionSummary(Sha256Hash.of(record.getId())).txid.getBytes());
                                          } else {
                                             //TODO non-generic classes are used
                                             WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
                                             transaction = HexUtils.toHex(account
-                                                .getTransaction(record.getId()).binary);
+                                                .getTransaction(Sha256Hash.of(record.getId())).binary);
                                          }
 
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -673,7 +673,7 @@ public class TransactionHistoryFragment extends Fragment {
     * TODO: consider parallel attempts to PFP
     */
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
-      TransactionSummaryGeneric transaction = _mbwManager.getSelectedAccount().getTxSummary(txid);
+      GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
          txFee += i.getValue().getValue();
@@ -703,8 +703,8 @@ public class TransactionHistoryFragment extends Fragment {
       }
    };
 
-   private void setTransactionLabel(TransactionSummaryGeneric record) {
-      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), record.getId(), _storage, transactionLabelChanged);
+   private void setTransactionLabel(GenericTransactionSummary record) {
+      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), Sha256Hash.of(record.getId()), _storage, transactionLabelChanged);
    }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
@@ -723,7 +723,7 @@ public class TransactionHistoryFragment extends Fragment {
       try {
          String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
 
-         List<TransactionSummaryGeneric> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
+         List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 
          File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
              getActivity().getFileStreamPath(fileName));

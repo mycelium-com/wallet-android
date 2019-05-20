@@ -33,7 +33,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         var result: ColuApi.ColuTransactionsInfo? = null
         try {
             val json = coluClient.getAddressTransactions(address.toString())
-            val transactions = mutableListOf<TransactionSummaryGeneric>()
+            val transactions = mutableListOf<GenericTransactionSummary>()
             for (transaction in json.transactions) {
                 var transferred = Value.zeroValue(address.coinType)
 
@@ -64,10 +64,10 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                 }
 
                 if (input.size > 0 || output.size > 0) {
-                    transactions.add(TransactionSummaryGeneric(
+                    transactions.add(GenericTransactionSummary(
                             address.coinType,
-                            Sha256Hash.fromString(transaction.txid),
-                            Sha256Hash.fromString(transaction.hash),
+                            Sha256Hash.fromString(transaction.txid).bytes,
+                            Sha256Hash.fromString(transaction.hash).bytes,
                             transferred,
                             transaction.time / 1000,
                             transaction.blockheight.toInt(),
@@ -79,7 +79,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                             ConfirmationRiskProfileLocal(0, false, false),
                             0,
                             Value.valueOf(address.coinType, 0)
-                            ))
+                    ))
                 }
             }
             val utxos = mutableListOf<TransactionOutputEx>()

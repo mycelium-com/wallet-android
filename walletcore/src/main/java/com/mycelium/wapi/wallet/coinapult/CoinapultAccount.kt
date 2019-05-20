@@ -31,7 +31,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTx(transactionId: Sha256Hash?): GenericTransaction {
+    override fun getTx(transactionId: ByteArray): GenericTransaction {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -70,9 +70,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     var accountLabel: String = ""
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummaryGeneric> {
+    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
         // Coinapult is currently disabled
-        val history = ArrayList<TransactionSummaryGeneric>()
+        val history = ArrayList<GenericTransactionSummary>()
         return history
     }
 
@@ -98,12 +98,12 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isMineAddress(address: GenericAddress?): Boolean = receiveAddress == address
 
-    override fun getTxSummary(transactionId: Sha256Hash?): TransactionSummaryGeneric? {
+    override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
         return null
     }
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummaryGeneric> {
-        return ArrayList<TransactionSummaryGeneric>()
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
+        return ArrayList<GenericTransactionSummary>()
     }
 
     override fun isActive() = !context.isArchived()

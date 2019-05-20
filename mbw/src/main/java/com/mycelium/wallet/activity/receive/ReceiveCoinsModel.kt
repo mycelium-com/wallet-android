@@ -16,7 +16,7 @@ import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric
+import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
@@ -153,7 +153,7 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: List<TransactionSummaryGeneric>) =
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransactionSummary>) =
             transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {

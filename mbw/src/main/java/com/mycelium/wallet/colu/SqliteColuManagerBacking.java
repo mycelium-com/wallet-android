@@ -57,7 +57,7 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -439,9 +439,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public TransactionSummaryGeneric getTxSummary(Sha256Hash hash) {
+      public GenericTransactionSummary getTxSummary(Sha256Hash hash) {
          Cursor cursor = null;
-         TransactionSummaryGeneric result = null;
+         GenericTransactionSummary result = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             blobQuery.bindBlob(1, hash.getBytes());
@@ -453,7 +453,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                ObjectInput in = null;
                try {
                   in = new ObjectInputStream(bis);
-                  result = (TransactionSummaryGeneric) in.readObject();
+                  result = (GenericTransactionSummary) in.readObject();
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
                } finally {
@@ -484,9 +484,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit) {
+      public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
          Cursor cursor = null;
-         List<TransactionSummaryGeneric> result = new LinkedList<>();
+         List<GenericTransactionSummary> result = new LinkedList<>();
          try {
             cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                             + " ORDER BY height desc limit ? offset ?",
@@ -494,12 +494,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionSummaryGeneric tex = null;
+               GenericTransactionSummary tex = null;
                ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(4));
                ObjectInput in = null;
                try {
                   in = new ObjectInputStream(bis);
-                  tex = (TransactionSummaryGeneric) in.readObject();
+                  tex = (GenericTransactionSummary) in.readObject();
                   result.add(tex);
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
@@ -521,7 +521,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void putTransactions(List<TransactionSummaryGeneric> transactions) {
+      public void putTransactions(List<GenericTransactionSummary> transactions) {
          if (transactions.isEmpty()) {
             return;
          }
@@ -531,10 +531,10 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             int i = 0;
-            for (TransactionSummaryGeneric transaction: transactions) {
+            for (GenericTransactionSummary transaction: transactions) {
                int index = i * 5;
-               updateStatement.bindBlob(index + 1, transaction.getId().getBytes());
-               updateStatement.bindBlob(index + 2, transaction.getId().getBytes());
+               updateStatement.bindBlob(index + 1, transaction.getId());
+               updateStatement.bindBlob(index + 2, transaction.getId());
                updateStatement.bindLong(index + 3, transaction.getHeight() == -1 ? Integer.MAX_VALUE : transaction.getHeight());
                updateStatement.bindLong(index + 4, transaction.getTime());
 
@@ -567,9 +567,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public List<TransactionSummaryGeneric> getTransactionsSince(long since) {
+      public List<GenericTransactionSummary> getTransactionsSince(long since) {
          Cursor cursor = null;
-         List<TransactionSummaryGeneric> result = new LinkedList<>();
+         List<GenericTransactionSummary> result = new LinkedList<>();
          try {
             cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                             + " WHERE time >= ?"
@@ -579,12 +579,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionSummaryGeneric tex = null;
+               GenericTransactionSummary tex = null;
                ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(4));
                ObjectInput in = null;
                try {
                   in = new ObjectInputStream(bis);
-                  tex = (TransactionSummaryGeneric) in.readObject();
+                  tex = (GenericTransactionSummary) in.readObject();
                   result.add(tex);
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();

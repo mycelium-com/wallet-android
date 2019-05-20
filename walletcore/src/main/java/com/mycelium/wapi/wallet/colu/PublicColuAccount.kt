@@ -35,7 +35,7 @@ open class PublicColuAccount(val context: ColuAccountContext
         return false
     }
 
-    override fun getTx(transactionId: Sha256Hash?): GenericTransaction {
+    override fun getTx(byte: ByteArray): GenericTransaction {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -90,7 +90,7 @@ open class PublicColuAccount(val context: ColuAccountContext
         cachedBalance = calculateBalance(emptyList(), accountBacking.getTransactionSummaries(0, 2000))
     }
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<TransactionSummaryGeneric> {
+    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
         return accountBacking.getTransactionsSince(receivingSince)
     }
 
@@ -134,12 +134,12 @@ open class PublicColuAccount(val context: ColuAccountContext
         return false
     }
 
-    override fun getTxSummary(transactionId: Sha256Hash): TransactionSummaryGeneric? {
+    override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
         checkNotArchived()
-        return accountBacking.getTxSummary(transactionId)
+        return accountBacking.getTxSummary(Sha256Hash.of(transactionId))
     }
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummaryGeneric> {
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
         return accountBacking.getTransactionSummaries(offset, limit)
     }
 
@@ -167,7 +167,7 @@ open class PublicColuAccount(val context: ColuAccountContext
         return true
     }
 
-    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<TransactionSummaryGeneric>): Balance {
+    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)
         var receiving = Value.zeroValue(coinType)
         var sending = Value.zeroValue(coinType)

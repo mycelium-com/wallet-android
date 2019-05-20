@@ -27,8 +27,8 @@ class BroadcastDialog : DialogFragment() {
 
         @JvmOverloads
         @JvmStatic
-        fun createFromSummary(account: WalletAccount<*>, isColdStorage: Boolean = false
-                   , transactionSummary: TransactionSummaryGeneric): BroadcastDialog? {
+        fun create(account: WalletAccount<*>, isColdStorage: Boolean = false
+                   , transactionSummary: GenericTransactionSummary): BroadcastDialog? {
             val transaction = account.getTx(transactionSummary.id)
             return create(account, isColdStorage, transaction)
         }

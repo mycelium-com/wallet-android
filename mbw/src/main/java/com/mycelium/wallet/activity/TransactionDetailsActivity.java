@@ -60,7 +60,7 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
-import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -74,7 +74,7 @@ import java.util.Locale;
 public class TransactionDetailsActivity extends Activity {
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private TransactionSummaryGeneric tx;
+    private GenericTransactionSummary tx;
     private int _white_color;
     private MbwManager _mbwManager;
     private boolean coluMode = false;
@@ -94,7 +94,7 @@ public class TransactionDetailsActivity extends Activity {
         Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
 
         WalletAccount account = _mbwManager.getSelectedAccount();
-        tx = account.getTxSummary(txid);
+        tx = account.getTxSummary(txid.getBytes());
 
         loadAndUpdate(false);
 
@@ -107,7 +107,7 @@ public class TransactionDetailsActivity extends Activity {
 
     private void loadAndUpdate(boolean isAfterRemoteUpdate) {
         Sha256Hash txid = getTransactionFromIntent();
-        tx = _mbwManager.getSelectedAccount().getTxSummary(txid);
+        tx = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
 
         coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
         updateUi(isAfterRemoteUpdate, false);
