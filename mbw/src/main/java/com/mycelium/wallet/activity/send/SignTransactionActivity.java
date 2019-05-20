@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.view.Window;
 
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeySignTransactionActivity;
@@ -62,8 +61,8 @@ public class SignTransactionActivity extends Activity {
    protected WalletAccount<?> _account;
    protected boolean _isColdStorage;
    protected GenericTransaction _transaction;
-   private Transaction _tx;
    private AsyncTask<Void, Integer, GenericTransaction> signingTask;
+   private static final String TRANSACTION = "transaction";
 
    public static void callMe(Activity currentActivity, UUID account, boolean isColdStorage, GenericTransaction transaction, int requestCode) {
       currentActivity.startActivityForResult(getIntent(currentActivity, account, isColdStorage, transaction), requestCode);
@@ -94,9 +93,9 @@ public class SignTransactionActivity extends Activity {
       Preconditions.checkNotNull(account);
 
       return new Intent(currentActivity, targetClass)
-              .putExtra("account", account)
-              .putExtra("isColdStorage", isColdStorage)
-              .putExtra("transaction", transaction);
+              .putExtra(SendMainActivity.ACCOUNT, account)
+              .putExtra(SendMainActivity.IS_COLD_STORAGE, isColdStorage)
+              .putExtra(TRANSACTION, transaction);
    }
 
    @Override
@@ -106,15 +105,15 @@ public class SignTransactionActivity extends Activity {
       setView();
       _mbwManager = MbwManager.getInstance(getApplication());
       // Get intent parameters
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra("account"));
-      _isColdStorage = getIntent().getBooleanExtra("isColdStorage", false);
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT));
+      _isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
-      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra("transaction"));
+      _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra(TRANSACTION));
 
       // Load state
       if (savedInstanceState != null) {
          // May be null
-         _tx = (Transaction) savedInstanceState.getSerializable("transaction");
+          _transaction = (GenericTransaction) savedInstanceState.getSerializable(TRANSACTION);
       }
    }
 
@@ -125,7 +124,7 @@ public class SignTransactionActivity extends Activity {
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       if (_transaction != null) {
-         outState.putSerializable("transaction", _transaction);
+         outState.putSerializable(TRANSACTION, _transaction);
       }
       super.onSaveInstanceState(outState);
    }
@@ -155,10 +154,10 @@ public class SignTransactionActivity extends Activity {
          }
 
          @Override
-         protected void onPostExecute(GenericTransaction transactionRequest) {
-            if (transactionRequest != null) {
+         protected void onPostExecute(GenericTransaction signedTransaction) {
+            if (signedTransaction != null) {
                Intent ret = new Intent();
-               ret.putExtra("transactionRequest", transactionRequest);
+               ret.putExtra(SendMainActivity.SIGNED_TRANSACTION, signedTransaction);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {

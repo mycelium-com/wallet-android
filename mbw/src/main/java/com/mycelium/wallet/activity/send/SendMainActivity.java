@@ -161,7 +161,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String SELECTED_FEE = "selectedFee";
     public static final String PAYMENT_FETCHED = "paymentFetched";
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
-    private static final String SIGNED_SEND_REQUEST = "transactionRequest";
+    public static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
     private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
     private boolean _spendingUnconfirmed;
@@ -360,7 +360,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             feeLvl = (MinerFee) savedInstanceState.getSerializable(FEE_LVL);
             genericUri = (GenericAssetUri) savedInstanceState.getSerializable(ASSET_URI);
             _paymentFetched = savedInstanceState.getBoolean(PAYMENT_FETCHED);
-            signedTransaction = (GenericTransaction) savedInstanceState.getSerializable(SIGNED_SEND_REQUEST);
+            signedTransaction = (GenericTransaction) savedInstanceState.getSerializable(SIGNED_TRANSACTION);
             selectedFee = (Value) savedInstanceState.getSerializable(SELECTED_FEE);
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
@@ -599,7 +599,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putBoolean(PAYMENT_FETCHED, _paymentFetched);
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
-        savedInstanceState.putSerializable(SIGNED_SEND_REQUEST, signedTransaction);
+        savedInstanceState.putSerializable(SIGNED_TRANSACTION, signedTransaction);
     }
 
     @OnClick(R.id.colu_tips_check_address)
@@ -1222,7 +1222,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_SEND_REQUEST));
+                signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
                         && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
