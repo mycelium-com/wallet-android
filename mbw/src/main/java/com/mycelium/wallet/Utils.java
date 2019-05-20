@@ -114,7 +114,6 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
-import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -775,7 +774,7 @@ public class Utils {
       return new HashSet<>(accounts);
    }
 
-   public static List<WalletAccount<?,?>> sortAccounts(final Collection<WalletAccount<?,?>> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount<?>> sortAccounts(final Collection<WalletAccount<?>> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          //maybe need to add new method in WalletAccount and use polymorphism
          //but I think it's unnecessary
@@ -911,8 +910,6 @@ public class Utils {
          return context.getString(R.string.account_prefix_imported);
       } else if (account instanceof HDAccount) {
          return context.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
-      } else if (account instanceof EthAccount) {
-         return context.getString(R.string.eth_accounts_name);
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
@@ -922,8 +919,7 @@ public class Utils {
       if (account instanceof CoinapultAccount
               || account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof PrivateColuAccount
-              || account instanceof EthAccount) {
+              || account instanceof PrivateColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
