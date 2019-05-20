@@ -182,7 +182,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         return 0
     }
 
-    override fun getUnspentOutputs(): MutableList<GenericOutput> {
+    override fun getUnspentOutputs(): MutableList<GenericOutputViewModel> {
         return mutableListOf()
     }
 }

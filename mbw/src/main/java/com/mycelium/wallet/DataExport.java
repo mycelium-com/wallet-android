@@ -36,7 +36,7 @@ package com.mycelium.wallet;
 
 
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericOutput;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.WalletAccount;
 
@@ -71,7 +71,7 @@ public class DataExport {
       for (TransactionSummaryGeneric transaction : history) {
          String txLabel = storage.getLabelByTransaction(transaction.getId());
          StringBuilder destAddresses = new StringBuilder();
-         for (GenericOutput output : transaction.getOutputs()) {
+         for (GenericOutputViewModel output : transaction.getOutputs()) {
             if(!account.isMineAddress(output.getAddress())) {
                destAddresses.append(output.getAddress().toString()).append(" ");
             }

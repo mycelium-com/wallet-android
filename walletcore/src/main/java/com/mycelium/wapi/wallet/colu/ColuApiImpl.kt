@@ -37,12 +37,12 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
             for (transaction in json.transactions) {
                 var transferred = Value.zeroValue(address.coinType)
 
-                val input = mutableListOf<GenericInput>()
+                val input = mutableListOf<GenericInputViewModel>()
                 transaction.vin.forEach { vin ->
                     vin.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vin.previousOutput.addresses[0])
-                        input.add(GenericInput(
+                        input.add(GenericInputViewModel(
                                 BtcAddress(address.coinType, _address), value, false))
                         if (vin.previousOutput.addresses.contains(address.toString())) {
                             transferred = transferred.subtract(value)
@@ -50,12 +50,12 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                     }
                 }
 
-                val output = mutableListOf<GenericOutput>()
+                val output = mutableListOf<GenericOutputViewModel>()
                 transaction.vout.forEach { vout ->
                     vout.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
                         val value = Value.valueOf(address.coinType, asset.amount)
                         val _address = Address.fromString(vout.scriptPubKey.addresses[0])
-                        output.add(GenericOutput(
+                        output.add(GenericOutputViewModel(
                                 BtcAddress(address.coinType, _address), value, false))
                         if (vout.scriptPubKey.addresses.contains(address.toString())) {
                             transferred = transferred.add(value)
