@@ -66,13 +66,13 @@ public interface ChangellyAPIService {
     @POST("getExchangeAmount")
     Call<ChangellyAnswerDouble> getExchangeAmount(@Query("from") String from, @Query("to") String to, @Query("amount") double amount);
 
-    @POST("createTx")
+    @POST("createTransaction")
     Call<ChangellyTransaction> createTransaction(@Query("from") String from, @Query("to") String to, @Query("amount") double amount, @Query("address") String address);
 
 //    @POST("getStatus")
 //    Call<ChangellyStatus> getStatus(@Query("transaction") String transaction);
 
-    @POST("getTransactionSummaries")
+    @POST("getTransactions")
     Call<List<ChangellyTransaction>> getTransactions();
 
     //public static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
