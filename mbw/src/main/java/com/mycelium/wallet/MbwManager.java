@@ -298,7 +298,7 @@ public class MbwManager {
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString().toLowerCase()))
+                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()).toLowerCase())
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
