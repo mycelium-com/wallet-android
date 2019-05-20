@@ -52,7 +52,7 @@ val backing = InMemoryBtcWalletManagerBacking()
 
 ### Master seed configuration
 
-Master seed could be created randomly or restored from known list of works.
+Master seed could be created randomly or restored from known list of words.
 It is stored inside the dedicated store called *SecureKeyValueStore*.
 
 ```
