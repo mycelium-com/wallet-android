@@ -91,10 +91,10 @@ public class TransactionDetailsActivity extends Activity {
         setContentView(R.layout.transaction_details_activity);
         _mbwManager = MbwManager.getInstance(this.getApplication());
 
-        Sha256Hash txid = (Sha256Hash) getIntent().getSerializableExtra("transaction");
+        byte[] txid =  getIntent().getByteArrayExtra("transaction");
 
         WalletAccount account = _mbwManager.getSelectedAccount();
-        tx = account.getTxSummary(txid.getBytes());
+        tx = account.getTxSummary(txid);
 
         loadAndUpdate(false);
 
@@ -313,6 +313,6 @@ public class TransactionDetailsActivity extends Activity {
     }
 
     private Sha256Hash getTransactionFromIntent() {
-        return (Sha256Hash) getIntent().getSerializableExtra("transaction");
+        return Sha256Hash.of(getIntent().getByteArrayExtra("transaction"));
     }
 }
