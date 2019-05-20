@@ -69,6 +69,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.*;
@@ -1272,7 +1273,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         Intent result = new Intent();
         if (broadcastResult.getResultType() == BroadcastResultType.SUCCESS) {
             if (_transactionLabel != null) {
-                _mbwManager.getMetadataStorage().storeTransactionLabel(signedTransaction.getId(), _transactionLabel);
+                _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), _transactionLabel);
             }
             String hash = signedTransaction.getId().toString();
             String fiat = getFiatValue();

@@ -224,7 +224,7 @@ public class TransactionHistoryFragment extends Fragment {
          if (resultCode == RESULT_OK) {
             GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
 
-            _mbwManager.getMetadataStorage().storeTransactionLabel(signedTransaction.getId(), "CPFP");
+            _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), "CPFP");
 
             BroadcastDialog broadcastDialog = BroadcastDialog.create(_mbwManager.getSelectedAccount(), false, signedTransaction);
             broadcastDialog.show(getFragmentManager(), "ActivityResultDialog");

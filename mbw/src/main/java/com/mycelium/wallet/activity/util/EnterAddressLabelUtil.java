@@ -182,7 +182,7 @@ public class EnterAddressLabelUtil {
 
     public static void enterTransactionLabel(Context context, Sha256Hash txid, MetadataStorage storage, TransactionLabelChangedHandler changeHandler) {
         String hintText = context.getResources().getString(R.string.enter_transaction_label_title);
-        String currentName = storage.getLabelByTransaction(txid);
+        String currentName = storage.getLabelByTransaction(txid.toString());
         int title_id;
         title_id = R.string.enter_transaction_label_title;
 
@@ -213,7 +213,7 @@ public class EnterAddressLabelUtil {
 
         @Override
         public void onNameEntered(String newText, String oldText) {
-            storage.storeTransactionLabel(txid, newText);
+            storage.storeTransactionLabel(txid.toString(), newText);
             if (changeHandler != null) {
                 changeHandler.OnTransactionLabelChanged(txid, newText);
             }

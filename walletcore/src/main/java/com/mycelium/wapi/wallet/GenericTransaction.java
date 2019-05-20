@@ -20,7 +20,7 @@ public abstract class GenericTransaction implements Serializable {
         this.isSigned = false;
     }
 
-    public abstract Sha256Hash getId();
+    public abstract byte[] getId();
 
     public abstract byte[] txBytes();
 

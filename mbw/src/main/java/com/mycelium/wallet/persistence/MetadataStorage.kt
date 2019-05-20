@@ -214,17 +214,17 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             storeKeyCategoryValueEntry(SHOW_BIP44_PATH, if (show) "1" else "0")
         }
 
-    fun storeTransactionLabel(txid: Sha256Hash, label: String) {
+    fun storeTransactionLabel(txid: String, label: String) {
         if (!Strings.isNullOrEmpty(label)) {
-            storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), label)
+            storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid), label)
         } else {
             // remove the transaction label
-            deleteByKeyCategory(TRANSACTION_LABEL_CATEGORY.of(txid.toString()))
+            deleteByKeyCategory(TRANSACTION_LABEL_CATEGORY.of(txid))
         }
     }
 
-    fun getLabelByTransaction(txid: Sha256Hash): String {
-        return getKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), "")
+    fun getLabelByTransaction(txid: String): String {
+        return getKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid), "")
     }
 
     fun getLabelByAccount(account: UUID): String {

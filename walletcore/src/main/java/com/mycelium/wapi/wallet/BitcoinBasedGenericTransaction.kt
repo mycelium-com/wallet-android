@@ -11,8 +11,8 @@ abstract class BitcoinBasedGenericTransaction protected constructor(type: Crypto
         return tx?.toBytes()
     }
 
-    override fun getId(): Sha256Hash? {
-        return tx?.id
+    override fun getId(): ByteArray? {
+        return tx?.id!!.bytes
     }
     var tx: Transaction? = null
     var unsignedTx: UnsignedTransaction? = null
