@@ -59,7 +59,7 @@ public interface WalletAccount<A extends GenericAddress> {
 
     List<GenericTransaction> getTransactions(int offset, int limit);
 
-    List<GenericOutputViewModel> getUnspentOutputs();
+    List<GenericOutputViewModel> getUnspentOutputViewModels();
 
     String getLabel();
 

@@ -1880,7 +1880,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<GenericOutputViewModel> getUnspentOutputs() {
+   public List<GenericOutputViewModel> getUnspentOutputViewModels() {
       List<TransactionOutputSummary> outputSummaryList = getUnspentTransactionOutputSummary();
       List<GenericOutputViewModel> result = new ArrayList<>();
       for(TransactionOutputSummary output : outputSummaryList) {
@@ -1893,11 +1893,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     @Override
     public boolean isSpendingUnconfirmed(GenericTransaction tx) {
         BtcTransaction btcTx = (BtcTransaction)tx;
-        if (tx.isSigned) {
-            return false;
-        }
-
-        for (UnspentTransactionOutput out : btcTx.getUnsignedTx().getFundingOutputs()) {
+        UnsignedTransaction unsignedTransaction = btcTx.getUnsignedTx();
+        for (UnspentTransactionOutput out : unsignedTransaction.getFundingOutputs()) {
             Address address = out.script.getAddress(getNetwork());
             if (out.height == -1 && isOwnExternalAddress(address)) {
                 // this is an unconfirmed output from an external address -> we want to warn the user

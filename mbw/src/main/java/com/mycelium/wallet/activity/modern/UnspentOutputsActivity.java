@@ -75,7 +75,7 @@ public class UnspentOutputsActivity extends Activity {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
 
-      List<GenericOutputViewModel> outputs = account.getUnspentOutputs();
+      List<GenericOutputViewModel> outputs = account.getUnspentOutputViewModels();
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
