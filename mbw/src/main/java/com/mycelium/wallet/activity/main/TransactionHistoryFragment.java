@@ -64,7 +64,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.StandardTransactionBuilder.InsufficientFundsException;
@@ -93,7 +92,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericOutput;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.api.WapiException;
@@ -676,10 +675,10 @@ public class TransactionHistoryFragment extends Fragment {
    private UnsignedTransaction tryCreateBumpTransaction(Sha256Hash txid, long feePerKB) {
       TransactionSummaryGeneric transaction = _mbwManager.getSelectedAccount().getTxSummary(txid);
       long txFee = 0;
-      for(GenericOutput i : transaction.getInputs()) {
+      for(GenericOutputViewModel i : transaction.getInputs()) {
          txFee += i.getValue().getValue();
       }
-      for(GenericOutput i : transaction.getOutputs()) {
+      for(GenericOutputViewModel i : transaction.getOutputs()) {
          txFee -= i.getValue().getValue();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {

@@ -59,7 +59,7 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericOutput;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -168,12 +168,12 @@ public class TransactionDetailsActivity extends Activity {
         llInputs.removeAllViews();
         if (tx.getInputs() != null) {
             long sum = 0;
-            for (GenericOutput input : tx.getInputs()) {
+            for (GenericOutputViewModel input : tx.getInputs()) {
                 sum += input.getValue().value;
             }
             if (sum != 0) {
                 tvInputsAmount.setVisibility(View.GONE);
-                for (GenericOutput item : tx.getInputs()) {
+                for (GenericOutputViewModel item : tx.getInputs()) {
                     llInputs.addView(getItemView(item));
                 }
             }
@@ -184,7 +184,7 @@ public class TransactionDetailsActivity extends Activity {
         outputs.removeAllViews();
 
         if(tx.getOutputs() != null) {
-            for (GenericOutput item : tx.getOutputs()) {
+            for (GenericOutputViewModel item : tx.getOutputs()) {
                 outputs.addView(getItemView(item));
             }
         }
@@ -228,7 +228,7 @@ public class TransactionDetailsActivity extends Activity {
         }
     }
 
-    private View getItemView(GenericOutput item) {
+    private View getItemView(GenericOutputViewModel item) {
         // Create vertical linear layout
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);

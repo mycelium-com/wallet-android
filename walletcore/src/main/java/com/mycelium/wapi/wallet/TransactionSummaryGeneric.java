@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -20,8 +19,8 @@ public class TransactionSummaryGeneric implements Serializable {
     protected Value transferred;
     protected long timestamp;
     protected GenericAddress destinationAddress;
-    protected List<GenericInput> inputs;
-    protected List<GenericOutput> outputs;
+    protected List<GenericInputViewModel> inputs;
+    protected List<GenericOutputViewModel> outputs;
     protected int height;
     protected int confirmations;
     protected int rawSize;
@@ -40,8 +39,8 @@ public class TransactionSummaryGeneric implements Serializable {
                                      int confirmations,
                                      boolean isQueuedOutgoing,
                                      GenericAddress destinationAddress,
-                                     List<GenericInput> inputs,
-                                     List<GenericOutput> outputs,
+                                     List<GenericInputViewModel> inputs,
+                                     List<GenericOutputViewModel> outputs,
                                      ConfirmationRiskProfileLocal risk,
                                      int rawSize, @Nullable Value fee) {
         this.type = type;
@@ -89,11 +88,11 @@ public class TransactionSummaryGeneric implements Serializable {
         return fee;
     }
 
-    public List<GenericInput> getInputs() {
+    public List<GenericInputViewModel> getInputs() {
         return inputs;
     }
 
-    public List<GenericOutput> getOutputs() {
+    public List<GenericOutputViewModel> getOutputs() {
         return outputs;
     }
 

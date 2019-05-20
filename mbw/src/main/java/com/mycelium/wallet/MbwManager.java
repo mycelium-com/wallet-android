@@ -666,7 +666,9 @@ public class MbwManager {
         try {
             Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
             InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
-            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking();
+            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
+                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes(),
+                    networkParameters);
             walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
                     , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
                     , coinapultBacking, accountListener, getMetadataStorage()));

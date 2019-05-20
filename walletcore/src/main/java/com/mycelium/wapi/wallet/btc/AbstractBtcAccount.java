@@ -71,8 +71,8 @@ import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericFee;
-import com.mycelium.wapi.wallet.GenericInput;
-import com.mycelium.wapi.wallet.GenericOutput;
+import com.mycelium.wapi.wallet.GenericInputViewModel;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.TransactionSummaryGeneric;
 import com.mycelium.wapi.wallet.KeyCipher;
@@ -105,8 +105,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import sun.net.www.content.text.Generic;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -1721,7 +1719,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       GenericAddress destinationAddress = null;
 
-      ArrayList<GenericOutput> outputs = new ArrayList<>();
+      ArrayList<GenericOutputViewModel> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
          Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
@@ -1732,10 +1730,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          satoshisReceived += output.value;
 
          if (address != null && address != Address.getNullAddress(_network)) {
-            outputs.add(new GenericOutput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
+            outputs.add(new GenericOutputViewModel(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
          }
       }
-      ArrayList<GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
+      ArrayList<GenericInputViewModel> inputs = new ArrayList<>(); //need to create list of outputs
 
       // Inputs
       if (tx.isCoinbase()) {
@@ -1745,7 +1743,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          for (TransactionOutput out : tx.outputs) {
             value += out.value;
          }
-         inputs.add(new GenericInput(getDummyAddress(), Value.valueOf(getCoinType(), value), true));
+         inputs.add(new GenericInputViewModel(getDummyAddress(), Value.valueOf(getCoinType(), value), true));
       } else {
          for (TransactionInput input : tx.inputs) {
             // find parent output
@@ -1760,7 +1758,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             satoshisSent += funding.value;
 
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            inputs.add(new GenericInput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value), false));
+            inputs.add(new GenericInputViewModel(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value), false));
          }
       }
 
@@ -1882,12 +1880,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<GenericOutput> getUnspentOutputs() {
+   public List<GenericOutputViewModel> getUnspentOutputs() {
       List<TransactionOutputSummary> outputSummaryList = getUnspentTransactionOutputSummary();
-      List<GenericOutput> result = new ArrayList<>();
+      List<GenericOutputViewModel> result = new ArrayList<>();
       for(TransactionOutputSummary output : outputSummaryList) {
          GenericAddress addr = new BtcAddress(getCoinType(), output.address);
-         result.add(new GenericOutput(addr, Value.valueOf(getCoinType(), output.value), false));
+         result.add(new GenericOutputViewModel(addr, Value.valueOf(getCoinType(), output.value), false));
       }
       return result;
    }
