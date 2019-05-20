@@ -127,6 +127,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -1327,12 +1328,7 @@ public class MbwManager {
         InMemoryPrivateKey accountPriv = bidNode.createChildPrivateKey(accountIndex);
         // Concatenate the private key bytes with the site name
         byte[] sitePrivateKeySeed;
-        try {
-            sitePrivateKeySeed = BitUtils.concatenate(accountPriv.getPrivateKeyBytes(), site.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            // Does not happen
-            throw new RuntimeException(e);
-        }
+        sitePrivateKeySeed = BitUtils.concatenate(accountPriv.getPrivateKeyBytes(), site.getBytes(StandardCharsets.UTF_8));
         // Hash the seed and create a new private key from that which uses compressed public keys
         byte[] sitePrivateKeyBytes = HashUtils.doubleSha256(sitePrivateKeySeed).getBytes();
         return new InMemoryPrivateKey(sitePrivateKeyBytes, true);

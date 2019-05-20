@@ -85,6 +85,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                         settings.changeAddressModeReference)
             }
             result[account.id] = account
+            account.label = readLabel(account.id)
             accounts[account.id] = account as HDAccount
             account.setEventHandler(eventHandler)
             LoadingProgressTracker.clearLastFullUpdateTime()
@@ -363,8 +364,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     }
 
     companion object {
-        @JvmField
-        val ID: String = "BitcoinHD"
+        const val ID: String = "BitcoinHD"
     }
 
     fun getGapsBug(): Set<Int> {

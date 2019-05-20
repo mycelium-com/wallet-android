@@ -54,6 +54,8 @@ class ColuModule(val networkParameters: NetworkParameters,
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
                             , listener)
                 }
+                account.label = readLabel(account.id)
+                accounts[account.id] = account
                 result[account.id] = account
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -80,7 +82,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         var coinType: ColuMain? = null
 
         if (config is PrivateColuConfig) {
-            val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
+            val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
             coinType = coluMain(address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(coinType, address.allAddressBytes)
@@ -92,7 +94,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
         } else if (config is PublicColuConfig) {
-            val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)!!
+            val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)
             coinType = coluMain(address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, address.allAddressBytes)
@@ -181,8 +183,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     companion object {
-        @JvmField
-        val ID: String = "colored coin module"
+        const val ID: String = "colored coin module"
     }
 }
 

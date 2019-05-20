@@ -61,6 +61,8 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             val account = SingleAddressAccount(context, store, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
             account.setEventHandler(eventHandler)
+            account.label = readLabel(account.id)
+            accounts[account.id] = account
             result[account.id] = account
         }
         return result
@@ -153,7 +155,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             } else {
                 for (addressType in walletAccount.availableAddressTypes) {
                     publicPrivateKeyStore.forgetPrivateKey(publickey.toAddress(networkParameters,
-                            addressType)?.allAddressBytes, keyCipher)
+                            addressType).allAddressBytes, keyCipher)
                 }
             }
             accounts[walletAccount.id]?.markToRemove()
@@ -164,7 +166,6 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     }
 
     companion object {
-        @JvmField
-        val ID: String = "BitcoinSA"
+        const val ID: String = "BitcoinSA"
     }
 }

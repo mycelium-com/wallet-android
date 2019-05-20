@@ -1,11 +1,11 @@
 package com.mycelium.wallet.activity.send.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
@@ -15,18 +15,31 @@ public class SelectableRecyclerView extends RecyclerView {
     private SelectListener selectListener;
     private int itemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
     private int padding;
-    private int scrollX;
+
+    private View header;
+    private View footer;
 
     public SelectableRecyclerView(Context context) {
         super(context);
+        setClipToPadding(false);
     }
 
     public SelectableRecyclerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        setClipToPadding(false);
     }
 
     public SelectableRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        setClipToPadding(false);
+    }
+
+    public void setHeader(View header) {
+        this.header = header;
+    }
+
+    public void setFooter(View footer) {
+        this.footer = footer;
     }
 
     public int getPadding() {
@@ -42,7 +55,7 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     public void setSelectedItem(int selectedItem) {
-        if(getAdapter() == null) {
+        if (getAdapter() == null) {
             return;
         }
         ((Adapter) getAdapter()).setSelectedItem(selectedItem);
@@ -69,20 +82,6 @@ public class SelectableRecyclerView extends RecyclerView {
     @Override
     public void setAdapter(RecyclerView.Adapter adapter) {
         super.setAdapter(adapter);
-        adapter.registerAdapterDataObserver(new AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                scrollX = 0;
-                scrollToPosition(0);
-            }
-        });
-    }
-
-    @Override
-    public void onScrolled(int dx, int dy) {
-        super.onScrolled(dx, dy);
-        scrollX += dx;
     }
 
     private int oldWidth = 0;
@@ -96,27 +95,39 @@ public class SelectableRecyclerView extends RecyclerView {
         super.onLayout(changed, l, t, r, b);
         if (changed && oldWidth != getWidth()) {
             padding = (getWidth() - itemWidth) / 2;
-            if(getAdapter() != null) {
+            setPadding(padding, getPaddingTop(), padding, getPaddingBottom());
+            if (getAdapter() != null) {
                 scrollListToPosition(getSelectedItem());
             }
             oldWidth = getWidth();
         }
+        if (header != null) {
+            int widthSpec = View.MeasureSpec.makeMeasureSpec(padding, View.MeasureSpec.EXACTLY);
+            int heightSpec = View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY);
+            header.measure(widthSpec, heightSpec);
+            header.layout(0, 0, padding, getHeight());
+        }
+        if (footer != null) {
+            int widthSpec = View.MeasureSpec.makeMeasureSpec(padding, View.MeasureSpec.EXACTLY);
+            int heightSpec = View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY);
+            footer.measure(widthSpec, heightSpec);
+            footer.layout(0, 0, padding, getHeight());
+        }
     }
 
     private void calculatePositionAndScroll() {
-        int expectedPosition = Math.round((scrollX + itemWidth / 2 - 1) / itemWidth) + 1;
-
-        if (expectedPosition < 1) {
-            expectedPosition = 1;
-        } else if (getAdapter() != null && expectedPosition > getAdapter().getItemCount() - 2) {
-            expectedPosition = getAdapter().getItemCount() - 2;
+        int expectedPosition = Math.round((computeHorizontalScrollOffset() + itemWidth / 2 - 1) / itemWidth);
+        if (expectedPosition < 0) {
+            expectedPosition = 0;
+        } else if (getAdapter() != null && expectedPosition > getAdapter().getItemCount() - 1) {
+            expectedPosition = getAdapter().getItemCount() - 1;
         }
         setSelectedItem(expectedPosition);
     }
 
     private void scrollListToPosition(int expectedPosition) {
-        int targetScrollPos = (expectedPosition - 1) * itemWidth;
-        final int missingPx = targetScrollPos - scrollX;
+        int targetScrollPos = expectedPosition * itemWidth;
+        final int missingPx = targetScrollPos - computeHorizontalScrollOffset();
         if (missingPx != 0f) {
             if (missingPx == 1) {
                 scrollBy(missingPx, 0);
@@ -128,8 +139,24 @@ public class SelectableRecyclerView extends RecyclerView {
         }
     }
 
+    @Override
+    public void onDraw(Canvas c) {
+        super.onDraw(c);
+        if (header != null) {
+            c.save();
+            c.translate(-computeHorizontalScrollOffset(), 0);
+            header.draw(c);
+            c.restore();
+        }
+        if (footer != null) {
+            c.save();
+            c.translate(computeHorizontalScrollRange() + padding - computeHorizontalScrollOffset(), 0);
+            footer.draw(c);
+            c.restore();
+        }
+    }
+
     public static abstract class Adapter<VH extends ViewHolder> extends RecyclerView.Adapter<VH> implements Selectable {
-        public static final int VIEW_TYPE_PADDING = 1;
         public static final int VIEW_TYPE_ITEM = 2;
         private int selectedItem;
         private SelectableRecyclerView recyclerView;
@@ -148,19 +175,13 @@ public class SelectableRecyclerView extends RecyclerView {
 
         @Override
         public void onBindViewHolder(VH holder, final int position) {
-            if (getItemViewType(position) != VIEW_TYPE_PADDING) {
-                holder.itemView.setActivated(position == selectedItem);
-                holder.itemView.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        recyclerView.scrollListToPosition(position);
-                    }
-                });
-            } else {
-                ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
-                layoutParams.width = recyclerView.getPadding();
-                holder.itemView.setLayoutParams(layoutParams);
-            }
+            holder.itemView.setActivated(position == selectedItem);
+            holder.itemView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    recyclerView.setSelectedItem(position);
+                }
+            });
         }
 
         @Override
