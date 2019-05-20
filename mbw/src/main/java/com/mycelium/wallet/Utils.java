@@ -109,8 +109,11 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import org.ocpsoft.prettytime.Duration;
@@ -848,13 +851,13 @@ public class Utils {
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       if (walletAccount instanceof PublicColuAccount) {
          com.mycelium.wapi.wallet.colu.PublicColuAccount account = (com.mycelium.wapi.wallet.colu.PublicColuAccount) walletAccount;
-         if (account.getCoinType() == MTCoin.INSTANCE) {
+         if (account.getCoinType() == MTCoin.INSTANCE || account.getCoinType() == MTCoinTest.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);
-         } else if (account.getCoinType() == MASSCoin.INSTANCE) {
+         } else if (account.getCoinType() == MASSCoin.INSTANCE || account.getCoinType() == MASSCoinTest.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
                     : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
-         } else if (account.getCoinType() == RMCCoin.INSTANCE)
+         } else if (account.getCoinType() == RMCCoin.INSTANCE || account.getCoinType() == RMCCoinTest.INSTANCE)
             return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
                     : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
       }
