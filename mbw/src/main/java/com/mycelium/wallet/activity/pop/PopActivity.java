@@ -88,6 +88,7 @@ public class PopActivity extends Activity {
    private MbwManager _mbwManager;
    private Sha256Hash txidToProve;
    private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
+   private static final String SIGNED_TRANSACTION = "signedTransaction";
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -245,8 +246,8 @@ public class PopActivity extends Activity {
             public void run() {
                disableButtons();
                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-               BtcTransaction sendRequest = new BtcTransaction(cryptoCurrency, unsignedPop);
-               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+               BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsignedPop);
+               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
@@ -267,7 +268,7 @@ public class PopActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
             Transaction pop = btcTransaction.getTx();
             ConnectivityManager connMgr = (ConnectivityManager)
