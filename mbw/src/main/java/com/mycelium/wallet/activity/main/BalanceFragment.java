@@ -349,7 +349,7 @@ public class BalanceFragment extends Fragment {
     private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
         TextView tv = _root.findViewById(textViewResourceId);
         if (!_mbwManager.hasFiatCurrency() || _exchangeRatePrice == null
-                || (hideOnZeroBalance && value.isZero())) {
+                || (hideOnZeroBalance && !value.isPositive())) {
             tv.setVisibility(View.GONE);
         } else {
             try {
