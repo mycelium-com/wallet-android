@@ -72,7 +72,6 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -343,8 +342,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private void showMaxAmount() {
+      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _amount.getType());
       String maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtensionsKt.toStringWithUnit(_maxSpendableAmount, _mbwManager.getDenomination()));
+               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -455,6 +455,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
     * Check that the amount is large enough for the network to accept it, and
     * that we have enough funds to send it.
     */
+   @SuppressLint("StaticFieldLeak")
    private void checkSendAmount(final Value value, final CheckListener listener) {
       new AsyncTask<Void, Void, AmountValidation>() {
          @Override
