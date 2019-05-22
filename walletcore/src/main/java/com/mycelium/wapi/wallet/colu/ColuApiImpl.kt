@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
@@ -105,7 +106,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
                     for (utxo in addressInfo.utxos) {
                         // adding utxo to list of txid list request
                         for (txidAsset in utxo.assets) {
-                            for (coin in ColuUtils.allColuCoins()) {
+                            for (coin in ColuUtils.allColuCoins(address.network.toString())) {
                                 if (txidAsset.assetId == coin.id) {
                                     assetsList.add(coin)
                                 }

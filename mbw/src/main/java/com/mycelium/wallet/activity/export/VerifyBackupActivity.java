@@ -47,6 +47,7 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -209,14 +210,14 @@ public class VerifyBackupActivity extends Activity {
          }
       }
 
-      for (ColuMain coluAsset : ColuUtils.allColuCoins()) {
+      for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
          UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
          success |= _mbwManager.getWalletManager(false).hasAccount(coluUUID);
       }
 
       if (success) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
-         for (ColuMain coluAsset : ColuUtils.allColuCoins()) {
+         for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
             UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
