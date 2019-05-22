@@ -501,16 +501,26 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
 
    private void checkTransaction() {
       // Check whether we have sufficient funds, and whether the output is too small
-      checkSendAmount(_amount, new CheckListener() {
+      Value amount = _amount;
+      // if _amount is not in account's currency then convert to account's currency before checking amount
+      if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+         amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType);
+      }
+      checkSendAmount(amount, new CheckListener() {
          @Override
          public void onResult(AmountValidation result) {
             if (result == AmountValidation.Ok) {
                tvAmount.setTextColor(getResources().getColor(R.color.white));
             } else {
                tvAmount.setTextColor(getResources().getColor(R.color.red));
+               Value amount = _amount;
+               // if _amount is not in account's currency then convert to account's currency before checking amount
+               if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+                  amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType);
+               }
                if (result == AmountValidation.NotEnoughFunds) {
                   // We do not have enough funds
-                  if (_amount.value == 0 || _account.getAccountBalance().getSpendable().value < _amount.value) {
+                  if (amount.value == 0 || _account.getAccountBalance().getSpendable().value < amount.value) {
                      // We do not have enough funds for sending the requested amount
                      String msg = getResources().getString(R.string.insufficient_funds);
                      Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
