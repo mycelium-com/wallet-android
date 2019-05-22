@@ -1047,7 +1047,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="export_not_possible">Export is not possible you already have %s account</string>
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Restore address as</string>
-    <string name="restore_addres_as">Restore address as</string>
     <string name="account_already_exist">This Bitcoin address is already restored as %s account.</string>
     <string name="ico_will_start">RMC ICO will start on 28.08.2017 at 0:00 MSK.</string>
     <string name="rmc_please_select_receiving_account">Please select receiving account</string>
