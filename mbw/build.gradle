@@ -226,6 +226,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
+                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -252,6 +253,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
+                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -270,6 +272,7 @@ android {
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "SOFELLO", "\"${flavor.ext.sofello}\""
     }
 
     testOptions {
