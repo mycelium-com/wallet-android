@@ -187,7 +187,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
-         List<GenericTransactionSummary> history = account.getTransactionSummaries(0, 1000);
+         List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 
          List<GenericTransactionSummary> list = new ArrayList<>();
 
