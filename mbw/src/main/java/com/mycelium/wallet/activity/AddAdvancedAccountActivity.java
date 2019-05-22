@@ -62,6 +62,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -77,7 +78,6 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -94,9 +94,6 @@ import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,7 +102,6 @@ import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
@@ -472,9 +468,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          if (askUserForColorize) {
             final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
             adapter.add(Utils.getBtcCoinType());
-            adapter.addAll(ColuUtils.allColuCoins());
+            adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_addres_as)
+                    .setTitle(R.string.restore_address_as)
                     .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {
@@ -641,9 +637,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          dialog.dismiss();
          if (askUserForColorize) {
             final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-            adapter.addAll(Utils.getBtcCoinType(), MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+            adapter.add(Utils.getBtcCoinType());
+            adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
             new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_addres_as)
+                    .setTitle(R.string.restore_address_as)
                     .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                        @Override
                        public void onClick(DialogInterface dialogInterface, int i) {

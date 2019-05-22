@@ -53,8 +53,10 @@ public class ColuUtils {
         return coinType;
     }
 
-    public static List<ColuMain> allColuCoins() {
-        return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE
-                , MTCoinTest.INSTANCE, MASSCoinTest.INSTANCE, RMCCoinTest.INSTANCE);
+    public static List<ColuMain> allColuCoins(String build) {
+        if (build.equals("prodnet")) {
+            return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+        }
+        return Arrays.asList(MTCoinTest.INSTANCE, MASSCoinTest.INSTANCE, RMCCoinTest.INSTANCE);
     }
 }
