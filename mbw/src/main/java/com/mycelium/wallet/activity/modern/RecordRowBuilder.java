@@ -59,6 +59,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,7 +179,7 @@ public class RecordRowBuilder {
     };
 
     @SuppressLint("StringFormatMatches")
-    public ViewAccountModel convert(WalletAccount walletAccount) {
+    private ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
 
@@ -188,7 +189,7 @@ public class RecordRowBuilder {
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
         WalletAccount linked = Utils.getLinkedAccount(walletAccount, getColuAccounts(mbwManager.getWalletManager(false)));
-        if (linked != null && linked.getCoinType().equals(RMCCoin.INSTANCE)) {
+        if (linked != null && (linked.getCoinType().equals(RMCCoin.INSTANCE) || linked.getCoinType().equals(RMCCoinTest.INSTANCE))) {
             result.isRMCLinkedAccount = true;
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
