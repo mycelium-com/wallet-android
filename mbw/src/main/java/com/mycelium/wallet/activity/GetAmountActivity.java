@@ -389,8 +389,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             _amount = val;
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getScale();
-            _amount = val.divide((long) Math.pow(10,toTargetUnit ));
+            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
          }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(0);

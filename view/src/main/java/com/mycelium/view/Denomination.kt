@@ -21,6 +21,10 @@ enum class Denomination(val scale: Int, val asciiString: String, val unicodeStri
                 else -> asciiString
             }
 
+    fun getAmount(value: Long): Long {
+        return value / Math.pow(10.0, scale.toDouble()).toLong()
+    }
+
     companion object {
         @JvmStatic
         fun fromString(string: String): Denomination {
