@@ -21,7 +21,7 @@ import java.text.DateFormat
 import java.util.*
 
 
-class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<SingleAddressAccountContext, BtcTransaction>,
+class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<SingleAddressAccountContext>,
                                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                                  internal val networkParameters: NetworkParameters,
                                  internal var _wapi: Wapi,
@@ -42,11 +42,11 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         this.settings = currencySettings as BTCSettings
     }
 
-    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
+    override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> {
         LoadingProgressTracker.subscribe(loadingProgressUpdater!!)
-        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
         val contexts = backing.loadSingleAddressAccountContexts()
         var counter = 1
         for (context in contexts) {
@@ -74,8 +74,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
                 || config is AddressSingleConfig
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *> {
-        var result: WalletAccount<*, *>? = null
+    override fun createAccount(config: Config): WalletAccount<*> {
+        var result: WalletAccount<*>? = null
         var baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
 
         if (config is PublicSingleConfig) {
@@ -122,8 +122,8 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return default
     }
 
-    private fun createAccount(publicKey: PublicKey): WalletAccount<*, *>? {
-        val result: WalletAccount<*, *>?
+    private fun createAccount(publicKey: PublicKey): WalletAccount<*>? {
+        val result: WalletAccount<*>?
         val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
         backing.beginTransaction()
         try {
@@ -139,7 +139,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return result
     }
 
-    private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher): WalletAccount<*, *>? {
+    private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher): WalletAccount<*>? {
         val publicKey = privateKey.publicKey
         for (address in publicKey.getAllSupportedAddresses(networkParameters).values) {
             publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, privateKey, cipher)
@@ -147,7 +147,7 @@ class BitcoinSingleAddressModule(internal val backing: WalletManagerBacking<Sing
         return createAccount(publicKey)
     }
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is SingleAddressAccount) {
             val publickey = walletAccount.publicKey
             if (publickey == null) {

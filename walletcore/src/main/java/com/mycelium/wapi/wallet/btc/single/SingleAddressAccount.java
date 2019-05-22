@@ -35,15 +35,14 @@ import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcReceiver;
-import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.Reference;
@@ -66,18 +65,18 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private PublicKey publicKey;
-   private SingleAddressAccountBacking _backing;
+   private SingleAddressBtcAccountBacking _backing;
    private Reference<ChangeAddressMode> changeAddressModeReference;
    public boolean toRemove = false;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               NetworkParameters network, SingleAddressBtcAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference) {
       this(context, keyStore, network, backing, wapi, changeAddressModeReference, true);
    }
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               NetworkParameters network, SingleAddressBtcAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference, boolean shouldPersistAddress) {
       super(backing, network, wapi);
       this.changeAddressModeReference = changeAddressModeReference;
@@ -523,32 +522,11 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       return Collections.emptyMap();
    }
 
-   @Override
-   public void completeTransaction(SendRequest<BtcTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
-      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      List<BtcReceiver> receivers = new ArrayList<>();
-      receivers.add(new BtcReceiver(btcSendRequest.getDestination().getAddress(), btcSendRequest.getAmount().value));
-      try {
-         btcSendRequest.setUnsignedTx(createUnsignedTransaction(receivers, request.fee.value));
-         request.setCompleted(true);
-      } catch (StandardTransactionBuilder.OutputTooSmallException e) {
-         throw new GenericOutputTooSmallException(e);
-      } catch (StandardTransactionBuilder.InsufficientFundsException e) {
-         throw new GenericInsufficientFundsException(e);
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         throw new GenericBuildTransactionException(e);
-      }
-   }
 
    @Override
-   public void signTransaction(SendRequest<BtcTransaction> request, KeyCipher keyCipher ) throws InvalidKeyCipher {
-      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
-   }
-
-   @Override
-   public BroadcastResult broadcastTx(BtcTransaction tx) throws GenericTransactionBroadcastException {
-      return broadcastTransaction(tx.getRawTransaction());
+   public BroadcastResult broadcastTx(GenericTransaction tx) throws GenericTransactionBroadcastException {
+      BtcTransaction btcTransaction = (BtcTransaction)tx;
+      return broadcastTransaction(btcTransaction.getTx());
    }
 
 }

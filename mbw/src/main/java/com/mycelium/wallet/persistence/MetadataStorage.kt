@@ -50,8 +50,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
-import com.mycelium.wapi.wallet.eth.coins.EthMain
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -216,17 +214,17 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             storeKeyCategoryValueEntry(SHOW_BIP44_PATH, if (show) "1" else "0")
         }
 
-    fun storeTransactionLabel(txid: Sha256Hash, label: String) {
+    fun storeTransactionLabel(txid: String, label: String) {
         if (!Strings.isNullOrEmpty(label)) {
-            storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), label)
+            storeKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid), label)
         } else {
             // remove the transaction label
-            deleteByKeyCategory(TRANSACTION_LABEL_CATEGORY.of(txid.toString()))
+            deleteByKeyCategory(TRANSACTION_LABEL_CATEGORY.of(txid))
         }
     }
 
-    fun getLabelByTransaction(txid: Sha256Hash): String {
-        return getKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid.toString()), "")
+    fun getLabelByTransaction(txid: String): String {
+        return getKeyCategoryValueEntry(TRANSACTION_LABEL_CATEGORY.of(txid), "")
     }
 
     fun getLabelByAccount(account: UUID): String {
@@ -266,8 +264,6 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             "Mass Token Test" -> MASSCoinTest
             "RMC" -> RMCCoin
             "RMC Test" -> RMCCoinTest
-            "Etherium" -> EthMain
-            "Etherium Test" -> EthTest
             else -> null
         }
     }

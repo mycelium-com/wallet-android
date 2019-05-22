@@ -146,7 +146,7 @@ public class ExchangeFragment extends Fragment {
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
         WalletManager walletManager = mbwManager.getWalletManager(false);
-        List<WalletAccount<?,?>> toAccounts = new ArrayList<>();
+        List<WalletAccount<?>> toAccounts = new ArrayList<>();
         toAccounts.addAll(getBTCBip44Accounts(walletManager));
         toAccounts.addAll(getBTCSingleAddressAccounts(walletManager));
         toAccounts.addAll(getCoinapultAccounts(walletManager));
@@ -158,7 +158,7 @@ public class ExchangeFragment extends Fragment {
         toRecyclerView.setHeader(toHeader);
         toRecyclerView.setFooter(toHeader);
 
-        List<WalletAccount<?,?>> fromAccounts = new ArrayList<>();
+        List<WalletAccount<?>> fromAccounts = new ArrayList<>();
         for (WalletAccount walletAccount : getBCHBip44Accounts(walletManager)) {
             if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
                 fromAccounts.add(walletAccount);

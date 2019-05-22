@@ -11,5 +11,5 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager
 open class Bip44BCHAccount(
         context: HDAccountContext,
         keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
-        network: NetworkParameters, backing: Bip44AccountBacking, wapi: Wapi) :
+        network: NetworkParameters, backing: Bip44BtcAccountBacking, wapi: Wapi) :
         HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE))

@@ -2,5 +2,5 @@ package com.mycelium.wapi.wallet
 
 
 interface AccountListener {
-    fun balanceUpdated(walletAccount: WalletAccount<*, *>)
+    fun balanceUpdated(walletAccount: WalletAccount<*>)
 }

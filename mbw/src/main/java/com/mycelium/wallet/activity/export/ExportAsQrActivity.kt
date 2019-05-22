@@ -92,7 +92,7 @@ class ExportAsQrActivity : AppCompatActivity() {
         private const val ACCOUNT_UUID = "accountUUID"
 
         @JvmStatic
-        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount<*,*>) {
+        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount<*>) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
                     .putExtra(ACCOUNT_DATA, accountData)
                     .putExtra(ACCOUNT_UUID, account.id)

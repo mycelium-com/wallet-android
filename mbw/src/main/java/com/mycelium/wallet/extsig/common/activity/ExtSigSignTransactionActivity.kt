@@ -57,7 +57,7 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.*
 import com.mycelium.wallet.extsig.common.showChange
 import com.mycelium.wapi.wallet.AccountScanManager
-import com.mycelium.wapi.wallet.btc.BtcSendRequest
+import com.mycelium.wapi.wallet.btc.BtcTransaction
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.sign_ext_sig_transaction_activity.*
@@ -124,7 +124,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
             tvPluginDevice.visibility = View.VISIBLE
         }
 
-        val unsigned = (_sendRequest as BtcSendRequest).unsignedTx
+        val unsigned = (_transaction as BtcTransaction).unsignedTx
 
         if (showTx) {
             ivConnectExtSig.visibility = View.GONE
@@ -225,7 +225,7 @@ abstract class ExtSigSignTransactionActivity : SignTransactionActivity(), Master
 
     @Subscribe
     open fun onStatusUpdate(event: ExternalSignatureDeviceManager.OnStatusUpdate) {
-        val output = (_sendRequest as BtcSendRequest).unsignedTx!!.outputs[event.outputIndex]
+        val output = (_transaction as BtcTransaction).unsignedTx!!.outputs[event.outputIndex]
         val address = output.script.getAddress(_mbwManager.network)
 
         val statusText = when (event.status) {

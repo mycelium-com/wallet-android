@@ -73,7 +73,7 @@ class BtcAssetBasicTest {
 
     @test
     fun test() {
-        val backing = InMemoryWalletManagerBacking()
+        val backing = InMemoryBtcWalletManagerBacking()
 
         val testnetWapiEndpoints = ServerEndpoints(arrayOf<HttpEndpoint>(HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB")))
 
@@ -121,7 +121,7 @@ class BtcAssetBasicTest {
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
             val storage = MemoryBasedStorage()
 
-            val bitcoinHDModule = BitcoinHDModule(backing as WalletManagerBacking<HDAccountContext, BtcTransaction>, store, network, wapiClient, btcSettings, storage, null, null, null)
+            val bitcoinHDModule = BitcoinHDModule(backing as BtcWalletManagerBacking<HDAccountContext>, store, network, wapiClient, btcSettings, storage, null, null, null)
             walletManager.add(bitcoinHDModule)
 
             // create sample HD account
@@ -193,10 +193,9 @@ class BtcAssetBasicTest {
     }
 
     fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
-        val sendRequest = account.getSendToRequest(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), Value.valueOf(account.coinType, 2000L))
-        account.completeTransaction(sendRequest as SendRequest<BtcTransaction>)
-        account.signTransaction(sendRequest, AesKeyCipher.defaultKeyCipher())
-        account.broadcastTx(sendRequest.tx)
+        val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), FeePerKbFee(Value.valueOf(account.coinType, 2000L)))
+        account.signTx(tx, AesKeyCipher.defaultKeyCipher())
+        account.broadcastTx(tx)
     }
 
 }

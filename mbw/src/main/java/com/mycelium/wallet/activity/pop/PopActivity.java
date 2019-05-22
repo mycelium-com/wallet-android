@@ -50,6 +50,7 @@ import android.widget.Toast;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
@@ -62,9 +63,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
-import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
@@ -88,6 +88,7 @@ public class PopActivity extends Activity {
    private MbwManager _mbwManager;
    private Sha256Hash txidToProve;
    private static final int SIGN_TRANSACTION_REQUEST_CODE = 6;
+   private static final String SIGNED_TRANSACTION = "signedTransaction";
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +100,7 @@ public class PopActivity extends Activity {
       if (savedInstanceState != null) {
          popRequest = (PopRequest) savedInstanceState.getSerializable("popRequest");
          txidToProve = (Sha256Hash) savedInstanceState.getSerializable("txidToProve");
-         updateUi((_mbwManager.getSelectedAccount().getTx(txidToProve)));
+         updateUi((_mbwManager.getSelectedAccount().getTxSummary(txidToProve.getBytes())));
          return;
       }
 
@@ -109,19 +110,19 @@ public class PopActivity extends Activity {
       }
 
       Sha256Hash userSelectedTransaction = (Sha256Hash) getIntent().getSerializableExtra("selectedTransactionToProve");
-      GenericTransaction txToProve;
+      GenericTransactionSummary txToProve;
       if (userSelectedTransaction != null) {
          txidToProve = userSelectedTransaction;
          txToProve = null;
       } else {
          // Get history ordered by block height descending
-         List<GenericTransaction> transactionHistory = _mbwManager.getSelectedAccount().getTransactions(0, 10000);
-         GenericTransaction matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
+         List<GenericTransactionSummary> transactionHistory = _mbwManager.getSelectedAccount().getTransactionSummaries(0, 10000);
+         GenericTransactionSummary matchingTransaction = findFirstMatchingTransaction(popRequest, transactionHistory);
          if (matchingTransaction == null) {
             launchSelectTransactionActivity();
             return;
          }
-         txidToProve = matchingTransaction.getId();
+         txidToProve = Sha256Hash.of(matchingTransaction.getId());
          txToProve = matchingTransaction;
       }
 
@@ -135,9 +136,9 @@ public class PopActivity extends Activity {
       finish();
    }
 
-   private GenericTransaction findFirstMatchingTransaction(PopRequest popRequest, List<GenericTransaction> transactions) {
+   private GenericTransactionSummary findFirstMatchingTransaction(PopRequest popRequest, List<GenericTransactionSummary> transactions) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
-      for (GenericTransaction transaction: transactions) {
+      for (GenericTransactionSummary transaction: transactions) {
          if (PopUtils.matches(popRequest, metadataStorage, transaction)) {
             return transaction;
          }
@@ -162,7 +163,7 @@ public class PopActivity extends Activity {
       return sum;
    }
 
-   private void updateUi(GenericTransaction transaction) {
+   private void updateUi(GenericTransactionSummary transaction) {
       MetadataStorage metadataStorage = _mbwManager.getMetadataStorage();
 
       // Set Date
@@ -182,7 +183,7 @@ public class PopActivity extends Activity {
       setText(R.id.pop_transaction_amount, value + fiatAppendment);
 
       // Set label
-      String label = metadataStorage.getLabelByTransaction(transaction.getId());
+      String label = metadataStorage.getLabelByTransaction(HexUtils.toHex(transaction.getId()));
       setText(R.id.pop_transaction_label, label);
 
       URL url = getUrl(popRequest.getP());
@@ -217,7 +218,7 @@ public class PopActivity extends Activity {
       return url;
    }
 
-   private long getPaymentAmountSatoshis(GenericTransaction transaction) {
+   private long getPaymentAmountSatoshis(GenericTransactionSummary transaction) {
       if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
@@ -245,8 +246,8 @@ public class PopActivity extends Activity {
             public void run() {
                disableButtons();
                CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-               BtcSendRequest sendRequest = new BtcSendRequest(cryptoCurrency, unsignedPop);
-               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+               BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsignedPop);
+               Intent intent = SignTransactionActivity.getIntent(PopActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
                startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
             }
          });
@@ -267,8 +268,9 @@ public class PopActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
-            Transaction pop = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
+            BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
+            Transaction pop = btcTransaction.getTx();
             ConnectivityManager connMgr = (ConnectivityManager)
                   getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

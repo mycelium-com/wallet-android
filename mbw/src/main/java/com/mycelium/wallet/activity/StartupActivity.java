@@ -482,7 +482,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
-         List<WalletAccount<?,?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
@@ -558,7 +558,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-         List<WalletAccount<?,?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();

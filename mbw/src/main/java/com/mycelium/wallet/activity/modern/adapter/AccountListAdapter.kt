@@ -23,7 +23,6 @@ import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,7 +40,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
     private val walletManager = mbwManager.getWalletManager(false)
 
-    val focusedAccount: WalletAccount<out GenericTransaction, out GenericAddress>?
+    val focusedAccount: WalletAccount<out GenericAddress>?
         get() = focusedAccountId?.let { walletManager.getAccount(it)}
 
     init {
@@ -224,7 +223,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
     interface ItemClickListener {
-        fun onItemClick(account: WalletAccount<out GenericTransaction, out GenericAddress>)
+        fun onItemClick(account: WalletAccount<out GenericAddress>)
     }
 
     class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.mycelium.wapi.wallet.btc;
+package com.mycelium.wapi.wallet;
 
-import com.mycelium.wapi.wallet.AccountBacking;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 
-public interface Bip44AccountBacking extends AccountBacking<BtcTransaction> {
-   void updateAccountContext(HDAccountContext context);
+public interface SingleAddressBtcAccountBacking extends BtcAccountBacking {
+   void updateAccountContext(SingleAddressAccountContext context);
 }

@@ -61,8 +61,8 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.SendRequest;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.FeePerKbFee;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -390,8 +390,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             _amount = val;
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getScale();
-            _amount = val.divide((long) Math.pow(10,toTargetUnit ));
+            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
          }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(0);
@@ -464,8 +463,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
-               SendRequest<?> sendRequest = _account.getSendToRequest(_account.getDummyAddress(destinationAddress.getSubType()), value, Value.valueOf(_account.getCoinType(), _kbMinerFee));
-               _account.completeTransaction(sendRequest);
+               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(Value.valueOf(_account.getCoinType(), _kbMinerFee)));
             } catch (GenericOutputTooSmallException e) {
                return AmountValidation.ValueTooSmall;
             } catch (GenericInsufficientFundsException e) {

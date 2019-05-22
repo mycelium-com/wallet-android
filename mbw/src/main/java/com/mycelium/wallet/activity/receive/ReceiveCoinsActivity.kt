@@ -104,7 +104,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         })
     }
 
-    private fun initDatabinding(account: WalletAccount<*,*>) {
+    private fun initDatabinding(account: WalletAccount<*>) {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
@@ -166,7 +166,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         @JvmStatic
         @JvmOverloads
-        fun callMe(currentActivity: Activity, account: WalletAccount<*,*>, havePrivateKey: Boolean,
+        fun callMe(currentActivity: Activity, account: WalletAccount<*>, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
             currentActivity.startActivity(Intent(currentActivity, ReceiveCoinsActivity::class.java)
                     .putExtra(UUID, account.id)

@@ -11,11 +11,10 @@ import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
-import com.mycelium.wapi.wallet.AccountBacking
+import com.mycelium.wapi.wallet.CommonAccountBacking
 import com.mycelium.wapi.wallet.WalletBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccountContext
-import com.mycelium.wapi.wallet.coinapult.CoinapultTransaction
 import com.mycelium.wapi.wallet.coinapult.CoinapultUtils
 import com.mycelium.wapi.wallet.coinapult.Currency
 import java.io.IOException
@@ -26,7 +25,7 @@ class SQLiteCoinapultBacking(val context: Context
                              , val metadataStorage: MetadataStorage
                              , addressByteArray: ByteArray
                              , val networkParameters: NetworkParameters)
-    : WalletBacking<CoinapultAccountContext, CoinapultTransaction> {
+    : WalletBacking<CoinapultAccountContext> {
     val database: SQLiteDatabase
 
     private val insertOrReplaceAccount: SQLiteStatement
@@ -132,7 +131,7 @@ class SQLiteCoinapultBacking(val context: Context
         return result
     }
 
-    override fun getAccountBacking(accountId: UUID?): AccountBacking<CoinapultTransaction>? = backings[accountId]
+    override fun getAccountBacking(accountId: UUID?): CommonAccountBacking? = backings[accountId]
 
     override fun deleteAccountContext(uuid: UUID?) {
 

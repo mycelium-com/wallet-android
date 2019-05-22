@@ -6,18 +6,13 @@ and interfaces to provide the ability to describe any type of asset.
 An asset implementation involves *WalletAccount* interface methods' realization:
 
 ```
-public interface WalletAccount<T extends GenericTransaction, A extends GenericAddress> {
+public interface WalletAccount<A extends GenericAddress> {
 
-    void completeAndSignTx(SendRequest<T> request) throws WalletAccountException;
-    void completeTransaction(SendRequest<T> request) throws WalletAccountException;
-    void signTransaction(SendRequest<T> request) throws WalletAccountException; 
-    BroadcastResult broadcastTx(T tx) throws TransactionBroadcastException; 
-    GenericAddress getReceiveAddress();
-    CryptoCurrency getCoinType();
-    Balance getAccountBalance();  
-    T getTx(Sha256Hash transactionId); 
-    List<GenericTransaction> getTransactions(int offset, int limit); 
-    SendRequest getSendToRequest(GenericAddress destination, Value amount); 
+    GenericTransaction createTransaction(GenericAddress address, Value amount, GenericFee fee);
+    void signTx(GenericTransaction request, KeyCipher keyCipher);
+    BroadcastResult broadcastTx(GenericTransaction tx);
+    Balance getAccountBalance();
+    List<TransactionSummaryGeneric> getTransactionSummaries(int offset, int limit);
 
     ...
 }
@@ -30,12 +25,69 @@ prepare a transaction by signing it, broadcast the transaction to the network.
 As long as a majority of crypto-currencies have their own transaction formats
 and address representation, the *WalletAccount* interface use templates. To describe the specific 
 assets' transactions and its address representation, the custom classes implementing *GenericAddress* and *GenericTransaction*
-should be created and used as templates.
+should be created.
  
 Below is an example of some assets implementing *WalletAccount* interface:
 
 
 ![Image](images/accs.png)
+
+## Creating a new Wallet
+
+Mycelium Wallet Core provides the *WalletManager* class to manage user's crypto assets. Before starting
+to use its methods, a configuration of data storage and master seed setup should be provided.
+
+### Data storage configuration
+
+Since the Wallet Core library is able to run on different environments supporting Java platform 
+(Android, Desktop, ...) , it is flexible to use any required data storage.
+To implement it, *WalletBacking* interface is used. There are some existing implementation like
+InMemoryBtcWalletManagerBacking for in-memory storage or SqliteBtcWalletManagerBacking for Android's
+Sqlite database.
+
+```
+val backing = InMemoryBtcWalletManagerBacking()
+
+```
+
+### Master seed configuration
+
+Master seed could be created randomly or restored from known list of words.
+It is stored inside the dedicated store called *SecureKeyValueStore*.
+
+```
+val store =  SecureKeyValueStore(backing, MyRandomSource());
+val masterSeedManager = MasterSeedManager(store);
+val randomMasterSeed = createRandomMasterSeed();
+val restoredMasterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
+masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+
+```
+
+### Creating WalletManager instance
+
+To create a WalletManager object, it should be configured by setting up ElectrumX servers and 
+network to work with (mainnet, testnet)
+
+```
+val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
+val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
+val walletManager = WalletManager(
+                network,
+                wapiClient,
+                currenciesSettingsMap)
+```
+
+### Adding modules
+
+A Wallet Core module is a set of classes that supports the specific crypto-asset. In order to
+add bitcoin cryptocurrency support, an object of class *BitcoinHDModule* should be added to
+WalletManager:
+
+```
+    val bitcoinHDModule = BitcoinHDModule(backing as BtcWalletManagerBacking<HDAccountContext>, store, network, wapiClient, btcSettings, storage, null, null, null)
+    walletManager.add(bitcoinHDModule)
+```
 
 ## Getting account balance
 
@@ -65,25 +117,36 @@ and a number of transferred currency units:
      Value amountToSend = Value.valueOf(asset, 1000000);
 ``` 
 
-A send request object contains all the nesessary information to prepare a transaction,
-including fee size. If a fee size is not specified, a default value is taken.
+Before creating a transaction, we should specify fee size.Crypto-currencies have different fee
+ policies. For example, bitcoin-based cryptocurrencies use well-known Fee-per-KB strategy.
+For example we can specify 30000 satoshis per kilobyte:
+
+```
+     GenericFee fee = new FeePerKb(Value.valueOf(asset, 30000)
+```
+
+
 It's time to create a send request object using the information about the receiving address and the 
 amount to send:
 
 ```      
-     SendRequest sendRequest = account.getSendToRequest(toAddress, amountToSend);     
+     GenericTransaction tx = account.createTx(toAddress, amountToSend, fee);
 ```      
 
-Since, the send request is ready, the transaction need to be completed and signed:
+
+If the account does not have enough funds to execute the transaction, an appropriate exception will
+be thrown.  
+
+Since the transaction object is ready, the transaction need to be signed:
 
 ``` 
-     account.completeAndSignTx(sendRequest);
+     account.signTx(tx);
 ```    
 
 And we can broadcast the transaction:    
     
 ``` 
-     account.broadcastTx(request.tx);
+     account.broadcastTx(tx);
 ```    
 
 ## Retrieving fee estimations

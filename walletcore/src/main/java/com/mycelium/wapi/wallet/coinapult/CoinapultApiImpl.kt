@@ -6,9 +6,9 @@ import com.coinapult.api.httpclient.SearchMany
 import com.coinapult.api.httpclient.Transaction
 import com.google.api.client.http.HttpResponseException
 import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
@@ -107,46 +107,11 @@ class CoinapultApiImpl(val client: CoinapultClient, val logger: WapiLogger) : Co
         return balance
     }
 
-    override fun getTransactions(currency: Currency): List<CoinapultTransaction>? {
-        var result: List<CoinapultTransaction>? = null
-        //get first page to get pageCount
-        try {
-            var batch = client.history(1)
-            val tmpResult = mutableListOf<CoinapultTransaction>()
-            add(currency, batch, tmpResult)
-            //get extra pages
-            var i = 2
-            while (batch.page < batch.pageCount) {
-                batch = client.history(i)
-                add(currency, batch, tmpResult)
-                i++
-            }
-            result = tmpResult
-        } catch (e: CoinapultClient.CoinapultBackendException) {
-            logger.logError("CoinapultApiImplerror while getting history", e)
-        } catch (e: SocketTimeoutException) {
-            logger.logError("CoinapultApiImpl error while getting balance", e)
-        }
-        return result
+    override fun getTransactions(currency: Currency): List<GenericTransactionSummary>? {
+        return ArrayList<GenericTransactionSummary>()
     }
 
-    private fun add(currency: Currency, batch: SearchMany.Json?, tmpResult: MutableList<CoinapultTransaction>) {
-        if (batch?.result != null) {
-            batch.result.forEach {
-                val isIncoming = it.type != "payment"
-                val half = if (isIncoming) it.out else it.`in`
-                val txCurrency = Currency.all[half.currency]!!
-                if (currency == txCurrency) {
-                    val data = it.tid.toByteArray().plus(ByteArray(Sha256Hash.HASH_LENGTH - it.tid.toByteArray().size))
-
-                    val tx = CoinapultTransaction(Sha256Hash.of(data)
-                            , Value.valueOf(currency, half.amount.multiply(BigDecimal.TEN.pow(currency.unitExponent)).toLong())
-                            , isIncoming, it.completeTime, it.state, it.timestamp)
-                    tx.debugInfo = it.toString()
-                    tmpResult.add(tx)
-                }
-            }
-        }
+    private fun add(currency: Currency, batch: SearchMany.Json?, tmpResult: MutableList<GenericTransactionSummary>) {
     }
 
     override fun broadcast(amount: BigDecimal, currency: Currency, address: BtcAddress) {

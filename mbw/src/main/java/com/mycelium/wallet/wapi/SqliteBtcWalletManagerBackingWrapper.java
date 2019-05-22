@@ -38,9 +38,9 @@ import android.content.Context;
 
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 
-// Wrapper for SqliteWalletManagerBacking, to catch the DbCorrupted RuntimeException and inform the user about it
-public class SqliteWalletManagerBackingWrapper extends SqliteWalletManagerBacking {
-   public SqliteWalletManagerBackingWrapper(Context context) {
+// Wrapper for SqliteBtcWalletManagerBacking, to catch the DbCorrupted RuntimeException and inform the user about it
+public class SqliteBtcWalletManagerBackingWrapper extends SqliteBtcWalletManagerBacking {
+   public SqliteBtcWalletManagerBackingWrapper(Context context) {
       super(context);
    }
 

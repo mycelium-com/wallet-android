@@ -16,9 +16,8 @@
 
 package com.mycelium.wapi.wallet.btc;
 
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
@@ -26,8 +25,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletManagerBacking<AccountContext, T extends GenericTransaction>
-        extends WalletBacking<AccountContext, T>, SecureKeyValueStoreBacking {
+public interface BtcWalletManagerBacking<AccountContext>
+        extends WalletBacking<AccountContext>, SecureKeyValueStoreBacking {
     void beginTransaction();
 
     void setTransactionSuccessful();
@@ -38,7 +37,7 @@ public interface WalletManagerBacking<AccountContext, T extends GenericTransacti
 
     List<HDAccountContext> loadBip44AccountContexts();
 
-    Bip44AccountBacking getBip44AccountBacking(UUID accountId);
+    Bip44BtcAccountBacking getBip44AccountBacking(UUID accountId);
 
     void deleteBip44AccountContext(UUID accountId);
 
@@ -46,7 +45,7 @@ public interface WalletManagerBacking<AccountContext, T extends GenericTransacti
 
     List<SingleAddressAccountContext> loadSingleAddressAccountContexts();
 
-    SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId);
+    SingleAddressBtcAccountBacking getSingleAddressAccountBacking(UUID accountId);
 
     void deleteSingleAddressAccountContext(UUID accountId);
 }

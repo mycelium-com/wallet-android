@@ -19,7 +19,7 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
         dumpedPrivateKeyHeader = 239;
 
         name = "Bitcoin Test";
-        symbol = "BTCt";
+        symbol = "BTC";
         uriScheme = "bitcoin";
         bip44Index = 1;
         unitExponent = 8;

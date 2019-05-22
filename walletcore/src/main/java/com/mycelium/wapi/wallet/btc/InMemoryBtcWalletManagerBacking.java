@@ -23,9 +23,8 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -35,9 +34,9 @@ import java.util.*;
 /**
  * Backing for a wallet manager which is only kept temporarily in memory
  */
-public class InMemoryWalletManagerBacking implements WalletManagerBacking<SingleAddressAccountContext, BtcTransaction> {
+public class InMemoryBtcWalletManagerBacking implements BtcWalletManagerBacking<SingleAddressAccountContext> {
    private final Map<String, byte[]> _values = new HashMap<>();
-   private final Map<UUID, InMemoryAccountBacking> _backings = new HashMap<>();
+   private final Map<UUID, InMemoryBtcAccountBacking> _backings = new HashMap<>();
    private final Map<UUID, HDAccountContext> _bip44Contexts = new HashMap<>();
    private final Map<UUID, SingleAddressAccountContext> _singleAddressAccountContexts = new HashMap<>();
    private int maxSubId = 0;
@@ -70,7 +69,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    @Override
    public void createBip44AccountContext(HDAccountContext context) {
       _bip44Contexts.put(context.getId(), new HDAccountContext(context));
-      _backings.put(context.getId(), new InMemoryAccountBacking());
+      _backings.put(context.getId(), new InMemoryBtcAccountBacking());
    }
 
    @Override
@@ -86,7 +85,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    @Override
    public void createSingleAddressAccountContext(SingleAddressAccountContext context) {
       _singleAddressAccountContexts.put(context.getId(), new SingleAddressAccountContext(context));
-      _backings.put(context.getId(), new InMemoryAccountBacking());
+      _backings.put(context.getId(), new InMemoryBtcAccountBacking());
    }
 
    @Override
@@ -101,7 +100,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    }
 
    @Override
-   public AccountBacking getAccountBacking(UUID accountId) {
+   public BtcAccountBacking getAccountBacking(UUID accountId) {
       return getSingleAddressAccountBacking(accountId);
    }
 
@@ -128,15 +127,15 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
    }
 
    @Override
-   public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
-      InMemoryAccountBacking backing = _backings.get(accountId);
+   public Bip44BtcAccountBacking getBip44AccountBacking(UUID accountId) {
+      InMemoryBtcAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
 
    @Override
-   public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
-      InMemoryAccountBacking backing = _backings.get(accountId);
+   public SingleAddressBtcAccountBacking getSingleAddressAccountBacking(UUID accountId) {
+      InMemoryBtcAccountBacking backing = _backings.get(accountId);
       Preconditions.checkNotNull(backing);
       return backing;
    }
@@ -190,7 +189,7 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
       return "sub" + subId + "." + HexUtils.toHex(id);
    }
 
-   private class InMemoryAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
+   private class InMemoryBtcAccountBacking implements Bip44BtcAccountBacking, SingleAddressBtcAccountBacking {
       private final Map<OutPoint, TransactionOutputEx> _unspentOuputs = new HashMap<>();
       private final Map<Sha256Hash, TransactionEx> _transactions = new HashMap<>();
       private final Map<OutPoint, TransactionOutputEx> _parentOutputs = new HashMap<>();
@@ -211,17 +210,17 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
 
       @Override
       public void beginTransaction() {
-         InMemoryWalletManagerBacking.this.beginTransaction();
+         InMemoryBtcWalletManagerBacking.this.beginTransaction();
       }
 
       @Override
       public void setTransactionSuccessful() {
-         InMemoryWalletManagerBacking.this.setTransactionSuccessful();
+         InMemoryBtcWalletManagerBacking.this.setTransactionSuccessful();
       }
 
       @Override
       public void endTransaction() {
-         InMemoryWalletManagerBacking.this.endTransaction();
+         InMemoryBtcWalletManagerBacking.this.endTransaction();
       }
 
       @Override
@@ -374,21 +373,6 @@ public class InMemoryWalletManagerBacking implements WalletManagerBacking<Single
          for (OutPoint outpoint : refersOutputs) {
             _txRefersParentTxOpus.put(txId, outpoint);
          }
-      }
-
-      @Override
-      public BtcTransaction getTx(Sha256Hash hash) {
-         return null;
-      }
-
-      @Override
-      public List<BtcTransaction> getTransactions(int offset, int limit) {
-         return null;
-      }
-
-      @Override
-      public void putTransactions(List<BtcTransaction> txList) {
-
       }
 
       @Override

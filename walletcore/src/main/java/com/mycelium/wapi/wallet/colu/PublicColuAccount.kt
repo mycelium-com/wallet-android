@@ -23,9 +23,21 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , private val type: CryptoCurrency
                              , val networkParameters: NetworkParameters
                              , val coluClient: ColuApi
-                             , val accountBacking: AccountBacking<ColuTransaction>
-                             , val backing: WalletBacking<ColuAccountContext, ColuTransaction>
-                             , val listener: AccountListener? = null) : WalletAccount<ColuTransaction, BtcAddress> {
+                             , val accountBacking: ColuAccountBacking
+                             , val backing: WalletBacking<ColuAccountContext>
+                             , val listener: AccountListener? = null) : WalletAccount<BtcAddress> {
+
+    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
+        return ArrayList<GenericTransaction>()
+    }
+
+    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
+        return false
+    }
+
+    override fun getTx(byte: ByteArray): GenericTransaction {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun isSyncing(): Boolean {
         //TODO: implement later
@@ -75,20 +87,11 @@ open class PublicColuAccount(val context: ColuAccountContext
             addressList = context.address ?: mapOf()
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
-        cachedBalance = calculateBalance(accountBacking.allUnspentOutputs.toList(), accountBacking.getTransactions(0, 2000))
+        cachedBalance = calculateBalance(emptyList(), accountBacking.getTransactionSummaries(0, 2000))
     }
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<ColuTransaction> {
-        val history = ArrayList<ColuTransaction>()
-        checkNotArchived()
-        val list = accountBacking.getTransactionsSince(receivingSince)
-        for (tex in list) {
-            val tx = getTx(tex.txid)
-            if (tx != null) {
-                history.add(tx)
-            }
-        }
-        return history
+    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
+        return accountBacking.getTransactionsSince(receivingSince)
     }
 
     private fun convert(publicKey: PublicKey, coinType: ColuMain?): Map<AddressType, BtcAddress> {
@@ -131,23 +134,19 @@ open class PublicColuAccount(val context: ColuAccountContext
         return false
     }
 
-    override fun getTx(transactionId: Sha256Hash): ColuTransaction? {
+    override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
         checkNotArchived()
-        return accountBacking.getTx(transactionId)
+        return accountBacking.getTxSummary(Sha256Hash.of(transactionId))
     }
 
-    override fun getTransactions(offset: Int, limit: Int): List<ColuTransaction> {
-        return accountBacking.getTransactions(offset, limit)
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
+        return accountBacking.getTransactionSummaries(offset, limit)
     }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
         return Value.zeroValue(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
-    }
-
-    override fun getSendToRequest(destination: BtcAddress, amount: Value, feePerKb: Value): SendRequest<ColuTransaction> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
@@ -162,16 +161,13 @@ open class PublicColuAccount(val context: ColuAccountContext
         txsInfo?.let {
             accountBacking.clear()
             accountBacking.putTransactions(it.transactions)
-            it.unspent.forEach { txOut ->
-                accountBacking.putUnspentOutput(txOut)
-            }
             cachedBalance = calculateBalance(it.unspent, it.transactions)
             listener?.balanceUpdated(this)
         }
         return true
     }
 
-    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<ColuTransaction>): Balance {
+    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)
         var receiving = Value.zeroValue(coinType)
         var sending = Value.zeroValue(coinType)
@@ -244,17 +240,16 @@ open class PublicColuAccount(val context: ColuAccountContext
         return 0;
     }
 
-    override fun completeTransaction(request: SendRequest<ColuTransaction>) {
+    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
+        return null
+    }
+
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
         // This implementation is empty since this account is read only and cannot create,
         // sign and broadcast transactions
     }
 
-    override fun signTransaction(request: SendRequest<ColuTransaction>, keyCipher: KeyCipher) {
-        // This implementation is empty since this account is read only and cannot create,
-        // sign and broadcast transactions
-    }
-
-    override fun broadcastTx(tx: ColuTransaction): BroadcastResult {
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         // This implementation is empty since this account is read only and cannot create,
         // sign and broadcast transactions
         return BroadcastResult(BroadcastResultType.REJECTED)
@@ -269,10 +264,10 @@ open class PublicColuAccount(val context: ColuAccountContext
                 .estimateTransactionSize()
     }
 
-    override fun getUnspentOutputs(): List<GenericTransaction.GenericOutput> {
-        val result = mutableListOf<GenericTransaction.GenericOutput>()
-        accountBacking.allUnspentOutputs.forEach {
-            result.add(GenericTransaction.GenericOutput(receiveAddress, Value.valueOf(coinType, it.value), false))
+    override fun getUnspentOutputViewModels(): List<GenericOutputViewModel> {
+        val result = mutableListOf<GenericOutputViewModel>()
+        accountBacking.unspentOutputs.forEach {
+            result.add(GenericOutputViewModel(receiveAddress, Value.valueOf(coinType, it.value), false))
         }
         return result
     }

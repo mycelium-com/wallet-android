@@ -35,8 +35,10 @@
 package com.mycelium.wallet;
 
 
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.io.File;
@@ -55,22 +57,22 @@ import java.util.TimeZone;
 public class DataExport {
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransaction> history,
+   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
                                       MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);
       OutputStreamWriter osw = new OutputStreamWriter(fos);
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
-      Collections.sort(history, new Comparator<GenericTransaction>() {
+      Collections.sort(history, new Comparator<GenericTransactionSummary>() {
          @Override
-         public int compare(GenericTransaction t1, GenericTransaction t2) {
+         public int compare(GenericTransactionSummary t1, GenericTransactionSummary t2) {
             return (int) (t2.getTimestamp() - t1.getTimestamp());
          }
       });
-      for (GenericTransaction transaction : history) {
-         String txLabel = storage.getLabelByTransaction(transaction.getId());
+      for (GenericTransactionSummary transaction : history) {
+         String txLabel = storage.getLabelByTransaction(HexUtils.toHex(transaction.getId()));
          StringBuilder destAddresses = new StringBuilder();
-         for (GenericTransaction.GenericOutput output : transaction.getOutputs()) {
+         for (GenericOutputViewModel output : transaction.getOutputs()) {
             if(!account.isMineAddress(output.getAddress())) {
                destAddresses.append(output.getAddress().toString()).append(" ");
             }
@@ -81,7 +83,7 @@ public class DataExport {
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransaction transaction) {
+   private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransactionSummary transaction) {
       TimeZone tz = TimeZone.getDefault();
       DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
       df.setTimeZone(tz);
