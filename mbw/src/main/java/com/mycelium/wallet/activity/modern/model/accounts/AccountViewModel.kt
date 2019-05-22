@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.colu.PublicColuAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 
 /**
  * Model for the account item on the accounts tab.
@@ -86,7 +87,7 @@ class AccountViewModel(account: WalletAccount<out GenericTransaction, out Generi
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
             val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
-            return linked is PublicColuAccount && linked.coinType == RMCCoin
+            return linked is PublicColuAccount && (linked.coinType == RMCCoin || linked.coinType == RMCCoinTest)
         }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericTransaction, out GenericAddress>, mbwManager: MbwManager): Boolean {
