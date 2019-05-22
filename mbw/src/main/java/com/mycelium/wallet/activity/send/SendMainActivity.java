@@ -369,6 +369,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
             @Override
             protected void onPostExecute(Void v) {
+                showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
                 updateUi();
             }
 
