@@ -320,10 +320,10 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          showMaxAmount();
       }
 
+      CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
+      btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
       if (_amount != null) {
          // Set current currency name button
-         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-         btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
          //update amount
          BigDecimal newAmount;
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
@@ -337,14 +337,15 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
          tvAmount.setText("");
       }
 
+
       // Check whether we can show the paste button
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _amount.getType());
+      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _mbwManager.getCurrencySwitcher().getCurrentCurrency());
       String maxBalanceString = getResources().getString(R.string.max_btc
-               , ValueExtensionsKt.toStringWithUnit(maxSpendable, _mbwManager.getDenomination()));
+              , ValueExtensionsKt.toStringWithUnit(maxSpendable != null ? maxSpendable : Value.zeroValue(_mbwManager.getCurrencySwitcher().getCurrentCurrency()), _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -459,7 +460,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       new AsyncTask<Void, Void, AmountValidation>() {
          @Override
          protected AmountValidation doInBackground(Void... voids) {
-            if (value.value == 0) {
+            if(value == null) {
+               return AmountValidation.ExchangeRateNotAvailable;
+            }else if (value.value == 0) {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
@@ -494,7 +497,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    }
 
    private enum AmountValidation {
-      Ok, ValueTooSmall, Invalid, NotEnoughFunds
+      Ok, ValueTooSmall, Invalid, NotEnoughFunds, ExchangeRateNotAvailable
    }
 
    private void checkTransaction() {
@@ -528,6 +531,9 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
                      String msg = getResources().getString(R.string.insufficient_funds_for_fee);
                      Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
                   }
+               } else if(result == AmountValidation.ExchangeRateNotAvailable) {
+                  String msg = getResources().getString(R.string.exchange_rate_unavailable);
+                  Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();
                }
                // else {
                // The amount we want to send is not large enough for the network to
