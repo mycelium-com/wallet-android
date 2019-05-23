@@ -228,6 +228,12 @@ public class Transaction implements Serializable {
         writer.putIntLE(lockTime);
     }
 
+    public int vsize() {
+        // vsize calculations are from https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#transaction-size-calculations
+        // (a+b-1)/b pattern is used to round to the next integer
+        return (toBytes(false).length * 3 + toBytes(true).length + 4 - 1) / 4;
+    }
+
     private void writeWitness(ByteWriter writer) {
         for (TransactionInput input : inputs) {
             input.getWitness().toByteWriter(writer);
