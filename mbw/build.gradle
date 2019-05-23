@@ -226,7 +226,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
-                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s";
+                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s&darkMode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -253,7 +253,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
-                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s";
+                sofello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=enutm_source=Mycelium&utm_medium=Wallet&address=%s&darkMode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
