@@ -59,7 +59,7 @@ class PopUtils {
          return false;
       }
       if (popRequest.getLabel() != null) {
-         String label = metadataStorage.getLabelByTransaction(HexUtils.toHex(transaction.getId()));
+         String label = metadataStorage.getLabelByTransaction(transaction.getIdHex());
          if (!popRequest.getLabel().equals(label)) {
             return false;
          }

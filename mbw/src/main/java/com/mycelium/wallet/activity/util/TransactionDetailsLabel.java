@@ -38,6 +38,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
@@ -68,12 +69,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.getId().toString();
+      return transaction.getIdHex();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.getId().toString(), 4, " ");
+      return Utils.stringChopper(HexUtils.toHex(transaction.getId()), 4, " ");
    }
 
    @Override

@@ -117,6 +117,10 @@ public class GenericTransactionSummary implements Serializable {
         return id;
     }
 
+    public String getIdHex() {
+        return HexUtils.toHex(hash);
+    }
+
     public long getTime() {return time;}
 
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
