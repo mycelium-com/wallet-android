@@ -142,25 +142,14 @@ class MtAssetBasicTest {
             val coinType = coluAccount1.coinType
             val address1 = AddressUtils.from(coinType, coluAccount1.receiveAddress.toString()) as BtcAddress
 
-            val address2 = AddressUtils.from(coinType, coluAccount2.receiveAddress.toString()) as BtcAddress
-
-
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-
             println("Colu 1 Account balance: " + coluAccount1.accountBalance.spendable.toString())
+            println("Colu 2 Account balance: " + coluAccount2.accountBalance.spendable.toString())
 
             createTransaction(coluAccount2, address1)
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
 
             println("Colu 1 Account balance: " + coluAccount1.accountBalance.spendable.toString())
-            println("Colu 2 Account balance: " + coluAccount2.accountBalance.spendable.toString())
-
-            createTransaction(coluAccount1, address2)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-
             println("Colu 2 Account balance: " + coluAccount2.accountBalance.spendable.toString())
 
         } catch (ex: GenericTransactionBroadcastException) {
@@ -178,7 +167,7 @@ class MtAssetBasicTest {
     }
 
     fun createTransaction(account: PrivateColuAccount, address: BtcAddress) {
-        val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), FeePerKbFee(Value.valueOf(account.coinType, 2000L)))
+        val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 1000L), FeePerKbFee(Value.valueOf(account.coinType, 200L)))
         if (tx != null) {
             account.signTx(tx, AesKeyCipher.defaultKeyCipher())
             account.broadcastTx(tx)
