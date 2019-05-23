@@ -27,7 +27,7 @@ public class GenericTransactionSummary implements Serializable {
     protected int rawSize;
     protected boolean isQueuedOutgoing;
     protected long time;
-    public  Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
+    transient public Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     protected Value fee;
 
