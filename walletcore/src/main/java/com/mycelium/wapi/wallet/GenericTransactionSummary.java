@@ -118,7 +118,7 @@ public class GenericTransactionSummary implements Serializable {
     }
 
     public String getIdHex() {
-        return HexUtils.toHex(hash);
+        return HexUtils.toHex(id);
     }
 
     public long getTime() {return time;}
@@ -137,6 +137,6 @@ public class GenericTransactionSummary implements Serializable {
 
     @Override
     public String toString(){
-        return HexUtils.toHex(hash);
+        return getIdHex();
     }
 }
