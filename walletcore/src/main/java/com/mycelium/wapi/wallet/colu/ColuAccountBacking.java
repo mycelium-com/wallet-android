@@ -15,7 +15,7 @@ public interface ColuAccountBacking extends CommonAccountBacking {
     void putTransactions(List<GenericTransactionSummary> transactionSummaries);
     List<GenericTransactionSummary> getTransactionSummaries(int offset, int length);
     List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
-    GenericTransactionSummary getTxSummary(byte[] txId);
+    GenericTransactionSummary getTxSummary(Sha256Hash txId);
     List<TransactionOutputEx> getUnspentOutputs();
     void putUnspentOutputs(List<TransactionOutputEx> unspentOutputs);
 }

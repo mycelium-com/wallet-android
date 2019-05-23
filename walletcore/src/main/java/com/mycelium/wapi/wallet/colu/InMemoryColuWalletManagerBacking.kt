@@ -89,9 +89,9 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
     private class InMemoryColuAccountBacking : ColuAccountBacking {
 
         private val _unspentOuputs = HashMap<OutPoint, TransactionOutputEx>()
-        private val _transactions = HashMap<ByteArray, GenericTransactionSummary>()
+        private val _transactions = HashMap<Sha256Hash, GenericTransactionSummary>()
         private val _parentOutputs = HashMap<OutPoint, TransactionOutputEx>()
-        private val _outgoingTransactions = HashMap<ByteArray, ByteArray>()
+        private val _outgoingTransactions = HashMap<Sha256Hash, ByteArray>()
 
         override fun clear() {
             _unspentOuputs.clear()
@@ -130,14 +130,14 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
         }
 
         override fun putTransactions(transactionSummaries: MutableList<GenericTransactionSummary>?) {
-            transactionSummaries?.forEach { _transactions[it.id] = it }
+            transactionSummaries?.forEach { _transactions[Sha256Hash(it.id)] = it }
         }
 
         override fun getUnspentOutputs(): MutableList<TransactionOutputEx> {
             return LinkedList(_unspentOuputs.values)
         }
 
-        override fun getTxSummary(txId: ByteArray?) = _transactions[txId]
+        override fun getTxSummary(txId: Sha256Hash?) = _transactions[txId]
 
     }
 

@@ -439,12 +439,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public GenericTransactionSummary getTxSummary(byte[] hash) {
+      public GenericTransactionSummary getTxSummary(Sha256Hash hash) {
          Cursor cursor = null;
          GenericTransactionSummary result = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, hash);
+            blobQuery.bindBlob(1, hash.getBytes());
             cursor = blobQuery.raw( "SELECT hash, height, time, binary FROM " + txTableName + " WHERE id = ?" , txTableName);
 
             if (cursor.moveToNext()) {
