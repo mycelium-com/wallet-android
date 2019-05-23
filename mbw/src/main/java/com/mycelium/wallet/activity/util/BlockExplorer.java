@@ -67,9 +67,9 @@ public class BlockExplorer {
 
    String getUrl(GenericTransactionSummary transaction, boolean isTor) {
       if (isTor){
-         return baseTransactionUrlTor + transaction.toString();
+         return baseTransactionUrlTor + transaction.getIdHex();
       } else {
-         return baseTransactionUrlClear + transaction.toString();
+         return baseTransactionUrlClear + transaction.getIdHex();
       }
    }
 

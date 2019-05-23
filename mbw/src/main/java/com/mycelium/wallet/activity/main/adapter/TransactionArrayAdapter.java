@@ -129,7 +129,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(HexUtils.toHex(record.getId()), null);
+      String value = transactionFiatValuePref.getString(record.getIdHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
@@ -176,7 +176,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(HexUtils.toHex(record.getId()));
+      String label = _storage.getLabelByTransaction(record.getIdHex());
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;

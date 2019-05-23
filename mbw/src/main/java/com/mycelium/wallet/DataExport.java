@@ -70,7 +70,7 @@ public class DataExport {
          }
       });
       for (GenericTransactionSummary transaction : history) {
-         String txLabel = storage.getLabelByTransaction(HexUtils.toHex(transaction.getId()));
+         String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
          StringBuilder destAddresses = new StringBuilder();
          for (GenericOutputViewModel output : transaction.getOutputs()) {
             if(!account.isMineAddress(output.getAddress())) {
@@ -91,7 +91,7 @@ public class DataExport {
       String value = transaction.getTransferred().toPlainString();
       return
             escape(accountLabel) + "," +
-                  transaction.getId() + "," +
+                  transaction.getIdHex() + "," +
                   destAddresses + "," +
                   date + "," +
                   value + "," +
