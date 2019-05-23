@@ -136,7 +136,7 @@ open class PublicColuAccount(val context: ColuAccountContext
 
     override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
         checkNotArchived()
-        return accountBacking.getTxSummary(transactionId)
+        return accountBacking.getTxSummary(Sha256Hash.of(transactionId))
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
