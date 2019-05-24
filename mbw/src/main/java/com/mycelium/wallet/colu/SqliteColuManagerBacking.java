@@ -44,6 +44,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -54,6 +55,8 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -638,6 +641,19 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          if (oldVersion < DATABASE_VERSION) {
             db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey BLOB");
+
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
          }
       }
 
