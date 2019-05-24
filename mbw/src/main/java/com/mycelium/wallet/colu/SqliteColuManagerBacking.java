@@ -611,7 +611,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 7;
+      private static final int DATABASE_VERSION = 8;
       private Context context;
 
       OpenHelper(Context context) {
@@ -628,14 +628,17 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
-                 + ", blockheight INTEGER, addressType BLOB, coinId TEXT, publicKey BLOB" +
+                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+         if (oldVersion < DATABASE_VERSION) {
+            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            db.execSQL("ALTER TABLE single ADD COLUMN publicKey BLOB");
+         }
       }
 
       @Override
