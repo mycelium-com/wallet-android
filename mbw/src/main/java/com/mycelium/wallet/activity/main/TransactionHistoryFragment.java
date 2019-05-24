@@ -92,12 +92,12 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericOutputViewModel;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.model.TransactionEx;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
+import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -180,7 +180,15 @@ public class TransactionHistoryFragment extends Fragment {
                adapter.sort(new Comparator<GenericTransactionSummary>() {
                   @Override
                   public int compare(GenericTransactionSummary ts1, GenericTransactionSummary ts2) {
-                     return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
+                     if (ts1.getConfirmations() == 0 && ts2.getConfirmations() == 0) {
+                        return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
+                     } else if (ts1.getConfirmations() == 0) {
+                        return -1;
+                     } else if (ts2.getConfirmations() == 0) {
+                        return 1;
+                     } else {
+                        return Long.compare(ts2.getTimestamp(), ts1.getTimestamp());
+                     }
                   }
                });
                adapter.notifyDataSetChanged();
