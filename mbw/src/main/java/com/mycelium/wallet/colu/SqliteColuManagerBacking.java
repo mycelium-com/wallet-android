@@ -43,6 +43,7 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.common.base.Optional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -454,6 +455,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   in = new ObjectInputStream(bis);
                   result = (GenericTransactionSummary) in.readObject();
+                  result.confirmationRiskProfile = Optional.absent();
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
                } finally {
@@ -500,6 +502,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   in = new ObjectInputStream(bis);
                   tex = (GenericTransactionSummary) in.readObject();
+                  tex.confirmationRiskProfile = Optional.absent();
                   result.add(tex);
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
