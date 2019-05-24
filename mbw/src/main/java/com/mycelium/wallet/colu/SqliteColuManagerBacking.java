@@ -628,7 +628,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
-                 + ", blockheight INTEGER, addressType BLOB, coinId TEXT, publicKey BLOB" +
+                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
