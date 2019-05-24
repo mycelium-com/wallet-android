@@ -40,6 +40,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -60,7 +61,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
@@ -160,6 +160,7 @@ import butterknife.OnClick;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
@@ -339,7 +340,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _mbwManager = MbwManager.getInstance(getApplication());
 
         // Get intent parameters
-        UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
+        UUID accountId = checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
 
         _amountToSend = (Value) getIntent().getSerializableExtra(AMOUNT);
 
@@ -356,7 +357,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         _isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
-        _account = Preconditions.checkNotNull(account, crashHint);
+        _account = checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
         feeEstimation = _account.getDefaultFeeEstimation();
 
@@ -452,7 +453,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _mbwManager.getDenomination().getUnicodeString(_account.getCoinType().getSymbol())));
         tips_check_address.setVisibility(_account.getCoinType() instanceof ColuMain ? View.VISIBLE : View.GONE);
 
-        int senderFinalWidth = getWindowManager().getDefaultDisplay().getWidth();
+        Point outSize = new Point();
+        getWindowManager().getDefaultDisplay().getSize(outSize);
+        int senderFinalWidth = outSize.x;
         feeFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
         addressFirstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_addr_width)) / 2;
 
@@ -480,9 +483,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         List<AddressItem> addressesList = new ArrayList<>();
         for (GenericAddress address : receivingAddressesList) {
             BtcAddress btcAddress = (BtcAddress)address;
+            String[] btcAddressLabels = checkNotNull(addressLabels.get(btcAddress.getType()));
             addressesList.add(new AddressItem(address,
-                    addressLabels.get(btcAddress.getType())[1],
-                    addressLabels.get(btcAddress.getType())[0],
+                    btcAddressLabels[1],
+                    btcAddressLabels[0],
                     SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM));
         }
 
@@ -807,11 +811,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             @Override
             protected Void doInBackground(Void... voids) {
                 updateTransactionStatus();
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 return null;
             }
 
@@ -1223,7 +1222,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // why is amountToSend not set ?
             updateTransactionStatusAndUi();
         } else if (requestCode == MANUAL_ENTRY_RESULT_CODE && resultCode == RESULT_OK) {
-            _receivingAddress = (GenericAddress) Preconditions.checkNotNull(intent
+            _receivingAddress = (GenericAddress) checkNotNull(intent
                     .getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME));
 
             updateTransactionStatusAndUi();
@@ -1234,7 +1233,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             updateTransactionStatusAndUi();
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
+                signedTransaction = (GenericTransaction) checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));
                 // if we have a payment request with a payment_url, handle the send differently:
                 if (_paymentRequestHandler != null
                         && _paymentRequestHandler.getPaymentRequestInformation().hasPaymentCallbackUrl()) {
@@ -1256,7 +1255,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
             if (resultCode == RESULT_OK) {
-                _paymentRequestHandlerUuid = Preconditions.checkNotNull(intent.getStringExtra("REQUEST_PAYMENT_HANDLER_ID"));
+                _paymentRequestHandlerUuid = checkNotNull(intent.getStringExtra("REQUEST_PAYMENT_HANDLER_ID"));
                 _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
                         .getIfPresent(_paymentRequestHandlerUuid);
                 updateTransactionStatusAndUi();
