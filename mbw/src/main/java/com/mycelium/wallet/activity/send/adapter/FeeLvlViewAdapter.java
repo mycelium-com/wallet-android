@@ -78,7 +78,7 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
     public int findIndex(Object object) {
         int selected = -1;
         for (int i = 0; i < mDataset.size(); i++) {
-            if (mDataset.get(i).equals(object)) {
+            if (mDataset.get(i).equals(object) || mDataset.get(i).minerFee.equals(object)) {
                 selected = i;
                 break;
             }
