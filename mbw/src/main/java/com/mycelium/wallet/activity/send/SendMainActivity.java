@@ -1159,7 +1159,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
                         for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
-                            receivingAddressesList.add((GenericAddress) address);
+                            if (address instanceof GenericAddress){
+                                receivingAddressesList.add((GenericAddress) address);
+                            } else {
+                                receivingAddressesList.add(AddressUtils.fromAddress(address));
+                            }
                         }
                         setUpMultiAddressView();
                         break;
