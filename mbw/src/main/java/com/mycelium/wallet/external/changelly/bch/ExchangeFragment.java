@@ -147,8 +147,6 @@ public class ExchangeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_exchage, container, false);
         ButterKnife.bind(this, view);
-        fromRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
-        toRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
@@ -159,6 +157,10 @@ public class ExchangeFragment extends Fragment {
         toAccountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
+        View toHeader = inflater.inflate(AccountAdapter.AccountUseType.IN.paddingLayout, toRecyclerView, false);
+        toHeader.setBackground(null);
+        toRecyclerView.setHeader(toHeader);
+        toRecyclerView.setFooter(toHeader);
 
         List<WalletAccount> fromAccounts = new ArrayList<>();
         fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
@@ -179,6 +181,10 @@ public class ExchangeFragment extends Fragment {
                 isValueForOfferOk(true);
             }
         });
+        View fromHeader = inflater.inflate(AccountAdapter.AccountUseType.OUT.paddingLayout, fromRecyclerView, false);
+        fromHeader.setBackground(null);
+        fromRecyclerView.setHeader(fromHeader);
+        fromRecyclerView.setFooter(fromHeader);
 
         valueKeyboard.setMaxDecimals(8);
         valueKeyboard.setInputListener(new ValueKeyboard.SimpleInputListener() {

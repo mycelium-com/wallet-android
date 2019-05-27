@@ -16,8 +16,6 @@
 
 package com.mrd.bitlib;
 
-import java.io.IOException;
-
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.model.AddressType;
@@ -31,7 +29,7 @@ public class BackupUtil {
       password = args[1];
    }
 
-   public static void main(String[] args) throws IOException, MrdExport.DecodingException, InterruptedException {
+   public static void main(String[] args) {
       if (args.length != 2) {
          printHelp();
          return;
