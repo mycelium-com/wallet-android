@@ -12,7 +12,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.colu.AddressColuConfig
 import com.mycelium.wapi.wallet.colu.ColuModule
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig
-import com.mycelium.wapi.wallet.colu.PublicColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -27,7 +26,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal var _wapi: Wapi,
                                  internal var settings: BTCSettings,
                                  internal var walletManager: WalletManager,
-                                 internal val metaDataStorage: IMetaDataStorage,
+                                 metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
                                  internal val eventHandler: AbstractBtcAccount.EventHandler) : GenericModule(metaDataStorage), WalletModule {
 
@@ -76,7 +75,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
-        var baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey)
@@ -101,7 +100,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
             result.setEventHandler(eventHandler)
-            if (config is PrivateColuConfig || config is PublicColuConfig || config is AddressColuConfig) {
+            if (config is PrivateColuConfig || config is AddressColuConfig) {
                 baseLabel = getLinkedAccountLabel(result, baseLabel)
             }
             result.label = createLabel(baseLabel, result.id)
