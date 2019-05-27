@@ -228,7 +228,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if (account.getType() == WalletAccount.Type.COINAPULT) {
+        if (account instanceof CoinapultAccount) {
             Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
             return;
         }
@@ -267,7 +267,7 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        if (_mbwManager.getSelectedAccount().getType() == WalletAccount.Type.COINAPULT) {
+        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
             Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
             return;
         }
