@@ -228,6 +228,10 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        if (account instanceof CoinapultAccount) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
+            return;
+        }
         if (account.canSpend()) {
             if (account instanceof PrivateColuAccount && ((PrivateColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
@@ -263,6 +267,10 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btScan)
     void onClickScan() {
+        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
+            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
+            return;
+        }
         if (isBCH()) {
             return;
         }
