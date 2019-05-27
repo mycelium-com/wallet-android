@@ -1548,7 +1548,7 @@ public abstract class AbstractAccount extends SynchronizeAbleWalletAccount {
       return new TransactionDetails(
             txid, tex.height, tex.time,
             inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-            tx.toBytes(false).length
+            tx.vsize()
       );
    }
 
