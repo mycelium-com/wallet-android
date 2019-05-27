@@ -146,6 +146,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
+
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.util.ArrayList;
@@ -161,8 +162,14 @@ import butterknife.OnClick;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.*;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -1290,7 +1297,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             String hash = signedTransaction.getId().toString();
             String fiat = getFiatValue();
-            transactionFiatValuePref.edit().putString(hash, fiat).apply();
+            if(fiat != null) {
+                transactionFiatValuePref.edit().putString(hash, fiat).apply();
+            }
 
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
@@ -1301,8 +1310,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getFiatValue() {
-        return ValueExtensionsKt.toStringWithUnit(_mbwManager.getExchangeRateManager()
-                .get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency()));
+        Value fiat = _mbwManager.getExchangeRateManager().get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency());
+        return fiat != null ? ValueExtensionsKt.toStringWithUnit(fiat) : null;
     }
 
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
