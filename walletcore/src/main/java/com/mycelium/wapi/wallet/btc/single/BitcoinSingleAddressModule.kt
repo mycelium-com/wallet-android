@@ -12,7 +12,6 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.colu.AddressColuConfig
 import com.mycelium.wapi.wallet.colu.ColuModule
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig
-import com.mycelium.wapi.wallet.colu.PublicColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule

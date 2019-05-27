@@ -108,7 +108,6 @@ import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
@@ -378,7 +377,9 @@ public class AccountsFragment extends Fragment {
                                             ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
                                             Config config = null;
                                             if (context.getPublicKey() != null) {
-                                                config = new PublicColuConfig(context.getPublicKey(), coluMain);
+                                                GenericAddress address = AddressUtils.from(coluMain, context.getPublicKey().
+                                                        toAddress(walletManager.getNetwork(), AddressType.P2PKH).toString());
+                                                config = new AddressColuConfig((BtcAddress) address, coluMain);
 
                                             }
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
