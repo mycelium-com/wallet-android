@@ -143,12 +143,14 @@ public class SelectableRecyclerView extends RecyclerView {
     public void onDraw(Canvas c) {
         super.onDraw(c);
         if (header != null) {
+            // drawing header view to recycler view on start padding place сonsidering rc scroll offset
             c.save();
             c.translate(-computeHorizontalScrollOffset(), 0);
             header.draw(c);
             c.restore();
         }
         if (footer != null) {
+            // drawing footer view to recycler view on end padding place сonsidering rc scroll offset
             c.save();
             c.translate(computeHorizontalScrollRange() + padding - computeHorizontalScrollOffset(), 0);
             footer.draw(c);
