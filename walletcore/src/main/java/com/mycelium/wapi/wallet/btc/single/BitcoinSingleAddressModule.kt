@@ -27,7 +27,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal var _wapi: Wapi,
                                  internal var settings: BTCSettings,
                                  internal var walletManager: WalletManager,
-                                 internal val metaDataStorage: IMetaDataStorage,
+                                 metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
                                  internal val eventHandler: AbstractBtcAccount.EventHandler) : GenericModule(metaDataStorage), WalletModule {
 
@@ -76,7 +76,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
-        var baseLabel = DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey)

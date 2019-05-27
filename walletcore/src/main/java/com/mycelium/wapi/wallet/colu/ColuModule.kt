@@ -21,7 +21,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val coluApi: ColuApi,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
-                 val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+                 metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         if (networkParameters.isProdnet) {
@@ -32,7 +32,6 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
-    private val MAX_ACCOUNTS_NUMBER = 1000
     override fun getId(): String = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
@@ -142,7 +141,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
             i++
         }
-        return DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
     }
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {
@@ -153,13 +152,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         coinType
     }
 
-    override fun canCreateAccount(config: Config): Boolean {
-        when (config) {
-            is PrivateColuConfig -> return true
-            is AddressColuConfig -> return true
-        }
-        return false
-    }
+    override fun canCreateAccount(config: Config) = config is PrivateColuConfig || config is AddressColuConfig
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is PublicColuAccount || walletAccount is PrivateColuAccount ) {
@@ -173,6 +166,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     companion object {
         const val ID: String = "colored coin module"
+        private const val MAX_ACCOUNTS_NUMBER = 1000
     }
 }
 
