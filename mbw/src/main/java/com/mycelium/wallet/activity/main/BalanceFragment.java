@@ -314,7 +314,7 @@ public class BalanceFragment extends Fragment {
 
         // Show alternative values
         _tcdFiatDisplay.setFiatOnly(true);
-        _tcdFiatDisplay.setValue(balance.confirmed);
+        _tcdFiatDisplay.setValue(balance.getSpendable());
 
         // Show/Hide Receiving
         if (balance.pendingReceiving.isPositive()) {

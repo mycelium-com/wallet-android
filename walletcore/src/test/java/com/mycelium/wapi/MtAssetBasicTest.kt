@@ -139,6 +139,9 @@ class MtAssetBasicTest {
             val coluAccount1 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cN5hvHD3kLwDCbE9ZpSpJ7eeLjchiF589TXFxWPbxp9vhaVH3SFw", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as PrivateColuAccount
             val coluAccount2 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cRGNAkjgYVF4Kte6QuFtrwaMCpq9bWJsjno3xyuk8quubfvL3vvo", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as PrivateColuAccount
 
+            walletManager.startSynchronization()
+            listener.waitForSyncFinished()
+
             val coinType = coluAccount1.coinType
             val address1 = AddressUtils.from(coinType, coluAccount1.receiveAddress.toString()) as BtcAddress
 
@@ -174,5 +177,4 @@ class MtAssetBasicTest {
         }
 
     }
-
 }

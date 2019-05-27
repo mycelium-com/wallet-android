@@ -43,6 +43,8 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -53,6 +55,8 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.BuildConfig;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
@@ -454,6 +458,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   in = new ObjectInputStream(bis);
                   result = (GenericTransactionSummary) in.readObject();
+                  result.confirmationRiskProfile = Optional.absent();
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
                } finally {
@@ -500,6 +505,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   in = new ObjectInputStream(bis);
                   tex = (GenericTransactionSummary) in.readObject();
+                  tex.confirmationRiskProfile = Optional.absent();
                   result.add(tex);
                } catch (IOException | ClassNotFoundException e) {
                   e.printStackTrace();
@@ -608,7 +614,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 7;
+      private static final int DATABASE_VERSION = 8;
       private Context context;
 
       OpenHelper(Context context) {
@@ -625,14 +631,30 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
-                 + ", blockheight INTEGER, addressType BLOB, coinId TEXT, publicKey BLOB" +
+                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+         if (oldVersion < DATABASE_VERSION) {
+            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            db.execSQL("ALTER TABLE single ADD COLUMN publicKey BLOB");
 
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
+         }
       }
 
       @Override

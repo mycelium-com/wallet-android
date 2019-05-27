@@ -777,6 +777,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     private TransactionStatus getTransactionStatus() {
         Value toSend = getValueToSend();
+
         boolean hasAddressData = toSend != null &&  _receivingAddress != null;
 
         try {
@@ -1051,6 +1052,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
+
     @UiThread
     private void updateFeeText() {
         // Update Fee-Display
@@ -1231,6 +1233,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             Value enteredAmount = (Value) intent.getSerializableExtra(GetAmountActivity.AMOUNT);
             setAmountToSend(enteredAmount);
             updateTransactionStatusAndUi();
+
         } else if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 signedTransaction = (GenericTransaction) checkNotNull(intent.getSerializableExtra(SIGNED_TRANSACTION));

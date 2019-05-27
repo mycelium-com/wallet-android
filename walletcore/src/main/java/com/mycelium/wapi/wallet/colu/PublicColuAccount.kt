@@ -179,26 +179,26 @@ open class PublicColuAccount(val context: ColuAccountContext
             tx.inputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
                     sending = sending.add(it.value)
-                    s.add(it.value)
+                    s = s.add(it.value)
                 }
             }
             tx.outputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
                     receiving = receiving.add(it.value)
-                    r.add(it.value)
+                    r = r.add(it.value)
                 }
             }
-            val c = s.add(r.negate())
-            if(!c.isZero) {
-                change.add(c)
-                receiving = receiving.add(c.negate())
-                sending = sending.add(c.negate())
+            if(s.add(r.negate()).isPositive) {
+                change = change.add(r)
+                receiving = receiving.add(r.negate())
             }
         }
         unspent.forEach {
-            confirmed = confirmed.add(it.value)
+            if (it.height != -1) {
+                confirmed = confirmed.add(it.value)
+            }
         }
-        return Balance(confirmed, receiving, sending, Value.zeroValue(coinType))
+        return Balance(confirmed, receiving, sending, change)
     }
 
 
