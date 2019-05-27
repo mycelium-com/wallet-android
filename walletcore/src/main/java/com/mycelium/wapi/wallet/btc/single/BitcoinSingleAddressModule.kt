@@ -101,7 +101,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
             result.setEventHandler(eventHandler)
-            if (config is PrivateColuConfig || config is PublicColuConfig || config is AddressColuConfig) {
+            if (config is PrivateColuConfig || config is AddressColuConfig) {
                 baseLabel = getLinkedAccountLabel(result, baseLabel)
             }
             result.label = createLabel(baseLabel, result.id)

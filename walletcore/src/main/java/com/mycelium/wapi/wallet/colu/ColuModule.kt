@@ -93,18 +93,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
-        } else if (config is PublicColuConfig) {
-            val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)
-            coinType = coluMain(address, config.coinType)
-            coinType?.let { type ->
-                val id = ColuUtils.getGuidForAsset(config.coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type, config.publicKey, null
-                        , false, 0)
-                backing.createAccountContext(context)
-                result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
-            }
-        } else if (config is AddressColuConfig) {
+        }  else if (config is AddressColuConfig) {
             coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
@@ -167,7 +156,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     override fun canCreateAccount(config: Config): Boolean {
         when (config) {
             is PrivateColuConfig -> return true
-            is PublicColuConfig -> return true
+            is AddressColuConfig -> return true
         }
         return false
     }
