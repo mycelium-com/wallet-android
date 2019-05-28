@@ -418,7 +418,6 @@ public class AddressBookFragment extends Fragment {
             }
             return;
         }
-
         ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
         switch (type) {
             case PRIVATE_KEY:
