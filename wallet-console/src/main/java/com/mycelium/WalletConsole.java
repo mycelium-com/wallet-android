@@ -127,7 +127,7 @@ class WalletConsole {
         WalletManager walletManager = new WalletManager(
                 network,
                 wapiClient,
-                currenciesSettingsMap, null);
+                currenciesSettingsMap);
         walletManager.setIsNetworkConnected(true);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);

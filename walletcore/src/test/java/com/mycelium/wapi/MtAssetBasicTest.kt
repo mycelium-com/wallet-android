@@ -113,8 +113,7 @@ class MtAssetBasicTest {
         val walletManager = WalletManager(
                 network,
                 wapiClient,
-                currenciesSettingsMap,
-                null)
+                currenciesSettingsMap)
         walletManager.setIsNetworkConnected(true)
         walletManager.walletListener = listener
 

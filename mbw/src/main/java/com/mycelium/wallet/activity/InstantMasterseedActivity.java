@@ -98,24 +98,24 @@ public class InstantMasterseedActivity extends HdAccountSelectorActivity {
    protected AbstractAccountScanManager initMasterseedManager() {
       MbwManager mbwManager = MbwManager.getInstance(this);
       WalletManager walletManager = mbwManager.getWalletManager(true);
-      if (walletManager.getAccountScanManager() == null) {
+      if (walletManager.accountScanManager == null) {
          if (masterSeed != null) {
-            walletManager.setAccountScanManager(new MasterseedScanManager(
+            walletManager.accountScanManager = new MasterseedScanManager(
                     this,
-                    mbwManager.getNetwork(),
-                    masterSeed,
-                    mbwManager.getEventBus()));
+                   mbwManager.getNetwork(),
+                   masterSeed,
+                   mbwManager.getEventBus());
          } else {
             // only provide the words - the manager will ask for a passphrase
-            walletManager.setAccountScanManager(new MasterseedScanManager(
-                    this,
-                    mbwManager.getNetwork(),
-                    words,
-                    password,
-                    mbwManager.getEventBus()));
+            walletManager.accountScanManager = new MasterseedScanManager(
+                   this,
+                   mbwManager.getNetwork(),
+                   words,
+                   password,
+                   mbwManager.getEventBus());
          }
       }
-      return (AbstractAccountScanManager) walletManager.getAccountScanManager();
+      return (AbstractAccountScanManager) walletManager.accountScanManager;
    }
 
    @Override
