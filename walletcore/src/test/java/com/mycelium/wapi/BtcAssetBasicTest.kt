@@ -110,7 +110,8 @@ class BtcAssetBasicTest {
         val walletManager = WalletManager(
                 network,
                 wapiClient,
-                currenciesSettingsMap)
+                currenciesSettingsMap,
+                null)
         walletManager.setIsNetworkConnected(true)
         walletManager.walletListener = listener
 
