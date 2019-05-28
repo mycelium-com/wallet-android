@@ -126,7 +126,11 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
         backing.beginTransaction()
         try {
-            val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0, settings.defaultAddressType)
+            var defaultAddressType = settings.defaultAddressType
+            if (!publicKey.isCompressed) {
+                defaultAddressType = AddressType.P2PKH
+            }
+            val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0, defaultAddressType)
             backing.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
