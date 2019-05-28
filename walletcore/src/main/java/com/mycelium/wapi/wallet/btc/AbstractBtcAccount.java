@@ -1627,7 +1627,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return new TransactionDetails(
             txid, tex.height, tex.time,
             inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-            tx.toBytes(false).length
+            tx.vsize()
       );
    }
 

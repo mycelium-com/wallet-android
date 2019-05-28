@@ -6,41 +6,41 @@
     android:layout_height="match_parent">
     <ScrollView
         android:id="@+id/root"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical">
 
         <LinearLayout
-                android:layout_width="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:gravity="center"
                 android:orientation="vertical">
 
-            <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
                 <TextView
-                        android:id="@+id/tvRecipientTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/recipient_title"
-                        android:textSize="24sp"/>
+                    android:id="@+id/tvRecipientTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recipient_title"
+                    android:textSize="24sp"/>
 
                 <FrameLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
 
                     <!-- Enter Recipient -->
 
                     <LinearLayout
                         android:id="@+id/llEnterRecipient"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
@@ -101,22 +101,22 @@
                     <!-- Recipient Address Box -->
 
                     <LinearLayout
-                            android:id="@+id/llRecipientAddress"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:orientation="vertical">
+                        android:id="@+id/llRecipientAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                         <!-- Receiver Label -->
 
                         <TextView
-                                android:id="@+id/tvReceiverLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/green"
-                                android:textSize="20sp"
-                                android:visibility="gone"/>
+                            android:id="@+id/tvReceiverLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/green"
+                            android:textSize="20sp"
+                            android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -129,25 +129,25 @@
                             <!-- Receiver Address -->
 
                             <TextView
-                                    android:id="@+id/tvReceiver"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_gravity="center"
-                                    tools:text="1Address1234\n567890abcdef\nghijklmnop"
-                                    android:textColor="@color/white"
-                                    android:textColorHint="@color/darkgrey"
-                                    android:textSize="20sp"
-                                    android:typeface="monospace"/>
+                                android:id="@+id/tvReceiver"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                tools:text="1Address1234\n567890abcdef\nghijklmnop"
+                                android:textColor="@color/white"
+                                android:textColorHint="@color/darkgrey"
+                                android:textSize="20sp"
+                                android:typeface="monospace"/>
                             <TextView
-                                    android:id="@+id/tvReceiverAddress"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    tools:text="1Address1234d90abcdefghijklmnop"
-                                    android:textColor="@color/lightgrey"
-                                    android:textSize="12sp"
-                                    android:visibility="gone"
-                                    android:typeface="monospace"/>
+                                android:id="@+id/tvReceiverAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                tools:text="1Address1234d90abcdefghijklmnop"
+                                android:textColor="@color/lightgrey"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                android:typeface="monospace"/>
 
                             <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
                                 android:id="@+id/receiversAddressList"
@@ -164,37 +164,37 @@
                 </FrameLayout>
             </LinearLayout>
             <TextView
-                    android:id="@+id/tvStaleWarning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="4dp"
-                    android:gravity="center"
-                    android:text="@string/stale_fee_warning"
-                    android:textColor="@color/red"
-                    android:textSize="18sp"/>
+                android:id="@+id/tvStaleWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="@string/stale_fee_warning"
+                android:textColor="@color/red"
+                android:textSize="18sp"/>
             <TextView
-                    android:id="@+id/tvWarning"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="4dp"
-                    android:gravity="center"
-                    android:text="@string/read_only_warning"
-                    android:textColor="@color/red"
-                    android:textSize="18sp"/>
+                android:id="@+id/tvWarning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:gravity="center"
+                android:text="@string/read_only_warning"
+                android:textColor="@color/red"
+                android:textSize="18sp"/>
 
             <TextView
-                    android:id="@+id/tvUnconfirmedWarning"
-                    android:layout_width="wrap_content"
-                    android:gravity="center"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textColor="@color/yellow"
-                    android:textSize="18sp"
-                    android:text="@string/spending_unconfirmed_warning"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
+                android:id="@+id/tvUnconfirmedWarning"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/yellow"
+                android:textSize="18sp"
+                android:text="@string/spending_unconfirmed_warning"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
             <TextView
                 android:id="@+id/colu_tips_check_address"
@@ -209,98 +209,98 @@
 
 
             <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <!-- Transaction Label -->
 
                 <TextView
-                        android:id="@+id/tvTransactionLabelTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/transaction_label_title"
-                        android:visibility="gone"
-                        android:textSize="18sp"/>
+                    android:id="@+id/tvTransactionLabelTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transaction_label_title"
+                    android:visibility="gone"
+                    android:textSize="18sp"/>
 
                 <TextView
-                        android:id="@+id/tvTransactionLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:textColor="@color/white"
-                        android:textSize="15sp"
-                        android:visibility="gone"
-                        android:typeface="monospace"/>
+                    android:id="@+id/tvTransactionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:visibility="gone"
+                    android:typeface="monospace"/>
 
                 <View
-                        android:layout_width="1dp"
-                        android:layout_height="8dp">
+                    android:layout_width="1dp"
+                    android:layout_height="8dp">
                 </View>
 
                 <!-- Amount Title -->
 
                 <TextView
-                        android:id="@+id/tvAmountTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/amount_title"
-                        android:textSize="24sp"/>
+                    android:id="@+id/tvAmountTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/amount_title"
+                    android:textSize="24sp"/>
 
                 <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:orientation="horizontal">
-
-                    <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:orientation="vertical">
+                        android:orientation="vertical">
 
                         <!-- Amount -->
 
                         <TextView
-                                android:id="@+id/tvAmount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:hint="@string/amount_hint_denomination"
-                                android:textColor="@color/white"
-                                android:textColorHint="@color/darkgrey"
-                                android:textSize="20sp"/>
+                            android:id="@+id/tvAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:hint="@string/amount_hint_denomination"
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/darkgrey"
+                            android:textSize="20sp"/>
 
                         <!-- Fiat Amount -->
 
                         <TextView
-                                android:id="@+id/tvAmountFiat"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginBottom="10dp"
-                                android:textSize="13sp"/>
+                            android:id="@+id/tvAmountFiat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="10dp"
+                            android:textSize="13sp"/>
                     </LinearLayout>
 
                     <View
-                            android:layout_width="20dp"
-                            android:layout_height="1dp">
+                        android:layout_width="20dp"
+                        android:layout_height="1dp">
                     </View>
 
                     <!-- Enter Amount button -->
 
                     <ImageButton
-                            android:id="@+id/btEnterAmount"
-                            style="@style/MyceliumSlimButton"
-                            android:layout_width="75dp"
-                            android:layout_height="45dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@string/label_type_it_in"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/keyboard_icon"/>
+                        android:id="@+id/btEnterAmount"
+                        style="@style/MyceliumSlimButton"
+                        android:layout_width="75dp"
+                        android:layout_height="45dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/label_type_it_in"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/keyboard_icon"/>
                 </LinearLayout>
 
                 <!-- Fee -->
@@ -310,15 +310,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                <!-- Fee Title -->
+                    <!-- Fee Title -->
 
                     <TextView
-                            android:id="@+id/tvFeeLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/miner_fee_title"
-                            android:layout_gravity="center"
-                            android:textSize="24sp"/>
+                        android:id="@+id/tvFeeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/miner_fee_title"
+                        android:layout_gravity="center"
+                        android:textSize="24sp"/>
 
                     <Button
                         android:id="@+id/btFromBtcAccount"
@@ -372,12 +372,12 @@
 
                     <!--&lt;!&ndash; Fiat Fee &ndash;&gt;-->
                     <!--<TextView-->
-                            <!--android:id="@+id/tvFeeValue"-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_gravity="center"-->
-                            <!--android:textSize="13sp"-->
-                            <!--tools:text = "(x.xx mBTC, x.xx USD)"/>-->
+                    <!--android:id="@+id/tvFeeValue"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:textSize="13sp"-->
+                    <!--tools:text = "(x.xx mBTC, x.xx USD)"/>-->
                     <!-- satByte Fee -->
                     <TextView
                         android:id="@+id/tvSatFeeValue"
@@ -392,42 +392,42 @@
 
             <!-- Amount Error -->
             <TextView
-                    android:id="@+id/tvError"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textColor="@color/red"
-                    android:textSize="18sp"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    />
+                android:id="@+id/tvError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/red"
+                android:textSize="18sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
 
             <!-- Send -->
 
             <FrameLayout
-                    android:layout_width="130dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="5dp"
-                    android:padding="0dp">
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:padding="0dp">
 
                 <Button
-                        android:id="@+id/btSend"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:layout_gravity="center"
-                        android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
-                        android:text="@string/send"
-                        android:textSize="20sp"/>
+                    android:id="@+id/btSend"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="@string/send"
+                    android:textSize="20sp"/>
 
                 <ProgressBar
-                        android:id="@+id/pbSend"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:visibility="invisible"/>
+                    android:id="@+id/pbSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"/>
             </FrameLayout>
         </LinearLayout>
     </ScrollView>

@@ -21,7 +21,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val coluApi: ColuApi,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
-                 val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+                 metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         if (networkParameters.isProdnet) {
@@ -32,7 +32,6 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
-    private val MAX_ACCOUNTS_NUMBER = 1000
     override fun getId(): String = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
@@ -93,18 +92,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
-        } else if (config is PublicColuConfig) {
-            val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)
-            coinType = coluMain(address, config.coinType)
-            coinType?.let { type ->
-                val id = ColuUtils.getGuidForAsset(config.coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type, config.publicKey, null
-                        , false, 0)
-                backing.createAccountContext(context)
-                result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
-            }
-        } else if (config is AddressColuConfig) {
+        }  else if (config is AddressColuConfig) {
             coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
@@ -153,7 +141,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
             i++
         }
-        return DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
     }
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {
@@ -164,13 +152,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         coinType
     }
 
-    override fun canCreateAccount(config: Config): Boolean {
-        when (config) {
-            is PrivateColuConfig -> return true
-            is PublicColuConfig -> return true
-        }
-        return false
-    }
+    override fun canCreateAccount(config: Config) = config is PrivateColuConfig || config is AddressColuConfig
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is PublicColuAccount || walletAccount is PrivateColuAccount ) {
@@ -184,6 +166,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     companion object {
         const val ID: String = "colored coin module"
+        private const val MAX_ACCOUNTS_NUMBER = 1000
     }
 }
 

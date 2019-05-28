@@ -620,10 +620,11 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             return null;
          }
 
+         BtcAddress btcAddress = (BtcAddress) address;
          List<UUID> ids = _mbwManager.getWalletManager(false)
-                 .createAccounts(new AddressColuConfig((BtcAddress) address));
+                 .createAccounts(new AddressColuConfig(btcAddress));
 
-         if (ids.size() < 2) {
+         if (ids.size() < 2 && btcAddress.getType() == AddressType.P2PKH) {
             askUserForColorize = true;
          }
          if (ids.size() > 0) {
