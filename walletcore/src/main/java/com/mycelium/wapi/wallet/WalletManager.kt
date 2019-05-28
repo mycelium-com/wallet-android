@@ -9,9 +9,13 @@ import org.jetbrains.annotations.TestOnly
 import java.util.*
 
 
-class WalletManager(val network: NetworkParameters,
-                    val wapi: Wapi,
-                    var currenciesSettingsMap: HashMap<String, CurrencySettings>) {
+class WalletManager
+@JvmOverloads
+constructor(val network: NetworkParameters,
+            val wapi: Wapi,
+            var currenciesSettingsMap: HashMap<String, CurrencySettings>,
+            @JvmField
+            var accountScanManager: AccountScanManager? = null) {
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
