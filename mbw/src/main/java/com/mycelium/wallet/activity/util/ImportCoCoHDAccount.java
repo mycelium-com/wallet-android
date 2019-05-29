@@ -21,6 +21,7 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
@@ -117,12 +118,15 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
                 continue;
             }
             WalletManager walletManager = mbwManager.getWalletManager(false);
-            if (((ColuModule)walletManager.getModuleById(ColuModule.ID)).getColuApi()
-                    .getAddressTransactions(new BtcAddress(null, address)).getTransactions().size() > 0) {
+            ColuModule coluModule = (ColuModule)walletManager.getModuleById(ColuModule.ID);
+            if (coluModule.hasColuAssets(address)) {
                 empty = 0;
                 emptyHD = 0;
                 try {
-                    addCoCoAccount(currentNode, walletManager);
+                    List<ColuMain> assets = coluModule.getColuAssets(address);
+                    for(ColuMain asset : assets) {
+                        addCoCoAccount(currentNode, asset, walletManager);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -139,9 +143,9 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         return emptyHD;
     }
 
-    private void addCoCoAccount(HdKeyNode currentNode, WalletManager walletManager) throws IOException {
+    private void addCoCoAccount(HdKeyNode currentNode, ColuMain asset, WalletManager walletManager) throws IOException {
         //Check if there were any known assets
-        List<UUID> ids = walletManager.createAccounts(new PrivateColuConfig(currentNode.getPrivateKey(), AesKeyCipher.defaultKeyCipher()));
+        List<UUID> ids = walletManager.createAccounts(new PrivateColuConfig(currentNode.getPrivateKey(), asset, AesKeyCipher.defaultKeyCipher()));
         for (UUID id : ids) {
             WalletAccount account = walletManager.getAccount(id);
             if (account instanceof PublicColuAccount) {

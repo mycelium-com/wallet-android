@@ -24,4 +24,8 @@ interface WalletModule {
     fun getAccounts(): List<WalletAccount<*>>
 
     fun setCurrencySettings(currencySettings: CurrencySettings)
+
+    fun getAccountById(id: UUID): WalletAccount<*>?
+
+    fun afterAccountsLoaded();
 }

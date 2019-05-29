@@ -7,7 +7,7 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
+import com.mycelium.wapi.wallet.btc.single.*
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
@@ -21,7 +21,8 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val coluApi: ColuApi,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
-                 metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+                 metaDataStorage: IMetaDataStorage,
+                 private val singleAddressModule: BitcoinSingleAddressModule) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         if (networkParameters.isProdnet) {
@@ -29,6 +30,35 @@ class ColuModule(val networkParameters: NetworkParameters,
         } else {
             assetsList.addAll(listOf(MASSCoinTest, MTCoinTest, RMCCoinTest))
         }
+    }
+
+    // Ensures that for all Colu accounts we have corresponding BTC SA accounts, if not - creates them
+    // The linked BTC SA account creation should happen in Wallet upgrade situations only
+    // In usual cases, BTC SA account will be created together with a Colu account
+    override fun afterAccountsLoaded() {
+        accounts.values.forEach {
+            when(it) {
+                is PublicColuAccount -> {
+                    var btcAddress = it.receiveAddress as BtcAddress
+                    val saId = SingleAddressAccount.calculateId(btcAddress.address)
+                    if (singleAddressModule.getAccountById(saId) == null) {
+                        val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
+                        singleAddressModule.createLabel(sa.label + " Bitcoin", sa.id)
+                    }
+                }
+
+                is PrivateColuAccount -> {
+                    val saId = SingleAddressAccount.calculateId(it.privateKey.publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
+                    if (singleAddressModule.getAccountById(saId) == null) {
+                        singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin"))
+                    }
+                }
+            }
+        }
+    }
+
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
@@ -77,7 +107,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        var result: WalletAccount<*>? = null
+        var result: PublicColuAccount? = null
         var coinType: ColuMain? = null
 
         if (config is PrivateColuConfig) {
@@ -108,6 +138,20 @@ class ColuModule(val networkParameters: NetworkParameters,
             accounts[it.id] = result!!
             val baseName = createColuAccountLabel(coinType)
             it.label = createLabel(baseName, it.id)
+
+            // Create a linked Colu account
+            when (config) {
+                is PrivateColuConfig -> {
+                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, result!!.label + " Bitcoin"))
+                    it.linkedAccount = saAccount as SingleAddressAccount
+                }
+
+                is AddressSingleConfig -> {
+                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(result!!.receiveAddress as BtcAddress))
+                    it.linkedAccount = saAccount as SingleAddressAccount
+                }
+            }
+
         } ?: run {
             throw IllegalStateException("Account can't be created")
         }
@@ -142,6 +186,14 @@ class ColuModule(val networkParameters: NetworkParameters,
             i++
         }
         return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+    }
+
+    fun getColuAssets(address: Address): List<ColuMain> {
+        return coluApi.getCoinTypes(address)
+    }
+
+    fun hasColuAssets(address: Address): Boolean {
+        return getColuAssets(address).isNotEmpty()
     }
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {

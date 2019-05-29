@@ -46,6 +46,10 @@ constructor(val network: NetworkParameters,
         for (walletModule in walletModules.values) {
             accounts.putAll(walletModule.loadAccounts())
         }
+
+        for (walletModule in walletModules.values) {
+            walletModule.afterAccountsLoaded()
+        }
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
@@ -72,6 +76,10 @@ constructor(val network: NetworkParameters,
                 try {
                     val account = it.createAccount(config)
                     result[account.id] = account
+
+                    account.dependentAccounts?.forEach {
+                        result[it.id] = it
+                    }
                 } catch (exception: IllegalStateException){
                     _logger.logError("Account", exception)
                 }

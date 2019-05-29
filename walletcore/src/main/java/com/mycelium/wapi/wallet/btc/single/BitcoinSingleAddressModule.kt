@@ -34,6 +34,10 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }
 
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
+    }
+
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
     override fun getId(): String = ID
 
@@ -76,12 +80,13 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
         var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        var configLabel = (config as LabeledConfig).label
+        baseLabel = if (configLabel.isNotEmpty()) configLabel else baseLabel
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey)
         } else if (config is PrivateSingleConfig) {
             result = createAccount(config.privateKey, config.cipher)
-            baseLabel = if (config.label.isNotEmpty()) config.label else baseLabel
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -100,25 +105,11 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
             result.setEventHandler(eventHandler)
-            if (config is PrivateColuConfig || config is AddressColuConfig) {
-                baseLabel = getLinkedAccountLabel(result, baseLabel)
-            }
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")
         }
         return result
-    }
-
-    private fun getLinkedAccountLabel(account: SingleAddressAccount, default: String): String? {
-        walletManager.getModuleById(ColuModule.ID)?.let {
-            for (walletAccount in it.getAccounts()) {
-                if (walletAccount.id != account.id && account.isMineAddress(walletAccount.receiveAddress)) {
-                    return walletAccount.label + " Bitcoin"
-                }
-            }
-        }
-        return default
     }
 
     private fun createAccount(publicKey: PublicKey): WalletAccount<*>? {

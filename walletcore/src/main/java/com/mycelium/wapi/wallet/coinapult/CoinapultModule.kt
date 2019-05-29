@@ -19,6 +19,11 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
                       val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
 
     private val accounts = mutableMapOf<UUID, CoinapultAccount>()
+
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
+    }
+
     override fun getId(): String = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()

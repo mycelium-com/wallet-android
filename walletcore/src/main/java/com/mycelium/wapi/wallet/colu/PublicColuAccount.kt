@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -26,6 +27,16 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val accountBacking: ColuAccountBacking
                              , val backing: WalletBacking<ColuAccountContext>
                              , val listener: AccountListener? = null) : WalletAccount<BtcAddress> {
+
+    var linkedAccount: SingleAddressAccount? = null
+
+    override fun getDependentAccounts(): MutableList<WalletAccount<*>> {
+        var result = ArrayList<WalletAccount<*>>()
+        if (linkedAccount != null) {
+            result.add(linkedAccount!!)
+        }
+        return result
+    }
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
         return ArrayList<GenericTransaction>()

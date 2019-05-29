@@ -90,6 +90,7 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
+import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
@@ -451,7 +452,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             }
          }
 
-         List<UUID> ids = _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, AesKeyCipher.defaultKeyCipher()));
+         List<UUID> ids = _mbwManager.getWalletManager(false).createAccounts(new PrivateColuConfig(key, null, AesKeyCipher.defaultKeyCipher()));
          if (ids.size() < 2) {
             askUserForColorize = true;
          }
@@ -590,7 +591,11 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       finishOk(acc, isUpgrade);
    }
 
-   private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+   enum AddressCheckResult {
+      AccountExists, HasColuAssets, NoColuAssets
+   }
+
+   private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
       private GenericAddress address;
       private AccountType addressType;
       private ProgressDialog dialog;
@@ -611,66 +616,67 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       }
 
       @Override
-      protected UUID doInBackground(Void... params) {
-         UUID acc = null;
-
+      protected AddressCheckResult doInBackground(Void... params) {
          //Check whether this address is already used in any account
          Optional<UUID> accountId = _mbwManager.getAccountId(address);
          if (accountId.isPresent()) {
-            return null;
+            return AddressCheckResult.AccountExists;
          }
 
          BtcAddress btcAddress = (BtcAddress) address;
-         List<UUID> ids = _mbwManager.getWalletManager(false)
-                 .createAccounts(new AddressColuConfig(btcAddress));
+         ColuModule coluModule = (ColuModule)_mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
+         askUserForColorize = coluModule.hasColuAssets(btcAddress.getAddress());
 
-         if (ids.size() < 2 && btcAddress.getType() == AddressType.P2PKH) {
-            askUserForColorize = true;
-         }
-         if (ids.size() > 0) {
-            acc = ids.get(0);
-         }
-         return acc;
+         return askUserForColorize ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
       }
 
       @Override
-      protected void onPostExecute(UUID account) {
+      protected void onPostExecute(AddressCheckResult result) {
          dialog.dismiss();
-         if (askUserForColorize) {
-            final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-            adapter.add(Utils.getBtcCoinType());
-            adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
-            new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                    .setTitle(R.string.restore_address_as)
-                    .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialogInterface, int i) {
-                          selectedItem = i;
-                       }
-                    })
-                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialogInterface, int i) {
-                          UUID account;
-                          if (selectedItem == 0) {
-                             account = _mbwManager.getWalletManager(false)
-                                     .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
-                          } else {
-                             ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
-                             account = _mbwManager.getWalletManager(false)
-                                     .createAccounts(new AddressColuConfig((BtcAddress) address, coinType)).get(0);
+
+         switch(result) {
+            case AccountExists:
+               finishAlreadyExist(address);
+               break;
+            case NoColuAssets: {
+               UUID account = _mbwManager.getWalletManager(false)
+                       .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
+               finishOk(account, false);
+            }
+               break;
+            case HasColuAssets: {
+               final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
+               adapter.add(Utils.getBtcCoinType());
+               adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
+               new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+                       .setTitle(R.string.restore_address_as)
+                       .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                             selectedItem = i;
                           }
-                          finishOk(account, false);
-                       }
-                    })
-                    .create()
-                    .show();
-         } else if (account != null) {
-            finishOk(account, false);
-         } else if (_mbwManager.getAccountId(address).isPresent()) {
-            finishAlreadyExist(address);
+                       })
+                       .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                          @Override
+                          public void onClick(DialogInterface dialogInterface, int i) {
+                             UUID account;
+                             if (selectedItem == 0) {
+                                account = _mbwManager.getWalletManager(false)
+                                        .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
+                             } else {
+                                ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
+                                account = _mbwManager.getWalletManager(false)
+                                        .createAccounts(new AddressColuConfig((BtcAddress) address, coinType)).get(0);
+                             }
+                             finishOk(account, false);
+                          }
+                       })
+                       .create()
+                       .show();
+               }
+            }
+
          }
-      }
    }
 
    @Override

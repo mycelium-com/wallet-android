@@ -233,11 +233,9 @@ open class HDAccount(
             } else if (mode.mode == SyncMode.Mode.NORMAL_SYNC) {
                 // check the current change address plus small lookahead;
                 // plus the current external address plus a small range before and after it
-                addresses.addAll(getAddressRange(true,
-                        currentInternalAddressId - INTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH,
+                addresses.addAll(getAddressRange(true, currentInternalAddressId,
                         currentInternalAddressId + INTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
-                addresses.addAll(getAddressRange(false,
-                        currentExternalAddressId - EXTERNAL_MINIMAL_ADDRESS_LOOK_BACK_LENGTH,
+                addresses.addAll(getAddressRange(false, currentExternalAddressId - 3,
                         currentExternalAddressId + EXTERNAL_MINIMAL_ADDRESS_LOOK_AHEAD_LENGTH, derivationType))
 
             } else if (mode.mode == SyncMode.Mode.FAST_SYNC) {

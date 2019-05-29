@@ -77,6 +77,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
@@ -1877,6 +1878,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public BtcAddress getDummyAddress(String subType) {
       Address address = Address.getNullAddress(getNetwork(), AddressType.valueOf(subType));
       return new BtcAddress(getCoinType(), address);
+   }
+
+   @Override
+   public List<WalletAccount> getDependentAccounts() {
+      // BTC accounts do not have any dependent accounts
+      return new ArrayList<>();
    }
 
    @Override

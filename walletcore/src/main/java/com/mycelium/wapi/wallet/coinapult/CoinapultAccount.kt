@@ -23,6 +23,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
 
+    override fun getDependentAccounts(): List<WalletAccount<*>> {
+        return emptyList()
+    }
+
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
