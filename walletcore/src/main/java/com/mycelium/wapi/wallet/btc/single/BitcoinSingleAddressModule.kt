@@ -152,14 +152,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is SingleAddressAccount) {
-            val publickey = walletAccount.publicKey
-            val type = walletAccount.address.type
-            if (publickey == null) {
-                publicPrivateKeyStore.forgetPrivateKey(walletAccount.address.allAddressBytes, keyCipher)
-            } else {
-                val addressBytes = publickey.toAddress(networkParameters, type).allAddressBytes
-                publicPrivateKeyStore.forgetPrivateKey(addressBytes, keyCipher)
-            }
+            walletAccount.forgetPrivateKey(keyCipher)
             accounts[walletAccount.id]?.markToRemove()
             backing.deleteSingleAddressAccountContext(walletAccount.id)
             return true
