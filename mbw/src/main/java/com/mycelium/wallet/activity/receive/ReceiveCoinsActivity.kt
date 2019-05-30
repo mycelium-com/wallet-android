@@ -31,6 +31,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import asStringRes
+import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
@@ -38,7 +39,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mbwManager = MbwManager.getInstance(application)
-        val account = mbwManager.selectedAccount
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
+        val walletManager = mbwManager.getWalletManager(isColdStorage)
+        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)!!
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)

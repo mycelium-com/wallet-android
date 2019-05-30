@@ -146,7 +146,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                         try {
                             keyManagerMap[derivationType] = HDAccountKeyManager.createFromAccountRoot(hdKeyNode, networkParameters,
                                     accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType)
-                        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+                        } catch (invalidKeyCipher: InvalidKeyCipher) {
                             throw RuntimeException(invalidKeyCipher)
                         }
 
@@ -158,7 +158,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                 val id = keyManagerMap[derivationTypes[0]]!!.accountId
 
                 // Generate the context for the account
-                val accountType = if (config.hdKeyNodes.get(0).isPrivateHdKeyNode) {
+                val accountType = if (config.hdKeyNodes[0].isPrivateHdKeyNode) {
                     ACCOUNT_TYPE_UNRELATED_X_PRIV
                 } else {
                     ACCOUNT_TYPE_UNRELATED_X_PUB
@@ -173,7 +173,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
                     // Create actual account
                     result = if (config.hdKeyNodes[0].isPrivateHdKeyNode) {
-                        HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                        HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
                     } else {
                         HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
                     }
@@ -282,8 +282,8 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return when (cfg) {
             is AdditionalHDAccountConfig -> "Account " + getNextBip44Index()
             is ExternalSignaturesAccountConfig ->
-                signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes.get(0).index + 1)
-            is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) "Account 1" else "Imported"
+                signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes[0].index + 1)
+            is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) "Account 1" else "Imported"
             else -> throw IllegalArgumentException("Unsupported config")
         }
     }

@@ -6,19 +6,16 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
-import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.*
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
@@ -30,10 +27,8 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 import org.junit.Test
-import java.io.IOException
 import java.security.SecureRandom
 import java.util.HashMap
-import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 
 class MtAssetBasicTest {

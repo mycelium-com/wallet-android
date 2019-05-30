@@ -7,14 +7,15 @@ import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
-class WalletManager(val network: NetworkParameters,
-                    val wapi: Wapi,
-                    var currenciesSettingsMap: HashMap<String, CurrencySettings>) {
-    val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
-
+class WalletManager
+@JvmOverloads
+constructor(val network: NetworkParameters,
+            val wapi: Wapi,
+            var currenciesSettingsMap: HashMap<String, CurrencySettings>,
+            @JvmField
+            var accountScanManager: AccountScanManager? = null) {
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
@@ -31,8 +32,6 @@ class WalletManager(val network: NetworkParameters,
 
     var isNetworkConnected: Boolean = false
     var walletListener: WalletListener? = null
-
-    lateinit var accountScanManager: AccountScanManager
 
     var state: State = State.OFF
 
@@ -53,7 +52,6 @@ class WalletManager(val network: NetworkParameters,
     fun getAccountIds(): List<UUID> = accounts.keys.toList()
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
-
 
     fun getAccountBy(address: GenericAddress): UUID? {
         return accounts.values.firstOrNull { it.isMineAddress(address) }?.id

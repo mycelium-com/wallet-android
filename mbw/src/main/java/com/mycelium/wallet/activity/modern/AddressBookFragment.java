@@ -367,7 +367,7 @@ public class AddressBookFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
-                    ScanActivity.callMe(AddressBookFragment.this.getActivity(), SCAN_RESULT_CODE, request);
+                    ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                     AddDialog.this.dismiss();
                 }
 
@@ -427,7 +427,7 @@ public class AddressBookFragment extends Fragment {
                 addFromAddress(getAssetUri(intent).getAddress());
                 break;
             case ADDRESS:
-                getAddress(intent, _mbwManager.getWalletManager(false), getFragmentManager());
+                addFromAddress(getAddress(intent));
                 break;
         }
     }

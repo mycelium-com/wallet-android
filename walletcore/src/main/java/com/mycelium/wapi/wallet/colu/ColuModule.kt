@@ -95,18 +95,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
-        } else if (config is PublicColuConfig) {
-            val address = config.publicKey.toAddress(networkParameters, AddressType.P2PKH)
-            coinType = coluMain(address, config.coinType)
-            coinType?.let { type ->
-                val id = ColuUtils.getGuidForAsset(config.coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type, config.publicKey, null
-                        , false, 0)
-                backing.createAccountContext(context)
-                result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
-            }
-        } else if (config is AddressColuConfig) {
+        }  else if (config is AddressColuConfig) {
             coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
@@ -155,7 +144,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
             i++
         }
-        return DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
     }
 
     private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {
@@ -166,13 +155,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         coinType
     }
 
-    override fun canCreateAccount(config: Config): Boolean {
-        when (config) {
-            is PrivateColuConfig -> return true
-            is PublicColuConfig -> return true
-        }
-        return false
-    }
+    override fun canCreateAccount(config: Config) = config is PrivateColuConfig || config is AddressColuConfig
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if (walletAccount is PublicColuAccount || walletAccount is PrivateColuAccount ) {
@@ -186,6 +169,7 @@ class ColuModule(val networkParameters: NetworkParameters,
 
     companion object {
         const val ID: String = "colored coin module"
+        private const val MAX_ACCOUNTS_NUMBER = 1000
     }
 }
 

@@ -43,9 +43,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +76,8 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -80,7 +85,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class GetAmountActivity extends Activity implements NumberEntryListener {
+public class GetAmountActivity extends AppCompatActivity implements NumberEntryListener {
    public static final String AMOUNT = "amount";
    public static final String ENTERED_AMOUNT = "enteredamount";
    public static final String ACCOUNT = "account";
@@ -90,7 +95,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    public static final String SEND_MODE = "sendmode";
    public static final String BASIC_CURRENCY = "basiccurrency";
 
-   @BindView(R.id.btCurrency) Button btCurrency;
+   @BindView(R.id.btCurrency) TextView btCurrency;
    @BindView(R.id.btPaste) Button btPaste;
    @BindView(R.id.btMax) Button btMax;
    @BindView(R.id.btOk) Button btOk;
@@ -98,6 +103,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    @BindView(R.id.tvHowIsItCalculated) TextView tvHowIsItCalculated;
    @BindView(R.id.tvAmount) TextView tvAmount;
    @BindView(R.id.tvAlternateAmount) TextView tvAlternateAmount;
+   @BindView(R.id.currency_dropdown_image_view) View currencyDropDown;
 
    private boolean isSendMode;
 
@@ -147,6 +153,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.get_amount_activity);
       ButterKnife.bind(this);
+      getSupportActionBar().hide();
 
       _mbwManager = MbwManager.getInstance(getApplication());
       isSendMode = getIntent().getBooleanExtra(SEND_MODE, false);
@@ -164,8 +171,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (isSendMode) {
          initSendMode();
       }
-
-      btCurrency.setEnabled(_mbwManager.getCurrencySwitcher().getExchangeRatePrice() != null);
       updateUI();
       checkEntry();
    }
@@ -257,20 +262,42 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       }
    }
 
-   @OnClick({R.id.btRight, R.id.btCurrency})
+   @OnClick(R.id.btRight)
    void onSwitchCurrencyClick() {
-      // if we have a fiat currency selected and the price is not available, switch on -> no point in showing it
-      // if there is no exchange rate at all available, we will get to BTC and stay there
-      // this does not apply to digital assets such as Colu for which we do not have a rate
-      if(_amount != null) {
-         GenericAssetInfo targetCurrency = _mbwManager.getNextCurrency(true);
-         CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-         while (!targetCurrency.equals(mainCurrencyType) && !currencySwitcher.isFiatExchangeRateAvailable()) {
-            targetCurrency = _mbwManager.getNextCurrency(true);
+      final List<GenericAssetInfo> currencyList = getAvailableCurrencyList();
+      if (currencyList.size() > 1) {
+         PopupMenu currencyListMenu = new PopupMenu(this, btCurrency);
+         for (GenericAssetInfo asset : currencyList) {
+            currencyListMenu.getMenu().add(asset.getSymbol());
          }
-          _amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, targetCurrency);
+         currencyListMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+               for (GenericAssetInfo genericAssetInfo : currencyList) {
+                  if (menuItem.getTitle().equals(genericAssetInfo.getSymbol())) {
+                     _mbwManager.getCurrencySwitcher().setCurrency(genericAssetInfo);
+                     if (_amount != null) {
+                        _amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, genericAssetInfo);
+                     }
+                     updateUI();
+                     return true;
+                  }
+               }
+               return false;
+            }
+         });
+         currencyListMenu.show();
       }
-      updateUI();
+   }
+
+   private List<GenericAssetInfo> getAvailableCurrencyList() {
+      List<GenericAssetInfo> result = new ArrayList<>();
+      for (GenericAssetInfo asset : _mbwManager.getCurrencySwitcher().getCurrencyList(mainCurrencyType)) {
+         if (ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), asset.oneCoin(), mainCurrencyType) != null) {
+            result.add(asset);
+         }
+      }
+      return result;
    }
 
    @OnClick({R.id.btLeft, R.id.btPaste})
@@ -319,7 +346,7 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
       if (isSendMode) {
          showMaxAmount();
       }
-
+      currencyDropDown.setVisibility(getAvailableCurrencyList().size() > 1 ? View.VISIBLE : View.GONE);
       CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
       btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
       if (_amount != null) {
@@ -359,9 +386,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    protected void onResume() {
       MbwManager.getEventBus().register(this);
       _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-      btCurrency.setEnabled(_mbwManager.hasFiatCurrency()
-              && _mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
-              && _amount != null);
       btPaste.setVisibility(enablePaste() ? View.VISIBLE : View.GONE);
       super.onResume();
    }
@@ -559,7 +583,6 @@ public class GetAmountActivity extends Activity implements NumberEntryListener {
    private void updateExchangeRateDisplay() {
       if(_amount != null) {
          Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
-         btCurrency.setEnabled(exchangeRatePrice != null);
          if (exchangeRatePrice != null) {
             updateAmountsDisplay(_numberEntry.getEntry());
          }
