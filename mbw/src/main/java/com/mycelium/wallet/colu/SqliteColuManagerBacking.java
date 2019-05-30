@@ -61,10 +61,13 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -77,6 +80,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +109,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private final SQLiteStatement _deleteKeyValue;
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
+   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
 
 
    public SqliteColuManagerBacking(Context context) {
@@ -409,6 +414,22 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       private final String txRefersParentTxTableName;
       private final SQLiteDatabase _db;
 
+      private class FeeEstimationSerialized implements Serializable {
+         private long low;
+         private long economy;
+         private long normal;
+         private long high;
+         private long lastCheck;
+
+         FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
+            this.low = low;
+            this.economy = economy;
+            this.normal = normal;
+            this.high = high;
+            this.lastCheck = lastCheck;
+         }
+      }
+
       private SqliteColuAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
@@ -448,6 +469,37 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          _db.execSQL("DELETE FROM " + txTableName);
          _db.execSQL("DELETE FROM " + outTxTableName);
          _db.execSQL("DELETE FROM " + txRefersParentTxTableName);
+      }
+
+      @Override
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String assetTypeName = assetType.getName();
+         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
+                 feeEstimation.getEconomy().value,
+                 feeEstimation.getNormal().value,
+                 feeEstimation.getHigh().value,
+                 feeEstimation.getLastCheck());
+         byte[] value = gson.toJson(feeValues).getBytes();
+         setValue(key, value);
+      }
+
+      @Override
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String key = assetType.getName() + LAST_FEE_ESTIMATE;
+         FeeEstimationSerialized feeValues;
+         try {
+            feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
+         }
+         catch(Exception ignore) { return null; }
+
+         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
+                 Value.valueOf(assetType, feeValues.economy),
+                 Value.valueOf(assetType, feeValues.normal),
+                 Value.valueOf(assetType, feeValues.high),
+                 feeValues.lastCheck);
       }
 
       @Override

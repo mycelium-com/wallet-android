@@ -3,10 +3,20 @@ package com.mycelium.wallet.coinapult
 
 import android.database.sqlite.SQLiteDatabase
 import com.mycelium.wapi.wallet.CommonAccountBacking
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.util.*
 
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : CommonAccountBacking {
+    override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: GenericAssetInfo?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun loadLastFeeEstimation(assetType: GenericAssetInfo?): FeeEstimationsGeneric {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun beginTransaction() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

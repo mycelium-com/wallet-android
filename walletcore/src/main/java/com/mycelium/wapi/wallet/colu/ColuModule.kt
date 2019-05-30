@@ -5,6 +5,7 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.single.*
@@ -19,6 +20,7 @@ import java.util.*
 class ColuModule(val networkParameters: NetworkParameters,
                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                  val coluApi: ColuApi,
+                 val wapi: Wapi,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
                  metaDataStorage: IMetaDataStorage,
@@ -62,6 +64,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
+    private val MAX_ACCOUNTS_NUMBER = 1000
     override fun getId(): String = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
@@ -77,11 +80,11 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val account = if (accountKey == null) {
                     PublicColuAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
-                            , listener)
+                            , listener, wapi)
                 } else {
                     PrivateColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
-                            , listener)
+                            , listener, wapi)
                 }
                 account.label = readLabel(account.id)
                 accounts[account.id] = account
@@ -119,7 +122,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PrivateColuAccount(context, config.privateKey, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
         }  else if (config is AddressColuConfig) {
@@ -130,7 +133,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
             }
         }
 
