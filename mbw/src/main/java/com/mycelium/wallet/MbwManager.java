@@ -643,7 +643,7 @@ public class MbwManager {
 
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs, socketFactory);
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
-                , new ColuApiImpl(coluClient), coluBacking, accountListener, getMetadataStorage()));
+                , new ColuApiImpl(coluClient),_wapi, coluBacking, accountListener, getMetadataStorage()));
 
         AccountEventManager accountEventManager = new AccountEventManager(walletManager);
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage(),

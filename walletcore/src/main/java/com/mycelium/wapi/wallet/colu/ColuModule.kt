@@ -54,7 +54,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 } else {
                     PrivateColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
-                            , listener)
+                            , listener, wapi)
                 }
                 account.label = readLabel(account.id)
                 accounts[account.id] = account
@@ -92,7 +92,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PrivateColuAccount(context, config.privateKey, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
             }
         } else if (config is PublicColuConfig) {

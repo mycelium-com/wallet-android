@@ -28,7 +28,7 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val accountBacking: ColuAccountBacking
                              , val backing: WalletBacking<ColuAccountContext>
                              , val listener: AccountListener? = null
-                             , val wapi: Wapi) : WalletAccount<BtcAddress> {
+                             , val wapi:Wapi) : WalletAccount<BtcAddress> {
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
         return ArrayList<GenericTransaction>()

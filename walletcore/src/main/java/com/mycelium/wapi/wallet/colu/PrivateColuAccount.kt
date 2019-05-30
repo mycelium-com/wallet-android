@@ -4,6 +4,7 @@ import com.google.common.base.Optional
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.*
 import com.mrd.bitlib.model.*
+import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -24,9 +25,10 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
                          , coluClient: ColuApi
                          , accountBacking: ColuAccountBacking
                          , backing: WalletBacking<ColuAccountContext>
-                         , listener: AccountListener? = null)
+                         , listener: AccountListener? = null
+                         , wapi: Wapi)
     : PublicColuAccount(context, coluCoinType, networkParameters
-        , coluClient, accountBacking, backing, listener), ExportableAccount {
+        , coluClient, accountBacking, backing, listener, wapi), ExportableAccount {
 
     override fun isSyncing(): Boolean {
         //TODO: implement later
