@@ -21,8 +21,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.util.Collection;
 import java.util.List;
@@ -77,8 +75,4 @@ public interface BtcAccountBacking extends CommonAccountBacking {
    Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint);
 
    void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs);
-
-   void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType);
-
-   FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType);
 }
