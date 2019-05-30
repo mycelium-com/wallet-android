@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 public class ColuUtils {
     public static final int METADATA_OUTPUT_SIZE = 1;
 
@@ -35,6 +37,7 @@ public class ColuUtils {
         return new UUID(high, low);
     }
 
+    @Nullable
     public static ColuMain getColuCoin(String coinId) {
         ColuMain coinType = null;
         if (MTCoin.INSTANCE.getId().equals(coinId)) {
