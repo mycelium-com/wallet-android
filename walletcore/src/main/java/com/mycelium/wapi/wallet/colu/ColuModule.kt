@@ -5,6 +5,7 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
@@ -19,6 +20,7 @@ import java.util.*
 class ColuModule(val networkParameters: NetworkParameters,
                  internal val publicPrivateKeyStore: PublicPrivateKeyStore,
                  val coluApi: ColuApi,
+                 val wapi: Wapi,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
                  val metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
@@ -48,7 +50,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val account = if (accountKey == null) {
                     PublicColuAccount(context, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
-                            , listener)
+                            , listener, wapi)
                 } else {
                     PrivateColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
@@ -102,7 +104,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
             }
         } else if (config is AddressColuConfig) {
             coinType = coluMain(config.address.address, config.coinType)
@@ -112,7 +114,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener)
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
             }
         }
 

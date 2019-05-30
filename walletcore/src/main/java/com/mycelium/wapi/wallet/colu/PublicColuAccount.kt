@@ -7,6 +7,8 @@ import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wapi.api.Wapi
+import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -25,7 +27,8 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val coluClient: ColuApi
                              , val accountBacking: ColuAccountBacking
                              , val backing: WalletBacking<ColuAccountContext>
-                             , val listener: AccountListener? = null) : WalletAccount<BtcAddress> {
+                             , val listener: AccountListener? = null
+                             , val wapi: Wapi) : WalletAccount<BtcAddress> {
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
         return ArrayList<GenericTransaction>()
@@ -150,7 +153,32 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return defaultFeeEstimation
+        // we try to get fee estimation from server
+        try {
+            val response = wapi.minerFeeEstimations
+            val oldStyleFeeEstimation = response.result.feeEstimation
+            val lowPriority = oldStyleFeeEstimation.getEstimation(20)
+            val normal = oldStyleFeeEstimation.getEstimation(3)
+            val economy = oldStyleFeeEstimation.getEstimation(10)
+            val high = oldStyleFeeEstimation.getEstimation(1)
+            val result = FeeEstimationsGeneric(
+                    Value.valueOf(coinType, lowPriority!!.longValue),
+                    Value.valueOf(coinType, economy!!.longValue),
+                    Value.valueOf(coinType, normal!!.longValue),
+                    Value.valueOf(coinType, high!!.longValue),
+                    System.currentTimeMillis()
+            )
+            //if all ok we return requested new fee estimation
+            accountBacking.saveLastFeeEstimation(result, coinType)
+            return result
+        } catch (ex: WapiException) {
+            //receiving data from the server failed then trying to read fee estimations from the DB
+            //if a read error has occurred from the DB, then we return the predefined default fee
+            return accountBacking.loadLastFeeEstimation(coinType) ?: defaultFeeEstimation
+        }
+
+
+        //return defaultFeeEstimation
     }
 
 
