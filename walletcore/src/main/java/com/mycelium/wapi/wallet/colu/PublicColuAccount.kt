@@ -176,9 +176,6 @@ open class PublicColuAccount(val context: ColuAccountContext
             //if a read error has occurred from the DB, then we return the predefined default fee
             return accountBacking.loadLastFeeEstimation(coinType) ?: defaultFeeEstimation
         }
-
-
-        //return defaultFeeEstimation
     }
 
 
