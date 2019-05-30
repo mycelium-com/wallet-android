@@ -1169,7 +1169,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         InMemoryPrivateKey key = getPrivateKey(intent);
                         PublicKey publicKey = key.getPublicKey();
                         for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
-                            receivingAddressesList.add((GenericAddress) address);
+                            receivingAddressesList.add(AddressUtils.fromAddress(address));
                         }
                         setUpMultiAddressView();
                         break;
@@ -1286,8 +1286,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
             String hash = signedTransaction.getId().toString();
             String fiat = getFiatValue();
-            transactionFiatValuePref.edit().putString(hash, fiat).apply();
-
+            if (fiat != null) {
+                transactionFiatValuePref.edit().putString(hash, fiat).apply();
+            }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
         }
@@ -1297,8 +1298,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getFiatValue() {
-        return ValueExtensionsKt.toStringWithUnit(_mbwManager.getExchangeRateManager()
-                .get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency()));
+        Value fiat = _mbwManager.getExchangeRateManager().get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency());
+        return fiat != null ? ValueExtensionsKt.toStringWithUnit(fiat) : null;
     }
 
     private void setReceivingAddressFromKeynode(HdKeyNode hdKeyNode) {
