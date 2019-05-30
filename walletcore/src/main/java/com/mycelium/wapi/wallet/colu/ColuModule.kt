@@ -142,7 +142,7 @@ class ColuModule(val networkParameters: NetworkParameters,
             // Create a linked Colu account
             when (config) {
                 is PrivateColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, result!!.label + " Bitcoin"))
+                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, result!!.label + " Bitcoin", AddressType.P2PKH))
                     it.linkedAccount = saAccount as SingleAddressAccount
                 }
 
