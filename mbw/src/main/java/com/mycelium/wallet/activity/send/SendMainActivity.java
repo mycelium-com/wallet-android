@@ -743,10 +743,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
 
             @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                super.onPostExecute(aBoolean);
+            protected void onPostExecute(Boolean isSent) {
+                super.onPostExecute(isSent);
                 _progress.dismiss();
-                if (aBoolean) {
+                if (isSent) {
                     _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
                     Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
                     SendMainActivity.this.finish();
