@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
@@ -57,8 +58,8 @@ constructor(val network: NetworkParameters,
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
-    fun getAccountBy(address: GenericAddress): UUID? {
-        return accounts.values.firstOrNull { it.isMineAddress(address) }?.id
+    fun getAccountsBy(address: GenericAddress): List<WalletAccount<*>> {
+        return accounts.values.filter { it.isMineAddress(address) }
     }
 
     fun setIsNetworkConnected(connected: Boolean) {
