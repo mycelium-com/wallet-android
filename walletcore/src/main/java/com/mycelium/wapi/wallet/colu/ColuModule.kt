@@ -150,7 +150,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 }
 
                 is AddressColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(result!!.receiveAddress as BtcAddress))
+                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(result!!.receiveAddress as BtcAddress, result!!.label + " Bitcoin"))
                     it.linkedAccount = saAccount as SingleAddressAccount
                 }
             }
