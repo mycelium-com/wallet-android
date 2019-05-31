@@ -12,7 +12,6 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.GetAmountActivity
-import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
@@ -117,10 +116,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     fun setAmount(amount: Value) {
         if(amount.getType() == account.coinType) {
             model.setAmount(amount)
-            var value = mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency)
-            if (value == null) {
-                value = Value.zeroValue(account.coinType)
-            }
+            val value = mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency)
+                    ?: Value.zeroValue(account.coinType)
             model.setAlternativeAmount(value)
         } else {
             model.setAmount(mbwManager.exchangeRateManager.get(amount, account.coinType))

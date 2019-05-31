@@ -849,7 +849,7 @@ public class Utils {
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
       if (walletAccount instanceof PublicColuAccount) {
-         com.mycelium.wapi.wallet.colu.PublicColuAccount account = (com.mycelium.wapi.wallet.colu.PublicColuAccount) walletAccount;
+         PublicColuAccount account = (PublicColuAccount) walletAccount;
          if (account.getCoinType() == MTCoin.INSTANCE || account.getCoinType() == MTCoinTest.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);
@@ -876,7 +876,6 @@ public class Utils {
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
-
       }
       //regular HD account
       if (walletAccount instanceof HDAccount) {

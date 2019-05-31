@@ -310,7 +310,7 @@ public class AccountsFragment extends Fragment {
                         }
                     }
                     if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
-                        if (label != null && label.length() != 0) {
+                        if (label.length() != 0) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
@@ -321,7 +321,7 @@ public class AccountsFragment extends Fragment {
                                     ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
                         }
                     } else {
-                        if (label != null && label.length() != 0) {
+                        if (label.length() != 0) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_without_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label), address);
@@ -1130,10 +1130,7 @@ public class AccountsFragment extends Fragment {
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
 
         // If we have more than one master-seed derived account, we can remove it
-        if (accountsList.size() > 1) {
-            return false;
-        }
-        return true;
+        return accountsList.size() <= 1;
     }
 
     private void hideSelected() {

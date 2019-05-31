@@ -119,6 +119,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getUri;
+
 public class BalanceFragment extends Fragment {
     public static final String COINMARKETCAP = "Coinmarketcap";
     public static final int GENERIC_SCAN_REQUEST = 4;
