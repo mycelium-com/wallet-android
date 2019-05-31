@@ -41,7 +41,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         accounts.values.forEach {
             when(it) {
                 is PublicColuAccount -> {
-                    var btcAddress = it.receiveAddress as BtcAddress
+                    val btcAddress = it.receiveAddress as BtcAddress
                     val saId = SingleAddressAccount.calculateId(btcAddress.address)
                     if (singleAddressModule.getAccountById(saId) == null) {
                         val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
@@ -64,7 +64,6 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
-    private val MAX_ACCOUNTS_NUMBER = 1000
     override fun getId(): String = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
@@ -129,7 +128,7 @@ class ColuModule(val networkParameters: NetworkParameters,
             coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
-                val context = ColuAccountContext(id, type, null, mapOf(config.address.type to config.address)
+                val context = ColuAccountContext(id, type, null, mapOf(config.address.type to BtcAddress(coinType, config.address.address))
                         , false, 0)
                 backing.createAccountContext(context)
                 result = PublicColuAccount(context, type, networkParameters
