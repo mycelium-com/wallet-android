@@ -45,7 +45,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                     val saId = SingleAddressAccount.calculateId(btcAddress.address)
                     if (singleAddressModule.getAccountById(saId) == null) {
                         val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
-                        singleAddressModule.createLabel(sa.label + " Bitcoin", sa.id)
+                        singleAddressModule.createLabel(it.label + " Bitcoin", sa.id)
                     }
                 }
 
@@ -137,19 +137,19 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
 
         result?.let {
-            accounts[it.id] = result!!
+            accounts[it.id] = it
             val baseName = createColuAccountLabel(coinType)
             it.label = createLabel(baseName, it.id)
 
             // Create a linked Colu account
             when (config) {
                 is PrivateColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, result!!.label + " Bitcoin", AddressType.P2PKH))
+                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, it.label + " Bitcoin", AddressType.P2PKH))
                     it.linkedAccount = saAccount as SingleAddressAccount
                 }
 
                 is AddressColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(result!!.receiveAddress as BtcAddress, result!!.label + " Bitcoin"))
+                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(it.receiveAddress as BtcAddress, it.label + " Bitcoin"))
                     it.linkedAccount = saAccount as SingleAddressAccount
                 }
             }
