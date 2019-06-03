@@ -58,7 +58,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
     protected val eventBus: Bus = MbwManager.getEventBus()
     protected val currencySwitcher by lazy { MbwManager.getInstance(context).currencySwitcher!! }
 
-    private var currentValue: Value? = null
+    protected var currentValue: Value? = null
     var fiatOnly = false
     protected var hideOnNoExchangeRate = false
     private var precision = -1
