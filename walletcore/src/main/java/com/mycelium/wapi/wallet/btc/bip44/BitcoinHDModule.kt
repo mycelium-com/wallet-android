@@ -39,6 +39,10 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                       internal val eventHandler: AbstractBtcAccount.EventHandler?) :
         GenericModule(metadataStorage), WalletModule {
 
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
+    }
+
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
     }

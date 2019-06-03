@@ -196,4 +196,6 @@ public interface WalletAccount<A extends GenericAddress> {
     A getDummyAddress();
 
     A getDummyAddress(String subType);
+
+    List<WalletAccount> getDependentAccounts();
 }

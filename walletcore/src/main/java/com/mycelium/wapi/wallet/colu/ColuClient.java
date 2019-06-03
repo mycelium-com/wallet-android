@@ -54,13 +54,12 @@ public class ColuClient {
     }
 
     public AddressInfo.Json getBalance(Address address) throws IOException {
-        String endpoint = "addressinfo/" + address.toString();
-        return coloredCoinsClient.sendGetRequest(AddressInfo.Json.class, endpoint);
+        String endpoint = "getaddressinfo?address=" + address.toString();
+        return blockExplorerClient.sendGetRequest(AddressInfo.Json.class, endpoint);
     }
 
     public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
-        String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
-        return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
+        return getAddressTransactions(address.toString());
     }
 
     public AddressTransactionsInfo.Json getAddressTransactions(String address) throws IOException {

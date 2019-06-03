@@ -142,7 +142,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
+            if (coinId == null) {
+               Log.w(LOG_TAG,"Asset not registered in system, and not imported, skipping...");
+               continue;
+            }
             ColuMain coinType = ColuUtils.getColuCoin(coinId);
+            if (coinType == null) {
+               Log.w(LOG_TAG, String.format("Asset with id=%s, skipping...", coinId));
+               continue;
+            }
             PublicKey publicKey = null;
             if (cursor.getBlob(5) != null) {
                publicKey = new PublicKey(cursor.getBlob(5));

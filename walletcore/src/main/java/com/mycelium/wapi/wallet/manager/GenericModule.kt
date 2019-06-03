@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import java.util.UUID
 
 abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : WalletModule {
-
     protected val assetsList = mutableListOf<GenericAssetInfo>()
 
     // creates label for the account and stores in the database
@@ -47,5 +46,8 @@ abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : Wa
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun afterAccountsLoaded() {
     }
 }

@@ -9,9 +9,6 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.colu.AddressColuConfig
-import com.mycelium.wapi.wallet.colu.ColuModule
-import com.mycelium.wapi.wallet.colu.PrivateColuConfig
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -32,6 +29,10 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+    }
+
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
     }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
@@ -76,12 +77,14 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
         var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        var configLabel = (config as LabeledConfig).label
+        baseLabel = if (configLabel.isNotEmpty()) configLabel else baseLabel
 
         if (config is PublicSingleConfig) {
-            result = createAccount(config.publicKey)
+            result = createAccount(config.publicKey, settings.defaultAddressType)
         } else if (config is PrivateSingleConfig) {
-            result = createAccount(config.privateKey, config.cipher)
-            baseLabel = if (config.label.isNotEmpty()) config.label else baseLabel
+            val addressType = if (config.addressType != null) config.addressType else settings.defaultAddressType
+            result = createAccount(config.privateKey, config.cipher, addressType)
         } else if (config is AddressSingleConfig) {
             val id = SingleAddressAccount.calculateId(config.address.address)
             backing.beginTransaction()
@@ -100,9 +103,6 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
             result.setEventHandler(eventHandler)
-            if (config is PrivateColuConfig || config is AddressColuConfig) {
-                baseLabel = getLinkedAccountLabel(result, baseLabel)
-            }
             result.label = createLabel(baseLabel, result.id)
         } else {
             throw IllegalStateException("Account can't be created")
@@ -110,27 +110,13 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         return result
     }
 
-    private fun getLinkedAccountLabel(account: SingleAddressAccount, default: String): String? {
-        walletManager.getModuleById(ColuModule.ID)?.let {
-            for (walletAccount in it.getAccounts()) {
-                if (walletAccount.id != account.id && account.isMineAddress(walletAccount.receiveAddress)) {
-                    return walletAccount.label + " Bitcoin"
-                }
-            }
-        }
-        return default
-    }
-
-    private fun createAccount(publicKey: PublicKey): WalletAccount<*>? {
+    private fun createAccount(publicKey: PublicKey,addressType: AddressType): WalletAccount<*>? {
         val result: WalletAccount<*>?
         val id = SingleAddressAccount.calculateId(publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
         backing.beginTransaction()
         try {
-            var defaultAddressType = settings.defaultAddressType
-            if (!publicKey.isCompressed) {
-                defaultAddressType = AddressType.P2PKH
-            }
-            val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0, defaultAddressType)
+            val addressTypeFinal = if (!publicKey.isCompressed) AddressType.P2PKH else addressType
+            val context = SingleAddressAccountContext(id, publicKey.getAllSupportedAddresses(networkParameters), false, 0, addressTypeFinal)
             backing.createSingleAddressAccountContext(context)
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
             result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
@@ -142,12 +128,12 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         return result
     }
 
-    private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher): WalletAccount<*>? {
+    private fun createAccount(privateKey: InMemoryPrivateKey, cipher: KeyCipher, addressType: AddressType): WalletAccount<*>? {
         val publicKey = privateKey.publicKey
         for (address in publicKey.getAllSupportedAddresses(networkParameters).values) {
             publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, privateKey, cipher)
         }
-        return createAccount(publicKey)
+        return createAccount(publicKey, addressType)
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {

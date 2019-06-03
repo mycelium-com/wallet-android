@@ -15,6 +15,7 @@ import java.io.IOException
 
 
 class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
+
     override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json? {
         val fromAddress = mutableListOf<Address>()
         fromBtcAddress.forEach {
@@ -102,15 +103,11 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         try {
             val addressInfo = coluClient.getBalance(address)
             if (addressInfo != null) {
-                if (addressInfo.utxos != null) {
-                    for (utxo in addressInfo.utxos) {
-                        // adding utxo to list of txid list request
-                        for (txidAsset in utxo.assets) {
-                            for (coin in ColuUtils.allColuCoins(address.network.toString())) {
-                                if (txidAsset.assetId == coin.id) {
-                                    assetsList.add(coin)
-                                }
-                            }
+                // adding utxo to list of txid list request
+                for (txidAsset in addressInfo.assets) {
+                    for (coin in ColuUtils.allColuCoins(address.network.toString())) {
+                        if (txidAsset.assetId == coin.id) {
+                            assetsList.add(coin)
                         }
                     }
                 }

@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -30,8 +31,18 @@ open class PublicColuAccount(val context: ColuAccountContext
                              , val listener: AccountListener? = null
                              , val wapi:Wapi) : WalletAccount<BtcAddress> {
 
+    var linkedAccount: SingleAddressAccount? = null
+
+    override fun getDependentAccounts(): MutableList<WalletAccount<*>> {
+        val result = ArrayList<WalletAccount<*>>()
+        linkedAccount?.let {
+            result.add(it)
+        }
+        return result
+    }
+
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
-        return ArrayList<GenericTransaction>()
+        return ArrayList()
     }
 
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
@@ -84,10 +95,10 @@ open class PublicColuAccount(val context: ColuAccountContext
     private val addressList: Map<AddressType, BtcAddress>
 
     init {
-        if (context.publicKey != null) {
-            addressList = convert(context.publicKey, type as ColuMain)
+        addressList = if (context.publicKey != null) {
+            convert(context.publicKey, type as ColuMain)
         } else {
-            addressList = context.address ?: mapOf()
+            context.address ?: mapOf()
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         cachedBalance = calculateBalance(emptyList(), accountBacking.getTransactionSummaries(0, 2000))
@@ -262,7 +273,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     override fun broadcastOutgoingTransactions(): Boolean = false
 
     override fun getSyncTotalRetrievedTransactions(): Int {
-        return 0;
+        return 0
     }
 
     override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
