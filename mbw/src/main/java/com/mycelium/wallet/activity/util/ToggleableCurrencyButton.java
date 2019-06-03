@@ -46,8 +46,10 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +72,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi(){
       super.updateUi();
 
-      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
-              : getCurrencySwitcher().getCurrencyList(getCurrencySwitcher().getWalletCurrencies());
+      final List<GenericAssetInfo> currencies = getAvailableCurrencyList();
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -107,6 +108,21 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
             }
          });
       }
+      setVisibility(currencies.size() == 0 ? View.INVISIBLE : View.VISIBLE);
+   }
+
+   private List<GenericAssetInfo> getAvailableCurrencyList() {
+      List<GenericAssetInfo> result = new ArrayList<>();
+      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
+              : getCurrencySwitcher().getCurrencyList(getCurrencySwitcher().getWalletCurrencies());
+
+      for (GenericAssetInfo asset : currencies) {
+         Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());
+         if (exchangeValue != null) {
+            result.add(asset);
+         }
+      }
+      return result;
    }
 
    @Subscribe
