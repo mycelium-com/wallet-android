@@ -95,7 +95,6 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
