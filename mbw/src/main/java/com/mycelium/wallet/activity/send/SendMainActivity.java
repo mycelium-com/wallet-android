@@ -444,7 +444,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
 
         //Remove Miner fee if coinapult or colu
-        if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount)) {
+        if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount || account instanceof PublicColuAccount)) {
             llFee.setVisibility(GONE);
         }
 
