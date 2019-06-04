@@ -443,7 +443,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             verifyPaymentRequest(genericUri);
         }
         
-        if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount || account instanceof PublicColuAccount)) {
+        if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount || account instanceof ColuAccount)) {
             llFee.setVisibility(GONE);
         }
 
