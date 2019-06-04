@@ -106,8 +106,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -793,14 +793,11 @@ public class Utils {
             if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
-            if(input instanceof PrivateColuAccount) {
+            if(input instanceof ColuAccount) {
                return 5;
             }
-            if(input instanceof PublicColuAccount) {
-               return 6;
-            }
             if(input instanceof CoinapultAccount) {
-               return 7;
+               return 6;
             }
             return 4;
          }
@@ -848,8 +845,8 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof PublicColuAccount) {
-         PublicColuAccount account = (PublicColuAccount) walletAccount;
+      if (walletAccount instanceof ColuAccount) {
+         ColuAccount account = (ColuAccount) walletAccount;
          if (account.getCoinType() == MTCoin.INSTANCE || account.getCoinType() == MTCoinTest.INSTANCE) {
             return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);

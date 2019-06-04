@@ -105,9 +105,9 @@ import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
@@ -229,7 +229,7 @@ public class AccountsFragment extends Fragment {
                 }
                 accountListAdapter.setFocusedAccountId(account.getId());
                 updateIncludingMenus();
-                if (!(account instanceof PublicColuAccount)
+                if (!(account instanceof ColuAccount)
                         && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
 
                     setLabelOnAccount(account, account.getLabel(), false);
@@ -339,10 +339,10 @@ public class AccountsFragment extends Fragment {
                                 try {
                                     //Check if this SingleAddress account is related with ColuAccount
                                     WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                                    if (linkedColuAccount instanceof PublicColuAccount) {
+                                    if (linkedColuAccount instanceof ColuAccount) {
                                         walletManager.deleteAccount(linkedColuAccount.getId());
                                         walletManager.deleteAccount(accountToDelete.getId());
-                                        ColuAccountContext context = ((PublicColuAccount) linkedColuAccount).getContext();
+                                        ColuAccountContext context = ((ColuAccount) linkedColuAccount).getContext();
                                         ColuMain coluMain = (ColuMain) linkedColuAccount.getCoinType();
                                         Config config = null;
                                         if (context.getPublicKey() != null) {
@@ -364,7 +364,7 @@ public class AccountsFragment extends Fragment {
                                     throw new RuntimeException(e);
                                 }
                             } else {
-                                if (accountToDelete instanceof PublicColuAccount) {
+                                if (accountToDelete instanceof ColuAccount) {
                                     try {
                                         walletManager.deleteAccount(accountToDelete.getId());
                                         WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
@@ -373,7 +373,7 @@ public class AccountsFragment extends Fragment {
                                             _storage.deleteAccountMetadata(linkedAccount.getId());
                                         }
                                         if (keepAddrCheckbox.isChecked()) {
-                                            ColuAccountContext context = ((PublicColuAccount) accountToDelete).getContext();
+                                            ColuAccountContext context = ((ColuAccount) accountToDelete).getContext();
                                             ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
                                             Config config = null;
                                             if (context.getPublicKey() != null) {
@@ -399,7 +399,7 @@ public class AccountsFragment extends Fragment {
                                 } else {
                                     //Check if this SingleAddress account is related with ColuAccount
                                     WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                                    if (linkedColuAccount instanceof PublicColuAccount) {
+                                    if (linkedColuAccount instanceof ColuAccount) {
                                         walletManager.deleteAccount(linkedColuAccount.getId());
                                         _storage.deleteAccountMetadata(linkedColuAccount.getId());
                                     }

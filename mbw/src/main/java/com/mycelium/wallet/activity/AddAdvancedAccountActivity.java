@@ -89,10 +89,10 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
 import java.util.ArrayList;
@@ -511,7 +511,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   WalletAccount coluAccount = null;
 
                   for(WalletAccount exAccount : existingAccounts) {
-                     if (exAccount instanceof PublicColuAccount) {
+                     if (exAccount instanceof ColuAccount) {
                         coluAccount = exAccount;
                         break;
                      }

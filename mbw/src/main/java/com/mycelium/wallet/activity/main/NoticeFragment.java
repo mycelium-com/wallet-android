@@ -63,7 +63,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.TimeUnit;
@@ -168,7 +168,7 @@ public class NoticeFragment extends Fragment {
       }
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof PublicColuAccount || account instanceof SingleAddressAccount)
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount)
               && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          if(state == MetadataStorage.BackupState.NOT_VERIFIED) {

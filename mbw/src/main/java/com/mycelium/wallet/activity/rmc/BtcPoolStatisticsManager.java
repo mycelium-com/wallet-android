@@ -13,7 +13,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.mycelium.wallet.activity.rmc.model.BitcoinNetworkStats;
 import com.mycelium.wallet.external.rmc.remote.StatRmcFactory;
 import com.mycelium.wallet.external.rmc.remote.StatRmcService;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.io.InputStream;
 import java.util.List;
@@ -25,7 +25,7 @@ public class BtcPoolStatisticsManager {
     public static final String TAG = "RMCStatistic";
     private static final String BITCOIN_NETWORK_STATS_URL = "https://api.blockchain.info/stats";
 
-    private PublicColuAccount coluAccount;
+    private ColuAccount coluAccount;
 
     public static class PoolStatisticInfo {
         public long totalRmcHashrate;
@@ -39,7 +39,7 @@ public class BtcPoolStatisticsManager {
         }
     }
 
-    public BtcPoolStatisticsManager(PublicColuAccount coluAccount) {
+    public BtcPoolStatisticsManager(ColuAccount coluAccount) {
         this.coluAccount = coluAccount;
     }
 

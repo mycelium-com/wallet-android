@@ -94,8 +94,8 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -174,7 +174,7 @@ public class BalanceFragment extends Fragment {
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                     : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
             String item;
-            if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
+            if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
                 item = COINMARKETCAP + "/" + source;
             } else {
                 item = source + " (" + price + ")";
