@@ -71,8 +71,7 @@ class ColuModule(val networkParameters: NetworkParameters,
             try {
                 val addresses = context.publicKey?.getAllSupportedBtcAddresses(context.coinType, networkParameters)
                         ?: context.address
-                val accountKey = getPrivateKey(addresses)
-                val account = ColuAccount(context, accountKey, context.coinType, networkParameters, coluApi
+                val account = ColuAccount(context, getPrivateKey(addresses), context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
                             , listener, wapi)
                 account.label = readLabel(account.id)
