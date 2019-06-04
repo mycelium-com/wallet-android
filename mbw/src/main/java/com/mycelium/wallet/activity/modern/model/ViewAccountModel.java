@@ -37,12 +37,11 @@ public class ViewAccountModel{
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
-        WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
-        if (account instanceof HDPubOnlyAccount && account.isActive()) {
-            int numKeys = ((HDAccount) account).getPrivateKeyCount();
+        if (accountType.isAssignableFrom(HDPubOnlyAccount.class) && viewModel.isActive()) {
+            int numKeys = viewModel.getPrivateKeyCount();
             displayAddress = context.getResources().getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
-        } else if (account instanceof HDAccount && account.isActive()) {
-            int numKeys = ((HDAccount) account).getPrivateKeyCount();
+        } else if (accountType.isAssignableFrom(HDAccount.class) && viewModel.isActive()) {
+            int numKeys = viewModel.getPrivateKeyCount();
             displayAddress = context.getResources().getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
         } else {
             displayAddress = viewModel.getDisplayAddress();
@@ -54,8 +53,8 @@ public class ViewAccountModel{
         showBackupMissingWarning = viewModel.getShowBackupMissingWarning();
         syncTotalRetrievedTransactions = viewModel.getSyncTotalRetrievedTransactions();
         final Resources resources = context.getResources();
-        drawableForAccount = Utils.getDrawableForAccount(account, false, resources);
-        drawableForAccountSelected = Utils.getDrawableForAccount(account, true, resources);
+        drawableForAccount = Utils.getDrawableForAccount(viewModel, false, resources);
+        drawableForAccountSelected = Utils.getDrawableForAccount(viewModel, true, resources);
         isSyncing = viewModel.isSyncing();
     }
 
