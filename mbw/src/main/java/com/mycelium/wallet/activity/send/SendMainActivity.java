@@ -442,8 +442,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 && !Strings.isNullOrEmpty(((WithCallback) genericUri).getCallbackURL()) && _paymentRequestHandler == null) {
             verifyPaymentRequest(genericUri);
         }
-
-        //Remove Miner fee if coinapult or colu
+        
         if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount || account instanceof PublicColuAccount)) {
             llFee.setVisibility(GONE);
         }
