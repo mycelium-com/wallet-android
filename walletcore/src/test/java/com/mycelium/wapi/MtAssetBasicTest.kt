@@ -15,6 +15,7 @@ import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.*
@@ -119,13 +120,16 @@ class MtAssetBasicTest {
             // create and add Colu Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
             val storage = MemoryBasedStorage()
+            val saModule = BitcoinSingleAddressModule(backing, PublicPrivateKeyStore(store), network,
+                    wapiClient, BTCSettings(AddressType.P2SH_P2WPKH, Reference(ChangeAddressMode.PRIVACY)), walletManager,
+                    storage, null, null)
 
-            val сoluModule = ColuModule(network, PublicPrivateKeyStore(store), ColuApiImpl(coluClient), coluBacking, object : AccountListener {
+            val coluModule = ColuModule(network, PublicPrivateKeyStore(store), ColuApiImpl(coluClient), wapiClient, coluBacking, object : AccountListener {
                 override fun balanceUpdated(walletAccount: WalletAccount<*>) {
 
                 }
-            }, storage)
-            walletManager.add(сoluModule)
+            }, storage, saModule)
+            walletManager.add(coluModule)
 
             val coluAccount1 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cN5hvHD3kLwDCbE9ZpSpJ7eeLjchiF589TXFxWPbxp9vhaVH3SFw", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as ColuAccount
             val coluAccount2 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cRGNAkjgYVF4Kte6QuFtrwaMCpq9bWJsjno3xyuk8quubfvL3vvo", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as ColuAccount

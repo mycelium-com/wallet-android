@@ -16,8 +16,6 @@ import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency

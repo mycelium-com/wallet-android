@@ -25,7 +25,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
                                  internal var walletManager: WalletManager,
                                  metaDataStorage: IMetaDataStorage,
                                  internal val loadingProgressUpdater: LoadingProgressUpdater?,
-                                 internal val eventHandler: AbstractBtcAccount.EventHandler) : GenericModule(metaDataStorage), WalletModule {
+                                 internal val eventHandler: AbstractBtcAccount.EventHandler?) : GenericModule(metaDataStorage), WalletModule {
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
