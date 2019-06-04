@@ -56,11 +56,7 @@ class MtAssetBasicTest {
     }
 
     private class MyRandomSource internal constructor() : RandomSource {
-        internal var _rnd: SecureRandom
-
-        init {
-            _rnd = SecureRandom(byteArrayOf(42))
-        }
+        internal var _rnd: SecureRandom = SecureRandom(byteArrayOf(42))
 
         override fun nextBytes(bytes: ByteArray) {
             _rnd.nextBytes(bytes)
@@ -131,8 +127,8 @@ class MtAssetBasicTest {
             }, storage)
             walletManager.add(сoluModule)
 
-            val coluAccount1 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cN5hvHD3kLwDCbE9ZpSpJ7eeLjchiF589TXFxWPbxp9vhaVH3SFw", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as PrivateColuAccount
-            val coluAccount2 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cRGNAkjgYVF4Kte6QuFtrwaMCpq9bWJsjno3xyuk8quubfvL3vvo", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as PrivateColuAccount
+            val coluAccount1 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cN5hvHD3kLwDCbE9ZpSpJ7eeLjchiF589TXFxWPbxp9vhaVH3SFw", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as ColuAccount
+            val coluAccount2 = walletManager.getAccount(walletManager.createAccounts(PrivateColuConfig(InMemoryPrivateKey("cRGNAkjgYVF4Kte6QuFtrwaMCpq9bWJsjno3xyuk8quubfvL3vvo", network), MTCoinTest, AesKeyCipher.defaultKeyCipher()))[0]) as ColuAccount
 
             walletManager.startSynchronization()
             listener.waitForSyncFinished()
@@ -164,7 +160,7 @@ class MtAssetBasicTest {
         assert(true)
     }
 
-    fun createTransaction(account: PrivateColuAccount, address: BtcAddress) {
+    fun createTransaction(account: ColuAccount, address: BtcAddress) {
         val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 1000L), FeePerKbFee(Value.valueOf(account.coinType, 200L)))
         if (tx != null) {
             account.signTx(tx, AesKeyCipher.defaultKeyCipher())

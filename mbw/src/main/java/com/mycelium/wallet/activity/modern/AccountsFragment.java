@@ -106,7 +106,6 @@ import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.manager.Config;
@@ -269,7 +268,7 @@ public class AccountsFragment extends Fragment {
             deleteDialog.setView(checkBoxView);
         }
 
-        if (accountToDelete instanceof PrivateColuAccount && accountToDelete.canSpend()) {
+        if (accountToDelete instanceof ColuAccount && accountToDelete.canSpend()) {
             Log.d(TAG, "Preparing to delete a colu account.");
             deleteDialog.setView(checkBoxView);
         }
@@ -570,7 +569,7 @@ public class AccountsFragment extends Fragment {
                 || account instanceof Bip44BCHAccount;
 
         final List<Integer> menus = Lists.newArrayList();
-        if(!(account instanceof PrivateColuAccount)
+        if(!(account instanceof ColuAccount)
                 && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
             menus.add(R.menu.record_options_menu);
         }
@@ -583,7 +582,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if(account instanceof PrivateColuAccount) {
+        if(account instanceof ColuAccount) {
             //TODO: distinguish between ColuAccount in single address mode and HD mode
             menus.add(R.menu.record_options_menu_backup);
             menus.add(R.menu.record_options_menu_backup_verify);
@@ -858,7 +857,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-        if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof PrivateColuAccount) {
+        if (_focusedAccount instanceof SingleAddressAccount || _focusedAccount instanceof ColuAccount) {
             //start legacy backup verification
             VerifyBackupActivity.callMe(getActivity());
         }
@@ -869,7 +868,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-        if(_focusedAccount instanceof PrivateColuAccount) {
+        if(_focusedAccount instanceof ColuAccount) {
             //ColuAccount class can be single or HD
             //TODO: test if account is single address or HD and do wordlist backup instead
             //start legacy backup if a single key or watch only was selected
@@ -920,7 +919,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(getString(R.string.selected_hd_info), true);
         } else if (account instanceof SingleAddressAccount) {
             _toaster.toast(getString(R.string.selected_single_info), true);
-        } else if(account instanceof PrivateColuAccount) {
+        } else if(account instanceof ColuAccount) {
             _toaster.toast(getString(R.string.selected_colu_info
                     , _mbwManager.getMetadataStorage().getLabelByAccount(account.getId())), true);
         }

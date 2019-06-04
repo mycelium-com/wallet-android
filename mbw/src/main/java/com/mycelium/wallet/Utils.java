@@ -107,7 +107,6 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -682,7 +681,7 @@ public class Utils {
       MetadataStorage meta = mbwManager.getMetadataStorage();
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof PrivateColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          return state == MetadataStorage.BackupState.NOT_VERIFIED || state == MetadataStorage.BackupState.VERIFIED;
       }
@@ -816,9 +815,9 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1 instanceof PrivateColuAccount) {
+            if (w1 instanceof ColuAccount) {
                return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2 instanceof PrivateColuAccount) {
+            } else if (w2 instanceof ColuAccount) {
                return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
             }
             return 0;
@@ -915,7 +914,7 @@ public class Utils {
       if (account instanceof CoinapultAccount
               || account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof PrivateColuAccount) {
+              || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {

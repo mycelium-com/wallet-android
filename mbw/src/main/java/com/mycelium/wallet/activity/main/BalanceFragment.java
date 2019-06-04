@@ -234,7 +234,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         if (account.canSpend()) {
-            if (account instanceof PrivateColuAccount && ((PrivateColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {

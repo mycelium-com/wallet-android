@@ -39,21 +39,17 @@ class ColuModule(val networkParameters: NetworkParameters,
     // In usual cases, BTC SA account will be created together with a Colu account
     override fun afterAccountsLoaded() {
         accounts.values.forEach {
-            when(it) {
-                is PublicColuAccount -> {
-                    val btcAddress = it.receiveAddress as BtcAddress
-                    val saId = SingleAddressAccount.calculateId(btcAddress.address)
-                    if (singleAddressModule.getAccountById(saId) == null) {
-                        val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
-                        singleAddressModule.createLabel(it.label + " Bitcoin", sa.id)
-                    }
+            if (it.canSpend()) {
+                val saId = SingleAddressAccount.calculateId((it as ColuAccount).privateKey!!.publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
+                if (singleAddressModule.getAccountById(saId) == null) {
+                    singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin"))
                 }
-
-                is PrivateColuAccount -> {
-                    val saId = SingleAddressAccount.calculateId(it.privateKey.publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
-                    if (singleAddressModule.getAccountById(saId) == null) {
-                        singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin"))
-                    }
+            } else {
+                val btcAddress = it.receiveAddress as BtcAddress
+                val saId = SingleAddressAccount.calculateId(btcAddress.address)
+                if (singleAddressModule.getAccountById(saId) == null) {
+                    val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
+                    singleAddressModule.createLabel(it.label + " Bitcoin", sa.id)
                 }
             }
         }
