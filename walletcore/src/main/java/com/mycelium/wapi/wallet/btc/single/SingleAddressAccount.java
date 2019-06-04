@@ -51,6 +51,8 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -495,8 +497,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       return _context.getAddresses().get(type);
    }
 
+   @NotNull
    @Override
-   public Data getExportData(KeyCipher cipher) {
+   public Data getExportData(@NotNull KeyCipher cipher) {
       Optional<String> privKey = Optional.absent();
       Map<BipDerivationType, String> publicDataMap = new HashMap<>();
       if (canSpend()) {
@@ -517,14 +520,14 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) {
       // not needed for SingleAddressAccount
       return Collections.emptyMap();
    }
 
 
    @Override
-   public BroadcastResult broadcastTx(GenericTransaction tx) throws GenericTransactionBroadcastException {
+   public BroadcastResult broadcastTx(GenericTransaction tx) {
       BtcTransaction btcTransaction = (BtcTransaction)tx;
       return broadcastTransaction(btcTransaction.getTx());
    }
