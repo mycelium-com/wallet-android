@@ -436,9 +436,7 @@ public class TransactionHistoryFragment extends Fragment {
                   //hasDetails|canCoinapult|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
-                     checkNotNull(menu.findItem(R.id.miShowDetails)).setVisible(true); //hasDetails
-                     checkNotNull(menu.findItem(R.id.miShowCoinapultDebug))
-                             .setVisible(false);
+                     checkNotNull(menu.findItem(R.id.miShowDetails));
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
                      if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                          || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
