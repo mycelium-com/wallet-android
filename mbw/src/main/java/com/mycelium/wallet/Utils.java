@@ -858,7 +858,7 @@ public class Utils {
 
    public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
       Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
-      if (accountType.isAssignableFrom(PublicColuAccount.class)) {
+      if (PublicColuAccount.class.isAssignableFrom(accountType)) {
          CryptoCurrency coinType = accountView.getCoinType();
          if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
             return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mt_icon) :
@@ -877,7 +877,7 @@ public class Utils {
       }
 
       //trezor account
-      if (accountType.isAssignableFrom(HDAccountExternalSignature.class)) {
+      if (HDAccountExternalSignature.class.isAssignableFrom(accountType)) {
          int externalAccountType = accountView.getExternalAccountType();
          if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
@@ -888,10 +888,10 @@ public class Utils {
          }
       }
       //regular HD account
-      if (accountType.isAssignableFrom(HDAccount.class)) {
+      if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (accountType.isAssignableFrom(CoinapultAccount.class)) {
+      if (CoinapultAccount.class.isAssignableFrom(accountType)) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
