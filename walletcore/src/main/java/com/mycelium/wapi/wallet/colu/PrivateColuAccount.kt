@@ -133,7 +133,7 @@ class PrivateColuAccount(context: ColuAccountContext, val privateKey: InMemoryPr
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        var coluTx = tx as ColuTransaction
+        val coluTx = tx as ColuTransaction
         return if (coluTx.transaction != null && coluClient.broadcastTx(coluTx.transaction!!) != null) {
             BroadcastResult(BroadcastResultType.SUCCESS)
         } else {
