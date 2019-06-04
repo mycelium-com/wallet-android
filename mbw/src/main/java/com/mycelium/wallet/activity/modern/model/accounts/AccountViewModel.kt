@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
@@ -16,17 +17,22 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 /**
  * Model for the account item on the accounts tab.
  */
-class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager) : AccountListItem {
+class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager?) : AccountListItem {
     val accountId = account.id!!
     val accountType = account::class.java
+    val coinType = account.coinType
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
-    val isRMCLinkedAccount = isRmcAccountLinked(account, mbwManager)
-    var showBackupMissingWarning = showBackupMissingWarning(account, mbwManager)
-    var label: String = mbwManager.metadataStorage.getLabelByAccount(accountId)
+    val isRMCLinkedAccount = if (mbwManager != null) isRmcAccountLinked(account, mbwManager) else false
+    var showBackupMissingWarning = if (mbwManager != null) showBackupMissingWarning(account, mbwManager) else false
+    var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
     val isSyncing = account.isSyncing
+    // if need key count for other classes add count logic
+    val privateKeyCount = if (account is HDAccount) account.getPrivateKeyCount() else -1
+    val canSpend = account.canSpend()
+    val externalAccountType = if (account is HDAccountExternalSignature) account.accountType else -1
 
     init {
         val receivingAddress = account.receiveAddress

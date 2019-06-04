@@ -527,6 +527,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   } else {
                      // We do not have a colu account, should create it
                      final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
+                     adapter.add(Utils.getBtcCoinType());
                      adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
                      new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                              .setTitle(R.string.restore_address_as)
@@ -541,7 +542,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                    UUID account;
                                    if (selectedItem == 0) {
-                                      account = returnSAAccount(key, backupState);
+                                      doUpgrade(existingAccounts.get(0), key);
+                                      return;
                                    } else {
                                       ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
                                       List<UUID> accounts = _mbwManager.getWalletManager(false)
@@ -572,39 +574,44 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             }
 
             if (accountToUpgrade != null) {
-               final WalletAccount accToUpgrade = accountToUpgrade;
-               // scanned the private key of a watch only single address account
-               final String existingAccountName =
-                       _mbwManager.getMetadataStorage().getLabelByAccount(accountToUpgrade.getId());
-               new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                       .setTitle(R.string.priv_key_of_watch_only_account)
-                       .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
-                       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialogInterface, int i) {
-                             finishAlreadyExist(accToUpgrade.getReceiveAddress());
-                          }
-                       })
-                       .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialogInterface, int i) {
-                             UUID accountId = accToUpgrade.getId();
-                             WalletManager walletManager = _mbwManager.getWalletManager(false);
-                             walletManager.deleteAccount(accToUpgrade.getId());
-                             if (accToUpgrade instanceof SingleAddressAccount) {
-                                accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
-                                        AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
-                             } else {
-                                walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) accToUpgrade.getCoinType(), AesKeyCipher.defaultKeyCipher()));
-                             }
-                             finishOk(accountId, true);
-                          }
-                       })
-                       .create()
-                       .show();
+               doUpgrade(accountToUpgrade, key);
             }
          }
       }
+   }
+
+   void doUpgrade(WalletAccount accountToUpgrade, InMemoryPrivateKey privateKey) {
+      final InMemoryPrivateKey key = privateKey;
+      final WalletAccount accToUpgrade = accountToUpgrade;
+      // scanned the private key of a watch only single address account
+      final String existingAccountName =
+              _mbwManager.getMetadataStorage().getLabelByAccount(accountToUpgrade.getId());
+      new AlertDialog.Builder(AddAdvancedAccountActivity.this)
+              .setTitle(R.string.priv_key_of_watch_only_account)
+              .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
+              .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialogInterface, int i) {
+                    finishAlreadyExist(accToUpgrade.getReceiveAddress());
+                 }
+              })
+              .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialogInterface, int i) {
+                    UUID accountId = accToUpgrade.getId();
+                    WalletManager walletManager = _mbwManager.getWalletManager(false);
+                    walletManager.deleteAccount(accToUpgrade.getId());
+                    if (accToUpgrade instanceof SingleAddressAccount) {
+                       accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
+                               AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
+                    } else {
+                       walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) accToUpgrade.getCoinType(), AesKeyCipher.defaultKeyCipher()));
+                    }
+                    finishOk(accountId, true);
+                 }
+              })
+              .create()
+              .show();
    }
 
    private class ColuCoinAdapter extends ArrayAdapter<CryptoCurrency> {

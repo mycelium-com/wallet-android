@@ -32,6 +32,12 @@ abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : Wa
         return defaultName
     }
 
+    fun storeLabel(accountId: UUID, label: String): String {
+        val metadataKeyCategory = MetadataCategory("al")
+        metaDataStorage.storeKeyCategoryValueEntry(metadataKeyCategory.of(accountId.toString()), label)
+        return label
+    }
+
     // reads label from the database by account UUID
     fun readLabel(accountId: UUID) : String {
         val metadataKeyCategory = MetadataCategory("al")
