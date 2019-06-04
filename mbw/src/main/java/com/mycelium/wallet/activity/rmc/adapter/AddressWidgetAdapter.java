@@ -14,7 +14,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.rmc.BtcPoolStatisticsManager;
 import com.mycelium.wallet.activity.rmc.view.ProfitMeterView;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -38,7 +38,7 @@ public class AddressWidgetAdapter extends PagerAdapter {
     private MbwManager mbwManager;
     private BtcPoolStatisticsManager.PoolStatisticInfo poolStatisticInfo;
     private SharedPreferences sharedPreferences;
-    private PublicColuAccount coluAccount;
+    private ColuAccount coluAccount;
 
     private int angle = 0;
     private float value = 0;
@@ -50,8 +50,8 @@ public class AddressWidgetAdapter extends PagerAdapter {
         this.mbwManager = mbwManager;
         sharedPreferences = context.getSharedPreferences(PREFERENCE_RMC_PROFIT_METER, Context.MODE_PRIVATE);
         WalletAccount account = mbwManager.getSelectedAccount();
-        if(account instanceof PublicColuAccount) {
-            coluAccount = (PublicColuAccount) mbwManager.getSelectedAccount();
+        if(account instanceof ColuAccount) {
+            coluAccount = (ColuAccount) mbwManager.getSelectedAccount();
 
 
             poolStatisticInfo = new BtcPoolStatisticsManager.PoolStatisticInfo(
@@ -228,9 +228,9 @@ public class AddressWidgetAdapter extends PagerAdapter {
 
     class BtcPoolStatisticsTask extends AsyncTask<Void, Void, BtcPoolStatisticsManager.PoolStatisticInfo> {
 
-        private PublicColuAccount coluAccount;
+        private ColuAccount coluAccount;
 
-        public BtcPoolStatisticsTask(PublicColuAccount coluAccount) {
+        public BtcPoolStatisticsTask(ColuAccount coluAccount) {
             this.coluAccount = coluAccount;
         }
 

@@ -106,7 +106,7 @@ import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -476,8 +476,8 @@ public class TransactionHistoryFragment extends Fragment {
                            break;
                         case R.id.miAddToAddressBook:
                            String defaultName = "";
-                           if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
-                              defaultName = ((PublicColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
+                           if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+                              defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
                            }
                            GenericAddress address = record.getOutputs().get(0).getAddress();
                            EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),

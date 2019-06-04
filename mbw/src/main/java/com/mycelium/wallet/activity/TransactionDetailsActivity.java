@@ -64,7 +64,7 @@ import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.text.DateFormat;
 import java.util.Collections;
@@ -109,7 +109,7 @@ public class TransactionDetailsActivity extends Activity {
         Sha256Hash txid = getTransactionFromIntent();
         tx = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
 
-        coluMode = _mbwManager.getSelectedAccount() instanceof PublicColuAccount;
+        coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
         updateUi(isAfterRemoteUpdate, false);
     }
 

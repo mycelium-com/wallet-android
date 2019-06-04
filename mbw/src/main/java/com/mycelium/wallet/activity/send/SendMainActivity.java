@@ -133,8 +133,8 @@ import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuTransaction;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
@@ -708,7 +708,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 }
             }
 
-            if (_account instanceof PublicColuAccount) {
+            if (_account instanceof ColuAccount) {
                 sendTransaction();
             } else {
                 signTransaction();

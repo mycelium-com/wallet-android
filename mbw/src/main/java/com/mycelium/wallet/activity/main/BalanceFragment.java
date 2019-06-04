@@ -94,8 +94,7 @@ import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
@@ -174,7 +173,7 @@ public class BalanceFragment extends Fragment {
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                     : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
             String item;
-            if (_mbwManager.getSelectedAccount() instanceof PublicColuAccount) {
+            if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
                 item = COINMARKETCAP + "/" + source;
             } else {
                 item = source + " (" + price + ")";
@@ -234,7 +233,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         if (account.canSpend()) {
-            if (account instanceof PrivateColuAccount && ((PrivateColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {

@@ -55,7 +55,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -114,7 +114,7 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
             SingleAddressAccount a = (SingleAddressAccount) account;
             String label = storage.getLabelByAccount(a.getId());
 
-            String base58EncodedPrivateKey = null;
+            String base58EncodedPrivateKey;
             if (a.canSpend()) {
                try {
                   base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
@@ -126,12 +126,12 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
                }
             } else {
                Address address = a.getReceivingAddress().get();
-               Map<AddressType, Address> addressMap= new HashMap<>();
+               Map<AddressType, Address> addressMap = new HashMap<>();
                addressMap.put(address.getType(), address);
                entry = new EntryToExport(addressMap, null, label, account instanceof SingleAddressBCHAccount);
             }
-         } else if (account instanceof PrivateColuAccount) {
-            PrivateColuAccount a = (PrivateColuAccount) account;
+         } else if (account instanceof ColuAccount && account.canSpend()) {
+            ColuAccount a = (ColuAccount) account;
             String label = storage.getLabelByAccount(a.getId());
             String base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
             entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),

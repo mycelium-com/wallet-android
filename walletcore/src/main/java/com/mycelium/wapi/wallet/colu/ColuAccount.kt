@@ -1,35 +1,40 @@
 package com.mycelium.wapi.wallet.colu
 
+import com.google.common.base.Optional
 import com.mrd.bitlib.FeeEstimatorBuilder
+import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
+import org.apache.commons.codec.binary.Hex
+import org.bitcoinj.core.ECKey
+import org.bitcoinj.script.ScriptBuilder
 import java.util.*
 
-
-open class PublicColuAccount(val context: ColuAccountContext
-                             , private val type: CryptoCurrency
-                             , val networkParameters: NetworkParameters
-                             , val coluClient: ColuApi
-                             , val accountBacking: ColuAccountBacking
-                             , val backing: WalletBacking<ColuAccountContext>
-                             , val listener: AccountListener? = null
-                             , val wapi:Wapi) : WalletAccount<BtcAddress> {
+class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
+                  , private val type: CryptoCurrency
+                  , val networkParameters: NetworkParameters
+                  , val coluClient: ColuApi
+                  , val accountBacking: ColuAccountBacking
+                  , val backing: WalletBacking<ColuAccountContext>
+                  , val listener: AccountListener? = null
+                  , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
 
     var linkedAccount: SingleAddressAccount? = null
 
@@ -160,7 +165,7 @@ open class PublicColuAccount(val context: ColuAccountContext
     override fun getBlockChainHeight(): Int = context.blockHeight
 
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
-        return Value.zeroValue(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+        return accountBalance.spendable
     }
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
@@ -238,7 +243,21 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
 
-    override fun canSpend(): Boolean = false
+    override fun canSpend(): Boolean = privateKey != null
+
+    override fun getExportData(cipher: KeyCipher): ExportableAccount.Data {
+        var privKey = Optional.absent<String>()
+        val publicDataMap = HashMap<BipDerivationType, String>()
+        if (canSpend()) {
+            try {
+                privKey = Optional.of(this.privateKey!!.getBase58EncodedPrivateKey(networkParameters))
+            } catch (ignore: KeyCipher.InvalidKeyCipher) {
+            }
+
+        }
+        publicDataMap[BipDerivationType.getDerivationTypeByAddressType(AddressType.P2PKH)] = receiveAddress.toString()
+        return ExportableAccount.Data(privKey, publicDataMap)
+    }
 
     override fun isArchived() = context.isArchived()
 
@@ -277,18 +296,94 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction? {
-        return null
+        val feePerKb = (fee as FeePerKbFee).feePerKb
+        val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
+        val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
+        val json = coluClient.prepareTransaction(coluTx.destination, fromAddresses, coluTx.amount, feePerKb)
+        coluTx.baseTransaction = json
+        return coluTx
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
-        // This implementation is empty since this account is read only and cannot create,
-        // sign and broadcast transactions
+        if (request is ColuTransaction) {
+            val signTransaction = signTransaction(request.baseTransaction, this)
+            request.transaction = signTransaction
+        } else {
+            TODO("signTx not implemented for ${request.javaClass.simpleName}")
+        }
+    }
+
+    private fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: ColuAccount?): Transaction? {
+        if (txid == null) {
+//            Log.e(TAG, "signTx: No transaction to sign !")
+            return null
+        }
+        if (coluAccount == null) {
+//            Log.e(TAG, "signTx: No colu account associated to transaction to sign !")
+            return null
+        }
+
+        // use bitcoinj classes and two methods above to generate signatures
+        // and sign transaction
+        // then convert to mycelium wallet transaction format
+        // Step 1: map to bitcoinj classes
+
+        // DEV only 1 key
+        val txBytes: ByteArray?
+
+        try {
+            txBytes = Hex.decodeHex(txid.txHex.toCharArray())
+        } catch (e: org.apache.commons.codec.DecoderException) {
+//            Log.e(TAG, "signTx: exception while decoding transaction hex code.")
+            return null
+        }
+
+        if (txBytes == null) {
+//            Log.e(TAG, "signTx: failed to decode transaction hex code.")
+            return null
+        }
+
+
+        val id =
+                when (networkParameters.networkType){
+                    NetworkParameters.NetworkType.PRODNET -> org.bitcoinj.core.NetworkParameters.ID_MAINNET
+                    NetworkParameters.NetworkType.TESTNET -> org.bitcoinj.core.NetworkParameters.ID_TESTNET
+                    NetworkParameters.NetworkType.REGTEST -> TODO()
+                }
+        val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
+        val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
+
+        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.getPrivateKeyBytes()
+        val publicKeyBytes = coluAccount.getPrivateKey(null)!!.publicKey.publicKeyBytes
+        val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
+
+        val inputScript = ScriptBuilder.createOutputScript(ecKey.toAddress(parameters))
+
+        for (i in 0 until signTx.inputs.size) {
+            val signature = signTx.calculateSignature(i, ecKey, inputScript, org.bitcoinj.core.Transaction.SigHash.ALL, false)
+            val scriptSig = ScriptBuilder.createInputScript(signature, ecKey)
+            signTx.getInput(i.toLong()).scriptSig = scriptSig
+        }
+
+        val signedTransactionBytes = signTx.bitcoinSerialize()
+        val signedBitlibTransaction: Transaction
+        try {
+            signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes)
+        } catch (e: Transaction.TransactionParsingException) {
+//            Log.e(TAG, "signTx: Error parsing bitcoinj transaction ! msg: " + e.message)
+            return null
+        }
+
+        return signedBitlibTransaction
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        // This implementation is empty since this account is read only and cannot create,
-        // sign and broadcast transactions
-        return BroadcastResult(BroadcastResultType.REJECTED)
+        val coluTx = tx as ColuTransaction
+        return if (coluTx.transaction != null && coluClient.broadcastTx(coluTx.transaction!!) != null) {
+            BroadcastResult(BroadcastResultType.SUCCESS)
+        } else {
+            BroadcastResult(BroadcastResultType.REJECTED)
+        }
     }
 
     override fun getTypicalEstimatedTransactionSize(): Int {
@@ -309,7 +404,6 @@ open class PublicColuAccount(val context: ColuAccountContext
     }
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey? {
-        // This is not spendable account so it does not contain private key
-        return null
+        return privateKey
     }
 }
