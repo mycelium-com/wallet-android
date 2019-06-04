@@ -78,7 +78,6 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         var result: WalletAccount<*>? = null
         var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
         var configLabel = (config as LabeledConfig).label
-        baseLabel = if (configLabel.isNotEmpty()) configLabel else baseLabel
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey, settings.defaultAddressType)
@@ -103,7 +102,11 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
         if (result != null) {
             accounts[result.id] = result as SingleAddressAccount
             result.setEventHandler(eventHandler)
-            result.label = createLabel(baseLabel, result.id)
+            if (configLabel.isNotEmpty()) {
+                result.label = storeLabel(result.id, configLabel)
+            } else {
+                result.label = createLabel(baseLabel, result.id)
+            }
         } else {
             throw IllegalStateException("Account can't be created")
         }

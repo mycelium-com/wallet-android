@@ -89,10 +89,15 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -848,40 +853,45 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof PublicColuAccount) {
-         PublicColuAccount account = (PublicColuAccount) walletAccount;
-         if (account.getCoinType() == MTCoin.INSTANCE || account.getCoinType() == MTCoinTest.INSTANCE) {
-            return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+      return getDrawableForAccount(new AccountViewModel(walletAccount, null), isSelectedAccount, resources);
+   }
+
+   public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
+      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      if (PublicColuAccount.class.isAssignableFrom(accountType)) {
+         CryptoCurrency coinType = accountView.getCoinType();
+         if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);
-         } else if (account.getCoinType() == MASSCoin.INSTANCE || account.getCoinType() == MASSCoinTest.INSTANCE) {
-            return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+         } else if (coinType == MASSCoin.INSTANCE || coinType == MASSCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mass_icon)
                     : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
-         } else if (account.getCoinType() == RMCCoin.INSTANCE || account.getCoinType() == RMCCoinTest.INSTANCE)
-            return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+         } else if (coinType == RMCCoin.INSTANCE || coinType == RMCCoinTest.INSTANCE)
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.rmc_icon)
                     : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
       }
 
       // Watch only
-      if (!walletAccount.canSpend()) {
+      if (!accountView.getCanSpend()) {
          return null;
       }
 
       //trezor account
-      if (walletAccount instanceof HDAccountExternalSignature) {
-         int accountType = ((HDAccountExternalSignature) walletAccount).getAccountType();
-         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+      if (HDAccountExternalSignature.class.isAssignableFrom(accountType)) {
+         int externalAccountType = accountView.getExternalAccountType();
+         if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
-		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+         } else if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
       }
       //regular HD account
-      if (walletAccount instanceof HDAccount) {
+      if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount) {
+      if (CoinapultAccount.class.isAssignableFrom(accountType)) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
