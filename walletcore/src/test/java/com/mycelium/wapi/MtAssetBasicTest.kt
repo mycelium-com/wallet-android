@@ -34,7 +34,6 @@ import javax.net.ssl.SSLSocketFactory
 
 class MtAssetBasicTest {
     private class MemoryBasedStorage : IMetaDataStorage {
-
         private val keyCategoryValueMap = HashMap<String, String>()
         override fun storeKeyCategoryValueEntry(keyCategory: MetadataKeyCategory, value: String) {
             keyCategoryValueMap[keyCategory.category + "_" + keyCategory.key] = value
@@ -53,7 +52,6 @@ class MtAssetBasicTest {
             }
             return Optional.absent()
         }
-
     }
 
     private class MyRandomSource internal constructor() : RandomSource {
@@ -170,6 +168,5 @@ class MtAssetBasicTest {
             account.signTx(tx, AesKeyCipher.defaultKeyCipher())
             account.broadcastTx(tx)
         }
-
     }
 }
