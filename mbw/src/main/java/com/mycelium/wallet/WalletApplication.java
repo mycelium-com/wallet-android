@@ -228,7 +228,12 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 mbwManager.getWapi().setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
-                mbwManager.getWalletManager(false).setNetworkConnected(Utils.isConnected(getApplicationContext()));
+                boolean connected = Utils.isConnected(getApplicationContext());
+                mbwManager.getWalletManager(false).setNetworkConnected(connected);
+                if (mbwManager.hasColoredAccounts()) {
+                    mbwManager.getColuManager().setNetworkConnected(connected);
+                }
+                mbwManager.getWapi().setNetworkConnected(connected);
                 isBackground = false;
             }
             numStarted++;
