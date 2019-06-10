@@ -70,6 +70,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.OutputList;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
@@ -121,6 +122,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
@@ -139,6 +141,8 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
@@ -780,7 +784,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         boolean hasAddressData = toSend != null &&  _receivingAddress != null;
 
         try {
-            if (hasAddressData) {
+            if (_paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest()) {
+                return handlePaymentRequest(toSend);
+            } else if (hasAddressData) {
                 // createTx potentially takes long, if server interaction is involved
                 transaction = _account.createTx(_receivingAddress, toSend, new FeePerKbFee(selectedFee));
                 _spendingUnconfirmed = _account.isSpendingUnconfirmed(transaction);
@@ -795,6 +801,33 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         } catch (GenericInsufficientFundsException ex) {
             return TransactionStatus.InsufficientFunds;
         }
+    }
+
+    // Handles BTC payment request
+    private TransactionStatus handlePaymentRequest(Value toSend)
+            throws GenericBuildTransactionException,
+            GenericInsufficientFundsException,
+            GenericOutputTooSmallException {
+        PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
+        OutputList outputs = paymentRequestInformation.getOutputs();
+
+        // has the payment request an amount set?
+        if (paymentRequestInformation.hasAmount()) {
+            setAmountToSend(Value.valueOf(Utils.getBtcCoinType(), paymentRequestInformation.getOutputs().getTotalAmount()));
+        } else {
+            if (_amountToSend == null) {
+                return TransactionStatus.MissingArguments;
+            }
+            // build new output list with user specified amount
+            outputs = outputs.newOutputsWithTotalAmount(toSend.value);
+        }
+
+        AbstractBtcAccount btcAccount = (AbstractBtcAccount)_account;
+        transaction = btcAccount.createTxFromOutputList(outputs, new FeePerKbFee(selectedFee).getFeePerKb().value);
+        _spendingUnconfirmed = _account.isSpendingUnconfirmed(transaction);
+        _receivingAddress = null;
+        _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
+        return TransactionStatus.OK;
     }
 
     @SuppressLint("StaticFieldLeak")
