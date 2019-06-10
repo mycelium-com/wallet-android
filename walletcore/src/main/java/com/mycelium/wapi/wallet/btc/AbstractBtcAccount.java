@@ -181,6 +181,20 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
    }
 
+   public BtcTransaction createTxFromOutputList(OutputList outputs, long minerFeePerKbToUse)
+           throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException{
+      try {
+         return new BtcTransaction(getCoinType(), createUnsignedTransaction(outputs, minerFeePerKbToUse));
+      } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
+         throw new GenericOutputTooSmallException(ex);
+      } catch (StandardTransactionBuilder.InsufficientFundsException ex) {
+         throw new GenericInsufficientFundsException(ex);
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException ex) {
+         throw new GenericBuildTransactionException(ex);
+      }
+
+   }
+
    @Override
    public boolean isExchangeable(){
       return true;

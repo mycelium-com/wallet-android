@@ -122,6 +122,7 @@ import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
@@ -784,24 +785,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         try {
             if (_paymentRequestHandler != null && _paymentRequestHandler.hasValidPaymentRequest()) {
-                PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
-                OutputList outputs = paymentRequestInformation.getOutputs();
-
-                // has the payment request an amount set?
-                if (paymentRequestInformation.hasAmount()) {
-                    setAmountToSend(Value.valueOf(Utils.getBtcCoinType(), paymentRequestInformation.getOutputs().getTotalAmount()));
-                } else {
-                    if (_amountToSend == null) {
-                        return TransactionStatus.MissingArguments;
-                    }
-
-                    // build new output list with user specified amount
-                    outputs = outputs.newOutputsWithTotalAmount(toSend.value);
-                }
-                _spendingUnconfirmed = _account.createTx(outputs, new FeePerKbFee(selectedFee));
-                _receivingAddress = null;
-                _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
-                return TransactionStatus.OK;
+                return handlePaymentRequest(toSend);
             } else if (hasAddressData) {
                 // createTx potentially takes long, if server interaction is involved
                 transaction = _account.createTx(_receivingAddress, toSend, new FeePerKbFee(selectedFee));
@@ -817,6 +801,33 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         } catch (GenericInsufficientFundsException ex) {
             return TransactionStatus.InsufficientFunds;
         }
+    }
+
+    // Handles BTC payment request
+    private TransactionStatus handlePaymentRequest(Value toSend)
+            throws GenericBuildTransactionException,
+            GenericInsufficientFundsException,
+            GenericOutputTooSmallException {
+        PaymentRequestInformation paymentRequestInformation = _paymentRequestHandler.getPaymentRequestInformation();
+        OutputList outputs = paymentRequestInformation.getOutputs();
+
+        // has the payment request an amount set?
+        if (paymentRequestInformation.hasAmount()) {
+            setAmountToSend(Value.valueOf(Utils.getBtcCoinType(), paymentRequestInformation.getOutputs().getTotalAmount()));
+        } else {
+            if (_amountToSend == null) {
+                return TransactionStatus.MissingArguments;
+            }
+            // build new output list with user specified amount
+            outputs = outputs.newOutputsWithTotalAmount(toSend.value);
+        }
+
+        AbstractBtcAccount btcAccount = (AbstractBtcAccount)_account;
+        transaction = btcAccount.createTxFromOutputList(outputs, new FeePerKbFee(selectedFee).getFeePerKb().value);
+        _spendingUnconfirmed = _account.isSpendingUnconfirmed(transaction);
+        _receivingAddress = null;
+        _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
+        return TransactionStatus.OK;
     }
 
     @SuppressLint("StaticFieldLeak")
