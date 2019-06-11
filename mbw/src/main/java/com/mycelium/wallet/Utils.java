@@ -231,8 +231,7 @@ public class Utils {
       if (cm != null) {
          activeNetwork = cm.getActiveNetworkInfo();
       }
-      return activeNetwork != null &&
-              activeNetwork.isConnectedOrConnecting();
+      return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
    }
 
    public static void toastConnectionError(Context context) {
