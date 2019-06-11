@@ -1033,6 +1033,9 @@ public class WalletManager {
     public void setNetworkConnected(boolean networkConnected) {
         isNetworkConnected = networkConnected;
     }
+    public boolean getNetworkConnected() {
+        return isNetworkConnected;
+    }
 
     public Map<Currency, CurrencySettings> getCurrenciesSettingsMap() {
         return currenciesSettingsMap;
