@@ -61,14 +61,16 @@ public class PaymentRequestInformation implements Serializable {
    public static final String PKI_X509_SHA1 = "x509+sha1";
    public static final String PKI_NONE = "none";
 
-
    private final PaymentRequest paymentRequest;
    private final PaymentDetails paymentDetails;
    private final PkiVerificationData pkiVerificationData;
    private final byte[] rawPaymentRequest;
 
    public static PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest, KeyStore keyStore, final NetworkParameters networkParameters) {
+      return fromRawPaymentRequest(rawPaymentRequest, keyStore, networkParameters, null);
+   }
 
+   static PaymentRequestInformation fromRawPaymentRequest(byte[] rawPaymentRequest, KeyStore keyStore, final NetworkParameters networkParameters, Date date) {
       if (rawPaymentRequest.length > MAX_MESSAGE_SIZE) {
          throw new PaymentRequestException("payment request too large");
       }
@@ -133,31 +135,25 @@ public class PaymentRequestInformation implements Serializable {
             }
 
             certificates = wire.parseFrom(paymentRequest.pki_data.toByteArray(), X509Certificates.class);
-            PkiVerificationData pkiVerificationData = verifySignature(paymentRequest, certificates, keyStore);
+            PkiVerificationData pkiVerificationData = verifySignature(paymentRequest, certificates, keyStore, date);
             return new PaymentRequestInformation(paymentRequest, paymentDetails, pkiVerificationData, rawPaymentRequest);
-
-
          } else {
             return new PaymentRequestInformation(paymentRequest, paymentDetails, null, rawPaymentRequest);
          }
-
-
       } catch (IOException e) {
          throw new PaymentRequestException("invalid formatted payment request", e);
       }
    }
 
-   private static PkiVerificationData verifySignature(PaymentRequest paymentRequest, X509Certificates certificates, KeyStore keyStore) {
+   private static PkiVerificationData verifySignature(PaymentRequest paymentRequest, X509Certificates certificates, KeyStore keyStore, Date date) {
       if (certificates == null) {
          throw new PaymentRequestException("no certificates supplied");
       }
-
       try {
-
          CertificateFactory certFact = CertificateFactory.getInstance("X.509");
 
          // parse each certificate from the chain ...
-         ArrayList<X509Certificate> certs = new ArrayList<X509Certificate>();
+         ArrayList<X509Certificate> certs = new ArrayList<>();
          for (ByteString cert : certificates.certificate) {
             ByteArrayInputStream inStream = new ByteArrayInputStream(cert.toByteArray());
             certs.add((X509Certificate) certFact.generateCertificate(inStream));
@@ -168,6 +164,9 @@ public class PaymentRequestInformation implements Serializable {
 
          // Retrieves the most-trusted CAs from keystore.
          PKIXParameters params = new PKIXParameters(keyStore);
+         if (date != null) {
+            params.setDate(date);
+         }
          // Revocation not supported in the current version.
          params.setRevocationEnabled(false);
 
@@ -198,14 +197,11 @@ public class PaymentRequestInformation implements Serializable {
             throw new PaymentRequestException("signature does not match");
          }
 
-
          // Signature verifies, get the names from the identity we just verified for presentation to the user.
          final X509Certificate cert = certs.get(0);
          //return new PkiVerificationData(displayName, publicKey, result.getTrustAnchor());
          String displayName = X509Utils.getDisplayNameFromCertificate(cert, true);
          return new PkiVerificationData(displayName, publicKey, result.getTrustAnchor());
-
-
       } catch (CertificateException e) {
          throw new PaymentRequestException("invalid certificate", e);
       } catch (InvalidKeyException e) {
@@ -221,7 +217,6 @@ public class PaymentRequestInformation implements Serializable {
       } catch (SignatureException e) {
          throw new PaymentRequestException("invalid certificate", e);
       }
-
    }
 
    private static String getPkiSignatureAlgorithm(PaymentRequest paymentRequest) {
@@ -233,7 +228,6 @@ public class PaymentRequestInformation implements Serializable {
          throw new PaymentRequestException("unsupported signature algorithm");
       }
    }
-
 
    public PaymentRequestInformation(PaymentRequest paymentRequest, PaymentDetails paymentDetails, PkiVerificationData pkiVerificationData, byte[] rawPaymentRequest) {
       this.paymentRequest = paymentRequest;
@@ -258,7 +252,7 @@ public class PaymentRequestInformation implements Serializable {
 
    // try to parse the output scripts and get associated addresses - not all output scripts may be parse-able
    public ArrayList<Address> getKnownOutputAddresses(NetworkParameters networkParameters) {
-      ArrayList<Address> ret = new ArrayList<Address>();
+      ArrayList<Address> ret = new ArrayList<>();
       for (Output out : paymentDetails.outputs) {
          ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(out.script.toByteArray());
          if (!(scriptOutput instanceof ScriptOutputStrange)) {
@@ -280,7 +274,6 @@ public class PaymentRequestInformation implements Serializable {
       return pkiVerificationData;
    }
 
-
    public Payment buildPaymentResponse(Address refundAddress, String memo, Transaction signedTransaction) {
       byte[] scriptBytes = new ScriptOutputP2PKH(refundAddress.getTypeSpecificBytes()).getScriptBytes();
       Output refundOutput = new Output.Builder()
@@ -288,16 +281,12 @@ public class PaymentRequestInformation implements Serializable {
             .script(ByteString.of(scriptBytes))
             .build();
 
-
-      Payment payment = new Payment.Builder()
+      return new Payment.Builder()
             .merchant_data(paymentDetails.merchant_data)
             .refund_to(Lists.newArrayList(refundOutput))
             .memo(memo)
             .transactions(Lists.newArrayList(ByteString.of(signedTransaction.toBytes())))
             .build();
-
-      return payment;
-
    }
 
    public boolean isExpired() {
@@ -326,4 +315,3 @@ public class PaymentRequestInformation implements Serializable {
       return paymentDetails != null && !Strings.isNullOrEmpty(paymentDetails.payment_url);
    }
 }
-
