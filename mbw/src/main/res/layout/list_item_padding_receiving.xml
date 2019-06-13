@@ -5,6 +5,7 @@
     android:background="@drawable/sender_recyclerview_item_background_selector"
     android:fontFamily="sans-serif-medium"
     android:gravity="center"
+    android:layout_gravity="center"
     android:orientation="vertical"
     android:text="@string/exchange_receiving"
     android:textColor="@color/white"
