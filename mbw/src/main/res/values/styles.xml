@@ -355,4 +355,16 @@
     </style>
 
     <color name="btn_text_color">#5aa7e6</color>
+
+
+
+    <style name="BuySell.Dialog" parent="MyceliumModern.Dialog">
+        <item name="android:windowTitleStyle">@style/BuySellDialogTitle</item>
+    </style>
+
+    <style name="BuySellDialogTitle">
+        <item name="android:textColor">@color/common_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
