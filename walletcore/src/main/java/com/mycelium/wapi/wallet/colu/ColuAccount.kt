@@ -5,10 +5,7 @@ import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.model.AddressType
-import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.model.Transaction
+import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
@@ -21,7 +18,9 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
+import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
+import com.mycelium.wapi.wallet.colu.json.Tx
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
@@ -106,11 +105,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             context.address ?: mapOf()
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
-        cachedBalance = calculateBalance(emptyList(), accountBacking.getTransactionSummaries(0, 2000))
+        val transactions = accountBacking.getTransactions(0, 2000)
+        val summary = getGenericListFromJsonTxList(transactions)
+        cachedBalance = calculateBalance(emptyList(), summary)
     }
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
-        return accountBacking.getTransactionsSince(receivingSince)
+    override fun getTransactionsSince(receivingSince: Long): List<GenericTransactionSummary> {
+        val transactionsSince = accountBacking.getTransactionsSince(receivingSince)
+        return getGenericListFromJsonTxList(transactionsSince)
     }
 
     private fun convert(publicKey: PublicKey, coinType: ColuMain?): Map<AddressType, BtcAddress> {
@@ -155,11 +157,13 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
         checkNotArchived()
-        return accountBacking.getTxSummary(Sha256Hash.of(transactionId))
+        val transaction = accountBacking.getTx(Sha256Hash.of(transactionId))
+        return genericTransactionSummaryFromJson(transaction)
     }
 
     override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
-        return accountBacking.getTransactionSummaries(offset, limit)
+        val transactions = accountBacking.getTransactions(offset, limit)
+        return getGenericListFromJsonTxList(transactions)
     }
 
     override fun getBlockChainHeight(): Int = context.blockHeight
@@ -198,15 +202,18 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
-        val txsInfo = coluClient.getAddressTransactions(receiveAddress)
-        txsInfo?.let {
-            accountBacking.clear()
-            accountBacking.putTransactions(it.transactions)
-            cachedBalance = calculateBalance(it.unspent, it.transactions)
-            listener?.balanceUpdated(this)
-        }
+        val json = coluClient.getAddressTransactions(receiveAddress)
+        val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
+        val utxosFromJson = utxosFromJson(json, receiveAddress)
+        accountBacking.clear()
+        accountBacking.putTransactions(json.transactions)
+        cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
+        listener?.balanceUpdated(this)
         return true
     }
+
+    private fun getGenericListFromJsonTxList(transactions: MutableList<Tx.Json>) =
+            transactions.map { genericTransactionSummaryFromJson(it) }
 
     private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)
@@ -405,5 +412,63 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey? {
         return privateKey
+    }
+
+    fun genericTransactionSummaryFromJson(transaction: Tx.Json): GenericTransactionSummary {
+
+        var transferred = Value.zeroValue(coinType)
+
+        val input = mutableListOf<GenericInputViewModel>()
+        transaction.vin.forEach { vin ->
+            vin.assets.filter { it.assetId == coinType.id }.forEach { asset ->
+                val value = Value.valueOf(coinType, asset.amount)
+                val _address = Address.fromString(vin.previousOutput.addresses[0])
+                input.add(GenericInputViewModel(
+                        BtcAddress(coinType, _address), value, false))
+                if (vin.previousOutput.addresses.contains(receiveAddress.toString())) {
+                    transferred = transferred.subtract(value)
+                }
+            }
+        }
+
+        val output = mutableListOf<GenericOutputViewModel>()
+        transaction.vout.forEach { vout ->
+            vout.assets.filter { it.assetId == coinType.id }.forEach { asset ->
+                val value = Value.valueOf(coinType, asset.amount)
+                val _address = Address.fromString(vout.scriptPubKey.addresses[0])
+                output.add(GenericOutputViewModel(
+                        BtcAddress(coinType, _address), value, false))
+                if (vout.scriptPubKey.addresses.contains(receiveAddress.toString())) {
+                    transferred = transferred.add(value)
+                }
+            }
+        }
+
+        return GenericTransactionSummary(
+                coinType,
+                Sha256Hash.fromString(transaction.txid).bytes,
+                Sha256Hash.fromString(transaction.hash).bytes,
+                transferred,
+                transaction.time / 1000,
+                transaction.blockheight.toInt(),
+                transaction.confirmations,
+                false,
+                output[0].address,
+                input,
+                output,
+                ConfirmationRiskProfileLocal(0, false, false),
+                0,
+                Value.valueOf(coinType, 0));
+    }
+
+    fun utxosFromJson(json: AddressTransactionsInfo.Json, address: GenericAddress): MutableList<TransactionOutputEx> {
+        val utxos = mutableListOf<TransactionOutputEx>()
+        for (utxo in json.utxos) {
+            utxo.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->
+                utxos.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(utxo.txid), utxo.index), utxo.blockheight,
+                        asset.amount, utxo.scriptPubKey.asm.toByteArray(), false))
+            }
+        }
+        return utxos
     }
 }

@@ -4,15 +4,11 @@ import com.google.common.base.Preconditions
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.CommonAccountBacking
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
-import com.mycelium.wapi.wallet.GenericTransaction
-import com.mycelium.wapi.wallet.GenericTransactionSummary
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.colu.json.Tx
 import java.util.*
 
 class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountContext> {
@@ -98,7 +94,7 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
         }
 
         private val _unspentOuputs = HashMap<OutPoint, TransactionOutputEx>()
-        private val _transactions = HashMap<Sha256Hash, GenericTransactionSummary>()
+        private val _transactions = HashMap<Sha256Hash, Tx.Json>()
         private val _parentOutputs = HashMap<OutPoint, TransactionOutputEx>()
         private val _outgoingTransactions = HashMap<Sha256Hash, ByteArray>()
 
@@ -122,10 +118,10 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
 
         }
 
-        override fun getTransactionSummaries(offset: Int, length: Int): MutableList<GenericTransactionSummary> = _transactions.values.toMutableList()
+        override fun getTransactions(offset: Int, length: Int): MutableList<Tx.Json> = _transactions.values.toMutableList()
 
-        override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
-            val list = mutableListOf<GenericTransactionSummary>()
+        override fun getTransactionsSince(receivingSince: Long): MutableList<Tx.Json> {
+            val list = mutableListOf<Tx.Json>()
             _transactions.values.forEach {
                 if (it.time >= receivingSince) {
                     list.add(it)
@@ -138,15 +134,16 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
 
         }
 
-        override fun putTransactions(transactionSummaries: MutableList<GenericTransactionSummary>?) {
-            transactionSummaries?.forEach { _transactions[Sha256Hash(it.id)] = it }
+        override fun putTransactions(transactions: MutableList<Tx.Json>?) {
+
+            transactions?.forEach { _transactions[Sha256Hash.fromString(it.txid)] = it }
         }
 
         override fun getUnspentOutputs(): MutableList<TransactionOutputEx> {
             return LinkedList(_unspentOuputs.values)
         }
 
-        override fun getTxSummary(txId: Sha256Hash?) = _transactions[txId]
+        override fun getTx(txId: Sha256Hash?) = _transactions[txId]
 
     }
 
