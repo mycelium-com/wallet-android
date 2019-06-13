@@ -40,7 +40,7 @@ public class SimplexServiceDescription extends BuySellServiceDescriptor {
                        Intent intent;
                        if (i == 0) {
                           intent = new Intent(Intent.ACTION_VIEW,
-                                  Uri.parse(String.format(BuildConfig.SOFELLO, address.toString())));
+                                  Uri.parse(String.format(BuildConfig.SAFELLO, address.toString())));
                        } else {
                           intent = new Intent(context, SimplexMainActivity.class);
                           intent.putExtra("walletAddress", address.toString());
