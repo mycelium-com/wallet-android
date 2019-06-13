@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
 import java.io.UnsupportedEncodingException
+import java.math.BigDecimal
 import java.net.URI
 import java.net.URLDecoder
 
@@ -36,7 +37,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
             val amountStr = params["amount"]
 
             if (amountStr != null) {
-                amount = Value.valueOf(coinType, (java.lang.Double.parseDouble(amountStr) * Math.pow(10.0, 8.0)).toLong())
+                amount = Value.valueOf(coinType, BigDecimal(amountStr).multiply(BigDecimal.TEN.pow(8)).toLong())
             }
         } catch (e: NoSuchElementException) {
         }
