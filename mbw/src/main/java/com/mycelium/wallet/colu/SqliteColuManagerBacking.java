@@ -512,7 +512,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
                   result = getTransactionFromJson(json);
-//                 result.setConfirmationRiskProfile(Optional.absent());
                } catch (JsonSyntaxException ex) {
                   Log.e("colu accountBacking", "", ex);
                }
@@ -555,7 +554,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
                   tex = getTransactionFromJson(json);
-//                  tex.setConfirmationRiskProfile(Optional.absent());
                   result.add(tex);
                } catch (JsonSyntaxException ex) {
                   Log.e("colu accountBacking", "", ex);
@@ -616,7 +614,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                try {
                   String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
                   tex = getTransactionFromJson(json);
-//                  tex.setConfirmationRiskProfile(Optional.absent());
                   result.add(tex);
                } catch (JsonSyntaxException ex) {
                   Log.e("colu accountBacking", "", ex);

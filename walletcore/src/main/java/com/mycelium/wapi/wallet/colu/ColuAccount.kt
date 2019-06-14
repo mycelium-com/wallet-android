@@ -106,8 +106,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         val transactions = accountBacking.getTransactions(0, 2000)
-        val summary = getGenericListFromJsonTxList(transactions)
-        cachedBalance = calculateBalance(emptyList(), summary)
+        val transactionSummaries = getGenericListFromJsonTxList(transactions)
+        cachedBalance = calculateBalance(emptyList(), transactionSummaries)
     }
 
     override fun getTransactionsSince(receivingSince: Long): List<GenericTransactionSummary> {
