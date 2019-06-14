@@ -43,7 +43,6 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,7 +62,6 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -80,6 +78,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -371,7 +370,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, txData TEXT);");
+            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, txData BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -510,9 +509,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             cursor = blobQuery.raw( "SELECT hash, height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               String string = cursor.getString(3);
                try {
-                 result = getTransactionFromJson(string);
+                  String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
+                  result = getTransactionFromJson(json);
 //                 result.setConfirmationRiskProfile(Optional.absent());
                } catch (JsonSyntaxException ex) {
                   Log.e("colu accountBacking", "", ex);
@@ -553,10 +552,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                Tx.Json tex = null;
-
-               String string = cursor.getString(4);
                try {
-                  tex = getTransactionFromJson(string);
+                  String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+                  tex = getTransactionFromJson(json);
 //                  tex.setConfirmationRiskProfile(Optional.absent());
                   result.add(tex);
                } catch (JsonSyntaxException ex) {
@@ -615,9 +613,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                 Tx.Json tex = null;
 
-               String string = cursor.getString(4);
                try {
-                  tex = getTransactionFromJson(string);
+                  String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+                  tex = getTransactionFromJson(json);
 //                  tex.setConfirmationRiskProfile(Optional.absent());
                   result.add(tex);
                } catch (JsonSyntaxException ex) {
