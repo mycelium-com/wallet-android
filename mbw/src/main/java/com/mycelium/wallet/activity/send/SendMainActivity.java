@@ -140,8 +140,6 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
@@ -558,7 +556,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
         feeLvlList.setAdapter(feeLvlViewAdapter);
-
         feeLvlList.setSelectedItem(feeLvl);
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
@@ -713,8 +710,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (_account instanceof ColuAccount) {
                 sendTransaction();
             } else {
-            signTransaction();
-        }
+                signTransaction();
+            }
         }
     };
 
@@ -759,6 +756,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
     @OnClick(R.id.tvUnconfirmedWarning)
     void onClickUnconfirmedWarning() {
         new AlertDialog.Builder(this)
@@ -867,7 +865,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Enable/disable send button
         btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
         findViewById(R.id.root).invalidate();
-
     }
 
     @UiThread
@@ -1044,7 +1041,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
     }
 
-
     void updateError() {
         boolean tvErrorShow;
         switch (_transactionStatus) {
@@ -1082,7 +1078,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             AnimationUtils.collapse(tvError, null);
         }
     }
-
 
     @UiThread
     private void updateFeeText() {
@@ -1147,7 +1142,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         updateTransactionStatusAndUi();
         super.onResume();
-
         if(activityResultDialog != null) {
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
@@ -1281,7 +1275,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         _paymentRequestHandler.sendResponse(btcTransaction.getTx(), (Address) _account.getReceiveAddress());
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
-
                     }
                 } else {
                     activityResultDialog = BroadcastDialog.create(_account, _isColdStorage, signedTransaction);
@@ -1290,8 +1283,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         } else if (requestCode == REQUEST_PAYMENT_HANDLER) {
             if (resultCode == RESULT_OK) {
                 _paymentRequestHandlerUuid = checkNotNull(intent.getStringExtra("REQUEST_PAYMENT_HANDLER_ID"));
-                    _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
-                            .getIfPresent(_paymentRequestHandlerUuid);
+                _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
+                        .getIfPresent(_paymentRequestHandlerUuid);
                 updateTransactionStatusAndUi();
             } else {
                 // user canceled - also leave this activity
@@ -1318,13 +1311,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             String hash = signedTransaction.getId().toString();
             String fiat = getFiatValue();
             if (fiat != null) {
-            transactionFiatValuePref.edit().putString(hash, fiat).apply();
-
+                transactionFiatValuePref.edit().putString(hash, fiat).apply();
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
                     .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
         }
-
         setResult(broadcastResult.getResultType() == BroadcastResultType.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
         finish();
     }
@@ -1357,15 +1348,15 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 return null;
             }
             for (GenericAddress address: addresses) {
-               if (address.getCoinType() == _account.getCoinType()) {
-                  return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
-               }
+                if (address.getCoinType() == _account.getCoinType()) {
+                    return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
+                }
             }
             return null;
         } else {
             GenericAssetUri uri = _mbwManager.getContentResolver().resolveUri(string);
             if (uri == null || uri.getAddress() == null) {
-               return null;
+                return null;
             }
             return (uri.getAddress().getCoinType() == _account.getCoinType()) ? uri : null;
         }
