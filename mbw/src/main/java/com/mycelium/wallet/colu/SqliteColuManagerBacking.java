@@ -512,13 +512,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             cursor = blobQuery.raw( "SELECT hash, height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               try {
-                  String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
-                  result = getTransactionFromJson(json);
-               } catch (JsonSyntaxException ex) {
-                  Log.e("colu accountBacking", "", ex);
-               }
-
+               String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
+               result = getTransactionFromJson(json);
             }
          } finally {
             if (cursor != null) {
@@ -531,8 +526,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       private Tx.Json getTransactionFromJson(String string) {
          try {
             return JSON_FACTORY.fromString(string, Tx.Json.class);
-         } catch (IOException e) {
-             Log.e("colu accountBacking", "", e);
+         } catch (IOException ex) {
+             Log.e("colu accountBacking", "Parse error", ex);
          }
          return null;
       }
@@ -558,14 +553,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               Tx.Json tex = null;
-               try {
-                  String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
-                  tex = getTransactionFromJson(json);
-                  result.add(tex);
-               } catch (JsonSyntaxException ex) {
-                  Log.e("colu accountBacking", "", ex);
-               }
+               String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
          } finally {
             if (cursor != null) {
@@ -618,15 +608,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-                Tx.Json tex = null;
-
-               try {
-                  String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
-                  tex = getTransactionFromJson(json);
-                  result.add(tex);
-               } catch (JsonSyntaxException ex) {
-                  Log.e("colu accountBacking", "", ex);
-               }
+               String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
          } finally {
             if (cursor != null) {
