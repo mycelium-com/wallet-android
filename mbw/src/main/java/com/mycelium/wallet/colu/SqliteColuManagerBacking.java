@@ -43,6 +43,8 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -98,6 +100,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
+   private  final JsonFactory JSON_FACTORY = new JacksonFactory();
    private Map<UUID, SqliteColuAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
@@ -526,7 +529,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       private Tx.Json getTransactionFromJson(String string) {
-         return gson.fromJson(string, Tx.Json.class);
+         try {
+            return JSON_FACTORY.fromString(string, Tx.Json.class);
+         } catch (IOException e) {
+             Log.e("colu accountBacking", "", e);
+         }
+         return null;
       }
 
       @Override
@@ -584,7 +592,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                updateStatement.bindBlob(index + 2, Sha256Hash.fromString(transaction.hash).getBytes());
                updateStatement.bindLong(index + 3, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
                updateStatement.bindLong(index + 4, transaction.time);
-               updateStatement.bindString(index + 5, gson.toJson(transaction));
+               transaction.setFactory(JSON_FACTORY);
+               updateStatement.bindBlob(index + 5, transaction.toString().getBytes());
                i++;
             }
             updateStatement.executeInsert();
