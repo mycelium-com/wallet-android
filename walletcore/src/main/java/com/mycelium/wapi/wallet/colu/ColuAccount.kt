@@ -213,7 +213,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     private fun getGenericListFromJsonTxList(transactions: MutableList<Tx.Json>) =
-            transactions.map { genericTransactionSummaryFromJson(it) }
+            transactions.map { genericTransactionSummaryFromJson(it) }.filterNotNull()
 
     private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)
@@ -414,7 +414,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return privateKey
     }
 
-    fun genericTransactionSummaryFromJson(transaction: Tx.Json): GenericTransactionSummary {
+    fun genericTransactionSummaryFromJson(transaction: Tx.Json): GenericTransactionSummary? {
 
         var transferred = Value.zeroValue(coinType)
 
@@ -444,21 +444,26 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             }
         }
 
-        return GenericTransactionSummary(
-                coinType,
-                Sha256Hash.fromString(transaction.txid).bytes,
-                Sha256Hash.fromString(transaction.hash).bytes,
-                transferred,
-                transaction.time / 1000,
-                transaction.blockheight.toInt(),
-                transaction.confirmations,
-                false,
-                output[0].address,
-                input,
-                output,
-                ConfirmationRiskProfileLocal(0, false, false),
-                0,
-                Value.valueOf(coinType, 0));
+        if (input.size > 0 || output.size > 0) {
+
+            return GenericTransactionSummary(
+                    coinType,
+                    Sha256Hash.fromString(transaction.txid).bytes,
+                    Sha256Hash.fromString(transaction.hash).bytes,
+                    transferred,
+                    transaction.time / 1000,
+                    transaction.blockheight.toInt(),
+                    transaction.confirmations,
+                    false,
+                    output[0].address,
+                    input,
+                    output,
+                    ConfirmationRiskProfileLocal(0, false, false),
+                    0,
+                    Value.valueOf(coinType, 0))
+        }
+
+        return null
     }
 
     fun utxosFromJson(json: AddressTransactionsInfo.Json, address: GenericAddress): MutableList<TransactionOutputEx> {
