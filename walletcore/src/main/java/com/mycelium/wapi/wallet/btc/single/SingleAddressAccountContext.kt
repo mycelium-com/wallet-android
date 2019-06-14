@@ -18,7 +18,7 @@ package com.mycelium.wapi.wallet.btc.single
 
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking
+import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
 import java.util.*
 
 /**
@@ -74,7 +74,7 @@ class SingleAddressAccountContext constructor(
     /**
      * Persist this context if it is marked as dirty
      */
-    fun persistIfNecessary(backing: SingleAddressAccountBacking) {
+    fun persistIfNecessary(backing: SingleAddressBtcAccountBacking) {
         if (isDirty) {
             persist(backing)
         }
@@ -83,7 +83,7 @@ class SingleAddressAccountContext constructor(
     /**
      * Persist this context
      */
-    fun persist(backing: SingleAddressAccountBacking) {
+    fun persist(backing: SingleAddressBtcAccountBacking) {
         backing.updateAccountContext(this)
         isDirty = false
     }

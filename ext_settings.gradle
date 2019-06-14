@@ -2,7 +2,7 @@
 ext {
     // guavaArtifact = 'com.google.guava:guava:27.0.1-android'
     guavaArtifact = 'com.google.guava:guava:23.0-android'
-    androidBuildArtifact = 'com.android.tools.build:gradle:3.3.1'
+    androidBuildArtifact = 'com.android.tools.build:gradle:3.4.0'
     androidCompileSdkVersion = 28
     androidSdkBuildVersion = '28.0.3'
     androidSupportVersion = '28.0.0'

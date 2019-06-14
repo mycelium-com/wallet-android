@@ -81,6 +81,7 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -93,14 +94,12 @@ import com.mycelium.wallet.lt.api.DeleteTradeHistory;
 import com.mycelium.wallet.lt.api.ReleaseBtc;
 import com.mycelium.wallet.lt.api.RequestMarketRateRefresh;
 import com.mycelium.wallet.lt.api.SendEncryptedChatMessage;
-import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.BtcSendRequest;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -278,13 +277,12 @@ public class TradeActivity extends Activity {
       @Override
       public void onClick(View arg0) {
          // if we are a buyer, verify that the address is still in our wallet and spendable
-      /* TODO - should be fixed in order to switch to multi-currency architecture
          if (_tradeSession.isBuyer) {
             final WalletManager walletManager = _mbwManager.getWalletManager(false);
-            final Optional<UUID> accountByAddress = walletManager.getAccountByAddress(_tradeSession.buyerAddress);
-            if (!accountByAddress.isPresent()
-                  || !walletManager.hasAccount(accountByAddress.get())
-                  || !walletManager.getAccount(accountByAddress.get()).canSpend()) {
+            final UUID accountByAddress = walletManager.getAccountByAddress(new BtcAddress(Utils.getBtcCoinType(), _tradeSession.buyerAddress));
+            if (accountByAddress == null
+                  || !walletManager.hasAccount(accountByAddress)
+                  || !walletManager.getAccount(accountByAddress).canSpend()) {
 
                new AlertDialog.Builder(TradeActivity.this)
                      .setMessage(String.format(getString(R.string.lt_warn_account_not_spandable), _tradeSession.buyerAddress))
@@ -300,7 +298,7 @@ public class TradeActivity extends Activity {
                            // if the current selected account is also not spendable, try to select the first
                            // spendable one - there should always at least one HD account be available
                            if (!_mbwManager.getSelectedAccount().canSpend()) {
-                              final List<WalletAccount> spendingAccounts = walletManager.getSpendingAccounts();
+                              final List<WalletAccount<?>> spendingAccounts = walletManager.getSpendingAccounts();
                               if (spendingAccounts.size() > 0) {
                                  _mbwManager.setSelectedAccount(spendingAccounts.get(0).getId());
                               }
@@ -318,7 +316,6 @@ public class TradeActivity extends Activity {
          } else {
             doAcceptTrade();
          }
-         */
       }
    };
 
@@ -378,10 +375,8 @@ public class TradeActivity extends Activity {
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
             ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
       CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-      BtcSendRequest sendRequest = BtcSendRequest.to(new BtcAddress(cryptoCurrency, ((AbstractBtcAccount) _mbwManager.getSelectedAccount()).getDummyAddress().getAddress()),
-              new Value(cryptoCurrency, 0), new Value(cryptoCurrency, 0));
-      sendRequest.setUnsignedTx(unsigned);
-      Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, sendRequest);
+      BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
+      Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
       startActivityForResult(intent, SIGN_TX_REQUEST_CODE);
    }
 
@@ -873,8 +868,9 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            SendRequest signedSendRequest = (SendRequest) Preconditions.checkNotNull(intent.getSerializableExtra("transactionRequest"));
-            Transaction tx = ((BtcTransaction) signedSendRequest.tx).getRawTransaction();
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
+            Transaction tx = btcTransaction.getTx();
             if (tx == null) {
                Toast.makeText(TradeActivity.this, R.string.lt_cannot_affort_trade, Toast.LENGTH_LONG).show();
                return;

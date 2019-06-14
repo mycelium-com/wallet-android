@@ -3,19 +3,21 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
-class WalletManager(val network: NetworkParameters,
-                    val wapi: Wapi,
-                    var currenciesSettingsMap: HashMap<String, CurrencySettings>) {
-    val MAX_AGE_FEE_ESTIMATION = TimeUnit.HOURS.toMillis(2)
-
-    private val accounts = mutableMapOf<UUID, WalletAccount<*, *>>()
+class WalletManager
+@JvmOverloads
+constructor(val network: NetworkParameters,
+            val wapi: Wapi,
+            var currenciesSettingsMap: HashMap<String, CurrencySettings>,
+            @JvmField
+            var accountScanManager: AccountScanManager? = null) {
+    private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
@@ -32,8 +34,6 @@ class WalletManager(val network: NetworkParameters,
     var isNetworkConnected: Boolean = false
     var walletListener: WalletListener? = null
 
-    lateinit var accountScanManager: AccountScanManager
-
     var state: State = State.OFF
 
     @Volatile
@@ -47,6 +47,10 @@ class WalletManager(val network: NetworkParameters,
         for (walletModule in walletModules.values) {
             accounts.putAll(walletModule.loadAccounts())
         }
+
+        for (walletModule in walletModules.values) {
+            walletModule.afterAccountsLoaded()
+        }
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
@@ -54,9 +58,8 @@ class WalletManager(val network: NetworkParameters,
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
-
-    fun getAccountBy(address: GenericAddress): UUID? {
-        return accounts.values.firstOrNull { it.isMineAddress(address) }?.id
+    fun getAccountsBy(address: GenericAddress): List<WalletAccount<*>> {
+        return accounts.values.filter { it.isMineAddress(address) }
     }
 
     fun setIsNetworkConnected(connected: Boolean) {
@@ -68,12 +71,16 @@ class WalletManager(val network: NetworkParameters,
     }
 
     fun createAccounts(config: Config): List<UUID> {
-        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
         walletModules.values.forEach {
             if (it.canCreateAccount(config)) {
                 try {
                     val account = it.createAccount(config)
                     result[account.id] = account
+
+                    account.dependentAccounts?.forEach {
+                        result[it.id] = it
+                    }
                 } catch (exception: IllegalStateException){
                     _logger.logError("Account", exception)
                 }
@@ -84,7 +91,7 @@ class WalletManager(val network: NetworkParameters,
     }
 
     @TestOnly
-    fun addAccount(account: WalletAccount<*,*>) {
+    fun addAccount(account: WalletAccount<*>) {
         accounts[account.id] = account
     }
 
@@ -101,16 +108,16 @@ class WalletManager(val network: NetworkParameters,
 
     fun hasAccount(id: UUID): Boolean = accounts.containsKey(id)
 
-    fun getAccount(id: UUID): WalletAccount<*, *>? = accounts[id]
+    fun getAccount(id: UUID): WalletAccount<*>? = accounts[id]
 
     /**
      * @param accounts - list of any accounts
      * @return only active accounts
      */
-    fun getActiveAccountsFrom(accounts: List<WalletAccount<*,*>>) = accounts.filter { it.isActive }
+    fun getActiveAccountsFrom(accounts: List<WalletAccount<*>>) = accounts.filter { it.isActive }
 
     @JvmOverloads
-    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*, *>> = listOf()) {
+    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) {
         if (!isNetworkConnected) {
             return
         }
@@ -124,7 +131,7 @@ class WalletManager(val network: NetworkParameters,
         return isNetworkConnected
     }
 
-    fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
+    fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
     fun setActiveAccount(accountId: UUID) {
         activeAccountId = accountId
@@ -177,16 +184,16 @@ class WalletManager(val network: NetworkParameters,
         }
     }
 
-    fun getSpendingAccounts() : List<WalletAccount<*, *>> {
+    fun getSpendingAccounts() : List<WalletAccount<*>> {
         return accounts.values.filter { it.canSpend() }
     }
 
-    fun getSpendingAccountsWithBalance() : List<WalletAccount<*, *>> {
+    fun getSpendingAccountsWithBalance() : List<WalletAccount<*>> {
         return accounts.values.filter { it.canSpend() && it.accountBalance.spendable.isPositive }
     }
 
 
-    fun getArchivedAccounts(): List<WalletAccount<*, *>> {
+    fun getArchivedAccounts(): List<WalletAccount<*>> {
         return accounts.values.filter { it.isArchived }
     }
 
@@ -196,11 +203,11 @@ class WalletManager(val network: NetworkParameters,
      * @return the active accounts managed by the wallet manager
      */
 
-    fun getActiveAccounts(): List<WalletAccount<*, *>> {
+    fun getActiveAccounts(): List<WalletAccount<*>> {
         return accounts.values.filter { it.isActive && it.canSpend() }
     }
 
-    fun getAllActiveAccounts():  List<WalletAccount<*, *>> {
+    fun getAllActiveAccounts():  List<WalletAccount<*>> {
         return accounts.values.filter { it.isActive }
     }
 

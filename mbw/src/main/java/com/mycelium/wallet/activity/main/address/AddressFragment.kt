@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
@@ -20,7 +21,7 @@ import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 class AddressFragment : Fragment() {
-    private val mbwManager = MbwManager.getInstance(activity)
+    private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     private lateinit var viewModel: AddressFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +55,10 @@ class AddressFragment : Fragment() {
         return binding.root
     }
 
-    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*, *>): Boolean =
+    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
             account is AbstractBtcAccount &&
-            account.availableAddressTypes.size > 1 &&
-            (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
+                    account.availableAddressTypes.size > 1 &&
+                    (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,7 +68,7 @@ class AddressFragment : Fragment() {
         }
 
         ivQR.tapToCycleBrightness = false
-        ivQR.qrCode = viewModel.getAccountAddress().value.toString()
+        ivQR.qrCode = viewModel.getAddressString()
 
         val drawableForAccount = viewModel.getDrawableForAccount(resources)
         if (drawableForAccount != null) {
@@ -75,7 +76,7 @@ class AddressFragment : Fragment() {
         }
         viewModel.getAccountAddress().observe(this, Observer { newAddress ->
             if (newAddress != null) {
-                ivQR.qrCode = newAddress.toString()
+                ivQR.qrCode = viewModel.getAddressString()
             }
         })
     }

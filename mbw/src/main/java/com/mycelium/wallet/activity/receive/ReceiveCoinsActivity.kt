@@ -31,6 +31,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import asStringRes
+import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
     private lateinit var viewModel: ReceiveCoinsViewModel
@@ -38,7 +39,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val mbwManager = MbwManager.getInstance(application)
-        val account = mbwManager.selectedAccount
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
+        val walletManager = mbwManager.getWalletManager(isColdStorage)
+        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)!!
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)
@@ -60,7 +63,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initDatabinding(account)
 
         if (viewModel is ReceiveBtcViewModel &&
-               (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
+                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
                 (account as AbstractBtcAccount).availableAddressTypes
             } else {
@@ -99,10 +102,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        viewModel.getReceivingAddress().observe(this, Observer { ivQrCode.qrCode = viewModel.getPaymentUri() })
+        viewModel.getReceivingAddress().observe(this, Observer {
+            ivQrCode.qrCode = viewModel.getPaymentUri()
+        })
     }
 
-    private fun initDatabinding(account: WalletAccount<*,*>) {
+    private fun initDatabinding(account: WalletAccount<*>) {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
@@ -164,7 +169,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         @JvmStatic
         @JvmOverloads
-        fun callMe(currentActivity: Activity, account: WalletAccount<*,*>, havePrivateKey: Boolean,
+        fun callMe(currentActivity: Activity, account: WalletAccount<*>, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
             currentActivity.startActivity(Intent(currentActivity, ReceiveCoinsActivity::class.java)
                     .putExtra(UUID, account.id)

@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply from: 'integration-test.gradle'
 
 repositories {
     google()
@@ -25,7 +26,8 @@ dependencies {
     implementation 'org.mockito:mockito-core:2.21.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:2.0.44-beta"
+    testImplementation "org.mockito:mockito-core:2.21.0"
+    implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 }
 
 

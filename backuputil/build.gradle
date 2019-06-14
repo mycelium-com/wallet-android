@@ -10,7 +10,6 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
     id 'application'
 }
 
@@ -34,14 +33,5 @@ jar {
                 "Main-Class": project.mainClassName,
                 "Implementation-Version": version ?: 'dev'
         )
-    }
-}
-
-shadowJar {
-    mergeServiceFiles()
-    manifest {
-        attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
-        attributes 'Implementation-Version': getCheckedOutGitCommitHash()
-        attributes 'Main-Class': project.mainClassName
     }
 }

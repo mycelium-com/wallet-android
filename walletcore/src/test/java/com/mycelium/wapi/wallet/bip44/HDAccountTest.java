@@ -11,9 +11,9 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
-import com.mycelium.wapi.wallet.btc.InMemoryWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
-import com.mycelium.wapi.wallet.btc.WalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
@@ -45,7 +45,7 @@ public class HDAccountTest {
         when(fakeWapi.getLogger()).thenReturn(fakeLogger);
         LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
-        WalletManagerBacking backing = new InMemoryWalletManagerBacking();
+        BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
         SecureKeyValueStore store = new SecureKeyValueStore(backing, fakeRandomSource);
         KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
 

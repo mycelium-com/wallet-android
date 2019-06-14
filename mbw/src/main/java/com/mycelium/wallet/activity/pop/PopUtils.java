@@ -34,14 +34,15 @@
 
 package com.mycelium.wallet.activity.pop;
 
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 class PopUtils {
-   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransaction transaction) {
+   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransactionSummary transaction) {
       if (popRequest.getTxid() != null && !transaction.getId().equals(popRequest.getTxid())) {
          return false;
       }
@@ -58,7 +59,7 @@ class PopUtils {
          return false;
       }
       if (popRequest.getLabel() != null) {
-         String label = metadataStorage.getLabelByTransaction(transaction.getId());
+         String label = metadataStorage.getLabelByTransaction(transaction.getIdHex());
          if (!popRequest.getLabel().equals(label)) {
             return false;
          }

@@ -814,7 +814,6 @@
     <string name="both_rmc_will_deleted" formatted="false">Оба аккаунта: %s and %s будут удалены.</string>
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Восстановить адрес как</string>
-    <string name="restore_addres_as">Восстановить адрес как</string>
     <string name="verify_message">Проверить сообщение</string>
     <string name="changelly">Changelly</string>
     <string name="changelly_choose_your_currency">Выберите параметры обмена</string>

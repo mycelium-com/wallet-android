@@ -13,5 +13,7 @@ public class AddressInfo {
 		@Key
 		public List<Utxo.Json> utxos;
 
+		@Key
+		public List<AssetBalance.Json> assets;
 	}
 }

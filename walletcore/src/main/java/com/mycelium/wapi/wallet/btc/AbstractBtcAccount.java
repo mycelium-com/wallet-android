@@ -62,19 +62,22 @@ import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.model.TransactionOutputSummary;
 import com.mycelium.wapi.model.TransactionStatus;
-import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.AccountBacking;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericFee;
+import com.mycelium.wapi.wallet.GenericInputViewModel;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.SendRequest;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
@@ -84,6 +87,9 @@ import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
 import com.mycelium.wapi.wallet.currency.ExactCurrencyValue;
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -121,10 +127,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected BalanceSatoshis _cachedBalance;
 
    private EventHandler _eventHandler;
-   private final AccountBacking<BtcTransaction> _backing;
+   private final BtcAccountBacking _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
-   protected AbstractBtcAccount(AccountBacking backing, NetworkParameters network, Wapi wapi) {
+   protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
       _wapi = wapi;
@@ -151,10 +157,59 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
+   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
+           throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
+      FeePerKbFee btcFee = (FeePerKbFee)fee;
+      BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
+      ArrayList<BtcReceiver> receivers = new ArrayList<>();
+      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().value));
+      try {
+         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().value));
+         return btcTransaction;
+      } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
+         throw new GenericOutputTooSmallException(ex);
+      } catch (StandardTransactionBuilder.InsufficientFundsException ex) {
+         throw new GenericInsufficientFundsException(ex);
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException ex) {
+         throw new GenericBuildTransactionException(ex);
+      }
+   }
+
+   @Override
+   public void signTx(GenericTransaction request, KeyCipher keyCipher ) throws InvalidKeyCipher {
+      BtcTransaction btcSendRequest = (BtcTransaction) request;
+      btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
+   }
+
+   public BtcTransaction createTxFromOutputList(OutputList outputs, long minerFeePerKbToUse)
+           throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException{
+      try {
+         return new BtcTransaction(getCoinType(), createUnsignedTransaction(outputs, minerFeePerKbToUse));
+      } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
+         throw new GenericOutputTooSmallException(ex);
+      } catch (StandardTransactionBuilder.InsufficientFundsException ex) {
+         throw new GenericInsufficientFundsException(ex);
+      } catch (StandardTransactionBuilder.UnableToBuildTransactionException ex) {
+         throw new GenericBuildTransactionException(ex);
+      }
+
+   }
+
+   @Override
    public boolean isExchangeable(){
       return true;
    }
 
+   @Override
+   public GenericTransaction getTx(byte[] transactionId) {
+      TransactionEx tex = _backing.getTransaction(Sha256Hash.of(transactionId));
+      Transaction tx = TransactionEx.toTransaction(tex);
+      if (tx == null) {
+         return null;
+      }
+
+      return new BtcTransaction(getCoinType(), tx);
+   }
    /**
     * set the event handler for this account
     *
@@ -506,7 +561,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Fetch missing parent transactions
       if (toFetch.size() > 0) {
-         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactions(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
+         GetTransactionsResponse result = getTransactionsBatched(toFetch).getResult(); // _wapi.getTransactionSummaries(new GetTransactionsRequest(Wapi.VERSION, toFetch)).getResult();
          for (TransactionExApi tx : result.transactions) {
             // Verify transaction hash. This is important as we don't want to
             // have a transaction output associated with an outpoint that
@@ -773,16 +828,16 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public abstract boolean canSpend();
 
    @Override
-   public List<TransactionSummary> getTransactionHistory(int offset, int limit) {
+   public List<com.mycelium.wapi.model.TransactionSummary> getTransactionHistory(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
-      List<TransactionSummary> history = new ArrayList<>();
+      List<com.mycelium.wapi.model.TransactionSummary> history = new ArrayList<>();
       checkNotArchived();
       int blockChainHeight = getBlockChainHeight();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
       for (TransactionEx tex : list) {
-         TransactionSummary item = transform(tex, blockChainHeight);
+         com.mycelium.wapi.model.TransactionSummary item = transform(tex, blockChainHeight);
          if (item != null) {
             history.add(item);
          }
@@ -1280,7 +1335,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return false;
    }
 
-   private TransactionSummary transform(TransactionEx tex, int blockChainHeight) {
+   private com.mycelium.wapi.model.TransactionSummary transform(TransactionEx tex, int blockChainHeight) {
       Transaction tx;
       try {
          tx = Transaction.fromByteReader(new ByteReader(tex.binary));
@@ -1349,7 +1404,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // see if we have a riskAssessment for this tx available in memory (i.e. valid for last sync)
       final ConfirmationRiskProfileLocal risk = riskAssessmentForUnconfirmedTx.get(tx.getId());
 
-      return new TransactionSummary(
+      return new com.mycelium.wapi.model.TransactionSummary(
             tx.getId(),
             ExactBitcoinValue.from(Math.abs(satoshis)),
             satoshis >= 0,
@@ -1531,7 +1586,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public TransactionSummary getTransactionSummary(Sha256Hash txid) {
+   public com.mycelium.wapi.model.TransactionSummary getTransactionSummary(Sha256Hash txid) {
       TransactionEx tx = _backing.getTransaction(txid);
       return transform(tx, tx.height);
    }
@@ -1587,7 +1642,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return new TransactionDetails(
             txid, tex.height, tex.time,
             inputs.toArray(new TransactionDetails.Item[inputs.size()]), outputs,
-            tx.toBytes(false).length
+            tx.vsize()
       );
    }
 
@@ -1621,12 +1676,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<BtcTransaction> getTransactionsSince(long receivingSince) {
-      List<BtcTransaction> history = new ArrayList<>();
+   public List<GenericTransactionSummary> getTransactionsSince(long receivingSince) {
+      List<GenericTransactionSummary> history = new ArrayList<>();
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionsSince(receivingSince);
       for (TransactionEx tex : list) {
-         BtcTransaction tx = getTx(tex.txid);
+         GenericTransactionSummary tx = getTxSummary(tex.txid.getBytes());
          if(tx != null) {
             history.add(tx);
          }
@@ -1634,15 +1689,29 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-   public List<BtcTransaction> getTransactions(int offset, int limit) {
+    @Override
+    public List<GenericTransaction> getTransactions(int offset, int limit) {
+        checkNotArchived();
+        List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
+        List<GenericTransaction> history = new ArrayList<>();
+        for (TransactionEx tex: list) {
+            GenericTransaction tx = getTx(tex.txid.getBytes());
+            if(tx != null) {
+                history.add(tx);
+            }
+        }
+        return history;
+    }
+
+    public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
 
       checkNotArchived();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-      List<BtcTransaction> history = new ArrayList<>();
+      List<GenericTransactionSummary> history = new ArrayList<>();
       for (TransactionEx tex: list) {
-         BtcTransaction tx = getTx(tex.txid);
+         GenericTransactionSummary tx = getTxSummary(tex.txid.getBytes());
          if(tx != null) {
             history.add(tx);
          }
@@ -1651,14 +1720,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public SendRequest getSendToRequest(BtcAddress destination, Value amount, Value feePerKb) {
-      return BtcSendRequest.to(destination, amount, feePerKb);
-   }
-
-   @Override
-   public BtcTransaction getTx(Sha256Hash transactionId){
+   public GenericTransactionSummary getTxSummary(byte[] transactionId){
       checkNotArchived();
-      TransactionEx tex = _backing.getTransaction(transactionId);
+      TransactionEx tex = _backing.getTransaction(Sha256Hash.of(transactionId));
       Transaction tx = TransactionEx.toTransaction(tex);
       if (tx == null) {
          return null;
@@ -1670,7 +1734,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       GenericAddress destinationAddress = null;
 
-      ArrayList<GenericTransaction.GenericOutput> outputs = new ArrayList<>();
+      ArrayList<GenericOutputViewModel> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
          Address address = output.script.getAddress(_network);
          if (isMine(output.script)) {
@@ -1681,10 +1745,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          satoshisReceived += output.value;
 
          if (address != null && address != Address.getNullAddress(_network)) {
-            outputs.add(new GenericTransaction.GenericOutput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
+            outputs.add(new GenericOutputViewModel(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
          }
       }
-      ArrayList<GenericTransaction.GenericInput> inputs = new ArrayList<>(); //need to create list of outputs
+      ArrayList<GenericInputViewModel> inputs = new ArrayList<>(); //need to create list of outputs
 
       // Inputs
       if (tx.isCoinbase()) {
@@ -1694,7 +1758,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          for (TransactionOutput out : tx.outputs) {
             value += out.value;
          }
-         inputs.add(new GenericTransaction.GenericInput(getDummyAddress(), Value.valueOf(getCoinType(), value), true));
+         inputs.add(new GenericInputViewModel(getDummyAddress(), Value.valueOf(getCoinType(), value), true));
       } else {
          for (TransactionInput input : tx.inputs) {
             // find parent output
@@ -1709,7 +1773,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             satoshisSent += funding.value;
 
             Address address = ScriptOutput.fromScriptBytes(funding.script).getAddress(_network);
-            inputs.add(new GenericTransaction.GenericInput(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value), false));
+            inputs.add(new GenericInputViewModel(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), funding.value), false));
          }
       }
 
@@ -1720,7 +1784,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          confirmations = Math.max(0, getBlockChainHeight() - tex.height + 1);
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
-      return new BtcTransaction(getCoinType(), tx, satoshisTransferred, tex.time, tex.height,
+      return new GenericTransactionSummary(getCoinType(), tx.getId().getBytes(), tx.getHash().getBytes(), Value.valueOf(getCoinType(), satoshisTransferred), tex.time, tex.height,
               confirmations, isQueuedOutgoing, destinationAddress, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tx.toBytes(false).length, Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
    }
@@ -1761,7 +1825,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return false;
    }
 
-   public AccountBacking getAccountBacking() {
+   public BtcAccountBacking getAccountBacking() {
       return this._backing;
    }
 
@@ -1831,13 +1895,35 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public List<GenericTransaction.GenericOutput> getUnspentOutputs() {
+   public List<WalletAccount> getDependentAccounts() {
+      // BTC accounts do not have any dependent accounts
+      return new ArrayList<>();
+   }
+
+   @Override
+   public List<GenericOutputViewModel> getUnspentOutputViewModels() {
       List<TransactionOutputSummary> outputSummaryList = getUnspentTransactionOutputSummary();
-      List<GenericTransaction.GenericOutput> result = new ArrayList<>();
+      List<GenericOutputViewModel> result = new ArrayList<>();
       for(TransactionOutputSummary output : outputSummaryList) {
          GenericAddress addr = new BtcAddress(getCoinType(), output.address);
-         result.add(new GenericTransaction.GenericOutput(addr, Value.valueOf(getCoinType(), output.value), false));
+         result.add(new GenericOutputViewModel(addr, Value.valueOf(getCoinType(), output.value), false));
       }
       return result;
    }
+
+    @Override
+    public boolean isSpendingUnconfirmed(GenericTransaction tx) {
+        BtcTransaction btcTx = (BtcTransaction)tx;
+        UnsignedTransaction unsignedTransaction = btcTx.getUnsignedTx();
+        for (UnspentTransactionOutput out : unsignedTransaction.getFundingOutputs()) {
+            Address address = out.script.getAddress(getNetwork());
+            if (out.height == -1 && isOwnExternalAddress(address)) {
+                // this is an unconfirmed output from an external address -> we want to warn the user
+                // we allow unconfirmed spending of internal (=change addresses) without warning
+                return true;
+            }
+        }
+        //no unconfirmed outputs are used as inputs, we are fine
+        return false;
+    }
 }

@@ -16,14 +16,14 @@ import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletAccount<*, *>,
+        val account: WalletAccount<*>,
         private val accountLabel: String,
         showIncomingUtxo: Boolean = false
 ) {
@@ -61,31 +61,32 @@ class ReceiveCoinsModel(
     }
 
     fun setAmount(newAmount: Value) {
-        if (!Value.isNullOrZero(newAmount)) {
-            amount.value = newAmount
+        amount.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            amount.value = null
+            null
         }
     }
 
     fun setAlternativeAmount(newAmount: Value) {
-        if (!Value.isNullOrZero(newAmount)) {
-            alternativeAmountData.value = newAmount
+        alternativeAmountData.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            alternativeAmountData.value = null
+            null
         }
     }
 
     fun getPaymentUri(): String {
-        val prefix = accountLabel
-
-        val uri = StringBuilder(prefix).append(':')
-        uri.append(receivingAddress.value)
+        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val uri = StringBuilder(prefix)
+                .append(':')
+                .append(receivingAddress.value)
         if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+
                 if (value != null) {
                     uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
@@ -152,7 +153,7 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransaction>) =
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransactionSummary>) =
             transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {

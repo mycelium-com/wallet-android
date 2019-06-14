@@ -28,7 +28,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContext, BtcTransaction>,
+class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountContext>,
                       internal val secureStore: SecureKeyValueStore,
                       internal val networkParameters: NetworkParameters,
                       internal var _wapi: Wapi,
@@ -38,6 +38,10 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                       internal val loadingProgressUpdater: LoadingProgressUpdater?,
                       internal val eventHandler: AbstractBtcAccount.EventHandler?) :
         GenericModule(metadataStorage), WalletModule {
+
+    override fun getAccountById(id: UUID): WalletAccount<*>? {
+        return accounts[id]
+    }
 
     init {
         assetsList.add(if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get())
@@ -52,11 +56,11 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     private val accounts = mutableMapOf<UUID, HDAccount>()
     override fun getId(): String = ID
 
-    override fun getAccounts(): List<WalletAccount<*, *>> = accounts.values.toList()
+    override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*, *>> {
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> {
         LoadingProgressTracker.subscribe(loadingProgressUpdater!!)
-        val result = mutableMapOf<UUID, WalletAccount<*, *>>()
+        val result = mutableMapOf<UUID, WalletAccount<*>>()
         val contexts = backing.loadBip44AccountContexts()
         var counter = 1
         for (context in contexts) {
@@ -68,7 +72,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
             loadKeyManagers(context, keyManagerMap)
 
             val accountBacking = backing.getBip44AccountBacking(context.id)
-            val account: WalletAccount<*, *>
+            val account: WalletAccount<*>
             when (context.accountType) {
                 ACCOUNT_TYPE_UNRELATED_X_PUB ->
                     account = HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
@@ -85,6 +89,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                         settings.changeAddressModeReference)
             }
             result[account.id] = account
+            account.label = readLabel(account.id)
             accounts[account.id] = account as HDAccount
             account.setEventHandler(eventHandler)
             LoadingProgressTracker.clearLastFullUpdateTime()
@@ -126,8 +131,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
         }
     }
 
-    override fun createAccount(config: Config): WalletAccount<*, *> {
-        val result: WalletAccount<*, *>
+    override fun createAccount(config: Config): WalletAccount<*> {
+        val result: WalletAccount<*>
         when (config) {
             is UnrelatedHDAccountConfig -> {
                 val accountIndex = 0  // use any index for this account, as we don't know and we don't care
@@ -145,7 +150,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                         try {
                             keyManagerMap[derivationType] = HDAccountKeyManager.createFromAccountRoot(hdKeyNode, networkParameters,
                                     accountIndex, secureStorage, AesKeyCipher.defaultKeyCipher(), derivationType)
-                        } catch (invalidKeyCipher: KeyCipher.InvalidKeyCipher) {
+                        } catch (invalidKeyCipher: InvalidKeyCipher) {
                             throw RuntimeException(invalidKeyCipher)
                         }
 
@@ -157,7 +162,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                 val id = keyManagerMap[derivationTypes[0]]!!.accountId
 
                 // Generate the context for the account
-                val accountType = if (config.hdKeyNodes.get(0).isPrivateHdKeyNode) {
+                val accountType = if (config.hdKeyNodes[0].isPrivateHdKeyNode) {
                     ACCOUNT_TYPE_UNRELATED_X_PRIV
                 } else {
                     ACCOUNT_TYPE_UNRELATED_X_PUB
@@ -172,7 +177,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
 
                     // Create actual account
                     result = if (config.hdKeyNodes[0].isPrivateHdKeyNode) {
-                        HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, Reference(ChangeAddressMode.P2WPKH))
+                        HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
                     } else {
                         HDPubOnlyAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi)
                     }
@@ -281,8 +286,8 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
         return when (cfg) {
             is AdditionalHDAccountConfig -> "Account " + getNextBip44Index()
             is ExternalSignaturesAccountConfig ->
-                signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes.get(0).index + 1)
-            is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes.get(0).isPrivateHdKeyNode) "Account 1" else "Imported"
+                signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes[0].index + 1)
+            is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) "Account 1" else "Imported"
             else -> throw IllegalArgumentException("Unsupported config")
         }
     }
@@ -349,7 +354,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     }
 
 
-    override fun deleteAccount(walletAccount: WalletAccount<*, *>, keyCipher: KeyCipher): Boolean {
+    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         if(walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
             accounts.remove(walletAccount.id)
             backing.deleteBip44AccountContext(walletAccount.id)
@@ -363,8 +368,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
     }
 
     companion object {
-        @JvmField
-        val ID: String = "BitcoinHD"
+        const val ID: String = "BitcoinHD"
     }
 
     fun getGapsBug(): Set<Int> {
@@ -379,7 +383,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
         val gaps: Set<Int> = getGapsBug()
         // Get the master seed
         val masterSeed: Bip39.MasterSeed = getMasterSeed(cipher)
-        val tempSecureBacking = InMemoryWalletManagerBacking()
+        val tempSecureBacking = InMemoryBtcWalletManagerBacking()
 
         val tempSecureKeyValueStore = SecureKeyValueStore(tempSecureBacking, RandomSource {
             // randomness not needed for the temporary keystore
@@ -420,7 +424,7 @@ class BitcoinHDModule(internal val backing: WalletManagerBacking<HDAccountContex
                 backing.createBip44AccountContext(context)
 
                 // Get the backing for the new account
-                val accountBacking: Bip44AccountBacking = backing.getBip44AccountBacking(context.id)
+                val accountBacking: Bip44BtcAccountBacking = backing.getBip44AccountBacking(context.id)
 
                 // Create actual account
                 val account = HDAccount(context, keyManagerMap, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
@@ -453,19 +457,19 @@ fun WalletManager.getBTCBip44Accounts() = getAccounts().filter { it is HDAccount
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isActive }
+fun WalletManager.getActiveHDAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is HDAccount && it.isActive }
 
 /**
  * Get the active HD-accounts managed by the wallet manager, excluding on-the-fly-accounts and single-key accounts
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveMasterseedHDAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
+fun WalletManager.getActiveMasterseedHDAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is HDAccount && it.isDerivedFromInternalMasterseed }
 
 /**
  * Get the active accounts managed by the wallet manager
  *
  * @return the list of accounts
  */
-fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*, *>> = getAccounts().filter { it.isActive && it.isDerivedFromInternalMasterseed }
+fun WalletManager.getActiveMasterseedAccounts(): List<WalletAccount<*>> = getAccounts().filter { it.isActive && it.isDerivedFromInternalMasterseed }
 

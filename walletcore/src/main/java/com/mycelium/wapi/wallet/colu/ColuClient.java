@@ -6,19 +6,12 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.colu.json.AddressInfo;
-import com.mycelium.wapi.wallet.colu.json.AddressTransactionsInfo;
-import com.mycelium.wapi.wallet.colu.json.AssetMetadata;
-import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex;
-import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxId;
-import com.mycelium.wapi.wallet.colu.json.ColuTransactionRequest;
-import com.mycelium.wapi.wallet.colu.json.ColuTxDest;
-import com.mycelium.wapi.wallet.colu.json.ColuTxFlags;
-
+import com.mycelium.wapi.wallet.colu.json.*;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
+import javax.annotation.Nullable;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.security.Security;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,9 +31,10 @@ public class ColuClient {
     private AdvancedHttpClient coloredCoinsClient;
     private AdvancedHttpClient blockExplorerClient;
 
-    public ColuClient(NetworkParameters network, String[] apiUrls, String[] explorerUrls) {
-        this.coloredCoinsClient = new AdvancedHttpClient(apiUrls/*BuildConfig.ColoredCoinsApiURLs*/);
-        this.blockExplorerClient = new AdvancedHttpClient(explorerUrls/*BuildConfig.ColuBlockExplorerApiURLs*/);
+    public ColuClient(NetworkParameters network, String[] apiUrls, String[] explorerUrls, @Nullable SSLSocketFactory socketFactory) {
+
+        this.coloredCoinsClient = new AdvancedHttpClient(apiUrls/*BuildConfig.ColoredCoinsApiURLs*/, socketFactory);
+        this.blockExplorerClient = new AdvancedHttpClient(explorerUrls/*BuildConfig.ColuBlockExplorerApiURLs*/, socketFactory);
         this.network = network;
 
         // Level.CONFIG logs everything but Authorization header
@@ -60,13 +54,12 @@ public class ColuClient {
     }
 
     public AddressInfo.Json getBalance(Address address) throws IOException {
-        String endpoint = "addressinfo/" + address.toString();
-        return coloredCoinsClient.sendGetRequest(AddressInfo.Json.class, endpoint);
+        String endpoint = "getaddressinfo?address=" + address.toString();
+        return blockExplorerClient.sendGetRequest(AddressInfo.Json.class, endpoint);
     }
 
     public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
-        String endpoint = "getaddressinfowithtransactions?address=" + address.toString();
-        return blockExplorerClient.sendGetRequest(AddressTransactionsInfo.Json.class, endpoint);
+        return getAddressTransactions(address.toString());
     }
 
     public AddressTransactionsInfo.Json getAddressTransactions(String address) throws IOException {
@@ -95,8 +88,7 @@ public class ColuClient {
         List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
-        BigDecimal amountAssetSatoshi = new BigDecimal(nativeAmount.getValue()).multiply(new BigDecimal(10).pow(nativeAmount.type.getUnitExponent()));
-        dest.amount = amountAssetSatoshi.longValue();
+        dest.amount = nativeAmount.getValue();
         dest.assetId = nativeAmount.type.getId();
         to.add(dest);
 

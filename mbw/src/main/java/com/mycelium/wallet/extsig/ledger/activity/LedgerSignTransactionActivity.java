@@ -64,7 +64,7 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
-import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
@@ -139,7 +139,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          ArrayList<String> toAddresses = new ArrayList<>(1);
 
          long totalSending = 0;
-         UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
+         UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
 
          for (TransactionOutput o : unsigned.getOutputs()) {
             Address toAddress;
@@ -196,7 +196,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    private void onUserConfirmationRequest2FA(BTChipOutput outputParam) {
       BTChipOutputKeycard output = (BTChipOutputKeycard) outputParam;
       ArrayList<String> toAddresses = new ArrayList<>(1);
-      UnsignedTransaction unsigned = ((BtcSendRequest)_sendRequest).getUnsignedTx();
+      UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
       for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          toAddress = o.script.getAddress(_mbwManager.getNetwork());

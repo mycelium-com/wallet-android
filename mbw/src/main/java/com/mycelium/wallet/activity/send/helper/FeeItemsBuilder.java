@@ -84,14 +84,12 @@ public class FeeItemsBuilder {
         }
 
         List<FeeItem> feeItems = new ArrayList<>();
-        feeItems.add(new FeeItem(FeeViewAdapter.VIEW_TYPE_PADDING));
         addItemsInRange(asset, feeItems, algorithmLower, txSize);
         if (minerFee == MinerFee.LOWPRIO) {
             algorithmUpper = new LinearAlgorithm(current, algorithmLower.getMaxPosition() + 1
                     , max, algorithmLower.getMaxPosition() + 4);
             addItemsInRange(asset, feeItems, algorithmUpper, txSize);
         }
-        feeItems.add(new FeeItem(FeeViewAdapter.VIEW_TYPE_PADDING));
 
         return feeItems;
     }
@@ -99,10 +97,10 @@ public class FeeItemsBuilder {
     private void addItemsInRange(GenericAssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
             FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
-            FeeItem prevFeeItem = feeItems.get(feeItems.size() - 1);
-            boolean canAdd = prevFeeItem.feePerKb < currFeeItem.feePerKb;
+            FeeItem prevFeeItem = feeItems.size() > 0 ? feeItems.get(feeItems.size() - 1) : null;
+            boolean canAdd = prevFeeItem != null ? prevFeeItem.feePerKb < currFeeItem.feePerKb : true;
 
-            if (currFeeItem.value != null && prevFeeItem.value != null
+            if (currFeeItem.value != null && prevFeeItem != null && prevFeeItem.value != null
                     && currFeeItem.fiatValue != null && prevFeeItem.fiatValue != null) {
                 String thisFiatFee = currFeeItem.fiatValue.toString();
                 String prevFiatFee = prevFeeItem.fiatValue.toString();

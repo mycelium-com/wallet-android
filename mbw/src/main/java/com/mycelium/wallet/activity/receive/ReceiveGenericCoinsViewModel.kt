@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.coins.Value
 class ReceiveGenericCoinsViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     private lateinit var accountLabel: String
 
-    override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
+    override fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         accountLabel = account.coinType.symbol
         model = ReceiveCoinsModel(getApplication(), account, accountLabel, showIncomingUtxo)

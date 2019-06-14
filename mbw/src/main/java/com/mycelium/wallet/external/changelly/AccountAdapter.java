@@ -56,17 +56,15 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         this.accountUseType = accountUseType;
     }
 
-    public AccountAdapter(MbwManager mbwManager, List<WalletAccount<?,?>> accounts, int paddingWidth) {
+    public AccountAdapter(MbwManager mbwManager, List<WalletAccount<?>> accounts, int paddingWidth) {
         this.mbwManager = mbwManager;
         this.paddingWidth = paddingWidth;
-        items.add(new Item(null, VIEW_TYPE_PADDING));
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
             if(account.isExchangeable()) {
                 items.add(new Item(account, VIEW_TYPE_ITEM));
             }
         }
-        items.add(new Item(null, VIEW_TYPE_PADDING));
     }
 
     public Item getItem(int selectedItem) {

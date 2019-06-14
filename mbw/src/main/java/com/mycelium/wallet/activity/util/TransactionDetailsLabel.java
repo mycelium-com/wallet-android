@@ -38,16 +38,17 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
-   private GenericTransaction transaction;
+   private GenericTransactionSummary transaction;
    private boolean coluMode;
 
    public TransactionDetailsLabel(Context context) {
@@ -68,12 +69,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.getId().toString();
+      return transaction.getIdHex();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.getId().toString(), 4, " ");
+      return Utils.stringChopper(HexUtils.toHex(transaction.getId()), 4, " ");
    }
 
    @Override
@@ -81,7 +82,7 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final GenericTransaction tx) {
+   public void setTransaction(final GenericTransactionSummary tx) {
       this.transaction = tx;
       update_ui();
       NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();

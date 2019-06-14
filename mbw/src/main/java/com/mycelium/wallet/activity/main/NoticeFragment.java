@@ -63,7 +63,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.TimeUnit;
@@ -74,7 +74,6 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class NoticeFragment extends Fragment {
-
    public static final String LATER_CLICK_TIME = "later_click_time";
    public static final String NOTICE = "notice";
    private static final String LATER_CLICK_TIME_MASTER_SEED = "later_click_time_master_seed";
@@ -82,7 +81,7 @@ public class NoticeFragment extends Fragment {
    private enum Notice {
       BACKUP_MISSING
       , SINGLEKEY_BACKUP_MISSING, SINGLEKEY_VERIFY_MISSING
-      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE;
+      , RESET_PIN_AVAILABLE, RESET_PIN_IN_PROGRESS, NONE
    }
 
    private MbwManager _mbwManager;
@@ -169,7 +168,7 @@ public class NoticeFragment extends Fragment {
       }
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof PublicColuAccount || account instanceof SingleAddressAccount)
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount)
               && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          if(state == MetadataStorage.BackupState.NOT_VERIFIED) {
@@ -261,22 +260,22 @@ public class NoticeFragment extends Fragment {
       // delay is still remaining, provide option to abort
       String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
       new AlertDialog.Builder(getActivity())
-            .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
-            .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
-            .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  _mbwManager.getMetadataStorage().clearResetPinStartBlockheight();
-                  recheckNotice();
-               }
-            })
-            .setNegativeButton(this.getActivity().getString(R.string.no), new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  // nothing to do here
-               }
-            })
-            .show();
+              .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
+              .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
+              .setPositiveButton(this.getActivity().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                    _mbwManager.getMetadataStorage().clearResetPinStartBlockheight();
+                    recheckNotice();
+                 }
+              })
+              .setNegativeButton(this.getActivity().getString(R.string.no), new DialogInterface.OnClickListener() {
+                 @Override
+                 public void onClick(DialogInterface dialog, int which) {
+                    // nothing to do here
+                 }
+              })
+              .show();
    }
 
    private OnClickListener warningClickListener = new OnClickListener() {
@@ -326,9 +325,9 @@ public class NoticeFragment extends Fragment {
       // Only show the "Secure My Funds" button when necessary
       backupMissingLayout.setVisibility(
               (_notice == Notice.BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME_MASTER_SEED, 0)) > 0)
-              || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
-              || _notice == Notice.SINGLEKEY_VERIFY_MISSING
-              ? View.VISIBLE : View.GONE);
+                      || (_notice == Notice.SINGLEKEY_BACKUP_MISSING && TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - sharedPreferences.getLong(LATER_CLICK_TIME + account.getId(), 0)) > 0)
+                      || _notice == Notice.SINGLEKEY_VERIFY_MISSING
+                      ? View.VISIBLE : View.GONE);
 
       if(_notice == Notice.SINGLEKEY_VERIFY_MISSING) {
          backupMissing.setText(R.string.singlekey_verify_notice);
@@ -377,6 +376,4 @@ public class NoticeFragment extends Fragment {
    public void selectedAccountChanged(SelectedAccountChanged event) {
       recheckNotice();
    }
-
-
 }

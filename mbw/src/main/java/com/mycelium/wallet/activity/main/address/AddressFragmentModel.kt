@@ -22,7 +22,7 @@ import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
-        var account: WalletAccount<*,*>,
+        var account: WalletAccount<*>,
         val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
@@ -62,7 +62,7 @@ class AddressFragmentModel(
         })
     }
 
-    private fun updateAddress(account: WalletAccount<*, *>) {
+    private fun updateAddress(account: WalletAccount<*>) {
         if (account is WalletBtcAccount) {
             account.receivingAddress.orNull()?.let { address ->
                 bip32Path.value = address.bip32Path

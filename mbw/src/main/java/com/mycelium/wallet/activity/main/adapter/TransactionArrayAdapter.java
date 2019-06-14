@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
@@ -20,7 +21,7 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -37,7 +38,7 @@ import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIA
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
+public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSummary> {
    private final MetadataStorage _storage;
    protected Context _context;
    private DateFormat _dateFormat;
@@ -48,12 +49,12 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
    private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<GenericTransaction> transactions, Map<Address, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<GenericTransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
-                                  List<GenericTransaction> transactions,
+                                  List<GenericTransactionSummary> transactions,
                                   Fragment containerFragment,
                                   Map<Address, String> addressBook,
                                   boolean alwaysShowAddress) {
@@ -88,7 +89,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
          return rowView;
       }
 
-      final GenericTransaction record = getItem(position);
+      final GenericTransactionSummary record = getItem(position);
 
       // Determine Color
       int color;
@@ -128,7 +129,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
       }
 
       TextView tvFiatTimed = rowView.findViewById(R.id.tvFiatAmountTimed);
-      String value = transactionFiatValuePref.getString(record.getId().toHex(), null);
+      String value = transactionFiatValuePref.getString(record.getIdHex(), null);
       tvFiatTimed.setVisibility(value != null ? View.VISIBLE : View.GONE);
       if(value != null) {
          tvFiatTimed.setText(value);
@@ -175,7 +176,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransaction> {
 
       // Show label or confirmations
       TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
-      String label = _storage.getLabelByTransaction(record.getId());
+      String label = _storage.getLabelByTransaction(record.getIdHex());
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced
          String confirmationsText;

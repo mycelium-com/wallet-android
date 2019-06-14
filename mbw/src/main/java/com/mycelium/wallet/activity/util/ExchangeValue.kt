@@ -17,18 +17,21 @@ class ExchangeValue(value: Value, val baseValue: Value) : Value(value.type, valu
 }
 
 fun ExchangeRateManager.get(value: Value, toCurrency: GenericAssetInfo): Value? {
+    if(toCurrency == value.type) {
+        return value
+    }
     var fromValue = value
     if (value is ExchangeValue) {
         fromValue = value.baseValue
     }
     val rate = GetExchangeRate(toCurrency.symbol, fromValue.type.symbol, this).invoke()
     val rateValue = rate.rate
-    if (rateValue != null) {
+    return if (rateValue != null) {
         val bigDecimal = rateValue.multiply(BigDecimal.valueOf(fromValue.value))
                 .movePointLeft(fromValue.type.unitExponent)
                 .round(MathContext.DECIMAL32)
-        return ExchangeValue(Value.parse(toCurrency, bigDecimal), fromValue)
+        ExchangeValue(Value.parse(toCurrency, bigDecimal), fromValue)
     } else {
-        return null
+        null
     }
 }

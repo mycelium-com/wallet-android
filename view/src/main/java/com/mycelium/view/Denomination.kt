@@ -1,7 +1,7 @@
 package com.mycelium.view
 
 
-enum class Denomination(val base10: Int, val asciiString: String, val unicodeString: String) {
+enum class Denomination(val scale: Int, val asciiString: String, val unicodeString: String) {
     UNIT(0, "", ""),
     MILLI(3, "m", "m"),
     MICRO(6, "u", "\u00B5"),
@@ -20,6 +20,10 @@ enum class Denomination(val base10: Int, val asciiString: String, val unicodeStr
                 MILLI, MICRO -> asciiString + symbol
                 else -> asciiString
             }
+
+    fun getAmount(value: Long): Long {
+        return value / Math.pow(10.0, scale.toDouble()).toLong()
+    }
 
     companion object {
         @JvmStatic

@@ -89,10 +89,15 @@ import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -106,12 +111,13 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.colu.PrivateColuAccount;
-import com.mycelium.wapi.wallet.colu.PublicColuAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
-import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -225,8 +231,7 @@ public class Utils {
       if (cm != null) {
          activeNetwork = cm.getActiveNetworkInfo();
       }
-      return activeNetwork != null &&
-              activeNetwork.isConnectedOrConnecting();
+      return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
    }
 
    public static void toastConnectionError(Context context) {
@@ -680,7 +685,7 @@ public class Utils {
       MetadataStorage meta = mbwManager.getMetadataStorage();
 
       // Then check if there are some SingleAddressAccounts with funds on it
-      if ((account instanceof PrivateColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
+      if ((account instanceof ColuAccount || account instanceof SingleAddressAccount) && account.canSpend()) {
          MetadataStorage.BackupState state = meta.getOtherAccountBackupState(account.getId());
          return state == MetadataStorage.BackupState.NOT_VERIFIED || state == MetadataStorage.BackupState.VERIFIED;
       }
@@ -772,7 +777,7 @@ public class Utils {
       return new HashSet<>(accounts);
    }
 
-   public static List<WalletAccount<?,?>> sortAccounts(final Collection<WalletAccount<?,?>> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount<?>> sortAccounts(final Collection<WalletAccount<?>> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          //maybe need to add new method in WalletAccount and use polymorphism
          //but I think it's unnecessary
@@ -791,14 +796,11 @@ public class Utils {
             if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
-            if(input instanceof PrivateColuAccount) {
+            if(input instanceof ColuAccount) {
                return 5;
             }
-            if(input instanceof PublicColuAccount) {
-               return 6;
-            }
             if(input instanceof CoinapultAccount) {
-               return 7;
+               return 6;
             }
             return 4;
          }
@@ -817,9 +819,9 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1 instanceof PrivateColuAccount) {
+            if (w1 instanceof ColuAccount) {
                return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2 instanceof PrivateColuAccount) {
+            } else if (w2 instanceof ColuAccount) {
                return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
             }
             return 0;
@@ -846,41 +848,45 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof PublicColuAccount) {
-         com.mycelium.wapi.wallet.colu.PublicColuAccount account = (com.mycelium.wapi.wallet.colu.PublicColuAccount) walletAccount;
-         if (account.getCoinType() == MTCoin.INSTANCE) {
-            return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+      return getDrawableForAccount(new AccountViewModel(walletAccount, null), isSelectedAccount, resources);
+   }
+
+   public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
+      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      if (ColuAccount.class.isAssignableFrom(accountType)) {
+         CryptoCurrency coinType = accountView.getCoinType();
+         if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mt_icon) :
                     resources.getDrawable(R.drawable.mt_icon_no_priv_key);
-         } else if (account.getCoinType() == MASSCoin.INSTANCE) {
-            return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
+         } else if (coinType == MASSCoin.INSTANCE || coinType == MASSCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mass_icon)
                     : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
-         } else if (account.getCoinType() == RMCCoin.INSTANCE)
-            return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+         } else if (coinType == RMCCoin.INSTANCE || coinType == RMCCoinTest.INSTANCE)
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.rmc_icon)
                     : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
       }
 
       // Watch only
-      if (!walletAccount.canSpend()) {
+      if (!accountView.getCanSpend()) {
          return null;
       }
 
       //trezor account
-      if (walletAccount instanceof HDAccountExternalSignature) {
-         int accountType = ((HDAccountExternalSignature) walletAccount).getAccountType();
-         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+      if (HDAccountExternalSignature.class.isAssignableFrom(accountType)) {
+         int externalAccountType = accountView.getExternalAccountType();
+         if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
-		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+         } else if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
-
       }
       //regular HD account
-      if (walletAccount instanceof HDAccount) {
+      if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount) {
+      if (CoinapultAccount.class.isAssignableFrom(accountType)) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
@@ -908,8 +914,6 @@ public class Utils {
          return context.getString(R.string.account_prefix_imported);
       } else if (account instanceof HDAccount) {
          return context.getString(R.string.account) + " " + (((HDAccount) account).getAccountIndex() + 1);
-      } else if (account instanceof EthAccount) {
-         return context.getString(R.string.eth_accounts_name);
       } else {
          return DateFormat.getMediumDateFormat(context).format(new Date());
       }
@@ -919,8 +923,7 @@ public class Utils {
       if (account instanceof CoinapultAccount
               || account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof PrivateColuAccount
-              || account instanceof EthAccount) {
+              || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {

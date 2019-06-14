@@ -6,13 +6,18 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 public class ColuUtils {
     public static final int METADATA_OUTPUT_SIZE = 1;
@@ -32,6 +37,7 @@ public class ColuUtils {
         return new UUID(high, low);
     }
 
+    @Nullable
     public static ColuMain getColuCoin(String coinId) {
         ColuMain coinType = null;
         if (MTCoin.INSTANCE.getId().equals(coinId)) {
@@ -40,24 +46,20 @@ public class ColuUtils {
             coinType = MASSCoin.INSTANCE;
         } else if (RMCCoin.INSTANCE.getId().equals(coinId)) {
             coinType = RMCCoin.INSTANCE;
+        } else if (MTCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = MTCoinTest.INSTANCE;
+        } else if (MASSCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = MASSCoinTest.INSTANCE;
+        } else if (RMCCoinTest.INSTANCE.getId().equals(coinId)) {
+            coinType = RMCCoinTest.INSTANCE;
         }
         return coinType;
     }
 
-    public static ColuMain getColuCoinBySheme(String scheme) {
-        ColuMain coinType = null;
-        if (MTCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = MTCoin.INSTANCE;
-        } else if (MASSCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = MASSCoin.INSTANCE;
-        } else if (RMCCoin.INSTANCE.getSymbol().equals(scheme)) {
-            coinType = RMCCoin.INSTANCE;
+    public static List<ColuMain> allColuCoins(String build) {
+        if (build.equals("prodnet")) {
+            return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
         }
-        return coinType;
-    }
-
-
-    public static List<ColuMain> allColuCoins() {
-        return Arrays.asList(MTCoin.INSTANCE, MASSCoin.INSTANCE, RMCCoin.INSTANCE);
+        return Arrays.asList(MTCoinTest.INSTANCE, MASSCoinTest.INSTANCE, RMCCoinTest.INSTANCE);
     }
 }

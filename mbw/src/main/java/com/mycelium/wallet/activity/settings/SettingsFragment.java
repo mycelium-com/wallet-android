@@ -100,7 +100,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
-    private PreferenceCategory modulesPrefs;
     private Preference externalPreference;
     private Preference versionPreference;
     private CheckBoxPreference localTraderDisable;
@@ -238,7 +237,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
         // external Services
-        modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
         localTraderDisable = (CheckBoxPreference) findPreference("ltDisable");
         externalPreference = findPreference("external_services");
         versionPreference = findPreference("updates");
@@ -389,11 +387,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        modulesPrefs.removeAll();
-        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
-            processPairedModules(modulesPrefs);
-        }
-        processUnpairedModules(modulesPrefs);
         final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
         String defaultValue = "";
         for (Denomination value : Denomination.values()) {
@@ -692,37 +685,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return super.onOptionsItemSelected(item);
     }
 
-    private void processPairedModules(PreferenceCategory modulesPrefs) {
-        for (final Module module : CommunicationManager.getInstance().getPairedModules()) {
-            final ButtonPreference preference = createUninstallableModulePreference(module);
-            modulesPrefs.addPreference(preference);
-        }
-    }
-
-    private void processUnpairedModules(PreferenceCategory modulesPrefs) {
-        for (final Module module : GooglePlayModuleCollection.getModules(getActivity()).values()) {
-            if (!CommunicationManager.getInstance().getPairedModules().contains(module)) {
-                if (Utils.isAppInstalled(getActivity(), module.getModulePackage()) && ModularisationVersionHelper.isUpdateRequired(getActivity(), module.getModulePackage())) {
-                    TwoButtonsPreference preference = createUpdateRequiredPreference(module);
-                    modulesPrefs.addPreference(preference);
-                    preference.setEnabled(false, true, true);
-                } else if (Utils.isAppInstalled(getActivity(), module.getModulePackage())) {
-                    final ButtonPreference preference = createUninstallableModulePreference(module);
-                    preference.setEnabled(false);
-                    preference.setButtonEnabled(true);
-                    modulesPrefs.addPreference(preference);
-                } else {
-                    ButtonPreference installPreference = new ButtonPreference(getActivity());
-                    installPreference.setButtonText(getString(R.string.install));
-                    installPreference.setButtonClickListener(getInstallClickListener(module));
-                    installPreference.setTitle(Html.fromHtml(module.getName()));
-                    installPreference.setSummary(module.getDescription());
-                    modulesPrefs.addPreference(installPreference);
-                }
-            }
-        }
-    }
-
     @NonNull
     private ButtonPreference createUninstallableModulePreference(final Module module) {
         final ButtonPreference preference = new ButtonPreference(getActivity());
@@ -797,16 +759,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             pleaseWait.show();
             if (resultCode == RESULT_CANCELED) {
                 pleaseWait.dismiss();
-                for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
-                    Preference preferenceButton = modulesPrefs.getPreference(index);
-                    if (preferenceButton instanceof ButtonPreference) {
-                        if (!ModularisationVersionHelper.isUpdateRequired(getActivity(), preferenceButton.getKey().replace("Module_", ""))) {
-                            preferenceButton.setEnabled(true);
-                        }
-                    } else if (preferenceButton instanceof TwoButtonsPreference) {
-                        ((TwoButtonsPreference) preferenceButton).setEnabled(false, true, true);
-                    }
-                }
             }
         }
     }
@@ -830,11 +782,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
         MbwManager.getEventBus().register(this);
-        modulesPrefs.removeAll();
-        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
-            processPairedModules(modulesPrefs);
-        }
-        processUnpairedModules(modulesPrefs);
         super.onResume();
     }
 

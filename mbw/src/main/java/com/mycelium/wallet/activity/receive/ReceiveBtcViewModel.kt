@@ -21,7 +21,7 @@ import com.mycelium.wapi.wallet.coins.Value
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     val addressType: MutableLiveData<AddressType> = MutableLiveData()
 
-    override fun init(account: WalletAccount<*,*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
+    override fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
         addressType.value = (account as WalletBtcAccount).receivingAddress.get().type

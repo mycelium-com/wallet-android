@@ -20,12 +20,10 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.ScriptInputStandard;
 import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.api.Wapi;
@@ -37,24 +35,23 @@ import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericInput;
-import com.mycelium.wapi.wallet.InputSigner;
+import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher;
-import com.mycelium.wapi.wallet.btc.BtcReceiver;
-import com.mycelium.wapi.wallet.btc.Reference;
-import com.mycelium.wapi.wallet.SendRequest;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
+import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager.Event;
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcSendRequest;
+import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,24 +61,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount, InputSigner {
+public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
    private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private PublicKey publicKey;
-   private SingleAddressAccountBacking _backing;
+   private SingleAddressBtcAccountBacking _backing;
    private Reference<ChangeAddressMode> changeAddressModeReference;
    public boolean toRemove = false;
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               NetworkParameters network, SingleAddressBtcAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference) {
       this(context, keyStore, network, backing, wapi, changeAddressModeReference, true);
    }
 
    public SingleAddressAccount(SingleAddressAccountContext context, PublicPrivateKeyStore keyStore,
-                               NetworkParameters network, SingleAddressAccountBacking backing, Wapi wapi,
+                               NetworkParameters network, SingleAddressBtcAccountBacking backing, Wapi wapi,
                                Reference<ChangeAddressMode> changeAddressModeReference, boolean shouldPersistAddress) {
       super(backing, network, wapi);
       this.changeAddressModeReference = changeAddressModeReference;
@@ -500,8 +497,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       return _context.getAddresses().get(type);
    }
 
+   @NotNull
    @Override
-   public Data getExportData(KeyCipher cipher) {
+   public Data getExportData(@NotNull KeyCipher cipher) {
       Optional<String> privKey = Optional.absent();
       Map<BipDerivationType, String> publicDataMap = new HashMap<>();
       if (canSpend()) {
@@ -522,50 +520,16 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException {
+   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) {
       // not needed for SingleAddressAccount
       return Collections.emptyMap();
    }
 
-   @Override
-   public void completeTransaction(SendRequest<BtcTransaction> request) throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
-      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      List<BtcReceiver> receivers = new ArrayList<>();
-      receivers.add(new BtcReceiver(btcSendRequest.getDestination().getAddress(), btcSendRequest.getAmount().value));
-      try {
-         btcSendRequest.setUnsignedTx(createUnsignedTransaction(receivers, request.fee.value));
-         request.setCompleted(true);
-      } catch (StandardTransactionBuilder.OutputTooSmallException e) {
-         throw new GenericOutputTooSmallException(e);
-      } catch (StandardTransactionBuilder.InsufficientFundsException e) {
-         throw new GenericInsufficientFundsException(e);
-      } catch (StandardTransactionBuilder.UnableToBuildTransactionException e) {
-         throw new GenericBuildTransactionException(e);
-      }
-   }
 
    @Override
-   public void signTransaction(SendRequest<BtcTransaction> request, KeyCipher keyCipher ) throws InvalidKeyCipher {
-      BtcSendRequest btcSendRequest = (BtcSendRequest) request;
-      btcSendRequest.setTransaction(signTransaction(btcSendRequest.getUnsignedTx(), AesKeyCipher.defaultKeyCipher()));
+   public BroadcastResult broadcastTx(GenericTransaction tx) {
+      BtcTransaction btcTransaction = (BtcTransaction)tx;
+      return broadcastTransaction(btcTransaction.getTx());
    }
 
-   @Override
-   public BroadcastResult broadcastTx(BtcTransaction tx) throws GenericTransactionBroadcastException {
-      return broadcastTransaction(tx.getRawTransaction());
-   }
-
-    @Override
-    public void signInput(GenericInput input, KeyCipher keyCipher) {
-        if (canSpend()) {
-            try {
-                PrivateKey key = getPrivateKey(keyCipher);
-                input.getTransactionInput().script = new ScriptInputStandard(
-                        key.makeStandardBitcoinSignature(input.getTransaction().getTxDigestHash(input.getIndex()))
-                        , key.getPublicKey().getPublicKeyBytes());
-            } catch (InvalidKeyCipher invalidKeyCipher) {
-                invalidKeyCipher.printStackTrace();
-            }
-        }
-    }
 }

@@ -40,7 +40,7 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletBtcAccount extends WalletAccount<BtcTransaction, BtcAddress> {
+public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
 
    /**
     * Get the network that this account is for.
