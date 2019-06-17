@@ -511,7 +511,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             blobQuery.bindBlob(1, hash.getBytes());
             cursor = blobQuery.raw( "SELECT hash, height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
                String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
                result = getTransactionFromJson(json);
             }
@@ -551,8 +550,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                             + " ORDER BY height desc limit ? offset ?",
                     new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
@@ -606,8 +603,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                     new String[]{Long.toString(since / 1000)});
 
             while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
                String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
