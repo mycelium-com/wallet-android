@@ -373,7 +373,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, txData BLOB);");
+            + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, txData BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -509,9 +509,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             blobQuery.bindBlob(1, hash.getBytes());
-            cursor = blobQuery.raw( "SELECT hash, height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
+            cursor = blobQuery.raw( "SELECT height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
-               String json = new String(cursor.getBlob(3), StandardCharsets.UTF_8);
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
                result = getTransactionFromJson(json);
             }
          } finally {
@@ -546,11 +546,11 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, txData FROM " + txTableName
+            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
                             + " ORDER BY height desc limit ? offset ?",
                     new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+               String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
             }
@@ -569,18 +569,17 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
+                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             int i = 0;
             for (Tx.Json transaction: transactions) {
-               int index = i * 5;
+               int index = i * 4;
                updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
-               updateStatement.bindBlob(index + 2, Sha256Hash.fromString(transaction.hash).getBytes());
-               updateStatement.bindLong(index + 3, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
-               updateStatement.bindLong(index + 4, transaction.time);
+               updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
+               updateStatement.bindLong(index + 3, transaction.time);
                transaction.setFactory(JSON_FACTORY);
-               updateStatement.bindBlob(index + 5, transaction.toString().getBytes());
+               updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
                i++;
             }
             updateStatement.executeInsert();
@@ -597,13 +596,13 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, txData FROM " + txTableName
+            cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                             + " WHERE time >= ?"
                             + " ORDER BY height desc",
                     new String[]{Long.toString(since / 1000)});
 
             while (cursor.moveToNext()) {
-               String json = new String(cursor.getBlob(4), StandardCharsets.UTF_8);
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
             }
