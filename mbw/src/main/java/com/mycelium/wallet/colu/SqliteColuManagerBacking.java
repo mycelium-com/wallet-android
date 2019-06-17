@@ -43,10 +43,12 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import com.google.common.base.Optional;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -62,7 +64,6 @@ import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -72,16 +73,14 @@ import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.json.Tx;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,6 +100,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private static final int DEFAULT_SUB_ID = 0;
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
+   private  final JsonFactory JSON_FACTORY = new JacksonFactory();
    private Map<UUID, SqliteColuAccountBacking> _backings;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
@@ -373,7 +373,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);");
+            + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, txData BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -503,32 +503,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public GenericTransactionSummary getTxSummary(Sha256Hash hash) {
+      public Tx.Json getTx(Sha256Hash hash) {
          Cursor cursor = null;
-         GenericTransactionSummary result = null;
+         Tx.Json result = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
             blobQuery.bindBlob(1, hash.getBytes());
-            cursor = blobQuery.raw( "SELECT hash, height, time, binary FROM " + txTableName + " WHERE id = ?" , txTableName);
-
+            cursor = blobQuery.raw( "SELECT height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(3));
-               ObjectInput in = null;
-               try {
-                  in = new ObjectInputStream(bis);
-                  result = (GenericTransactionSummary) in.readObject();
-                  result.confirmationRiskProfile = Optional.absent();
-               } catch (IOException | ClassNotFoundException e) {
-                  e.printStackTrace();
-               } finally {
-                  try {
-                     if (in != null) {
-                        in.close();
-                     }
-                  } catch (IOException ignore) {
-                  }
-               }
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
+               result = getTransactionFromJson(json);
             }
          } finally {
             if (cursor != null) {
@@ -536,6 +520,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
          return result;
+      }
+
+      private Tx.Json getTransactionFromJson(String string) {
+         try {
+            return JSON_FACTORY.fromString(string, Tx.Json.class);
+         } catch (IOException ex) {
+             Log.e("colu accountBacking", "Parse error", ex);
+         }
+         return null;
       }
 
       @Override
@@ -549,34 +542,17 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
+      public List<Tx.Json> getTransactions(int offset, int limit) {
          Cursor cursor = null;
-         List<GenericTransactionSummary> result = new LinkedList<>();
+         List<Tx.Json> result = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
                             + " ORDER BY height desc limit ? offset ?",
                     new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               GenericTransactionSummary tex = null;
-               ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(4));
-               ObjectInput in = null;
-               try {
-                  in = new ObjectInputStream(bis);
-                  tex = (GenericTransactionSummary) in.readObject();
-                  tex.confirmationRiskProfile = Optional.absent();
-                  result.add(tex);
-               } catch (IOException | ClassNotFoundException e) {
-                  e.printStackTrace();
-               } finally {
-                  try {
-                     if (in != null) {
-                        in.close();
-                     }
-                  } catch (IOException ignore) {
-                  }
-               }
+               String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
          } finally {
             if (cursor != null) {
@@ -587,40 +563,23 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void putTransactions(List<GenericTransactionSummary> transactions) {
+      public void putTransactions(List<Tx.Json> transactions) {
          if (transactions.isEmpty()) {
             return;
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
+                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             int i = 0;
-            for (GenericTransactionSummary transaction: transactions) {
-               int index = i * 5;
-               updateStatement.bindBlob(index + 1, transaction.getId());
-               updateStatement.bindBlob(index + 2, transaction.getId());
-               updateStatement.bindLong(index + 3, transaction.getHeight() == -1 ? Integer.MAX_VALUE : transaction.getHeight());
-               updateStatement.bindLong(index + 4, transaction.getTime());
-
-               byte[] txData = null;
-               ByteArrayOutputStream bos = new ByteArrayOutputStream();
-               ObjectOutput out;
-               try {
-                  out = new ObjectOutputStream(bos);
-                  out.writeObject(transaction);
-                  out.flush();
-                  txData = bos.toByteArray();
-               } catch (IOException e) {
-                  Log.e("colu accountBacking", "", e);
-               } finally {
-                  try {
-                     bos.close();
-                  } catch (IOException ignore) {
-                  }
-               }
-               updateStatement.bindBlob(index + 5, txData);
+            for (Tx.Json transaction: transactions) {
+               int index = i * 4;
+               updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
+               updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
+               updateStatement.bindLong(index + 3, transaction.time);
+               transaction.setFactory(JSON_FACTORY);
+               updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
                i++;
             }
             updateStatement.executeInsert();
@@ -633,35 +592,19 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public List<GenericTransactionSummary> getTransactionsSince(long since) {
+      public List<Tx.Json> getTransactionsSince(long since) {
          Cursor cursor = null;
-         List<GenericTransactionSummary> result = new LinkedList<>();
+         List<Tx.Json> result = new LinkedList<>();
          try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
+            cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                             + " WHERE time >= ?"
                             + " ORDER BY height desc",
                     new String[]{Long.toString(since / 1000)});
 
             while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               GenericTransactionSummary tex = null;
-               ByteArrayInputStream bis = new ByteArrayInputStream(cursor.getBlob(4));
-               ObjectInput in = null;
-               try {
-                  in = new ObjectInputStream(bis);
-                  tex = (GenericTransactionSummary) in.readObject();
-                  result.add(tex);
-               } catch (IOException | ClassNotFoundException e) {
-                  e.printStackTrace();
-               } finally {
-                  try {
-                     if (in != null) {
-                        in.close();
-                     }
-                  } catch (IOException ignore) {
-                  }
-               }
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
          } finally {
             if (cursor != null) {
