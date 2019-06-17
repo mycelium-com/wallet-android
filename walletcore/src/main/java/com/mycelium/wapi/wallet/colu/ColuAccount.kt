@@ -455,7 +455,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                     transaction.blockheight.toInt(),
                     transaction.confirmations,
                     false,
-                    output[0].address,
                     input,
                     output,
                     ConfirmationRiskProfileLocal(0, false, false),

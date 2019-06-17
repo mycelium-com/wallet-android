@@ -19,7 +19,6 @@ public class GenericTransactionSummary implements Serializable {
     protected byte[] hash;
     protected Value transferred;
     protected long timestamp;
-    protected GenericAddress destinationAddress;
     protected List<GenericInputViewModel> inputs;
     protected List<GenericOutputViewModel> outputs;
     protected int height;
@@ -39,7 +38,6 @@ public class GenericTransactionSummary implements Serializable {
                                      int height,
                                      int confirmations,
                                      boolean isQueuedOutgoing,
-                                     GenericAddress destinationAddress,
                                      List<GenericInputViewModel> inputs,
                                      List<GenericOutputViewModel> outputs,
                                      ConfirmationRiskProfileLocal risk,
@@ -52,7 +50,6 @@ public class GenericTransactionSummary implements Serializable {
         this.confirmations = confirmations;
         this.height = height;
         this.isQueuedOutgoing = isQueuedOutgoing;
-        this.destinationAddress = destinationAddress;
         this.inputs = inputs;
         this.outputs = outputs;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
@@ -95,10 +92,6 @@ public class GenericTransactionSummary implements Serializable {
 
     public List<GenericOutputViewModel> getOutputs() {
         return outputs;
-    }
-
-    public GenericAddress getDestinationAddress() {
-        return destinationAddress;
     }
 
     public Value getTransferred() {
