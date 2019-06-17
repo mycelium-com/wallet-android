@@ -1336,17 +1336,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private GenericAssetUri getUriFromClipboard() {
-        String content = Utils.getClipboardString(SendMainActivity.this);
-        if (content.length() == 0) {
-            return null;
-        }
-        String string = content.trim();
-        if (string.matches("[a-zA-Z0-9]*")) {
+        String string = Utils.getClipboardString(this).trim();
+        if (string.matches("[a-zA-Z0-9]+")) {
             // Raw format
             List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(string);
-            if (addresses.size() == 0) {
-                return null;
-            }
             for (GenericAddress address: addresses) {
                 if (address.getCoinType() == _account.getCoinType()) {
                     return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
