@@ -92,18 +92,22 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         return result
     }
 
-    private fun createUriByCoinType(coinType: CryptoCurrency,
-                                    address: GenericAddress?,
-                                    amount: Value?,
-                                    label: String?,
-                                    paymentUri: String?): GenericAssetUri? {
-        return when (coinType) {
-            is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
-            is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
-            is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
-            is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
-            else -> null
-        }
+    companion object {
+        @JvmStatic
+        fun createUriByCoinType(coinType: CryptoCurrency,
+                                address: GenericAddress?,
+                                amount: Value?,
+                                label: String?,
+                                paymentUri: String?): GenericAssetUri? {
+            return when (coinType) {
+                is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
+                is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
+                is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
+                is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
+                else -> null
+            }
 
+        }
     }
+
 }
