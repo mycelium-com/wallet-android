@@ -96,7 +96,7 @@ public class AddressBookFragment extends Fragment {
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";
-    public static final String AVAILABLE_FOR_SENDING = "is_sending";
+    public static final String AVAILABLE_FOR_SENDING = "available_for_sending";
     public static final String SELECT_ONLY = "selectOnly";
     public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
