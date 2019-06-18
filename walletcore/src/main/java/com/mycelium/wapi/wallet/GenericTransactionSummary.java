@@ -25,7 +25,6 @@ public class GenericTransactionSummary implements Serializable {
     protected int confirmations;
     protected int rawSize;
     protected boolean isQueuedOutgoing;
-    protected long time;
     transient public Optional<ConfirmationRiskProfileLocal> confirmationRiskProfile;
     @Nullable
     protected Value fee;
@@ -113,8 +112,6 @@ public class GenericTransactionSummary implements Serializable {
     public String getIdHex() {
         return HexUtils.toHex(id);
     }
-
-    public long getTime() {return time;}
 
     public Optional<ConfirmationRiskProfileLocal> getConfirmationRiskProfile() {
         return confirmationRiskProfile;

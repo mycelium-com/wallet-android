@@ -577,9 +577,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                int index = i * 4;
                updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
                updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
-               updateStatement.bindLong(index + 3, transaction.time);
-               transaction.setFactory(JSON_FACTORY);
+               updateStatement.bindLong(index + 3, transaction.time / 1000);
                updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
+               transaction.setFactory(JSON_FACTORY);
                i++;
             }
             updateStatement.executeInsert();
