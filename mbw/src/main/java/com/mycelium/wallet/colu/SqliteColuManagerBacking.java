@@ -577,9 +577,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                int index = i * 4;
                updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
                updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
-               updateStatement.bindLong(index + 3, transaction.time);
-               transaction.setFactory(JSON_FACTORY);
+               updateStatement.bindLong(index + 3, transaction.time / 1000);
                updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
+               transaction.setFactory(JSON_FACTORY);
                i++;
             }
             updateStatement.executeInsert();
@@ -599,7 +599,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                             + " WHERE time >= ?"
                             + " ORDER BY height desc",
-                    new String[]{Long.toString(since)});
+                    new String[]{Long.toString(since / 1000)});
 
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
