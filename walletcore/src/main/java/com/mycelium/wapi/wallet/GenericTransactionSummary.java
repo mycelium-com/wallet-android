@@ -21,6 +21,7 @@ public class GenericTransactionSummary implements Serializable {
     protected long timestamp;
     protected List<GenericInputViewModel> inputs;
     protected List<GenericOutputViewModel> outputs;
+    protected List<GenericAddress> destinationAddresses;
     protected int height;
     protected int confirmations;
     protected int rawSize;
@@ -40,6 +41,7 @@ public class GenericTransactionSummary implements Serializable {
                                      boolean isQueuedOutgoing,
                                      List<GenericInputViewModel> inputs,
                                      List<GenericOutputViewModel> outputs,
+                                     List<GenericAddress> destinationAddresses,
                                      ConfirmationRiskProfileLocal risk,
                                      int rawSize, @Nullable Value fee) {
         this.type = type;
@@ -52,6 +54,7 @@ public class GenericTransactionSummary implements Serializable {
         this.isQueuedOutgoing = isQueuedOutgoing;
         this.inputs = inputs;
         this.outputs = outputs;
+        this.destinationAddresses = destinationAddresses;
         this.confirmationRiskProfile = Optional.fromNullable(risk);
         this.rawSize = rawSize;
         this.fee = fee;
@@ -92,6 +95,10 @@ public class GenericTransactionSummary implements Serializable {
 
     public List<GenericOutputViewModel> getOutputs() {
         return outputs;
+    }
+
+    public List<GenericAddress> getDestinationAddresses() {
+        return destinationAddresses;
     }
 
     public Value getTransferred() {

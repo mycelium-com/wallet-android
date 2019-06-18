@@ -1732,7 +1732,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       long satoshisSent = 0;
       long satoshisTransferred = 0;
 
-      GenericAddress destinationAddress = null;
+      List<GenericAddress> destinationAddresses = new ArrayList<>();
 
       ArrayList<GenericOutputViewModel> outputs = new ArrayList<>();
       for (TransactionOutput output : tx.outputs) {
@@ -1740,7 +1740,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          if (isMine(output.script)) {
             satoshisTransferred += output.value;
          } else {
-            destinationAddress = AddressUtils.fromAddress(address);
+            destinationAddresses.add(AddressUtils.fromAddress(address));
          }
          satoshisReceived += output.value;
 
