@@ -417,6 +417,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     fun genericTransactionSummaryFromJson(transaction: Tx.Json): GenericTransactionSummary? {
 
         var transferred = Value.zeroValue(coinType)
+        val destinationAddresses = arrayListOf<GenericAddress>()
 
         val input = mutableListOf<GenericInputViewModel>()
         transaction.vin.forEach { vin ->
@@ -436,6 +437,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             vout.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
                 val _address = Address.fromString(vout.scriptPubKey.addresses[0])
+                var genAddress =AddressUtils.from(coinType,_address.toString())
+                if (!isMineAddress(genAddress)) {
+                    destinationAddresses.add(genAddress)
+                }
+
                 output.add(GenericOutputViewModel(
                         BtcAddress(coinType, _address), value, false))
                 if (vout.scriptPubKey.addresses.contains(receiveAddress.toString())) {
@@ -457,6 +463,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                     false,
                     input,
                     output,
+                    destinationAddresses,
                     ConfirmationRiskProfileLocal(0, false, false),
                     0,
                     Value.valueOf(coinType, 0))
