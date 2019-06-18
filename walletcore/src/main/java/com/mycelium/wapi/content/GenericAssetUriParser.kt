@@ -13,49 +13,30 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
-import java.io.UnsupportedEncodingException
 import java.math.BigDecimal
 import java.net.URI
 import java.net.URLDecoder
 
 
 abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriParser {
-
     protected fun parseParameters(uri: URI, coinType: CryptoCurrency): GenericAssetUri? {
         // Address
         var address: GenericAddress? = null
         val addressString = uri.host
-        if (addressString != null && addressString.isNotEmpty()) {
+        if (addressString?.isNotEmpty() == true) {
             address = AddressUtils.from(coinType, addressString)
         }
 
         val params = splitQuery(uri.rawQuery)
 
-        var amount: Value? = null
-        // Amount
-        try {
-            val amountStr = params["amount"]
-
-            if (amountStr != null) {
-                amount = Value.valueOf(coinType, BigDecimal(amountStr).multiply(BigDecimal.TEN.pow(8)).toLong())
-            }
-        } catch (e: NoSuchElementException) {
+        val amount: Value? = params["amount"]?.let {
+            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(8)).toLong())
         }
 
         // Label
         // Bip21 defines "?label" and "?message" - lets try "label" first and if it does not
         // exist, lets use "message"
-        var label: String? = null
-        try {
-            label = params["label"]
-        } catch (e: NoSuchElementException) {
-        }
-        if (label == null) {
-            try {
-                label = params["message"]
-            } catch (e: NoSuchElementException) {
-            }
-        }
+        val label: String? = params["label"] ?: params["message"]
 
         // Check if the supplied "address" is actually an encrypted private key
         if (addressString != null && Bip38.isBip38PrivateKey(addressString)) {
@@ -66,11 +47,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
 
         // Payment Uri
-        var paymentUri: String? = null
-        try {
-            paymentUri = params["r"]
-        } catch (e: NoSuchElementException) {
-        }
+        val paymentUri: String? = params["r"]
 
         return if (address == null && paymentUri == null) {
             null
@@ -79,17 +56,13 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
     }
 
-    @Throws(UnsupportedEncodingException::class)
     fun splitQuery(query: String?): Map<String, String> {
-        val result = mutableMapOf<String, String>()
-        query?.let { query ->
-            val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for (pair in pairs) {
-                val idx = pair.indexOf("=")
-                result[URLDecoder.decode(pair.substring(0, idx), "UTF-8")] = URLDecoder.decode(pair.substring(idx + 1), "UTF-8")
-            }
-        }
-        return result
+        query ?: return emptyMap()
+        val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        return pairs.map {
+            val kv = it.split("=".toRegex(), 2)
+            URLDecoder.decode(kv[0], "UTF-8") to URLDecoder.decode(kv[1], "UTF-8")
+        }.toMap()
     }
 
     companion object {
@@ -106,8 +79,6 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
                 else -> null
             }
-
         }
     }
-
 }

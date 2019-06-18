@@ -9,14 +9,7 @@ class ContentResolver {
     }
 
     fun resolveUri(content: String): GenericAssetUri? {
-        var result: GenericAssetUri? = null
-        for (parser in uriParsers) {
-            result = parser.parse(content)
-            if (result != null) {
-                break
-            }
-        }
-        return result
+        return uriParsers.asSequence().mapNotNull { it.parse(content) }.firstOrNull()
     }
 }
 

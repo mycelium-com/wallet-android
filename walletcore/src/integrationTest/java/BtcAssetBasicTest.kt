@@ -1,5 +1,3 @@
-package com.mycelium.wapi
-
 import com.google.common.base.Optional
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -26,25 +24,21 @@ import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
 import java.security.SecureRandom
-import java.util.HashMap
 
 import org.junit.Test as test
 import com.mycelium.wapi.wallet.SynchronizeFinishedListener
-
+import org.mockito.Mockito
+import java.util.*
 
 
 class BtcAssetBasicTest {
-
     private class MemoryBasedStorage : IMetaDataStorage {
-
         private val keyCategoryValueMap = HashMap<String, String>()
         override fun storeKeyCategoryValueEntry(keyCategory: MetadataKeyCategory, value: String) {
             keyCategoryValueMap[keyCategory.category + "_" + keyCategory.key] = value
         }
 
-        override fun getKeyCategoryValueEntry(key: String, category: String, defaultValue: String): String? {
-            return ""
-        }
+        override fun getKeyCategoryValueEntry(key: String, category: String, defaultValue: String) = ""
 
         override fun getFirstKeyForCategoryValue(category: String, value: String): Optional<String> {
             for ((key, value1) in keyCategoryValueMap) {
@@ -55,16 +49,10 @@ class BtcAssetBasicTest {
             }
             return Optional.absent()
         }
-
-
     }
 
     private class MyRandomSource internal constructor() : RandomSource {
-        internal var _rnd: SecureRandom
-
-        init {
-            _rnd = SecureRandom(byteArrayOf(42))
-        }
+        internal var _rnd: SecureRandom = SecureRandom(byteArrayOf(42))
 
         override fun nextBytes(bytes: ByteArray) {
             _rnd.nextBytes(bytes)
@@ -77,27 +65,14 @@ class BtcAssetBasicTest {
 
         val testnetWapiEndpoints = ServerEndpoints(arrayOf<HttpEndpoint>(HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB")))
 
-        val wapiLogger = object : WapiLogger {
-            override fun logError(message: String) {
-                println(message)
-            }
-
-            override fun logError(message: String, e: Exception) {
-                println(message)
-            }
-
-            override fun logInfo(message: String) {
-                println(message)
-            }
-        }
+        val wapiLogger = Mockito.mock(WapiLogger::class.java)
 
         val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
         val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
 
         val store = SecureKeyValueStore(backing, MyRandomSource())
 
-        //        Bip39.MasterSeed masterSeed =  Bip39.generateSeedFromWordList(new String[]{"cliff", "battle","noise","aisle","inspire","total","sting","vital","marble","add","daring","mouse"}, "");
-        val masterSeed = Bip39.generateSeedFromWordList(arrayOf("oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil", "oil"), "")
+        val masterSeed = Bip39.generateSeedFromWordList(Collections.nCopies(12, "oil"), "")
 
         val network = NetworkParameters.testNetwork
 
@@ -107,95 +82,74 @@ class BtcAssetBasicTest {
 
         val listener = SynchronizeFinishedListener()
 
-        val walletManager = WalletManager(
-                network,
-                wapiClient,
-                currenciesSettingsMap)
+        val walletManager = WalletManager(network, wapiClient, currenciesSettingsMap)
         walletManager.setIsNetworkConnected(true)
         walletManager.walletListener = listener
 
         val masterSeedManager = MasterSeedManager(store)
-        try {
+        // create and add HD Module
+        masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
+        val storage = MemoryBasedStorage()
 
-            // create and add HD Module
-            masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher())
-            val storage = MemoryBasedStorage()
+        val bitcoinHDModule = BitcoinHDModule(backing as BtcWalletManagerBacking<HDAccountContext>, store, network, wapiClient, btcSettings, storage, null, null, null)
+        walletManager.add(bitcoinHDModule)
 
-            val bitcoinHDModule = BitcoinHDModule(backing as BtcWalletManagerBacking<HDAccountContext>, store, network, wapiClient, btcSettings, storage, null, null, null)
-            walletManager.add(bitcoinHDModule)
+        // create sample HD account
+        val hdAccount = walletManager.getAccount(walletManager.createAccounts(AdditionalHDAccountConfig())[0]) as HDAccount
 
-            // create sample HD account
-            val hdAccount = walletManager.getAccount(walletManager.createAccounts(AdditionalHDAccountConfig())[0]) as HDAccount
+        val publicPrivateKeyStore = PublicPrivateKeyStore(store)
 
-            val publicPrivateKeyStore = PublicPrivateKeyStore(store)
+        val bitcoinSingleAddressModule = BitcoinSingleAddressModule(backing, publicPrivateKeyStore, network, wapiClient, btcSettings, walletManager, storage, null, AbstractBtcAccount.EventHandler { accountId, event ->  })
+        walletManager.add(bitcoinSingleAddressModule)
 
-            val bitcoinSingleAddressModule = BitcoinSingleAddressModule(backing, publicPrivateKeyStore, network, wapiClient, btcSettings, walletManager, storage, null, AbstractBtcAccount.EventHandler { accountId, event ->  })
-            walletManager.add(bitcoinSingleAddressModule)
+        val saAccount = walletManager.getAccount(walletManager.createAccounts(PrivateSingleConfig(InMemoryPrivateKey("cPdS4cHJg3nsDjT5pHteFMuJoY9j22PXUyxyhN6VVNwBLqtG6ukJ", network), AesKeyCipher.defaultKeyCipher()))[0]) as SingleAddressAccount
 
-            val saAccount = walletManager.getAccount(walletManager.createAccounts(PrivateSingleConfig(InMemoryPrivateKey("cPdS4cHJg3nsDjT5pHteFMuJoY9j22PXUyxyhN6VVNwBLqtG6ukJ", network), AesKeyCipher.defaultKeyCipher()))[0]) as SingleAddressAccount
+        val coinType = hdAccount.coinType
+        val address_P2PKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2PKH).toString()) as BtcAddress
+        val address_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+        val address_P2SH_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
 
-            val coinType = hdAccount.coinType
-            val address_P2PKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2PKH).toString()) as BtcAddress
-            val address_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
-            val address_P2SH_P2WPKH = AddressUtils.from(coinType, hdAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+        val address_sa_P2PKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2PKH).toString()) as BtcAddress
+        val address_sa_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+        val address_sa_P2SH_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
 
-            val address_sa_P2PKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2PKH).toString()) as BtcAddress
-            val address_sa_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
-            val address_sa_P2SH_P2WPKH = AddressUtils.from(coinType, saAccount.getReceivingAddress(AddressType.P2WPKH).toString()) as BtcAddress
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
 
+        println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
 
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
+        createTransaction(hdAccount, address_sa_P2PKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
+        createTransaction(hdAccount, address_sa_P2WPKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
+        createTransaction(hdAccount, address_sa_P2SH_P2WPKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
 
-            println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
 
-            createTransaction(hdAccount, address_sa_P2PKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-            createTransaction(hdAccount, address_sa_P2WPKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-            createTransaction(hdAccount, address_sa_P2SH_P2WPKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
+        println("HD Account balance: ${hdAccount.accountBalance.spendable}")
+        println("SA Account balance: ${saAccount.accountBalance.spendable}")
 
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
+        createTransaction(saAccount, address_P2PKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
+        createTransaction(saAccount, address_P2WPKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
+        createTransaction(saAccount, address_P2SH_P2WPKH)
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
 
-            println("HD Account balance: " + hdAccount.accountBalance.spendable.toString())
-            println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
-
-            createTransaction(saAccount, address_P2PKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-            createTransaction(saAccount, address_P2WPKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-            createTransaction(saAccount, address_P2SH_P2WPKH)
-            walletManager.startSynchronization()
-            listener.waitForSyncFinished()
-
-            println("SA Account balance: " + saAccount.accountBalance.spendable.toString())
-
-
-        } catch (ex: GenericTransactionBroadcastException) {
-            ex.printStackTrace()
-        } catch (ex: GenericBuildTransactionException) {
-            ex.printStackTrace()
-        } catch (ex: GenericInsufficientFundsException) {
-            ex.printStackTrace()
-        } catch (ex: GenericOutputTooSmallException) {
-            ex.printStackTrace()
-        } catch (ex: KeyCipher.InvalidKeyCipher) {
-            ex.printStackTrace()
-        }
-        assert(true)
+        println("SA Account balance: ${saAccount.accountBalance.spendable}")
     }
 
-    fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
+    private fun createTransaction(account: AbstractBtcAccount, address: BtcAddress) {
         val tx = account.createTx(AddressUtils.from(account.coinType, address.toString()) as BtcAddress, Value.valueOf(account.coinType, 10000L), FeePerKbFee(Value.valueOf(account.coinType, 2000L)))
         account.signTx(tx, AesKeyCipher.defaultKeyCipher())
         account.broadcastTx(tx)
     }
-
 }
