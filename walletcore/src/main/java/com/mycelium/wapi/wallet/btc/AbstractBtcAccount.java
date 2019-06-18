@@ -1785,7 +1785,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
       return new GenericTransactionSummary(getCoinType(), tx.getId().getBytes(), tx.getHash().getBytes(), Value.valueOf(getCoinType(), satoshisTransferred), tex.time, tex.height,
-              confirmations, isQueuedOutgoing, inputs, outputs, riskAssessmentForUnconfirmedTx.get(tx.getId()),
+              confirmations, isQueuedOutgoing, inputs, outputs, destinationAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
               tx.toBytes(false).length, Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
    }
 
