@@ -599,7 +599,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                             + " WHERE time >= ?"
                             + " ORDER BY height desc",
-                    new String[]{Long.toString(since / 1000)});
+                    new String[]{Long.toString(since)});
 
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
