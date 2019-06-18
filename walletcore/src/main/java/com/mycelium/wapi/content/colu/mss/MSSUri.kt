@@ -11,12 +11,13 @@ class MSSUri(address: GenericAddress?, value: Value?, label: String?, override v
     constructor(address: GenericAddress?, value: Value?, label: String?) : this(address,value,label,null)
 
     override fun equals(other: Any?): Boolean {
-        val uri = other as ColuAssetUri
-        if(this.address != uri.address || this.value != uri.value ||
-                this.label != uri.label || this.callbackURL != uri.callbackURL ||
-                !(uri.scheme == "mass" || uri.scheme == "mss")){
+        if (other !is ColuAssetUri) {
             return false
         }
-        return true
+        return this.address == other.address
+                && this.value == other.value
+                && this.label == other.label
+                && this.callbackURL == other.callbackURL
+                && (other.scheme == "mass" || other.scheme == "mss")
     }
 }

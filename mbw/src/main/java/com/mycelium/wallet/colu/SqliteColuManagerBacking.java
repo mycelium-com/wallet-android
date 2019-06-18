@@ -48,7 +48,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
@@ -350,7 +349,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    }
 
    private byte[] calcChecksum(byte[] key, byte[] value) {
-      byte toHash[] = BitUtils.concatenate(key, value);
+      byte[] toHash = BitUtils.concatenate(key, value);
       return HashUtils.sha256(toHash).firstNBytes(8);
    }
 
@@ -588,7 +587,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          } finally {
             _database.endTransaction();
          }
-
       }
 
       @Override

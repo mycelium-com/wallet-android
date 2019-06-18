@@ -25,7 +25,6 @@ class BitcoinUriParser(override val network: NetworkParameters) : GenericAssetUr
             uri = URI.create("bitcoin://$schemeSpecific")
 
             return parseParameters(uri, if(network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
-
         } catch (e: Exception) {
         }
         return null
