@@ -41,7 +41,6 @@ import com.google.common.base.Optional
 import com.google.common.base.Splitter
 import com.google.common.base.Strings
 import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.bch.coins.BchMain
@@ -57,17 +56,19 @@ import java.math.BigDecimal
 import java.util.*
 
 class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
-
-    //todo: check only available addresses (need rewrite it with GenericAddress)
-    val allAddressLabels: MutableMap<Address, String>
+    val allAddressLabels: MutableMap<GenericAddress, String>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY)
-            val addresses = HashMap<Address, String>()
+            val addresses = HashMap<GenericAddress, String>()
+            val addressesOfCointype = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
+                    .filterKeys(entries::containsKey)
+            var coinType: String
             for (e in entries.entries) {
                 val `val` = e.value
                 val key = e.key
-                if (Address.fromString(key) != null) {
-                    addresses[Address.fromString(key)] = `val`
+                coinType = addressesOfCointype[key].toString()
+                if (AddressUtils.from(coinTypeFromString(coinType), key) != null) {
+                    addresses[AddressUtils.from(coinTypeFromString(coinType), key)] = `val`
                 }
             }
             return addresses

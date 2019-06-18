@@ -57,7 +57,6 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -202,10 +201,10 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiForeign() {
-        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<GenericAddress, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
-        for (Map.Entry<Address, String> e : rawEntries.entrySet()) {
-            entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+            entries.add(new Entry(e.getKey(), e.getValue()));
         }
         entries = Utils.sortAddressbookEntries(entries);
         if (entries.isEmpty()) {
@@ -221,12 +220,12 @@ public class AddressBookFragment extends Fragment {
 
     private void updateUiSending() {
         List<GenericAddress> addresses = _mbwManager.getMetadataStorage().getAllGenericAddress();
-        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<GenericAddress, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = _mbwManager.getSelectedAccount();
         for (GenericAddress address : addresses) {
             if (address.getCoinType().equals(account.getCoinType())) {
-                entries.add(new Entry(address, rawEntries.get(Address.fromString(address.toString()))));
+                entries.add(new Entry(address, rawEntries.get(address)));
             }
         }
         entries = Utils.sortAddressbookEntries(entries);
