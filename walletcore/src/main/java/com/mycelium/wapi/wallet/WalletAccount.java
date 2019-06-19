@@ -33,6 +33,8 @@ public interface WalletAccount<A extends GenericAddress> {
 
     CryptoCurrency getCoinType();
 
+    CryptoCurrency getBasedOnCoinType();
+
     Balance getAccountBalance();
 
     /**

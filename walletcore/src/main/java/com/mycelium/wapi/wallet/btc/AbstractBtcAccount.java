@@ -1812,6 +1812,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     }
 
    @Override
+   public CryptoCurrency getBasedOnCoinType() {
+      return getCoinType();
+   }
+
+   @Override
    public Balance getAccountBalance() {
       CryptoCurrency coinType = getCoinType();
       return new Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
