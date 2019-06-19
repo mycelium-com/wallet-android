@@ -136,10 +136,8 @@ class BroadcastDialog : DialogFragment() {
                         .setTitle(R.string.no_server_connection)
                         .setMessage(R.string.queue_transaction_message)
                         .setPositiveButton(R.string.yes) { textId, listener ->
-                            // todo broadcast in queue
-                            //                          ((WalletBtcAccount)_account).queueTransaction(TransactionEx.fromUnconfirmedTransaction(sendRequest.tx));
-                            //                          setResultOkay();
-                            //                          returnResult(broadcastResult)
+                            account.queueTransaction(transaction)
+                            returnResult(broadcastResult)
                         }
                         .setNegativeButton(R.string.no) { textId, listener -> returnResult(broadcastResult) }
                         .show()

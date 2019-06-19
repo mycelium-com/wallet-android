@@ -124,9 +124,6 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
          throws KeyCipher.InvalidKeyCipher;
 
    @Override
-   public abstract void queueTransaction(TransactionEx transaction);
-
-   @Override
    public abstract boolean deleteTransaction(Sha256Hash transactionId);
 
    @Override
