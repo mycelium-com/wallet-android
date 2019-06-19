@@ -33,6 +33,11 @@ public interface WalletAccount<A extends GenericAddress> {
 
     CryptoCurrency getCoinType();
 
+    /**
+     * Based on coin, for example, fee calculation uses "based on" coin type.
+     * by default, based on coin type returns same as getCoinType
+     * @return coin type based on
+     */
     CryptoCurrency getBasedOnCoinType();
 
     Balance getAccountBalance();
