@@ -15,19 +15,19 @@ dependencies {
     implementation project(includePrefix + ':coinapult')
 
     implementation guavaArtifact
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.5'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
     implementation 'com.madgag.spongycastle:pg:1.54.0.0'
-    implementation 'org.mockito:mockito-core:2.21.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:2.21.0"
     implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
+
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:2.23.0"
 }
 
 
