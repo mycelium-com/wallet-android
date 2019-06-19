@@ -23,6 +23,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
 
+    override fun getBasedOnCoinType(): CryptoCurrency {
+        return coinType
+    }
+
     override fun getDependentAccounts(): List<WalletAccount<*>> {
         return emptyList()
     }

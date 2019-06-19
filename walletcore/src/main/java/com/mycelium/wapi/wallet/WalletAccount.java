@@ -33,6 +33,14 @@ public interface WalletAccount<A extends GenericAddress> {
 
     CryptoCurrency getCoinType();
 
+    /**
+     * Some assets could base on another assets. For example Colu protocol is implemented
+     * on top of BTC. By this reason, fee should be specified in BTC, not in Colu tokens
+     * By default, based on coin type returns same as getCoinType
+     * @return coin type based on
+     */
+    CryptoCurrency getBasedOnCoinType();
+
     Balance getAccountBalance();
 
     /**
