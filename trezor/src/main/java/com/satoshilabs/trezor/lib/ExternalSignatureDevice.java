@@ -259,6 +259,8 @@ public abstract class ExternalSignatureDevice {
                     return TxSize.parseFrom(data);
                 case MessageType_WordRequest:
                     return WordRequest.parseFrom(data);
+                case MessageType_PassphraseStateRequest:
+                    return PassphraseStateRequest.parseFrom(data);
                 default:
                     return null;
             }
