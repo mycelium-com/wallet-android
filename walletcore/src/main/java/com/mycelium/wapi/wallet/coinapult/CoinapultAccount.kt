@@ -22,6 +22,9 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
+    override fun updateParentOutputs(txid: ByteArray?) {
+        //There is not patents update
+    }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
         return coinType

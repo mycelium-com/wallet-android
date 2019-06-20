@@ -106,8 +106,8 @@ public class TransactionDetailsActivity extends Activity {
     }
 
     private void loadAndUpdate(boolean isAfterRemoteUpdate) {
-        Sha256Hash txid = getTransactionFromIntent();
-        tx = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
+        byte[] txid = getTransactionFromIntent();
+        tx = _mbwManager.getSelectedAccount().getTxSummary(txid);
 
         coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
         updateUi(isAfterRemoteUpdate, false);
@@ -285,18 +285,13 @@ public class TransactionDetailsActivity extends Activity {
     private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... ignore) {
-            Sha256Hash txid = getTransactionFromIntent();
-
-            if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
-                AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
-                TransactionEx transactionEx = selectedAccount.getTransaction(txid);
-                Transaction transaction = TransactionEx.toTransaction(transactionEx);
-                try {
-                    selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
-                } catch (WapiException e) {
-                    _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
-                    return false;
-                }
+            byte[] txid = getTransactionFromIntent();
+            WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+            try {
+                selectedAccount.updateParentOutputs(txid);
+            } catch (WapiException e) {
+                _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+                return false;
             }
             return true;
         }
@@ -312,7 +307,7 @@ public class TransactionDetailsActivity extends Activity {
         }
     }
 
-    private Sha256Hash getTransactionFromIntent() {
-        return Sha256Hash.of(getIntent().getByteArrayExtra("transaction"));
+    private byte[] getTransactionFromIntent() {
+        return getIntent().getByteArrayExtra("transaction");
     }
 }
