@@ -20,20 +20,24 @@ class NewsV2Holder(itemView: View, val preferences: SharedPreferences) : Recycle
 
     fun bind(news: News) {
         itemView.title.text = news.title
-        itemView.date.text = NewsUtils.getDateAuthorString(itemView.date.context, news)
+        itemView.date.text = NewsUtils.getDateString(itemView.date.context, news)
+        itemView.author.text = news.author?.name
 
         itemView.setOnClickListener {
             openClickListener?.invoke(news)
         }
 
-        itemView.favoriteButton.setImageDrawable(itemView.resources.getDrawable(
-                if (preferences.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite))
+        itemView.favoriteButton.setImageResource(
+                if (preferences.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite_small
+                else R.drawable.ic_not_favorite_small)
 
         val requestOptions = RequestOptions()
                 .transforms(CenterCrop(), RoundedCorners(itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
         Glide.with(itemView.image)
                 .load(news.getFitImage(itemView.image.resources.displayMetrics.widthPixels))
-                .error(Glide.with(itemView.image).load(R.drawable.news_default_image))
+                .error(Glide.with(itemView.image)
+                        .load(R.drawable.news_default_image)
+                        .apply(requestOptions))
                 .apply(requestOptions)
                 .into(itemView.image)
     }

@@ -373,5 +373,6 @@
     <style name="MediaFlowTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12sp</item>
     </style>
 </resources>

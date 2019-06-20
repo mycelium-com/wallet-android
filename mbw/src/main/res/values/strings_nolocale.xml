@@ -98,7 +98,7 @@
     <string name="buy_with_cc_tos">If you continue, you agree to proceed to the Swish BTC Store, a third party service. All your interactions with the Swish BTC Store are outside of Mycelium Wallet’s control and are subject to Swish BTC Store’s User Agreement and Privacy Policy. Please read them carefully before providing any personal information. Mycelium Wallet won’t provide any personal information to the Swish BTC Store. All information that you may provide to the Swish BTC Store will be subject to Swish BTC Store’s Privacy Policy and will not be collected, stored, or used by Mycelium Wallet.\n\nMYCELIUM WALLET ACCEPTS NO RESPONSIBILITY AND WILL NOT BE LIABLE FOR ANY LOSS OR DAMAGE WHATSOEVER SUFFERED AS A RESULT OF ACCESSING, USE OF, OR RELIANCE UPON SWISH BTC STORE’S INFORMATION AND SERVICES.</string>
 
     <string name="media_flow_html_template" ><![CDATA[<html><head>
-                <style type="text/css">body{color: #fff; padding: 0px; margin:0px; line-height: 1.43;}
+                <style type="text/css">body{color: #272727; padding: 0px; margin:0px; line-height: 1.43;}
                  img{height: auto; width: 100%%; max-width: 100%%;}
                  .wp-caption { margin: 0; padding: 0; height: auto; width: 100%%; max-width: 100%%;}
                  .wp-caption-text, .wp-caption-dd {

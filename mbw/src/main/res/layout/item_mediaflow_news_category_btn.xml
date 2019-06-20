@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/buttonNewsCategory"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/buttonNewsCategory"
-    android:paddingBottom="20dp">
+    android:orientation="horizontal"
+    android:paddingStart="18dp"
+    android:paddingEnd="18dp">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.5"
+        android:contentDescription="@null" />
 
     <TextView
         android:id="@+id/text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="#000000"
-        android:fontFamily="@font/geometriabold"
-        android:gravity="center_horizontal"
-        android:letterSpacing="0.08"
-        android:paddingTop="15dp"
-        android:paddingBottom="13dp"
-        android:textColor="#ebedf0"
-        android:textSize="12sp"
-        tools:text="TEHNOLOGY  •  VIEW MORE" />
+        android:layout_marginStart="6dp"
+        android:layout_weight="1"
+        android:textColor="#FFFFFD"
+        android:textSize="18sp"
+        tools:text="Tehnology" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/view_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="6dp"
+        android:alpha="0.5"
+        android:text="@string/view_more"
+        android:textColor="#FFFFFD"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.5"
+        app:srcCompat="@drawable/ic_chevron" />
+
+</LinearLayout>

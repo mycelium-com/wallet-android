@@ -6,5 +6,6 @@ import kotlinx.android.synthetic.main.item_mediaflow_news_category_btn.view.*
 
 
 class NewsCategoryBtnHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    fun text() = itemView.text
+    val text = itemView.text
+    val icon = itemView.icon
 }

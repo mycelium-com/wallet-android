@@ -115,7 +115,7 @@ class NewsFragment : Fragment() {
     }
 
     private fun updateFavoriteMenu(item: MenuItem) {
-        item.icon = resources.getDrawable(if (preference.getBoolean("favorite", false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite_menu)
+        item.icon = resources.getDrawable(if (preference.getBoolean("favorite", false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite)
     }
 
     private var loading = false
@@ -130,7 +130,6 @@ class NewsFragment : Fragment() {
                 if (getTab(category, tabs) == null) {
                     val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
                     view.text.text = category.name
-                    view.text.setTextColor(NewsUtils.getCategoryTextColor(category.name))
                     val tab = tabs.newTab().setCustomView(view)
                     tab.tag = category
                     tabs.addTab(tab)

@@ -19,6 +19,12 @@ object NewsUtils {
         else -> Color.parseColor("#4276ff")
     }
 
+    fun getCategoryIcon(category: String) = when (category) {
+        "News" -> R.drawable.ic_earth
+        "Education Center" -> R.drawable.ic_education
+        else -> 0
+    }
+
     const val myceliumAuthor = "myceliumholding"
     const val MEDIA_FLOW_ACTION: String = "media_flow"
 
@@ -27,6 +33,11 @@ object NewsUtils {
             "${news.author.name} ${context.getString(R.string.bullet)} "
         } else "") + "${DateUtils.getRelativeTimeSpanString(news.date.time, System.currentTimeMillis(),
                 0L, DateUtils.FORMAT_ABBREV_MONTH.or(DateUtils.FORMAT_ABBREV_TIME))}"
+    }
+
+    fun getDateString(context: Context, news: News): String {
+        return DateUtils.getRelativeTimeSpanString(news.date.time, System.currentTimeMillis(),
+                0L, DateUtils.FORMAT_ABBREV_MONTH.or(DateUtils.FORMAT_ABBREV_TIME)).toString()
     }
 
     data class ParsedData(val news: String, val images: Map<String, List<String>>)

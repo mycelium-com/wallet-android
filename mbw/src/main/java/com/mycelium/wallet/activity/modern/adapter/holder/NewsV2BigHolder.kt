@@ -9,7 +9,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
-import com.mycelium.wallet.activity.modern.adapter.getCategory
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.getFitImage
 import com.mycelium.wallet.external.mediaflow.model.News
@@ -21,13 +20,12 @@ class NewsV2BigHolder(itemView: View, val preferences: SharedPreferences) : Recy
 
     fun bind(news: News) {
         itemView.title.text = news.title
-        val category = news.getCategory().name
-        itemView.category.setTextColor(NewsUtils.getCategoryTextColor(category))
-        itemView.category.text = category
-        itemView.date.text = NewsUtils.getDateAuthorString(itemView.date.context, news)
+        itemView.date.text = NewsUtils.getDateString(itemView.date.context, news)
+        itemView.author.text = news.author?.name
 
-        itemView.favoriteButton.setImageDrawable(itemView.resources.getDrawable(
-                if (preferences.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite))
+        itemView.favoriteButton.setImageResource(
+                if (preferences.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite_small
+                else R.drawable.ic_not_favorite_small)
 
         val requestOptions = RequestOptions()
                 .transforms(CenterCrop(), RoundedCorners(itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))

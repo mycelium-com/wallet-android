@@ -10,14 +10,12 @@ import com.mycelium.wallet.activity.modern.adapter.holder.NewsItemAllHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2BigHolder
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2Holder
 import com.mycelium.wallet.activity.modern.adapter.holder.SpaceViewHolder
+import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 
 
 class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var data = mutableListOf<News>()
-    private var nativeData = mutableListOf<News>()
-
     var dataMap = mutableMapOf<Category, MutableList<News>>()
     private var category: Category = ALL
 
@@ -53,7 +51,7 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
             TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
             TYPE_NEWS_ITEM_ALL -> NewsItemAllHolder(preferences, layoutInflater.inflate(R.layout.item_mediaflow_news_all, parent, false))
             TYPE_NEWS_V2_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
-            TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_wrap, parent, false), preferences)
+            TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
             else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
         }
     }
@@ -84,19 +82,30 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
                 openClickListener?.invoke(it)
             }
 
-            val listHolder = holder.listHolder
+            val news1Holder = holder.news1
             if (list.size > 1) {
-                listHolder.adapter.submitList(list.subList(1, list.size))
-                listHolder.itemView.visibility = View.VISIBLE
+                news1Holder.bind(list[1])
+                news1Holder.itemView.visibility = View.VISIBLE
+                news1Holder.openClickListener = {
+                    openClickListener?.invoke(list[1])
+                }
             } else {
-                listHolder.itemView.visibility = View.GONE
+                news1Holder.itemView.visibility = View.GONE
             }
-            listHolder.clickListener = {
-                openClickListener?.invoke(it)
+            val news2Holder = holder.news2
+            if (list.size > 2) {
+                news2Holder.bind(list.get(2))
+                news2Holder.itemView.visibility = View.VISIBLE
+                news2Holder.openClickListener = {
+                    openClickListener?.invoke(list[2])
+                }
+            } else {
+                news2Holder.itemView.visibility = View.GONE
             }
 
             val btnHolder = allHolder.categoryHolder
-            btnHolder.text().text = btnHolder.text().resources.getString(R.string.media_flow_category_text, category.name.toUpperCase())
+            btnHolder.text.text = category.name
+            btnHolder.icon.setImageResource(NewsUtils.getCategoryIcon(category.name))
             btnHolder.itemView.setOnClickListener {
                 categoryClickListener?.invoke(category)
             }

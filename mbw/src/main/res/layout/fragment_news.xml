@@ -8,14 +8,19 @@
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:layout_marginTop="20dp"
-        app:tabIndicatorColor="#000000"
-        app:tabIndicatorHeight="48dp"
-        app:tabMode="scrollable"
+        android:layout_height="24dp"
+        android:layout_marginTop="16dp"
         android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="1dp"
+        app:tabGravity="center"
+        app:tabIndicatorColor="#FFFFFD"
+        app:tabIndicatorHeight="0dp"
+        app:tabIndicatorFullWidth="false"
+        app:tabMode="scrollable"
+        app:tabPaddingEnd="8dp"
+        app:tabPaddingStart="0dp"
         app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
 
     <android.support.v7.widget.RecyclerView
@@ -24,5 +29,5 @@
         android:layout_height="match_parent"
         android:layout_below="@id/tabs"
         android:clipToPadding="false"
-        android:paddingTop="20dp" />
+        android:paddingTop="8dp" />
 </RelativeLayout>

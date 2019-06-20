@@ -14,6 +14,7 @@ import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebResourceRequest
@@ -61,12 +62,11 @@ class NewsActivity : AppCompatActivity() {
                 .replace("height=\".*?\"", "")
         content.settings.defaultFontSize = 14
 //        content.settings.javaScriptEnabled = true
-        content.settings.fixedFontFamily = "geometria"
 
         val html = getString(R.string.media_flow_html_template
                 , resources.toWebViewPx(12f).toString()
                 , resources.toWebViewPx(24f).toString()
-                , resources.toWebViewPx(20f).toString()
+                , resources.toWebViewPx(16f).toString()
                 , resources.toWebViewPx(2f).toString()
                 , resources.toWebViewPx(8f).toString()
                 , contentText
@@ -122,25 +122,15 @@ class NewsActivity : AppCompatActivity() {
         })
 
         tvTitle.text = news.title
-        tvDate.text = NewsUtils.getDateAuthorString(this, news)
+        tvDate.text = NewsUtils.getDateString(this, news)
+        author.text = news.author?.name
 
         val categoryText = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
         category.text = categoryText
-        category.setTextColor(NewsUtils.getCategoryTextColor(categoryText))
         Glide.with(image)
                 .load(news.getFitImage(resources.displayMetrics.widthPixels))
                 .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
                 .into(image)
-        updateFavoriteButton()
-        favoriteButton.setOnClickListener {
-            preference.edit()
-                    .putBoolean(NewsAdapter.PREF_FAVORITE + news.id, !preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false))
-                    .apply()
-            updateFavoriteButton()
-        }
-        shareBtn.setOnClickListener {
-            share()
-        }
         shareBtn2.setOnClickListener {
             share()
         }
@@ -163,9 +153,11 @@ class NewsActivity : AppCompatActivity() {
                 .setType("text/plain"), getString(R.string.share_news)))
     }
 
-    private fun updateFavoriteButton() {
-        favoriteButton.setImageDrawable(resources.getDrawable(
-                if (preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite))
+    private fun favorite() {
+        preference.edit()
+                .putBoolean(NewsAdapter.PREF_FAVORITE + news.id, !preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false))
+                .apply()
+        invalidateOptionsMenu()
     }
 
     fun Resources.toWebViewPx(dipValue: Float): Float {
@@ -178,11 +170,30 @@ class NewsActivity : AppCompatActivity() {
         return (value * metrics.density).toInt()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_share, menu)
+        menu?.findItem(R.id.favorite)?.icon = resources.getDrawable(
+                if (preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false)) R.drawable.ic_favorite
+                else R.drawable.ic_not_favorite)
+        return super.onCreateOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == android.R.id.home) {
-            finish()
-            return true
+        when (item?.itemId) {
+            R.id.share -> {
+                share()
+                return true
+            }
+            R.id.favorite -> {
+                favorite()
+                return true
+            }
+            android.R.id.home -> {
+                finish()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
+
 }
