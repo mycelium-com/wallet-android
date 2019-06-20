@@ -13,6 +13,8 @@ import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -34,6 +36,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
                   , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
+
+    override fun updateParentOutputs(txid: ByteArray?) {
+      //there is no parent update
+    }
+
+    override fun getBasedOnCoinType(): CryptoCurrency {
+        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get();
+    }
 
     var linkedAccount: SingleAddressAccount? = null
 

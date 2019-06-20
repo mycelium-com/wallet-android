@@ -937,7 +937,7 @@
     <string name="si_buy_sell">Credit Card</string>
     <string name="si_simplex">Simplex</string>
     <string name="si_buy_sell_description">Buy bitcoin safely and easily using your credit card.</string>
-    <string name="si_setting_show_button_summary">Show Simplex\'s Buy option</string>
+    <string name="si_setting_show_button_summary">Show Simplex\'s/Safello Buy option</string>
     <string name="si_loading">loading…</string>
     <string name="si_error_message">error message</string>
     <string name="si_retry">Retry</string>
@@ -1300,6 +1300,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="uncompressed">(uncompressed key)</string>
     <string name="uncompressed_key_explained">Uncompressed key based accounts are an old standard that does not support receiving to SegWit addresses.</string>
     <string name="no_transaction_retry">Retry</string>
+    <string name="select_you_region">Select your region</string>
+    <string name="europe">Europe</string>
+    <string name="asia">Asia</string>
+    <string name="united_states">United States</string>
+    <string name="australia">Australia/New Zealand</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>

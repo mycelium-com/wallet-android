@@ -1812,6 +1812,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     }
 
    @Override
+   public CryptoCurrency getBasedOnCoinType() {
+      return getCoinType();
+   }
+
+   @Override
    public Balance getAccountBalance() {
       CryptoCurrency coinType = getCoinType();
       return new Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
@@ -1926,4 +1931,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         //no unconfirmed outputs are used as inputs, we are fine
         return false;
     }
+
+   @Override
+   public void updateParentOutputs(byte[] txid) throws WapiException  {
+         TransactionEx transactionEx = getTransaction(Sha256Hash.of(txid));
+         Transaction transaction = TransactionEx.toTransaction(transactionEx);
+         fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
+   }
 }

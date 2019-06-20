@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -32,6 +32,14 @@ public interface WalletAccount<A extends GenericAddress> {
     GenericAddress getReceiveAddress();
 
     CryptoCurrency getCoinType();
+
+    /**
+     * Some assets could base on another assets. For example Colu protocol is implemented
+     * on top of BTC. By this reason, fee should be specified in BTC, not in Colu tokens
+     * By default, based on coin type returns same as getCoinType
+     * @return coin type based on
+     */
+    CryptoCurrency getBasedOnCoinType();
 
     Balance getAccountBalance();
 
@@ -66,6 +74,8 @@ public interface WalletAccount<A extends GenericAddress> {
     void setLabel(String label);
 
     boolean isSpendingUnconfirmed(GenericTransaction tx);
+
+    void updateParentOutputs(byte[] txid) throws WapiException;
 
     /**
      * Synchronize this account

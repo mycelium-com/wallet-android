@@ -482,7 +482,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         return when (msg) {
             is TrezorMessage.ButtonRequest -> processButtonRequest(msg, transaction, forAccount)
             is TrezorMessage.PinMatrixRequest -> processPinMatrixRequest(transaction, forAccount)
-            is TrezorMessage.PassphraseRequest -> processPassphraseRequest(transaction, forAccount)
+            is TrezorMessage.PassphraseRequest -> processPassphraseRequest(msg.onDevice, transaction, forAccount)
+            is TrezorMessage.PassphraseStateRequest -> processPassphraseStateRequest(transaction, forAccount)
             is TrezorMessage.Failure -> if (postErrorMessage(msg.message, msg.code)) {
                 null
             } else {
@@ -506,24 +507,35 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         }
     }
 
-    private fun processPassphraseRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
-        // get the user to enter a passphrase
-        val passphrase = waitForPassphrase()
+    private fun processPassphraseStateRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
+        val response = TrezorMessage.PassphraseStateAck.newBuilder().build()
+        return filterMessages(signatureDevice.send(response), transaction, account)
+    }
 
+    private fun processPassphraseRequest(onDevice: Boolean, transaction: UnsignedTransaction?, account: HDAccount?): Message? {
         val response: GeneratedMessageV3
-        return if (!passphrase.isPresent) {
-            // user has not provided a password - reset session on trezor and cancel
-            response = TrezorMessage.ClearSession.newBuilder().build()
-            signatureDevice.send(response)
-            null
-        } else {
-            response = TrezorMessage.PassphraseAck.newBuilder()
-                    .setPassphrase(passphrase.get())
-                    .build()
 
-            // send the Passphrase Response and get the response for the
-            // previous requested action
-            filterMessages(signatureDevice.send(response), transaction, account)
+        if (onDevice) {
+            response = TrezorMessage.PassphraseAck.newBuilder().build()
+            return filterMessages(signatureDevice.send(response), transaction, account)
+        } else {
+            // get the user to enter a passphrase
+            val passphrase = waitForPassphrase()
+
+            return if (!passphrase.isPresent) {
+                // user has not provided a password - reset session on trezor and cancel
+                response = TrezorMessage.ClearSession.newBuilder().build()
+                signatureDevice.send(response)
+                null
+            } else {
+                response = TrezorMessage.PassphraseAck.newBuilder()
+                        .setPassphrase(passphrase.get())
+                        .build()
+
+                // send the Passphrase Response and get the response for the
+                // previous requested action
+                filterMessages(signatureDevice.send(response), transaction, account)
+            }
         }
     }
 

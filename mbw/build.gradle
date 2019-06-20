@@ -88,7 +88,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
@@ -130,8 +130,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000001
-        versionName '3.0.0.1'
+        versionCode 3000002
+        versionName '3.0.0.2'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -220,6 +220,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
+                safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -246,6 +247,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
+                safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -264,6 +266,7 @@ android {
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
     }
 
     testOptions {
