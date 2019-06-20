@@ -472,7 +472,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                     destinationAddresses,
                     ConfirmationRiskProfileLocal(0, false, false),
                     0,
-                    Value.valueOf(coinType, 0))
+                    Value.valueOf(basedOnCoinType, transaction.fee.toLong()))
         }
 
         return null
