@@ -22,7 +22,6 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.model.Transaction.TransactionParsingException;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.util.ByteReader;
-import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;

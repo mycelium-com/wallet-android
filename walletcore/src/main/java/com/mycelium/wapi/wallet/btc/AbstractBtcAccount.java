@@ -91,6 +91,8 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -867,8 +869,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return StandardTransactionBuilder.finalizeTransaction(unsigned, signatures);
    }
 
-   @Override
-   public synchronized void queueTransaction(TransactionEx transaction) {
+   private synchronized void queueTransaction(TransactionEx transaction) {
       // Store transaction in outgoing buffer, so we can broadcast it
       // later
       byte[] rawTransaction = transaction.binary;
@@ -956,6 +957,19 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       //markTransactionAsSpent(transaction);
       return true;
+   }
+
+   @Override
+   public void queueTransaction(@NotNull GenericTransaction transaction) {
+      byte[] txBytes = transaction.txBytes();
+      int now = (int) (System.currentTimeMillis() / 1000);
+      try {
+         Transaction btcTx = Transaction.fromBytes(txBytes);
+         TransactionEx tex = new TransactionEx(btcTx.getId(), btcTx.getHash(), -1, now, txBytes);
+         queueTransaction(tex);
+      } catch (TransactionParsingException e) {
+         _logger.logInfo(String.format("Unable to parse transaction %s: %s", HexUtils.toHex(transaction.getId()), e.getMessage()));
+      }
    }
 
    private void markTransactionAsSpent(TransactionEx transaction) {
@@ -1744,7 +1758,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
          satoshisReceived += output.value;
 
-         if (address != null && address != Address.getNullAddress(_network)) {
+         if (address != null && !address.equals(Address.getNullAddress(_network))) {
             outputs.add(new GenericOutputViewModel(AddressUtils.fromAddress(address), Value.valueOf(getCoinType(), output.value), false));
          }
       }

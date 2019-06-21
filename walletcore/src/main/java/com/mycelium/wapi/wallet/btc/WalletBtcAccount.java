@@ -197,15 +197,6 @@ public interface WalletBtcAccount extends WalletAccount<BtcAddress> {
     */
    boolean onlySyncWhenActive();
 
-   /**
-    * Queue a transaction for broadcasting.
-    * <p/>
-    * The transaction is broadcast on next synchronization.
-    *
-    * @param transaction     an transaction
-    */
-   void queueTransaction(TransactionEx transaction);
-
 
    TransactionSummary getTransactionSummary(Sha256Hash txid);
 

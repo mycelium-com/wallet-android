@@ -35,7 +35,8 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode
     }
 
     private fun broadcastOutgoingTransactions(): Boolean {
-        for (account in accounts) {
+        val _accounts = if (accounts.isEmpty()) walletManager.getAllActiveAccounts() else accounts
+        for (account in _accounts) {
             if (account!!.isArchived) {
                 continue
             }

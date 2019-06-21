@@ -1,8 +1,6 @@
 package com.mycelium.wapi.wallet;
 
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
 

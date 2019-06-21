@@ -22,6 +22,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
+    override fun queueTransaction(transaction: GenericTransaction) {
+    }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
         return coinType
