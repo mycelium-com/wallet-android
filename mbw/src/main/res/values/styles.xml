@@ -203,7 +203,6 @@
     <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">
         <item name="textAllCaps">true</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:fontFamily">@font/geometriabold</item>
         <item name="android:paddingTop">6dp</item>
     </style>
 

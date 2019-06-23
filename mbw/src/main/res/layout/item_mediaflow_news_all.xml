@@ -11,10 +11,7 @@
         android:layout_height="wrap_content" />
 
     <include
-        layout="@layout/item_mediaflow_news_v2_big"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
+        layout="@layout/item_mediaflow_news_v2_big" />
 
     <include
         android:id="@+id/news_1"
