@@ -28,12 +28,12 @@ enum class Denomination(val scale: Int, val asciiString: String, val unicodeStri
     companion object {
         @JvmStatic
         fun fromString(string: String): Denomination {
-            return when (string) {
-                "BTC"//back compatibility
+            return when (string.toLowerCase()) {
+                "btc"//back compatibility
                     , "unit" -> UNIT
-                "mBTC"//back compatibility
+                "mbtc"//back compatibility
                     , "milli" -> MILLI
-                "uBTC" //back compatibility
+                "ubtc" //back compatibility
                     , "micro" -> MICRO
                 "bits" -> BITS
                 else -> throw IllegalArgumentException("Unknown denomination $string.")
