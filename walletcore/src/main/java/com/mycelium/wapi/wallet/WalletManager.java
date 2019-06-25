@@ -1676,6 +1676,10 @@ public class WalletManager {
         /**
          * Malformed outgoing transaction detected
          */
-        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND,
+        /**
+         * Transaction history can't be loaded due to large size
+         */
+        TOO_MANY_TRANSACTIONS
     }
 }

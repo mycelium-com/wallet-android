@@ -93,6 +93,7 @@ import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TooManyTransactions;
 import com.mycelium.wallet.event.TransactionLabelChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.WapiException;
@@ -110,8 +111,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
@@ -129,6 +132,8 @@ public class TransactionHistoryFragment extends Fragment {
    private MetadataStorage _storage;
    private View _root;
    private ActionMode currentActionMode;
+   private Set<UUID> accountsWithPartialHistory = new HashSet<>();
+
    /**
     * This field shows if {@link Preloader} may be started (initial - true).
     * After {@link TransactionHistoryFragment#selectedAccountChanged} it's true
@@ -136,7 +141,7 @@ public class TransactionHistoryFragment extends Fragment {
     * When {@link Preloader#doInBackground(Void...)} finishes it's routine it's setting true if limit was reached, else false
     */
    private final AtomicBoolean isLoadingPossible = new AtomicBoolean(true);
-   @BindView(R.id.no_transaction_message)
+   @BindView(R.id.tvNoTransactions)
    TextView noTransactionMessage;
    private List<TransactionSummary> history = new ArrayList<>();
 
@@ -206,13 +211,13 @@ public class TransactionHistoryFragment extends Fragment {
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
@@ -260,6 +265,11 @@ public class TransactionHistoryFragment extends Fragment {
       isLoadingPossible.set(true);
    }
 
+   @Subscribe
+   public void tooManyTx(TooManyTransactions event) {
+      accountsWithPartialHistory.add(event.getAccountId());
+   }
+
    private void doShowDetails(TransactionSummary selected) {
       if (selected == null) {
          return;
@@ -270,9 +280,14 @@ public class TransactionHistoryFragment extends Fragment {
       startActivity(intent);
    }
 
-   void showHistory(boolean visible) {
-      _root.findViewById(R.id.llNoRecords).setVisibility(visible ? View.GONE : View.VISIBLE);
-      listView.setVisibility(visible ? View.VISIBLE : View.GONE);
+   void showHistory(boolean hasHistory) {
+      _root.findViewById(R.id.llNoRecords).setVisibility(hasHistory ? View.GONE : View.VISIBLE);
+      listView.setVisibility(hasHistory ? View.VISIBLE : View.GONE);
+      if (accountsWithPartialHistory.contains(_mbwManager.getSelectedAccount().getId())) {
+         _root.findViewById(R.id.tvWarningNotFullHistory).setVisibility(View.VISIBLE);
+      } else {
+         _root.findViewById(R.id.tvWarningNotFullHistory).setVisibility(View.GONE);
+      }
    }
 
    public void updateWrapper(TransactionHistoryAdapter adapter) {
@@ -727,7 +742,7 @@ public class TransactionHistoryFragment extends Fragment {
    private EnterAddressLabelUtil.AddressLabelChangedHandler addressLabelChanged = new EnterAddressLabelUtil.AddressLabelChangedHandler() {
       @Override
       public void OnAddressLabelChanged(Address address, String label) {
-         _mbwManager.getEventBus().post(new AddressBookChanged());
+         MbwManager.getEventBus().post(new AddressBookChanged());
       }
    };
 
@@ -739,7 +754,7 @@ public class TransactionHistoryFragment extends Fragment {
 
       @Override
       public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
-         _mbwManager.getEventBus().post(new TransactionLabelChanged());
+         MbwManager.getEventBus().post(new TransactionLabelChanged());
       }
    };
 

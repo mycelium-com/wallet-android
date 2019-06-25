@@ -102,6 +102,8 @@ public class EventTranslator implements WalletManager.Observer, ExchangeRateMana
             break;
          case MALFORMED_OUTGOING_TRANSACTIONS_FOUND:
             postEvent(new MalformedOutgoingTransactionsFound(accountId));
+         case TOO_MANY_TRANSACTIONS:
+            postEvent(new TooManyTransactions(accountId));
          default:
             //unknown event
       }
