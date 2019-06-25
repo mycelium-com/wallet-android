@@ -12,8 +12,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
@@ -21,6 +19,7 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -45,18 +44,18 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private SharedPreferences transactionFiatValuePref;
-   private Map<Address, String> _addressBook;
+   private Map<GenericAddress, String> _addressBook;
    private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<GenericTransactionSummary> transactions, Map<Address, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<GenericTransactionSummary> transactions, Map<GenericAddress, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
                                   List<GenericTransactionSummary> transactions,
                                   Fragment containerFragment,
-                                  Map<Address, String> addressBook,
+                                  Map<GenericAddress, String> addressBook,
                                   boolean alwaysShowAddress) {
       super(context, R.layout.transaction_row, transactions);
       _context = context;
@@ -145,7 +144,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
          // record.destinationAddresses should always have size of 1
          // and thus take the first element from it.
          String destAddressStr = record.getDestinationAddresses().get(0).toString();
-         Address address = Address.fromString(destAddressStr, _mbwManager.getNetwork());
+         GenericAddress address = record.getDestinationAddresses().get(0);
          if (_addressBook.containsKey(address)) {
             tvDestAddress.setText(AddressUtils.toShortString(destAddressStr));
             tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix),
