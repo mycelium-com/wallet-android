@@ -19,8 +19,7 @@
         app:tabMode="scrollable"
         app:tabPaddingEnd="4dp"
         app:tabPaddingStart="4dp"
-        app:tabRippleColor="#000000"
-        app:tabUnboundedRipple="false"
+        app:tabRippleColor="#ff272727"
         app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
 
     <android.support.v7.widget.RecyclerView
