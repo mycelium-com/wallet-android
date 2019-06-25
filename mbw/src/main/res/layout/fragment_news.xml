@@ -11,16 +11,16 @@
         android:layout_height="24dp"
         android:layout_marginTop="16dp"
         android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="1dp"
         app:tabGravity="center"
-        app:tabIndicatorColor="#FFFFFD"
         app:tabIndicatorHeight="0dp"
-        app:tabIndicatorFullWidth="false"
         app:tabMode="scrollable"
-        app:tabPaddingEnd="8dp"
-        app:tabPaddingStart="0dp"
+        app:tabPaddingEnd="4dp"
+        app:tabPaddingStart="4dp"
+        app:tabRippleColor="#000000"
+        app:tabUnboundedRipple="false"
         app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
 
     <android.support.v7.widget.RecyclerView
