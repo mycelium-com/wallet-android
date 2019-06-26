@@ -13,7 +13,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.List;
 
@@ -110,7 +110,7 @@ public class BackupFragment extends PreferenceFragmentCompat {
 
     @SuppressWarnings("deprecation")
     private void showOrHideLegacyBackup() {
-        List<WalletAccount> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
+        List<WalletAccount<?>> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
         Preference legacyPref = findPreference("legacyBackup");
         if (legacyPref == null) {
             return; // it was already removed, don't remove it again.

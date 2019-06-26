@@ -21,8 +21,9 @@ import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
+import com.mycelium.wallet.exchange.ValueSum
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.currency.CurrencySum
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -37,9 +38,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private val layoutInflater: LayoutInflater
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
+    private val walletManager = mbwManager.getWalletManager(false)
 
-    val focusedAccount: WalletAccount?
-        get() = mbwManager.getWalletManager(false).getAccount(focusedAccountId)
+    val focusedAccount: WalletAccount<out GenericAddress>?
+        get() = focusedAccountId?.let { walletManager.getAccount(it)}
 
     init {
         layoutInflater = LayoutInflater.from(context)
@@ -92,11 +94,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         }
         val oldFocusedPosition = findPosition(this.focusedAccountId)
         // If old account was removed we don't want to notify removed element. It would be updated itself.
-        val updateOld = mbwManager.getWalletManager(false).getAccount(this.focusedAccountId) != null
+        val updateOld = walletManager.getAccount(this.focusedAccountId!!) != null
         val oldSelectedPosition = findPosition(this.selectedAccountId)
         this.focusedAccountId = focusedAccountId
-        if (focusedAccountId != null && mbwManager.getWalletManager(false).getAccount(focusedAccountId).isActive) {
-            // If archived account selected - selection stays on previous account, while focus moves to archived.
+        if(focusedAccountId != null && walletManager.getAccount(focusedAccountId)?.isActive == true) {
             this.selectedAccountId = focusedAccountId
             notifyItemChanged(oldSelectedPosition)
         }
@@ -132,7 +133,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        return GroupTitleViewHolder(view)
+        val res = GroupTitleViewHolder(view)
+        return res
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
@@ -147,7 +149,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        return TotalViewHolder(view)
+        val res = TotalViewHolder(view)
+        return res
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -163,10 +166,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         focusedAccountId == account.accountId)
                 accountHolder.llAddress.setOnClickListener {
                     setFocusedAccountId(account.accountId)
-                    if (itemClickListener != null) {
-                        itemClickListener!!.onItemClick(mbwManager.getWalletManager(false)
-                                .getAccount(account.accountId))
-                    }
+                    walletManager.getAccount(account.accountId)?.run { itemClickListener?.onItemClick(this) }
                 }
             }
             GROUP_TITLE_TYPE -> {
@@ -206,24 +206,24 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
     }
 
-    private fun getSpendableBalance(walletAccountList: List<AccountListItem>): CurrencySum {
-        val currencySum = CurrencySum()
+    private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {
+        val sum = ValueSum()
         for (item in walletAccountList) {
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
                     if (account.isActive) {
-                        currencySum.add(account.balance!!.confirmed)
+                        sum.add(account.balance!!.spendable)
                     }
                 }
             }
         }
-        return currencySum
+        return sum
     }
 
     override fun getItemViewType(position: Int) = getItem(position).getType().typeId
 
     interface ItemClickListener {
-        fun onItemClick(account: WalletAccount)
+        fun onItemClick(account: WalletAccount<out GenericAddress>)
     }
 
     class ItemListDiffCallback(val context: Context) : DiffUtil.ItemCallback<AccountListItem>() {

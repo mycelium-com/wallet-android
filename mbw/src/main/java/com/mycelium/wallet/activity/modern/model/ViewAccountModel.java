@@ -9,18 +9,18 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
-import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class ViewAccountModel {
+public class ViewAccountModel{
     public UUID accountId;
-    public WalletAccount.Type accountType;
+    public Class<?> accountType;
     public String displayAddress;
-    public CurrencyBasedBalance balance;
+    public Balance balance;
     public boolean isActive;
     public String label;
     public Drawable drawableForAccount;
@@ -37,12 +37,11 @@ public class ViewAccountModel {
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
         accountType = viewModel.getAccountType();
-        final WalletAccount account = MbwManager.getInstance(context).getWalletManager(false).getAccount(accountId);
-        if (account instanceof HDPubOnlyAccount && account.isActive()) {
-            int numKeys = ((HDAccount) account).getPrivateKeyCount();
+        if (HDPubOnlyAccount.class.isAssignableFrom(accountType) && viewModel.isActive()) {
+            int numKeys = viewModel.getPrivateKeyCount();
             displayAddress = context.getResources().getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
-        } else if (account instanceof HDAccount && account.isActive()) {
-            int numKeys = ((HDAccount) account).getPrivateKeyCount();
+        } else if (HDAccount.class.isAssignableFrom(accountType) && viewModel.isActive()) {
+            int numKeys = viewModel.getPrivateKeyCount();
             displayAddress = context.getResources().getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
         } else {
             displayAddress = viewModel.getDisplayAddress();
@@ -54,8 +53,8 @@ public class ViewAccountModel {
         showBackupMissingWarning = viewModel.getShowBackupMissingWarning();
         syncTotalRetrievedTransactions = viewModel.getSyncTotalRetrievedTransactions();
         final Resources resources = context.getResources();
-        drawableForAccount = Utils.getDrawableForAccount(account, false, resources);
-        drawableForAccountSelected = Utils.getDrawableForAccount(account, true, resources);
+        drawableForAccount = Utils.getDrawableForAccount(viewModel, false, resources);
+        drawableForAccountSelected = Utils.getDrawableForAccount(viewModel, true, resources);
         isSyncing = viewModel.isSyncing();
     }
 

@@ -55,8 +55,8 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.TryLogin;
 import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -114,7 +114,7 @@ public class CreateTrader2Activity extends Activity {
       _accounts = new LinkedList<>();
       List<String> choices = new LinkedList<>();
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (UUID accountId : walletManager.getUniqueIds()) {
+      for (UUID accountId : walletManager.getAccountIds()) {
          WalletAccount account = walletManager.getAccount(accountId);
          if (!account.canSpend()) {
             continue;

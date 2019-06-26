@@ -6,7 +6,6 @@ include 'walletcore'
 include 'wapi'
 include 'mbwlib'
 include 'backuputil'
-include 'bitcoincashj:core'
 
 //on the servers, we don't want to build android projects
 //    nano /etc/profile.d/env.sh
@@ -16,8 +15,6 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     getLogger().warn('MYCELIUM_BUILD_SYSTEM==server - disabling Android projects ')
 } else {
     include 'wallet-android-modularization-tools:modularization-lib'
-    include 'modulespvcontract'
-    include 'modulespvbch'
     include 'mbw'
     include 'trezor'
     include 'libs:nordpol'
@@ -25,4 +22,5 @@ if (System.getenv()['MYCELIUM_BUILD_SYSTEM'] == 'server') {
     include 'coinapult'
     include 'LVL'
     include 'backuputil'
+    include 'wallet-console'
 }

@@ -34,20 +34,23 @@
 
 package com.mycelium.wallet.activity.pop;
 
+import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.model.TransactionSummary;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 class PopUtils {
-   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, TransactionSummary transactionSummary) {
-      if (popRequest.getTxid() != null && !transactionSummary.txid.equals(popRequest.getTxid())) {
+   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransactionSummary transaction) {
+      if (popRequest.getTxid() != null && !transaction.getId().equals(popRequest.getTxid())) {
          return false;
       }
       Long amountSatoshis = popRequest.getAmountSatoshis();
-      Long txSatoshis;
-      if (transactionSummary.value.isBtc()) {
-         txSatoshis = ((BitcoinValue) transactionSummary.value).getLongValue();
+      long txSatoshis;
+      CryptoCurrency currency = Utils.getBtcCoinType();
+      if (transaction.getType() == currency) {
+         txSatoshis = (transaction.getTransferred().abs()).getValue();
       } else {
          txSatoshis = -1L;
       }
@@ -56,7 +59,7 @@ class PopUtils {
          return false;
       }
       if (popRequest.getLabel() != null) {
-         String label = metadataStorage.getLabelByTransaction(transactionSummary.txid);
+         String label = metadataStorage.getLabelByTransaction(transaction.getIdHex());
          if (!popRequest.getLabel().equals(label)) {
             return false;
          }

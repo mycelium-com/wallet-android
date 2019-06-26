@@ -41,11 +41,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.AddressLabel;
-import com.mycelium.wapi.model.TransactionOutputSummary;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.List;
 import java.util.UUID;
@@ -71,7 +74,8 @@ public class UnspentOutputsActivity extends Activity {
    private void updateUi() {
       LinearLayout outputView = findViewById(R.id.listUnspentOutputs);
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_accountid);
-      List<TransactionOutputSummary> outputs = account.getUnspentTransactionOutputSummary();
+
+      List<GenericOutputViewModel> outputs = account.getUnspentOutputViewModels();
 
       if (outputs.isEmpty()) {
          findViewById(R.id.tvNoOutputs).setVisibility(View.VISIBLE);
@@ -79,7 +83,7 @@ public class UnspentOutputsActivity extends Activity {
          findViewById(R.id.tvNoOutputs).setVisibility(View.GONE);
       }
 
-      for (TransactionOutputSummary item : outputs) {
+      for (GenericOutputViewModel item : outputs) {
          outputView.addView(getItemView(item));
       }
       if (!(outputs.size()<=5)) {
@@ -88,7 +92,7 @@ public class UnspentOutputsActivity extends Activity {
       }
    }
 
-   private View getItemView(TransactionOutputSummary item) {
+   private View getItemView(GenericOutputViewModel item) {
       // Create vertical linear layout for address
       LinearLayout ll = new LinearLayout(this);
       ll.setOrientation(LinearLayout.VERTICAL);
@@ -96,20 +100,20 @@ public class UnspentOutputsActivity extends Activity {
       ll.setPadding(10, 10, 10, 10);
 
       // Add BTC value
-      ll.addView(getValue(item.value));
+      ll.addView(getValue(item.getValue()));
 
       AddressLabel addressLabel = new AddressLabel(this);
-      addressLabel.setAddress(item.address);
+      addressLabel.setAddress(item.getAddress());
       ll.addView(addressLabel);
 
       return ll;
    }
 
-   private View getValue(long value) {
+   private View getValue(Value value) {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(_mbwManager.getBtcValueString(value));
+      tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
       tv.setTextColor(getResources().getColor(R.color.white));
       return tv;
    }

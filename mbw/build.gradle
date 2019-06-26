@@ -34,9 +34,6 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "com.android.support:support-annotations:$androidSupportVersion"
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     implementation project(includePrefix + ':coinapult')
@@ -51,7 +48,6 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
-    implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -79,8 +75,6 @@ dependencies {
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'com.squareup.wire:wire-runtime:1.6.1'
     implementation 'com.jakewharton:butterknife:8.5.1'
-    // implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    // TODO: migrate existing code (Glidera) to latest rxandroid
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.android.support:multidex:1.0.3'
@@ -91,11 +85,10 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
-    implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
@@ -137,8 +130,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2130000
-        versionName '2.13.0.0'
+        versionCode 3000003
+        versionName '3.0.0.3'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -200,7 +193,8 @@ android {
             debuggable true
         }
     }
-    flavorDimensions "flavor"
+
+    flavorDimensions "default"
 
     productFlavors {
         prodnet {
@@ -240,11 +234,11 @@ android {
                 MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
                 RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
                 RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                ColoredCoinsApiURLs = '{"http://coloredcoins-test.mycelium.com:28342/"}'
+                ColuBlockExplorerApiURLs = '{"http://coloredcoins-test.mycelium.com:28332/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-aws-test.mycelium.com:19335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-c.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'

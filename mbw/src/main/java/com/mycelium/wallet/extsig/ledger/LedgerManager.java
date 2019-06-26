@@ -41,6 +41,7 @@ import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.btchip.BTChipDongle;
 import com.btchip.BTChipException;
 import com.btchip.BitcoinTransaction;
@@ -60,23 +61,35 @@ import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.*;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.model.OutPoint;
+import com.mrd.bitlib.model.ScriptOutput;
+import com.mrd.bitlib.model.ScriptOutputP2PKH;
+import com.mrd.bitlib.model.ScriptOutputP2SH;
+import com.mrd.bitlib.model.ScriptOutputP2WPKH;
+import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
+import com.mrd.bitlib.model.UnspentTransactionOutput;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.ByteWriter;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProvider;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.squareup.otto.Bus;
-import nordpol.android.OnDiscoveredTagListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -87,15 +100,17 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import nordpol.android.OnDiscoveredTagListener;
+
 public class LedgerManager extends AbstractAccountScanManager implements
-      ExternalSignatureProvider, OnDiscoveredTagListener {
+        ExternalSignatureProvider, OnDiscoveredTagListener {
 
    private BTChipTransportFactory transportFactory;
    private BTChipDongle dongle;
    private boolean disableTee;
    private byte[] aid;
-   protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<String>(1);
-   protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<String>(1);
+   protected final LinkedBlockingQueue<String> pinRequestEntry = new LinkedBlockingQueue<>(1);
+   protected final LinkedBlockingQueue<String> tx2FaEntry = new LinkedBlockingQueue<>(1);
 
    private static final String LOG_TAG = "LedgerManager";
 
@@ -138,7 +153,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
       aid = Dump.hexToBin(preferences.getString(Constants.LEDGER_UNPLUGGED_AID_SETTING, DEFAULT_UNPLUGGED_AID));
    }
 
-
    public void setTransportFactory(BTChipTransportFactory transportFactory) {
       this.transportFactory = transportFactory;
    }
@@ -164,7 +178,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
                proxy.setNVM(nvm);
             }
             // Check if the TEE can be connected
-            final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
+            final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<>(1);
             boolean result = transportFactory.connect(getContext(), new BTChipTransportFactoryCallback() {
 
                @Override
@@ -244,8 +258,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
          private LegacyParams(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
             outputAddress = getOutputAddressString(unsigned, forAccount);
-            amount = CoinUtil.valueString(calculateTotalSending(unsigned, forAccount), false);
-            fees = CoinUtil.valueString(unsigned.calculateFee(), false);
+            amount = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(calculateTotalSending(unsigned, forAccount)));
+            fees = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(unsigned.calculateFee()));
          }
       }
 
@@ -284,7 +298,6 @@ public class LedgerManager extends AbstractAccountScanManager implements
             inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
          }
       }
-
 
       if (isSegwit) {
          // Sending first input is kind of mark of p2sh/SegWit transaction
@@ -623,7 +636,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
 
    private boolean initialize() {
       Log.d(LOG_TAG, "Initialize");
-      final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<Boolean>(1);
+      final LinkedBlockingQueue<Boolean> waitConnected = new LinkedBlockingQueue<>(1);
       while (!getTransport().isPluggedIn()) {
          dongle = null;
          try {
@@ -670,7 +683,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
                                  @NonNull UUID uuid) {
       WalletAccount account = walletManager.getAccount(uuid);
       if (account instanceof HDAccountExternalSignature) {
-         return walletManager.upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
+         // TODO make the module name defined programmatically
+         return ((BitcoinHDModule) walletManager.getModuleById(BitcoinHDModule.ID)).upgradeExtSigAccount(accountRoots, (HDAccountExternalSignature) account);
       }
       return false;
    }
@@ -686,7 +700,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
          }
       }
       if (account == null) {
-         account = walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex);
+         account = walletManager.createAccounts(new ExternalSignaturesAccountConfig(accountRoots, this, accountIndex)).get(0);
       }
       return account;
    }
@@ -813,6 +827,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       return HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER;
    }
 
+   @Override
    public String getLabelOrDefault() {
       return getContext().getString(R.string.ledger);
    }

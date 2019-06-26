@@ -75,7 +75,7 @@ public class BackupWordListActivity extends AppCompatActivity {
       MbwManager _mbwManager = MbwManager.getInstance(this);
       Bip39.MasterSeed masterSeed;
       try {
-         masterSeed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+         masterSeed = _mbwManager.getMasterSeedManager().getMasterSeed(AesKeyCipher.defaultKeyCipher());
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }

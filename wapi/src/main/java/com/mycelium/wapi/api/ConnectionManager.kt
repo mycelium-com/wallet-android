@@ -216,7 +216,7 @@ class ConnectionManager(private val connectionsCount: Int, internal var endpoint
         // If app is inactive we should just stop all disconnected clients to not to drain battery.
         val deadClients = (maintenancedClientsList + jsonRpcTcpClientsList).filter {
             if (currentMode == ConnectionManagerMode.ACTIVE) {
-                currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL
+                currentTime - it.lastSuccessTime > MAX_RECONNECT_INTERVAL || !it.isConnected.get()
             } else {
                 !it.isConnected.get()
             }

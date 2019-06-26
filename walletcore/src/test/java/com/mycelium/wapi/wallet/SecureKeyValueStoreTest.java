@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HexUtils;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
+
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -28,7 +30,7 @@ public class SecureKeyValueStoreTest {
 
    @Test
    public void storeAndRetrieveEncrypted() throws KeyCipher.InvalidKeyCipher {
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryBtcWalletManagerBacking(), new MyRandomSource());
       KeyCipher cipher = AesKeyCipher.defaultKeyCipher();
       store.encryptAndStoreValue(ID_1, VALUE_1, cipher);
       byte[] result = store.getDecryptedValue(ID_1, cipher);
@@ -37,7 +39,7 @@ public class SecureKeyValueStoreTest {
 
    @Test
    public void storeAndRetrievePlaintext() throws KeyCipher.InvalidKeyCipher {
-      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryWalletManagerBacking(), new MyRandomSource());
+      SecureKeyValueStore store = new SecureKeyValueStore(new InMemoryBtcWalletManagerBacking(), new MyRandomSource());
       store.storePlaintextValue(ID_1, VALUE_1);
       byte[] result = store.getPlaintextValue(ID_1);
       assertTrue(BitUtils.areEqual(result, VALUE_1));

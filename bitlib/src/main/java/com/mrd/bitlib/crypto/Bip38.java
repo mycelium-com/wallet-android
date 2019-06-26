@@ -16,8 +16,8 @@
 
 package com.mrd.bitlib.crypto;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.Normalizer;
 
@@ -35,7 +35,6 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 public class Bip38 {
-   public static final String BIP38_CHARACTER_ENCODING = "UTF-8";
    public static final int SCRYPT_N = 16384;
    public static final int SCRYPT_LOG2_N = 14;
    public static final int SCRYPT_R = 8;
@@ -66,10 +65,10 @@ public class Bip38 {
       byte[] derived;
       String normalizedPassphrase = Normalizer.normalize(passphrase, Normalizer.Form.NFC);
       try {
-         derived = SCrypt.scrypt(normalizedPassphrase.getBytes("UTF-8"), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize,
+         derived = SCrypt.scrypt(normalizedPassphrase.getBytes(StandardCharsets.UTF_8), salt, SCRYPT_N, SCRYPT_R, SCRYPT_P, outputSize,
                  progressTracker);
          return derived;
-      } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+      } catch (GeneralSecurityException e) {
          throw new RuntimeException(e);
       }
    }

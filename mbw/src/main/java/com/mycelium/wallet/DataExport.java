@@ -35,51 +35,67 @@
 package com.mycelium.wallet;
 
 
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.model.TransactionSummary;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
 
-import java.io.*;
-import java.math.BigDecimal;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DataExport {
    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletAccount account, List<TransactionSummary> history,
+   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
                                       MetadataStorage storage, File file) throws IOException {
       FileOutputStream fos = new FileOutputStream(file);
       OutputStreamWriter osw = new OutputStreamWriter(fos);
       osw.write(CSV_HEADER);
       String accountLabel = storage.getLabelByAccount(account.getId());
-      for (TransactionSummary summary : history) {
-         String txLabel = storage.getLabelByTransaction(summary.txid);
-         osw.write(getTxLine(accountLabel, txLabel, summary));
+      Collections.sort(history, new Comparator<GenericTransactionSummary>() {
+         @Override
+         public int compare(GenericTransactionSummary t1, GenericTransactionSummary t2) {
+            return (int) (t2.getTimestamp() - t1.getTimestamp());
+         }
+      });
+      for (GenericTransactionSummary transaction : history) {
+         String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
+         StringBuilder destAddresses = new StringBuilder();
+         for (GenericOutputViewModel output : transaction.getOutputs()) {
+            if(!account.isMineAddress(output.getAddress())) {
+               destAddresses.append(output.getAddress().toString()).append(" ");
+            }
+         }
+         osw.write(getTxLine(accountLabel, txLabel, destAddresses.toString(), transaction));
       }
       osw.close();
       return file;
    }
 
-   private static String getTxLine(String accountLabel, String txLabel, TransactionSummary summary) {
+   private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransactionSummary transaction) {
       TimeZone tz = TimeZone.getDefault();
-      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
       df.setTimeZone(tz);
-      String date = df.format(new Date(summary.time * 1000)); //summary holds time in seconds, date expects milli-seconds
-      BigDecimal value = (summary.isIncoming ? summary.value.getValue() : summary.value.getValue().negate()); //show outgoing as negative amount
-      String destination = summary.destinationAddress.isPresent() ? summary.destinationAddress.get().toString() : "";
+      String date = df.format(new Date(transaction.getTimestamp() * 1000L));
+      String value = transaction.getTransferred().toPlainString();
       return
             escape(accountLabel) + "," +
-                  summary.txid + "," +
-                  destination + "," +
+                  transaction.getIdHex() + "," +
+                  destAddresses + "," +
                   date + "," +
                   value + "," +
-                  summary.value.getCurrency() + "," +
+                  transaction.getType().getName() + "," +
                   escape(txLabel) + "\n";
    }
 

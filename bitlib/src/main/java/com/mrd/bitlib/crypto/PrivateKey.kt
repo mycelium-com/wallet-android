@@ -20,8 +20,6 @@ import com.mrd.bitlib.util.ByteWriter
 import com.mrd.bitlib.util.HashUtils
 import com.mrd.bitlib.util.Sha256Hash
 
-import org.bitcoinj.core.Utils
-
 import java.io.Serializable
 
 
@@ -60,7 +58,7 @@ abstract class PrivateKey : BitcoinSigner, Serializable {
     }
 
     fun signMessage(message: String): SignedMessage {
-        val data = Utils.formatMessageForSigning(message)
+        val data = Signatures.formatMessageForSigning(message)
         val hash = HashUtils.doubleSha256(data)
         return signHash(hash)
     }

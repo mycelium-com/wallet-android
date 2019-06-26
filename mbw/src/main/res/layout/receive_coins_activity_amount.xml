@@ -4,7 +4,7 @@
 
     <data>
 
-        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
+        <import type="com.mycelium.wapi.wallet.coins.Value" />
 
         <import type="android.view.View" />
 
@@ -26,7 +26,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
             android:paddingTop="10dp"
-            android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
+            android:text="@{Value.isNullOrZero(viewModel.requestedAmount) ? @string/optional_amount : @string/amount_title}"
             android:textSize="22sp" />
 
         <LinearLayout
@@ -64,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="10dp"
-                    android:visibility="@{CurrencyValue.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{Value.isNullOrZero(viewModel.requestedAmountAlternative) ? View.GONE : View.VISIBLE}"
                     android:text="@{viewModel.requestedAmountAlternativeFormatted}"
                     android:textSize="13sp" />
             </LinearLayout>

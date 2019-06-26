@@ -41,30 +41,41 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
 import com.google.common.base.Optional;
+import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.ScanActivity;
 import com.mycelium.wallet.activity.StringHandlerActivity;
-import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class VerifyBackupActivity extends Activity {
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getMasterSeed;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
+
+public class VerifyBackupActivity extends Activity {
    private static final int SCAN_RESULT_CODE = 0;
 
    public static void callMe(Activity currentActivity) {
@@ -86,7 +97,7 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, StringHandleConfig.verifySeedOrKey());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, HandleConfigFactory.verifySeedOrKey());
          }
 
       });
@@ -101,7 +112,6 @@ public class VerifyBackupActivity extends Activity {
          }
 
       });
-
    }
 
    private boolean hasPrivateKeyOnClipboard() {
@@ -123,9 +133,9 @@ public class VerifyBackupActivity extends Activity {
    }
 
    private void updateUi() {
-      TextView tvNumKeys = (TextView) findViewById(R.id.tvNumKeys);
+      TextView tvNumKeys = findViewById(R.id.tvNumKeys);
       String infotext = "";
-      if (_mbwManager.getWalletManager(false).hasBip32MasterSeed()
+      if (_mbwManager.getMasterSeedManager().hasBip32MasterSeed()
             && _mbwManager.getMetadataStorage().getMasterSeedBackupState().equals(MetadataStorage.BackupState.UNKNOWN)) {
          infotext = getString(R.string.verify_backup_master_seed) + "\n";
       }
@@ -147,9 +157,9 @@ public class VerifyBackupActivity extends Activity {
 
    private int countKeysToVerify() {
       int num = 0;
-      for (UUID accountid : _mbwManager.getWalletManager(false).getAccountIds()) {
-         WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+      WalletManager walletManager = _mbwManager.getWalletManager(false);
+      for (WalletAccount account : walletManager.getAccounts()) {
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
             boolean needsBackup = account instanceof SingleAddressAccount
@@ -161,13 +171,11 @@ public class VerifyBackupActivity extends Activity {
             }
          }
       }
-      for (UUID accountid : _mbwManager.getColuManager().getAccounts().keySet()) {
-         WalletAccount account = _mbwManager.getColuManager().getAccount(accountid);
-         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(accountid);
+      for (WalletAccount account : getColuAccounts(walletManager)) {
+         MetadataStorage.BackupState backupState = _mbwManager.getMetadataStorage().getOtherAccountBackupState(account.getId());
 
          if (backupState!= MetadataStorage.BackupState.IGNORED) {
-            boolean needsBackup =  account != null && account.canSpend()
-                    && backupState != MetadataStorage.BackupState.VERIFIED;
+            boolean needsBackup = account.canSpend() && backupState != MetadataStorage.BackupState.VERIFIED;
             if (needsBackup) {
                num++;
             }
@@ -183,7 +191,7 @@ public class VerifyBackupActivity extends Activity {
          return;
       }
 
-      ShowDialogMessage(R.string.unrecognized_private_key_format, false);
+      showDialogMessage(R.string.unrecognized_private_key_format, false);
    }
 
    private void verify(InMemoryPrivateKey pk) {
@@ -195,47 +203,59 @@ public class VerifyBackupActivity extends Activity {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
          // Check whether regular wallet contains that account
-         success = walletManager.hasAccount(account)
-                 || _mbwManager.getColuManager().hasAccount(account);
+         success = walletManager.hasAccount(account);
          if (success) {
             allAddresses = pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values();
             break;
          }
       }
 
-      for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-         UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
-         success |= _mbwManager.getColuManager().hasAccount(coluUUID);
+      for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+         UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
+         success |= _mbwManager.getWalletManager(false).hasAccount(coluUUID);
       }
 
       if (success) {
-         for (UUID uuid : walletManager.getAccountVirtualIds((SingleAddressAccount) walletManager.getAccount(account))){
-            _mbwManager.getMetadataStorage().setOtherAccountBackupState(uuid, MetadataStorage.BackupState.VERIFIED);
-         }
-         for (ColuAccount.ColuAsset coluAsset : ColuAccount.ColuAsset.getAssetMap().values()) {
-            UUID coluUUID = ColuAccount.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
+         _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
+         for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+            UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(coluUUID, MetadataStorage.BackupState.VERIFIED);
          }
          updateUi();
          List<String> addressList = new ArrayList<>();
-         for (Address address : allAddresses) {
-            addressList.add(address.toMultiLineString());
-         }
+         for (Address address : allAddresses){
+              addressList.add(address.toMultiLineString());
+          }
          String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);
 
          String addresses = TextUtils.join("\n\n", addressList);
          String message = getResources().getString(R.string.verify_backup_ok, label, addresses);
-         ShowDialogMessage(message, false);
+         showDialogMessage(message, false);
       } else {
-         ShowDialogMessage(R.string.verify_backup_no_such_record, false);
+         showDialogMessage(R.string.verify_backup_no_such_record, false);
       }
    }
 
-   private void ShowDialogMessage(int messageResource, final boolean quit) {
-      ShowDialogMessage(getResources().getString(messageResource), quit);
+    void verify(Bip39.MasterSeed masterSeed) {
+        try {
+            Bip39.MasterSeed ourSeed = _mbwManager.getMasterSeedManager().getMasterSeed(AesKeyCipher.defaultKeyCipher());
+            if (masterSeed.equals(ourSeed)) {
+                _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
+                showDialogMessage(R.string.verify_backup_ok_message, false);
+                updateUi();
+            } else {
+                showDialogMessage(R.string.wrong_seed, false);
+            }
+        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
+            throw new RuntimeException(invalidKeyCipher);
+        }
+    }
+
+   private void showDialogMessage(int messageResource, final boolean quit) {
+      showDialogMessage(getResources().getString(messageResource), quit);
    }
 
-   private void ShowDialogMessage(String message, final boolean quit) {
+   private void showDialogMessage(String message, final boolean quit) {
       Utils.showSimpleMessageDialog(this, message);
    }
 
@@ -243,13 +263,18 @@ public class VerifyBackupActivity extends Activity {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SCAN_RESULT_CODE) {
          if (resultCode == RESULT_OK) {
-            String message = getResources().getString(R.string.verify_backup_ok_message);
-            ShowDialogMessage(message, false);
-            updateUi();
+             ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+             if (type == ResultType.PRIVATE_KEY) {
+                 verify(getPrivateKey(intent));
+             } else if (type == ResultType.MASTER_SEED) {
+                 verify(getMasterSeed(intent));
+             } else {
+                 showDialogMessage("Not supported backup! Please contact suport.", false);
+             }
          } else {
             String error = intent.getStringExtra(StringHandlerActivity.RESULT_ERROR);
             if (error != null) {
-               ShowDialogMessage(error, false);
+               showDialogMessage(error, false);
             }
          }
       }

@@ -63,6 +63,8 @@ import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -79,7 +81,6 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int BTC_ACTION = 3;
     public static final int MYDFS_ACTION = 4;
     public static final int APEX_ACTION = 5;
-    public static final int GEB_ACTION = 6;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -116,19 +117,17 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             }
         });
         int scrollTo = 0;
-        switch (_mbwManager.getSelectedAccount().getType()) {
-            case BCHBIP44:
-            case BCHSINGLEADDRESS:
-                actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
-                break;
-            default:
-                // actions.add(new ActionButton(GEB_ACTION, getString(R.string.get_extra_btc)));
-                actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
-                scrollTo = addMyDfs(actions, scrollTo);
-                addApex(actions);
-                if (showButton) {
-                    actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
-                }
+        if (_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
+                _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
+
+            actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
+        } else {
+            actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
+            scrollTo = addMyDfs(actions, scrollTo);
+            addApex(actions);
+            if (showButton) {
+                actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
+            }
         }
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
@@ -171,9 +170,6 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 break;
             case APEX_ACTION:
                 Ads.INSTANCE.openApex(getActivity());
-                break;
-            case GEB_ACTION:
-                MbwManager.getInstance(getContext()).getGEBHelper().openModule(getActivity());
                 break;
         }
     }

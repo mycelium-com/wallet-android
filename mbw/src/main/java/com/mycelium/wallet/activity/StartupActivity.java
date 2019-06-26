@@ -63,7 +63,6 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.PinDialog;
@@ -76,10 +75,20 @@ import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
 import com.mycelium.wallet.bitid.BitIDSignRequest;
+import com.mycelium.wallet.content.actions.HdNodeAction;
+import com.mycelium.wallet.content.actions.PrivateKeyAction;
+import com.mycelium.wallet.event.AccountCreated;
+import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.PrivateKeyUri;
+import com.mycelium.wapi.content.WithCallback;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wallet.event.MigrationStatusChanged;
 import com.mycelium.wallet.event.MigrationPercentChanged;
-import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -91,9 +100,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
-import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
-
 public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
@@ -101,8 +107,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
    private static final String LAST_STARTUP_TIME = "startupTme";
 
-   private boolean _hasClipboardExportedPrivateKeys;
-   private boolean hasClipboardExportedPublicKeys;
    private MbwManager _mbwManager;
    private AlertDialog _alertDialog;
    private PinDialog _pinDialog;
@@ -182,7 +186,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
          //in case this is a fresh startup, import backup or create new seed
-         if (!_mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+         if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
             new Handler(getMainLooper()).post(new Runnable() {
                @Override
                public void run() {
@@ -205,6 +209,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (remainingTime < 0) {
             remainingTime = 0;
          }
+
          new Handler(getMainLooper()).postDelayed(delayedFinish, remainingTime);
          sharedPreferences.edit()
                  .putLong(LAST_STARTUP_TIME, timeSpent)
@@ -257,8 +262,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
          try {
             WalletManager walletManager = activity._mbwManager.getWalletManager(false);
-            walletManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-            return walletManager.createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+            activity._mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+            return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
          } catch (KeyCipher.InvalidKeyCipher e) {
             throw new RuntimeException(e);
          }
@@ -271,6 +276,44 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
          activity._progress.dismiss();
+         //set default label for the created HD account
+         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
+         String defaultName = Utils.getNameForNewAccount(account, activity);
+         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
+         MbwManager.getEventBus().post(new AccountCreated(accountid));
+         //finish initialization
+         activity.delayedFinish.run();
+      }
+   }
+
+   /**
+    * This is used to create an account if it failed to be created in ConfigureSeedAsyncTask.
+    * Resolves crashes that some users experience
+    */
+   private static class ConfigureAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
+      private WeakReference<StartupActivity> startupActivity;
+
+      ConfigureAccountAsyncTask(StartupActivity startupActivity) {
+         this.startupActivity = new WeakReference<>(startupActivity);
+      }
+
+      @Override
+      protected UUID doInBackground(Void... params) {
+         StartupActivity activity = this.startupActivity.get();
+         if(activity == null) {
+            return null;
+         }
+
+         WalletManager walletManager = activity._mbwManager.getWalletManager(false);
+         return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+      }
+
+      @Override
+      protected void onPostExecute(UUID accountid) {
+         StartupActivity activity = this.startupActivity.get();
+         if(accountid == null || activity == null) {
+            return;
+         }
          //set default label for the created HD account
          WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
          String defaultName = Utils.getNameForNewAccount(account, activity);
@@ -321,16 +364,15 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
             return;
          }
 
-
          // Check if we have lingering exported private keys, we want to warn
          // the user if that is the case
-         _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
-         hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
+         boolean _hasClipboardExportedPrivateKeys = hasPrivateKeyOnClipboard(_mbwManager.getNetwork());
+         boolean hasClipboardExportedPublicKeys = hasPublicKeyOnClipboard(_mbwManager.getNetwork());
 
          if(hasClipboardExportedPublicKeys){
             warnUserOnClipboardKeys(false);
          }
-         else if ( _hasClipboardExportedPrivateKeys) {
+         else if (_hasClipboardExportedPrivateKeys) {
             warnUserOnClipboardKeys(true);
          }
          else {
@@ -341,7 +383,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
             if (key.isPresent()) {
                return true;
             }
@@ -355,7 +397,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPublicKeyOnClipboard(NetworkParameters network) {
          // do we have a public key on the clipboard?
          try {
-            if (isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
+            if (HdNodeAction.Companion.isKeyNode(network, Utils.getClipboardString(StartupActivity.this))) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
@@ -415,7 +457,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          if (intentUri != null && (Intent.ACTION_VIEW.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action))) {
             switch (scheme) {
                case "bitcoin":
-                  handleBitcoinUri(intentUri);
+                  handleUri(intentUri);
                   break;
                case "bitid":
                   handleBitIdUri(intentUri);
@@ -440,7 +482,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
 
          MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
-         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
@@ -493,11 +535,11 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       finish();
    }
 
-   private void handleBitcoinUri(Uri intentUri) {
+   private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
-      MbwManager mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
-      Optional<? extends BitcoinUri> bitcoinUri = BitcoinUri.parse(intentUri.toString(), mbwManager.getNetwork());
-      if (!bitcoinUri.isPresent()) {
+      MbwManager mbwManager = MbwManager.getInstance(getApplication());
+      GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
+      if (uri == null) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
          finish();
@@ -505,26 +547,26 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       }
 
       // the bitcoin uri might actually be encrypted private key, where the user wants to spend funds from
-      if (bitcoinUri.get() instanceof BitcoinUri.PrivateKeyUri) {
-         final BitcoinUri.PrivateKeyUri privateKeyUri = (BitcoinUri.PrivateKeyUri) bitcoinUri.get();
-         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.keyString, StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
+      if (uri instanceof PrivateKeyUri) {
+         final PrivateKeyUri privateKeyUri = (PrivateKeyUri) uri;
+         DecryptBip38PrivateKeyActivity.callMe(this, privateKeyUri.getKeyString(), StringHandlerActivity.IMPORT_ENCRYPTED_BIP38_PRIVATE_KEY_CODE);
       } else {
-         if (bitcoinUri.get().address == null && Strings.isNullOrEmpty(bitcoinUri.get().callbackURL)) {
+         if (uri.getAddress() == null && uri instanceof WithCallback && Strings.isNullOrEmpty(((WithCallback) uri).getCallbackURL())) {
             // Invalid Bitcoin URI
             Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();
             finish();
             return;
          }
 
-         List<WalletAccount> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+         List<WalletAccount<?>> spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
          if (spendingAccounts.isEmpty()) {
             //if we dont have an account which can spend and has a balance, we fetch all accounts with priv keys
             spendingAccounts = mbwManager.getWalletManager(false).getSpendingAccounts();
          }
          if (spendingAccounts.size() == 1) {
-            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), bitcoinUri.get(), false, REQUEST_FROM_URI);
+            SendInitializationActivity.callMeWithResult(this, spendingAccounts.get(0).getId(), uri, false, REQUEST_FROM_URI);
          } else {
-            GetSpendingRecordActivity.callMeWithResult(this, bitcoinUri.get(), REQUEST_FROM_URI);
+            GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_FROM_URI);
          }
          //don't finish just yet we want to stay on the stack and observe that we emit a txid correctly.
       }
