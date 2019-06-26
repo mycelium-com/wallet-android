@@ -68,8 +68,12 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     @OnClick(R.id.tvSendToAddress)
     void clickAddress() {
-        Utils.setClipboardString(offer.payinAddress, this);
-        toast("Address copied to clipboard");
+        if(offer != null) {
+            Utils.setClipboardString(offer.payinAddress, this);
+            toast("Address copied to clipboard");
+        } else {
+            toast("Something went wrong. No offer");
+        }
     }
 
     @OnClick(R.id.tvFromAmount)
