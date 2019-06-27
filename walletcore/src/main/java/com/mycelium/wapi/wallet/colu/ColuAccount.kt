@@ -36,9 +36,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
                   , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
+    override fun queueTransaction(transaction: GenericTransaction) {
+    }
 
     override fun updateParentOutputs(txid: ByteArray?) {
-      //there is no parent update
+      // there is no parent update
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
@@ -476,7 +478,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                     destinationAddresses,
                     ConfirmationRiskProfileLocal(0, false, false),
                     0,
-                    Value.valueOf(coinType, 0))
+                    Value.valueOf(basedOnCoinType, transaction.fee.toLong()))
         }
 
         return null

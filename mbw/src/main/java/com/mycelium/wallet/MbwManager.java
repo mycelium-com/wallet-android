@@ -126,7 +126,6 @@ import kotlin.jvm.Synchronized;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -299,7 +298,7 @@ public class MbwManager {
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()).toLowerCase())
+                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup

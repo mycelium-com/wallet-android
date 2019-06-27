@@ -136,4 +136,8 @@ public class GenericTransactionSummary implements Serializable {
     public String toString(){
         return getIdHex();
     }
+
+    public boolean canCancel() {
+        return isQueuedOutgoing;
+    }
 }

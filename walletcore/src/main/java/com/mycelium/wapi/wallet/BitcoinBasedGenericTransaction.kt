@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.UnsignedTransaction
 import com.mrd.bitlib.model.Transaction
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 

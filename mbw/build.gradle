@@ -130,8 +130,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000002
-        versionName '3.0.0.2'
+        versionCode 3000004
+        versionName '3.0.0.4'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -238,7 +238,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"http://coloredcoins-test.mycelium.com:28332/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-aws-test.mycelium.com:19335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-c.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
