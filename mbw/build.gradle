@@ -280,6 +280,6 @@ android {
     }
 
     aaptOptions {
-        cruncherEnabled = true
+        cruncherEnabled = false
     }
 }
