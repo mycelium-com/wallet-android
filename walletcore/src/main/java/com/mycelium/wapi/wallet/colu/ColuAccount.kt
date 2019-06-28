@@ -304,7 +304,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun isSynchronizing() = _isSynchronizing
 
-    override fun broadcastOutgoingTransactions(): Boolean = false
+    override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun getSyncTotalRetrievedTransactions(): Int {
         return 0
