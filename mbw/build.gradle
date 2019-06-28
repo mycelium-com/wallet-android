@@ -278,4 +278,8 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    aaptOptions {
+        cruncherEnabled = false
+    }
 }
