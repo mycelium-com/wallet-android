@@ -56,6 +56,7 @@ public interface Constants {
    String PIN_SETTING_RESETTABLE = "PinResettable";
    String RANDOMIZE_PIN = "randomizePin";
    String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
+   String FINGERPRINT = "fingerprint";
    String PROXY_SETTING = "proxy";
    String FIAT_CURRENCY_SETTING = "FiatCurrency";
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";

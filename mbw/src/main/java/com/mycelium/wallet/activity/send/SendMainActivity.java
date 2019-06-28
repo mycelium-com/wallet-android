@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
@@ -149,7 +150,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static android.widget.Toast.makeText;
 
-public class SendMainActivity extends Activity {
+public class SendMainActivity extends AppCompatActivity {
     private static final String TAG = "SendMainActivity";
 
     private static final int GET_AMOUNT_RESULT_CODE = 1;
@@ -330,6 +331,7 @@ public class SendMainActivity extends Activity {
         // TODO: profile. slow!
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.send_main_activity);
         ButterKnife.bind(this);
         _mbwManager = MbwManager.getInstance(getApplication());

@@ -1,8 +1,10 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
@@ -12,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.util.FingerprintHandler;
 
 public class PinCodeFragment extends PreferenceFragmentCompat {
 
@@ -26,6 +29,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
     private CheckBoxPreference setPin;
     private CheckBoxPreference setPinRequiredStartup;
     private CheckBoxPreference randomizePin;
+    private CheckBoxPreference fingerprint;
 
     public static PinCodeFragment newInstance(String pageId) {
         PinCodeFragment fragment = new PinCodeFragment();
@@ -63,6 +67,12 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
         randomizePin = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("pinPadIsRandomized"));
         randomizePin.setOnPreferenceChangeListener(randomizePinListener);
+
+        fingerprint = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("fingerprint"));
+        fingerprint.setOnPreferenceChangeListener(fingerprintListener);
+        if (!FingerprintHandler.Companion.isHardwareSupported(getActivity())) {
+            getPreferenceScreen().removePreference(fingerprint);
+        }
         update();
 
         simulateClick(mOpenType);
@@ -124,7 +134,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                 @Override
                 public void run() {
                     boolean checked = !((CheckBoxPreference) preference).isChecked();
-                    if(_mbwManager.isPinProtected()) {
+                    if (_mbwManager.isPinProtected()) {
                         _mbwManager.setPinPadRandomized(checked);
                     } else {
                         _mbwManager.setPinPadRandomized(false);
@@ -138,10 +148,44 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         }
     };
 
+    private final Preference.OnPreferenceChangeListener fingerprintListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(final Preference preference, Object o) {
+            _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
+                @Override
+                public void run() {
+                    boolean checked = !((CheckBoxPreference) preference).isChecked();
+                    if (_mbwManager.isPinProtected() && checked) {
+                        if (!FingerprintHandler.Companion.isFingerprintAvailable(getContext())) {
+                            new AlertDialog.Builder(getContext())
+                                    .setMessage("You need add fingerprint before start fingerprint authentification")
+                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        }
+                                    })
+                                    .setNegativeButton(R.string.cancel, null)
+                                    .create()
+                                    .show();
+                        } else {
+                            _mbwManager.setFingerprintEnabled(checked);
+                        }
+                    } else {
+                        _mbwManager.setFingerprintEnabled(false);
+                    }
+                    update();
+                }
+            });
+            return false;
+        }
+    };
+
     void update() {
         setPin.setChecked(_mbwManager.isPinProtected());
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
         randomizePin.setChecked(_mbwManager.isPinProtected() && _mbwManager.isPinPadRandomized());
+        fingerprint.setChecked(_mbwManager.isPinProtected() && _mbwManager.isFingerprintEnabled());
     }
 
     @SuppressLint("RestrictedApi")

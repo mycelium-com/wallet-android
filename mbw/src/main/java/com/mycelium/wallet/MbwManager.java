@@ -62,7 +62,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
-import com.mrd.bitlib.crypto.*;
+import com.mrd.bitlib.crypto.Bip39;
+import com.mrd.bitlib.crypto.HdKeyNode;
+import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mrd.bitlib.crypto.MrdExport;
+import com.mrd.bitlib.crypto.PrivateKey;
+import com.mrd.bitlib.crypto.PublicKey;
+import com.mrd.bitlib.crypto.RandomSource;
+import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
@@ -86,38 +93,71 @@ import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.coinapult.CoinapultManager;
 import com.mycelium.wallet.colu.ColuManager;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.AccountListChanged;
+import com.mycelium.wallet.event.EventTranslator;
+import com.mycelium.wallet.event.ExtraAccountsChanged;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
 import com.mycelium.wallet.modularisation.SpvBchFetcher;
-import com.mycelium.wallet.modularisation.GEBHelper;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteWalletManagerBackingWrapper;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AccountProvider;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.BTCSettings;
 import com.mycelium.wapi.wallet.Currency;
+import com.mycelium.wapi.wallet.CurrencySettings;
+import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
+import com.mycelium.wapi.wallet.InMemoryWalletManagerBacking;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.Reference;
+import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SpvBalanceFetcher;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.WalletManagerBacking;
 import com.mycelium.wapi.wallet.bip44.ChangeAddressMode;
+import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.bip44.HDAccount;
 import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.single.SingleAddressAccount;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import kotlin.jvm.Synchronized;
 
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
+import kotlin.jvm.Synchronized;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -419,6 +459,14 @@ public class MbwManager {
     public void setPinPadRandomized(boolean randomizePinPad) {
         getEditor().putBoolean(Constants.RANDOMIZE_PIN, randomizePinPad).apply();
         this.randomizePinPad = randomizePinPad;
+    }
+
+    public boolean isFingerprintEnabled() {
+        return getPreferences().getBoolean(Constants.FINGERPRINT, false);
+    }
+
+    public void setFingerprintEnabled(boolean enable) {
+        getEditor().putBoolean(Constants.FINGERPRINT, enable).apply();
     }
 
     private LtApiClient initLt() {
@@ -966,6 +1014,12 @@ public class MbwManager {
                             pinDialog.dismiss();
                         }
                     }
+                }
+            });
+            pinDialog.setFingerprintCallback(new PinDialog.FingerprintCallback() {
+                @Override
+                public void onSuccess() {
+                    fun.run();
                 }
             });
             if(!activity.isFinishing()) {

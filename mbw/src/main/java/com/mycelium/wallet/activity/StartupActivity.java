@@ -47,6 +47,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
@@ -94,7 +95,7 @@ import java.util.concurrent.TimeUnit;
 import static com.mycelium.wallet.StringHandleConfig.HdNodeAction.isKeyNode;
 import static com.mycelium.wallet.StringHandleConfig.PrivateKeyAction.getPrivateKey;
 
-public class StartupActivity extends Activity implements AccountCreatorHelper.AccountCreationObserver {
+public class StartupActivity extends AppCompatActivity implements AccountCreatorHelper.AccountCreationObserver {
    private static final int MINIMUM_SPLASH_TIME = 500;
    private static final int REQUEST_FROM_URI = 2;
    private static final int IMPORT_WORDLIST = 0;
@@ -120,6 +121,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    protected void onCreate(Bundle savedInstanceState) {
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       sharedPreferences = getApplicationContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
       isFirstRun = (PreferenceManager.getDefaultSharedPreferences(
               getApplicationContext()).getInt("ckChangeLog_last_version_code", -1) == -1);

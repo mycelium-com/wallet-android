@@ -28,6 +28,9 @@
     <!-- the license checker -->
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 
+    <!--unlock using fingerprint-->
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+
     <uses-feature
         android:name="android.hardware.location.network"
         android:required="false" />
@@ -41,6 +44,10 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+
+    <uses-feature android:name="android.hardware.fingerprint"
+        android:required="false"/>
+
 
     <application
         android:name=".WalletApplication"

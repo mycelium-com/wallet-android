@@ -35,6 +35,7 @@
 package com.mycelium.wallet;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatDialog;
@@ -42,11 +43,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.google.common.base.Strings;
+import com.mycelium.wallet.activity.util.FingerprintHandler;
 import com.mycelium.wallet.activity.util.Pin;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
@@ -54,9 +60,14 @@ public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_SMALL = "\u2022"; // Unicode Character  'BULLET'
    protected Button btnBack;
    protected Button btnClear;
+   private FingerprintHandler fingerprintHandler;
 
    public interface OnPinEntered {
       void pinEntered(PinDialog dialog, Pin pin);
+   }
+
+   public interface FingerprintCallback {
+      void onSuccess();
    }
 
    protected ArrayList<Button> buttons = new ArrayList<Button>(10);
@@ -64,11 +75,16 @@ public class PinDialog extends AppCompatDialog {
    protected String enteredPin;
 
    protected OnPinEntered onPinValid = null;
+   protected FingerprintCallback fingerprintCallback;
    private boolean hidden;
    protected boolean pinPadIsRandomized;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
+   }
+
+   public void setFingerprintCallback(FingerprintCallback fingerprintCallback) {
+      this.fingerprintCallback = fingerprintCallback;
    }
 
    public PinDialog(Context context, boolean hidden, boolean cancelable) {
@@ -83,8 +99,38 @@ public class PinDialog extends AppCompatDialog {
       enteredPin = "";
       clearDigits();
       updatePinDisplay();
-
       this.setTitle(R.string.pin_enter_pin);
+      initFingerprint(context);
+   }
+
+   private void initFingerprint(Context context) {
+      View view = findViewById(R.id.fingerprintHint);
+      if (view != null) {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                 && MbwManager.getInstance(context).isFingerprintEnabled()) {
+            fingerprintHandler = new FingerprintHandler();
+            fingerprintHandler.startAuth(context, new Function0<Unit>() {
+               @Override
+               public Unit invoke() {
+                  dismiss();
+                  if (fingerprintCallback != null) {
+                     fingerprintCallback.onSuccess();
+                  }
+                  return null;
+               }
+            });
+         } else {
+            view.setVisibility(View.GONE);
+         }
+      }
+   }
+
+   @Override
+   public void dismiss() {
+      super.dismiss();
+      if (fingerprintHandler != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+         fingerprintHandler.cancelAuth();
+      }
    }
 
    protected void initPinPad() {
@@ -116,8 +162,8 @@ public class PinDialog extends AppCompatDialog {
          buttons.get(i).setText(numbers.get(i).toString());
       }
 
-      btnClear = (Button) findViewById(R.id.pin_clr);
-      btnBack = (Button) findViewById(R.id.pin_back);
+      btnClear = findViewById(R.id.pin_clr);
+      btnBack = findViewById(R.id.pin_back);
 
       for (Button b : buttons) {
          final int num = Integer.parseInt(b.getText().toString());
