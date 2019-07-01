@@ -33,6 +33,7 @@ public interface Wapi {
    int ERROR_CODE_INVALID_ARGUMENT = 5;
    int ERROR_CODE_PARSING_ERROR = 6000;
    int ERROR_CODE_INTERNAL_SERVER_ERROR = 99;
+   int ERROR_CODE_RESPONSE_TOO_LARGE = -32600;
 
     /**
      * This codes are used to identify Bitcoind errors which are passed through electrumx.

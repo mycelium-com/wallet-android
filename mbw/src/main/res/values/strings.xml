@@ -78,6 +78,7 @@
     <string name="unrecognized_format">Unrecognized format</string>
     <string name="unrecognized_private_key_format">Unrecognized private key format</string>
     <string name="no_transaction_records">This page shows your transaction history.\n\nThere are currently no transactions to show.</string>
+    <string name="too_many_transaction_records">Cannot fetch full account transaction history due to its huge size. Consider moving funds to a new account.</string>
     <string name="no_address_book_records">This page shows your address book.\n\nYour address book is empty.</string>
     <string name="name">Name</string>
     <string name="ok">OK</string>
