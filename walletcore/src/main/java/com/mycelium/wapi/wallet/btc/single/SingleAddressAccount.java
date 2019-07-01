@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet.btc.single;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.StandardTransactionBuilder;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
@@ -42,14 +41,9 @@ import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.btc.BtcReceiver;
 import com.mycelium.wapi.wallet.btc.BtcTransaction;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.Reference;
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -224,16 +218,30 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    private boolean discoverTransactions() {
       // Get the latest transactions
       List<Sha256Hash> discovered;
-      try {
-         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList))
-                 .getResult();
-         setBlockChainHeight(result.height);
-         discovered = result.txIds;
-      } catch (WapiException e) {
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-         postEvent(Event.SERVER_CONNECTION_ERROR);
-         return false;
+      List<Sha256Hash> txIds = new ArrayList<>();
+      int height = getBlockChainHeight();
+      for (Address address : _addressList) {
+         try {
+            final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, Collections.singletonList(address)))
+                    .getResult();
+            txIds.addAll(result.txIds);
+            height = result.height;
+         } catch (WapiException e) {
+            if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+               postEvent(Event.SERVER_CONNECTION_ERROR);
+               return false;
+            } else if (e.errorCode == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE) {
+               postEvent(Event.TOO_MANY_TRANSACTIONS);
+            }
+         }
       }
+      setBlockChainHeight(height);
+      // get out right there if there is nothing to work with
+      if (txIds.size() == 0) {
+          return true;
+      }
+      discovered = txIds;
 
       // Figure out whether there are any transactions we need to fetch
       List<Sha256Hash> toFetch = new LinkedList<>();

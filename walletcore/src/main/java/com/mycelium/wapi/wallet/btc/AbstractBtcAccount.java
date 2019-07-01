@@ -706,9 +706,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          }
       }
 
-      int blockHeight = getBlockChainHeight();
       return new BalanceSatoshis(confirmed, pendingReceiving, pendingSending, pendingChange, System.currentTimeMillis(),
-              blockHeight, true, _allowZeroConfSpending);
+              getBlockChainHeight(), true, _allowZeroConfSpending);
    }
 
    private TransactionOutput transform(TransactionOutputEx parent) {
@@ -836,10 +835,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       List<com.mycelium.wapi.model.TransactionSummary> history = new ArrayList<>();
       checkNotArchived();
-      int blockChainHeight = getBlockChainHeight();
       List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
       for (TransactionEx tex : list) {
-         com.mycelium.wapi.model.TransactionSummary item = transform(tex, blockChainHeight);
+         com.mycelium.wapi.model.TransactionSummary item = transform(tex, getBlockChainHeight());
          if (item != null) {
             history.add(item);
          }
@@ -1093,7 +1091,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Prune confirmed outputs for coinbase outputs that are not old enough
       // for spending. Also prune unconfirmed receiving coins except for change
-      int blockChainHeight = getBlockChainHeight();
       Iterator<TransactionOutputEx> it = allUnspentOutputs.iterator();
       while (it.hasNext()) {
          TransactionOutputEx output = it.next();
@@ -1101,7 +1098,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          // coinbase outputs are not spendable and this should not be overridden
          // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
          if (output.value < satDustOutput ||
-                     output.isCoinBase && blockChainHeight - output.height < COINBASE_MIN_CONFIRMATIONS ||
+                     output.isCoinBase && getBlockChainHeight() - output.height < COINBASE_MIN_CONFIRMATIONS ||
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
             it.remove();
          } else {
@@ -1441,7 +1438,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // Transform it to a list of summaries
       List<TransactionOutputSummary> list = new ArrayList<>();
-      int blockChainHeight = getBlockChainHeight();
       for (TransactionOutputEx output : outputs) {
 
          ScriptOutput script = ScriptOutput.fromScriptBytes(output.script);
@@ -1456,7 +1452,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          if (output.height == -1) {
             confirmations = 0;
          } else {
-            confirmations = Math.max(0, blockChainHeight - output.height + 1);
+            confirmations = Math.max(0, getBlockChainHeight() - output.height + 1);
          }
 
          TransactionOutputSummary summary = new TransactionOutputSummary(output.outPoint, output.value, output.height, confirmations, address);
