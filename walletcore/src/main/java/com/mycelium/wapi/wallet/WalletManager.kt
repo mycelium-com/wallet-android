@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
@@ -305,6 +304,10 @@ constructor(val network: NetworkParameters,
         /**
          * Malformed outgoing transaction detected
          */
-        MALFORMED_OUTGOING_TRANSACTIONS_FOUND
+        MALFORMED_OUTGOING_TRANSACTIONS_FOUND,
+        /**
+         * Transaction history can't be loaded due to large size
+         */
+        TOO_MANY_TRANSACTIONS
     }
 }
