@@ -189,6 +189,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private static final String PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId";
     public static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
+    public static final String FEE_ESTIMATION = "fee_estimation";
     private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
     private boolean _spendingUnconfirmed;
 
@@ -398,6 +399,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
                         .getIfPresent(_paymentRequestHandlerUuid);
             }
+            feeEstimation = (FeeEstimationsGeneric) savedInstanceState.getSerializable(FEE_ESTIMATION);
         }
 
         //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
@@ -563,8 +565,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 updateTransactionStatusAndUi();
-                List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getBasedOnCoinType(), feeEstimation, feeLvl, estimateTxSize());
-                feeViewAdapter.setDataset(feeItems);
+                List<FeeItem> feeItems = updateFeeDataset();
                 if (isInRange(feeItems, selectedFee)) {
                     feeValueList.setSelectedItem(selectedFee);
                 } else {
@@ -572,6 +573,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 }
             }
         });
+    }
+
+    private List<FeeItem> updateFeeDataset() {
+        List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getBasedOnCoinType(), feeEstimation, feeLvl, estimateTxSize());
+        feeViewAdapter.setDataset(feeItems);
+        feeValueList.setSelectedItem(selectedFee);
+        return feeItems;
     }
 
     private boolean isInRange(List<FeeItem> feeItems, Value fee) {
@@ -620,6 +628,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
         savedInstanceState.putSerializable(SIGNED_TRANSACTION, signedTransaction);
+        savedInstanceState.putSerializable(FEE_ESTIMATION , feeEstimation);
     }
 
     @OnClick(R.id.colu_tips_check_address)
@@ -858,6 +867,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void updateUi() {
         // TODO: profile. slow!
         updateFeeText();
+        updateFeeDataset();
         updateRecipient();
         updateAmount();
         updateError();
