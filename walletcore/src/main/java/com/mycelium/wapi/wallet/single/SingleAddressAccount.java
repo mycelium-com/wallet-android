@@ -197,16 +197,30 @@ public class SingleAddressAccount extends AbstractAccount implements ExportableA
    private boolean discoverTransactions() {
       // Get the latest transactions
       List<Sha256Hash> discovered;
-      try {
-         final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, _addressList))
-                 .getResult();
-         setBlockChainHeight(result.height);
-         discovered = result.txIds;
-      } catch (WapiException e) {
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
-         postEvent(Event.SERVER_CONNECTION_ERROR);
-         return false;
+      List<Sha256Hash> txIds = new ArrayList<>();
+      int height = getBlockChainHeight();
+      for (Address address : _addressList) {
+         try {
+            final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, Collections.singletonList(address)))
+                    .getResult();
+            txIds.addAll(result.txIds);
+            height = result.height;
+         } catch (WapiException e) {
+            if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
+               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+               postEvent(Event.SERVER_CONNECTION_ERROR);
+               return false;
+            } else if (e.errorCode == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE) {
+               postEvent(Event.TOO_MANY_TRANSACTIONS);
+            }
+         }
       }
+      setBlockChainHeight(height);
+      // get out right there if there is nothing to work with
+      if (txIds.size() == 0) {
+          return true;
+      }
+      discovered = txIds;
 
       // Figure out whether there are any transactions we need to fetch
       List<Sha256Hash> toFetch = new LinkedList<>();
