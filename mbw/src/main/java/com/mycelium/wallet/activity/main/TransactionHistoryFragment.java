@@ -492,7 +492,7 @@ public class TransactionHistoryFragment extends Fragment {
                            if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
                               defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
                            }
-                           GenericAddress address = record.getOutputs().get(0).getAddress();
+                           GenericAddress address = record.getDestinationAddresses().get(0);
                            EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
                            _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
