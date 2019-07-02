@@ -229,10 +229,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
             val response = BatchedRpcResponse.fromJson(incoming!!)
             val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
-            callbacks[compoundId]?.also { callback ->
-                callback.invoke(response)
-            }
-            callbacks.remove(compoundId)
+            callbacks.remove(compoundId)?.invoke(response)
         } else {
             val response = RpcResponse.fromJson(incoming!!)
             val id = response.id.toString()

@@ -48,8 +48,6 @@ class ConnectionManager(private val connectionsCount: Int, internal var endpoint
         logger.logInfo("Connection changed, connected: $isConnected")
         isNetworkConnected = isConnected
         setActive(isConnected)
-        jsonRpcTcpClientsList.forEach( JsonRpcTcpClient::renewSubscriptions )
-        maintenancedClientsList.forEach( JsonRpcTcpClient::renewSubscriptions )
     }
 
     fun setActive(isActive: Boolean) {
@@ -58,9 +56,11 @@ class ConnectionManager(private val connectionsCount: Int, internal var endpoint
         maintenanceTimer = null
         currentMode = if (isActive) {
             activateMaintenanceTimer(connectionsCount, logger, 0L, MAINTENANCE_INTERVAL)
+            (jsonRpcTcpClientsList + maintenancedClientsList).forEach( JsonRpcTcpClient::renewSubscriptions )
             ConnectionManagerMode.ACTIVE
         } else {
             activateMaintenanceTimer(connectionsCount, logger, INACTIVE_MAINTENANCE_INTERVAL, INACTIVE_MAINTENANCE_INTERVAL)
+            (jsonRpcTcpClientsList + maintenancedClientsList).forEach( JsonRpcTcpClient::stop )
             ConnectionManagerMode.PASSIVE
         }
     }
