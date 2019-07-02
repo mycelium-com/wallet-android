@@ -1292,7 +1292,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="extsig_confrim_on_hardware"><![CDATA[Please confirm this transaction on your %1$s]]></string>
     <string name="signing_transaction_instruction">Mixed-spending compatibility mode</string>
     <string name="account_upgraded">Account %d just received SegWit support</string>
-    <string name="hardware_account_create">Creating new hadrware wallet account</string>
+    <string name="hardware_account_create">Creating new hardware wallet account</string>
     <string name="please_wait_hardware">Please wait</string>
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>

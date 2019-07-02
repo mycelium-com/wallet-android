@@ -219,13 +219,12 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
       // Get the latest transactions
       List<Sha256Hash> discovered;
       List<Sha256Hash> txIds = new ArrayList<>();
-      int height = getBlockChainHeight();
       for (Address address : _addressList) {
          try {
             final QueryTransactionInventoryResponse result = _wapi.queryTransactionInventory(new QueryTransactionInventoryRequest(Wapi.VERSION, Collections.singletonList(address)))
                     .getResult();
             txIds.addAll(result.txIds);
-            height = result.height;
+            setBlockChainHeight(result.height);
          } catch (WapiException e) {
             if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
                _logger.logError("Server connection failed with error code: " + e.errorCode, e);
@@ -236,7 +235,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             }
          }
       }
-      setBlockChainHeight(height);
+
       // get out right there if there is nothing to work with
       if (txIds.size() == 0) {
           return true;
