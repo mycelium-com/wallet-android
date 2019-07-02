@@ -1116,8 +1116,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 if (fee != size * selectedFee.value / 1000) {
                     Value value = Value.valueOf(_account.getCoinType(), fee);
                     Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
-                    String fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
-                    fiat = fiat.isEmpty() ? "" : "(" + fiat + ")";
+                    String fiat = "";
+                    if (fiatValue != null) {
+                        fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
+                    }
+                    fiat = fiat.isEmpty() ? "" : " (" + fiat + ")";
                     feeWarning = getString(R.string.fee_change_warning
                             , ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination())
                             , fiat);
