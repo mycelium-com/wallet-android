@@ -6,10 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.modern.adapter.holder.NewsItemAllHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2BigHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2Holder
-import com.mycelium.wallet.activity.modern.adapter.holder.SpaceViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
@@ -52,6 +49,7 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
             TYPE_NEWS_ITEM_ALL -> NewsItemAllHolder(preferences, layoutInflater.inflate(R.layout.item_mediaflow_news_all, parent, false))
             TYPE_NEWS_V2_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
             TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
+            TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
             else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
         }
     }
@@ -114,19 +112,18 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
 
 
     override fun getItemCount(): Int {
+        if(dataMap.isEmpty()) return 2
         return (if (category == ALL) dataMap.size
         else dataMap[category]?.size ?: 0) + 1
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) {
-            TYPE_SPACE
-        } else if (category == ALL) {
-            TYPE_NEWS_ITEM_ALL
-        } else if (position == 0) {
-            TYPE_NEWS_V2_BIG
-        } else {
-            TYPE_NEWS_V2
+        return when {
+            dataMap.isEmpty() -> TYPE_NEWS_LOADING
+            position == itemCount - 1 -> TYPE_SPACE
+            category == ALL -> TYPE_NEWS_ITEM_ALL
+            position == 0 -> TYPE_NEWS_V2_BIG
+            else -> TYPE_NEWS_V2
         }
     }
 
@@ -139,6 +136,8 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
         const val TYPE_NEWS_V2 = 2
 
         const val TYPE_NEWS_ITEM_ALL = 3
+
+        const val TYPE_NEWS_LOADING = 4
 
         val ALL = Category("All")
     }

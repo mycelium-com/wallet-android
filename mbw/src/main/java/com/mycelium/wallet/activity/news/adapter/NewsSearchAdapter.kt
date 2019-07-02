@@ -11,8 +11,10 @@ import com.mycelium.wallet.activity.modern.adapter.holder.SpaceViewHolder
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.holder.NewsSearchHeaderHolder
 import com.mycelium.wallet.activity.news.adapter.holder.NewsSearchItemAllHolder
+import com.mycelium.wallet.activity.news.adapter.holder.NewsV2DoubleHolder
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
+import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 
 
 class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -60,7 +62,6 @@ class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapt
 
             val listHolder = holder as NewsSearchItemAllHolder
             listHolder.category.text = dataCategory.name
-            listHolder.category.setTextColor(NewsUtils.getCategoryTextColor(dataCategory.name))
             listHolder.showAll.setOnClickListener {
                 searchDataMap = list
                 notifyDataSetChanged()

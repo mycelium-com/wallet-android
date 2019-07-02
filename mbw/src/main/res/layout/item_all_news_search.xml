@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -10,36 +9,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <include
             android:id="@+id/category"
+            layout="@layout/media_flow_tab_item"
             android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp" />
+
+        <Space
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_weight="1"
-            android:paddingTop="16dp"
-            android:paddingBottom="12dp"
-            android:textSize="12sp"
-            tools:text="News" />
+            android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/showAll"
+            android:id="@+id/view_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="20dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="12dp"
-            android:text="Show all"
-            android:textColor="#88ebedf0"
+            android:layout_gravity="center"
+            android:layout_marginEnd="6dp"
+            android:alpha="0.5"
+            android:text="@string/view_more"
+            android:textColor="#FFFFFD"
             android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            app:srcCompat="@drawable/ic_chevron" />
+
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:clipToPadding="false"
+        android:orientation="horizontal"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
