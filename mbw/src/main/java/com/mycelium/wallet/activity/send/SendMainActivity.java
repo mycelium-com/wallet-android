@@ -60,6 +60,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
@@ -145,6 +146,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 import com.squareup.otto.Subscribe;
+
 import org.bitcoin.protocols.payments.PaymentACK;
 
 import java.util.ArrayList;
@@ -160,9 +162,15 @@ import butterknife.OnClick;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.*;
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.mycelium.wallet.activity.util.IntentExtentionsKt.*;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getHdKeyNode;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPopRequest;
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getPrivateKey;
 
 public class SendMainActivity extends FragmentActivity implements BroadcastResultListener {
     private static final String TAG = "SendMainActivity";
@@ -517,11 +525,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
                 selectedFee = Value.valueOf(item.value.type, item.feePerKb);
-                updateRecipient();
-                updateAmount();
-                updateFeeText();
-                updateError();
-                btSend.setEnabled(_transactionStatus == TransactionStatus.OK);
+                btSend.setEnabled(false); //should be enabled(depends from tx status) after update tx
+                updateTransactionStatusAndUi();
                 ScrollView scrollView = findViewById(R.id.root);
 
                 if(showSendBtn && scrollView.getMaxScrollAmount() - scrollView.getScaleY() > 0) {
@@ -565,12 +570,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 FeeLvlItem item = ((FeeLvlViewAdapter) adapter).getItem(position);
                 feeLvl = item.minerFee;
                 updateTransactionStatusAndUi();
-                List<FeeItem> feeItems = updateFeeDataset();
-                if (isInRange(feeItems, selectedFee)) {
-                    feeValueList.setSelectedItem(selectedFee);
-                } else {
-                    feeValueList.setSelectedItem(getCurrentFeeEstimation());
-                }
+                updateFeeDataset();
             }
         });
     }
@@ -578,7 +578,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private List<FeeItem> updateFeeDataset() {
         List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getBasedOnCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        feeValueList.setSelectedItem(selectedFee);
+        if (feeViewAdapter.getSelectedItem() < feeViewAdapter.getItemCount()
+                && feeViewAdapter.getItem(feeViewAdapter.getSelectedItem()).feePerKb == selectedFee.value) {
+        } else if (isInRange(feeItems, selectedFee)) {
+            feeValueList.setSelectedItem(selectedFee);
+        } else {
+            feeValueList.setSelectedItem(getCurrentFeeEstimation());
+        }
         return feeItems;
     }
 
