@@ -6,7 +6,6 @@ import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Lists
-import com.mrd.bitlib.StandardTransactionBuilder
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.BipDerivationType.Companion.getDerivationTypeByAddress
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
@@ -21,9 +20,6 @@ import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -740,11 +736,12 @@ open class HDAccount(
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
         val btcSendRequest = request as BtcTransaction
-        btcSendRequest.setTransaction(signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher()))
+        val tx = signTransaction(btcSendRequest.unsignedTx, AesKeyCipher.defaultKeyCipher())
+        if (tx != null) btcSendRequest.setTransaction(tx)
     }
 
     override fun broadcastTx(tx: GenericTransaction) :BroadcastResult {
-        var btcTx = tx as BtcTransaction
+        val btcTx = tx as BtcTransaction
         return broadcastTransaction(btcTx.tx)
     }
 

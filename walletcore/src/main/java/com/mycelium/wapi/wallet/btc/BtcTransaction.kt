@@ -2,12 +2,8 @@ package com.mycelium.wapi.wallet.btc
 
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.UnsignedTransaction
-import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.wallet.BitcoinBasedGenericTransaction
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 

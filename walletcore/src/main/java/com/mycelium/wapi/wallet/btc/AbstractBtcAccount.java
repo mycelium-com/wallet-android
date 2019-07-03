@@ -606,7 +606,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                // Parent output not found, maybe we already have it
                parentOutput = TransactionEx.getTransactionOutput(parentTex, in.outPoint.index);
                toPersist.add(parentOutput);
-               continue;
             }
          }
       }

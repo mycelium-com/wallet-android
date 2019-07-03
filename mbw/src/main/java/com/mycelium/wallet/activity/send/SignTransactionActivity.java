@@ -146,7 +146,7 @@ public class SignTransactionActivity extends Activity {
          protected GenericTransaction doInBackground(Void... args) {
             try {
                _account.signTx(_transaction, AesKeyCipher.defaultKeyCipher());
-               return _transaction;
+               return _transaction.txBytes() != null ? _transaction : null;
             }
             catch (KeyCipher.InvalidKeyCipher e) {
                throw new RuntimeException("doInBackground" + e.getMessage());
