@@ -138,17 +138,16 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       TextView tvAddressLabel = rowView.findViewById(R.id.tvAddressLabel);
       TextView tvDestAddress = rowView.findViewById(R.id.tvDestAddress);
 
-
       if (record.getDestinationAddresses().size() > 0) {
          // As we have a current limitation to send only to one recepient, we consider that
          // record.destinationAddresses should always have size of 1
          // and thus take the first element from it.
-         String destAddressStr = record.getDestinationAddresses().get(0).toString();
-         GenericAddress address = record.getDestinationAddresses().get(0);
-         if (_addressBook.containsKey(address)) {
+         GenericAddress destAddress = record.getDestinationAddresses().get(0);
+         String destAddressStr = destAddress.toString();
+         if (_addressBook.containsKey(destAddress)) {
             tvDestAddress.setText(AddressUtils.toShortString(destAddressStr));
             tvAddressLabel.setText(String.format(_context.getString(R.string.transaction_to_address_prefix),
-                    _addressBook.get(address)));
+                    _addressBook.get(destAddress)));
             tvAddressLabel.setVisibility(View.VISIBLE);
             tvDestAddress.setVisibility(View.VISIBLE);
 
@@ -157,7 +156,6 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
             tvDestAddress.setText(AddressUtils.toShortString(destAddressStr));
             tvDestAddress.setVisibility(View.VISIBLE);
             tvAddressLabel.setVisibility(View.VISIBLE);
-
          } else {
             tvDestAddress.setVisibility(View.GONE);
             tvAddressLabel.setVisibility(View.GONE);

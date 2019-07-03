@@ -280,8 +280,8 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       // Open transaction details
-      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
-      intent.putExtra("transaction", selected.getId());
+      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class)
+              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId());
       startActivity(intent);
    }
 
