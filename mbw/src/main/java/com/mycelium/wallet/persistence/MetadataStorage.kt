@@ -64,11 +64,11 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
                     .filterKeys(entries::containsKey)
             var coinType: String
             for (e in entries.entries) {
-                val `val` = e.value
+                val value = e.value
                 val key = e.key
                 coinType = addressesOfCointype[key].toString()
                 if (AddressUtils.from(coinTypeFromString(coinType), key) != null) {
-                    addresses[AddressUtils.from(coinTypeFromString(coinType), key)] = `val`
+                    addresses[AddressUtils.from(coinTypeFromString(coinType), key)] = value
                 }
             }
             return addresses
@@ -79,9 +79,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             val entries = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
             val addresses = ArrayList<GenericAddress>()
             for (e in entries.entries) {
-                val `val` = coinTypeFromString(e.value)
+                val value = coinTypeFromString(e.value)
                 val key = e.key
-                addresses.add(AddressUtils.from(`val`, key))
+                addresses.add(AddressUtils.from(value, key))
             }
             return addresses
         }
