@@ -36,15 +36,21 @@ class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : Rec
         override fun onCreateViewHolder(parent: ViewGroup, p1: Int): RecyclerView.ViewHolder {
             val holder = NewsV2DoubleHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_double, parent, false), preferences)
             val params = holder.itemView.layoutParams
-            params.width = context.resources.getDimensionPixelSize(R.dimen.item_media_flow_width)
+
+            params.width = (0.85 * context.resources.displayMetrics.widthPixels).toInt()
             holder.itemView.layoutParams = params
+
+            holder.news1.itemView.setPadding(holder.news1.itemView.paddingLeft, holder.news1.itemView.paddingTop,
+                    0, holder.itemView.paddingBottom)
+            holder.news2.itemView.setPadding(holder.news2.itemView.paddingLeft, holder.news2.itemView.paddingTop,
+                    0, holder.news2.itemView.paddingBottom)
             return holder
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             val newsSmallHolder = holder as NewsV2DoubleHolder
-            if (position / 2 < super.getItemCount()) {
-                newsSmallHolder.news1.bind(getItem(position / 2))
+            if (position * 2 < super.getItemCount()) {
+                newsSmallHolder.news1.bind(getItem(position * 2))
                 newsSmallHolder.news1.openClickListener = {
                     clickListener?.invoke(it)
                 }
@@ -52,8 +58,8 @@ class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : Rec
             } else {
                 newsSmallHolder.news1.itemView.visibility = View.GONE
             }
-            if (position / 2 + 1 < super.getItemCount()) {
-                newsSmallHolder.news2.bind(getItem(position / 2 + 1))
+            if (position * 2 + 1 < super.getItemCount()) {
+                newsSmallHolder.news2.bind(getItem(position * 2 + 1))
                 newsSmallHolder.news2.openClickListener = {
                     clickListener?.invoke(it)
                 }
@@ -69,7 +75,7 @@ class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : Rec
         }
 
         override fun getItemCount(): Int {
-            return super.getItemCount() / 2
+            return (super.getItemCount() + 1) / 2
         }
     }
 

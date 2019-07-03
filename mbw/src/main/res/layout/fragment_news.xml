@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#272727">
+    android:background="#272727"
+    android:orientation="vertical">
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
@@ -22,10 +23,29 @@
         app:tabRippleColor="#ff272727"
         app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
 
+    <TextView
+        android:id="@+id/discover"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/discover"
+        android:textColor="#FFFFFD"
+        android:textSize="18sp" />
+
+    <android.support.v7.widget.SearchView
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/background_news_search"
+        app:queryBackground="@drawable/background_news_search"
+        android:textColor="#FFFFFD" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/newsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tabs"
+        android:requiresFadingEdge="vertical"
         android:layout_marginTop="16dp" />
-</RelativeLayout>
+</LinearLayout>

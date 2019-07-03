@@ -8,12 +8,12 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.SearchView
 import android.view.*
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
-import com.mycelium.wallet.activity.news.NewsSearchActivity
-import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
@@ -26,6 +26,7 @@ import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 class NewsFragment : Fragment() {
 
     private lateinit var adapter: NewsAdapter
+    private lateinit var adapterSearch: NewsSearchAdapter
     private lateinit var preference: SharedPreferences
     var searchActive = false
 
@@ -44,6 +45,7 @@ class NewsFragment : Fragment() {
         setHasOptionsMenu(true)
         preference = activity?.getSharedPreferences(NewsConstants.NEWS_PREF, MODE_PRIVATE)!!
         adapter = NewsAdapter(preference)
+        adapterSearch = NewsSearchAdapter(preference)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -54,13 +56,13 @@ class NewsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
         newsList.layoutManager = layoutManager
-        newsList.adapter = adapter
         newsList.setHasFixedSize(false)
-        adapter.openClickListener = {
+        val newsClick: (News) -> Unit = {
             val intent = Intent(activity, NewsActivity::class.java)
             intent.putExtra(NewsConstants.NEWS, it)
             startActivity(intent)
         }
+        adapter.openClickListener = newsClick
         adapter.categoryClickListener = {
             val tab = getTab(it, tabs)
             tab?.select()
@@ -76,7 +78,25 @@ class NewsFragment : Fragment() {
                 adapter.setCategory(tab.tag as Category)
             }
         })
-        startUpdate()
+        adapterSearch.openClickListener = newsClick
+        search.setOnCloseListener {
+            searchActive = false
+            activity?.invalidateOptionsMenu()
+            updateUI()
+            true
+        }
+        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(search: String?): Boolean {
+                startUpdateSearch(search)
+                return true
+            }
+
+            override fun onQueryTextChange(search: String?): Boolean {
+                startUpdateSearch(search)
+                return true
+            }
+        })
+        updateUI()
     }
 
     override fun onResume() {
@@ -98,11 +118,14 @@ class NewsFragment : Fragment() {
                 updateFavoriteMenu(it)
             }
         }
+        menu?.findItem(R.id.action_search)?.isVisible = searchActive.not()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == R.id.action_search) {
-            startActivity(Intent(activity, NewsSearchActivity::class.java))
+            searchActive = true
+            activity?.invalidateOptionsMenu()
+            updateUI()
             return true
         } else if (item?.itemId == R.id.action_favorite) {
             preference.edit()
@@ -112,6 +135,22 @@ class NewsFragment : Fragment() {
             startUpdate()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun updateUI() {
+        if (searchActive) {
+            newsList.adapter = adapterSearch
+            tabs.visibility = View.GONE
+            discover.visibility = View.VISIBLE
+            search.visibility = View.VISIBLE
+            startUpdateSearch()
+        } else {
+            newsList.adapter = adapter
+            tabs.visibility = View.VISIBLE
+            discover.visibility = View.GONE
+            search.visibility = View.GONE
+            startUpdate()
+        }
     }
 
     private fun updateFavoriteMenu(item: MenuItem) {
@@ -148,6 +187,20 @@ class NewsFragment : Fragment() {
         }
         loading = true
         GetNewsTask(listener = taskListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    private fun startUpdateSearch(search: String? = null) {
+        val taskListener: (List<News>) -> Unit = {
+            if (search == null || search.isEmpty()) {
+                adapterSearch.setData(it)
+                adapterSearch.setSearchData(null)
+            } else {
+                adapterSearch.setSearchData(it)
+            }
+        }
+
+        GetNewsTask(search, listOf(), listener = taskListener)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun getTab(category: Category, tabLayout: TabLayout): TabLayout.Tab? {
