@@ -60,6 +60,17 @@
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
         <Button
+                android:id="@+id/btEthCreate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="@string/hd_eth_account"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="@dimen/margin_medium"/>
+
+        <Button
                 android:id="@+id/btHdBchCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

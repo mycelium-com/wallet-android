@@ -5,6 +5,7 @@ import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.jsonrpc.*
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.Collections.shuffle
 import java.util.concurrent.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeoutException

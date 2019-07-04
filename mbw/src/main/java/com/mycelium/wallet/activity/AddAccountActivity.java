@@ -55,6 +55,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -102,6 +103,11 @@ public class AddAccountActivity extends Activity {
         coluCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
         hdBchCreate.setVisibility(View.GONE);
+    }
+
+    @OnClick(R.id.btEthCreate)
+    void onAddEth() {
+        new ETHCreationAsyncTask().execute();
     }
 
     @OnClick(R.id.btHdBchCreate)
@@ -168,6 +174,19 @@ public class AddAccountActivity extends Activity {
         @Override
         protected UUID doInBackground(Void... params) {
             return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+        }
+    }
+
+    private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new EtheriumAccountConfig()).get(0);
         }
 
         @Override

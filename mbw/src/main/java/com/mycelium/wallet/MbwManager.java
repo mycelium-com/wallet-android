@@ -115,6 +115,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
@@ -662,6 +663,8 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
+        walletManager.add(new EtheriumModule(getMetadataStorage(), context.getFilesDir().getAbsolutePath()));
+
         walletManager.init();
 
         return walletManager;
@@ -738,6 +741,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
+        walletManager.add(new EtheriumModule(getMetadataStorage(), _applicationContext.getFilesDir().getAbsolutePath()));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

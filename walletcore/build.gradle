@@ -26,6 +26,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 
+    // Etherium
+    compile 'org.web3j:core:4.2.0-android'
+    implementation 'org.web3j:infura:4.2.0-android'
+
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"
 }

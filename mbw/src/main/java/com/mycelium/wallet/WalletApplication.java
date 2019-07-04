@@ -49,7 +49,9 @@ import android.util.Log;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.Provider;
 import java.security.Security;
 import java.util.*;
 
@@ -71,7 +73,21 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onCreate() {
-        int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+        final Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+        if (provider == null) {
+            // Web3j will set up the provider lazily when it's first used.
+            return;
+        }
+        if (provider.getClass().equals(BouncyCastleProvider.class)) {
+            // BC with same package name, shouldn't happen in real life.
+            return;
+        }
+        // Android registers its own BC provider. As it might be outdated and might not include
+        // all needed ciphers, we substitute it with a known BC bundled in the app.
+        // Android's BC has its package rewritten to "com.android.org.bouncycastle" and because
+        // of that it's possible to have another BC implementation loaded in VM.
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+        int loadedBouncy = Security.insertProviderAt(new BouncyCastleProvider(), 1);
         if(loadedBouncy == -1) {
             Log.e("WalletApplication", "Failed to insert spongy castle provider");
         } else {
