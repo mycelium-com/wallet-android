@@ -3,7 +3,7 @@
         tools:showIn="@layout/receive_coins_activity">
     <data>
 
-        <import type="com.mycelium.wapi.wallet.currency.CurrencyValue" />
+        <import type="com.mycelium.wapi.wallet.coins.Value" />
         <variable name="viewModel" type="com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel"/>
     </data>
 
@@ -19,7 +19,7 @@
                 android:onClick="@{() -> viewModel.shareRequest()}"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
-                android:text="@{CurrencyValue.isNullOrZero(viewModel.requestedAmount) ? @string/share_x_address(viewModel.currencyName) : @string/share_payment_request}"/>
+                android:text="@{Value.isNullOrZero(viewModel.requestedAmount) ? @string/share_x_address(viewModel.currencyName) : @string/share_payment_request}"/>
 
         <View
                 android:layout_width="fill_parent"

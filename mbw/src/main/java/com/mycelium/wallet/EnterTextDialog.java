@@ -136,14 +136,14 @@ public class EnterTextDialog {
 
          @Override
          public void afterTextChanged(Editable s) {
-            btOk.setEnabled(enterNameHandler.validateTextOnChange(s.toString().trim(), currentText));
+            btOk.setEnabled(enterNameHandler.validateTextOnChange(s.toString().trim(), currentText) && s.toString().trim().length() != 0);
          }
       });
       btOk.setOnClickListener(new OnClickListener() {
 
          @Override
          public void onClick(View v) {
-            EditText et = (EditText) layout.findViewById(R.id.etLabel);
+            EditText et = layout.findViewById(R.id.etLabel);
             String text = et.getText().toString().trim();
             if (enterNameHandler.validateTextOnOk(text, currentText)) {
                dialog.dismiss();

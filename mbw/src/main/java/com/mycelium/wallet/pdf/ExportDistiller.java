@@ -44,17 +44,14 @@ import android.util.Log;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.Transaction;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.WalletAccount;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,16 +74,15 @@ public class ExportDistiller {
         public String encryptedKey;
         public String encryptedMasterSeed;
         public String label;
-        public WalletAccount.Type accountType;
+        public boolean isBch;
         public Map<AddressType, Address> addresses;
 
-        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label,
-                           WalletAccount.Type accountType) {
+        public ExportEntry(Map<AddressType, Address> addresses, String encryptedKey, String encryptedMasterSeed, String label, boolean isBch){
             this.encryptedKey = encryptedKey;
             this.encryptedMasterSeed = encryptedMasterSeed;
             this.label = label;
-            this.accountType = accountType;
             this.addresses = addresses;
+            this.isBch = isBch;
         }
     }
 
@@ -145,10 +141,9 @@ public class ExportDistiller {
         // Write document to file
         String result = exportPrivateKeys(context, params, progressTracker);
         try {
-
             FileOutputStream stream;
             stream = getOutStream(context, filePath);
-            stream.write(result.getBytes("UTF-8"));
+            stream.write(result.getBytes(StandardCharsets.UTF_8));
             stream.close();
         } catch (IOException e) {
             Log.e("ExportDistiller", "IOException while writing file", e);
@@ -216,7 +211,6 @@ public class ExportDistiller {
                     }
                 }
             } else {
-                isOneEntryOnPage = true;
                 totalPages++;
             }
         }
@@ -224,7 +218,6 @@ public class ExportDistiller {
         PdfWriter writer = new PdfWriter(pageWidth, pageHeight, 20, 20, 20, 20);
 
         // Watermark
-
         try {
             Bitmap watermark;
             watermark = BitmapFactory.decodeResource(context.getResources(), R.drawable.mycelium_splash_notext_corner);
@@ -429,15 +422,13 @@ public class ExportDistiller {
 
         // Titles
         writer.setTextColor(0, 0, 0);
-        switch (entry.accountType) {
-            case BCHSINGLEADDRESS:
-                writer.addText(2.05F, fromTop, 13, "Bitcoin");
-                writer.setTextColor(0.9411, 0.5490, 0.09411);
-                writer.addText(3.60F, fromTop, 13, "Cash");
-                writer.setTextColor(0, 0, 0);
-                writer.addText(4.72F, fromTop, 13, "Addresses");
-                break;
-            default:
+        if (entry.isBch) {
+            writer.addText(2.05F, fromTop, 13, "Bitcoin");
+            writer.setTextColor(0.9411, 0.5490, 0.09411);
+            writer.addText(3.60F, fromTop, 13, "Cash");
+            writer.setTextColor(0, 0, 0);
+            writer.addText(4.72F, fromTop, 13, "Addresses");
+        } else {
                 writer.addText(2.05F, fromTop, 13, "Bitcoin Addresses");
         }
 

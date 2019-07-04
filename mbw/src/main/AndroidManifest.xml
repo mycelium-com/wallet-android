@@ -48,6 +48,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:supportsRtl="true"
         android:theme="@style/MyceliumModern">
 
         <!-- Receiver for Google Cloud Messaging -->
@@ -199,7 +200,6 @@
         <activity android:name=".activity.send.SendMainActivity" />
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
-        <activity android:name=".activity.send.BroadcastTransactionActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity"
             android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".simplex.SimplexMainActivity" />
@@ -231,7 +231,6 @@
             android:theme="@style/MyceliumModern.Dialog.Transparent" />
         <activity android:name=".activity.PinProtectedActivity" />
         <activity android:name=".activity.MessageSigningActivity" />
-        <activity android:name=".activity.ImportSeedActivity" />
         <activity android:name=".activity.EnterWordListActivity" />
         <activity android:name=".activity.BackupWordListActivity" />
         <activity android:name=".activity.VerifyWordListActivity" />

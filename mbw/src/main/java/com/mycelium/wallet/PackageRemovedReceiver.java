@@ -44,7 +44,7 @@ import android.content.IntentFilter;
 
 import com.mycelium.wallet.activity.RestartPopupActivity;
 import com.mycelium.wallet.activity.StartupActivity;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 
 import java.util.List;
 
@@ -60,22 +60,13 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // absent a module this code makes no sense. leaving it in for future modules.
+        /*
         if (intent.getData() != null) {
             String packageName = intent.getData().getEncodedSchemeSpecificPart();
-            String spvModuleName = WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
-            String gebModuleName = BuildConfig.appIdGeb;
 
             int moduleString;
             boolean restartOnChange;
-            if (packageName.equals(spvModuleName)) {
-                moduleString = R.string.bch_module_change;
-                restartOnChange = true;
-            } else if (packageName.equals(gebModuleName)) {
-                moduleString = R.string.geb_module_change;
-                restartOnChange = false;
-            } else {
-                return;
-            }
             switch (intent.getAction()) {
                 case Intent.ACTION_PACKAGE_ADDED:
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
@@ -134,5 +125,6 @@ public class PackageRemovedReceiver extends BroadcastReceiver {
         AlarmManager mgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
         Runtime.getRuntime().exit(0);
+        */
     }
 }

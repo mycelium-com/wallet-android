@@ -8,6 +8,5 @@ package com.mycelium.wallet.event
  * @see SyncStarted
  * @see BalanceChanged
  * @see ReceivingAddressChanged
- * @see ExtraAccountsChanged
  */
 class AccountListChanged

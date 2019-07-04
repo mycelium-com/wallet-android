@@ -1,23 +1,22 @@
 package com.mycelium.wallet.activity.send.model;
 
-import com.megiontechnologies.Bitcoins;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-
-/**
- * Created by elvis on 31.08.17.
- */
+import com.mycelium.wapi.wallet.coins.Value;
 
 public class FeeItem {
-
     public long feePerKb;
-    public Bitcoins btc;
-    public CurrencyValue currencyValue;
+    public Value value; // Fee value in minimal asset's units
+    public Value fiatValue;
+    /** as defined in {@link com.mycelium.wallet.activity.send.view.SelectableRecyclerView.Adapter} */
     public int type;
 
-    public FeeItem(long feePerKb, Bitcoins btc, CurrencyValue currencyValue, int type) {
+    public FeeItem(long feePerKb, Value value, Value fiatValue, int type) {
         this.feePerKb = feePerKb;
-        this.btc = btc;
-        this.currencyValue = currencyValue;
+        this.value = value;
+        this.fiatValue = fiatValue;
+        this.type = type;
+    }
+
+    public FeeItem(int type) {
         this.type = type;
     }
 
@@ -30,7 +29,6 @@ public class FeeItem {
 
         if (feePerKb != feeItem.feePerKb) return false;
         return type == feeItem.type;
-
     }
 
     @Override

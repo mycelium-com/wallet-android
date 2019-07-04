@@ -11,13 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wapi.wallet.AbstractAccount;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -57,12 +56,14 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
         this.accountUseType = accountUseType;
     }
 
-    public AccountAdapter(MbwManager mbwManager, List<WalletAccount> accounts, int paddingWidth) {
+    public AccountAdapter(MbwManager mbwManager, List<WalletAccount<?>> accounts, int paddingWidth) {
         this.mbwManager = mbwManager;
         this.paddingWidth = paddingWidth;
         accounts = Utils.sortAccounts(accounts, mbwManager.getMetadataStorage());
         for (WalletAccount account : accounts) {
-            items.add(new Item(account, VIEW_TYPE_ITEM));
+            if(account.isExchangeable()) {
+                items.add(new Item(account, VIEW_TYPE_ITEM));
+            }
         }
     }
 
@@ -121,17 +122,10 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-            CoinUtil.Denomination denomination = mbwManager.getBitcoinDenomination();
-            viewHolder.itemTextView.setText(Utils.getFormattedValueWithUnit(item.account.getCurrencyBasedBalance().confirmed, denomination));
-            if (item.account instanceof AbstractAccount) {
-                AbstractAccount account = (AbstractAccount) item.account;
-                if (!trySettingReceivingAddress(viewHolder, account.getReceivingAddress(AddressType.P2SH_P2WPKH))) {
-                    trySettingReceivingAddress(viewHolder, account.getReceivingAddress(AddressType.P2PKH));
-                }
-            } else {
-                if (item.account.getReceivingAddress().isPresent()) {
-                    viewHolder.valueTextView.setText(item.account.getReceivingAddress().get().toString());
-                }
+            Denomination denomination = mbwManager.getDenomination();
+            viewHolder.itemTextView.setText(ValueExtensionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
+            if (item.account.getReceiveAddress() != null) {
+                viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());
             }
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
@@ -169,7 +163,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             super(v);
             categoryTextView = v.findViewById(R.id.categorytextView);
             itemTextView = v.findViewById(R.id.itemTextView);
-            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+            valueTextView = v.findViewById(R.id.valueTextView);
         }
     }
 

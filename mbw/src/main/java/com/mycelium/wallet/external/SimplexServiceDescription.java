@@ -13,6 +13,7 @@ import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.simplex.SimplexMainActivity;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 
 public class SimplexServiceDescription extends BuySellServiceDescriptor {
@@ -27,7 +28,7 @@ public class SimplexServiceDescription extends BuySellServiceDescriptor {
          Toast.makeText(context, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
          return;
       }
-      Optional<Address> receivingAddress = mbwManager.getSelectedAccount().getReceivingAddress();
+      Optional<Address> receivingAddress = ((WalletBtcAccount)(mbwManager.getSelectedAccount())).getReceivingAddress();
       if (receivingAddress.isPresent()) {
          final Address address = receivingAddress.get();
          String[] regions = {context.getString(R.string.europe), context.getString(R.string.asia),

@@ -8,7 +8,7 @@ import com.mycelium.wallet.R
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.mycelium.wallet.Constants
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 
 import org.junit.Before
 import org.junit.Rule

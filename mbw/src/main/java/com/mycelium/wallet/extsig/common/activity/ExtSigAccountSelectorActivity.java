@@ -48,7 +48,7 @@ import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
 
 public abstract class ExtSigAccountSelectorActivity extends HdAccountSelectorActivity implements MasterseedPasswordSetter {

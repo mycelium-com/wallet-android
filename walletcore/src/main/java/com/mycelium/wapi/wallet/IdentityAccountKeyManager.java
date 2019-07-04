@@ -43,7 +43,7 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mrd.bitlib.crypto.BipDerivationType;
-import com.mycelium.wapi.wallet.bip44.HDAccountKeyManager;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountKeyManager;
 import java.nio.charset.Charset;
 
 public class IdentityAccountKeyManager extends HDAccountKeyManager {

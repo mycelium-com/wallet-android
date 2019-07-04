@@ -18,7 +18,5 @@ dependencies {
     implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
     implementation 'com.madgag.spongycastle:pg:1.54.0.0'
 
-    implementation project(includePrefix +':bitcoincashj:core')
-
     testImplementation "junit:junit:$junitVersion"
 }

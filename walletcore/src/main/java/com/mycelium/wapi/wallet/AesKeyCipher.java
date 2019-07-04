@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.util.*;
 import com.mrd.bitlib.util.ByteReader.InsufficientBytesException;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 // XXX This needs proper testing.
 
@@ -49,12 +49,7 @@ public class AesKeyCipher implements KeyCipher {
    public AesKeyCipher(String password) {
       // Hash password
       Sha256Hash hash;
-      try {
-         hash = HashUtils.sha256(password.getBytes("UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-         // Never happens
-         throw new RuntimeException();
-      }
+      hash = HashUtils.sha256(password.getBytes(StandardCharsets.UTF_8));
 
       // Get key bytes, the first 16 bytes of the hash
       _keyBytes = new byte[AES_KEY_BYTE_LENGTH];

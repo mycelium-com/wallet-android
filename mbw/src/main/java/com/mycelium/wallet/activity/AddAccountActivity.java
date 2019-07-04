@@ -50,13 +50,11 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
-import com.mycelium.wallet.event.HdAccountCreated;
-import com.mycelium.wallet.modularisation.BCHHelper;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.squareup.otto.Bus;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -66,176 +64,163 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
-   public static void callMe(Fragment fragment, int requestCode) {
-      Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
-      fragment.startActivityForResult(intent, requestCode);
-   }
+    public static void callMe(Fragment fragment, int requestCode) {
+        Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
+        fragment.startActivityForResult(intent, requestCode);
+    }
 
-   public static final String RESULT_KEY = "account";
-   public static final String RESULT_MSG = "result_msg";
-   public static final String IS_UPGRADE = "account_upgrade";
+    public static final String RESULT_KEY = "account";
+    public static final String RESULT_MSG = "result_msg";
+    public static final String IS_UPGRADE = "account_upgrade";
 
-   private static final int IMPORT_SEED_CODE = 0;
-   private static final int ADD_ADVANCED_CODE = 1;
-   private Toaster _toaster;
-   private MbwManager _mbwManager;
-   private ProgressDialog _progress;
+    private static final int IMPORT_SEED_CODE = 0;
+    private static final int ADD_ADVANCED_CODE = 1;
+    private Toaster _toaster;
+    private MbwManager _mbwManager;
+    private ProgressDialog _progress;
 
-   @BindView(R.id.btHdBchCreate)
-   View hdBchCreate;
+    @BindView(R.id.btHdBchCreate)
+    View hdBchCreate;
 
-   @Override
-   public void onCreate(Bundle savedInstanceState) {
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.add_account_activity);
-      ButterKnife.bind(this);
-      _mbwManager = MbwManager.getInstance(this);
-      _toaster = new Toaster(this);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.add_account_activity);
+        ButterKnife.bind(this);
+        _mbwManager = MbwManager.getInstance(this);
+        _toaster = new Toaster(this);
 
-      findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
-      findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
-      //coinapultUSD.setEnabled(!_mbwManager.getMetadataStorage().isPairedService(MetadataStorage.PAIRED_SERVICE_COINAPULT));
-      if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
-         findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
-      } else {
-         findViewById(R.id.tvInfoBackup).setVisibility(View.GONE);
-      }
-      final View coluCreate = findViewById(R.id.btColuCreate);
-      coluCreate.setOnClickListener(createColuAccount);
-      _progress = new ProgressDialog(this);
-      hdBchCreate.setVisibility(BCHHelper.isModulePaired(getApplicationContext()) ? View.VISIBLE : View.GONE);
-   }
+        findViewById(R.id.btAdvanced).setOnClickListener(advancedClickListener);
+        findViewById(R.id.btHdCreate).setOnClickListener(createHdAccount);
+        if (_mbwManager.getMetadataStorage().getMasterSeedBackupState() == MetadataStorage.BackupState.VERIFIED) {
+            findViewById(R.id.tvWarningNoBackup).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.tvInfoBackup).setVisibility(View.GONE);
+        }
+        final View coluCreate = findViewById(R.id.btColuCreate);
+        coluCreate.setOnClickListener(createColuAccount);
+        _progress = new ProgressDialog(this);
+        hdBchCreate.setVisibility(View.GONE);
+    }
 
-   @OnClick(R.id.btHdBchCreate)
-   void onAddBchHD(){
-      BCHHelper.bchTechnologyPreviewDialog(this);
-   }
+    @OnClick(R.id.btHdBchCreate)
+    void onAddBchHD() {}
 
-   @OnClick(R.id.btCoinapultCreate)
-   void onAddCoinapultAccount() {
-       Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
-   }
+    @OnClick(R.id.btCoinapultCreate)
+    void onAddCoinapultAccount() {
+        Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
+    }
 
-   View.OnClickListener advancedClickListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-         _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-            @Override
-            public void run() {
-               AddAdvancedAccountActivity.callMe(AddAccountActivity.this, ADD_ADVANCED_CODE);
-            }
-         });
-      }
+    View.OnClickListener advancedClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                @Override
+                public void run() {
+                    AddAdvancedAccountActivity.callMe(AddAccountActivity.this, ADD_ADVANCED_CODE);
+                }
+            });
+        }
 
-   };
+    };
 
-   View.OnClickListener createHdAccount = new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-         _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
-            @Override
-            public void run() {
-               createNewHdAccount();
-            }
-         });
-      }
-   };
+    View.OnClickListener createHdAccount = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            _mbwManager.runPinProtectedFunction(AddAccountActivity.this, new Runnable() {
+                @Override
+                public void run() {
+                    createNewHdAccount();
+                }
+            });
+        }
+    };
 
-   View.OnClickListener createColuAccount = new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-	     Intent intent = AddColuAccountActivity.getIntent(AddAccountActivity.this);
-	     intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
-         AddAccountActivity.this.startActivity(intent);
-	     AddAccountActivity.this.finish();
-      }
-   };
+    View.OnClickListener createColuAccount = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = AddColuAccountActivity.getIntent(AddAccountActivity.this);
+            intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+            AddAccountActivity.this.startActivity(intent);
+            AddAccountActivity.this.finish();
+        }
+    };
 
-   private void createNewHdAccount() {
-      final WalletManager wallet = _mbwManager.getWalletManager(false);
-      // at this point, we have to have a master seed, since we created one on startup
-      Preconditions.checkState(wallet.hasBip32MasterSeed());
-      if (!wallet.canCreateAdditionalBip44Account()) {
-         _toaster.toast(R.string.use_acc_first, false);
-         return;
-      }
-      _progress.setCancelable(false);
-      _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      _progress.setMessage(getString(R.string.hd_account_creation_started));
-      _progress.show();
-      new HdCreationAsyncTask(MbwManager.getEventBus()).execute();
-   }
+    private void createNewHdAccount() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
 
-   private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private Bus bus;
-
-      HdCreationAsyncTask(Bus bus) {
-         this.bus = bus;
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         try {
-            return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
-         } catch (KeyCipher.InvalidKeyCipher e) {
-            throw new RuntimeException(e);
-         }
-
-      }
-
-
-      @Override
-      protected void onPostExecute(UUID account) {
-         bus.post(new HdAccountCreated(account));
-         bus.post(new AccountChanged(account));
-      }
-   }
-
-   @Subscribe
-   public void hdAccountCreated(HdAccountCreated event) {
-      _progress.dismiss();
-      finishOk(event.account);
-   }
-
-   @Override
-   public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
-      if (requestCode == ADD_ADVANCED_CODE) {
-         if (resultCode == RESULT_CANCELED) {
-            //stay here
+        boolean canCreateAccount = wallet.getModuleById(BitcoinHDModule.ID).canCreateAccount(new AdditionalHDAccountConfig());
+        if (!canCreateAccount) {
+            _toaster.toast(R.string.use_acc_first, false);
             return;
-         }
-         //just pass on what we got
-         setResult(resultCode, intent);
-         finish();
-      } else if (requestCode == IMPORT_SEED_CODE) {
-         if (resultCode == Activity.RESULT_OK) {
-            UUID account = (UUID) intent.getSerializableExtra(RESULT_KEY);
-            finishOk(account);
-         }
-      } else {
-         super.onActivityResult(requestCode, resultCode, intent);
-      }
-   }
+        }
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(R.string.hd_account_creation_started));
+        _progress.show();
+        new HdCreationAsyncTask().execute();
+    }
 
-   private void finishOk(UUID account) {
-      Intent result = new Intent();
-      result.putExtra(RESULT_KEY, account);
-      setResult(RESULT_OK, result);
-      finish();
-   }
+    private class HdCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        @Override
+        protected UUID doInBackground(Void... params) {
+            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
+        }
 
-   @Override
-   public void onResume() {
-      MbwManager.getEventBus().register(this);
-      super.onResume();
-   }
+        @Override
+        protected void onPostExecute(UUID account) {
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+        }
+    }
 
-   @Override
-   public void onPause() {
-      _progress.dismiss();
-      MbwManager.getEventBus().unregister(this);
-      _mbwManager.getVersionManager().closeDialog();
-      super.onPause();
-   }
+    @Subscribe
+    public void hdAccountCreated(AccountCreated event) {
+        _progress.dismiss();
+        finishOk(event.account);
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+        if (requestCode == ADD_ADVANCED_CODE) {
+            if (resultCode == RESULT_CANCELED) {
+                //stay here
+                return;
+            }
+            //just pass on what we got
+            setResult(resultCode, intent);
+            finish();
+        } else if (requestCode == IMPORT_SEED_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                UUID account = (UUID) intent.getSerializableExtra(RESULT_KEY);
+                finishOk(account);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
+
+    private void finishOk(UUID account) {
+        Intent result = new Intent();
+        result.putExtra(RESULT_KEY, account);
+        setResult(RESULT_OK, result);
+        finish();
+    }
+
+    @Override
+    public void onResume() {
+        MbwManager.getEventBus().register(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        _progress.dismiss();
+        MbwManager.getEventBus().unregister(this);
+        _mbwManager.getVersionManager().closeDialog();
+        super.onPause();
+    }
 }

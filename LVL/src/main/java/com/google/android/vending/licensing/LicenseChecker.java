@@ -31,13 +31,6 @@ import android.os.RemoteException;
 import android.provider.Settings.Secure;
 import android.util.Log;
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -58,12 +51,9 @@ import java.util.Set;
 public class LicenseChecker implements ServiceConnection {
     private static final String TAG = "LicenseChecker";
 
-    private static final String KEY_FACTORY_ALGORITHM = "RSA";
-
     // Timeout value (in milliseconds) for calls to service.
     private static final int TIMEOUT_MS = 10 * 1000;
 
-    private static final SecureRandom RANDOM = new SecureRandom();
     private static final boolean DEBUG_LICENSE_ERROR = false;
 
     private ILicensingService mService;
@@ -80,8 +70,8 @@ public class LicenseChecker implements ServiceConnection {
     private Handler mHandler;
     private final String mPackageName;
     private final String mVersionCode;
-    private final Set<LicenseValidator> mChecksInProgress = new HashSet<LicenseValidator>();
-    private final Queue<LicenseValidator> mPendingChecks = new LinkedList<LicenseValidator>();
+    private final Set<LicenseValidator> mChecksInProgress = new HashSet<>();
+    private final Queue<LicenseValidator> mPendingChecks = new LinkedList<>();
 
     /**
      * @param context a Context
@@ -100,31 +90,6 @@ public class LicenseChecker implements ServiceConnection {
         HandlerThread handlerThread = new HandlerThread("background thread");
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
-    }
-
-    /**
-     * Generates a PublicKey instance from a string containing the
-     * Base64-encoded public key.
-     * 
-     * @param encodedPublicKey Base64-encoded public key
-     * @throws IllegalArgumentException if encodedPublicKey is invalid
-     */
-    private static PublicKey generatePublicKey(String encodedPublicKey) {
-        try {
-            byte[] decodedKey = Base64.decode(encodedPublicKey);
-            KeyFactory keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
-
-            return keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
-        } catch (NoSuchAlgorithmException e) {
-            // This won't happen in an Android-compatible environment.
-            throw new RuntimeException(e);
-        } catch (Base64DecoderException e) {
-            Log.e(TAG, "Could not decode from Base64.");
-            throw new IllegalArgumentException(e);
-        } catch (InvalidKeySpecException e) {
-            Log.e(TAG, "Invalid key specification.");
-            throw new IllegalArgumentException(e);
-        }
     }
 
     /**
@@ -346,7 +311,6 @@ public class LicenseChecker implements ServiceConnection {
     /**
      * Get version code for the application package name.
      * 
-     * @param context
      * @param packageName application package name
      * @return the version code or empty string if package not found
      */

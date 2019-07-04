@@ -43,37 +43,46 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
-import com.mycelium.wapi.api.lib.FeeEstimation;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.Bip44AccountBacking;
-import com.mycelium.wapi.wallet.SingleAddressAccountBacking;
-import com.mycelium.wapi.wallet.WalletManagerBacking;
-import com.mycelium.wapi.wallet.bip44.AccountIndexesContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.CommonAccountBacking;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
+import com.mycelium.wapi.wallet.WalletBacking;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
+import com.mycelium.wapi.wallet.colu.ColuAccountContext;
+import com.mycelium.wapi.wallet.colu.ColuUtils;
+import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.colu.json.Tx;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,36 +96,31 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
-public class SqliteColuManagerBacking implements WalletManagerBacking {
+public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContext>, SecureKeyValueStoreBacking {
    private static final String LOG_TAG = "SqliteColuManagerBackin";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
-   private static final byte[] LAST_FEE_ESTIMATE = new byte[]{42, 55};
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
+   private  final JsonFactory JSON_FACTORY = new JacksonFactory();
    private Map<UUID, SqliteColuAccountBacking> _backings;
-   private final SQLiteStatement _insertOrReplaceBip44Account;
-   private final SQLiteStatement _updateBip44Account;
    private final SQLiteStatement _insertOrReplaceSingleAddressAccount;
    private final SQLiteStatement _updateSingleAddressAccount;
    private final SQLiteStatement _deleteSingleAddressAccount;
-   private final SQLiteStatement _deleteBip44Account;
    private final SQLiteStatement _insertOrReplaceKeyValue;
    private final SQLiteStatement _deleteKeyValue;
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
+   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
 
 
    public SqliteColuManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceBip44Account = _database.compileStatement("INSERT OR REPLACE INTO bip44 VALUES (?,?,?,?,?,?,?,?,?)");
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
-      _updateBip44Account = _database.compileStatement("UPDATE bip44 SET archived=?,blockheight=?, indexContexts=?, lastDiscovery=?,accountType=?,accountSubId=?,addressType=? WHERE id=?");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?,?)");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
-      _deleteBip44Account = _database.compileStatement("DELETE FROM bip44 WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
       _getMaxSubId = _database.compileStatement("SELECT max(subId) FROM kv");
       _deleteKeyValue = _database.compileStatement("DELETE FROM kv WHERE k = ?");
@@ -128,209 +132,56 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public void saveLastFeeEstimation(FeeEstimation feeEstimation) {
-      Gson gson = new Gson();
-      byte[] value = gson.toJson(feeEstimation).getBytes();
-      setValue(LAST_FEE_ESTIMATE, value);
-   }
-
-   @Override
-   public FeeEstimation loadLastFeeEstimation() {
-      Gson gson = new Gson();
-      byte[] value = getValue(LAST_FEE_ESTIMATE);
-      FeeEstimation feeEstimation = FeeEstimation.DEFAULT;
-      try {
-         String valueString = new String(value);
-         feeEstimation = gson.fromJson(valueString, FeeEstimation.class);
-      } catch (Exception ignore) { }
-       return feeEstimation;
-   }
-
-   private List<UUID> getAccountIds(SQLiteDatabase db) {
-      List<UUID> ids = new ArrayList<>();
-      ids.addAll(getBip44AccountIds(db));
-      ids.addAll(getSingleAddressAccountIds(db));
-      return ids;
-   }
-
-   private List<UUID> getSingleAddressAccountIds(SQLiteDatabase db) {
-      Cursor cursor = null;
-      List<UUID> accounts = new ArrayList<>();
-      try {
-         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-         cursor = blobQuery.query(false, "single", new String[]{"id"}, null, null, null, null, null, null);
-         while (cursor.moveToNext()) {
-            UUID uuid = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            accounts.add(uuid);
-         }
-         return accounts;
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   private List<UUID> getBip44AccountIds(SQLiteDatabase db) {
-      Cursor cursor = null;
-      List<UUID> accounts = new ArrayList<>();
-      try {
-         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-         cursor = blobQuery.query(false, "bip44", new String[]{"id"}, null, null, null, null, null, null);
-         while (cursor.moveToNext()) {
-            UUID uuid = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            accounts.add(uuid);
-         }
-         return accounts;
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   @Override
-   public void beginTransaction() {
-      _database.beginTransaction();
-   }
-
-   @Override
-   public void setTransactionSuccessful() {
-      _database.setTransactionSuccessful();
-   }
-
-   @Override
-   public void endTransaction() {
-      _database.endTransaction();
-   }
-
-   @Override
-   public List<HDAccountContext> loadBip44AccountContexts() {
-      List<HDAccountContext> list = new ArrayList<>();
+   public List<ColuAccountContext> loadAccountContexts() {
+      List<ColuAccountContext> list = new ArrayList<>();
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(
-               false, "bip44",
-               new String[]{"id", "accountIndex", "archived", "blockheight",
-                     "indexContexts", "lastDiscovery", "accountType", "accountSubId", "addressType"},
-               null, null, null, null, "accountIndex", null);
-
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
+                 null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            int accountIndex = cursor.getInt(1);
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
-            Type type = new TypeToken<Map<BipDerivationType, AccountIndexesContext>>() {}.getType();
-            Map<BipDerivationType, AccountIndexesContext> indexesContextMap = gson.fromJson(cursor.getString(4), type);
-            long lastDiscovery = cursor.getLong(5);
-            int accountType = cursor.getInt(6);
-            int accountSubId = (int) cursor.getLong(7);
-
-            AddressType defaultAddressType = gson.fromJson(cursor.getString(8), AddressType.class);
-            list.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery, indexesContextMap,
-                    accountType, accountSubId, defaultAddressType));
-         }
-         return list;
-      } finally {
-         if (cursor != null) {
-            cursor.close();
-         }
-      }
-   }
-
-   @Override
-   public void createBip44AccountContext(HDAccountContext context) {
-      _database.beginTransaction();
-      try {
-
-         // Create backing tables
-         SqliteColuAccountBacking backing = _backings.get(context.getId());
-         if (backing == null) {
-            createAccountBackingTables(context.getId(), _database);
-            backing = new SqliteColuAccountBacking(context.getId(), _database);
-            _backings.put(context.getId(), backing);
-         }
-
-         // Create context
-         _insertOrReplaceBip44Account.bindBlob(1, uuidToBytes(context.getId()));
-         _insertOrReplaceBip44Account.bindLong(2, context.getAccountIndex());
-         _insertOrReplaceBip44Account.bindLong(3, context.isArchived() ? 1 : 0);
-         _insertOrReplaceBip44Account.bindLong(4, context.getBlockHeight());
-
-         _insertOrReplaceBip44Account.bindString(5, gson.toJson(context.getIndexesMap()));
-         _insertOrReplaceBip44Account.bindLong(6, context.getLastDiscovery());
-         _insertOrReplaceBip44Account.bindLong(7, context.getAccountType());
-         _insertOrReplaceBip44Account.bindLong(8, context.getAccountSubId());
-         _insertOrReplaceBip44Account.bindString(9, gson.toJson(context.getDefaultAddressType()));
-         _insertOrReplaceBip44Account.executeInsert();
-
-         _database.setTransactionSuccessful();
-      } finally {
-         _database.endTransaction();
-      }
-   }
-
-   @Override
-   public void upgradeBip44AccountContext(HDAccountContext context) {
-      updateBip44AccountContext(context);
-   }
-
-   private void updateBip44AccountContext(HDAccountContext context) {
-      _database.beginTransaction();
-      //UPDATE bip44 SET archived=?,blockheight=?,lastExternalIndexWithActivity=?,lastInternalIndexWithActivity=?,firstMonitoredInternalIndex=?,lastDiscovery=?,accountType=?,accountSubId=? WHERE id=?
-      try {
-         _updateBip44Account.bindLong(1, context.isArchived() ? 1 : 0);
-         _updateBip44Account.bindLong(2, context.getBlockHeight());
-         _updateBip44Account.bindString(3, gson.toJson(context.getIndexesMap()));
-         _updateBip44Account.bindLong(4, context.getLastDiscovery());
-         _updateBip44Account.bindLong(5, context.getAccountType());
-         _updateBip44Account.bindLong(6, context.getAccountSubId());
-         _updateBip44Account.bindString(7, gson.toJson(context.getDefaultAddressType()));
-         _updateBip44Account.bindBlob(8, uuidToBytes(context.getId()));
-         _updateBip44Account.execute();
-         _database.setTransactionSuccessful();
-      } finally {
-         _database.endTransaction();
-      }
-   }
-
-   @Override
-   public List<SingleAddressAccountContext> loadSingleAddressAccountContexts() {
-      List<SingleAddressAccountContext> list = new ArrayList<>();
-      Cursor cursor = null;
-      try {
-         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight, addressType"}, null, null,
-               null, null, null, null);
-         while (cursor.moveToNext()) {
-            UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+            String coinId = cursor.getString(4);
+            if (coinId == null) {
+               Log.w(LOG_TAG,"Asset not registered in system, and not imported, skipping...");
+               continue;
+            }
+            ColuMain coinType = ColuUtils.getColuCoin(coinId);
+            if (coinType == null) {
+               Log.w(LOG_TAG, String.format("Asset with id=%s, skipping...", coinId));
+               continue;
+            }
+            PublicKey publicKey = null;
+            if (cursor.getBlob(5) != null) {
+               publicKey = new PublicKey(cursor.getBlob(5));
+            }
             Type type = new TypeToken<Collection<String>>(){}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-            Map<AddressType, Address> addresses = new ArrayMap<>(3);
-            for (String addressString : addressStringsList) {
-               Address address = Address.fromString(addressString);
-               addresses.put(address.getType(), address);
+            Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
+            if(addressStringsList != null) {
+               for (String addressString : addressStringsList) {
+                  Address address = Address.fromString(addressString);
+                  addresses.put(address.getType(), new BtcAddress(coinType, address));
+               }
             }
-            boolean isArchived = cursor.getInt(2) == 1;
-            int blockHeight = cursor.getInt(3);
-            AddressType defaultAddressType  = gson.fromJson(cursor.getString(4), AddressType.class);
-            list.add(new SingleAddressAccountContext(id, addresses, isArchived, blockHeight, defaultAddressType));
+            list.add(new ColuAccountContext(id, coinType, publicKey, addresses
+                     , isArchived, blockHeight));
          }
-         return list;
       } finally {
          if (cursor != null) {
             cursor.close();
          }
       }
+      return list;
    }
 
    @Override
-   public void createSingleAddressAccountContext(SingleAddressAccountContext context) {
+   public void createAccountContext(ColuAccountContext context) {
       _database.beginTransaction();
       try {
-
-         // Create backing tables
+         // Create accountBacking tables
          SqliteColuAccountBacking backing = _backings.get(context.getId());
          if (backing == null) {
             createAccountBackingTables(context.getId(), _database);
@@ -341,42 +192,35 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
          List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
-            addresses.add(address.toString());
+         if(context.getAddress() != null) {
+            for (BtcAddress address : context.getAddress().values()) {
+               addresses.add(address.toString());
+            }
+            _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          }
-         _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
-         _insertOrReplaceSingleAddressAccount.bindString(5, gson.toJson(context.getDefaultAddressType()));
+         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getDefaultAddressType());
+            _insertOrReplaceSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
+         } catch (IOException ignore) {
+            // should never happen
+         }
+         _insertOrReplaceSingleAddressAccount.bindString(6, context.getCoinType().getId());
+         if(context.getPublicKey()!= null) {
+            _insertOrReplaceSingleAddressAccount.bindBlob(7, context.getPublicKey().getPublicKeyBytes());
+         }
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
          _database.endTransaction();
       }
-   }
 
-   private void updateSingleAddressAccountContext(SingleAddressAccountContext context) {
-      _database.beginTransaction();
-      try {
-         // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
-         _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
-         _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-         List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
-            addresses.add(address.toString());
-         }
-         _updateSingleAddressAccount.bindString(3, gson.toJson(addresses));
-         _updateSingleAddressAccount.bindString(4, gson.toJson(context.getDefaultAddressType()));
-         _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
-         _updateSingleAddressAccount.execute();
-         _database.setTransactionSuccessful();
-      } finally {
-         _database.endTransaction();
-      }
    }
 
    @Override
-   public void deleteSingleAddressAccountContext(UUID accountId) {
+   public void deleteAccountContext(UUID accountId) {
       // "DELETE FROM single WHERE id = ?"
       beginTransaction();
       try {
@@ -395,32 +239,61 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    }
 
    @Override
-   public void deleteBip44AccountContext(UUID accountId) {
-      // "DELETE FROM bip44 WHERE id = ?"
-      beginTransaction();
+   public CommonAccountBacking getAccountBacking(UUID accountId) {
+      return checkNotNull(_backings.get(accountId));
+   }
+
+   private List<UUID> getAccountIds(SQLiteDatabase db) {
+      Cursor cursor = null;
+      List<UUID> accounts = new ArrayList<>();
       try {
-         SqliteColuAccountBacking backing = _backings.get(accountId);
-         if (backing == null) {
-            return;
+         SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+         cursor = blobQuery.query(false, "single", new String[]{"id"}, null, null, null, null, null, null);
+         while (cursor.moveToNext()) {
+            UUID uuid = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+            accounts.add(uuid);
          }
-         _deleteBip44Account.bindBlob(1, uuidToBytes(accountId));
-         _deleteBip44Account.execute();
-         backing.dropTables();
-         _backings.remove(accountId);
-         setTransactionSuccessful();
       } finally {
-         endTransaction();
+         if (cursor != null) {
+            cursor.close();
+         }
       }
+      return accounts;
+   }
+
+   public void beginTransaction() {
+      _database.beginTransaction();
+   }
+
+   public void setTransactionSuccessful() {
+      _database.setTransactionSuccessful();
+   }
+
+   public void endTransaction() {
+      _database.endTransaction();
    }
 
    @Override
-   public Bip44AccountBacking getBip44AccountBacking(UUID accountId) {
-      return checkNotNull(_backings.get(accountId));
-   }
-
-   @Override
-   public SingleAddressAccountBacking getSingleAddressAccountBacking(UUID accountId) {
-      return checkNotNull(_backings.get(accountId));
+   public void updateAccountContext(ColuAccountContext context) {
+      _database.beginTransaction();
+      try {
+         // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
+         _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
+         _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
+//         _updateSingleAddressAccount.bindBlob(3, context.getAddress().getBytes());
+         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
+            objectOutputStream.writeObject(context.getDefaultAddressType());
+         }
+         _updateSingleAddressAccount.bindBlob(4, byteStream.toByteArray());
+         _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
+         _updateSingleAddressAccount.execute();
+         _database.setTransactionSuccessful();
+      } catch (IOException ignore) {
+         // ignore
+      } finally {
+         _database.endTransaction();
+      }
    }
 
    @Override
@@ -479,7 +352,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
    }
 
    private byte[] calcChecksum(byte[] key, byte[] value) {
-      byte toHash[] = BitUtils.concatenate(key, value);
+      byte[] toHash = BitUtils.concatenate(key, value);
       return HashUtils.sha256(toHash).firstNBytes(8);
    }
 
@@ -502,7 +375,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);");
+            + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, txData BLOB);");
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -534,23 +407,30 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       return "outtx_" + tableSuffix;
    }
 
-   private class SqliteColuAccountBacking implements Bip44AccountBacking, SingleAddressAccountBacking {
+   private class SqliteColuAccountBacking implements ColuAccountBacking {
       private UUID _id;
       private final String utxoTableName;
       private final String ptxoTableName;
       private final String txTableName;
       private final String outTxTableName;
       private final String txRefersParentTxTableName;
-      private final SQLiteStatement _insertOrReplaceUtxo;
-      private final SQLiteStatement _deleteUtxo;
-      private final SQLiteStatement _insertOrReplacePtxo;
-      private final SQLiteStatement _insertOrReplaceTx;
-      private final SQLiteStatement _deleteTx;
-      private final SQLiteStatement _insertOrReplaceOutTx;
-      private final SQLiteStatement _deleteOutTx;
-      private final SQLiteStatement _insertTxRefersParentTx;
-      private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
+
+      private class FeeEstimationSerialized implements Serializable {
+         private long low;
+         private long economy;
+         private long normal;
+         private long high;
+         private long lastCheck;
+
+         FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
+            this.low = low;
+            this.economy = economy;
+            this.normal = normal;
+            this.high = high;
+            this.lastCheck = lastCheck;
+         }
+      }
 
       private SqliteColuAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
@@ -561,24 +441,12 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
          txTableName = getTxTableName(tableSuffix);
          outTxTableName = getOutgoingTxTableName(tableSuffix);
          txRefersParentTxTableName = getTxRefersPtxoTableName(tableSuffix);
-         _insertOrReplaceUtxo = db.compileStatement("INSERT OR REPLACE INTO " + utxoTableName + " VALUES (?,?,?,?,?)");
-         _deleteUtxo = db.compileStatement("DELETE FROM " + utxoTableName + " WHERE outpoint = ?");
-         _insertOrReplacePtxo = db.compileStatement("INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)");
-         _insertOrReplaceTx = db.compileStatement("INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?,?)");
-         _deleteTx = db.compileStatement("DELETE FROM " + txTableName + " WHERE id = ?");
-         _insertOrReplaceOutTx = db.compileStatement("INSERT OR REPLACE INTO " + outTxTableName + " VALUES (?,?)");
-         _deleteOutTx = db.compileStatement("DELETE FROM " + outTxTableName + " WHERE id = ?");
-         _insertTxRefersParentTx = db.compileStatement("INSERT OR REPLACE INTO " + txRefersParentTxTableName + " VALUES (?,?)");
-         _deleteTxRefersParentTx = db.compileStatement("DELETE FROM " + txRefersParentTxTableName + " WHERE txid = ?");
       }
 
       private void dropTables() {
          String tableSuffix = uuidToTableSuffix(_id);
          _db.execSQL("DROP TABLE IF EXISTS " + getUtxoTableName(tableSuffix));
-         _db.execSQL("DROP TABLE IF EXISTS " + getPtxoTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
-         _db.execSQL("DROP TABLE IF EXISTS " + getOutgoingTxTableName(tableSuffix));
-         _db.execSQL("DROP TABLE IF EXISTS " + getTxRefersPtxoTableName(tableSuffix));
       }
 
       @Override
@@ -606,193 +474,118 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public synchronized void putUnspentOutput(TransactionOutputEx output) {
-         _insertOrReplaceUtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
-         _insertOrReplaceUtxo.bindLong(2, output.height);
-         _insertOrReplaceUtxo.bindLong(3, output.value);
-         _insertOrReplaceUtxo.bindLong(4, output.isCoinBase ? 1 : 0);
-         _insertOrReplaceUtxo.bindBlob(5, output.script);
-         _insertOrReplaceUtxo.executeInsert();
+      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String assetTypeName = assetType.getName();
+         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
+                 feeEstimation.getEconomy().value,
+                 feeEstimation.getNormal().value,
+                 feeEstimation.getHigh().value,
+                 feeEstimation.getLastCheck());
+         byte[] value = gson.toJson(feeValues).getBytes();
+         setValue(key, value);
       }
 
       @Override
-      public Collection<TransactionOutputEx> getAllUnspentOutputs() {
-         Cursor cursor = null;
-         List<TransactionOutputEx> list = new LinkedList<>();
+      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
+         Gson gson = new Gson();
+         String key = assetType.getName() + LAST_FEE_ESTIMATE;
+         FeeEstimationSerialized feeValues;
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"outpoint", "height", "value", "isCoinbase",
-                  "script"}, null, null, null, null, null, null);
-            while (cursor.moveToNext()) {
-               TransactionOutputEx tex = new TransactionOutputEx(SQLiteQueryWithBlobs.outPointFromBytes(cursor
-                     .getBlob(0)), cursor.getInt(1), cursor.getLong(2), cursor.getBlob(4), cursor.getInt(3) != 0);
-               list.add(tex);
-            }
-            return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
+            feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
          }
+         catch(Exception ignore) { return null; }
+
+         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
+                 Value.valueOf(assetType, feeValues.economy),
+                 Value.valueOf(assetType, feeValues.normal),
+                 Value.valueOf(assetType, feeValues.high),
+                 feeValues.lastCheck);
       }
 
       @Override
-      public TransactionOutputEx getUnspentOutput(OutPoint outPoint) {
+      public Tx.Json getTx(Sha256Hash hash) {
          Cursor cursor = null;
+         Tx.Json result = null;
          try {
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, utxoTableName, new String[]{"height", "value", "isCoinbase", "script"},
-                  "outpoint = ?", null, null, null, null, null);
+            blobQuery.bindBlob(1, hash.getBytes());
+            cursor = blobQuery.raw( "SELECT height, time, txData FROM " + txTableName + " WHERE id = ?" , txTableName);
             if (cursor.moveToNext()) {
-               return new TransactionOutputEx(outPoint, cursor.getInt(0), cursor.getLong(1),
-                     cursor.getBlob(3), cursor.getInt(2) != 0);
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
+               result = getTransactionFromJson(json);
             }
-            return null;
          } finally {
             if (cursor != null) {
                cursor.close();
             }
          }
+         return result;
       }
 
-      @Override
-      public void deleteUnspentOutput(OutPoint outPoint) {
-         _deleteUtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-         _deleteUtxo.execute();
-      }
-
-      @Override
-      public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
-         if (outputsList.isEmpty()) {
-            return;
-         }
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+      private Tx.Json getTransactionFromJson(String string) {
          try {
-            for (int i = 0; i < outputsList.size(); i++) {
-               int index = i * 5;
-               final TransactionOutputEx outputEx = outputsList.get(i);
-               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
-               updateStatement.bindLong(index + 2, outputEx.height);
-               updateStatement.bindLong(index + 3, outputEx.value);
-               updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
-               updateStatement.bindBlob(index + 5, outputEx.script);
-            }
-            updateStatement.executeInsert();
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
+            return JSON_FACTORY.fromString(string, Tx.Json.class);
+         } catch (IOException ex) {
+             Log.e("colu accountBacking", "Parse error", ex);
          }
+         return null;
       }
 
       @Override
-      public void putParentTransactionOutput(TransactionOutputEx output) {
-         _insertOrReplacePtxo.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(output.outPoint));
-         _insertOrReplacePtxo.bindLong(2, output.height);
-         _insertOrReplacePtxo.bindLong(3, output.value);
-         _insertOrReplacePtxo.bindLong(4, output.isCoinBase ? 1 : 0);
-         _insertOrReplacePtxo.bindBlob(5, output.script);
-         _insertOrReplacePtxo.executeInsert();
+      public List<TransactionOutputEx> getUnspentOutputs() {
+         return new ArrayList<>();
       }
 
       @Override
-      public void putTxRefersParentTransaction(Sha256Hash txId, List<OutPoint> refersOutputs) {
-         for (OutPoint output : refersOutputs) {
-            _insertTxRefersParentTx.bindBlob(1, txId.getBytes());
-            _insertTxRefersParentTx.bindBlob(2, SQLiteQueryWithBlobs.outPointToBytes(output));
-            _insertTxRefersParentTx.executeInsert();
-         }
+      public void putUnspentOutputs(List<TransactionOutputEx> unspentOutputs) {
+
       }
 
       @Override
-      public void deleteTxRefersParentTransaction(Sha256Hash txId) {
-         _deleteTxRefersParentTx.bindBlob(1, txId.getBytes());
-         _deleteTxRefersParentTx.execute();
-      }
-
-      @Override
-      public Collection<Sha256Hash> getTransactionsReferencingOutPoint(OutPoint outPoint) {
+      public List<Tx.Json> getTransactions(int offset, int limit) {
          Cursor cursor = null;
-         List<Sha256Hash> list = new LinkedList<>();
+         List<Tx.Json> result = new LinkedList<>();
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, txRefersParentTxTableName, new String[]{"txid"}, "input = ?", null, null, null, null, null);
+            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
+                            + " ORDER BY height desc limit ? offset ?",
+                    new String[]{Integer.toString(limit), Integer.toString(offset)});
             while (cursor.moveToNext()) {
-               list.add(new Sha256Hash(cursor.getBlob(0)));
+               String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
-            return list;
          } finally {
             if (cursor != null) {
                cursor.close();
             }
          }
+         return result;
       }
 
       @Override
-      public TransactionOutputEx getParentTransactionOutput(OutPoint outPoint) {
-         Cursor cursor = null;
-         try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, ptxoTableName, new String[]{"height", "value", "isCoinbase", "script"},
-                  "outpoint = ?", null, null, null, null, null);
-            if (cursor.moveToNext()) {
-               return new TransactionOutputEx(outPoint, cursor.getInt(0), cursor.getLong(1),
-                     cursor.getBlob(3), cursor.getInt(2) != 0);
-            }
-            return null;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public boolean hasParentTransactionOutput(OutPoint outPoint) {
-         Cursor cursor = null;
-         try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outPoint));
-            cursor = blobQuery.query(false, ptxoTableName, new String[]{"height"}, "outpoint = ?", null, null, null,
-                  null, null);
-            return cursor.moveToNext();
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public void putTransactions(Collection<? extends TransactionEx> transactions) {
+      public void putTransactions(List<Tx.Json> transactions) {
          if (transactions.isEmpty()) {
             return;
          }
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
+                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             int i = 0;
-            for (TransactionEx transactionEx: transactions) {
-               int index = i * 5;
-               updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
-               updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
-               updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
-               updateStatement.bindLong(index + 4, transactionEx.time);
-               updateStatement.bindBlob(index + 5, transactionEx.binary);
+            for (Tx.Json transaction: transactions) {
+               int index = i * 4;
+               updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
+               updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
+               updateStatement.bindLong(index + 3, transaction.time / 1000);
+               updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
+               transaction.setFactory(JSON_FACTORY);
                i++;
             }
             updateStatement.executeInsert();
 
-            for (TransactionEx transaction : transactions) {
-               putReferencedOutputs(transaction.binary);
-            }
             _database.setTransactionSuccessful();
          } finally {
             _database.endTransaction();
@@ -800,238 +593,32 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
       }
 
       @Override
-      public void putTransaction(TransactionEx tx) {
-         _insertOrReplaceTx.bindBlob(1, tx.txid.getBytes());
-         _insertOrReplaceTx.bindBlob(2, tx.hash.getBytes());
-         _insertOrReplaceTx.bindLong(3, tx.height == -1 ? Integer.MAX_VALUE : tx.height);
-         _insertOrReplaceTx.bindLong(4, tx.time);
-         _insertOrReplaceTx.bindBlob(5, tx.binary);
-         _insertOrReplaceTx.executeInsert();
-
-         putReferencedOutputs(tx.binary);
-      }
-
-      private void putReferencedOutputs(byte[] rawTx) {
-         try {
-            final Transaction transaction = Transaction.fromBytes(rawTx);
-            final List<OutPoint> refersOutpoint = new ArrayList<>();
-            for (TransactionInput input : transaction.inputs) {
-               refersOutpoint.add(input.outPoint);
-            }
-            putTxRefersParentTransaction(transaction.getId(), refersOutpoint);
-         } catch (Transaction.TransactionParsingException e) {
-            Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
-         }
-      }
-
-      @Override
-      public TransactionEx getTransaction(Sha256Hash txid) {
+      public List<Tx.Json> getTransactionsSince(long since) {
          Cursor cursor = null;
+         List<Tx.Json> result = new LinkedList<>();
          try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, txid.getBytes());
-            cursor = blobQuery.query(false, txTableName, new String[]{"hash", "height", "time", "binary"}, "id = ?", null,
-                  null, null, null, null);
-            if (cursor.moveToNext()) {
-               int height = cursor.getInt(1);
-               if (height == Integer.MAX_VALUE) {
-                  height = -1;
-               }
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(0));
-               return new TransactionEx(txid, hash, height, cursor.getInt(2), cursor.getBlob(3));
-            }
-            return null;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
+            cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
+                            + " WHERE time >= ?"
+                            + " ORDER BY height desc",
+                    new String[]{Long.toString(since / 1000)});
 
-      @Override
-      public void deleteTransaction(Sha256Hash txid) {
-         _deleteTx.bindBlob(1, txid.getBytes());
-         _deleteTx.execute();
-         // also delete all output references for this tx
-         deleteTxRefersParentTransaction(txid);
-      }
-
-      @Override
-      public boolean hasTransaction(Sha256Hash txid) {
-         Cursor cursor = null;
-         try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, txid.getBytes());
-            cursor = blobQuery.query(false, txTableName, new String[]{"height"}, "id = ?", null, null, null, null,
-                  null);
-            return cursor.moveToNext();
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public Collection<TransactionEx> getUnconfirmedTransactions() {
-         Cursor cursor = null;
-         List<TransactionEx> list = new LinkedList<>();
-         try {
-            // 2147483647 == Integer.MAX_VALUE
-            cursor = _db.rawQuery("SELECT id, hash, time, binary FROM " + txTableName + " WHERE height = 2147483647",
-                  new String[]{});
             while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionEx tex = new TransactionEx(txid, hash, -1, cursor.getInt(2),
-                     cursor.getBlob(3));
-               list.add(tex);
+               String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
+               Tx.Json tex = getTransactionFromJson(json);
+               result.add(tex);
             }
-            return list;
          } finally {
             if (cursor != null) {
                cursor.close();
             }
          }
-      }
-
-      @Override
-      public Collection<TransactionEx> getYoungTransactions(int maxConfirmations, int blockChainHeight) {
-         int maxHeight = blockChainHeight - maxConfirmations + 1;
-         Cursor cursor = null;
-         List<TransactionEx> list = new LinkedList<>();
-         try {
-            // return all transaction younger than maxConfirmations or have no confirmations at all
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName + " WHERE height >= ? OR height = -1 ",
-                  new String[]{Integer.toString(maxHeight)});
-            while (cursor.moveToNext()) {
-               int height = cursor.getInt(2);
-               if (height == Integer.MAX_VALUE) {
-                  height = -1;
-               }
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionEx tex = new TransactionEx(txid, hash, height, cursor.getInt(3),
-                     cursor.getBlob(4));
-               list.add(tex);
-            }
-            return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public void putOutgoingTransaction(Sha256Hash txid, byte[] rawTransaction) {
-         _insertOrReplaceOutTx.bindBlob(1, txid.getBytes());
-         _insertOrReplaceOutTx.bindBlob(2, rawTransaction);
-         _insertOrReplaceOutTx.executeInsert();
-
-         putReferencedOutputs(rawTransaction);
-      }
-
-      @Override
-      public Map<Sha256Hash, byte[]> getOutgoingTransactions() {
-         Cursor cursor = null;
-         HashMap<Sha256Hash, byte[]> list = new HashMap<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, raw FROM " + outTxTableName, new String[]{});
-            while (cursor.moveToNext()) {
-               list.put(new Sha256Hash(cursor.getBlob(0)), cursor.getBlob(1));
-            }
-            return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public void removeOutgoingTransaction(Sha256Hash txid) {
-         _deleteOutTx.bindBlob(1, txid.getBytes());
-         _deleteOutTx.execute();
-      }
-
-      @Override
-      public boolean isOutgoingTransaction(Sha256Hash txid) {
-         Cursor cursor = null;
-         try {
-            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_db);
-            blobQuery.bindBlob(1, txid.getBytes());
-            cursor = blobQuery.query(false, outTxTableName, new String[]{}, "id = ?", null, null, null, null,
-                  null);
-            return cursor.moveToNext();
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public List<TransactionEx> getTransactionHistory(int offset, int limit) {
-         Cursor cursor = null;
-         List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " ORDER BY height desc limit ? offset ?",
-                  new String[]{Integer.toString(limit), Integer.toString(offset)});
-            while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
-               list.add(tex);
-            }
-            return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public List<TransactionEx> getTransactionsSince(long since) {
-         Cursor cursor = null;
-         List<TransactionEx> list = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                        + " WHERE time >= ?"
-                        + " ORDER BY height desc",
-                  new String[]{Long.toString(since / 1000)});
-            while (cursor.moveToNext()) {
-               Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
-               Sha256Hash hash = new Sha256Hash(cursor.getBlob(1));
-               TransactionEx tex = new TransactionEx(txid, hash, cursor.getInt(2),
-                     cursor.getInt(3), cursor.getBlob(4));
-               list.add(tex);
-            }
-            return list;
-         } finally {
-            if (cursor != null) {
-               cursor.close();
-            }
-         }
-      }
-
-      @Override
-      public void updateAccountContext(HDAccountContext context) {
-         updateBip44AccountContext(context);
-      }
-
-      @Override
-      public void updateAccountContext(SingleAddressAccountContext context) {
-         updateSingleAddressAccountContext(context);
+         return result;
       }
    }
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 7;
+      private static final int DATABASE_VERSION = 8;
       private Context context;
 
       OpenHelper(Context context) {
@@ -1047,11 +634,9 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
 
       @Override
       public void onCreate(SQLiteDatabase db) {
-         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER " +
-                 ", addressType TEXT);");
-         db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight " +
-                 "INTEGER, indexContexts TEXT, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
-                 "INTEGER, addressType TEXT);");
+         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
+                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
+                 ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
 
@@ -1068,10 +653,6 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE kv RENAME TO kv_old");
             db.execSQL("ALTER TABLE kv_new RENAME TO kv");
             db.execSQL("DROP TABLE kv_old");
-
-            // add column to store what account type it is
-            db.execSQL("ALTER TABLE bip44 ADD COLUMN accountType INTEGER DEFAULT 0");
-            db.execSQL("ALTER TABLE bip44 ADD COLUMN accountSubId INTEGER DEFAULT 0");
          }
          if (oldVersion < 4) {
             try (Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'tx^_%' ESCAPE '^'", new String[]{})) {
@@ -1097,18 +678,13 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
                MetadataStorage metadataStorage = new MetadataStorage(context);
-               Iterable<String> assetsId = metadataStorage.getColuAssetIds();
-               Map<UUID, ColuAccount.ColuAsset> coluUUIDs = new ArrayMap<>();
-               for (String assetId : assetsId) {
-                  if (!Strings.isNullOrEmpty(assetId)) {
-                     ColuAccount.ColuAsset assetDefinition = ColuAccount.ColuAsset.getAssetMap().get(assetId);
-                     if (assetDefinition != null) {
-                        UUID[] uuids = metadataStorage.getColuAssetUUIDs(assetDefinition.id);
-                        if (uuids.length > 0) {
-                           for (UUID uuid : uuids) {
-                              coluUUIDs.put(uuid, assetDefinition);
-                           }
-                        }
+
+               Map<UUID, ColuMain> coluUUIDs = new ArrayMap<>();
+               for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+                  if (!Strings.isNullOrEmpty(coin.getId())) {
+                     UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                     for (UUID uuid : uuids) {
+                        coluUUIDs.put(uuid, coin);
                      }
                   }
                }
@@ -1117,13 +693,13 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
                   Address address = new Address(addressBytes, addressString);
-                  UUID newId = SingleAddressAccount.calculateId(address);
+                  UUID newId = ColuUtils.getGuidForAsset(coluUUIDs.get(id), address.getAllAddressBytes());
 
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
                   metadataStorage.setOtherAccountBackupState(newId, metadataStorage.getOtherAccountBackupState(id));
                   metadataStorage.storeArchived(newId, metadataStorage.getArchived(id));
                   if (coluUUIDs.keySet().contains(id)) {
-                     String assetId = coluUUIDs.get(id).id;
+                     String assetId = coluUUIDs.get(id).getId();
                      metadataStorage.addColuAssetUUIDs(assetId, newId);
                      metadataStorage.removeColuAssetUUIDs(assetId, id);
                      Optional<String> coluBalance = metadataStorage.getColuBalance(id);
@@ -1161,64 +737,23 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
             db.execSQL("ALTER TABLE single RENAME TO single_old");
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
-
-            //Migrate BIP44 accounts
-            List<HDAccountContext> bip44List = new ArrayList<>();
-            try {
-               SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
-               cursor = blobQuery.query(
-                       false, "bip44",
-                       new String[]{"id", "accountIndex", "archived", "blockheight",
-                               "lastExternalIndexWithActivity", "lastInternalIndexWithActivity",
-                               "firstMonitoredInternalIndex", "lastDiscovery", "accountType", "accountSubId"},
-                       null, null, null, null, "accountIndex", null);
-
-               while (cursor.moveToNext()) {
-                  UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-                  int accountIndex = cursor.getInt(1);
-                  boolean isArchived = cursor.getInt(2) == 1;
-                  int blockHeight = cursor.getInt(3);
-                  int lastExternalIndexWithActivity = cursor.getInt(4);
-                  int lastInternalIndexWithActivity = cursor.getInt(5);
-                  int firstMonitoredInternalIndex = cursor.getInt(6);
-                  long lastDiscovery = cursor.getLong(7);
-                  int accountType = cursor.getInt(8);
-                  int accountSubId = (int) cursor.getLong(9);
-                  Map<BipDerivationType, AccountIndexesContext> indexesContextMap = new HashMap<>();
-                  AccountIndexesContext oldIndexes = new AccountIndexesContext(
-                          lastExternalIndexWithActivity, lastInternalIndexWithActivity, firstMonitoredInternalIndex);
-                  indexesContextMap.put(BipDerivationType.BIP44, oldIndexes);
-                  bip44List.add(new HDAccountContext(id, accountIndex, isArchived, blockHeight, lastDiscovery,
-                          indexesContextMap, accountType, accountSubId));
-               }
-            } finally {
-               if (cursor != null) {
-                  cursor.close();
-               }
-            }
-            //db.execSQL("CREATE TABLE bip44 (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, blockheight INTEGER, lastExternalIndexWithActivity INTEGER, lastInternalIndexWithActivity INTEGER, firstMonitoredInternalIndex INTEGER, lastDiscovery, accountType INTEGER, accountSubId INTEGER);");
-            db.execSQL("CREATE TABLE bip44_new (id TEXT PRIMARY KEY, accountIndex INTEGER, archived INTEGER, " +
-                    "blockheight INTEGER, indexContexts TEXT, lastDiscovery INTEGER, accountType INTEGER, accountSubId " +
-                    "INTEGER, addressType TEXT);");
-            SQLiteStatement bip44Update = db.compileStatement("INSERT OR REPLACE INTO bip44_new" +
-                    " VALUES (?,?,?,?,?,?,?,?,?)");
-            for (HDAccountContext context : bip44List) {
-               bip44Update.bindBlob(1, uuidToBytes(context.getId()));
-               bip44Update.bindLong(2, context.getAccountIndex());
-               bip44Update.bindLong(3, context.isArchived() ? 1 : 0);
-               bip44Update.bindLong(4, context.getBlockHeight());
-               bip44Update.bindString(5, gson.toJson(context.getIndexesMap()));
-               bip44Update.bindLong(6, context.getLastDiscovery());
-               bip44Update.bindLong(7, context.getAccountType());
-               bip44Update.bindLong(8, context.getAccountSubId());
-               bip44Update.bindString(9, gson.toJson(context.getDefaultAddressType()));
-               bip44Update.executeInsert();
-            }
-            db.execSQL("ALTER TABLE bip44 RENAME TO bip44_old");
-            db.execSQL("ALTER TABLE bip44_new RENAME TO bip44");
-            db.execSQL("DROP TABLE bip44_old");
          }
-         if (oldVersion < 7) {
+         if(oldVersion < 6) {
+            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
+         }
+         if(oldVersion < 7) {
             List<UUID> listForRemove = new ArrayList<>();
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
             try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses"}, null, null,
@@ -1243,6 +778,7 @@ public class SqliteColuManagerBacking implements WalletManagerBacking {
                deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
                deleteSingleAddressAccount.execute();
             }
+            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
          }
       }
 
