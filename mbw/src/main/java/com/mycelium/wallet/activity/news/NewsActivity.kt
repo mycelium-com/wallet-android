@@ -50,6 +50,8 @@ class NewsActivity : AppCompatActivity() {
             category.alpha = 1 - scrollDelta
             toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
             collapsing_toolbar.title = if (scrollDelta == 1f) news.title else ""
+            llRoot.clipChildren = scrollDelta == 1f
+            llRoot.clipToPadding = scrollDelta == 1f
         })
         news = intent.getSerializableExtra(NewsConstants.NEWS) as News
         NewsDatabase.markRead(news)
@@ -61,7 +63,6 @@ class NewsActivity : AppCompatActivity() {
                 .replace("width: .*?px", "width: 100%")
                 .replace("height=\".*?\"", "")
         content.settings.defaultFontSize = 14
-//        content.settings.javaScriptEnabled = true
 
         val html = getString(R.string.media_flow_html_template
                 , resources.toWebViewPx(12f).toString()
