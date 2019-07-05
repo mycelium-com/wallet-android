@@ -622,7 +622,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 8;
+      private static final int DATABASE_VERSION = 9;
       private Context context;
 
       OpenHelper(Context context) {
@@ -770,7 +770,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
          }
 
-         if(oldVersion < 8) {
+         if(oldVersion < 9) {
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
             db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
             SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
