@@ -38,19 +38,23 @@ class ColuModule(val networkParameters: NetworkParameters,
     // The linked BTC SA account creation should happen in Wallet upgrade situations only
     // In usual cases, BTC SA account will be created together with a Colu account
     override fun afterAccountsLoaded() {
-        accounts.values.forEach {
+        accounts.values.forEach { it as ColuAccount
             if (it.canSpend()) {
-                val saId = SingleAddressAccount.calculateId((it as ColuAccount).privateKey!!.publicKey.toAddress(networkParameters, AddressType.P2SH_P2WPKH, true))
-                if (singleAddressModule.getAccountById(saId) == null) {
-                    singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin"))
+                val saId = SingleAddressAccount.calculateId(it.privateKey!!.publicKey.toAddress(networkParameters, AddressType.P2PKH, true))
+                var linked = singleAddressModule.getAccountById(saId) as SingleAddressAccount?
+                if (linked == null) {
+                    linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin")) as SingleAddressAccount
                 }
+                it.linkedAccount = linked
             } else {
                 val btcAddress = it.receiveAddress as BtcAddress
                 val saId = SingleAddressAccount.calculateId(btcAddress.address)
-                if (singleAddressModule.getAccountById(saId) == null) {
-                    val sa = singleAddressModule.createAccount(AddressSingleConfig(btcAddress))
-                    singleAddressModule.createLabel(it.label + " Bitcoin", sa.id)
+                var linked = singleAddressModule.getAccountById(saId) as SingleAddressAccount?
+                if (linked == null) {
+                    linked = singleAddressModule.createAccount(AddressSingleConfig(btcAddress)) as SingleAddressAccount
+                    singleAddressModule.createLabel(it.label + " Bitcoin", linked.id)
                 }
+                it.linkedAccount = linked
             }
         }
     }
