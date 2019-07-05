@@ -820,9 +820,17 @@ public class Utils {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
             if (w1 instanceof ColuAccount) {
-               return getLinkedAccount(w1, accounts).getId().equals(w2.getId()) ? -1 : 0;
+               WalletAccount linkedAccount = getLinkedAccount(w1, accounts);
+               if (linkedAccount == null) {
+                  return 0;
+               }
+               return linkedAccount.getId().equals(w2.getId()) ? -1 : 0;
             } else if (w2 instanceof ColuAccount) {
-               return getLinkedAccount(w2, accounts).getId().equals(w1.getId()) ? 1 : 0;
+               WalletAccount linkedAccount = getLinkedAccount(w2, accounts);
+               if (linkedAccount == null) {
+                  return 0;
+               }
+               return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
             }
             return 0;
 
