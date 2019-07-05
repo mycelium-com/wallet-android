@@ -738,21 +738,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
          }
-         if(oldVersion < 6) {
-            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
-                  }
-               }
-            }
-         }
+
          if(oldVersion < 7) {
             List<UUID> listForRemove = new ArrayList<>();
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
@@ -778,7 +764,23 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
                deleteSingleAddressAccount.execute();
             }
+         }
+
+         if(oldVersion < 8) {
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
          }
       }
 
