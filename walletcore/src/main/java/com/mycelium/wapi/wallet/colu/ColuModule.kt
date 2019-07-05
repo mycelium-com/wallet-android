@@ -43,7 +43,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val saId = SingleAddressAccount.calculateId(it.privateKey!!.publicKey.toAddress(networkParameters, AddressType.P2PKH, true))
                 var linked = singleAddressModule.getAccountById(saId) as SingleAddressAccount?
                 if (linked == null) {
-                    linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin")) as SingleAddressAccount
+                    linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin", AddressType.P2PKH)) as SingleAddressAccount
                 }
                 it.linkedAccount = linked
             } else {
