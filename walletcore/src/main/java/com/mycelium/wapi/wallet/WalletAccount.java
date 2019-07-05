@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -75,6 +76,8 @@ public interface WalletAccount<A extends GenericAddress> {
     void setLabel(String label);
 
     boolean isSpendingUnconfirmed(GenericTransaction tx);
+
+    void updateParentOutputs(byte[] txid) throws WapiException;
 
     /**
      * Synchronize this account
