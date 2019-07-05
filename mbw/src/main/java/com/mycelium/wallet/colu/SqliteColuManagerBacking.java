@@ -368,14 +368,18 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       _deleteSubId.execute();
    }
 
+   private static void createTxTable(String tableSuffix, SQLiteDatabase db) {
+      db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
+              + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, txData BLOB);");
+   }
+
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {
       String tableSuffix = uuidToTableSuffix(id);
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getUtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
             + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
-      db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, height INTEGER, time INTEGER, txData BLOB);");
+      createTxTable(tableSuffix, db);
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
             + " (id BLOB PRIMARY KEY, raw BLOB);");
@@ -738,21 +742,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
          }
-         if(oldVersion < 6) {
-            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
-                  }
-               }
-            }
-         }
+
          if(oldVersion < 7) {
             List<UUID> listForRemove = new ArrayList<>();
             SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
@@ -778,7 +768,33 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                deleteSingleAddressAccount.bindBlob(1, uuidToBytes(uuid));
                deleteSingleAddressAccount.execute();
             }
+         }
+
+         if(oldVersion < 8) {
             db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+            MetadataStorage metadataStorage = new MetadataStorage(context);
+            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+               if (!Strings.isNullOrEmpty(coin.getId())) {
+                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                  for (UUID uuid : uuids) {
+                     updateCoinIdStatement.bindString(1, coin.getId());
+                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                     updateCoinIdStatement.execute();
+                  }
+               }
+            }
+
+            // DROP previous table with transaction because txData field replaced old raw tx column
+            // SQL COMMAND ALTER TABLE .. RENAME COLUMN is not used because it is not supported
+            // by older SQLITE versions. Assuming not all devices have the latest SQLITE version
+            // installed
+            for (UUID account : getAccountIds(db)) {
+               String tableSuffix = uuidToTableSuffix(account);
+               db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
+               createTxTable(tableSuffix, db);
+            }
          }
       }
 
