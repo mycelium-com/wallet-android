@@ -51,6 +51,8 @@
         android:supportsRtl="true"
         android:theme="@style/MyceliumModern">
 
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+
         <!-- Receiver for Google Cloud Messaging -->
         <receiver
             android:name=".lt.notification.GcmBroadcastReceiver"
