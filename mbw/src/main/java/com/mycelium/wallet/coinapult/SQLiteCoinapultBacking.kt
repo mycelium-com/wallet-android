@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteStatement
 import com.google.common.base.Splitter
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
@@ -32,21 +31,20 @@ class SQLiteCoinapultBacking(val context: Context
     private val updateAccount: SQLiteStatement
 
     init {
-        val helper = CoinapultSQLiteHelper(context) {
-            /**
-             * import accounts from old place
-             */
-            val currencies = Splitter.on(",").split(metadataStorage.coinapultCurrencies)
-            currencies.forEach {
-                Currency.all[it]?.let { currency ->
-                    val id = CoinapultUtils.getGuidForAsset(currency, addressByteArray)
-                    val address = BtcAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get())
-                    createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
-                }
-            }
-        }
+        val helper = CoinapultSQLiteHelper(context)
         database = helper.writableDatabase
 
+        /**
+         * import accounts from old place
+         */
+        val currencies = Splitter.on(",").split(metadataStorage.coinapultCurrencies)
+        currencies.forEach {
+            Currency.all[it]?.let { currency ->
+                val id = CoinapultUtils.getGuidForAsset(currency, addressByteArray)
+                val address = BtcAddress(currency, metadataStorage.getCoinapultAddress(currency.name).get())
+                createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
+            }
+        }
         insertOrReplaceAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
         updateAccount = database.compileStatement("UPDATE coinapultcontext SET archived=?,address=? WHERE id=?")
     }
