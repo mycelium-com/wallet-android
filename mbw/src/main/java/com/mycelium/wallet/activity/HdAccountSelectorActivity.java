@@ -245,7 +245,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          MbwManager mbwManager = MbwManager.getInstance(getContext());
          WalletAccount walletAccount = mbwManager.getWalletManager(true).getAccount(account.id);
          Balance balance = walletAccount.getAccountBalance();
-         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.confirmed.add(balance.pendingChange), mbwManager.getDenomination());
+         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
          if (balance.getSendingToForeignAddresses().isPositive()) {
             balanceString += " " + String.format(getString(R.string.account_balance_sending_amount)
                     , ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), mbwManager.getDenomination()));

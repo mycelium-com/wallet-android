@@ -39,6 +39,10 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun queueTransaction(transaction: GenericTransaction) {
     }
 
+    override fun updateParentOutputs(txid: ByteArray?) {
+      // there is no parent update
+    }
+
     override fun getBasedOnCoinType(): CryptoCurrency {
         return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get();
     }

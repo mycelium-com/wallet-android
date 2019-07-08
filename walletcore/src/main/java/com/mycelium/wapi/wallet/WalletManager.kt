@@ -44,12 +44,21 @@ constructor(val network: NetworkParameters,
 
     fun init() {
         for (walletModule in walletModules.values) {
-            accounts.putAll(walletModule.loadAccounts())
+            walletModule.loadAccounts()
         }
 
         for (walletModule in walletModules.values) {
             walletModule.afterAccountsLoaded()
         }
+
+        // Some additional accounts could probably be added in afterAccountsLoaded()
+        // Gather the final accounts map from modules
+        for (walletModule in walletModules.values) {
+            walletModule.getAccounts().forEach {
+                accounts[it.id] = it
+            }
+        }
+
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
