@@ -133,8 +133,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000005
-        versionName '3.0.0.5'
+        versionCode 3000006
+        versionName '3.0.0.6'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -214,7 +214,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "tcp-tls://electrumx-aws-c.mycelium.com:9335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "tcp-tls://electrumx-aws-c.mycelium.com:9335", "tcp-tls://electrumx-c.mycelium.com:9335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'

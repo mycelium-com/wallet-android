@@ -17,12 +17,11 @@ import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccount {
    private static final ImmutableMap<SyncMode.Mode, Integer> MIN_SYNC_INTERVAL = ImmutableMap.of(
-         SyncMode.Mode.FAST_SYNC, 1 * 1000,
-         SyncMode.Mode.ONE_ADDRESS, 1 * 1000,
+         SyncMode.Mode.FAST_SYNC, 1000,
+         SyncMode.Mode.ONE_ADDRESS, 1000,
          SyncMode.Mode.NORMAL_SYNC, 30 * 1000,
          SyncMode.Mode.FULL_SYNC, 120 * 1000
    );
@@ -30,11 +29,6 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
    private boolean isSyncing;
-
-   @Override
-   public UUID getId(){
-      return new UUID(0,0);
-   }
 
    /**
     * Checks if the account needs to be synchronized, according to the provided SyncMode

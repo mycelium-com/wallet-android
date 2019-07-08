@@ -67,7 +67,7 @@ class BtcAssetBasicTest {
 
         val wapiLogger = Mockito.mock(WapiLogger::class.java)
 
-        val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-aws-test.mycelium.com", 19335))
+        val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-c.mycelium.com", 19335))
         val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
 
         val store = SecureKeyValueStore(backing, MyRandomSource())

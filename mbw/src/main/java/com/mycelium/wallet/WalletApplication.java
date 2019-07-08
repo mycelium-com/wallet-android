@@ -81,9 +81,9 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                                   .detectAll()
-                                   .penaltyLog()
-                                   .build());
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
         }
         super.onCreate();
         CommunicationManager.init(this);
