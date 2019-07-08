@@ -138,7 +138,7 @@
                     android:textSize="24sp"
                     tools:text="Bitcoin Cash module is out" />
 
-                <WebView
+                <com.mycelium.wallet.activity.view.ClickableWebView
                     android:id="@+id/content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

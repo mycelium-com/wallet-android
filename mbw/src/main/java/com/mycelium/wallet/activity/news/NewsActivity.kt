@@ -114,7 +114,10 @@ class NewsActivity : AppCompatActivity() {
                 return false
             }
         }
-
+        content.imageClicklistener = { url ->
+            startActivity(Intent(this, NewsImageActivity::class.java)
+                    .putExtra("url", url))
+        }
         scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
             val layoutParams = scrollBar.layoutParams
             val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight

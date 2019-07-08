@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mycelium.wallet">
 
     <!-- basics -->
@@ -259,6 +260,8 @@
             <meta-data android:name="android.app.default_searchable"
                 android:value=".activity.news.NewsSearchableActivity" />
         </activity>
+        <activity android:name=".activity.news.NewsImageActivity"
+            android:screenOrientation="landscape"/>
 
         <service
             android:name=".external.mediaflow.NewsSyncService"
