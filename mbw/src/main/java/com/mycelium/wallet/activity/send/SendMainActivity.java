@@ -524,7 +524,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 FeeItem item = ((FeeViewAdapter) adapter).getItem(position);
-                selectedFee = Value.valueOf(item.value.type, item.feePerKb);
+                selectedFee = Value.valueOf(item.value.getType(), item.feePerKb);
                 btSend.setEnabled(false); //should be enabled(depends from tx status) after update tx
                 updateTransactionStatusAndUi();
                 ScrollView scrollView = findViewById(R.id.root);
@@ -579,7 +579,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(_account.getBasedOnCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
         if (feeViewAdapter.getSelectedItem() < feeViewAdapter.getItemCount()
-                && feeViewAdapter.getItem(feeViewAdapter.getSelectedItem()).feePerKb == selectedFee.value) {
+                && feeViewAdapter.getItem(feeViewAdapter.getSelectedItem()).feePerKb == selectedFee.getValue()) {
         } else if (isInRange(feeItems, selectedFee)) {
             feeValueList.setSelectedItem(selectedFee);
         } else {
@@ -589,7 +589,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private boolean isInRange(List<FeeItem> feeItems, Value fee) {
-        return feeItems.get(0).feePerKb <= fee.value && fee.value <= feeItems.get(feeItems.size() - 1).feePerKb;
+        return feeItems.get(0).feePerKb <= fee.getValue() && fee.getValue() <= feeItems.get(feeItems.size() - 1).feePerKb;
     }
 
     private int estimateTxSize() {
@@ -692,7 +692,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             // if no amount is set so far, use an unknown amount but in the current accounts currency
             presetAmount = Value.valueOf(_account.getCoinType(), 0);
         }
-        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, selectedFee.value,
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, _account.getId(), presetAmount, selectedFee.getValue(),
                 _account.getCoinType(), _isColdStorage, _receivingAddress);
     }
 
@@ -830,11 +830,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 return TransactionStatus.MissingArguments;
             }
             // build new output list with user specified amount
-            outputs = outputs.newOutputsWithTotalAmount(toSend.value);
+            outputs = outputs.newOutputsWithTotalAmount(toSend.getValue());
         }
 
         AbstractBtcAccount btcAccount = (AbstractBtcAccount)_account;
-        transaction = btcAccount.createTxFromOutputList(outputs, new FeePerKbFee(selectedFee).getFeePerKb().value);
+        transaction = btcAccount.createTxFromOutputList(outputs, new FeePerKbFee(selectedFee).getFeePerKb().getValue());
         _spendingUnconfirmed = _account.isSpendingUnconfirmed(transaction);
         _receivingAddress = null;
         _transactionLabel = paymentRequestInformation.getPaymentDetails().memo;
@@ -1003,7 +1003,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         // show the user entered value as primary amount
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
-                                primaryAmount.type.equals(_account.getCoinType())
+                                primaryAmount.getType().equals(_account.getCoinType())
                                         ? _mbwManager.getFiatCurrency() : _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getDenomination());
                         if (!primaryAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
@@ -1045,15 +1045,15 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private Value getCurrentFeeEstimation() {
         switch (feeLvl) {
             case LOWPRIO:
-                return Value.valueOf(_account.getCoinType(), feeEstimation.getLow().value);
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getLow().getValue());
             case ECONOMIC:
-                return Value.valueOf(_account.getCoinType(), feeEstimation.getEconomy().value);
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getEconomy().getValue());
             case NORMAL:
-                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().value);
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().getValue());
             case PRIORITY:
-                return Value.valueOf(_account.getCoinType(), feeEstimation.getHigh().value);
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getHigh().getValue());
             default:
-                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().value);
+                return Value.valueOf(_account.getCoinType(), feeEstimation.getNormal().getValue());
         }
     }
 
@@ -1100,7 +1100,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         // Update Fee-Display
         String feeWarning = null;
         tvFeeWarning.setOnClickListener(null);
-        if (selectedFee.value == 0) {
+        if (selectedFee.getValue() == 0) {
             feeWarning = getString(R.string.fee_is_zero);
         }
         if (transaction != null && transaction.type instanceof BitcoinBasedCryptoCurrency
@@ -1119,7 +1119,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 tvSatFeeValue.setText(inCount + " In- / " + outCount + " Outputs, ~" + size + " bytes");
 
                 long fee = unsigned.calculateFee();
-                if (fee != size * selectedFee.value / 1000) {
+                if (fee != size * selectedFee.getValue() / 1000) {
                     Value value = Value.valueOf(_account.getCoinType(), fee);
                     Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
                     String fiat = "";

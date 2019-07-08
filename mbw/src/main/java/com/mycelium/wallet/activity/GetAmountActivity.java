@@ -226,9 +226,9 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       GenericAssetInfo asset;
       if (!Value.isNullOrZero(_amount)) {
          amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination());
-         asset = _amount.type;
+         asset = _amount.getType();
       } else {
-         asset = _amount != null && _amount.getCurrencySymbol() != null ? _amount.type : _account.getCoinType();
+         asset = _amount != null && _amount.getCurrencySymbol() != null ? _amount.getType() : _account.getCoinType();
          amountString = "";
       }
       _mbwManager.getCurrencySwitcher().setCurrency(asset);
@@ -359,7 +359,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
             int toTargetUnit = _mbwManager.getDenomination().getScale();
             newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(toTargetUnit));
          }
-         _numberEntry.setEntry(newAmount, getMaxDecimal(_amount.type));
+         _numberEntry.setEntry(newAmount, getMaxDecimal(_amount.getType()));
       } else {
          tvAmount.setText("");
       }
@@ -415,7 +415,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
             _amount = val;
          } else {
-            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
+            _amount = Value.valueOf(val.getType(), _mbwManager.getDenomination().getAmount(val.getValue()));
          }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(0);
@@ -486,7 +486,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          protected AmountValidation doInBackground(Void... voids) {
             if(value == null) {
                return AmountValidation.ExchangeRateNotAvailable;
-            }else if (value.value == 0) {
+            }else if (value.getValue() == 0) {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
@@ -545,7 +545,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                }
                if (result == AmountValidation.NotEnoughFunds) {
                   // We do not have enough funds
-                  if (amount.value == 0 || _account.getAccountBalance().getSpendable().value < amount.value) {
+                  if (amount.getValue() == 0 || _account.getAccountBalance().getSpendable().getValue() < amount.getValue()) {
                      // We do not have enough funds for sending the requested amount
                      String msg = getResources().getString(R.string.insufficient_funds);
                      Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();

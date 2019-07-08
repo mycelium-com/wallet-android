@@ -89,7 +89,7 @@ public class ColuClient {
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
         dest.amount = nativeAmount.getValue();
-        dest.assetId = nativeAmount.type.getId();
+        dest.assetId = nativeAmount.getType().getId();
         to.add(dest);
 
         request.to = to;

@@ -75,7 +75,7 @@ public class TradeActivityUtil {
       BtcReceiver receiver = null;
       receiver = new BtcReceiver(address, ts.satoshisFromSeller);
       try {
-         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), account.getFeeEstimations().getNormal().value);
+         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), account.getFeeEstimations().getNormal().getValue());
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {

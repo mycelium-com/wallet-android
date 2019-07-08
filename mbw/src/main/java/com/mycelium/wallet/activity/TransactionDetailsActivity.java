@@ -165,7 +165,7 @@ public class TransactionDetailsActivity extends Activity {
         if (tx.getInputs() != null) {
             long sum = 0;
             for (GenericOutputViewModel input : tx.getInputs()) {
-                sum += input.getValue().value;
+                sum += input.getValue().getValue();
             }
             if (sum != 0) {
                 tvInputsAmount.setVisibility(View.GONE);

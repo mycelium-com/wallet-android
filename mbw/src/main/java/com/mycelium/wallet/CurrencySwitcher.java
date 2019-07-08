@@ -256,9 +256,9 @@ public class CurrencySwitcher {
     public Value getValue(ValueSum sum) {
         Value result = Value.zeroValue(getCurrentCurrency());
         for (Value value : sum.getValues()) {
-            Value value1 = exchangeRateManager.get(value, result.type);
+            Value value1 = exchangeRateManager.get(value, result.getType());
             if (value1 != null) {
-                result = result.add(value1);
+                result = result.plus(value1);
             }
         }
         return result;

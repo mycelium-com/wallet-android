@@ -455,7 +455,7 @@ public class AccountsFragment extends Fragment {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    return account.getAccountBalance().getSpendable().value;
+                    return account.getAccountBalance().getSpendable().getValue();
                 }
             }
         });

@@ -167,7 +167,7 @@ public class GetSpendingRecordActivity extends Activity {
       }
       ArrayList<WalletAccount<?>> result = new ArrayList<>();
       for (WalletAccount spendingAccount : spendingAccounts) {
-         if(isBtc(spendingAccount.getAccountBalance().confirmed.type)) {
+         if(isBtc(spendingAccount.getAccountBalance().confirmed.getType())) {
             result.add(spendingAccount);
          }
       }

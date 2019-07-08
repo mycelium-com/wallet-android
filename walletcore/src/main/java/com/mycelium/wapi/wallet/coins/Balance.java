@@ -23,7 +23,7 @@ public class Balance {
      * Used in UI to display 'Sending ..."
      */
     public Value getSendingToForeignAddresses() {
-        return pendingSending.subtract(pendingChange);
+        return pendingSending.minus(pendingChange);
     }
 
     /**
@@ -39,6 +39,6 @@ public class Balance {
     }
 
     public Value getSpendable() {
-        return confirmed.add(pendingReceiving).add(pendingChange);
+        return confirmed.plus(pendingReceiving).plus(pendingChange);
     }
 }

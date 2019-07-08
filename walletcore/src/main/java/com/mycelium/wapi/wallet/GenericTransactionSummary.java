@@ -105,7 +105,7 @@ public class GenericTransactionSummary implements Serializable {
     }
 
     public boolean isIncoming() {
-        return transferred.value >= 0;
+        return transferred.getValue() >= 0;
     }
 
     public int getRawSize() {

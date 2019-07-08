@@ -482,10 +482,10 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          Gson gson = new Gson();
          String assetTypeName = assetType.getName();
          byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                 feeEstimation.getEconomy().value,
-                 feeEstimation.getNormal().value,
-                 feeEstimation.getHigh().value,
+         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().getValue(),
+                 feeEstimation.getEconomy().getValue(),
+                 feeEstimation.getNormal().getValue(),
+                 feeEstimation.getHigh().getValue(),
                  feeEstimation.getLastCheck());
          byte[] value = gson.toJson(feeValues).getBytes();
          setValue(key, value);
