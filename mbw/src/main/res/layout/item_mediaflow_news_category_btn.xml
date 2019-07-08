@@ -14,6 +14,7 @@
         android:layout_width="48dp"
         android:layout_height="36dp"
         android:alpha="0.5"
+        android:layout_marginEnd="8dp"
         android:contentDescription="@null" />
 
     <TextView
@@ -21,7 +22,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:textColor="#FFFFFD"
         android:textSize="18sp"

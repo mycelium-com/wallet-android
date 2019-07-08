@@ -135,14 +135,6 @@ class NewsActivity : AppCompatActivity() {
         shareBtn2.setOnClickListener {
             share()
         }
-        shareFacebookBtn.setOnClickListener {
-            val sharerUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=${news.link}")
-            startActivity(Intent(Intent.ACTION_VIEW, sharerUrl))
-        }
-        shareTwitterBtn.setOnClickListener {
-            val tweetUrl = Uri.parse("https://twitter.com/intent/tweet?text=${news.link}")
-            startActivity(Intent(Intent.ACTION_VIEW, tweetUrl))
-        }
         val fragment = supportFragmentManager.findFragmentById(R.id.otherNews) as NewsFragment
         fragment.currentNews = news
     }

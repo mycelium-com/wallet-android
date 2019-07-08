@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="8dp">
+    android:paddingTop="16dp">
 
     <include
         layout="@layout/item_mediaflow_news_category_btn"

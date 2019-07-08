@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.modern
 
 import android.content.*
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask
 import android.os.Bundle
@@ -8,8 +9,10 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.SearchView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -79,21 +82,24 @@ class NewsFragment : Fragment() {
             }
         })
         adapterSearch.openClickListener = newsClick
-        search.setOnCloseListener {
+        search_close.setOnClickListener {
             searchActive = false
             activity?.invalidateOptionsMenu()
+            search_input.text = null
             updateUI()
+            val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0);
             true
         }
-        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(search: String?): Boolean {
-                startUpdateSearch(search)
-                return true
+        search_input.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
             }
 
-            override fun onQueryTextChange(search: String?): Boolean {
-                startUpdateSearch(search)
-                return true
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(search: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                startUpdateSearch(search_input.text.toString())
             }
         })
         updateUI()
@@ -119,6 +125,7 @@ class NewsFragment : Fragment() {
             }
         }
         menu?.findItem(R.id.action_search)?.isVisible = searchActive.not()
+        menu?.findItem(R.id.action_favorite)?.isVisible = searchActive.not()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -126,10 +133,12 @@ class NewsFragment : Fragment() {
             searchActive = true
             activity?.invalidateOptionsMenu()
             updateUI()
+            val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.showSoftInput(search_input, 0);
             return true
         } else if (item?.itemId == R.id.action_favorite) {
             preference.edit()
-                    .putBoolean("favorite", preference.getBoolean("favorite", false).not())
+                    .putBoolean(NewsConstants.FAVORITE, preference.getBoolean(NewsConstants.FAVORITE, false).not())
                     .apply()
             updateFavoriteMenu(item)
             startUpdate()
@@ -154,7 +163,7 @@ class NewsFragment : Fragment() {
     }
 
     private fun updateFavoriteMenu(item: MenuItem) {
-        item.icon = resources.getDrawable(if (preference.getBoolean("favorite", false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite)
+        item.icon = resources.getDrawable(if (preference.getBoolean(NewsConstants.FAVORITE, false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite)
     }
 
     private var loading = false
@@ -180,7 +189,7 @@ class NewsFragment : Fragment() {
         val taskListener: (List<News>) -> Unit = {
             loading = false
             var list = it
-            if (preference.getBoolean("favorite", false)) {
+            if (preference.getBoolean(NewsConstants.FAVORITE, false)) {
                 list = it.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
             }
             adapter.setData(list)

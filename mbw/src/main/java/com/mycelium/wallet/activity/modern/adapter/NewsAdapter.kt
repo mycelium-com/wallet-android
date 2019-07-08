@@ -55,64 +55,73 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == TYPE_NEWS_V2_BIG) {
-            val bigHolder = holder as NewsV2BigHolder
-            val news = dataMap[category]!![position]
-            bigHolder.bind(news)
-            bigHolder.openClickListener = {
-                openClickListener?.invoke(it)
-            }
-        } else if (getItemViewType(position) == TYPE_NEWS_V2) {
-            val news = dataMap[category]!![position]
-            val newsSmallHolder = holder as NewsV2Holder
-            newsSmallHolder.bind(news)
-            newsSmallHolder.openClickListener = {
-                openClickListener?.invoke(it)
-            }
-        } else if (getItemViewType(position) == TYPE_NEWS_ITEM_ALL) {
-            val allHolder = holder as NewsItemAllHolder
-
-            val category = dataMap.entries.elementAt(position).key
-            val list = dataMap.entries.elementAt(position).value
-
-            allHolder.bigHolder.bind(list[0])
-            allHolder.bigHolder.openClickListener = {
-                openClickListener?.invoke(it)
-            }
-
-            val news1Holder = holder.news1
-            if (list.size > 1) {
-                news1Holder.bind(list[1])
-                news1Holder.itemView.visibility = View.VISIBLE
-                news1Holder.openClickListener = {
-                    openClickListener?.invoke(list[1])
+        when {
+            getItemViewType(position) == TYPE_NEWS_V2_BIG -> {
+                val bigHolder = holder as NewsV2BigHolder
+                val news = dataMap[category]!![position]
+                bigHolder.bind(news)
+                bigHolder.openClickListener = {
+                    openClickListener?.invoke(it)
                 }
-            } else {
-                news1Holder.itemView.visibility = View.GONE
             }
-            val news2Holder = holder.news2
-            if (list.size > 2) {
-                news2Holder.bind(list.get(2))
-                news2Holder.itemView.visibility = View.VISIBLE
-                news2Holder.openClickListener = {
-                    openClickListener?.invoke(list[2])
+            getItemViewType(position) == TYPE_NEWS_V2 -> {
+                val news = dataMap[category]!![position]
+                val newsSmallHolder = holder as NewsV2Holder
+                newsSmallHolder.bind(news)
+                newsSmallHolder.openClickListener = {
+                    openClickListener?.invoke(it)
                 }
-            } else {
-                news2Holder.itemView.visibility = View.GONE
             }
+            getItemViewType(position) == TYPE_NEWS_ITEM_ALL -> {
+                val allHolder = holder as NewsItemAllHolder
 
-            val btnHolder = allHolder.categoryHolder
-            btnHolder.text.text = category.name
-            btnHolder.icon.setImageResource(NewsUtils.getCategoryIcon(category.name))
-            btnHolder.itemView.setOnClickListener {
-                categoryClickListener?.invoke(category)
+                val category = dataMap.entries.elementAt(position).key
+                val list = dataMap.entries.elementAt(position).value
+
+                allHolder.bigHolder.bind(list[0])
+                allHolder.bigHolder.openClickListener = {
+                    openClickListener?.invoke(it)
+                }
+
+                val news1Holder = holder.news1
+                if (list.size > 1) {
+                    news1Holder.bind(list[1])
+                    news1Holder.itemView.visibility = View.VISIBLE
+                    news1Holder.openClickListener = {
+                        openClickListener?.invoke(list[1])
+                    }
+                } else {
+                    news1Holder.itemView.visibility = View.GONE
+                }
+                val news2Holder = holder.news2
+                if (list.size > 2) {
+                    news2Holder.bind(list.get(2))
+                    news2Holder.itemView.visibility = View.VISIBLE
+                    news2Holder.openClickListener = {
+                        openClickListener?.invoke(list[2])
+                    }
+                } else {
+                    news2Holder.itemView.visibility = View.GONE
+                }
+
+                val btnHolder = allHolder.categoryHolder
+                btnHolder.text.text = category.name
+                if (NewsUtils.getCategoryIcon(category.name) != 0) {
+                    btnHolder.icon.setImageResource(NewsUtils.getCategoryIcon(category.name))
+                    btnHolder.icon.visibility = View.VISIBLE
+                } else {
+                    btnHolder.icon.visibility = View.GONE
+                }
+                btnHolder.itemView.setOnClickListener {
+                    categoryClickListener?.invoke(category)
+                }
             }
         }
     }
 
 
     override fun getItemCount(): Int {
-        if(dataMap.isEmpty()) return 2
+        if (dataMap.isEmpty()) return 2
         return (if (category == ALL) dataMap.size
         else dataMap[category]?.size ?: 0) + 1
     }

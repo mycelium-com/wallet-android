@@ -32,21 +32,38 @@
         android:textColor="#FFFFFD"
         android:textSize="18sp" />
 
-    <android.support.v7.widget.SearchView
+    <FrameLayout
         android:id="@+id/search"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:theme="@style/MyceliumNewsSearchView"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/background_news_search"
-        app:queryBackground="@drawable/background_news_search"
-        android:textColor="#FFFFFD" />
+        android:background="@drawable/background_news_search">
+
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:drawableStart="@drawable/ic_search"
+            android:paddingStart="12dp"
+            android:drawablePadding="8dp"
+            android:textColor="#FFFFFD"
+            android:background="@null"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/search_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center"
+            android:layout_marginEnd="8dp"
+            app:srcCompat="@drawable/ic_close" />
+    </FrameLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/newsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:requiresFadingEdge="vertical"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:requiresFadingEdge="vertical" />
 </LinearLayout>

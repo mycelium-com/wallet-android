@@ -161,20 +161,6 @@
                         android:textSize="18sp" />
 
                     <ImageView
-                        android:id="@+id/shareFacebookBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        app:srcCompat="@drawable/ic_facebook" />
-
-                    <ImageView
-                        android:id="@+id/shareTwitterBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        app:srcCompat="@drawable/ic_twitter" />
-
-                    <ImageView
                         android:id="@+id/shareBtn2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
