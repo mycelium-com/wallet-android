@@ -1,8 +1,6 @@
 package com.mycelium.wapi.wallet.coinapult;
 
 import com.google.common.collect.ImmutableMap;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
