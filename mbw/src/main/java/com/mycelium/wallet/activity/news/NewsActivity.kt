@@ -77,20 +77,6 @@ class NewsActivity : AppCompatActivity() {
         content.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                content.settings.javaScriptEnabled = true
-                parsedContent.images.entries.forEach { entry ->
-                    view?.evaluateJavascript("(function() {return document.getElementById('${entry.key}').offsetTop;})();") {
-                        val top = it.toInt()
-                        val injectView = LayoutInflater.from(this@NewsActivity).inflate(R.layout.media_flow_slider, view, false)
-                        injectView.image_slider.adapter = SliderAdapter(entry.value)
-                        injectView.pager_indicator.setupWithViewPager(injectView.image_slider)
-                        injectView.pager_indicator.visibility = if (entry.value.size > 1) View.VISIBLE else View.GONE
-                        view.addView(injectView, AbsoluteLayout.LayoutParams(AbsoluteLayout.LayoutParams.MATCH_PARENT
-                                , resources.getDimensionPixelSize(R.dimen.media_slider_height)
-                                , 0, resources.fromWebViewPx(top)))
-                    }
-                }
-                content.settings.javaScriptEnabled = false
                 val params = content.layoutParams
                 content.measure(0, 0)
                 params.height = content.measuredHeight

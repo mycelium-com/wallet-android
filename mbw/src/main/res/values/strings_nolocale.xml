@@ -111,7 +111,6 @@
                  font-style:italic;border:solid #595959;border-width: 0 0 0 %4$spx;}
                  blockquote p{ padding-top: %1$spx; padding-bottom: %1$spx;}
                  li { margin-bottom: %5$spx;}
-                 .slider {height: %7$s}
                 </style>
         </head><body>%6$s</body></html>]]>
     </string>
