@@ -35,7 +35,7 @@
 
 package com.mycelium.paymentrequest;
 
-import org.bitcoinj.crypto.X509Utils;
+import com.mrd.bitlib.util.X509Utils;
 
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;

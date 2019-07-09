@@ -5,9 +5,4 @@
             android:key="application"
             android:layout="@layout/preference_layout_no_icon" />
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="modules"
-        android:layout="@layout/preference_category_layout"
-        android:title="Modules" />
 </PreferenceScreen>

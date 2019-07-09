@@ -11,16 +11,17 @@ import android.view.View
 import android.view.ViewGroup
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.databinding.AddressFragmentBindingImpl
 import com.mycelium.wallet.databinding.AddressFragmentBtcBindingImpl
-import com.mycelium.wapi.wallet.AbstractAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import kotlinx.android.synthetic.main.address_fragment_label.*
 import kotlinx.android.synthetic.main.address_fragment_qr.*
 
 class AddressFragment : Fragment() {
-    private val mbwManager by lazy {  MbwManager.getInstance(context) }
+    private val mbwManager = MbwManager.getInstance(WalletApplication.getInstance())
     private lateinit var viewModel: AddressFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +55,10 @@ class AddressFragment : Fragment() {
         return binding.root
     }
 
-    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount): Boolean =
-            account is AbstractAccount &&
-            account.availableAddressTypes.size > 1 &&
-            (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
+    private fun accountSupportsMultipleBtcReceiveAddresses(account: WalletAccount<*>): Boolean =
+            account is AbstractBtcAccount &&
+                    account.availableAddressTypes.size > 1 &&
+                    (account as? SingleAddressAccount)?.publicKey?.isCompressed != false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

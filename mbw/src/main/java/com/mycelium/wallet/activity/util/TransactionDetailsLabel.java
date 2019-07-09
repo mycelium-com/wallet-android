@@ -38,14 +38,17 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.model.TransactionDetails;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
-   private TransactionDetails transaction;
+   private GenericTransactionSummary transaction;
    private boolean coluMode;
 
    public TransactionDetailsLabel(Context context) {
@@ -66,12 +69,12 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
 
    @Override
    protected String getLinkText() {
-      return transaction.hash.toString();
+      return transaction.getIdHex();
    }
 
    @Override
    protected String getFormattedLinkText() {
-      return Utils.stringChopper(transaction.hash.toString(), 4, " ");
+      return Utils.stringChopper(HexUtils.toHex(transaction.getId()), 4, " ");
    }
 
    @Override
@@ -79,16 +82,23 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
-   public void setTransaction(final TransactionDetails tx) {
+   public void setTransaction(final GenericTransactionSummary tx) {
       this.transaction = tx;
       update_ui();
+      NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();
+      WalletAccount account = MbwManager.getInstance(getContext()).getSelectedAccount();
       if (coluMode) {
-         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHSINGLEADDRESS
-              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHBIP44) {
-         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+         String baseUrl;
+         if (networkParameters.isProdnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/";
+         } else {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+         }
+         setHandler(new BlockExplorer("CCO", "coloredcoins.org"
+                 , baseUrl + "address/", baseUrl + "tx/"
+                 , baseUrl + "address/", baseUrl + "tx/"));
+      } else if (account instanceof SingleAddressBCHAccount || account instanceof Bip44BCHAccount) {
+         if (networkParameters.isProdnet()) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",
                     "https://www.blocktrail.com/BCC/tx/",
@@ -102,10 +112,6 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
       } else {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
-   }
-
-   public TransactionDetails getAddress() {
-      return transaction;
    }
 
 }

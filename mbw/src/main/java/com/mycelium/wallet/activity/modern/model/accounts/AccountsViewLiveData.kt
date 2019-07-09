@@ -3,15 +3,19 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.os.AsyncTask
-import com.mycelium.wallet.AccountManager
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
-import com.mycelium.wallet.colu.ColuAccount
+import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.event.AccountListChanged
+import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.WalletManager
+import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
+import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
+import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.coinapult.getCoinapultAccounts
+import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -51,51 +55,52 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     @SuppressLint("StaticFieldLeak")
     private inner class DataUpdateAsyncTask : AsyncTask<Void, List<AccountsGroupModel>, List<AccountsGroupModel>>() {
         override fun doInBackground(vararg voids: Void): List<AccountsGroupModel> {
-            val am = AccountManager
-            val accountsList = mutableListOf(AccountsGroupModel(R.string.active_hd_accounts_name, GROUP_TITLE_TYPE,
-                    accountsToViewModel(sortAccounts(am.getBTCBip44Accounts().values))))
-            val singleAddressList = accountsToViewModel(sortAccounts(am.getBTCSingleAddressAccounts().values))
-            addTitleGroup(R.string.active_bitcoin_sa_group_name, accountsList, singleAddressList)
+            val walletManager = mbwManager.getWalletManager(false)
+            val accountsList: MutableList<AccountsGroupModel> = mutableListOf()
+
+            listOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
+                    R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts(),
+                    R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
+                    R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
+                    R.string.digital_assets to getColuAccounts(walletManager),
+                    R.string.active_other_accounts_name to walletManager.getCoinapultAccounts()
+            ).forEach {
+                val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
+                if (accounts.isNotEmpty()) {
+                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts)))
+                }
+            }
             if (value!!.isEmpty()) {
                 publishProgress(accountsList)
             }
 
-            val bchBipList = accountsToViewModel(sortAccounts(am.getBCHBip44Accounts().values))
-            addTitleGroup(R.string.bitcoin_cash_hd, accountsList, bchBipList)
-            val bchSAList = accountsToViewModel(sortAccounts(am.getBCHSingleAddressAccounts().values))
-            addTitleGroup(R.string.bitcoin_cash_sa, accountsList, bchSAList)
-
-            val coluAccounts = ArrayList<WalletAccount>()
-            for (walletAccount in am.getColuAccounts().values) {
-                coluAccounts.add(walletAccount)
-                coluAccounts.add((walletAccount as ColuAccount).linkedAccount)
+            val archivedList = accountsToViewModel(walletManager.getArchivedAccounts())
+            if (archivedList.isNotEmpty()) {
+                accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
+                        archivedList))
             }
-            addTitleGroup(R.string.digital_assets, accountsList, accountsToViewModel(sortAccounts(coluAccounts)))
-            val accounts = sortAccounts(am.getActiveAccounts().values.asList())
-            val other = ArrayList<WalletAccount>()
-            for (account in accounts) {
-                if (account.type !in arrayOf(
-                                WalletAccount.Type.BTCSINGLEADDRESS,
-                                WalletAccount.Type.BTCBIP44,
-                                WalletAccount.Type.BCHSINGLEADDRESS,
-                                WalletAccount.Type.BCHBIP44,
-                                WalletAccount.Type.COLU)) {
-                    other.add(account)
-                }
-            }
-            addTitleGroup(R.string.active_other_accounts_name, accountsList, accountsToViewModel(sortAccounts(other)))
-            val archivedList = accountsToViewModel(sortAccounts(am.getArchivedAccounts().values))
-            addGroup(R.string.archive_name, accountsList, GROUP_ARCHIVED_TITLE_TYPE, archivedList)
             if (accountsList == value) {
                 cancel(true)
             }
             return accountsList
         }
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount>) =
+        private fun getColuAccounts(walletManager: WalletManager): ArrayList<WalletAccount<out GenericAddress>> {
+            val coluAccounts = ArrayList<WalletAccount<out GenericAddress>>()
+            coluAccounts.addAll(walletManager.getColuAccounts())
+            for (walletAccount in walletManager.getColuAccounts()) {
+                val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
+                if (linkedAccount != null) {
+                    coluAccounts.add(linkedAccount)
+                }
+            }
+            return coluAccounts
+        }
+
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
 
-        private fun sortAccounts(accounts: Collection<WalletAccount>) =
+        private fun sortAccounts(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 Utils.sortAccounts(accounts, mbwManager.metadataStorage)
 
         @SafeVarargs
@@ -108,18 +113,6 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         override fun onPostExecute(result: List<AccountsGroupModel>) {
             accountsList = result
             updateList()
-        }
-
-        private fun addTitleGroup(titleId: Int, accountsGroupsList: MutableList<AccountsGroupModel>,
-                                  accountsModelsList: List<AccountViewModel>) {
-            addGroup(titleId, accountsGroupsList,GROUP_TITLE_TYPE, accountsModelsList)
-        }
-
-        private fun addGroup(titleId: Int, accountsGroupsList: MutableList<AccountsGroupModel>,
-                             type: AccountListItem.Type, list: List<AccountViewModel>) {
-            if (list.isNotEmpty()) {
-                accountsGroupsList.add(AccountsGroupModel(titleId, type, list))
-            }
         }
     }
 

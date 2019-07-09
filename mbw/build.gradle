@@ -34,9 +34,6 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "com.android.support:support-annotations:$androidSupportVersion"
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     implementation project(includePrefix + ':coinapult')
@@ -51,7 +48,6 @@ dependencies {
     implementation project(includePrefix + ':libs:nordpol')
     implementation project(includePrefix + ':bitlib')
     implementation project(includePrefix + ':view')
-    implementation project(includePrefix + ':bitcoincashj:core')
 
     implementation guavaArtifact
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -82,8 +78,6 @@ dependencies {
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'com.squareup.wire:wire-runtime:1.6.1'
     implementation 'com.jakewharton:butterknife:8.5.1'
-    // implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    // TODO: migrate existing code (Glidera) to latest rxandroid
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'com.android.support:multidex:1.0.3'
@@ -94,11 +88,10 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     implementation project(includePrefix + ':wallet-android-modularization-tools:modularization-lib')
-    implementation project(includePrefix + ':modulespvcontract')
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
@@ -145,8 +138,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 2120035
-        versionName '2.12.0.35'
+        versionCode 3000008
+        versionName '3.0.0.8'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -208,7 +201,8 @@ android {
             debuggable true
         }
     }
-    flavorDimensions "flavor"
+
+    flavorDimensions "default"
 
     productFlavors {
         prodnet {
@@ -225,7 +219,7 @@ android {
                 ColuBlockExplorerApiURLs = '{"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"}'
                 RMCChangeAddress = "18c91fJmVg7btPjxpwrhgwd37GkVghq9me"
 
-                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "tcp-tls://electrumx-aws-c.mycelium.com:9335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-aws.mycelium.com:9335", "tcp-tls://electrumx-aws-b.mycelium.com:9335", "tcp-tls://electrumx-aws-c.mycelium.com:9335", "tcp-tls://electrumx-c.mycelium.com:9335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
@@ -234,6 +228,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
+                safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -247,11 +242,11 @@ android {
                 MassAssetID = "La4szjzKfJyHQ75qgDEnbzp4qY8GQeDR5Z7h2W"
                 RMCAssetID = "La8yFVyKmHGf4KWjcPqATZeTrSxXyzB3JRPxDc"
                 RMCApiClientURL = "https://rmc-ico-test.gear.mycelium.com/api/"
-                ColoredCoinsApiURLs = '{"http://testnet.api.coloredcoins.org/v3/"}'
-                ColuBlockExplorerApiURLs = '{"http://testnet.explorer.coloredcoins.org/api/"}'
+                ColoredCoinsApiURLs = '{"http://coloredcoins-test.mycelium.com:28342/"}'
+                ColuBlockExplorerApiURLs = '{"http://coloredcoins-test.mycelium.com:28332/api/"}'
                 RMCChangeAddress = "mx92L6iuCfxQUz4cLNU4jJpfWbavVHgYj9"
 
-                ElectrumServers = '{"tcp-tls://electrumx-aws-test.mycelium.com:19335"}'
+                ElectrumServers = '{"tcp-tls://electrumx-c.mycelium.com:19335"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
@@ -260,6 +255,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
+                safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true";
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -278,10 +274,15 @@ android {
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
     }
 
     testOptions {
         unitTests.returnDefaultValues = true
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
     }
 }
 

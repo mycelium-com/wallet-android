@@ -37,15 +37,16 @@ package com.mycelium.wallet.activity.util;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 
 public class AddressLabel extends GenericBlockExplorerLabel {
-   private Address address;
+   private GenericAddress address;
    private boolean coluMode;
 
    public AddressLabel(Context context) {
@@ -79,16 +80,23 @@ public class AddressLabel extends GenericBlockExplorerLabel {
       this.coluMode = coluMode;
    }
 
-   public void setAddress(final Address address) {
+   public void setAddress(final GenericAddress address) {
       this.address = address;
       update_ui();
+      NetworkParameters networkParameters = MbwManager.getInstance(getContext()).getNetwork();
       if (coluMode) {
-         setHandler(MbwManager.getInstance(getContext()).getColuManager().getBlockExplorer());
-      } else if (MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHSINGLEADDRESS
-              || MbwManager.getInstance(getContext()).getSelectedAccount().getType() ==
-              WalletAccount.Type.BCHBIP44) {
-         if (MbwManager.getInstance(getContext()).getNetwork().getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
+         String baseUrl;
+         if (networkParameters.isProdnet()) {
+            baseUrl = "http://coloredcoins.org/explorer/";
+         } else {
+            baseUrl = "http://coloredcoins.org/explorer/testnet/";
+         }
+         setHandler(new BlockExplorer("CCO", "coloredcoins.org"
+                 , baseUrl + "address/", baseUrl + "tx/"
+                 , baseUrl + "address/", baseUrl + "tx/"));
+      } else if (MbwManager.getInstance(getContext()).getSelectedAccount() instanceof SingleAddressBCHAccount
+              || MbwManager.getInstance(getContext()).getSelectedAccount() instanceof Bip44BCHAccount) {
+         if (networkParameters.getNetworkType() == NetworkParameters.NetworkType.PRODNET) {
             setHandler(new BlockExplorer("BTL", "blockTrail",
                     "https://www.blocktrail.com/BCC/address/",
                     "https://www.blocktrail.com/BCC/tx/",
@@ -103,7 +111,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
          setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
       }
    }
-   public Address getAddress() {
+   public GenericAddress getAddress() {
       return address;
    }
 

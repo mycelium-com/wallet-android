@@ -22,12 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.megiontechnologies.BitcoinCash;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.external.changelly.AccountAdapter;
@@ -35,15 +35,12 @@ import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
 import com.mycelium.wallet.external.changelly.Constants;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,11 +55,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
+import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getBTCSingleAddressAccounts;
 import static com.mycelium.wallet.external.changelly.Constants.ABOUT;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
-import static com.mycelium.wapi.wallet.bip44.HDAccountContext.ACCOUNT_TYPE_FROM_MASTERSEED;
+import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
+import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getBTCBip44Accounts;
+import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BCH;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ExchangeFragment extends Fragment {
     public static final BigDecimal MAX_BITCOIN_VALUE = BigDecimal.valueOf(20999999);
@@ -91,14 +92,8 @@ public class ExchangeFragment extends Fragment {
     @BindView(R.id.fromValue)
     TextView fromValue;
 
-    @BindView(R.id.bchLabel)
-    View bchLabel;
-
     @BindView(R.id.toValue)
     TextView toValue;
-
-    @BindView(R.id.fromValueLayout)
-    View fromLayout;
 
     @BindView(R.id.toValueLayout)
     View toLayout;
@@ -150,10 +145,11 @@ public class ExchangeFragment extends Fragment {
         int senderFinalWidth = getActivity().getWindowManager().getDefaultDisplay().getWidth();
         int firstItemWidth = (senderFinalWidth - getResources().getDimensionPixelSize(R.dimen.item_dob_width)) / 2;
 
-        List<WalletAccount> toAccounts = new ArrayList<>();
-        toAccounts.addAll(AccountManager.INSTANCE.getBTCBip44Accounts().values());
-        toAccounts.addAll(AccountManager.INSTANCE.getBTCSingleAddressAccounts().values());
-        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        WalletManager walletManager = mbwManager.getWalletManager(false);
+        List<WalletAccount<?>> toAccounts = new ArrayList<>();
+        toAccounts.addAll(getBTCBip44Accounts(walletManager));
+        toAccounts.addAll(getBTCSingleAddressAccounts(walletManager));
+        toAccounts.addAll(getCoinapultAccounts(walletManager));
         toAccountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);
@@ -162,9 +158,19 @@ public class ExchangeFragment extends Fragment {
         toRecyclerView.setHeader(toHeader);
         toRecyclerView.setFooter(toHeader);
 
-        List<WalletAccount> fromAccounts = new ArrayList<>();
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHBip44Accounts().values()));
-        fromAccounts.addAll(filterAccount(AccountManager.INSTANCE.getBCHSingleAddressAccounts().values()));
+        List<WalletAccount<?>> fromAccounts = new ArrayList<>();
+        for (WalletAccount walletAccount : getBCHBip44Accounts(walletManager)) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
+        for (WalletAccount walletAccount : getBCHSingleAddressAccounts(walletManager)) {
+            if (walletAccount.canSpend() && !walletAccount.getAccountBalance().confirmed.isZero()) {
+                fromAccounts.add(walletAccount);
+            }
+        }
+
         if (fromAccounts.isEmpty()) {
             toast(getString(R.string.no_spendable_accounts));
             getActivity().finish();
@@ -223,32 +229,22 @@ public class ExchangeFragment extends Fragment {
         textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
     }
 
-    private List<WalletAccount> filterAccount(Collection<WalletAccount> accounts) {
-        List<WalletAccount> result = new ArrayList<>();
-        for (WalletAccount walletAccount : accounts) {
-            if (walletAccount.canSpend() && !walletAccount.getCurrencyBasedBalance().confirmed.isZero()) {
-                result.add(walletAccount);
-            }
-        }
-        return result;
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        mbwManager.getEventBus().register(this);
+        MbwManager.getEventBus().register(this);
     }
 
     @Override
     public void onPause() {
-        mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         super.onPause();
     }
 
     @OnClick(R.id.buttonContinue)
     void continueClick() {
         String txtAmount = fromValue.getText().toString();
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(txtAmount);
         } catch (NumberFormatException e) {
@@ -343,23 +339,6 @@ public class ExchangeFragment extends Fragment {
 
     //TODO call getMaxFundsTransferrable need refactoring, we should call account object
     private BigDecimal getMaxSpend(WalletAccount account) {
-        if (account.getType() == WalletAccount.Type.BCHBIP44) {
-            Bip44BCHAccount bip44BCHAccount = (Bip44BCHAccount) account;
-            //Find out the type of Bip44 account
-            long satoshisTransferable;
-            if (bip44BCHAccount.getAccountType() == ACCOUNT_TYPE_FROM_MASTERSEED) {
-                int accountIndex = bip44BCHAccount.getAccountIndex();
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrable(accountIndex);
-            } else {
-                //We are dealing with unrelated HDAccount and should handle it separately
-                satoshisTransferable = mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(bip44BCHAccount.getId().toString());
-            }
-            return ExactBitcoinCashValue.from(satoshisTransferable).getValue();
-        } else if (account.getType() == WalletAccount.Type.BCHSINGLEADDRESS) {
-            String accountGuid = account.getId().toString();
-            return ExactBitcoinCashValue.from(mbwManager.getSpvBchFetcher().getMaxFundsTransferrableUnrelatedAccount(accountGuid)).getValue();
-        }
-
         return BigDecimal.valueOf(0);
     }
 
@@ -422,7 +401,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void requestExchangeRate(String amount) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
@@ -433,7 +412,7 @@ public class ExchangeFragment extends Fragment {
     }
 
     private double calculateBTCtoBHC(String amount) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
@@ -464,7 +443,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             return false;
         }
-        Double dblAmountTo = 0.0;
+        double dblAmountTo = 0.0;
         try {
             dblAmountTo = Double.parseDouble(toValue.getText().toString());
         } catch (NumberFormatException ignore) {
@@ -475,7 +454,7 @@ public class ExchangeFragment extends Fragment {
             buttonContinue.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
-        } else if (fromAccount.getCurrencyBasedBalance().confirmed.getValue().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
+        } else if (fromAccount.getAccountBalance().confirmed.getValueAsBigDecimal().compareTo(BigDecimal.valueOf(dblAmount)) < 0) {
             buttonContinue.setEnabled(false);
             TextView tvError = valueKeyboard.getVisibility() == View.VISIBLE
                     && valueKeyboard.getInputTextView() == toValue
@@ -518,15 +497,14 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateUi() {
-        CurrencyValue currencyBTCValue = null;
+        Value currencyBTCValue = null;
         try {
             currencyBTCValue = mbwManager.getCurrencySwitcher().getAsFiatValue(
-                    ExactBitcoinValue.from(new BigDecimal(toValue.getText().toString())));
+                    Utils.getBtcCoinType().value(toValue.getText().toString()));
         } catch (IllegalArgumentException ignore) {
         }
-        if (currencyBTCValue != null && currencyBTCValue.getValue() != null
-                && tvErrorTo.getVisibility() != View.VISIBLE) {
-            exchangeFiatRate.setText(ABOUT + Utils.formatFiatWithUnit(currencyBTCValue));
+        if (currencyBTCValue != null && tvErrorTo.getVisibility() != View.VISIBLE) {
+            exchangeFiatRate.setText(ABOUT + ValueExtensionsKt.toStringWithUnit(currencyBTCValue));
             exchangeFiatRate.setVisibility(View.VISIBLE);
         } else {
             exchangeFiatRate.setVisibility(View.INVISIBLE);

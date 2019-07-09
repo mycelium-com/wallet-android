@@ -46,9 +46,8 @@ import android.view.Surface;
 
 import com.google.common.base.Preconditions;
 import com.google.zxing.client.android.Intents;
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 

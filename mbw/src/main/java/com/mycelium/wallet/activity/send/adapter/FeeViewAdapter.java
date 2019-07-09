@@ -9,25 +9,20 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mrd.bitlib.util.CoinUtil;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.coins.Value;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import static com.mrd.bitlib.util.CoinUtil.Denomination.mBTC;
-
-/**
- * Created by elvis on 31.08.17.
- */
 
 public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
     private List<FeeItem> mDataset;
-    public static final int VIEW_TYPE_ITEM = 2;
     private int paddingWidth = 0;
 
     public FeeViewAdapter(int paddingWidth) {
@@ -54,7 +49,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         if (viewType == VIEW_TYPE_ITEM) {
             // create a new view
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
+                     .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
             ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
@@ -66,7 +61,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             return new FeeViewAdapter.ViewHolder(v, this);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
-                    parent, false);
+                        parent, false);
 
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -83,13 +78,13 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
-            if (item.btc != null) {
-                holder.categoryTextView.setText(CoinUtil.valueString(item.btc.getLongValue(), mBTC, true) + " " + mBTC.getUnicodeName());
+            if (item.value != null) {
+                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, Denomination.MILLI));
             }
-            if (item.currencyValue != null && item.currencyValue.getValue() != null) {
-                holder.itemTextView.setText("~" + item.currencyValue.getValue().setScale(2, BigDecimal.ROUND_HALF_DOWN)
-                        + " " + item.currencyValue.getCurrency());
+            if (item.fiatValue != null) {
+                holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
             }
+
             holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
 
         } else {
@@ -109,8 +104,8 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             if (feeItem.equals(object)) {
                 selected = i;
                 break;
-            } else if (object instanceof Long
-                    && Math.abs((Long) object - feeItem.feePerKb) < Math.abs((Long) object - bestNearPerKb)) {
+            } else if (object instanceof Value
+                    && Math.abs(((Value) object).value - feeItem.feePerKb) < Math.abs(((Value) object).value - bestNearPerKb)) {
                 bestNear = i;
                 bestNearPerKb = feeItem.feePerKb;
             }
@@ -128,7 +123,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         return mDataset.get(position).type;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView categoryTextView;
         public TextView itemTextView;

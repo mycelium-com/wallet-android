@@ -132,7 +132,7 @@ public class SelectableRecyclerView extends RecyclerView {
             if (missingPx == 1) {
                 scrollBy(missingPx, 0);
             } else {
-                smoothScrollBy(missingPx, 0);
+                smoothScrollToPosition(expectedPosition);
             }
         } else if (expectedPosition != getSelectedItem()) {
             ((Adapter) getAdapter()).setSelectedItem(expectedPosition);

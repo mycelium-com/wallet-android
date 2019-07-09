@@ -53,8 +53,6 @@ import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
-import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.security.Security;
 import java.util.*;
@@ -62,8 +60,6 @@ import java.util.*;
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
     private static WalletApplication INSTANCE;
-
-    private static Map<WalletAccount.Type, String> spvModulesMapping = initTrustedSpvModulesMapping();
     private NetworkChangedReceiver networkChangedReceiver;
 
     static {
@@ -89,14 +85,12 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                                   .detectAll()
-                                   .penaltyLog()
-                                   .build());
+                    .detectAll()
+                    .penaltyLog()
+                    .build());
         }
         super.onCreate();
         CommunicationManager.init(this);
-        pairSpvModules(CommunicationManager.getInstance());
-        cleanModulesIfFirstRun(this, getSharedPreferences(BCHHelper.BCH_PREFS, MODE_PRIVATE));
         moduleMessageReceiver = new MbwMessageReceiver(this);
         applyLanguageChange(getBaseContext(), getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
@@ -120,28 +114,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
-    private void pairSpvModules(CommunicationManager communicationManager) {
-        for (String moduleId : new HashSet<>(spvModulesMapping.values())) {
-            try {
-                communicationManager.requestPair(moduleId);
-            } catch(SecurityException se) {
-                String message = se.getMessage();
-                if(message.contains("Version conflict")) {
-                    String[] strings = message.split("\\|");
-                    int otherModuleApiVersion = Integer.decode(strings[1]);
-                    moduleVersionErrors.add(new ModuleVersionError(moduleId, otherModuleApiVersion));
-                } else {
-                    Log.w("WalletApplication", message);
-                }
-            }
-        }
-    }
-
-    private void cleanModulesIfFirstRun(Context context, SharedPreferences sharedPreferences) {
-        if (!sharedPreferences.getBoolean(BCHHelper.BCH_FIRST_UPDATE, false) && BCHHelper.isModulePaired(context)) {
-            MbwManager.getInstance(context).getSpvBchFetcher().forceCleanCache();
-        }
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -194,29 +166,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         unregisterReceiver(networkChangedReceiver);
     }
 
-    public static String getSpvModuleName(WalletAccount.Type accountType) {
-        if (spvModulesMapping.containsKey(accountType)) {
-            return spvModulesMapping.get(accountType);
-        } else {
-            throw new RuntimeException("No spv module defined for account type " + accountType);
-        }
-    }
-
-    public static void sendToSpv(Intent intent, WalletAccount.Type accountType) {
-        CommunicationManager.getInstance().send(getSpvModuleName(accountType), intent);
-    }
-
-    public static void sendToGeb(Intent intent) {
-        CommunicationManager.getInstance().send(BuildConfig.appIdGeb, intent);
-    }
-
-    private static Map<WalletAccount.Type, String> initTrustedSpvModulesMapping() {
-        Map<WalletAccount.Type, String> spvModulesMapping = new HashMap<>();
-        spvModulesMapping.put(WalletAccount.Type.BCHBIP44, BuildConfig.appIdSpvBch);
-        spvModulesMapping.put(WalletAccount.Type.BCHSINGLEADDRESS, BuildConfig.appIdSpvBch);
-        return spvModulesMapping;
-    }
-
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
         private int numStarted = 0;
         private int numOfCreated = 0;
@@ -232,7 +181,17 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         public void onActivityStarted(Activity activity) {
             if (numStarted == 0 && isBackground) {
                 // app returned from background
-                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(true);
+                MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
+                mbwManager.getWapi().setAppInForeground(true);
+                // as monitoring the connection state doesn't work in background, establish the
+                // right connection state here.
+                boolean connected = Utils.isConnected(getApplicationContext());
+                // checking state of networkConnected variable only for WalletManager is sufficient
+                // as ColuManager, Wapi and WalletManager networkConnected variables are changed simultaneously
+                if (mbwManager.getWalletManager(false).isNetworkConnected() != connected) {
+                    mbwManager.getWalletManager(false).setNetworkConnected(connected);
+                    mbwManager.getWapi().setNetworkConnected(connected);
+                }
                 isBackground = false;
             }
             numStarted++;

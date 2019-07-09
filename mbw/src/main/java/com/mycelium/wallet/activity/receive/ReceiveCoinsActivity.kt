@@ -18,17 +18,16 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.receive.ReceiveCoinsViewModel.Companion.GET_AMOUNT_RESULT_CODE
-import com.mycelium.wallet.coinapult.CoinapultAccount
-import com.mycelium.wallet.colu.ColuAccount
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBinding
 import com.mycelium.wallet.databinding.ReceiveCoinsActivityBtcBinding
-import com.mycelium.wapi.wallet.AbstractAccount
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.Bip44BCHAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.coins.Value
+
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import asStringRes
@@ -39,20 +38,18 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val mbwManager = MbwManager.getInstance(application)
         val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val walletManager = mbwManager.getWalletManager(isColdStorage)
-        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)
+        val account = walletManager.getAccount(intent.getSerializableExtra(UUID) as UUID)!!
         val havePrivateKey = intent.getBooleanExtra(PRIVATE_KEY, false)
         val showIncomingUtxo = intent.getBooleanExtra(SHOW_UTXO, false)
         val viewModelProvider = ViewModelProviders.of(this)
 
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
-            is SingleAddressAccount, is HDAccount, is CoinapultAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
-            is ColuAccount -> viewModelProvider.get(ReceiveCoCoViewModel::class.java)
-            else -> throw NotImplementedError()
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
         if (!viewModel.isInitialized()) {
@@ -66,9 +63,9 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         initDatabinding(account)
 
         if (viewModel is ReceiveBtcViewModel &&
-               (account as? AbstractAccount)?.availableAddressTypes?.size ?: 0 > 1) {
+                (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
             val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
-                (account as AbstractAccount).availableAddressTypes
+                (account as AbstractBtcAccount).availableAddressTypes
             } else {
                 mutableListOf(AddressType.P2PKH)
             }
@@ -110,12 +107,12 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         })
     }
 
-    private fun initDatabinding(account: WalletAccount) {
+    private fun initDatabinding(account: WalletAccount<*>) {
         //Data binding, should be called after everything else
         val receiveCoinsActivityNBinding =
                 when (account) {
                     is SingleAddressBCHAccount, is Bip44BCHAccount -> getDefaultBinding()
-                    is AbstractAccount ->  {
+                    is AbstractBtcAccount ->  {
                         // This is only actual if account contains multiple address types inside
                         if (account.availableAddressTypes.size > 1) {
                             val contentView = DataBindingUtil.setContentView<ReceiveCoinsActivityBtcBinding>(this, R.layout.receive_coins_activity_btc)
@@ -157,7 +154,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GET_AMOUNT_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             // Get result from address chooser (may be null)
-            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as CurrencyValue
+            val amount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value
             viewModel.setAmount(amount)
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -172,7 +169,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         @JvmStatic
         @JvmOverloads
-        fun callMe(currentActivity: Activity, account: WalletAccount, havePrivateKey: Boolean,
+        fun callMe(currentActivity: Activity, account: WalletAccount<*>, havePrivateKey: Boolean,
                    showIncomingUtxo: Boolean = false, isColdStorage: Boolean = false) {
             currentActivity.startActivity(Intent(currentActivity, ReceiveCoinsActivity::class.java)
                     .putExtra(UUID, account.id)

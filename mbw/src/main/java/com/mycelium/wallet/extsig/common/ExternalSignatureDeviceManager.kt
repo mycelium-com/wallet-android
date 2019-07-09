@@ -56,9 +56,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager
 import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.bip44.ExternalSignatureProvider
 import com.satoshilabs.trezor.lib.ExtSigDeviceConnectionException
 import com.satoshilabs.trezor.lib.ExternalSignatureDevice
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage
@@ -66,8 +63,6 @@ import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.SignTx
 import com.satoshilabs.trezor.lib.protobuf.TrezorMessage.TxRequest
 import com.satoshilabs.trezor.lib.protobuf.TrezorType
 import com.squareup.otto.Bus
-import org.bitcoinj.core.ScriptException
-import org.bitcoinj.script.ScriptBuilder
 import java.util.UUID
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -75,9 +70,8 @@ import com.mycelium.wallet.Constants.TAG
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.SHOW_CHANGE_ADDRESS
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager.OnStatusUpdate.CurrentStatus.WARNING
 import com.mycelium.wapi.wallet.AccountScanManager
+import com.mycelium.wapi.wallet.btc.bip44.*
 import com.satoshilabs.trezor.lib.protobuf.TrezorType.RequestType.TXOUTPUT
-import org.bitcoinj.core.NetworkParameters.ID_MAINNET
-import org.bitcoinj.core.NetworkParameters.ID_TESTNET
 
 abstract class ExternalSignatureDeviceManager(context: Context, network: NetworkParameters, eventBus: Bus) : AbstractAccountScanManager(context, network, eventBus), ExternalSignatureProvider {
     private val pinMatrixEntry = LinkedBlockingQueue<String>(1)
@@ -87,10 +81,11 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
     var features: TrezorMessage.Features? = null
         private set
 
-    val labelOrDefault: String
-        get() = if (features != null && !features!!.label.isEmpty()) {
+    override fun getLabelOrDefault(): String {
+        return if (features != null && !features!!.label.isEmpty()) {
             features!!.label
         } else signatureDevice.defaultAccountName
+    }
 
     // we dont know...
     val isMostRecentVersion: Boolean
@@ -420,26 +415,6 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
             postErrorMessage("Trezor TX not valid.")
             Log.e("trezor", "Trezor TX not valid " + e.message, e)
             return null
-        } catch (e: ScriptException) {
-            postErrorMessage("Probably wrong passphrase.")
-            Log.e(TAG, "bitcoinJ doesn't like this transaction: ", e)
-            return null
-        }
-    }
-
-    /**
-     * At least Trezor and KeepKey have no way of knowing the input scripts as they see only the outpoints that they are asked to sign against. Therefore, they tend to sign with wrong keys, if using a passphrase that is not stored in the app. See https://github.com/mycelium-com/wallet/issues/169
-     */
-    private fun checkSignedTransaction(unsigned: UnsignedTransaction, signedTx: ByteWriter) {
-        val networkParameters = org.bitcoinj.core.NetworkParameters.fromID(if (network.isProdnet) ID_MAINNET else ID_TESTNET)
-        val tx = org.bitcoinj.core.Transaction(networkParameters, signedTx.toBytes())
-        for (i in 0 until tx.inputs.size) {
-            val input = tx.getInput(i.toLong())
-            val scriptSig = input.scriptSig
-
-            val addressString = unsigned.fundingOutputs[i].script.getAddress(network).toString()
-            val outputScript = ScriptBuilder.createOutputScript(org.bitcoinj.core.Address.fromBase58(networkParameters, addressString))
-            scriptSig.correctlySpends(tx, i.toLong(), outputScript, org.bitcoinj.script.Script.ALL_VERIFY_FLAGS)
         }
     }
 
@@ -486,7 +461,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                                 uuid: UUID): Boolean {
         val account = walletManager.getAccount(uuid)
         return if (account is HDAccountExternalSignature) {
-            walletManager.upgradeExtSigAccount(accountRoots, account)
+            // TODO make the module name defined programmatically
+            return (walletManager.getModuleById(BitcoinHDModule.ID) as BitcoinHDModule).upgradeExtSigAccount(accountRoots, account)
         } else {
             false
         }
@@ -494,7 +470,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
 
     override fun createOnTheFlyAccount(accountRoots: List<HdKeyNode>, walletManager: WalletManager, accountIndex: Int) =
             accountRoots.firstOrNull { walletManager.hasAccount(it.uuid) }?.uuid
-                    ?: walletManager.createExternalSignatureAccount(accountRoots, this, accountIndex)!!
+                    ?: walletManager.createAccounts(ExternalSignaturesAccountConfig(
+                            accountRoots, this, accountIndex)).get(0);
 
     fun enterPin(pin: String) {
         pinMatrixEntry.clear()
@@ -505,7 +482,8 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         return when (msg) {
             is TrezorMessage.ButtonRequest -> processButtonRequest(msg, transaction, forAccount)
             is TrezorMessage.PinMatrixRequest -> processPinMatrixRequest(transaction, forAccount)
-            is TrezorMessage.PassphraseRequest -> processPassphraseRequest(transaction, forAccount)
+            is TrezorMessage.PassphraseRequest -> processPassphraseRequest(msg.onDevice, transaction, forAccount)
+            is TrezorMessage.PassphraseStateRequest -> processPassphraseStateRequest(transaction, forAccount)
             is TrezorMessage.Failure -> if (postErrorMessage(msg.message, msg.code)) {
                 null
             } else {
@@ -529,24 +507,35 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         }
     }
 
-    private fun processPassphraseRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
-        // get the user to enter a passphrase
-        val passphrase = waitForPassphrase()
+    private fun processPassphraseStateRequest(transaction: UnsignedTransaction?, account: HDAccount?): Message? {
+        val response = TrezorMessage.PassphraseStateAck.newBuilder().build()
+        return filterMessages(signatureDevice.send(response), transaction, account)
+    }
 
+    private fun processPassphraseRequest(onDevice: Boolean, transaction: UnsignedTransaction?, account: HDAccount?): Message? {
         val response: GeneratedMessageV3
-        return if (!passphrase.isPresent) {
-            // user has not provided a password - reset session on trezor and cancel
-            response = TrezorMessage.ClearSession.newBuilder().build()
-            signatureDevice.send(response)
-            null
-        } else {
-            response = TrezorMessage.PassphraseAck.newBuilder()
-                    .setPassphrase(passphrase.get())
-                    .build()
 
-            // send the Passphrase Response and get the response for the
-            // previous requested action
-            filterMessages(signatureDevice.send(response), transaction, account)
+        if (onDevice) {
+            response = TrezorMessage.PassphraseAck.newBuilder().build()
+            return filterMessages(signatureDevice.send(response), transaction, account)
+        } else {
+            // get the user to enter a passphrase
+            val passphrase = waitForPassphrase()
+
+            return if (!passphrase.isPresent) {
+                // user has not provided a password - reset session on trezor and cancel
+                response = TrezorMessage.ClearSession.newBuilder().build()
+                signatureDevice.send(response)
+                null
+            } else {
+                response = TrezorMessage.PassphraseAck.newBuilder()
+                        .setPassphrase(passphrase.get())
+                        .build()
+
+                // send the Passphrase Response and get the response for the
+                // previous requested action
+                filterMessages(signatureDevice.send(response), transaction, account)
+            }
         }
     }
 

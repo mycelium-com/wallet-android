@@ -57,8 +57,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -87,33 +85,44 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
 import com.mycelium.wallet.activity.BackupWordListActivity;
 import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.AbstractAccount;
+import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.btc.BitcoinUriParser;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccountContext;
-import com.mycelium.wapi.wallet.bip44.HDAccountExternalSignature;
-import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.currency.BitcoinValue;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinCashValue;
-import com.mycelium.wapi.wallet.currency.ExactBitcoinValue;
-import com.mycelium.wapi.wallet.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
+import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
+import com.mycelium.wapi.wallet.colu.coins.MTCoin;
+import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
@@ -126,8 +135,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
-
-import static com.mycelium.wallet.Constants.TAG;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -173,7 +180,7 @@ public class Utils {
        * Configuration(standardResources.getConfiguration()); config.locale =
        * Locale.US; Resources defaultResources = new Resources(assets, metrics,
        * config);
-       * 
+       *
        * String lang = Locale.getDefault().getLanguage(); String settingsEn =
        * null; if (!lang.equals("en")) { settingsEn =
        * defaultResources.getString(resId); } return settingsEn;
@@ -224,16 +231,12 @@ public class Utils {
       if (cm != null) {
          activeNetwork = cm.getActiveNetworkInfo();
       }
-      return activeNetwork != null &&
-              activeNetwork.isConnectedOrConnecting();
+      return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
    }
 
    public static void toastConnectionError(Context context) {
-      if (isConnected(context)) {
-         Toast.makeText(context, R.string.no_server_connection, Toast.LENGTH_LONG).show();
-      } else {
-         Toast.makeText(context, R.string.no_network_connection, Toast.LENGTH_LONG).show();
-      }
+      int resId = isConnected(context) ? R.string.no_server_connection : R.string.no_network_connection;
+      Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
    }
 
    public static void moveView(View view, int startDeltaX, int startDeltaY, int endDeltaX, int endDeltaY, long duration) {
@@ -268,7 +271,6 @@ public class Utils {
       final Duration duration = p.approximateDuration(date);
       if (mbwManager.getLocale().getLanguage().equals("ru")) {
          Duration duration1 = new Duration(){
-
             @Override
             public long getQuantity() {
                return duration.getQuantity();
@@ -455,27 +457,6 @@ public class Utils {
       return FIAT_FORMAT.format(converted);
    }
 
-   private static SparseArray<DecimalFormat> formatCache = new SparseArray<>(2);
-
-   public static String formatFiatValueAsString(BigDecimal fiat) {
-      return FIAT_FORMAT.format(fiat);
-   }
-
-   public static String formatFiatWithUnit(CurrencyValue fiat, int fractionDigit) {
-      DecimalFormat decimalFormat = (DecimalFormat) FIAT_FORMAT.clone();
-      decimalFormat.setMaximumFractionDigits(fractionDigit);
-      return decimalFormat.format(fiat.getValue()) + " " + fiat.getCurrency();
-   }
-
-   public static String formatFiatWithUnit(CurrencyValue fiat) {
-      try {
-         return FIAT_FORMAT.format(fiat.getValue()) + " " + fiat.getCurrency();
-      } catch (Exception e) {
-         Log.e(TAG, e.getMessage());
-         return "???";
-      }
-   }
-
    public static void setClipboardString(String string, Context context) {
       try {
          ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -523,19 +504,19 @@ public class Utils {
       }
    }
 
-   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
+   public static Optional<GenericAddress> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
          return Optional.absent();
       }
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Optional.fromNullable(Address.fromString(someString, network));
+         return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
       } else {
-         Optional<BitcoinUriWithAddress> b = BitcoinUriWithAddress.parseWithAddress(someString, network);
-         if (b.isPresent()) {
+         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         if (b != null && b.getAddress() != null) {
             // On URI format
-            return Optional.of(b.get().address);
+            return Optional.of(b.getAddress());
          }
       }
       return Optional.absent();
@@ -779,22 +760,13 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
-   public static boolean checkIsLinked(WalletAccount account, final Collection<WalletAccount> accounts) {
-      for (WalletAccount walletAccount : accounts) {
-         if (walletAccount instanceof ColuAccount
-                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
-                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
-            return true;
-         }
-      }
-      return false;
+   public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      return getLinkedAccount(account, accounts) != null;
    }
 
-   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<WalletAccount> accounts) {
+   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
-         if (walletAccount instanceof ColuAccount
-                 && ((ColuAccount) walletAccount).getLinkedAccount() != null
-                 && ((ColuAccount) walletAccount).getLinkedAccount().equals(account)) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
             return walletAccount;
          }
       }
@@ -805,28 +777,35 @@ public class Utils {
       return new HashSet<>(accounts);
    }
 
-   public static List<WalletAccount> sortAccounts(final Collection<WalletAccount> accounts, final MetadataStorage storage) {
+   public static List<WalletAccount<?>> sortAccounts(final Collection<WalletAccount<?>> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
+         //maybe need to add new method in WalletAccount and use polymorphism
+         //but I think it's unnecessary
          @Override
          public Integer apply(@Nullable WalletAccount input) {
-            switch (input.getType()) {
-               case BTCBIP44:
-               case BCHBIP44:
-                  return 0;
-               case BTCSINGLEADDRESS:
-               case BCHSINGLEADDRESS:
-                  return checkIsLinked(input, accounts) ? 5 : 1;
-               case COLU:
-                  return 5;
-               case COINAPULT:
-                  return 6; //coinapult last
-               default:
-                  return 4;
+            // the intended ordering is:
+            // HDAccount
+            // SingleAddressAccount non-linked (BTC and BCH)
+            // "anything else"????
+            // PrivateColuAccount and their linked SingleAddressAccount
+            // PublicColuAccount (never has anything linked)
+            // CoinapultAccount
+            if(input instanceof HDAccount) { // also covers Bip44BCHAccount
+               return 0;
             }
+            if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
+               return checkIsLinked(input, accounts) ? 5 : 1;
+            }
+            if(input instanceof ColuAccount) {
+               return 5;
+            }
+            if(input instanceof CoinapultAccount) {
+               return 6;
+            }
+            return 4;
          }
       });
       Ordering<WalletAccount> index = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
-         @Nullable
          @Override
          public Integer apply(@Nullable WalletAccount input) {
             if (input instanceof HDAccount) {
@@ -840,29 +819,21 @@ public class Utils {
       Comparator<WalletAccount> linked = new Comparator<WalletAccount>() {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
-            if (w1.getType() == WalletAccount.Type.COLU) {
-               return ((ColuAccount) w1).getLinkedAccount().getId().equals(w2.getId()) ? -1 : 0;
-            } else if (w2.getType() == WalletAccount.Type.COLU) {
-               return ((ColuAccount) w2).getLinkedAccount().getId().equals(w1.getId()) ? 1 : 0;
-            } else if (w1.getType() == WalletAccount.Type.BCHBIP44
-                    && w2.getType() == WalletAccount.Type.BTCBIP44
-                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
-               return 1;
-            } else if (w1.getType() == WalletAccount.Type.BTCBIP44
-                    && w2.getType() == WalletAccount.Type.BCHBIP44
-                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
-               return -1;
-            } else if (w1.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-                    && w2.getType() == WalletAccount.Type.BTCSINGLEADDRESS
-                    && MbwManager.getBitcoinCashAccountId(w2).equals(w1.getId())) {
-               return 1;
-            } else if (w1.getType() == WalletAccount.Type.BTCSINGLEADDRESS
-                    && w2.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-                    && MbwManager.getBitcoinCashAccountId(w1).equals(w2.getId())) {
-               return -1;
-            } else {
-               return 0;
+            if (w1 instanceof ColuAccount) {
+               WalletAccount linkedAccount = getLinkedAccount(w1, accounts);
+               if (linkedAccount == null) {
+                  return 0;
+               }
+               return linkedAccount.getId().equals(w2.getId()) ? -1 : 0;
+            } else if (w2 instanceof ColuAccount) {
+               WalletAccount linkedAccount = getLinkedAccount(w2, accounts);
+               if (linkedAccount == null) {
+                  return 0;
+               }
+               return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
             }
+            return 0;
+
          }
       };
 
@@ -870,7 +841,7 @@ public class Utils {
          @Nullable
          @Override
          public String apply(@Nullable WalletAccount input) {
-            return storage.getLabelByAccount(input.getId());
+            return input != null ? storage.getLabelByAccount(input.getId()) : "";
          }
       });
       return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
@@ -885,43 +856,45 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(WalletAccount walletAccount, boolean isSelectedAccount, Resources resources) {
-      if (walletAccount instanceof ColuAccount) {
-         ColuAccount account = (ColuAccount) walletAccount;
-         switch (account.getColuAsset().assetType) {
-            case MT:
-               return account.canSpend() ? resources.getDrawable(R.drawable.mt_icon) :
-                       resources.getDrawable(R.drawable.mt_icon_no_priv_key);
-            case MASS:
-               return account.canSpend() ? resources.getDrawable(R.drawable.mass_icon)
-                       : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
-            case RMC:
-               return account.canSpend() ? resources.getDrawable(R.drawable.rmc_icon)
-                       : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
-         }
+      return getDrawableForAccount(new AccountViewModel(walletAccount, null), isSelectedAccount, resources);
+   }
+
+   public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
+      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      if (ColuAccount.class.isAssignableFrom(accountType)) {
+         CryptoCurrency coinType = accountView.getCoinType();
+         if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mt_icon) :
+                    resources.getDrawable(R.drawable.mt_icon_no_priv_key);
+         } else if (coinType == MASSCoin.INSTANCE || coinType == MASSCoinTest.INSTANCE) {
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.mass_icon)
+                    : resources.getDrawable(R.drawable.mass_icon_no_priv_key);
+         } else if (coinType == RMCCoin.INSTANCE || coinType == RMCCoinTest.INSTANCE)
+            return accountView.getCanSpend() ? resources.getDrawable(R.drawable.rmc_icon)
+                    : resources.getDrawable(R.drawable.rmc_icon_no_priv_key);
       }
 
       // Watch only
-      if (!walletAccount.canSpend()) {
+      if (!accountView.getCanSpend()) {
          return null;
       }
 
       //trezor account
-      if (walletAccount instanceof HDAccountExternalSignature) {
-         int accountType = ((HDAccountExternalSignature) walletAccount).getAccountType();
-         if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
+      if (HDAccountExternalSignature.class.isAssignableFrom(accountType)) {
+         int externalAccountType = accountView.getExternalAccountType();
+         if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_LEDGER) {
             return resources.getDrawable(R.drawable.ledger_icon);
-		 } else if (accountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
+         } else if (externalAccountType == HDAccountContext.ACCOUNT_TYPE_UNRELATED_X_PUB_EXTERNAL_SIG_KEEPKEY) {
             return resources.getDrawable(R.drawable.keepkey_icon);
          } else {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
-
       }
       //regular HD account
-      if (walletAccount instanceof HDAccount) {
+      if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (walletAccount instanceof CoinapultAccount) {
+      if (CoinapultAccount.class.isAssignableFrom(accountType)) {
          if (isSelectedAccount) {
             return resources.getDrawable(R.drawable.coinapult);
          } else {
@@ -956,16 +929,16 @@ public class Utils {
 
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof CoinapultAccount
-              || account.getType() == WalletAccount.Type.BCHBIP44
-              || account.getType() == WalletAccount.Type.BCHSINGLEADDRESS
-              || account.getType() == WalletAccount.Type.COLU) {
+              || account instanceof Bip44BCHAccount
+              || account instanceof SingleAddressBCHAccount
+              || account instanceof ColuAccount) {
          return false; //we do not support coinapult accs in lt (yet)
       }
-      if (!account.getReceivingAddress().isPresent()) {
+      if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it
       }
-      if (account instanceof AbstractAccount) {
-         if (!((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
+      if (account instanceof AbstractBtcAccount) {
+         if (!((AbstractBtcAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
             return false;
          }
       }
@@ -988,117 +961,8 @@ public class Utils {
       return format.format(date);
    }
 
-   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      if (value.isBtc() || value.isBch()) {
-         return CoinUtil.valueString(val, denomination, false);
-      } else {
-
-         return FIAT_FORMAT.format(val);
-      }
-   }
-
-   public static String getFormattedValue(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      if (value.isBtc()) {
-         return CoinUtil.valueString(
-               ((BitcoinValue) value).getLongValue(),
-               denomination, precision
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return formatCache.get(precision).format(val);
-      }
-   }
-
-   public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination) {
-      if (value == null) {
-         return "";
-      }
-
-      if (value.isBtc()) {
-         return getFormattedValueWithUnit((BitcoinValue) value, denomination);
-      } else if(value.isBch()) {
-        return getFormattedValueWithUnit(ExactBitcoinCashValue.from(value.getValue()), denomination);
-      } else {
-         BigDecimal val = value.getValue();
-         if (val == null) {
-            return "";
-         }
-         return String.format("%s %s", FIAT_FORMAT.format(val), value.getCurrency());
-      }
-   }
-
-   public static String getColuFormattedValueWithUnit(CurrencyValue value) {
-      return String.format("%s %s", value.getValue().stripTrailingZeros().toPlainString(), value.getCurrency());
-   }
-
-   public static String getColuFormattedValue(CurrencyValue value) {
-      return value.getValue().stripTrailingZeros().toPlainString();
-   }
-
-   // prevent ambiguous call for ExactBitcoinValue
-   public static String getFormattedValueWithUnit(ExactBitcoinValue value, CoinUtil.Denomination denomination) {
-      return getFormattedValueWithUnit((BitcoinValue)value, denomination);
-   }
-
-   public static String getFormattedValueWithUnit(BitcoinValue value, CoinUtil.Denomination denomination) {
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName());
-   }
-
-   public static String getFormattedValueWithUnit(ExactBitcoinCashValue value, CoinUtil.Denomination denomination) {
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-      return String.format("%s %s", CoinUtil.valueString(val, denomination, false), denomination.getUnicodeName().replace("BTC", "BCH"));
-   }
-
-
-      public static String getFormattedValueWithUnit(CurrencyValue value, CoinUtil.Denomination denomination, int precision) {
-      if (value == null) {
-         return "";
-      }
-
-      BigDecimal val = value.getValue();
-      if (val == null) {
-         return "";
-      }
-
-      if (value.isBtc()) {
-         return String.format("%s %s", CoinUtil.valueString(((BitcoinValue) value).getLongValue(),
-                     denomination, precision), denomination.getUnicodeName()
-         );
-      } else {
-         if (formatCache.get(precision) == null) {
-            DecimalFormat fiatFormat = (DecimalFormat) FIAT_FORMAT.clone();
-            fiatFormat.setMaximumFractionDigits(precision);
-            formatCache.put(precision, fiatFormat);
-         }
-         return String.format("%s %s", formatCache.get(precision).format(val), value.getCurrency());
-      }
+   public static CryptoCurrency getBtcCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
    }
 
    public static boolean isValidEmailAddress(String value) {

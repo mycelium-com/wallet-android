@@ -2,16 +2,14 @@ package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.support.v4.app.FragmentActivity
 import android.widget.Toast
-import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.coinapult.CoinapultAccount
+import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -29,6 +27,7 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
     fun getAccountAddress() = model.accountAddress
     fun getAddressPath() = model.addressPath
     fun isCompressedKey() = model.isCompressedKey
+    fun getType() = model.type
     fun getAccountAddressType() = model.accountAddressType
 
     fun getDrawableForAccount(resources: Resources): Drawable? =

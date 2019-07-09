@@ -1,0 +1,11 @@
+task allIntegrationTests(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    println 'task: allIntegrationTests'
+}
+
+allIntegrationTests.dependsOn {
+    tasks.findAll {
+        task -> task.name.startsWith('integrationTest')
+    }
+}

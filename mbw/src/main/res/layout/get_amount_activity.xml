@@ -2,7 +2,9 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="vertical" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:scrollbars="vertical">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -37,7 +39,6 @@
 
                     <TextView
                         android:id="@+id/tvAmount"
-
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
@@ -49,19 +50,25 @@
                         android:textSize="22sp"
                         android:typeface="monospace" />
 
-                    <!-- Currency Button -->
-
-                    <Button
+                    <TextView
                         android:id="@+id/btCurrency"
-
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/MyceliumSlimButton"
-                        android:paddingLeft="3dp"
-                        android:paddingRight="3dp"
-                        android:text="@string/btc"
+                        android:paddingStart="3dp"
+                        android:singleLine="true"
+                        android:textColor="@color/lightgrey"
                         android:textSize="22sp"
-                        android:typeface="monospace" />
+                        android:typeface="monospace"
+                        tools:text="BTC"/>
+
+                    <ImageView
+                        android:id="@+id/currency_dropdown_image_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:contentDescription="Arrow"
+                        android:paddingEnd="3dp"
+                        app:srcCompat="@drawable/ic_arrow_drop_down" />
                 </LinearLayout>
 
                 <LinearLayout

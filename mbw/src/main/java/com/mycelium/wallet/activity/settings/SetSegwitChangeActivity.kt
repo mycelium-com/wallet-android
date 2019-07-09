@@ -12,7 +12,7 @@ import android.widget.RadioGroup
 
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 
 class SetSegwitChangeActivity : AppCompatActivity() {
 

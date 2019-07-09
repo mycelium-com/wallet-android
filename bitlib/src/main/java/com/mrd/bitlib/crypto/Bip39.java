@@ -24,7 +24,7 @@ import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -39,7 +39,6 @@ public class Bip39 {
    private static final int REPETITIONS = 2048;
    private static final int BIP32_SEED_LENGTH = 64;
    private static final String BASE_SALT = "mnemonic";
-   private static final String UTF8 = "UTF-8";
    private static final byte ENGLISH_WORD_LIST_TYPE = 0;
 
    public static class MasterSeed implements Serializable {
@@ -50,7 +49,6 @@ public class Bip39 {
       private final byte[] _bip32MasterSeed;
       private final byte _wordListType;
 
-      @SuppressWarnings("NewApi")
       private MasterSeed(byte[] bip39RawEntropy, String bip39Passphrase, byte[] bip32MasterSeed) {
          _bip39RawEntropy = bip39RawEntropy;
          _bip39Passphrase = Normalizer.normalize(bip39Passphrase, Normalizer.Form.NFKD);
@@ -87,12 +85,7 @@ public class Bip39 {
          putByteArray(_bip39RawEntropy, writer);
 
          // Add the passphrase
-         try {
-            putByteArray(_bip39Passphrase.getBytes("UTF-8"), writer);
-         } catch (UnsupportedEncodingException e) {
-            // Never happens
-            throw new RuntimeException(e);
-         }
+         putByteArray(_bip39Passphrase.getBytes(StandardCharsets.UTF_8), writer);
 
          // The uncompressed form also has the BIP32 seed
          if (!compressed) {
@@ -124,14 +117,8 @@ public class Bip39 {
                   bip39RawEntropy.length != 256 / 8) {
                return Optional.absent();
             }
-            String bip39Passphrase;
-            try {
-               byte[] bip39PassphraseBytes = getByteArray(reader);
-               bip39Passphrase = new String(bip39PassphraseBytes, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-               // Never happens
-               throw new RuntimeException(e);
-            }
+            byte[] bip39PassphraseBytes = getByteArray(reader);
+            String bip39Passphrase = new String(bip39PassphraseBytes, StandardCharsets.UTF_8);
 
             if (compressed) {
                // We are using compressed form, so we have to calculate the actual master seed
@@ -368,6 +355,15 @@ public class Bip39 {
    public static MasterSeed createRandomMasterSeed(RandomSource randomSource) {
       byte[] rawEntropy = new byte[128 / 8];
       randomSource.nextBytes(rawEntropy);
+      // We directly use the raw entropy here as key material, as even if urandom has certain kinds
+      // of backdoors, it should be good enough thanks to cryptographic hashing in the seed
+      // generation.
+      // If an attacker had knowledge of some random values under a vulnerability like the NSA
+      // backdoor in  https://en.wikipedia.org/wiki/Dual_EC_DRBG the attacker would probably still
+      // have to search many millions of possible rawEntropies, each of which takes seconds to
+      // inspect per CPU.
+      // A vulnerability here would stand against other parts of the system also being affected and
+      // being a bigger attack vector than the one against the wallet seed.
       String[] wordList = rawEntropyToWords(rawEntropy);
       return generateSeedFromWordList(wordList, "");
    }
@@ -394,7 +390,6 @@ public class Bip39 {
     * @param passphrase the optional passphrase
     * @return the BIP32 master seed
     */
-   @SuppressWarnings("NewApi")
    public static MasterSeed generateSeedFromWordList(List<String> wordList, String passphrase) {
       // Null passphrase defaults to the empty string
       if (passphrase == null) {
@@ -414,9 +409,9 @@ public class Bip39 {
       // Calculate and return the seed
       byte[] seed;
       try {
-         byte[] saltBytes = Normalizer.normalize(salt, Normalizer.Form.NFKD).getBytes(UTF8);
-         seed = PBKDF.pbkdf2(ALGORITHM, mnemonic.getBytes(UTF8), saltBytes, REPETITIONS, BIP32_SEED_LENGTH);
-      } catch (UnsupportedEncodingException | GeneralSecurityException e) {
+         byte[] saltBytes = Normalizer.normalize(salt, Normalizer.Form.NFKD).getBytes(StandardCharsets.UTF_8);
+         seed = PBKDF.pbkdf2(ALGORITHM, mnemonic.getBytes(StandardCharsets.UTF_8), saltBytes, REPETITIONS, BIP32_SEED_LENGTH);
+      } catch (GeneralSecurityException e) {
          // UTF-8 should be supported by every system we run on
          throw new RuntimeException(e);
       }

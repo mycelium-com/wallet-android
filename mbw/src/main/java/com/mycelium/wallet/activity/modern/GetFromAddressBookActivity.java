@@ -59,10 +59,11 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       TabLayout.Tab myAddressesTab = tabLayout.newTab().setText(getResources().getString(R.string.my_accounts));
-      Bundle bundle = addressBookBundle(true);
-      mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class, bundle);
-      TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.foreign_addresses));
-      mTabsAdapter.addTab(contactsTab, AddressBookFragment.class, addressBookBundle(false));
+      mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class,
+              addressBookBundle(true, false));
+      TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.sending_addresses));
+      mTabsAdapter.addTab(contactsTab, AddressBookFragment.class,
+              addressBookBundle(false, true));
 
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
@@ -73,10 +74,17 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       }
    }
 
-   private Bundle addressBookBundle(boolean own) {
+   /**
+    * Method for creating address book configuration which used in SendMainActivity
+    * @param own need for definition necessary configuration - print addresses from our wallet or not
+    * @param isSending need for definition necessary configuration - print only addresses available for sending or all addresses
+    * @return Bundle for address book
+    */
+   private Bundle addressBookBundle(boolean own, boolean isSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, isSending);
       return ownBundle;
    }
 }
