@@ -806,29 +806,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
-         Cursor cursor = null;
-         try {
-            //query a row. don't acquire db lock
-            cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null);
-
+         try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column
             //in the table if it exists, otherwise it will return -1
-            if (cursor.getColumnIndex(columnToCheck) != -1) {
-               //great, the column exists
-               return true;
-            }else {
-               //sorry, the column does not exist
-               return false;
-            }
-
+            return cursor.getColumnIndex(columnToCheck) != -1;
          } catch (SQLiteException ex) {
             //Something went wrong with SQLite.
             //If the table exists and your query was good,
             //the problem is likely that the column doesn't exist in the table.
             return false;
-         } finally {
-            //close the cursor
-            if (cursor != null) cursor.close();
          }
       }
 
