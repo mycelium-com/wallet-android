@@ -878,7 +878,7 @@
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
     <plurals name="contains_keys">
         <item quantity="one">Содержит %1$d приватный ключ.</item>
-        <item quantity="few">Содердит %1$d приватных ключа.</item>
+        <item quantity="few">Содержит %1$d приватных ключа.</item>
         <item quantity="many">Содержит %1%d приватных ключей.</item>
     </plurals>
 </resources>
