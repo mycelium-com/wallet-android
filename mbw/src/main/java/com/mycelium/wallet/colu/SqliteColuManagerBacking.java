@@ -37,6 +37,7 @@ package com.mycelium.wallet.colu;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
@@ -771,17 +772,23 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
 
          if(oldVersion < 9) {
-            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
-            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
+            if (!columnExistsInTable(db, "single", "publicKey")) {
+               db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+            }
+
+            if (!columnExistsInTable(db, "single", "coinId")) {
+               db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+
+               SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+               MetadataStorage metadataStorage = new MetadataStorage(context);
+               for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+                  if (!Strings.isNullOrEmpty(coin.getId())) {
+                     UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                     for (UUID uuid : uuids) {
+                        updateCoinIdStatement.bindString(1, coin.getId());
+                        updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                        updateCoinIdStatement.execute();
+                     }
                   }
                }
             }
@@ -795,6 +802,19 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
                createTxTable(tableSuffix, db);
             }
+         }
+      }
+
+      private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
+         try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
+            // getColumnIndex()  will return the index of the column
+            //in the table if it exists, otherwise it will return -1
+            return cursor.getColumnIndex(columnToCheck) != -1;
+         } catch (SQLiteException ex) {
+            //Something went wrong with SQLite.
+            //If the table exists and your query was good,
+            //the problem is likely that the column doesn't exist in the table.
+            return false;
          }
       }
 
