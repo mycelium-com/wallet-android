@@ -766,4 +766,8 @@
     <string name="label_list_activity_indicator">mělo aktivitu</string>
     <string name="buy_with_cc_spend_only_warning_title">Účet pouze pro příjem</string>
     <string name="buy_with_cc_spend_only_warning">Aktuálně zvolený účet je pouze pro příjem.\n\nJste si jisti, že chcete tento účet použít pro nákup bitcoinů?</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Содержит %1$d приватный ключ.</item>
+        <item quantity="few">Содердит %1$d приватных ключа.</item>
+    </plurals>
 </resources>
