@@ -772,23 +772,23 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
 
          if(oldVersion < 9) {
-            if (columnExistsInTable(db, "single", "publicKey")) {
+            if (!columnExistsInTable(db, "single", "publicKey")) {
                db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
             }
 
-            if (columnExistsInTable(db, "single", "coinId")) {
+            if (!columnExistsInTable(db, "single", "coinId")) {
                db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            }
 
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
+               SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+               MetadataStorage metadataStorage = new MetadataStorage(context);
+               for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+                  if (!Strings.isNullOrEmpty(coin.getId())) {
+                     UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                     for (UUID uuid : uuids) {
+                        updateCoinIdStatement.bindString(1, coin.getId());
+                        updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                        updateCoinIdStatement.execute();
+                     }
                   }
                }
             }
