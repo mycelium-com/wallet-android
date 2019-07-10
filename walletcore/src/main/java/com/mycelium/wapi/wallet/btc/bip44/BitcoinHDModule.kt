@@ -336,9 +336,8 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
      * all existing master seed accounts must have had transactions (no gap accounts)
      */
     fun canCreateAdditionalBip44Account(): Boolean =
-            hasBip32MasterSeed() && accounts.values.none { account ->
-                account.isDerivedFromInternalMasterseed && account.hasHadActivity()
-            }
+            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
+                    .all { it.hasHadActivity() }
 
     override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||
