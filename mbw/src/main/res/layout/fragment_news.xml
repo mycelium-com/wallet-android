@@ -46,6 +46,7 @@
             android:layout_height="32dp"
             android:drawableStart="@drawable/ic_search"
             android:paddingStart="12dp"
+            android:lines="1"
             android:drawablePadding="8dp"
             android:textColor="#FFFFFD"
             android:background="@null"

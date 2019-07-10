@@ -83,12 +83,15 @@ class NewsFragment : Fragment() {
         })
         adapterSearch.openClickListener = newsClick
         search_close.setOnClickListener {
-            searchActive = false
-            activity?.invalidateOptionsMenu()
-            search_input.text = null
-            updateUI()
-            val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0);
+            if (search_input.text.isEmpty()) {
+                searchActive = false
+                activity?.invalidateOptionsMenu()
+                updateUI()
+                val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(search_input.applicationWindowToken, 0);
+            } else {
+                search_input.text = null
+            }
             true
         }
         search_input.addTextChangedListener(object : TextWatcher {
