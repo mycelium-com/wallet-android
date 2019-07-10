@@ -46,8 +46,12 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
     override fun parseAddress(addressString: String): GenericAddress? {
         val address = Address.fromString(addressString) ?: return null
 
-        if (address.type === AddressType.P2WPKH)
-            throw AddressMalformedException("Address $addressString is malformed")
+        try {
+            if (address.type === AddressType.P2WPKH)
+                throw AddressMalformedException("Address $addressString is malformed")
+        } catch (e: IllegalStateException) {
+            throw AddressMalformedException("Address $addressString is malformed");
+        }
 
         return BtcAddress(this, address)
     }

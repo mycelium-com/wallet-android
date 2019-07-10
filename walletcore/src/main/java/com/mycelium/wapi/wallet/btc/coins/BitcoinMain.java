@@ -42,9 +42,12 @@ public class BitcoinMain extends BitcoinBasedCryptoCurrency {
             return null;
         }
 
-        if (!address.getNetwork().isProdnet())
+        try {
+            if (!address.getNetwork().isProdnet())
+                throw new AddressMalformedException("Address " + addressString + " is malformed");
+        } catch (IllegalStateException e) {
             throw new AddressMalformedException("Address " + addressString + " is malformed");
-
+        }
         return new BtcAddress(this, address);
     }
 }

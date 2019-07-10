@@ -42,9 +42,13 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
             return null;
         }
 
-        if (!address.getNetwork().isTestnet())
+        try {
+            if (!address.getNetwork().isTestnet()) {
+                throw new AddressMalformedException("Address " + addressString + " is malformed");
+            }
+        } catch (IllegalStateException e) {
             throw new AddressMalformedException("Address " + addressString + " is malformed");
-
+        }
         return new BtcAddress(this, address);
     }
 }
