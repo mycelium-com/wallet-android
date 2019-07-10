@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.mycelium.wapi.wallet.coins.families.Families;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 public abstract class AbstractAsset implements GenericAssetInfo {
     protected Families family;
@@ -25,11 +24,6 @@ public abstract class AbstractAsset implements GenericAssetInfo {
 
     @Override
     public boolean isMineAddress(String address) {
-        try {
-            parseAddress(address);
-            return true;
-        } catch (AddressMalformedException ex) {
-            return false;
-        }
+        return parseAddress(address) != null;
     }
 }

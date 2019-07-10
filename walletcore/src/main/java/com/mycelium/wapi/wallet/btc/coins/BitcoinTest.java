@@ -6,7 +6,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.SoftDustPolicy;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 public class BitcoinTest extends BitcoinBasedCryptoCurrency {
     private BitcoinTest() {
@@ -36,7 +35,7 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
     }
 
     @Override
-    public GenericAddress parseAddress(String addressString) throws AddressMalformedException {
+    public GenericAddress parseAddress(String addressString) {
         Address address = Address.fromString(addressString);
         if (address == null) {
             return null;
@@ -44,10 +43,10 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
 
         try {
             if (!address.getNetwork().isTestnet()) {
-                throw new AddressMalformedException("Address " + addressString + " is malformed");
+                return null;
             }
         } catch (IllegalStateException e) {
-            throw new AddressMalformedException("Address " + addressString + " is malformed");
+            return null;
         }
         return new BtcAddress(this, address);
     }
