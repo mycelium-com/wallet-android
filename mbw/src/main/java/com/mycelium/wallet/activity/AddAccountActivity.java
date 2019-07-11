@@ -41,6 +41,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -65,7 +66,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddAccountActivity extends Activity {
+public class AddAccountActivity extends AppCompatActivity {
    public static void callMe(Fragment fragment, int requestCode) {
       Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
       fragment.startActivityForResult(intent, requestCode);
@@ -88,6 +89,7 @@ public class AddAccountActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.add_account_activity);
       ButterKnife.bind(this);
       _mbwManager = MbwManager.getInstance(this);

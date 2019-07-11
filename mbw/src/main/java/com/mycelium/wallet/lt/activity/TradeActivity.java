@@ -45,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -84,7 +85,7 @@ import java.util.*;
 import static com.mycelium.wallet.lt.activity.TradeActivityUtil.canAffordTrade;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TradeActivity extends Activity {
+public class TradeActivity extends AppCompatActivity {
    protected static final int CHANGE_PRICE_REQUEST_CODE = 1;
    protected static final int REFRESH_PRICE_REQUEST_CODE = 2;
    private static final int SIGN_TX_REQUEST_CODE = 3;
@@ -128,6 +129,7 @@ public class TradeActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.lt_trade_activity);
       _mbwManager = MbwManager.getInstance(this.getApplication());
       _ltManager = _mbwManager.getLocalTraderManager();

@@ -42,6 +42,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -77,7 +78,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class PopActivity extends Activity {
+public class PopActivity extends AppCompatActivity {
    private PopRequest popRequest;
    private MbwManager _mbwManager;
    private Sha256Hash txidToProve;
@@ -87,6 +88,7 @@ public class PopActivity extends Activity {
    protected void onCreate(Bundle savedInstanceState) {
       this.requestWindowFeature(Window.FEATURE_NO_TITLE);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.pop_activity);
       _mbwManager = MbwManager.getInstance(getApplication());
 

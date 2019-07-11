@@ -107,7 +107,8 @@ public class PinDialog extends AppCompatDialog {
       View view = findViewById(R.id.fingerprintHint);
       if (view != null) {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                 && MbwManager.getInstance(context).isFingerprintEnabled()) {
+                 && MbwManager.getInstance(context).isFingerprintEnabled()
+                 && FingerprintHandler.Companion.isFingerprintAvailable(context)) {
             fingerprintHandler = new FingerprintHandler();
             fingerprintHandler.startAuth(context, new Function0<Unit>() {
                @Override

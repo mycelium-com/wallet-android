@@ -2,7 +2,10 @@ package com.mycelium.wallet.activity.settings;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.CheckBoxPreference;
@@ -162,7 +165,11 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                                startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
+                                            } else {
+                                                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                                            }
                                         }
                                     })
                                     .setNegativeButton(R.string.cancel, null)

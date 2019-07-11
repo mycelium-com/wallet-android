@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -69,7 +70,7 @@ import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MASS;
 import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.MT;
 import static com.mycelium.wallet.colu.ColuAccount.ColuAssetType.RMC;
 
-public class AddColuAccountActivity extends Activity {
+public class AddColuAccountActivity extends AppCompatActivity {
    public static final int RESULT_COLU = 3;
 
    public static final String TAG = "AddColuAccountActivity";
@@ -91,6 +92,7 @@ public class AddColuAccountActivity extends Activity {
    public void onCreate(Bundle savedInstanceState) {
       getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
+      getSupportActionBar().hide();
       setContentView(R.layout.add_colu_account_activity);
       _mbwManager = MbwManager.getInstance(this);
       ButterKnife.bind(this);
