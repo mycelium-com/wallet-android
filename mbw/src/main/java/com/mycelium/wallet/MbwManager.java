@@ -1250,7 +1250,6 @@ public class MbwManager {
         return getAccountId(address, null);
     }
 
-    @SuppressWarnings("unchecked")
     public Optional<UUID> getAccountId(GenericAddress address, GenericAssetInfo coinType) {
         Optional<UUID> result = Optional.absent();
         for (UUID uuid : _walletManager.getAccountIds()) {
