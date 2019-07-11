@@ -468,7 +468,7 @@ public class MbwManager {
 
     public void setChangeAddressMode(ChangeAddressMode changeAddressMode) {
         this.changeAddressMode = changeAddressMode;
-        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrenySettings(BitcoinHDModule.ID);
+        BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(BitcoinHDModule.ID);
         if (currencySettings != null) {
            currencySettings.setChangeAddressMode(changeAddressMode);
            _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);

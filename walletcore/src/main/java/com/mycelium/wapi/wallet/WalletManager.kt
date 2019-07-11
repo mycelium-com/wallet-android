@@ -13,7 +13,7 @@ class WalletManager
 @JvmOverloads
 constructor(val network: NetworkParameters,
             val wapi: Wapi,
-            var currenciesSettingsMap: HashMap<String, CurrencySettings>,
+            private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null) {
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
@@ -21,12 +21,12 @@ constructor(val network: NetworkParameters,
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
 
-    fun getCurrenySettings(moduleID: String): CurrencySettings? {
-        return currenciesSettingsMap[moduleID]
+    fun getCurrencySettings(moduleID: String): CurrencySettings? {
+        return currencySettingsMap[moduleID]
     }
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
-        currenciesSettingsMap[moduleID] = settings
+        currencySettingsMap[moduleID] = settings
         walletModules.get(moduleID)?.setCurrencySettings(settings)
     }
 
@@ -86,8 +86,8 @@ constructor(val network: NetworkParameters,
                     val account = it.createAccount(config)
                     result[account.id] = account
 
-                    account.dependentAccounts?.forEach {
-                        result[it.id] = it
+                    account.dependentAccounts?.forEach { walletAccount ->
+                        result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
                     _logger.logError("Account", exception)
