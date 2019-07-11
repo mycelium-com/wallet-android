@@ -34,6 +34,8 @@ class SQLiteCoinapultBacking(val context: Context
         val helper = CoinapultSQLiteHelper(context)
         database = helper.writableDatabase
 
+        insertOrReplaceAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
+        updateAccount = database.compileStatement("UPDATE coinapultcontext SET archived=?,address=? WHERE id=?")
         /**
          * import accounts from old place
          */
@@ -45,8 +47,6 @@ class SQLiteCoinapultBacking(val context: Context
                 createAccountContext(CoinapultAccountContext(id, address, metadataStorage.getArchived(id), currency))
             }
         }
-        insertOrReplaceAccount = database.compileStatement("INSERT OR REPLACE INTO coinapultcontext VALUES (?,?,?,?)")
-        updateAccount = database.compileStatement("UPDATE coinapultcontext SET archived=?,address=? WHERE id=?")
     }
 
     override fun createAccountContext(context: CoinapultAccountContext) {
