@@ -152,7 +152,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Receiving
-      if (balance.pendingReceiving.getValue() > 0) {
+      if (balance.pendingReceiving.value > 0) {
          String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
@@ -163,7 +163,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingToForeignAddresses().getValue() > 0) {
+      if (balance.getSendingToForeignAddresses().value > 0) {
          String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);

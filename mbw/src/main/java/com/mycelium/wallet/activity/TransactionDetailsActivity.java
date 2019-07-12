@@ -165,7 +165,7 @@ public class TransactionDetailsActivity extends Activity {
         if (tx.getInputs() != null) {
             long sum = 0;
             for (GenericOutputViewModel input : tx.getInputs()) {
-                sum += input.getValue().getValue();
+                sum += input.getValue().value;
             }
             if (sum != 0) {
                 tvInputsAmount.setVisibility(View.GONE);
@@ -185,9 +185,8 @@ public class TransactionDetailsActivity extends Activity {
             }
         }
 
-
         // Set Fee
-        final long txFeeTotal = tx.getFee().getValue();
+        final long txFeeTotal = tx.getFee().value;
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);

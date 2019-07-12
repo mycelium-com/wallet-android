@@ -437,11 +437,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     public Value get(Value value, GenericAssetInfo toCurrency) {
-        GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.getType().getSymbol(), this).invoke();
+        GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
         if(rateValue != null) {
-            BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.getValue()))
-                    .movePointLeft(value.getType().getUnitExponent())
+            BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.value))
+                    .movePointLeft(value.type.getUnitExponent())
                     .round(MathContext.DECIMAL32);
             return Value.parse(toCurrency, bigDecimal);
         }else {

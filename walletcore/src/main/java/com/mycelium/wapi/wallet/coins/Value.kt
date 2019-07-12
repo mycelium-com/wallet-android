@@ -13,10 +13,12 @@ open class Value(
         /**
          * The type of this value
          */
+        @JvmField
         val type: GenericAssetInfo,
         /**
          * The number of units of this monetary value.
          */
+        @JvmField
         val value: Long) : Serializable {
 
     private val friendlyDigits: Int

@@ -164,9 +164,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
       ArrayList<BtcReceiver> receivers = new ArrayList<>();
-      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().getValue()));
+      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().value));
       try {
-         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().getValue()));
+         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().value));
          return btcTransaction;
       } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
          throw new GenericOutputTooSmallException(ex);

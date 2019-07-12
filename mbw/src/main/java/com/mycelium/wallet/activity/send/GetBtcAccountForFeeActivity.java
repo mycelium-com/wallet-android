@@ -58,7 +58,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
             if (receivingAddress.isPresent() && account.canSpend()
                     && !((WalletBtcAccount)(account)).getReceivingAddress().equals(((WalletBtcAccount)(selectedAccount)).getReceivingAddress())
                     && !account.getAccountBalance().confirmed.isZero()
-                    && isBtc(account.getAccountBalance().confirmed.getType())) {
+                    && isBtc(account.getAccountBalance().confirmed.type)) {
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
                 Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
                 entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
