@@ -632,6 +632,10 @@
     <string name="remove_queued_transaction_title">Чакаща трансакция</string>
     <string name="remove_queued_transaction_hint">Балансът ви ще бъде коригиран след следващата синхронизация с мрежата</string>
     <string name="remove_queued_transaction_error">Не може да се премахне трансакцията</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Съдържа %1$d частен ключ.</item>
+        <item quantity="other">Съдържа %1$d частни ключа.</item>
+    </plurals>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->

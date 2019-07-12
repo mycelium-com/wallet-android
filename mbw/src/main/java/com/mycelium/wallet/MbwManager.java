@@ -126,7 +126,6 @@ import kotlin.jvm.Synchronized;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -1251,7 +1250,6 @@ public class MbwManager {
         return getAccountId(address, null);
     }
 
-    @SuppressWarnings("unchecked")
     public Optional<UUID> getAccountId(GenericAddress address, GenericAssetInfo coinType) {
         Optional<UUID> result = Optional.absent();
         for (UUID uuid : _walletManager.getAccountIds()) {
@@ -1338,8 +1336,7 @@ public class MbwManager {
     }
 
     public UUID createAdditionalBip44Account(Context context) {
-        UUID accountId;
-        accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
+        UUID accountId = _walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);

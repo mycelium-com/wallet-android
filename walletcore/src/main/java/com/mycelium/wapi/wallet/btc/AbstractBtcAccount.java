@@ -1940,4 +1940,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         //no unconfirmed outputs are used as inputs, we are fine
         return false;
     }
+
+   @Override
+   public void updateParentOutputs(byte[] txid) throws WapiException  {
+         TransactionEx transactionEx = getTransaction(Sha256Hash.of(txid));
+         Transaction transaction = TransactionEx.toTransaction(transactionEx);
+         fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
+   }
 }

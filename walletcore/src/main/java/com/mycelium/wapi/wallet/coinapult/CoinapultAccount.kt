@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.coinapult
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAccountBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -22,6 +21,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
+    override fun updateParentOutputs(txid: ByteArray?) {
+        // there is no parent update
+    }
+
     override fun queueTransaction(transaction: GenericTransaction) {
     }
 
