@@ -8,6 +8,8 @@ import java.math.BigInteger
 import java.math.RoundingMode
 
 import com.google.common.base.Preconditions.checkArgument
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 open class Value(
         /**
@@ -48,83 +50,55 @@ open class Value(
      */
     open fun isZero() = signum() == 0
 
-    private fun smallestUnitExponent(): Int {
-        return type.unitExponent
-    }
+    private fun smallestUnitExponent(): Int = type.unitExponent
 
     operator fun plus(value: Value): Value {
         checkArgument(type == value.type, "Cannot add a different type")
         return Value(this.type, LongMath.checkedAdd(this.value, value.value))
     }
 
-    operator fun plus(value: Long): Value {
-        return Value(this.type, LongMath.checkedAdd(this.value, value))
-    }
+    operator fun plus(value: Long): Value = Value(this.type, LongMath.checkedAdd(this.value, value))
 
     operator fun minus(value: Value): Value {
         checkArgument(type == value.type, "Cannot subtract a different type")
         return Value(this.type, LongMath.checkedSubtract(this.value, value.value))
     }
 
-    operator fun minus(str: String): Value {
-        return Value(this.type, LongMath.checkedSubtract(this.value, type.value(str).value))
-    }
+    operator fun minus(str: String): Value =
+            Value(this.type, LongMath.checkedSubtract(this.value, type.value(str).value))
 
-    operator fun minus(value: Long): Value {
-        return Value(this.type, LongMath.checkedSubtract(this.value, value))
-    }
+    operator fun minus(value: Long): Value =
+            Value(this.type, LongMath.checkedSubtract(this.value, value))
 
-    operator fun times(factor: Long): Value {
-        return Value(this.type, LongMath.checkedMultiply(this.value, factor))
-    }
+    operator fun times(factor: Long): Value =
+            Value(this.type, LongMath.checkedMultiply(this.value, factor))
 
-    operator fun div(divisor: Long): Value {
-        return Value(this.type, this.value / divisor)
-    }
+    operator fun div(divisor: Long): Value = Value(this.type, this.value / divisor)
 
-    operator fun rem(divisor: Long): Array<Value> {
-        return arrayOf(Value(this.type, this.value / divisor), Value(this.type, this.value % divisor))
-    }
+    operator fun rem(divisor: Long): Array<Value> =
+            arrayOf(Value(this.type, this.value / divisor), Value(this.type, this.value % divisor))
 
     operator fun div(divisor: Value): Long {
         checkArgument(type == divisor.type, "Cannot divide with a different type")
         return this.value / divisor.value
     }
 
-    operator fun compareTo(other: Value): Int {
-        if (this.value > other.value) {
-            return 1
-        } else if (this.value < other.value) {
-            return -1
-        }
-        return 0
-    }
+    operator fun compareTo(other: Value): Int = value.compareTo(other.value)
 
-    fun shiftLeft(n: Int): Value {
-        return Value(this.type, this.value shl n)
-    }
+    fun shiftLeft(n: Int): Value = Value(this.type, this.value shl n)
 
-    fun shiftRight(n: Int): Value {
-        return Value(this.type, this.value shr n)
-    }
+    fun shiftRight(n: Int): Value = Value(this.type, this.value shr n)
 
-    fun signum(): Int {
-        if (this.value == 0L)
-            return 0
-        return if (this.value < 0) -1 else 1
-    }
+    fun signum(): Int = value.sign
 
-    operator fun unaryMinus(): Value {
-        return Value(this.type, -this.value)
-    }
+    operator fun unaryMinus(): Value = Value(type, -value)
 
     /**
      * Returns the value as a 0.12 type string. More digits after the decimal place will be used
      * if necessary, but two will always be present.
      */
-    fun toFriendlyString(): String {
-        return BigDecimal.valueOf(value, smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
-    }
+    fun toFriendlyString(): String =
+            BigDecimal.valueOf(value, smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
 
     /**
      *
@@ -134,75 +108,51 @@ open class Value(
      * For instance, a value of 150000 satoshis gives an output string of "0.0015" BTC
      *
      */
-    fun toPlainString(): String {
-        return BigDecimal.valueOf(value, smallestUnitExponent()).stripTrailingZeros().toString()
-    }
+    fun toPlainString(): String =
+            BigDecimal.valueOf(value, smallestUnitExponent()).stripTrailingZeros().toString()
 
-    override fun toString(): String {
-        return toPlainString() + " " + type.symbol
-    }
+    override fun toString(): String = toPlainString() + " " + type.symbol
 
     /**
      * Returns the value expressed as string
      */
-    fun toUnitsString(): String {
-        return BigInteger.valueOf(value).toString()
-    }
+    fun toUnitsString(): String = BigInteger.valueOf(value).toString()
 
-    override fun equals(o: Any?): Boolean {
-        if (o === this)
+    override fun equals(other: Any?): Boolean {
+        if (other === this)
             return true
-        if (o == null || o.javaClass != javaClass)
+        if (other == null || other.javaClass != javaClass)
             return false
-        val other = o as Value?
-        return !(this.value != other!!.value || this.type != other.type)
+        val otherValue = other as Value
+        return this.value == otherValue.value && this.type == otherValue.type
     }
 
-    override fun hashCode(): Int {
-        return this.value.toInt()
-    }
+    override fun hashCode(): Int = this.value.toInt()
 
-    fun isOfType(otherType: GenericAssetInfo): Boolean {
-        return type == otherType
-    }
+    fun isOfType(otherType: GenericAssetInfo): Boolean = type == otherType
 
-    fun isOfType(otherValue: Value): Boolean {
-        return type == otherValue.type
-    }
+    fun isOfType(otherValue: Value): Boolean = type == otherValue.type
 
     /**
      * Check if the value is within the [min, max] range
      */
-    fun within(min: Value, max: Value): Boolean {
-        return compareTo(min) >= 0 && compareTo(max) <= 0
-    }
+    fun within(min: Value, max: Value): Boolean = compareTo(min) >= 0 && compareTo(max) <= 0
 
-    fun canCompare(other: Value): Boolean {
-        return canCompare(this, other)
-    }
+    fun canCompare(other: Value): Boolean = canCompare(this, other)
 
-    fun abs(): Value {
-        return Value(type, Math.abs(value))
-    }
+    fun abs(): Value = Value(type, value.absoluteValue)
 
     companion object {
         @JvmStatic
-        fun valueOf(type: GenericAssetInfo, units: Long): Value {
-            return Value(type, units)
-        }
+        fun valueOf(type: GenericAssetInfo, units: Long): Value = Value(type, units)
 
-        fun valueOf(type: GenericAssetInfo, units: BigInteger): Value {
-            return Value(type, units.toLong())
-        }
+        fun valueOf(type: GenericAssetInfo, units: BigInteger): Value = Value(type, units.toLong())
 
-        fun valueOf(type: GenericAssetInfo, unitsStr: String): Value {
-            return valueOf(type, BigInteger(unitsStr))
-        }
+        fun valueOf(type: GenericAssetInfo, unitsStr: String): Value =
+                valueOf(type, BigInteger(unitsStr))
 
         @JvmStatic
-        fun zeroValue(type: GenericAssetInfo): Value {
-            return Value(type, 0)
-        }
+        fun zeroValue(type: GenericAssetInfo): Value = Value(type, 0)
 
         /**
          * Convert an amount expressed in the way humans are used to into units.
@@ -211,7 +161,7 @@ open class Value(
             checkArgument(cents < 100)
             checkArgument(cents >= 0)
             checkArgument(coins >= 0)
-            return type.oneCoin()* coins.toLong() + (type.oneCoin() / (100) * cents.toLong())
+            return type.oneCoin()* coins.toLong() + (type.oneCoin() / 100 * cents.toLong())
         }
 
         /**
@@ -224,9 +174,7 @@ open class Value(
          * range.
          */
         @JvmStatic
-        fun parse(type: GenericAssetInfo, str: String): Value {
-            return parse(type, BigDecimal(str))
-        }
+        fun parse(type: GenericAssetInfo, str: String): Value = parse(type, BigDecimal(str))
 
         /**
          * Parses a [BigDecimal] amount expressed in the way humans are used to.
@@ -235,27 +183,19 @@ open class Value(
          * range.
          */
         @JvmStatic
-        fun parse(type: GenericAssetInfo, decimal: BigDecimal): Value {
-            return valueOf(type, decimal.movePointRight(type.unitExponent)
-                    .setScale(0, RoundingMode.HALF_DOWN)
-                    .toBigIntegerExact().toLong())
-        }
+        fun parse(type: GenericAssetInfo, decimal: BigDecimal): Value =
+                valueOf(type, decimal.movePointRight(type.unitExponent)
+                        .setScale(0, RoundingMode.HALF_DOWN)
+                        .toBigIntegerExact().toLong())
 
         @JvmStatic
-        fun isNullOrZero(value: Value?): Boolean {
-            return value == null || value.isZero()
-        }
+        fun isNullOrZero(value: Value?): Boolean = value == null || value.isZero()
 
-        fun max(value1: Value, value2: Value): Value {
-            return if (value1 >= value2) value1 else value2
-        }
+        fun max(value1: Value, value2: Value): Value = if (value1 >= value2) value1 else value2
 
-        fun min(value1: Value, value2: Value): Value {
-            return if (value1 <= value2) value1 else value2
-        }
+        fun min(value1: Value, value2: Value): Value = if (value1 <= value2) value1 else value2
 
-        fun canCompare(amount1: Value?, amount2: Value?): Boolean {
-            return amount1 != null && amount2 != null && amount1.isOfType(amount2)
-        }
+        fun canCompare(amount1: Value?, amount2: Value?): Boolean =
+                amount1 != null && amount2 != null && amount1.isOfType(amount2)
     }
 }
