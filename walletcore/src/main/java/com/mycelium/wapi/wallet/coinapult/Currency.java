@@ -1,12 +1,9 @@
 package com.mycelium.wapi.wallet.coinapult;
 
 import com.google.common.collect.ImmutableMap;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -77,7 +74,7 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public GenericAddress parseAddress(String address) throws AddressMalformedException {
+    public GenericAddress parseAddress(String address) {
         return null;
     }
 }

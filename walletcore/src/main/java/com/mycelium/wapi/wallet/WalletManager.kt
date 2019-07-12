@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
@@ -207,10 +206,7 @@ constructor(val network: NetworkParameters,
                 .flatMap { it.getSupportedAssets() }
                 .distinctBy { it.id }
                 .mapNotNull { genericAssetInfo ->
-            try {
-                        genericAssetInfo.parseAddress(address)
-                } catch (ex: AddressMalformedException) {
-                    null
+                    genericAssetInfo.parseAddress(address)
                 }
     }
 
