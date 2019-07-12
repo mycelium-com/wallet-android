@@ -44,7 +44,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
-        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get();
+        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
     }
 
     var linkedAccount: SingleAddressAccount? = null
@@ -325,8 +325,8 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
         if (request is ColuTransaction) {
-            val signTransaction = signTransaction(request.baseTransaction, this)
-            request.transaction = signTransaction
+            val signedTransaction = signTransaction(request.baseTransaction, this)
+            request.transaction = signedTransaction
         } else {
             TODO("signTx not implemented for ${request.javaClass.simpleName}")
         }
@@ -372,7 +372,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
         val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
 
-        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.getPrivateKeyBytes()
+        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.privateKeyBytes
         val publicKeyBytes = coluAccount.getPrivateKey(null)!!.publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
