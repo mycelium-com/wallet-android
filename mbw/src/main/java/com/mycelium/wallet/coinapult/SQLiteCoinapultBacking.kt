@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteStatement
 import com.google.common.base.Splitter
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes
@@ -30,6 +31,8 @@ class SQLiteCoinapultBacking(val context: Context
     private val insertOrReplaceAccount: SQLiteStatement
     private val updateAccount: SQLiteStatement
 
+    private var backings = mutableMapOf<UUID, SQLiteCoinapultAccountBacking>()
+
     init {
         val helper = CoinapultSQLiteHelper(context)
         database = helper.writableDatabase
@@ -52,6 +55,15 @@ class SQLiteCoinapultBacking(val context: Context
     override fun createAccountContext(context: CoinapultAccountContext) {
         database.beginTransaction()
         try {
+
+            // Create accountBacking tables
+            var backing = backings[context.id]
+            if (backing == null) {
+                createAccountBackingTables(context.id, database)
+                backing = SQLiteCoinapultAccountBacking(context.id, database)
+                backings[context.id] = backing
+            }
+
             // Create context
             insertOrReplaceAccount.bindBlob(1, uuidToBytes(context.id))
             insertOrReplaceAccount.bindBlob(2, context.address.getBytes())
@@ -80,6 +92,12 @@ class SQLiteCoinapultBacking(val context: Context
         }
     }
 
+    private fun createAccountBackingTables(id: UUID, db: SQLiteDatabase) {
+        val tableSuffix = HexUtils.toHex(uuidToBytes(id))
+        db.execSQL("CREATE TABLE IF NOT EXISTS tx$tableSuffix"
+                + " (id BLOB PRIMARY KEY, hash BLOB, height INTEGER, time INTEGER, binary BLOB);")
+    }
+
     override fun loadAccountContexts(): List<CoinapultAccountContext> {
         val result = mutableListOf<CoinapultAccountContext>()
 
@@ -94,6 +112,7 @@ class SQLiteCoinapultBacking(val context: Context
                 val addressBytes = cursor.getBlob(1)
                 val isArchived = cursor.getInt(2) == 1
                 val currency = Currency.all[cursor.getString(3)]!!
+                backings[id] = SQLiteCoinapultAccountBacking(id, database)
                 result.add(CoinapultAccountContext(id, BtcAddress(currency, Address(addressBytes)), isArchived, currency))
             }
         } finally {
@@ -102,9 +121,7 @@ class SQLiteCoinapultBacking(val context: Context
         return result
     }
 
-    override fun getAccountBacking(accountId: UUID?): CommonAccountBacking? {
-        return null
-    }
+    override fun getAccountBacking(accountId: UUID?): CommonAccountBacking? = backings[accountId]
 
     override fun deleteAccountContext(uuid: UUID?) {
 
