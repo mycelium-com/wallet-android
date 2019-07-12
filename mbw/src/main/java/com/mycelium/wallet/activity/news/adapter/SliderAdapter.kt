@@ -15,7 +15,7 @@ class SliderAdapter(val data: List<String>) : PagerAdapter() {
         val view = LayoutInflater.from(container.context).inflate(R.layout.media_flow_slider_item, container, false)
         Glide.with(view.image)
                 .load(data[position])
-                .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
+                .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
                 .into(view.image)
         container.addView(view)
         return view

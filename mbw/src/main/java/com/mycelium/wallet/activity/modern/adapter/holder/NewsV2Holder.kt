@@ -36,7 +36,7 @@ class NewsV2Holder(itemView: View, val preferences: SharedPreferences) : Recycle
         Glide.with(itemView.image)
                 .load(news.getFitImage(itemView.image.resources.displayMetrics.widthPixels))
                 .error(Glide.with(itemView.image)
-                        .load(R.drawable.news_default_image)
+                        .load(R.drawable.mediaflow_default_picture)
                         .apply(requestOptions))
                 .apply(requestOptions)
                 .into(itemView.image)

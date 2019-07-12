@@ -21,8 +21,8 @@ class NewsImageActivity : AppCompatActivity() {
         Glide.with(image)
                 .load(url)
                 .apply(RequestOptions()
-                        .placeholder(R.drawable.news_default_image)
-                        .error(R.drawable.news_default_image))
+                        .placeholder(R.drawable.mediaflow_default_picture)
+                        .error(R.drawable.mediaflow_default_picture))
                 .into(image)
 
     }

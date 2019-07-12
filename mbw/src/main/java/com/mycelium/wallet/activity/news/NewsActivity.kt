@@ -119,7 +119,7 @@ class NewsActivity : AppCompatActivity() {
         category.text = categoryText
         Glide.with(image)
                 .load(news.getFitImage(resources.displayMetrics.widthPixels))
-                .apply(RequestOptions().centerCrop().error(R.drawable.news_default_image))
+                .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
                 .into(image)
         shareBtn2.setOnClickListener {
             share()

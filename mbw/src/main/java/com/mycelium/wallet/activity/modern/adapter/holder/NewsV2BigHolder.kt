@@ -32,7 +32,7 @@ class NewsV2BigHolder(itemView: View, val preferences: SharedPreferences) : Recy
         Glide.with(itemView.image)
                 .load(news.getFitImage(itemView.image.resources.displayMetrics.widthPixels))
                 .error(Glide.with(itemView.image)
-                        .load(R.drawable.news_default_image)
+                        .load(R.drawable.mediaflow_default_picture)
                         .apply(requestOptions))
                 .apply(requestOptions)
                 .into(itemView.image)
