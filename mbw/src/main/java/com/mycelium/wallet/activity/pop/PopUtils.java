@@ -34,7 +34,6 @@
 
 package com.mycelium.wallet.activity.pop;
 
-import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
@@ -50,7 +49,7 @@ class PopUtils {
       long txSatoshis;
       CryptoCurrency currency = Utils.getBtcCoinType();
       if (transaction.getType() == currency) {
-         txSatoshis = (transaction.getTransferred().abs()).getValue();
+         txSatoshis = (transaction.getTransferred().abs()).value;
       } else {
          txSatoshis = -1L;
       }

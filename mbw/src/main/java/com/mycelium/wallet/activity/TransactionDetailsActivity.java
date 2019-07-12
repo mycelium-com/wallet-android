@@ -185,9 +185,8 @@ public class TransactionDetailsActivity extends Activity {
             }
         }
 
-
         // Set Fee
-        final long txFeeTotal = tx.getFee().getValue();
+        final long txFeeTotal = tx.getFee().value;
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);

@@ -238,24 +238,24 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             var r = Value.zeroValue(coinType)
             tx.inputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
-                    sending = sending.add(it.value)
-                    s = s.add(it.value)
+                    sending += it.value
+                    s += it.value
                 }
             }
             tx.outputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
-                    receiving = receiving.add(it.value)
-                    r = r.add(it.value)
+                    receiving += it.value
+                    r += it.value
                 }
             }
-            if(s.add(r.negate()).isPositive) {
-                change = change.add(r)
-                receiving = receiving.add(r.negate())
+            if (s > r) {
+                change += r
+                receiving -= r
             }
         }
         unspent.forEach {
             if (it.height != -1) {
-                confirmed = confirmed.add(it.value)
+                confirmed += it.value
             }
         }
         return Balance(confirmed, receiving, sending, change)
@@ -435,11 +435,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         transaction.vin.forEach { vin ->
             vin.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val _address = Address.fromString(vin.previousOutput.addresses[0])
+                val address = Address.fromString(vin.previousOutput.addresses[0])
                 input.add(GenericInputViewModel(
-                        BtcAddress(coinType, _address), value, false))
+                        BtcAddress(coinType, address), value, false))
                 if (vin.previousOutput.addresses.contains(receiveAddress.toString())) {
-                    transferred = transferred.subtract(value)
+                    transferred -= value
                 }
             }
         }
@@ -448,16 +448,16 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         transaction.vout.forEach { vout ->
             vout.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val _address = Address.fromString(vout.scriptPubKey.addresses[0])
-                var genAddress =AddressUtils.from(coinType,_address.toString())
+                val address = Address.fromString(vout.scriptPubKey.addresses[0])
+                val genAddress = AddressUtils.from(coinType,address.toString())
                 if (!isMineAddress(genAddress)) {
                     destinationAddresses.add(genAddress)
                 }
 
                 output.add(GenericOutputViewModel(
-                        BtcAddress(coinType, _address), value, false))
+                        BtcAddress(coinType, address), value, false))
                 if (vout.scriptPubKey.addresses.contains(receiveAddress.toString())) {
-                    transferred = transferred.add(value)
+                    transferred += value
                 }
             }
         }
