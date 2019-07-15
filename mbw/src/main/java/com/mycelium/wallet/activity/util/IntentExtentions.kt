@@ -49,7 +49,7 @@ fun Intent.getAssetUri(): GenericAssetUri {
 
 fun Intent.getUri(): Uri {
     checkType(ResultType.URI)
-    return getSerializableExtra(RESULT_URI_KEY) as Uri
+    return getParcelableExtra(RESULT_URI_KEY) as Uri
 }
 
 fun Intent.getShare(): BipSss.Share {
