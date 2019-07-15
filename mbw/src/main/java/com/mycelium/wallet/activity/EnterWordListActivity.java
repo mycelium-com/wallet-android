@@ -55,6 +55,7 @@ import android.widget.TextView;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SeedFromWordsCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -104,7 +105,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       _mbwManager = MbwManager.getInstance(this);
       _progress = new ProgressDialog(this);
-      enteredWords = new ArrayList<String>();
+      enteredWords = new ArrayList<>();
       enterWordInfo = findViewById(R.id.tvEnterWord);
       findViewById(R.id.btDeleteLastWord).setOnClickListener(deleteListener);
       WordAutoCompleterFragment wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
@@ -124,6 +125,9 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       if (!_seedOnly && _mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
          new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
+
+      // Prevent the OS from taking screenshots of this activity
+      Utils.preventScreenshots(this);
    }
 
    private void askForWordNumber() {
