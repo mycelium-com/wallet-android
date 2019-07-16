@@ -213,12 +213,13 @@ public class PaymentRequestHandler {
       merchantMemo = memo;
    }
 
-   public boolean sendResponse(final Transaction signedTransaction, final Address refundAddress) {
+   public boolean sendResponse(final Transaction signedTransaction, final GenericAddress refundAddress) {
       if (hasValidPaymentRequest() && !Strings.isNullOrEmpty(paymentRequestInformation.getPaymentDetails().payment_url)) {
          new AsyncTask<Void, Void, AsyncResultAck>() {
             @Override
             protected AsyncResultAck doInBackground(Void... params) {
-               Payment payment = getPaymentRequestInformation().buildPaymentResponse(refundAddress, merchantMemo, signedTransaction);
+               Address address = new Address(refundAddress.getBytes());
+               Payment payment = getPaymentRequestInformation().buildPaymentResponse(address, merchantMemo, signedTransaction);
                try {
                   PaymentACK paymentAck = sendPaymentResponse(payment);
                   return new AsyncResultAck(paymentAck);

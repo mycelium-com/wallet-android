@@ -1291,7 +1291,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         // first send signed tx directly to the Merchant, and broadcast
                         // it only if we get a ACK from him (in paymentRequestAck)
                         BtcTransaction btcTransaction = (BtcTransaction) signedTransaction;
-                        _paymentRequestHandler.sendResponse(btcTransaction.getTx(), (Address) _account.getReceiveAddress());
+                        _paymentRequestHandler.sendResponse(btcTransaction.getTx(), _account.getReceiveAddress());
                     } else {
                         makeText(this, getString(R.string.payment_request_not_sent_expired), LENGTH_LONG).show();
                     }
