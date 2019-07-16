@@ -36,7 +36,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
         this.settings = currencySettings as BTCSettings
@@ -76,8 +76,8 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
-        var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
-        var configLabel = (config as LabeledConfig).label
+        val baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        val configLabel = (config as LabeledConfig).label
 
         if (config is PublicSingleConfig) {
             result = createAccount(config.publicKey, settings.defaultAddressType)

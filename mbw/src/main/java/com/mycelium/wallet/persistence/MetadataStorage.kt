@@ -504,10 +504,6 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
 
         // various key value fields info for colu
         private val COLU = MetadataCategory("colu_data")
-        // associates asset label for each assetId
-        private val COLU_ASSET_LABEL_CATEGORY = MetadataCategory("colu_asset_labels")
-        // associates all asset data for each assetId
-        private val COLU_ASSET_DATA_CATEGORY = MetadataCategory("colu_asset_data")
 
         private val SEED_BACKUPSTATE = MetadataKeyCategory("seed", "backupstate")
         private val PIN_RESET_BLOCKHEIGHT = MetadataKeyCategory("pin", "reset_blockheight")
@@ -518,7 +514,6 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         private val SIMPLEX_IS_ENABLED = MetadataKeyCategory("simplex", "enable")
         private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
         private val EMAIL = "email"
-        val PAIRED_SERVICE_COINAPULT = "coinapult"
         @JvmField
         val PAIRED_SERVICE_COLU = "colu"
     }

@@ -9,7 +9,8 @@ import java.util.*
 
 
 interface WalletModule {
-    fun getId(): String
+    val id: String
+
     fun loadAccounts(): Map<UUID, WalletAccount<*>>
 
     @Throws(IllegalStateException::class)
@@ -27,5 +28,5 @@ interface WalletModule {
 
     fun getAccountById(id: UUID): WalletAccount<*>?
 
-    fun afterAccountsLoaded();
+    fun afterAccountsLoaded()
 }

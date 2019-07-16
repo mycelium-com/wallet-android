@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation project(includePrefix +':mbwlib')
-    implementation project(includePrefix +':bitlib')
-    implementation project(includePrefix +':walletmodel')
-    implementation project(includePrefix +':wapi')
+    implementation project(includePrefix + ':mbwlib')
+    implementation project(includePrefix + ':bitlib')
+    implementation project(includePrefix + ':walletmodel')
+    implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':coinapult')
 
     implementation guavaArtifact
@@ -24,6 +24,8 @@ dependencies {
     implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
     implementation 'com.madgag.spongycastle:pg:1.54.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
     implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 
     // Etherium

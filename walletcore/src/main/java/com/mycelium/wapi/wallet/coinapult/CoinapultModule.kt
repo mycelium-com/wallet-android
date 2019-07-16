@@ -24,7 +24,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         return accounts[id]
     }
 
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 

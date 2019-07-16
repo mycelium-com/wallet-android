@@ -50,6 +50,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
+import androidx.lifecycle.LiveData;
 import com.coinapult.api.httpclient.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -92,6 +93,8 @@ import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
+import com.mycelium.wallet.persistence.AccountContextDAO;
+import com.mycelium.wallet.persistence.AccountsDB;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
@@ -212,6 +215,7 @@ public class MbwManager {
     private TorManager _torManager;
     public final BlockExplorerManager _blockExplorerManager;
     private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
+    private AccountContextDAO accountsDao;
 
     private final Queue<LogEntry> _wapiLogs;
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
@@ -224,6 +228,7 @@ public class MbwManager {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
+        accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
 
         // Preferences
@@ -663,7 +668,7 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
-        walletManager.add(new EtheriumModule(getMetadataStorage(), context.getFilesDir().getAbsolutePath()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
 
         walletManager.init();
 
@@ -741,7 +746,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        walletManager.add(new EtheriumModule(getMetadataStorage(), _applicationContext.getFilesDir().getAbsolutePath()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

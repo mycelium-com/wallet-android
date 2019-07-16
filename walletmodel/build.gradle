@@ -14,7 +14,7 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation guavaArtifact
     implementation 'com.google.code.findbugs:annotations:3.0.1'

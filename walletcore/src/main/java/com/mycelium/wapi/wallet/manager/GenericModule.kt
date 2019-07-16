@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.manager
 
 import com.mycelium.wapi.wallet.CurrencySettings
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
@@ -8,6 +9,11 @@ import java.util.UUID
 
 abstract class GenericModule(private val metaDataStorage: IMetaDataStorage) : WalletModule {
     protected val assetsList = mutableListOf<GenericAssetInfo>()
+
+
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> {
+        TODO("NOt implemeted")
+    }
 
     // creates label for the account and stores in the database
     fun createLabel(baseName: String, accountId: UUID) : String {

@@ -64,7 +64,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 

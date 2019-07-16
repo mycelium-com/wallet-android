@@ -37,9 +37,9 @@ constructor(val network: NetworkParameters,
     @Volatile
     private var activeAccountId: UUID? = null
 
-    fun add(walletModule: WalletModule) = walletModules.put(walletModule.getId(), walletModule)
+    fun add(walletModule: WalletModule) = walletModules.put(walletModule.id, walletModule)
 
-    fun remove(walletModule: WalletModule) = walletModules.remove(walletModule.getId())
+    fun remove(walletModule: WalletModule) = walletModules.remove(walletModule.id)
 
     fun init() {
         for (walletModule in walletModules.values) {
