@@ -12,6 +12,7 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;

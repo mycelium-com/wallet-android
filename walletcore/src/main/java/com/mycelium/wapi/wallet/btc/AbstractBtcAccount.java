@@ -1828,10 +1828,11 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    @Override
    public Balance getAccountBalance() {
       CryptoCurrency coinType = getCoinType();
-      return new Balance(Value.valueOf(coinType, _cachedBalance.confirmed),
-              Value.valueOf(coinType, _cachedBalance.pendingReceiving),
-              Value.valueOf(coinType, _cachedBalance.pendingSending),
-              Value.valueOf(coinType, _cachedBalance.pendingChange));
+      BalanceSatoshis b = getBalance();
+      return new Balance(Value.valueOf(coinType, b.confirmed),
+              Value.valueOf(coinType, b.pendingReceiving),
+              Value.valueOf(coinType, b.pendingSending),
+              Value.valueOf(coinType, b.pendingChange));
    }
 
    @Override
