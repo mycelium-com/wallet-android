@@ -1,11 +1,10 @@
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
 public class InfiniteLinearLayoutManager extends CenterLayoutManager {
-
     public InfiniteLinearLayoutManager(Context context) {
         super(context);
     }
@@ -18,7 +17,7 @@ public class InfiniteLinearLayoutManager extends CenterLayoutManager {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    LayoutState createLayoutState() {
+    LinearLayoutManager.LayoutState createLayoutState() {
         return new InfiniteLayoutState();
     }
 

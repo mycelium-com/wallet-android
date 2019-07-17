@@ -1,8 +1,8 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
-import android.support.v4.app.FragmentActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.fragment.app.FragmentActivity
 import asShortStringRes
 import com.google.common.base.Optional
 import com.mrd.bitlib.model.AddressType

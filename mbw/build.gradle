@@ -34,7 +34,7 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'androidx.test:rules:1.3.0-alpha01'
 
     implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':walletmodel')
@@ -62,25 +62,25 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:10.2.1'
     implementation 'com.google.android.gms:play-services-gcm:10.2.1'
     implementation 'com.google.code.findbugs:annotations:3.0.1'
-    kapt 'com.jakewharton:butterknife-compiler:8.5.1'
+    kapt 'com.jakewharton:butterknife-compiler:10.1.0'
     implementation 'com.squareup:otto:1.3.4'
-    implementation "com.android.support:appcompat-v7:$androidSupportVersion"
-    implementation "com.android.support:support-v4:$androidSupportVersion"
-    implementation "com.android.support:animated-vector-drawable:$androidSupportVersion"
-    implementation "com.android.support:recyclerview-v7:$androidSupportVersion"
-    implementation "com.android.support:gridlayout-v7:$androidSupportVersion"
-    implementation "com.android.support:preference-v7:$androidSupportVersion"
+    implementation "androidx.appcompat:appcompat:1.1.0-rc01"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-rc01"
+    implementation "androidx.recyclerview:recyclerview:1.1.0-beta01"
+    implementation "androidx.gridlayout:gridlayout:1.0.0"
+    implementation "androidx.preference:preference:1.1.0-rc01"
     implementation 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation 'com.squareup.wire:wire-runtime:1.6.1'
-    implementation 'com.jakewharton:butterknife:8.5.1'
+    implementation 'com.jakewharton:butterknife:10.1.0'
     implementation 'io.reactivex:rxandroid:1.2.1'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'commons-codec:commons-codec:1.10'
     implementation 'com.google.protobuf:protobuf-java:3.4.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
@@ -136,7 +136,7 @@ android {
 
         minSdkVersion 19
         targetSdkVersion 28
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
     }
 

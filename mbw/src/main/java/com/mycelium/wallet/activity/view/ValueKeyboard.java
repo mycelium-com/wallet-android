@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
-import android.support.v7.widget.GridLayout;
+import androidx.gridlayout.widget.GridLayout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;

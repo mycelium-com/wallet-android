@@ -1,10 +1,10 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.text.Html
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R

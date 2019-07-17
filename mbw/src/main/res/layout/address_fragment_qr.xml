@@ -9,7 +9,7 @@
 
         <variable
             name="activity"
-            type="android.support.v4.app.FragmentActivity" />
+            type="androidx.fragment.app.FragmentActivity" />
     </data>
 
     <merge>
