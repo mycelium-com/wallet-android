@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.android.support:support-v4:$androidSupportVersion"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0-beta01"
     implementation project(includePrefix + ':libs:nordpol')
     implementation guavaArtifact
 }

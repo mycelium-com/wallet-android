@@ -1,6 +1,6 @@
 package com.mycelium.wallet.external.changelly;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.crypto.Hmac;

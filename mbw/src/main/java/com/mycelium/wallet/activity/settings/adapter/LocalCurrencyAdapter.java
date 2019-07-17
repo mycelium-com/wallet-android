@@ -1,8 +1,7 @@
 package com.mycelium.wallet.activity.settings.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wapi.api.lib.CurrencyCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class LocalCurrencyAdapter extends ArrayAdapter<CurrencyCode> {

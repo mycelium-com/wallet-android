@@ -37,8 +37,8 @@ package com.mycelium.wallet.lt.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.mycelium.lt.api.model.PublicTraderInfo;
 import com.mycelium.wallet.R;

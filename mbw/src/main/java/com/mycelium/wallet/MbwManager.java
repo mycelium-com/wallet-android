@@ -45,12 +45,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
-import androidx.lifecycle.LiveData;
 import com.coinapult.api.httpclient.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -94,7 +93,6 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.AccountContextDAO;
-import com.mycelium.wallet.persistence.AccountsDB;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
@@ -228,7 +226,7 @@ public class MbwManager {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
         _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
-        accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
+        //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
 
         // Preferences

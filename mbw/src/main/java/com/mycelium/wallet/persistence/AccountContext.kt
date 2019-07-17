@@ -11,7 +11,7 @@ import java.util.*
  */
 
 @Entity(tableName = "account_context")
-data class AccountContext(@PrimaryKey override val uuid: UUID,
+data class AccountContext(@PrimaryKey override val uuid: UUID = UUID.randomUUID(),
                           override val currency: CryptoCurrency,
                           override var accountName: String,
                           override var balance: Balance,

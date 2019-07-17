@@ -37,7 +37,7 @@ package com.mycelium.wallet;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatDialog;
+import androidx.appcompat.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;

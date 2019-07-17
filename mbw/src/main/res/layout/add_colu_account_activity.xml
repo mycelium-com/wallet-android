@@ -56,19 +56,19 @@
             android:orientation="vertical"
             android:paddingTop="15dp">
 
-            <android.support.v7.widget.AppCompatRadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/radio_mycelium_tokens"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/colu_mycelium_tokens" />
 
-            <android.support.v7.widget.AppCompatRadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/radio_mass_tokens"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/colu_mass_tokens" />
 
-            <android.support.v7.widget.AppCompatRadioButton
+            <androidx.appcompat.widget.AppCompatRadioButton
                 android:id="@+id/radio_rmc_tokens"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
