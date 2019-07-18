@@ -12,7 +12,6 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.WithCallback;
-import com.mycelium.wapi.wallet.GenericAddress;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -209,17 +208,12 @@ public class PaymentRequestHandler {
    }
 
 
-   public void setMerchantMemo(String memo) {
-      merchantMemo = memo;
-   }
-
-   public boolean sendResponse(final Transaction signedTransaction, final GenericAddress refundAddress) {
+   public boolean sendResponse(final Transaction signedTransaction, final Address refundAddress) {
       if (hasValidPaymentRequest() && !Strings.isNullOrEmpty(paymentRequestInformation.getPaymentDetails().payment_url)) {
          new AsyncTask<Void, Void, AsyncResultAck>() {
             @Override
             protected AsyncResultAck doInBackground(Void... params) {
-               Address address = new Address(refundAddress.getBytes());
-               Payment payment = getPaymentRequestInformation().buildPaymentResponse(address, merchantMemo, signedTransaction);
+               Payment payment = getPaymentRequestInformation().buildPaymentResponse(refundAddress, merchantMemo, signedTransaction);
                try {
                   PaymentACK paymentAck = sendPaymentResponse(payment);
                   return new AsyncResultAck(paymentAck);
@@ -241,6 +235,10 @@ public class PaymentRequestHandler {
       } else {
          return false;
       }
+   }
+
+   public void setMerchantMemo(String memo) {
+      merchantMemo = memo;
    }
 
    class AsyncResultAck {
