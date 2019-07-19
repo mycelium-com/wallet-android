@@ -15,6 +15,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
+import com.mycelium.wapi.model.BalanceSatoshis
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
@@ -84,8 +85,10 @@ open class HDAccount(
     init {
         if (!isArchived) {
             ensureAddressIndexes()
-            _cachedBalance = calculateLocalBalance()
         }
+        _cachedBalance = if (isArchived)
+            BalanceSatoshis(0, 0, 0, 0, 0, 0, false, _allowZeroConfSpending)
+        else calculateLocalBalance()
     }
 
     override fun getId() = context.id

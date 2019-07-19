@@ -220,10 +220,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
             listener?.balanceUpdated(this)
             return true
-        }catch (e:IOException) {
+        } catch (e:IOException) {
             return false
         }
-
     }
 
     private fun getGenericListFromJsonTxList(transactions: MutableList<Tx.Json>) =
