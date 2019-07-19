@@ -141,34 +141,39 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
                  null, null, null, null);
          while (cursor.moveToNext()) {
-            UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
-            boolean isArchived = cursor.getInt(2) == 1;
-            int blockHeight = cursor.getInt(3);
-            String coinId = cursor.getString(4);
-            if (coinId == null) {
-               Log.w(LOG_TAG,"Asset not registered in system, and not imported, skipping...");
-               continue;
-            }
-            ColuMain coinType = ColuUtils.getColuCoin(coinId);
-            if (coinType == null) {
-               Log.w(LOG_TAG, String.format("Asset with id=%s, skipping...", coinId));
-               continue;
-            }
-            PublicKey publicKey = null;
-            if (cursor.getBlob(5) != null) {
-               publicKey = new PublicKey(cursor.getBlob(5));
-            }
-            Type type = new TypeToken<Collection<String>>(){}.getType();
-            Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-            Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
-            if(addressStringsList != null) {
-               for (String addressString : addressStringsList) {
-                  Address address = Address.fromString(addressString);
-                  addresses.put(address.getType(), new BtcAddress(coinType, address));
+            try {
+               UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
+               boolean isArchived = cursor.getInt(2) == 1;
+               int blockHeight = cursor.getInt(3);
+               String coinId = cursor.getString(4);
+
+               if (coinId == null) {
+                  Log.w(LOG_TAG, "Asset not registered in system, and not imported, skipping...");
+                  continue;
                }
+               ColuMain coinType = ColuUtils.getColuCoin(coinId);
+               if (coinType == null) {
+                  Log.w(LOG_TAG, String.format("Asset with id=%s, skipping...", coinId));
+                  continue;
+               }
+               PublicKey publicKey = null;
+               if (cursor.getBlob(5) != null) {
+                  publicKey = new PublicKey(cursor.getBlob(5));
+               }
+               Type type = new TypeToken<Collection<String>>() {}.getType();
+               Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
+               Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
+               if (addressStringsList != null) {
+                  for (String addressString : addressStringsList) {
+                     Address address = Address.fromString(addressString);
+                     addresses.put(address.getType(), new BtcAddress(coinType, address));
+                  }
+               }
+               list.add(new ColuAccountContext(id, coinType, publicKey, addresses
+                       , isArchived, blockHeight));
+            } catch (Exception ex) {
+               Log.e(LOG_TAG, "problem when acccount loading ", ex);
             }
-            list.add(new ColuAccountContext(id, coinType, publicKey, addresses
-                     , isArchived, blockHeight));
          }
       } finally {
          if (cursor != null) {
