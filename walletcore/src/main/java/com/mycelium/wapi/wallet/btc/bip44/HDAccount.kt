@@ -485,8 +485,8 @@ open class HDAccount(
             Optional.absent()
         } else {
             val receivingAddress = getReceivingAddress(context.defaultAddressType)
-                    ?: receivingAddressMap.values.first()
-            Optional.of(receivingAddress)
+                    ?: receivingAddressMap.values.firstOrNull()
+            Optional.fromNullable(receivingAddress)
         }
     }
 
