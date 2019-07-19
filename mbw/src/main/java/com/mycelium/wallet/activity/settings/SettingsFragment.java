@@ -45,7 +45,6 @@ import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.view.Denomination;
@@ -63,8 +62,6 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.text.DecimalFormat;
