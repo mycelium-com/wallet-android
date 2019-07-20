@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
+
 public class Balance {
     /**
      * The sum of the unspent outputs which are confirmed and currently not spent

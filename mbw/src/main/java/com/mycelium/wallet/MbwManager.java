@@ -93,6 +93,7 @@ import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.AccountContextDAO;
+import com.mycelium.wallet.persistence.AccountsDB;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
 import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
@@ -666,7 +667,7 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
-        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage(), AccountsDB.getDatabase(context).contextDao()));
 
         walletManager.init();
 
@@ -744,7 +745,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage(), AccountsDB.getDatabase(_applicationContext).contextDao()));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

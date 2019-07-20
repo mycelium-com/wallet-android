@@ -21,8 +21,8 @@ import kotlin.collections.HashMap
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
 //        private val backing: GenericWalletBacking<AccountContext>,
-        metaDataStorage: IMetaDataStorage/*,
-        val accountContextsDao: AccountContextDAO*/
+        metaDataStorage: IMetaDataStorage,
+        val accountContextsDao: AccountContextDAO
 ) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -31,7 +31,7 @@ class EtheriumModule(
     override val id = ID
 
     init {
-        assetsList.add(EthTest.get())
+        assetsList.add(EthTest)
     }
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {
@@ -44,7 +44,9 @@ class EtheriumModule(
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = emptyMap()
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = accountContextsDao.getContextsForCurrency(EthTest)
+            .toMap({ it.uuid }, { ethAccount() })
+            .blockingGet()
 
 
     override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig

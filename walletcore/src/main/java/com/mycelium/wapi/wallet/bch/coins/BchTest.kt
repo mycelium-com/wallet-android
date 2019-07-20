@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.bch.coins
 
-import com.mycelium.wapi.wallet.coins.SoftDustPolicy
 
 object BchTest: BchCoin() {
 

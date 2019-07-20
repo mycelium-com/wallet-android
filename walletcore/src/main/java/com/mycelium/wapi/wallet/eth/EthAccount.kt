@@ -10,8 +10,8 @@ import com.mycelium.wapi.wallet.eth.coins.EthTest
 import org.web3j.crypto.Credentials
 import java.util.*
 
-class EthAccount(val credentials: Credentials): WalletAccount<EthAddress> {
-    private val coinType = EthTest()
+class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
+    private val coinType = EthTest
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -46,7 +46,7 @@ class EthAccount(val credentials: Credentials): WalletAccount<EthAddress> {
 
     override fun getAccountBalance(): Balance {
         //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return Balance(Value(EthTest.get(), ethBalanceService.balance.toLong()), Value(EthTest.get(), 0), Value(EthTest.get(), 0), Value(EthTest.get(), 0))
+        return Balance(Value(EthTest, ethBalanceService.balance.toLong()), Value(EthTest, 0), Value(EthTest, 0), Value(EthTest, 0))
     }
 
     override fun isMineAddress(address: GenericAddress) =

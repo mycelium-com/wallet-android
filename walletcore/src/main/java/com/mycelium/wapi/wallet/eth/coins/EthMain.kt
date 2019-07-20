@@ -1,8 +1,6 @@
 package com.mycelium.wapi.wallet.eth.coins
 
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-
-class EthMain: EthCoin() {
+object EthMain: EthCoin() {
 
     init {
         id = "etherium.main"
@@ -13,14 +11,5 @@ class EthMain: EthCoin() {
 
     override fun getUnitExponent(): Int {
         return 0
-    }
-
-    companion object {
-        private val instance = EthMain()
-
-        @Synchronized
-        fun get(): CryptoCurrency {
-            return instance
-        }
     }
 }
