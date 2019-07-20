@@ -62,15 +62,6 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
-
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:$room_version"
-
-    // optional - RxJava support for Room
-    implementation "androidx.room:room-rxjava2:$room_version"
-
     //not upgrading. This will be replaced with firebase
     implementation 'com.google.android.gms:play-services-base:10.2.1'
     implementation 'com.google.android.gms:play-services-gcm:10.2.1'

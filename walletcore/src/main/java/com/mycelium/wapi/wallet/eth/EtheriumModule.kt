@@ -1,11 +1,7 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.AccountContext
-import com.mycelium.wapi.wallet.genericdb.AccountContextDAO
-import com.mycelium.wapi.wallet.genericdb.GenericWalletBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -15,14 +11,12 @@ import org.web3j.crypto.Bip32ECKeyPair
 import org.web3j.crypto.Bip32ECKeyPair.HARDENED_BIT
 import org.web3j.crypto.Credentials
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
 //        private val backing: GenericWalletBacking<AccountContext>,
-        metaDataStorage: IMetaDataStorage,
-        val accountContextsDao: AccountContextDAO
+        metaDataStorage: IMetaDataStorage
 ) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -44,9 +38,7 @@ class EtheriumModule(
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = accountContextsDao.getContextsForCurrency(EthTest)
-            .toMap({ it.uuid }, { ethAccount() })
-            .blockingGet()
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = emptyMap()
 
 
     override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig
