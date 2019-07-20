@@ -193,7 +193,7 @@ constructor(val network: NetworkParameters,
     }
 
     fun getSpendingAccounts() : List<WalletAccount<*>> {
-        return accounts.values.filter { it.isActive && it.canSpend() }
+        return accounts.values.filter { it.canSpend() }
     }
 
     fun getSpendingAccountsWithBalance() : List<WalletAccount<*>> {
