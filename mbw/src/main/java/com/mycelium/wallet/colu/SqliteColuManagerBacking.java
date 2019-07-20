@@ -169,7 +169,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                      addresses.put(address.getType(), new BtcAddress(coinType, address));
                   }
                }
-               list.add(new ColuAccountContext(id, coinType, publicKey, addresses
+               list.add(new ColuAccountContext(id, coinType, addresses
                        , isArchived, blockHeight));
             } catch (Exception ex) {
                Log.e(LOG_TAG, "problem when acccount loading ", ex);
@@ -206,17 +206,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-            _insertOrReplaceSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
+         _insertOrReplaceSingleAddressAccount.bindString(5, gson.toJson(context.getDefaultAddressType()));
          _insertOrReplaceSingleAddressAccount.bindString(6, context.getCoinType().getId());
-         if(context.getPublicKey()!= null) {
-            _insertOrReplaceSingleAddressAccount.bindBlob(7, context.getPublicKey().getPublicKeyBytes());
-         }
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
@@ -644,7 +635,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void onCreate(SQLiteDatabase db) {
-         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
+         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
                  + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
@@ -778,7 +769,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
          if(oldVersion < 9) {
             if (!columnExistsInTable(db, "single", "publicKey")) {
-               db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+               db.execSQL("ALTER TABLE single ADD COLUMN publicKey BLOB");
             }
 
             if (!columnExistsInTable(db, "single", "coinId")) {

@@ -108,11 +108,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     private val addressList: Map<AddressType, BtcAddress>
 
     init {
-        addressList = if (context.publicKey != null) {
-            convert(context.publicKey, type as ColuMain)
-        } else {
-            context.address ?: mapOf()
-        }
+        addressList = context.address ?: mapOf()
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         val transactions = accountBacking.getTransactions(0, 2000)
         val transactionSummaries = getGenericListFromJsonTxList(transactions)

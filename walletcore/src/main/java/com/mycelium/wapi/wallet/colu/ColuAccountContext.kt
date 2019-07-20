@@ -8,7 +8,6 @@ import java.util.*
 
 
 class ColuAccountContext(val id: UUID, val coinType: ColuMain
-                         , val publicKey: PublicKey? = null
                          , val address: Map<AddressType, BtcAddress>? = null
                          , private var isArchived: Boolean, var blockHeight: Int) {
 
