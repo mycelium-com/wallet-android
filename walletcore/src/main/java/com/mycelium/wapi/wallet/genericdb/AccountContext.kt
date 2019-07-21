@@ -12,3 +12,9 @@ interface AccountContext {
     var archived: Boolean
 }
 
+data class AccountContextImpl(override val uuid: UUID,
+                              override val currency: CryptoCurrency,
+                              override var accountName: String,
+                              override var balance: Balance,
+                              override var archived: Boolean): AccountContext
+

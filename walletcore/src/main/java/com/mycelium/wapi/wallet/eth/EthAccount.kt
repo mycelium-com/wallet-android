@@ -2,16 +2,44 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.genericdb.AccountContext
+import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.ECKeyPair
 import java.util.*
 
-class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
+class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<EthAddress> {
+    private val queries = db.accountContextQueries
     private val coinType = EthTest
+    private val accountContext: AccountContext
+
+    init {
+        val uuid = credentials.ecKeyPair.toUUID()
+        val accountContextInDB = queries.selectByUUID(uuid)
+                .executeAsOneOrNull()
+        accountContext = if (accountContextInDB != null) {
+            AccountContextImpl(accountContextInDB.uuid,
+                    accountContextInDB.currency,
+                    accountContextInDB.accountName,
+                    accountContextInDB.balance,
+                    accountContextInDB.archived)
+        } else {
+            AccountContextImpl(
+                    uuid,
+                    coinType,
+                    "abacaba",
+                    Balance(Value.zeroValue(coinType),
+                            Value.zeroValue(coinType),
+                            Value.zeroValue(coinType),
+                            Value.zeroValue(coinType)),
+                    false)
+        }
+    }
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -38,15 +66,13 @@ class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
 
     override fun getCoinType() = coinType
 
-    override fun getBasedOnCoinType(): CryptoCurrency {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getBasedOnCoinType() = getCoinType()
 
     private val ethBalanceService = EthBalanceService(credentials.address)
 
     override fun getAccountBalance(): Balance {
         //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return Balance(Value(EthTest, ethBalanceService.balance.toLong()), Value(EthTest, 0), Value(EthTest, 0), Value(EthTest, 0))
+        return Balance(Value.valueOf(EthTest, ethBalanceService.balance), Value(EthTest, 0), Value(EthTest, 0), Value(EthTest, 0))
     }
 
     override fun isMineAddress(address: GenericAddress) =
@@ -72,10 +98,10 @@ class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getLabel() = "Some account"
+    override fun getLabel() = accountContext.accountName
 
     override fun setLabel(label: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accountContext.accountName = label!!
     }
 
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
@@ -115,8 +141,7 @@ class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = UUID(BitUtils.uint64ToLong(credentials.ecKeyPair.publicKey.toByteArray(), 8), BitUtils.uint64ToLong(
-            credentials.ecKeyPair.publicKey.toByteArray(), 16))
+    override fun getId() = credentials.ecKeyPair.toUUID()
 
     override fun isSynchronizing(): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -160,3 +185,6 @@ class EthAccount(val credentials: Credentials) : WalletAccount<EthAddress> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
+
+fun ECKeyPair.toUUID(): UUID = UUID(BitUtils.uint64ToLong(publicKey.toByteArray(), 8), BitUtils.uint64ToLong(
+        publicKey.toByteArray(), 16))

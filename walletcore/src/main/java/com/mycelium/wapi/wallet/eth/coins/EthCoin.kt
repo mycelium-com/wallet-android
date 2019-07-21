@@ -9,6 +9,8 @@ import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 abstract class EthCoin: CryptoCurrency() {
     init {
         family = Families.ETHEREUM
+        unitExponent = 18
+        addressPrefix = ""
     }
 
     override fun getName(): String {

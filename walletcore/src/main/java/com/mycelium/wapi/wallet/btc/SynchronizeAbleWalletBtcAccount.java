@@ -75,7 +75,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
          isSyncing = true;
-         boolean synced = doSynchronization(mode);
+         boolean synced =  doSynchronization(mode);
          isSyncing = false;
          // if sync went well, remember current time for this sync mode
          if (synced){

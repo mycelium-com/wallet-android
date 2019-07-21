@@ -6,6 +6,5 @@ object EthTest: EthCoin() {
         id = "etherium.test"
         name = "Ether test"
         symbol = "ETH"
-        unitExponent = 18
     }
 }

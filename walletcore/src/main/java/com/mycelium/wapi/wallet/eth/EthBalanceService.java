@@ -21,7 +21,7 @@ public class EthBalanceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EthBalanceService.class);
     private final Web3j web3j;
     private final Address address;
-    private BigDecimal cachedBalance = BigDecimal.valueOf(0);
+    private BigInteger cachedBalance = BigInteger.valueOf(0);
 
     public EthBalanceService(String address) {
         this.web3j =  Web3j.build((new InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l")));
@@ -42,15 +42,14 @@ public class EthBalanceService {
         cachedBalance = getBalanceSynchronously();
     }
 
-    private BigDecimal getBalanceSynchronously() {
-        BigDecimal balanceInEth = cachedBalance; //cached balance by default if e.g. no network
+    private BigInteger getBalanceSynchronously() {
+        BigInteger balanceInEth = cachedBalance; //cached balance by default if e.g. no network
 
         try
         {
             Request<?, EthGetBalance> balanceRequest = web3j.ethGetBalance(address.toString(), DefaultBlockParameterName.PENDING);
             EthGetBalance balanceResult = balanceRequest.send();
-            BigInteger balance = balanceResult.getBalance();
-            balanceInEth = Convert.fromWei(balance.toString(), Convert.Unit.ETHER);
+            balanceInEth = balanceResult.getBalance();
         }
         catch(SocketTimeoutException | UnknownHostException e)
         {
@@ -63,7 +62,7 @@ public class EthBalanceService {
         return balanceInEth;
     }
 
-    public BigDecimal getBalance() {
+    public BigInteger getBalance() {
         return cachedBalance;
     }
 }

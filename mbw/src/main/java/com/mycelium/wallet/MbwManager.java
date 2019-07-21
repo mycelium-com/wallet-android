@@ -75,6 +75,7 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
+import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.*;
 import com.mycelium.view.Denomination;
@@ -117,11 +118,14 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import com.squareup.sqldelight.android.AndroidSqliteDriver;
+import com.squareup.sqldelight.db.SqlDriver;
 import kotlin.jvm.Synchronized;
 
 import javax.net.ssl.SSLSocket;
@@ -162,6 +166,7 @@ public class MbwManager {
     private boolean startUpPinUnlocked = false;
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
+    private final WalletDB db;
 
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
@@ -294,6 +299,9 @@ public class MbwManager {
                 fiatCurrencies.add(new FiatType(currency));
             }
         }
+
+        SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter());
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
@@ -664,7 +672,7 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
-        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage(), db));
 
         walletManager.init();
 
@@ -742,7 +750,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage()));
+        walletManager.add(new EtheriumModule(secureKeyValueStore, getMetadataStorage(), db));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
