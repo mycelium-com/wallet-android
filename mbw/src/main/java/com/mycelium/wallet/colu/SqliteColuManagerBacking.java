@@ -119,7 +119,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?,?)");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?)");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
@@ -619,7 +619,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 9;
+      private static final int DATABASE_VERSION = 10;
       private Context context;
 
       OpenHelper(Context context) {
@@ -636,7 +636,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       @Override
       public void onCreate(SQLiteDatabase db) {
          db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
-                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
+                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
@@ -769,7 +769,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
          if(oldVersion < 9) {
             if (!columnExistsInTable(db, "single", "publicKey")) {
-               db.execSQL("ALTER TABLE single ADD COLUMN publicKey BLOB");
+               db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
             }
 
             if (!columnExistsInTable(db, "single", "coinId")) {
@@ -799,7 +799,41 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                createTxTable(tableSuffix, db);
             }
          }
+
+         if (oldVersion < 10) {
+
+            Map<String, String> columnTypes = getColumnTypes(db, "single");
+
+            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
+                    + ", blockheight INTEGER, addressType TEXT, coinId TEXT" +
+                    ");");
+            // Migrate all data from 'single' table if 'addresses' field's type is TEXT (correct)
+            if (columnTypes.get("addresses").equals("TEXT")) {
+               db.execSQL("INSERT INTO single_new SELECT id,addresses,archived,blockheight,addressType,coinId FROM single");
+            }
+
+            db.execSQL("ALTER TABLE single RENAME TO single_old");
+            db.execSQL("ALTER TABLE single_new RENAME TO single");
+            db.execSQL("DROP TABLE single_old");
+         }
+
       }
+
+      private Map<String, String> getColumnTypes(SQLiteDatabase db, String table) {
+         Map<String, String> columnTypes = new HashMap<>();
+         Cursor cursor = db.rawQuery("PRAGMA table_info(" + table + ")", null);
+         try {
+            int nameIdx = cursor.getColumnIndexOrThrow("name");
+            int typeIdx = cursor.getColumnIndexOrThrow("type");
+            while (cursor.moveToNext()) {
+               columnTypes.put(cursor.getString(nameIdx), cursor.getString(typeIdx));
+            }
+            return columnTypes;
+         } finally {
+            cursor.close();
+         }
+      }
+
 
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
