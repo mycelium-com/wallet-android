@@ -120,9 +120,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
 
    public SqliteColuManagerBacking(Context context, NetworkParameters networkParameters) {
+      this.networkParameters = networkParameters;
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
-      this.networkParameters = networkParameters;
 
       _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?");
@@ -143,7 +143,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId"}, null, null,
                  null, null, null, null);
          while (cursor.moveToNext()) {
             try {
@@ -812,7 +812,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
             try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
                     null, null, null, null)) {
-               SQLiteStatement statement = db.compileStatement("INSERT INTO single VALUES (?,?,?,?,?)");
+               SQLiteStatement statement = db.compileStatement("INSERT INTO single_new VALUES (?,?,?,?,?)");
 
                while (cursor.moveToNext()) {
                   statement.bindBlob(1, cursor.getBlob(0));
