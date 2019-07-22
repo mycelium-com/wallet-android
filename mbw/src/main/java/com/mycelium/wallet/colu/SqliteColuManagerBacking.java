@@ -820,15 +820,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                   statement.bindLong(3, cursor.getLong(2));
                   statement.bindLong(4, cursor.getLong(3));
 
+                  boolean brokenCoinIdData = false;
                   String coinId = null;
 
                   try {
                      coinId = cursor.getString(4);
                   } catch (Exception ex) {
-                     // Probably we could not read this field as String because there a BLOB record
+                     brokenCoinIdData = true; // Probably we could not read this field as String because there a BLOB record
                   }
 
-                  if (coinId != null) {
+                  if (!brokenCoinIdData) {
                      byte[] publicKeyBytes = cursor.getBlob(5);
                      if (publicKeyBytes != null) {
                         statement.bindString(2, transformPublicKeyToAddressesList(publicKeyBytes, networkParameters));
