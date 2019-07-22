@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContext
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import com.squareup.sqldelight.runtime.rx.asObservable
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import java.util.*
@@ -71,8 +72,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     private val ethBalanceService = EthBalanceService(credentials.address)
 
     override fun getAccountBalance(): Balance {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return Balance(Value.valueOf(EthTest, ethBalanceService.balance), Value(EthTest, 0), Value(EthTest, 0), Value(EthTest, 0))
+        return accountContext.balance
     }
 
     override fun isMineAddress(address: GenericAddress) =
@@ -109,8 +109,17 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        ethBalanceService.updateBalanceCache()
-        return true
+        val succeed = ethBalanceService.updateBalanceCache()
+        if (succeed) {
+            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance), Value(EthTest, 0),
+                    Value(EthTest, 0), Value(EthTest, 0))
+            queries.update(accountContext.accountName,
+                    balance,
+                    accountContext.archived,
+                    accountContext.uuid)
+            accountContext.balance = balance
+        }
+        return succeed
     }
 
     override fun getBlockChainHeight(): Int {
@@ -121,7 +130,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
 
     override fun isSyncing() = false
 
-    override fun isArchived() = false
+    override fun isArchived() = accountContext.archived
 
     override fun isActive() = !isArchived
 
@@ -147,7 +156,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun broadcastOutgoingTransactions() = false
+    override fun broadcastOutgoingTransactions() = true
 
     override fun removeAllQueuedTransactions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

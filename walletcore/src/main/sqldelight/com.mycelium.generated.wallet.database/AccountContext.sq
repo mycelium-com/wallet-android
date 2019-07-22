@@ -25,6 +25,15 @@ insert:
 INSERT INTO AccountContext(uuid, currency, accountName, balance, archived)
 VALUES (?, ?, ?, ?, ?);
 
+insertFullObject:
+INSERT INTO AccountContext(uuid, currency, accountName, balance, archived)
+VALUES ?;
+
+update:
+UPDATE AccountContext
+SET accountName = (?), balance = (?), archived = (?)
+WHERE uuid = (?);
+
 delete:
 DELETE FROM AccountContext
 WHERE uuid = (?);
