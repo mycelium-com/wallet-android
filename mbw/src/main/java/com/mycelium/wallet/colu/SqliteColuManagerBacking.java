@@ -222,7 +222,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       } finally {
          _database.endTransaction();
       }
-
    }
 
    @Override
