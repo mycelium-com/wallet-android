@@ -798,6 +798,12 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
 
          if (oldVersion < 10) {
+            // This migration is intended to fix a couple of issues
+            // - Removes unnesessary 'publicKey' field
+            // - Resolves the issue for Colu accounts created in 3.X when coinId and publicKey data
+            //   were mixed up between each other because of incorrect order their insertion
+            //   inside INSERT INTO query. So, coinId stored publicKey BLOB data and publicKey stored
+            //   STRING coinId data.
 
             db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
                     + ", blockheight INTEGER, coinId TEXT" +
