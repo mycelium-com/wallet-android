@@ -633,7 +633,7 @@ public class MbwManager {
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
-        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
+        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context, networkParameters);
 
         SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking, new AndroidRandomSource());
 

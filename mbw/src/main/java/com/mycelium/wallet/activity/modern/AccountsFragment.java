@@ -343,18 +343,9 @@ public class AccountsFragment extends Fragment {
                                         walletManager.deleteAccount(accountToDelete.getId());
                                         ColuAccountContext context = ((ColuAccount) linkedColuAccount).getContext();
                                         ColuMain coluMain = (ColuMain) linkedColuAccount.getCoinType();
-                                        Config config = null;
-                                        if (context.getPublicKey() != null) {
-                                            GenericAddress address = AddressUtils.from(coluMain,
-                                                    context.getPublicKey().toAddress(walletManager.getNetwork(), AddressType.P2PKH).toString());
-                                            if (address instanceof BtcAddress) {
-                                                config = new AddressColuConfig((BtcAddress) address, coluMain);
-                                            }
-                                        }
+                                        Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
                                         _storage.deleteAccountMetadata(linkedColuAccount.getId());
-                                        if (config != null) {
-                                            walletManager.createAccounts(config);
-                                        }
+                                        walletManager.createAccounts(config);
                                     } else {
                                         ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
                                     }
@@ -374,17 +365,9 @@ public class AccountsFragment extends Fragment {
                                         if (keepAddrCheckbox.isChecked()) {
                                             ColuAccountContext context = ((ColuAccount) accountToDelete).getContext();
                                             ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
-                                            Config config = null;
-                                            if (context.getPublicKey() != null) {
-                                                GenericAddress address = AddressUtils.from(coluMain, context.getPublicKey().
-                                                        toAddress(walletManager.getNetwork(), AddressType.P2PKH).toString());
-                                                config = new AddressColuConfig((BtcAddress) address, coluMain);
-
-                                            }
+                                            Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
-                                            if( config != null) {
-                                                walletManager.createAccounts(config);
-                                            }
+                                            walletManager.createAccounts(config);
                                         } else {
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
                                             _toaster.toast("Deleting account.", false);

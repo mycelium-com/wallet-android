@@ -73,8 +73,7 @@ class ColuModule(val networkParameters: NetworkParameters,
         val result = mutableMapOf<UUID, WalletAccount<*>>()
         for (context in contexts) {
             try {
-                val addresses = context.publicKey?.getAllSupportedBtcAddresses(context.coinType, networkParameters)
-                        ?: context.address
+                val addresses = context.address
                 val account = ColuAccount(context, getPrivateKey(addresses), context.coinType, networkParameters, coluApi
                             , backing.getAccountBacking(context.id) as ColuAccountBacking, backing
                             , listener, wapi)
@@ -110,8 +109,8 @@ class ColuModule(val networkParameters: NetworkParameters,
             coinType = coluMain(address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(coinType, address.allAddressBytes)
-                val context = ColuAccountContext(id, type, config.privateKey.publicKey, null
-                        , false, 0)
+                val addresses = config.privateKey.publicKey.getAllSupportedBtcAddresses(config.coinType, networkParameters)
+                val context = ColuAccountContext(id, type, addresses, false, 0)
                 backing.createAccountContext(context)
                 result = ColuAccount(context, config.privateKey, type, networkParameters
                         , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
@@ -121,7 +120,7 @@ class ColuModule(val networkParameters: NetworkParameters,
             coinType = coluMain(config.address.address, config.coinType)
             coinType?.let { type ->
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
-                val context = ColuAccountContext(id, type, null, mapOf(config.address.type to BtcAddress(coinType, config.address.address))
+                val context = ColuAccountContext(id, type, mapOf(config.address.type to BtcAddress(coinType, config.address.address))
                         , false, 0)
                 backing.createAccountContext(context)
                 result = ColuAccount(context, null, type, networkParameters
