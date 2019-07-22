@@ -124,7 +124,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?)");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single (id, addresses, archived, blockheight, coinId) VALUES (?,?,?,?,?)");
       _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
@@ -807,25 +807,53 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
             try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
                     null, null, null, null)) {
-               SQLiteStatement statement = db.compileStatement("INSERT INTO single_new VALUES (?,?,?,?,?)");
+               SQLiteStatement statement = db.compileStatement("INSERT INTO single_new (id, addresses, archived, blockheight, coinId) VALUES (?,?,?,?,?)");
 
                while (cursor.moveToNext()) {
                   statement.bindBlob(1, cursor.getBlob(0));
-
-                  byte[] publicKeyBytes = cursor.getBlob(5);
-                  if (publicKeyBytes != null) {
-                     PublicKey key = new PublicKey(publicKeyBytes);
-                     List<String> addresses = new ArrayList<>();
-                     for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
-                        addresses.add(address.toString());
-                     }
-                     statement.bindString(2, gson.toJson(addresses));
-                  } else {
-                     statement.bindString(2, cursor.getString(1));
-                  }
                   statement.bindLong(3, cursor.getLong(2));
                   statement.bindLong(4, cursor.getLong(3));
-                  statement.bindString(5, cursor.getString(4));
+
+                  String coinId = null;
+
+                  try {
+                     coinId = cursor.getString(4);
+                  } catch (Exception ex) {
+                     // Probably we could not read this field as String because there a BLOB record
+                  }
+
+                  if (coinId != null) {
+                     byte[] publicKeyBytes = cursor.getBlob(5);
+                     if (publicKeyBytes != null) {
+                        statement.bindString(2, transformPublicKeyToAddressesList(publicKeyBytes, networkParameters));
+                     } else {
+                        statement.bindString(2, cursor.getString(1));
+                     }
+
+                     statement.bindString(5, coinId);
+                  } else {
+                     // There was a bug when coinId and publicKey were mixed up between each other
+                     // So here we try to read coinId saved in publicKey field
+                     try {
+                        coinId = cursor.getString(5);
+                     } catch (Exception ex) {
+
+                     }
+
+                     // If coinId is not null here,
+                     if (coinId != null) {
+                        // So here we try to read publicKey saved in coinId field
+                        byte[] publicKeyBytes = cursor.getBlob(4);
+                        if (publicKeyBytes != null) {
+                           statement.bindString(2, transformPublicKeyToAddressesList(publicKeyBytes, networkParameters));
+                        } else {
+                           statement.bindString(2, cursor.getString(1));
+                        }
+
+                        statement.bindString(5, coinId);
+                     }
+                  }
+
                   statement.executeInsert();
                }
 
@@ -838,6 +866,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       }
 
+      private String transformPublicKeyToAddressesList(byte[] publicKeyBytes,
+                                                             NetworkParameters networkParameters) {
+         PublicKey key = new PublicKey(publicKeyBytes);
+         List<String> addresses = new ArrayList<>();
+         for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
+            addresses.add(address.toString());
+         }
+         return gson.toJson(addresses);
+      }
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column
