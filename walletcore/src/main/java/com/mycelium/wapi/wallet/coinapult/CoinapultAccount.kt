@@ -15,7 +15,7 @@ import java.util.*
 
 class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InMemoryPrivateKey
                        , val api: CoinapultApi
-                       , val accountBacking: BtcAccountBacking
+                       , val accountBacking: CoinapultAccountBacking
                        , val backing: WalletBacking<CoinapultAccountContext>
                        , val _network: NetworkParameters
                        , val currency: Currency
@@ -37,7 +37,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // Coinapult is currently disabled
+        return ArrayList<GenericTransaction>()
     }
 
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
@@ -53,7 +54,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     }
 
     override fun isSyncing(): Boolean {
-        //TODO: implement later
         return false
     }
 
@@ -126,9 +126,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         backing.updateAccountContext(context)
     }
 
-    override fun broadcastOutgoingTransactions(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun broadcastOutgoingTransactions(): Boolean = true
 
     override fun isArchived() = context.isArchived()
 
