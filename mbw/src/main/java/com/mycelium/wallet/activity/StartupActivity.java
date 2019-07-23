@@ -346,8 +346,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
+            InMemoryPrivateKey key = PrivateKeyAction.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key != null) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);

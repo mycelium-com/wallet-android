@@ -35,7 +35,6 @@
 package com.mycelium.wallet;
 
 
-import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
@@ -73,7 +72,7 @@ public class DataExport {
          String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
          StringBuilder destAddresses = new StringBuilder();
          for (GenericOutputViewModel output : transaction.getOutputs()) {
-            if(!account.isMineAddress(output.getAddress())) {
+            if (!account.isMineAddress(output.getAddress())) {
                destAddresses.append(output.getAddress().toString()).append(" ");
             }
          }

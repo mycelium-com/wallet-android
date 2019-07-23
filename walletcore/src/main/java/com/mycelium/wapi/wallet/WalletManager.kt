@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
@@ -13,7 +12,7 @@ class WalletManager
 @JvmOverloads
 constructor(val network: NetworkParameters,
             val wapi: Wapi,
-            var currenciesSettingsMap: HashMap<String, CurrencySettings>,
+            private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null) {
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
@@ -21,12 +20,12 @@ constructor(val network: NetworkParameters,
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
 
-    fun getCurrenySettings(moduleID: String): CurrencySettings? {
-        return currenciesSettingsMap[moduleID]
+    fun getCurrencySettings(moduleID: String): CurrencySettings? {
+        return currencySettingsMap[moduleID]
     }
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
-        currenciesSettingsMap[moduleID] = settings
+        currencySettingsMap[moduleID] = settings
         walletModules.get(moduleID)?.setCurrencySettings(settings)
     }
 
@@ -84,8 +83,8 @@ constructor(val network: NetworkParameters,
                     val account = it.createAccount(config)
                     result[account.id] = account
 
-                    account.dependentAccounts?.forEach {
-                        result[it.id] = it
+                    account.dependentAccounts?.forEach { walletAccount ->
+                        result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
                     _logger.logError("Account", exception)
@@ -179,8 +178,7 @@ constructor(val network: NetworkParameters,
     fun getSpendingAccounts() : List<WalletAccount<*>> = accounts.values.filter { it.canSpend() }
 
     fun getSpendingAccountsWithBalance() : List<WalletAccount<*>> =
-            accounts.values.filter { it.isActive && it.canSpend() && it.accountBalance.spendable.isPositive }
-
+            accounts.values.filter { it.isActive && it.canSpend() && it.accountBalance.spendable.isPositive() }
 
     fun getArchivedAccounts(): List<WalletAccount<*>> = accounts.values.filter { it.isArchived }
 
@@ -207,12 +205,8 @@ constructor(val network: NetworkParameters,
                 .flatMap { it.getSupportedAssets() }
                 .distinctBy { it.id }
                 .mapNotNull { genericAssetInfo ->
-            try {
-                        genericAssetInfo.parseAddress(address)
-                } catch (ex: AddressMalformedException) {
-                    null
+                    genericAssetInfo.parseAddress(address)
                 }
-    }
 
     /**
      * Call this method to disable transaction history synchronization for single address accounts.

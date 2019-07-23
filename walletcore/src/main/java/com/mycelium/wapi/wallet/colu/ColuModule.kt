@@ -43,7 +43,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 val saId = SingleAddressAccount.calculateId(it.privateKey!!.publicKey.toAddress(networkParameters, AddressType.P2PKH, true))
                 var linked = singleAddressModule.getAccountById(saId) as SingleAddressAccount?
                 if (linked == null) {
-                    linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey!!, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin", AddressType.P2PKH)) as SingleAddressAccount
+                    linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin", AddressType.P2PKH)) as SingleAddressAccount
                 }
                 it.linkedAccount = linked
             } else {
@@ -101,56 +101,42 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        var result: ColuAccount? = null
-        var coinType: ColuMain? = null
-
-        if (config is PrivateColuConfig) {
-            val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
-            coinType = coluMain(address, config.coinType)
-            coinType?.let { type ->
+        val coinType: ColuMain
+        val result: ColuAccount = when (config) {
+            is PrivateColuConfig -> {
+                val address = config.privateKey.publicKey.toAddress(networkParameters, AddressType.P2PKH)
+                coinType = coluMain(address, config.coinType)!!
                 val id = ColuUtils.getGuidForAsset(coinType, address.allAddressBytes)
                 val addresses = config.privateKey.publicKey.getAllSupportedBtcAddresses(config.coinType, networkParameters)
-                val context = ColuAccountContext(id, type, addresses, false, 0)
+                val context = ColuAccountContext(id, coinType, addresses, false, 0)
                 backing.createAccountContext(context)
-                result = ColuAccount(context, config.privateKey, type, networkParameters
-                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
                 publicPrivateKeyStore.setPrivateKey(address.allAddressBytes, config.privateKey, config.cipher)
+                ColuAccount(context, config.privateKey, coinType, networkParameters
+                        , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
             }
-        }  else if (config is AddressColuConfig) {
-            coinType = coluMain(config.address.address, config.coinType)
-            coinType?.let { type ->
+            is AddressColuConfig -> {
+                coinType = coluMain(config.address.address, config.coinType)!!
                 val id = ColuUtils.getGuidForAsset(config.coinType, config.address.getBytes())
-                val context = ColuAccountContext(id, type, mapOf(config.address.type to BtcAddress(coinType, config.address.address))
+                val context = ColuAccountContext(id, coinType, mapOf(config.address.type to BtcAddress(coinType, config.address.address))
                         , false, 0)
                 backing.createAccountContext(context)
-                result = ColuAccount(context, null, type, networkParameters
+                ColuAccount(context, null, coinType, networkParameters
                         , coluApi, backing.getAccountBacking(id) as ColuAccountBacking, backing, listener, wapi)
             }
+            else -> throw IllegalArgumentException("Unexpected config $config.")
         }
+        accounts[result.id] = result
+        val baseName = createColuAccountLabel(coinType)
+        result.label = createLabel(baseName, result.id)
 
-        result?.let {
-            accounts[it.id] = it
-            val baseName = createColuAccountLabel(coinType)
-            it.label = createLabel(baseName, it.id)
-
-            // Create a linked Colu account
-            when (config) {
-                is PrivateColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(PrivateSingleConfig(config.privateKey, config.cipher, it.label + " Bitcoin", AddressType.P2PKH))
-                    it.linkedAccount = saAccount as SingleAddressAccount
-                }
-
-                is AddressColuConfig -> {
-                    val saAccount = singleAddressModule.createAccount(AddressSingleConfig(it.receiveAddress as BtcAddress, it.label + " Bitcoin"))
-                    it.linkedAccount = saAccount as SingleAddressAccount
-                }
-            }
-
-        } ?: run {
-            throw IllegalStateException("Account can't be created")
-        }
-
-        return result!!
+        // Create a linked Colu account
+        val saAccount = singleAddressModule.createAccount(when (config) {
+            is PrivateColuConfig -> PrivateSingleConfig(config.privateKey, config.cipher, result.label + " Bitcoin", AddressType.P2PKH)
+            is AddressColuConfig -> AddressSingleConfig(result.receiveAddress as BtcAddress, result.label + " Bitcoin")
+            else -> throw IllegalArgumentException("Unexpected config $config.")
+        })
+        result.linkedAccount = saAccount as SingleAddressAccount
+        return result
     }
 
     private fun createColuAccountLabel(coinType: ColuMain?): String {

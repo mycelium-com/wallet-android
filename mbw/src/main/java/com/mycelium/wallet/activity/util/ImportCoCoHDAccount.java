@@ -84,11 +84,11 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         for (WalletAccount account : accountsCreated) {
             Value spendableBalance = account.getAccountBalance().confirmed;
             if (account.getCoinType().equals(MASSCoin.INSTANCE)) {
-                massFound = massFound.add(spendableBalance);
+                massFound = massFound.plus(spendableBalance);
             } else if (account.getCoinType().equals(RMCCoin.INSTANCE)) {
-                rmcFound = rmcFound.add(spendableBalance);
+                rmcFound = rmcFound.plus(spendableBalance);
             } else if (account.getCoinType().equals(MTCoin.INSTANCE)) {
-                mtFound = mtFound.add(spendableBalance);
+                mtFound = mtFound.plus(spendableBalance);
             }
         }
         return accountsCreated.isEmpty() ? null : accountsCreated.get(0).getId();
