@@ -88,3 +88,5 @@ class EtheriumModule(
         const val ID: String = "Etherium"
     }
 }
+
+fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }

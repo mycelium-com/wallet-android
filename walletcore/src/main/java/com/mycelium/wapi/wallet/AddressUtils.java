@@ -57,7 +57,7 @@ public class AddressUtils {
             int i = 0;
             StringBuilder result = new StringBuilder();
             while (i + 12 < address.length()) {
-                result.append(address.substring(i, i + 12)).append("\r\n");
+                result.append(address, i, i + 12).append("\r\n");
                 i = i + 12;
             }
             return result.append(address.substring(i)).toString();

@@ -205,7 +205,7 @@ android {
 
     productFlavors {
         prodnet {
-            applicationId 'com.mycelium.wallet'
+            applicationId 'com.mycelium.wallet.eth'
             versionName = defaultConfig.versionName
             signingConfig signingConfigs.release
 
@@ -232,7 +232,7 @@ android {
             logger.info("Signing config is ", signingConfig)
         }
         btctestnet {
-            applicationId 'com.mycelium.testnetwallet'
+            applicationId 'com.mycelium.testnetwallet.eth'
             versionName = defaultConfig.versionName + '-TESTNET'
             signingConfig signingConfigs.btctestnet
 

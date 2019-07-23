@@ -9,7 +9,7 @@ import java.net.UnknownHostException
 
 class EthBalanceService(val address: String) {
     private val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
-    var balance = BigInteger.valueOf(0)
+    var balance = BigInteger.valueOf(0)!!
         private set
 
     fun updateBalanceCache(): Boolean {

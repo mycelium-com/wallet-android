@@ -143,7 +143,14 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     }
 
     override fun dropCachedData() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val balance = Balance(Value.valueOf(EthTest, 0),
+                Value(EthTest, 0),
+                Value(EthTest, 0),
+                Value(EthTest, 0))
+        queries.update(accountContext.accountName,
+                balance,
+                accountContext.archived,
+                accountContext.uuid)
     }
 
     override fun isVisible() = true
