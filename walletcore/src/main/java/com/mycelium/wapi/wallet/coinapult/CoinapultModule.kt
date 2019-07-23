@@ -32,7 +32,7 @@ class CoinapultModule(val accountKey: InMemoryPrivateKey,
         val result = mutableMapOf<UUID, WalletAccount<*>>()
         backing.loadAccountContexts().forEach { context ->
             val id = CoinapultUtils.getGuidForAsset(context.currency, accountKey.publicKey.publicKeyBytes)
-            val account = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id) as BtcAccountBacking
+            val account = CoinapultAccount(context, accountKey, api, backing.getAccountBacking(id) as CoinapultAccountBacking
                     , backing, networkParameters, context.currency, listener)
             account.label = readLabel(account.id)
             accounts[account.id] = account

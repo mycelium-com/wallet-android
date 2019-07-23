@@ -179,7 +179,7 @@ constructor(val network: NetworkParameters,
     fun getSpendingAccounts() : List<WalletAccount<*>> = accounts.values.filter { it.canSpend() }
 
     fun getSpendingAccountsWithBalance() : List<WalletAccount<*>> =
-            accounts.values.filter { it.canSpend() && it.accountBalance.spendable.isPositive }
+            accounts.values.filter { it.isActive && it.canSpend() && it.accountBalance.spendable.isPositive }
 
 
     fun getArchivedAccounts(): List<WalletAccount<*>> = accounts.values.filter { it.isArchived }

@@ -15,10 +15,13 @@ interface ColuApi {
     @Throws(IOException::class)
     fun broadcastTx(coluSignedTransaction: Transaction): String?
 
+    @Throws(IOException::class)
     fun getAddressTransactions(address: GenericAddress): AddressTransactionsInfo.Json
 
+    @Throws(IOException::class)
     fun getCoinTypes(address: Address): List<ColuMain>
 
+    @Throws(IOException::class)
     fun prepareTransaction(toAddress: BtcAddress, fromAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json?
 
 }

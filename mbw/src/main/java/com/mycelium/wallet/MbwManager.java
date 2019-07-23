@@ -294,11 +294,15 @@ public class MbwManager {
         }
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
+        Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
+        if (denomination == null) {
+            denomination = Denomination.UNIT;
+        }
         _currencySwitcher = new CurrencySwitcher(
                 _exchangeRateManager,
                 fiatCurrencies,
                 new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()))
+                denomination
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -628,7 +632,7 @@ public class MbwManager {
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
 
-        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context);
+        SqliteColuManagerBacking coluBacking = new SqliteColuManagerBacking(context, networkParameters);
 
         SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking, new AndroidRandomSource());
 

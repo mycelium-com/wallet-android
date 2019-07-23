@@ -329,23 +329,15 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return maxIndex + 1
     }
 
-    fun hasBip32MasterSeed(): Boolean {
-        return secureStore.hasCiphertextValue(MASTER_SEED_ID)
-    }
+    fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MASTER_SEED_ID)
 
-    fun canCreateAdditionalBip44Account(): Boolean {
-        if (!hasBip32MasterSeed()) {
-            // No master seed
-            return false
-        }
-
-        for (account in accounts.values) {
-            if (!account.hasHadActivity()) {
-                return false
-            }
-        }
-        return true
-    }
+    /**
+     * To create an additional HD account from the master seed, the master seed must be present and
+     * all existing master seed accounts must have had transactions (no gap accounts)
+     */
+    fun canCreateAdditionalBip44Account(): Boolean =
+            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
+                    .all { it.hasHadActivity() }
 
     override fun canCreateAccount(config: Config): Boolean {
         return config is UnrelatedHDAccountConfig ||
@@ -354,18 +346,17 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
     }
 
 
-    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        if(walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
-            accounts.remove(walletAccount.id)
-            backing.deleteBip44AccountContext(walletAccount.id)
-            return true
-        }
-        return false
-    }
+    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean =
+            if (walletAccount is HDAccount || walletAccount is HDPubOnlyAccount) {
+                accounts.remove(walletAccount.id)
+                backing.deleteBip44AccountContext(walletAccount.id)
+                true
+            } else {
+                false
+            }
 
-    fun upgradeExtSigAccount(accountRoots: List<HdKeyNode>, account: HDAccountExternalSignature): Boolean {
-        return account.upgradeAccount(accountRoots, secureStore)
-    }
+    fun upgradeExtSigAccount(accountRoots: List<HdKeyNode>, account: HDAccountExternalSignature): Boolean =
+            account.upgradeAccount(accountRoots, secureStore)
 
     companion object {
         const val ID: String = "BitcoinHD"

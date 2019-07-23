@@ -26,6 +26,7 @@ import com.mycelium.wapi.wallet.colu.json.Tx
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
+import java.io.IOException
 import java.util.*
 
 class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
@@ -111,11 +112,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     private val addressList: Map<AddressType, BtcAddress>
 
     init {
-        addressList = if (context.publicKey != null) {
-            convert(context.publicKey, type as ColuMain)
-        } else {
-            context.address ?: mapOf()
-        }
+        addressList = context.address ?: mapOf()
         uuid = ColuUtils.getGuidForAsset(type, addressList[AddressType.P2PKH]?.getBytes())
         val transactions = accountBacking.getTransactions(0, 2000)
         val transactionSummaries = getGenericListFromJsonTxList(transactions)
@@ -214,18 +211,22 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
         // retrieve history from colu server
-        val json = coluClient.getAddressTransactions(receiveAddress)
-        val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
-        val utxosFromJson = utxosFromJson(json, receiveAddress)
-        accountBacking.clear()
-        accountBacking.putTransactions(json.transactions)
-        cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
-        listener?.balanceUpdated(this)
-        return true
+        try {
+            val json = coluClient.getAddressTransactions(receiveAddress)
+            val genericTransactionSummaries = getGenericListFromJsonTxList(json.transactions)
+            val utxosFromJson = utxosFromJson(json, receiveAddress)
+            accountBacking.clear()
+            accountBacking.putTransactions(json.transactions)
+            cachedBalance = calculateBalance(utxosFromJson, genericTransactionSummaries)
+            listener?.balanceUpdated(this)
+            return true
+        } catch (e:IOException) {
+            return false
+        }
     }
 
     private fun getGenericListFromJsonTxList(transactions: MutableList<Tx.Json>) =
-            transactions.map { genericTransactionSummaryFromJson(it) }.filterNotNull()
+            transactions.mapNotNull { genericTransactionSummaryFromJson(it) }
 
     private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)

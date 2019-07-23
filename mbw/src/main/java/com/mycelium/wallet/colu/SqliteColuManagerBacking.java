@@ -37,8 +37,10 @@ package com.mycelium.wallet.colu;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.net.Network;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -54,6 +56,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -111,15 +114,18 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private final SQLiteStatement _deleteKeyValue;
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
+   private final NetworkParameters networkParameters;
+
    private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
 
 
-   public SqliteColuManagerBacking(Context context) {
+   public SqliteColuManagerBacking(Context context, NetworkParameters networkParameters) {
+      this.networkParameters = networkParameters;
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
-      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single VALUES (?,?,?,?,?,?,?)");
-      _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=?,addressType=? WHERE id=?");
+      _insertOrReplaceSingleAddressAccount = _database.compileStatement("INSERT OR REPLACE INTO single (id, addresses, archived, blockheight, coinId) VALUES (?,?,?,?,?)");
+      _updateSingleAddressAccount = _database.compileStatement("UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?");
       _deleteSingleAddressAccount = _database.compileStatement("DELETE FROM single WHERE id = ?");
       _insertOrReplaceKeyValue = _database.compileStatement("INSERT OR REPLACE INTO kv VALUES (?,?,?,?)");
       _getMaxSubId = _database.compileStatement("SELECT max(subId) FROM kv");
@@ -137,15 +143,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       Cursor cursor = null;
       try {
          SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(_database);
-         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
+         cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId"}, null, null,
                  null, null, null, null);
          while (cursor.moveToNext()) {
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             boolean isArchived = cursor.getInt(2) == 1;
             int blockHeight = cursor.getInt(3);
             String coinId = cursor.getString(4);
+
             if (coinId == null) {
-               Log.w(LOG_TAG,"Asset not registered in system, and not imported, skipping...");
+               Log.w(LOG_TAG, "Asset not registered in system, and not imported, skipping...");
                continue;
             }
             ColuMain coinType = ColuUtils.getColuCoin(coinId);
@@ -153,21 +160,17 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                Log.w(LOG_TAG, String.format("Asset with id=%s, skipping...", coinId));
                continue;
             }
-            PublicKey publicKey = null;
-            if (cursor.getBlob(5) != null) {
-               publicKey = new PublicKey(cursor.getBlob(5));
-            }
-            Type type = new TypeToken<Collection<String>>(){}.getType();
+
+            Type type = new TypeToken<Collection<String>>() {}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
-            if(addressStringsList != null) {
+            if (addressStringsList != null) {
                for (String addressString : addressStringsList) {
                   Address address = Address.fromString(addressString);
                   addresses.put(address.getType(), new BtcAddress(coinType, address));
                }
             }
-            list.add(new ColuAccountContext(id, coinType, publicKey, addresses
-                     , isArchived, blockHeight));
+            list.add(new ColuAccountContext(id, coinType, addresses, isArchived, blockHeight));
          }
       } finally {
          if (cursor != null) {
@@ -200,17 +203,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          _insertOrReplaceSingleAddressAccount.bindLong(3, context.isArchived() ? 1 : 0);
          _insertOrReplaceSingleAddressAccount.bindLong(4, context.getBlockHeight());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
-            _insertOrReplaceSingleAddressAccount.bindBlob(5, byteStream.toByteArray());
-         } catch (IOException ignore) {
-            // should never happen
-         }
-         _insertOrReplaceSingleAddressAccount.bindString(6, context.getCoinType().getId());
-         if(context.getPublicKey()!= null) {
-            _insertOrReplaceSingleAddressAccount.bindBlob(7, context.getPublicKey().getPublicKeyBytes());
-         }
+         _insertOrReplaceSingleAddressAccount.bindString(5, context.getCoinType().getId());
          _insertOrReplaceSingleAddressAccount.executeInsert();
          _database.setTransactionSuccessful();
       } finally {
@@ -277,21 +270,22 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    public void updateAccountContext(ColuAccountContext context) {
       _database.beginTransaction();
       try {
-         // "UPDATE single SET archived=?,blockheight=? WHERE id=?"
+         // "UPDATE single SET archived=?,blockheight=?,addresses=? WHERE id=?"
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
-//         _updateSingleAddressAccount.bindBlob(3, context.getAddress().getBytes());
-         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
-            objectOutputStream.writeObject(context.getDefaultAddressType());
+
+         List<String> addresses = new ArrayList<>();
+         if(context.getAddress() != null) {
+            for (BtcAddress address : context.getAddress().values()) {
+               addresses.add(address.toString());
+            }
+            _updateSingleAddressAccount.bindString(3, gson.toJson(addresses));
          }
-         _updateSingleAddressAccount.bindBlob(4, byteStream.toByteArray());
-         _updateSingleAddressAccount.bindBlob(5, uuidToBytes(context.getId()));
+         _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
          _database.setTransactionSuccessful();
-      } catch (IOException ignore) {
-         // ignore
-      } finally {
+      }
+      finally {
          _database.endTransaction();
       }
    }
@@ -622,7 +616,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
    private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
-      private static final int DATABASE_VERSION = 9;
+      private static final int DATABASE_VERSION = 10;
       private Context context;
 
       OpenHelper(Context context) {
@@ -638,8 +632,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void onCreate(SQLiteDatabase db) {
-         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses BLOB, archived INTEGER"
-                 + ", blockheight INTEGER, addressType TEXT, coinId TEXT, publicKey BLOB" +
+         db.execSQL("CREATE TABLE single (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
+                 + ", blockheight INTEGER, coinId TEXT" +
                  ");");
          db.execSQL("CREATE TABLE kv (k BLOB NOT NULL, v BLOB, checksum BLOB, subId INTEGER NOT NULL, PRIMARY KEY (k, subId) );");
       }
@@ -771,17 +765,23 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
 
          if(oldVersion < 9) {
-            db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
-            db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
-            SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-            MetadataStorage metadataStorage = new MetadataStorage(context);
-            for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
-               if (!Strings.isNullOrEmpty(coin.getId())) {
-                  UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
-                  for (UUID uuid : uuids) {
-                     updateCoinIdStatement.bindString(1, coin.getId());
-                     updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
-                     updateCoinIdStatement.execute();
+            if (!columnExistsInTable(db, "single", "publicKey")) {
+               db.execSQL("ALTER TABLE single ADD COLUMN publicKey TEXT");
+            }
+
+            if (!columnExistsInTable(db, "single", "coinId")) {
+               db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
+
+               SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
+               MetadataStorage metadataStorage = new MetadataStorage(context);
+               for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
+                  if (!Strings.isNullOrEmpty(coin.getId())) {
+                     UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
+                     for (UUID uuid : uuids) {
+                        updateCoinIdStatement.bindString(1, coin.getId());
+                        updateCoinIdStatement.bindBlob(2, uuidToBytes(uuid));
+                        updateCoinIdStatement.execute();
+                     }
                   }
                }
             }
@@ -795,6 +795,103 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
                createTxTable(tableSuffix, db);
             }
+         }
+
+         if (oldVersion < 10) {
+            // This migration is intended to fix a couple of issues
+            // - Removes unnesessary 'publicKey' field
+            // - Resolves the issue for Colu accounts created in 3.X when coinId and publicKey data
+            //   were mixed up between each other because of incorrect order their insertion
+            //   inside INSERT INTO query. So, coinId stored publicKey BLOB data and publicKey stored
+            //   STRING coinId data.
+
+            db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER"
+                    + ", blockheight INTEGER, coinId TEXT" +
+                    ");");
+
+            SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
+
+            try (Cursor cursor = blobQuery.query(false, "single", new String[]{"id", "addresses", "archived", "blockheight", "coinId", "publicKey"}, null, null,
+                    null, null, null, null)) {
+               SQLiteStatement statement = db.compileStatement("INSERT INTO single_new (id, addresses, archived, blockheight, coinId) VALUES (?,?,?,?,?)");
+
+               while (cursor.moveToNext()) {
+                  statement.bindBlob(1, cursor.getBlob(0));
+                  statement.bindLong(3, cursor.getLong(2));
+                  statement.bindLong(4, cursor.getLong(3));
+
+                  boolean brokenCoinIdData = false;
+                  String coinId = null;
+
+                  try {
+                     coinId = cursor.getString(4);
+                  } catch (Exception ex) {
+                     brokenCoinIdData = true; // Probably we could not read this field as String because there a BLOB record
+                  }
+
+                  if (!brokenCoinIdData) {
+                     byte[] publicKeyBytes = cursor.getBlob(5);
+                     if (publicKeyBytes != null) {
+                        statement.bindString(2, transformPublicKeyToAddressesList(publicKeyBytes, networkParameters));
+                     } else {
+                        statement.bindString(2, cursor.getString(1));
+                     }
+
+                     statement.bindString(5, coinId);
+                  } else {
+                     // There was a bug when coinId and publicKey were mixed up between each other
+                     // So here we try to read coinId saved in publicKey field
+                     try {
+                        coinId = cursor.getString(5);
+                     } catch (Exception ex) {
+
+                     }
+
+                     // If coinId is not null here,
+                     if (coinId != null) {
+                        // So here we try to read publicKey saved in coinId field
+                        byte[] publicKeyBytes = cursor.getBlob(4);
+                        if (publicKeyBytes != null) {
+                           statement.bindString(2, transformPublicKeyToAddressesList(publicKeyBytes, networkParameters));
+                        } else {
+                           statement.bindString(2, cursor.getString(1));
+                        }
+
+                        statement.bindString(5, coinId);
+                     }
+                  }
+
+                  statement.executeInsert();
+               }
+
+            }
+
+            db.execSQL("ALTER TABLE single RENAME TO single_old");
+            db.execSQL("ALTER TABLE single_new RENAME TO single");
+            db.execSQL("DROP TABLE single_old");
+         }
+
+      }
+
+      private String transformPublicKeyToAddressesList(byte[] publicKeyBytes,
+                                                             NetworkParameters networkParameters) {
+         PublicKey key = new PublicKey(publicKeyBytes);
+         List<String> addresses = new ArrayList<>();
+         for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
+            addresses.add(address.toString());
+         }
+         return gson.toJson(addresses);
+      }
+      private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
+         try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
+            // getColumnIndex()  will return the index of the column
+            //in the table if it exists, otherwise it will return -1
+            return cursor.getColumnIndex(columnToCheck) != -1;
+         } catch (SQLiteException ex) {
+            //Something went wrong with SQLite.
+            //If the table exists and your query was good,
+            //the problem is likely that the column doesn't exist in the table.
+            return false;
          }
       }
 
