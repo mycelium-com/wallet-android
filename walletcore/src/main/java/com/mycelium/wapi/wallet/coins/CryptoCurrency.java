@@ -1,8 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigInteger;
 

@@ -114,7 +114,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: Value) {
-        if(amount.getType() == account.coinType) {
+        if(amount.type == account.coinType) {
             model.setAmount(amount)
             val value = mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency)
                     ?: Value.zeroValue(account.coinType)

@@ -720,4 +720,8 @@
     <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
+    <plurals name="contains_keys">
+        <item quantity="one">Contiene %1$d clave privada.</item>
+        <item quantity="other">Contiene %1$d claves privadas.</item>
+    </plurals>
 </resources>

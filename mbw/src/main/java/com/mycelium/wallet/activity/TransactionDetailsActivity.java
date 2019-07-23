@@ -47,8 +47,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -57,21 +55,19 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.text.DateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
 public class TransactionDetailsActivity extends Activity {
+    public static final String EXTRA_TXID = "transactionID";
     private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
     private GenericTransactionSummary tx;
@@ -91,7 +87,7 @@ public class TransactionDetailsActivity extends Activity {
         setContentView(R.layout.transaction_details_activity);
         _mbwManager = MbwManager.getInstance(this.getApplication());
 
-        byte[] txid =  getIntent().getByteArrayExtra("transaction");
+        byte[] txid = getTransactionIdFromIntent();
 
         WalletAccount account = _mbwManager.getSelectedAccount();
         tx = account.getTxSummary(txid);
@@ -106,8 +102,8 @@ public class TransactionDetailsActivity extends Activity {
     }
 
     private void loadAndUpdate(boolean isAfterRemoteUpdate) {
-        Sha256Hash txid = getTransactionFromIntent();
-        tx = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
+        byte[] txid = getTransactionIdFromIntent();
+        tx = _mbwManager.getSelectedAccount().getTxSummary(txid);
 
         coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
         updateUi(isAfterRemoteUpdate, false);
@@ -189,9 +185,8 @@ public class TransactionDetailsActivity extends Activity {
             }
         }
 
-
         // Set Fee
-        final long txFeeTotal = tx.getFee().getValue();
+        final long txFeeTotal = tx.getFee().value;
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
@@ -285,18 +280,13 @@ public class TransactionDetailsActivity extends Activity {
     private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... ignore) {
-            Sha256Hash txid = getTransactionFromIntent();
-
-            if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
-                AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
-                TransactionEx transactionEx = selectedAccount.getTransaction(txid);
-                Transaction transaction = TransactionEx.toTransaction(transactionEx);
-                try {
-                    selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
-                } catch (WapiException e) {
-                    _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
-                    return false;
-                }
+            byte[] txid = getTransactionIdFromIntent();
+            WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+            try {
+                selectedAccount.updateParentOutputs(txid);
+            } catch (WapiException e) {
+                _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+                return false;
             }
             return true;
         }
@@ -312,7 +302,7 @@ public class TransactionDetailsActivity extends Activity {
         }
     }
 
-    private Sha256Hash getTransactionFromIntent() {
-        return Sha256Hash.of(getIntent().getByteArrayExtra("transaction"));
+    private byte[] getTransactionIdFromIntent() {
+        return getIntent().getByteArrayExtra(EXTRA_TXID);
     }
 }

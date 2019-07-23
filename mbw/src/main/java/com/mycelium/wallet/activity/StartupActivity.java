@@ -190,7 +190,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          long startTime = System.currentTimeMillis();
          _mbwManager = MbwManager.getInstance(StartupActivity.this.getApplication());
 
-         //in case this is a fresh startup, import backup or create new seed
+         // in case this is a fresh startup, import backup or create new seed
          if (!_mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
             new Handler(getMainLooper()).post(new Runnable() {
                @Override
@@ -261,7 +261,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       @Override
       protected UUID doInBackground(Void... params) {
          StartupActivity activity = this.startupActivity.get();
-         if(activity == null) {
+         if (activity == null) {
             return null;
          }
          Bip39.MasterSeed masterSeed = Bip39.createRandomMasterSeed(activity._mbwManager.getRandomSource());
@@ -277,7 +277,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       @Override
       protected void onPostExecute(UUID accountid) {
          StartupActivity activity = this.startupActivity.get();
-         if(accountid == null || activity == null) {
+         if (accountid == null || activity == null) {
             return;
          }
          activity._progress.dismiss();
@@ -286,43 +286,6 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          String defaultName = Utils.getNameForNewAccount(account, activity);
          activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          MbwManager.getEventBus().post(new AccountCreated(accountid));
-         //finish initialization
-         activity.delayedFinish.run();
-      }
-   }
-
-   /**
-    * This is used to create an account if it failed to be created in ConfigureSeedAsyncTask.
-    * Resolves crashes that some users experience
-    */
-   private static class ConfigureAccountAsyncTask extends AsyncTask<Void, Integer, UUID> {
-      private WeakReference<StartupActivity> startupActivity;
-
-      ConfigureAccountAsyncTask(StartupActivity startupActivity) {
-         this.startupActivity = new WeakReference<>(startupActivity);
-      }
-
-      @Override
-      protected UUID doInBackground(Void... params) {
-         StartupActivity activity = this.startupActivity.get();
-         if(activity == null) {
-            return null;
-         }
-
-         WalletManager walletManager = activity._mbwManager.getWalletManager(false);
-         return walletManager.createAccounts(new AdditionalHDAccountConfig()).get(0);
-      }
-
-      @Override
-      protected void onPostExecute(UUID accountid) {
-         StartupActivity activity = this.startupActivity.get();
-         if(accountid == null || activity == null) {
-            return;
-         }
-         //set default label for the created HD account
-         WalletAccount account = activity._mbwManager.getWalletManager(false).getAccount(accountid);
-         String defaultName = Utils.getNameForNewAccount(account, activity);
-         activity._mbwManager.getMetadataStorage().storeAccountLabel(accountid, defaultName);
          //finish initialization
          activity.delayedFinish.run();
       }
@@ -388,8 +351,8 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
       private boolean hasPrivateKeyOnClipboard(NetworkParameters network) {
          // do we have a private key on the clipboard?
          try {
-            Optional<InMemoryPrivateKey> key = PrivateKeyAction.Companion.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
-            if (key.isPresent()) {
+            InMemoryPrivateKey key = PrivateKeyAction.getPrivateKey(network, Utils.getClipboardString(StartupActivity.this));
+            if (key != null) {
                return true;
             }
             HdKeyNode.parse(Utils.getClipboardString(StartupActivity.this), network);
