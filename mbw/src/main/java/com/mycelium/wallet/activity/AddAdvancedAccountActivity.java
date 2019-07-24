@@ -147,7 +147,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_RESULT_CODE, HandleConfigFactory.returnKeyOrAddressOrHdNode());
+            ScanActivity.callMe(activity, SCAN_RESULT_CODE, HandleConfigFactory.INSTANCE.returnKeyOrAddressOrHdNode());
          }
 
       });
@@ -209,7 +209,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       super.onResume();
 
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-              HandleConfigFactory.returnKeyOrAddressOrHdNode(),
+              HandleConfigFactory.INSTANCE.returnKeyOrAddressOrHdNode(),
               Utils.getClipboardString(AddAdvancedAccountActivity.this),
               MbwManager.getInstance(this).getNetwork());
 
@@ -227,7 +227,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          @Override
          public void onClick(View v) {
             Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                    HandleConfigFactory.returnKeyOrAddressOrHdNode(),
+                    HandleConfigFactory.INSTANCE.returnKeyOrAddressOrHdNode(),
                     Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
             startActivityForResult(intent, CLIPBOARD_RESULT_CODE);

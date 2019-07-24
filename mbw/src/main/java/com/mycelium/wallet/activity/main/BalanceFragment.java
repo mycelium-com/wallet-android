@@ -275,7 +275,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         //perform a generic scan, act based upon what we find in the QR code
-        StringHandleConfig config = HandleConfigFactory.genericScanRequest();
+        StringHandleConfig config = HandleConfigFactory.INSTANCE.genericScanRequest();
         ScanActivity.callMe(this, GENERIC_SCAN_REQUEST, config);
     }
 

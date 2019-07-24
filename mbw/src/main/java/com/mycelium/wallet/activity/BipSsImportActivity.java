@@ -60,7 +60,7 @@ public class BipSsImportActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   private List<BipSss.Share> shares = new ArrayList<BipSss.Share>();
+   private List<BipSss.Share> shares = new ArrayList<>();
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -112,7 +112,7 @@ public class BipSsImportActivity extends Activity {
    OnClickListener scanClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, HandleConfigFactory.getShare());
+         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, HandleConfigFactory.INSTANCE.getShare());
       }
    };
 

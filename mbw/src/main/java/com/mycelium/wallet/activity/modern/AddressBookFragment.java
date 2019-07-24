@@ -365,7 +365,7 @@ public class AddressBookFragment extends Fragment {
 
                 @Override
                 public void onClick(View v) {
-                    StringHandleConfig request = HandleConfigFactory.getAddressBookScanRequest();
+                    StringHandleConfig request = HandleConfigFactory.INSTANCE.getAddressBookScanRequest();
                     ScanActivity.callMe(AddressBookFragment.this, SCAN_RESULT_CODE, request);
                     AddDialog.this.dismiss();
                 }

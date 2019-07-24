@@ -97,7 +97,7 @@ public class VerifyBackupActivity extends Activity {
 
          @Override
          public void onClick(View v) {
-            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, HandleConfigFactory.verifySeedOrKey());
+            ScanActivity.callMe(VerifyBackupActivity.this, SCAN_RESULT_CODE, HandleConfigFactory.INSTANCE.verifySeedOrKey());
          }
 
       });

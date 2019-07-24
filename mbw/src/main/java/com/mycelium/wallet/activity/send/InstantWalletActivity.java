@@ -115,7 +115,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.spendFromColdStorage());
+            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.INSTANCE.spendFromColdStorage());
          }
       });
 
@@ -136,7 +136,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
    private void handleString(String str) {
       Intent intent = StringHandlerActivity.getIntent(this,
-              HandleConfigFactory.spendFromColdStorage(), str);
+              HandleConfigFactory.INSTANCE.spendFromColdStorage(), str);
       startActivityForResult(intent, REQUEST_SCAN);
    }
 
@@ -144,7 +144,7 @@ public class InstantWalletActivity extends FragmentActivity {
    protected void onResume() {
       super.onResume();
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-              HandleConfigFactory.spendFromColdStorage(),
+              HandleConfigFactory.INSTANCE.spendFromColdStorage(),
             Utils.getClipboardString(this),
             MbwManager.getInstance(this).getNetwork());
 
