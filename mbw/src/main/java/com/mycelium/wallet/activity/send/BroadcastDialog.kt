@@ -76,7 +76,7 @@ class BroadcastDialog : DialogFragment() {
         // Broadcast the transaction in the background
         if (activity != null) {
             task = BroadcastTask(account, transaction) {
-                dismiss()
+                dismissAllowingStateLoss()
                 handleResult(it)
             }
             if (Utils.isConnected(context)) {
@@ -85,7 +85,7 @@ class BroadcastDialog : DialogFragment() {
                 task?.listener?.invoke(BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION))
             }
         } else {
-            dismiss()
+            dismissAllowingStateLoss()
         }
     }
 
