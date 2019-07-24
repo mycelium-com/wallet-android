@@ -1,7 +1,6 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
@@ -91,8 +90,12 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
 
     companion object {
         private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
-            val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
-            return linked is ColuAccount && (linked.coinType == RMCCoin || linked.coinType == RMCCoinTest)
+            walletAccount.dependentAccounts.forEach { account ->
+                if (account is ColuAccount && (account.coinType == RMCCoin || account.coinType == RMCCoinTest)) {
+                    return true
+                }
+            }
+            return false
         }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {

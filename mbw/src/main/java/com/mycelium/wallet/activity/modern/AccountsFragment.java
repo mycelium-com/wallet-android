@@ -105,7 +105,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
@@ -113,7 +112,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
-import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -124,6 +122,8 @@ import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -131,7 +131,6 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveMasterseedHDAccounts;
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
 
 public class AccountsFragment extends Fragment {
     public static final int ADD_RECORD_RESULT_CODE = 0;
@@ -262,7 +261,7 @@ public class AccountsFragment extends Fragment {
 
     private void deleteAccount(final WalletAccount accountToDelete) {
         checkNotNull(accountToDelete);
-        final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
+        final List<WalletAccount> dependentAccounts = accountToDelete.getDependentAccounts();
 
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
@@ -271,7 +270,7 @@ public class AccountsFragment extends Fragment {
 
         final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
         deleteDialog.setTitle(R.string.delete_account_title);
-        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
+        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, dependentAccounts)));
 
         // add checkbox only for SingleAddressAccounts and only if a private key is present
         final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
@@ -300,9 +299,9 @@ public class AccountsFragment extends Fragment {
                     // Set the message. There are four combinations, with and without label, with and without BTC amount.
                     String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
                     int labelCount = 1;
-                    if (linkedAccount != null) {
-                        label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
-                        labelCount++;
+                    if (accountToDelete.getDependentAccounts().size() > 0) {
+                        label += ", " + getAccountLabels(accountToDelete.getDependentAccounts());
+                        labelCount += accountToDelete.getDependentAccounts().size();
                     }
                     String message;
 
@@ -350,17 +349,17 @@ public class AccountsFragment extends Fragment {
                             if (keepAddrCheckbox.isChecked() && accountToDelete instanceof SingleAddressAccount) {
                                 try {
                                     //Check if this SingleAddress account is related with ColuAccount
-                                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                                    if (linkedColuAccount instanceof ColuAccount) {
-                                        walletManager.deleteAccount(linkedColuAccount.getId());
-                                        walletManager.deleteAccount(accountToDelete.getId());
-                                        ColuAccountContext context = ((ColuAccount) linkedColuAccount).getContext();
-                                        ColuMain coluMain = (ColuMain) linkedColuAccount.getCoinType();
-                                        Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
-                                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
-                                        walletManager.createAccounts(config);
-                                    } else {
-                                        ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                                    walletManager.deleteAccount(accountToDelete.getId());
+                                    ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
+                                    for (WalletAccount dependentAccount : (List<WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                        if (dependentAccount instanceof ColuAccount) {
+                                            walletManager.deleteAccount(dependentAccount.getId());
+                                            ColuAccountContext context = ((ColuAccount) dependentAccount).getContext();
+                                            ColuMain coluMain = (ColuMain) dependentAccount.getCoinType();
+                                            Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
+                                            _storage.deleteAccountMetadata(dependentAccount.getId());
+                                            walletManager.createAccounts(config);
+                                        }
                                     }
                                     _toaster.toast(R.string.private_key_deleted, false);
                                 } catch (KeyCipher.InvalidKeyCipher e) {
@@ -370,21 +369,22 @@ public class AccountsFragment extends Fragment {
                                 if (accountToDelete instanceof ColuAccount) {
                                     try {
                                         walletManager.deleteAccount(accountToDelete.getId());
-                                        WalletAccount linkedAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                                        if (linkedAccount != null) {
-                                            walletManager.deleteAccount(linkedAccount.getId());
-                                            _storage.deleteAccountMetadata(linkedAccount.getId());
-                                        }
-                                        if (keepAddrCheckbox.isChecked()) {
-                                            ColuAccountContext context = ((ColuAccount) accountToDelete).getContext();
-                                            ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
-                                            Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
-                                            _storage.deleteAccountMetadata(accountToDelete.getId());
-                                            walletManager.createAccounts(config);
-                                        } else {
-                                            _storage.deleteAccountMetadata(accountToDelete.getId());
-                                            _toaster.toast("Deleting account.", false);
-                                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                        for (WalletAccount dependentAccount : (List <WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                            if (dependentAccount != null) {
+                                                walletManager.deleteAccount(dependentAccount.getId());
+                                                _storage.deleteAccountMetadata(dependentAccount.getId());
+                                            }
+                                            if (keepAddrCheckbox.isChecked()) {
+                                                ColuAccountContext context = ((ColuAccount) accountToDelete).getContext();
+                                                ColuMain coluMain = (ColuMain) accountToDelete.getCoinType();
+                                                Config config = new AddressColuConfig(context.getAddress().get(AddressType.P2PKH), coluMain);
+                                                _storage.deleteAccountMetadata(accountToDelete.getId());
+                                                walletManager.createAccounts(config);
+                                            } else {
+                                                _storage.deleteAccountMetadata(accountToDelete.getId());
+                                                _toaster.toast("Deleting account.", false);
+                                                _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                            }
                                         }
                                     } catch (Exception e) {
                                         // make a message !
@@ -393,10 +393,11 @@ public class AccountsFragment extends Fragment {
                                     }
                                 } else {
                                     //Check if this SingleAddress account is related with ColuAccount
-                                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                                    if (linkedColuAccount instanceof ColuAccount) {
-                                        walletManager.deleteAccount(linkedColuAccount.getId());
-                                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                                    for (WalletAccount dependentAccount : (List<WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                        if (dependentAccount instanceof ColuAccount) {
+                                            walletManager.deleteAccount(dependentAccount.getId());
+                                            _storage.deleteAccountMetadata(dependentAccount.getId());
+                                        }
                                     }
                                     walletManager.deleteAccount(accountToDelete.getId());
                                     _storage.deleteAccountMetadata(accountToDelete.getId());
@@ -415,10 +416,12 @@ public class AccountsFragment extends Fragment {
                     walletManager.deleteAccount(accountToDelete.getId());
                     _storage.deleteAccountMetadata(accountToDelete.getId());
                     //Check if this SingleAddress account is related with ColuAccount
-                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                    if (linkedColuAccount != null) {
-                        walletManager.deleteAccount(linkedColuAccount.getId());
-                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                    List<WalletAccount> dependentAccounts = accountToDelete.getDependentAccounts();
+                    for (WalletAccount dependentAccount : dependentAccounts) {
+                        if (dependentAccount != null) {
+                            walletManager.deleteAccount(dependentAccount.getId());
+                            _storage.deleteAccountMetadata(dependentAccount.getId());
+                        }
                     }
                     finishCurrentActionMode();
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
@@ -446,23 +449,24 @@ public class AccountsFragment extends Fragment {
     }
 
     @NonNull
-    private String createDeleteDialogText(WalletAccount accountToDelete, WalletAccount linkedAccount) {
+    private String createDeleteDialogText(WalletAccount accountToDelete, List<WalletAccount> dependentAccounts) {
         String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
         String dialogText;
 
         if (accountToDelete.isActive()) {
-            dialogText = getActiveAccountDeleteText(accountToDelete, linkedAccount, accountName);
+            dialogText = getActiveAccountDeleteText(accountToDelete, dependentAccounts, accountName);
         } else {
-            dialogText = getArchivedAccountDeleteText(linkedAccount, accountName);
+            dialogText = getArchivedAccountDeleteText(dependentAccounts, accountName);
         }
         return dialogText;
     }
 
     @NonNull
-    private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
+    private String getArchivedAccountDeleteText(List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+        List<WalletAccount> visibleDependentAccounts = getVisibleAccounts(linkedAccounts);
+        if (visibleDependentAccounts.size() > 0) {
+            String linkedAccountName = getAccountLabels(visibleDependentAccounts);
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
@@ -470,34 +474,47 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    @NonNull
-    private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
-        String dialogText;
-        Balance balance = checkNotNull(accountToDelete.getAccountBalance());
-        String valueString = getBalanceString(balance);
+    private String getAccountLabels(List<WalletAccount> visibleDependentAccounts) {
+        List<String> dependentAccountNames = new ArrayList<>();
+        for (WalletAccount visibleDependentAccount : visibleDependentAccounts) {
+            dependentAccountNames.add(_mbwManager.getMetadataStorage().getLabelByAccount(visibleDependentAccount.getId()));
+        }
+        return TextUtils.join(",", dependentAccountNames);
+    }
 
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+    private List<WalletAccount> getVisibleAccounts(List<WalletAccount> linkedAccounts) {
+        List<WalletAccount> result = new ArrayList<>();
+        for (WalletAccount walletAccount : linkedAccounts) {
+            if (walletAccount.isVisible()) {
+                result.add(walletAccount);
+            }
+        }
+        return result;
+    }
+
+    @NonNull
+    private String getActiveAccountDeleteText(WalletAccount accountToDelete, List<WalletAccount> linkedAccounts, String accountName) {
+        String dialogText;
+        String valueString = getBalancesString(Collections.singletonList(accountToDelete));
+        List<WalletAccount> visibleDependentAccount = getVisibleAccounts(linkedAccounts);
+        if (visibleDependentAccount.size() > 0) {
+            String linkedValueString = getBalancesString(visibleDependentAccount);
+            String linkedAccountNames = getAccountLabels(visibleDependentAccount);
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
-                    linkedAccountName, linkedValueString) + "\n" +
-                    getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
+                    linkedAccountNames, linkedValueString) + "\n" +
+                    getString(R.string.both_rmc_will_deleted, accountName, linkedAccountNames);
         } else {
             dialogText = getString(R.string.delete_account_message_s, accountName, valueString);
         }
         return dialogText;
     }
 
-    private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
-    }
-
-    /**
-     * If account is colu we are asking for linked BTC. Else we are searching if any colu attached.
-     */
-    private WalletAccount getLinkedAccount(WalletAccount account) {
-        return Utils.getLinkedAccount(account, walletManager.getAccounts());
+    private String getBalancesString(List<WalletAccount> accounts) {
+        List<String> balances = new ArrayList<>();
+        for (WalletAccount account : accounts) {
+            balances.add(ValueExtensionsKt.toStringWithUnit(account.getAccountBalance().confirmed, _mbwManager.getDenomination()));
+        }
+        return TextUtils.join(",", balances);
     }
 
     private void finishCurrentActionMode() {
@@ -544,7 +561,7 @@ public class AccountsFragment extends Fragment {
 
         final List<Integer> menus = Lists.newArrayList();
         if(!(account instanceof ColuAccount)
-                && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
+                && account.getDependentAccounts().isEmpty()) {
             menus.add(R.menu.record_options_menu);
         }
 
@@ -1001,9 +1018,8 @@ public class AccountsFragment extends Fragment {
 
     private void activate(WalletAccount account) {
         account.activateAccount();
-        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-        if (linkedAccount != null) {
-            linkedAccount.activateAccount();
+        for (WalletAccount dependentAccount : (List<WalletAccount>) account.getDependentAccounts()) {
+            dependentAccount.activateAccount();
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
@@ -1095,22 +1111,21 @@ public class AccountsFragment extends Fragment {
     }
 
     private void archive(final WalletAccount account) {
-        final WalletAccount linkedAccount = getLinkedAccount(account);
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
-                .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
+                .setMessage(Html.fromHtml(createArchiveDialogText(account, account.getDependentAccounts())))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
+                        List<UUID> changedAccountIds = new ArrayList<>();
                         account.archiveAccount();
-                        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-                        if (linkedAccount != null) {
-                            linkedAccount.archiveAccount();
+                        changedAccountIds.add(account.getId());
+                        for (WalletAccount dependentAccount : (List<WalletAccount>) account.getDependentAccounts()) {
+                            dependentAccount.archiveAccount();
+                            changedAccountIds.add(dependentAccount.getId());
                         }
                         _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
-                        eventBus.post(new AccountChanged(account.getId()));
-                        if (linkedAccount != null) {
-                            eventBus.post(new AccountChanged(linkedAccount.getId()));
-                        }
+
+                        eventBus.post(new AccountChanged(changedAccountIds));
                         updateIncludingMenus();
                         _toaster.toast(R.string.archived, false);
                     }
@@ -1120,21 +1135,20 @@ public class AccountsFragment extends Fragment {
     }
 
     @NonNull
-    private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
+    private String createArchiveDialogText(WalletAccount account, List<WalletAccount> linkedAccount) {
         String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
         return getAccountArchiveText(account, linkedAccount, accountName);
     }
 
     @NonNull
-    private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
+    private String getAccountArchiveText(WalletAccount account, List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
-        Balance balance = checkNotNull(account.getAccountBalance());
-        String valueString = getBalanceString(balance);
-
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+        checkNotNull(account.getAccountBalance());
+        List<WalletAccount> visibleDependentAccounts = getVisibleAccounts(linkedAccounts);
+        String valueString = getBalancesString(Collections.singletonList(account));
+        if (visibleDependentAccounts.size() > 0) {
+            String linkedValueString = getBalancesString(visibleDependentAccounts);
+            String linkedAccountName = getAccountLabels(visibleDependentAccounts);
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);
         } else {

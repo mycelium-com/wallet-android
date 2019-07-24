@@ -36,6 +36,10 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
         return emptyList()
     }
 
+    override fun addDependentAccount(walletAccount: WalletAccount<*>?) {
+        // account doesn't have dependent accounts
+    }
+
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
         // Coinapult is currently disabled
         return ArrayList<GenericTransaction>()

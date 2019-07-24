@@ -89,9 +89,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             val coluAccounts = ArrayList<WalletAccount<out GenericAddress>>()
             coluAccounts.addAll(walletManager.getColuAccounts())
             for (walletAccount in walletManager.getColuAccounts()) {
-                val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
-                if (linkedAccount != null) {
-                    coluAccounts.add(linkedAccount)
+                walletAccount.dependentAccounts.forEach {
+                    coluAccounts.add(it)
                 }
             }
             return coluAccounts
