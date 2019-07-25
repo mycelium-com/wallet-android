@@ -97,6 +97,9 @@ dependencies {
     implementation('org.bitcoinj:orchid:1.2.1') {
         exclude(module: 'slf4j-api')
     }
+
+    compile 'com.android.support.test.espresso:espresso-idling-resource:3.0.2'
+
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
