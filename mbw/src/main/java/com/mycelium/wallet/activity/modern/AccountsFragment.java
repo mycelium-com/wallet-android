@@ -595,9 +595,8 @@ public class AccountsFragment extends Fragment {
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
                 && getActiveMasterseedHDAccounts(walletManager).size() > 1 && !isBch) {
-
             final HDAccount HDAccount = (HDAccount) account;
-            BitcoinHDModule bitcoinHDModule = (BitcoinHDModule)walletManager.getModuleById(BitcoinHDModule.ID);
+            BitcoinHDModule bitcoinHDModule = (BitcoinHDModule) walletManager.getModuleById(BitcoinHDModule.ID);
             if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
                 //only allow to remove unused HD acounts from the view
                 menus.add(R.menu.record_options_menu_hide_unused);
