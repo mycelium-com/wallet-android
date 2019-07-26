@@ -9,25 +9,18 @@
     android:layoutAnimation="@anim/anim_news_pulse"
     android:paddingBottom="16dp">
 
-
     <View
         android:layout_width="wrap_content"
         android:layout_height="260dp"
-        android:alpha="0.25"
-        android:background="@drawable/background_news_item" />
-
+        android:background="@drawable/background_news_item_loading1" />
     <View
         android:layout_width="wrap_content"
         android:layout_height="92dp"
         android:layout_marginTop="8dp"
-        android:alpha="0.15"
-        android:background="@drawable/background_news_item" />
-
+        android:background="@drawable/background_news_item_loading2" />
     <View
         android:layout_width="wrap_content"
         android:layout_height="92dp"
         android:layout_marginTop="8dp"
-        android:alpha="0.1"
-        android:background="@drawable/background_news_item" />
-
+        android:background="@drawable/background_news_item_loading3" />
 </LinearLayout>

@@ -22,7 +22,7 @@ object NewsUtils {
     fun getCategoryIcon(category: String) = when (category) {
         "News" -> R.drawable.ic_earth
         "Education Center" -> R.drawable.ic_education
-        else -> 0
+        else -> R.drawable.ic_mediaflow_category_default_icon
     }
 
     const val myceliumAuthor = "myceliumholding"

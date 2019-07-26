@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.news.NewsUtils
@@ -56,6 +57,9 @@ class NewsAdapter(val preferences: SharedPreferences) : RecyclerView.Adapter<Rec
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when {
+            getItemViewType(position) == TYPE_NEWS_LOADING -> {
+                (holder.itemView as LinearLayout).startLayoutAnimation()
+            }
             getItemViewType(position) == TYPE_NEWS_V2_BIG -> {
                 val bigHolder = holder as NewsV2BigHolder
                 val news = dataMap[category]!![position]
