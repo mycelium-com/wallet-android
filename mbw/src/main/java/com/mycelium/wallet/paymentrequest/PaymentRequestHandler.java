@@ -208,10 +208,6 @@ public class PaymentRequestHandler {
    }
 
 
-   public void setMerchantMemo(String memo) {
-      merchantMemo = memo;
-   }
-
    public boolean sendResponse(final Transaction signedTransaction, final Address refundAddress) {
       if (hasValidPaymentRequest() && !Strings.isNullOrEmpty(paymentRequestInformation.getPaymentDetails().payment_url)) {
          new AsyncTask<Void, Void, AsyncResultAck>() {
@@ -239,6 +235,10 @@ public class PaymentRequestHandler {
       } else {
          return false;
       }
+   }
+
+   public void setMerchantMemo(String memo) {
+      merchantMemo = memo;
    }
 
    class AsyncResultAck {

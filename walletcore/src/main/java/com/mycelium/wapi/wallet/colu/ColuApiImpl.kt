@@ -13,6 +13,7 @@ import java.io.IOException
 
 class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
 
+    @Throws(IOException::class)
     override fun prepareTransaction(toAddress: BtcAddress, fromBtcAddress: List<BtcAddress>, amount: Value, txFee: Value): ColuBroadcastTxHex.Json? {
         val fromAddress = mutableListOf<Address>()
         fromBtcAddress.forEach {
@@ -28,10 +29,12 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         return result.txid
     }
 
+    @Throws(IOException::class)
     override fun getAddressTransactions(address: GenericAddress): AddressTransactionsInfo.Json {
         return coluClient.getAddressTransactions(address.toString())
     }
 
+    @Throws(IOException::class)
     override fun getCoinTypes(address: Address): List<ColuMain> {
         val assetsList = mutableListOf<ColuMain>()
         try {

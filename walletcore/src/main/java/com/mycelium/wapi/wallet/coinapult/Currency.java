@@ -59,11 +59,6 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public Value oneCoin() {
-        return null;
-    }
-
-    @Override
     public Value value(long units) {
         return null;
     }
