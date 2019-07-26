@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.test.espresso.*;
 import android.view.View;
+import androidx.test.espresso.IdlingResource;
 
 import java.lang.ref.WeakReference;
 

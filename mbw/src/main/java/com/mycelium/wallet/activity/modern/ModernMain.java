@@ -40,7 +40,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -488,7 +487,6 @@ public class ModernMain extends AppCompatActivity {
         Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
     }
 
-    public CountingIdlingResource countingIdlingResource = new CountingIdlingResource("SYNCHRONIZING");
     public void setRefreshAnimation() {
         if (refreshItem != null) {
             if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
@@ -517,18 +515,12 @@ public class ModernMain extends AppCompatActivity {
 
     @Subscribe
     public void syncStarted(SyncStarted event) {
-        if (countingIdlingResource.isIdleNow()) {
-            countingIdlingResource.increment();
-        }
         setRefreshAnimation();
     }
 
     @Subscribe
     public void syncStopped(SyncStopped event) {
         setRefreshAnimation();
-        if (!countingIdlingResource.isIdleNow()){
-            countingIdlingResource.decrement();
-        }
     }
 
     @Subscribe
@@ -538,9 +530,6 @@ public class ModernMain extends AppCompatActivity {
 
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
-        if (!countingIdlingResource.isIdleNow()){
-            countingIdlingResource.decrement();
-        }
         _toaster.toastConnectionError();
     }
 

@@ -1,10 +1,11 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.test.espresso.IdlingResource;
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-import android.support.test.runner.lifecycle.Stage;
+import androidx.annotation.NonNull;
+import androidx.test.espresso.IdlingResource;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -26,8 +27,8 @@ public class ActivityIdlingResource implements IdlingResource {
 
     @Override
     public boolean isIdleNow() {
-        final boolean isIdle = mAcivity == getActivityInstance().getClass();
-        if (!isIdle && mResourceCallback != null) {
+        final boolean isIdle = mAcivity != getActivityInstance().getClass();
+        if (isIdle && mResourceCallback != null) {
             mResourceCallback.onTransitionToIdle();
         }
         return isIdle;
