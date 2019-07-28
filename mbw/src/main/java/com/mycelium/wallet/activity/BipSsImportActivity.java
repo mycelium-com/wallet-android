@@ -112,7 +112,7 @@ public class BipSsImportActivity extends Activity {
    OnClickListener scanClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, HandleConfigFactory.INSTANCE.getShare());
+         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, HandleConfigFactory.getShare());
       }
    };
 

@@ -95,7 +95,6 @@ public class InstantWalletActivity extends FragmentActivity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
 
-
       findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View arg0) {
@@ -115,7 +114,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.INSTANCE.spendFromColdStorage());
+            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.spendFromColdStorage());
          }
       });
 
@@ -136,7 +135,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
    private void handleString(String str) {
       Intent intent = StringHandlerActivity.getIntent(this,
-              HandleConfigFactory.INSTANCE.spendFromColdStorage(), str);
+              HandleConfigFactory.spendFromColdStorage(), str);
       startActivityForResult(intent, REQUEST_SCAN);
    }
 
@@ -144,15 +143,11 @@ public class InstantWalletActivity extends FragmentActivity {
    protected void onResume() {
       super.onResume();
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
-              HandleConfigFactory.INSTANCE.spendFromColdStorage(),
-            Utils.getClipboardString(this),
-            MbwManager.getInstance(this).getNetwork());
-
-      if (canHandle == StringHandlerActivity.ParseAbility.NO) {
-         findViewById(R.id.btClipboard).setEnabled(false);
-      } else {
-         findViewById(R.id.btClipboard).setEnabled(true);
-      }
+              HandleConfigFactory.spendFromColdStorage(),
+              Utils.getClipboardString(this),
+              MbwManager.getInstance(this).getNetwork());
+      boolean fromClipboardEnabled = canHandle != StringHandlerActivity.ParseAbility.NO;
+      findViewById(R.id.btClipboard).setEnabled(fromClipboardEnabled);
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
