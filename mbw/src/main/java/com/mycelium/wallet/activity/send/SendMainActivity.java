@@ -654,7 +654,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        StringHandleConfig config = HandleConfigFactory.INSTANCE.returnKeyOrAddressOrUriOrKeynode();
+        StringHandleConfig config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode();
         ScanActivity.callMe(this, SCAN_RESULT_CODE, config);
     }
 

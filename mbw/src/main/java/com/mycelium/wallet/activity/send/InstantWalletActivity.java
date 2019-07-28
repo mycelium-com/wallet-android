@@ -115,7 +115,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
          @Override
          public void onClick(View arg0) {
-            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.INSTANCE.spendFromColdStorage());
+            ScanActivity.callMe(InstantWalletActivity.this, REQUEST_SCAN, HandleConfigFactory.spendFromColdStorage());
          }
       });
 
@@ -136,7 +136,7 @@ public class InstantWalletActivity extends FragmentActivity {
 
    private void handleString(String str) {
       Intent intent = StringHandlerActivity.getIntent(this,
-              HandleConfigFactory.INSTANCE.spendFromColdStorage(), str);
+              HandleConfigFactory.spendFromColdStorage(), str);
       startActivityForResult(intent, REQUEST_SCAN);
    }
 
