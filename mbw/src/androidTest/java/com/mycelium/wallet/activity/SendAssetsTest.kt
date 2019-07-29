@@ -3,12 +3,14 @@ package com.mycelium.wallet.activity
 
 import android.app.Activity
 import android.view.View
+import android.view.ViewGroup
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.*
@@ -31,8 +33,10 @@ import androidx.test.espresso.core.internal.deps.guava.collect.Iterables
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import org.hamcrest.Matchers.not
-
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.*
+import org.hamcrest.TypeSafeMatcher
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -63,12 +67,25 @@ class SendAssetsTest {
         val activityScenario =
                 ActivityScenario.launch(StartupActivity::class.java)
         Thread.sleep(10000)
-
         val currentActivity = getCurrentActivity()
         if (currentActivity is StartupActivity) {
-            // WHEN
-            onView(withText(R.string.master_seed_restore_backup_button)).perform(click())
-            onView(withText(R.string.button_ok)).perform(click())
+            val button = onView(
+                    allOf<View>(withId(android.R.id.button2), withText(R.string.master_seed_restore_backup_button),
+                            childAtPosition(
+                                    childAtPosition(
+                                            withClassName(`is`<String>("android.widget.ScrollView")),
+                                            0),
+                                    1)))
+            button.perform(scrollTo(), click())
+
+            val appCompatButton = onView(
+                    allOf<View>(withId(android.R.id.button1), withText("ОК"),
+                            childAtPosition(
+                                    childAtPosition(
+                                            withId(R.id.buttonPanel),
+                                            0),
+                                    3)))
+            appCompatButton.perform(scrollTo(), click())
 
             repeat(12) {
                 onView(withText("O")).perform(click())
@@ -125,6 +142,23 @@ class SendAssetsTest {
             activity[0] = Iterables.getOnlyElement(activities);
         };
         return activity[0];
+    }
+
+    private fun childAtPosition(
+            parentMatcher: Matcher<View>, position: Int): Matcher<View> {
+
+        return object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("Child at position $position in parent ")
+                parentMatcher.describeTo(description)
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                val parent = view.parent
+                return (parent is ViewGroup && parentMatcher.matches(parent)
+                        && view == parent.getChildAt(position))
+            }
+        }
     }
 }
 
