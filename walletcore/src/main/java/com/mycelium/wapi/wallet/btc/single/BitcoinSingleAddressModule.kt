@@ -105,7 +105,8 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             if (configLabel.isNotEmpty()) {
                 result.label = storeLabel(result.id, configLabel)
             } else {
-                result.label = createLabel(baseLabel, result.id)
+                result.label = createLabel(baseLabel)
+                storeLabel(result.id, result.label)
             }
         } else {
             throw IllegalStateException("Account can't be created")

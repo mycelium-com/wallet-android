@@ -279,7 +279,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         if (config is ExternalSignaturesAccountConfig && signatureProviders == null)
             return null
 
-        return createLabel(getBaseLabel(config), id)
+        val label = createLabel(getBaseLabel(config))
+        storeLabel(id, label)
+        return label
     }
 
     private fun getBaseLabel(cfg: Config): String {
