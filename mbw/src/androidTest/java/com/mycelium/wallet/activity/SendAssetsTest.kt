@@ -44,7 +44,7 @@ class SendAssetsTest {
 
 
     val addressSendTo = "2NEfsR6yeuF8tusetj5jhPz7LizY7frRfqu"
-    val isShouldBeSent = false
+    val isTrasactionShouldBeCompleted = true
 
     @get:Rule
     var mActivityTestRule = ActivityTestRule(StartupActivity::class.java, false, false)
@@ -114,7 +114,7 @@ class SendAssetsTest {
         onView(withId(R.id.btSend)).perform(click())
         intended(hasComponent(ModernMain::class.java.name))
 
-        if (isShouldBeSent) {
+        if (isTrasactionShouldBeCompleted) {
             IdlingRegistry.getInstance().register(ViewVisibilityIdlingResource(getCurrentActivity()!!,R.id.tvSending, View.GONE))
             onView(withId(R.id.tvSending)).check(matches(not(isDisplayed())))
         } else {
