@@ -79,7 +79,7 @@ class SendAssetsTest {
             button.perform(scrollTo(), click())
 
             val appCompatButton = onView(
-                    allOf<View>(withId(android.R.id.button1), withText("ОК"),
+                    allOf<View>(withId(android.R.id.button1), withText(R.string.ok),
                             childAtPosition(
                                     childAtPosition(
                                             withId(R.id.buttonPanel),
