@@ -856,7 +856,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         statement.bindString(2, cursor.getString(1));
                      }
 
-                     statement.bindString(5, coinId);
+                     if (coinId != null) {
+                        statement.bindString(5, coinId);
+                     }
                   } else {
                      // There was a bug when coinId and publicKey were mixed up between each other
                      // So here we try to read coinId saved in publicKey field
