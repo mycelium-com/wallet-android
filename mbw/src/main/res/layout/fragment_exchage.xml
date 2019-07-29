@@ -111,7 +111,7 @@
                     android:layout_height="75dp"
                     android:background="#fb746d"
                     android:orientation="horizontal"
-                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
                 <View
                     android:layout_width="40dp"
@@ -137,7 +137,7 @@
                     android:layout_height="75dp"
                     android:background="#77c298"
                     android:orientation="horizontal"
-                    app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <View
                     android:layout_width="40dp"

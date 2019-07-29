@@ -9,12 +9,11 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContext
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import com.squareup.sqldelight.runtime.rx.asObservable
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import java.util.*
 
-class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<EthAddress> {
+class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAccount<EthAddress> {
     private val queries = db.accountContextQueries
     private val coinType = EthTest
     private val accountContext: AccountContext
@@ -44,6 +43,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        EthEstimateGas
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -51,6 +51,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     }
 
     override fun createTx(addres: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction {
+//        Transfer.sendFunds()
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -111,8 +112,10 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance), Value(EthTest, 0),
-                    Value(EthTest, 0), Value(EthTest, 0))
+            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance),
+                    Value(EthTest, 0),
+                    Value(EthTest, 0),
+                    Value(EthTest, 0))
             queries.update(accountContext.accountName,
                     balance,
                     accountContext.archived,
@@ -135,11 +138,13 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
     override fun isActive() = !isArchived
 
     override fun archiveAccount() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accountContext.archived = true
+        dropCachedData()
     }
 
     override fun activateAccount() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        accountContext.archived = false
+        dropCachedData()
     }
 
     override fun dropCachedData() {
@@ -159,9 +164,7 @@ class EthAccount(val credentials: Credentials, db: WalletDB) : WalletAccount<Eth
 
     override fun getId() = credentials.ecKeyPair.toUUID()
 
-    override fun isSynchronizing(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun isSynchronizing() = false
 
     override fun broadcastOutgoingTransactions() = true
 
