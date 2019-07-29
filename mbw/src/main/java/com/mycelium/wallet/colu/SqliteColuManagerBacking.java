@@ -834,7 +834,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                      // If it contains a string, we have coinId there
                      if (coinId == null) {
                         try {
-                           // In the normal case we should have blob here, but let's try to read string
+                           // In the normal case we should have BLOB publiKey data here
+                           // but let's try to read string
                            cursor.getString(5);
                            // If we can read publicKey field data as string, our hypothesis about
                            // mixed-up data is correct
