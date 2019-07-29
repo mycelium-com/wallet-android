@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.genericdb
 
+import com.mycelium.generated.wallet.database.AccountContext
 import com.mycelium.wapi.wallet.WalletBacking
 import java.util.*
 import kotlin.collections.HashMap

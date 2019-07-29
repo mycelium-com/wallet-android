@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.AccountContext
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
@@ -16,7 +15,7 @@ import java.util.*
 class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAccount<EthAddress> {
     private val queries = db.accountContextQueries
     private val coinType = EthTest
-    private val accountContext: AccountContext
+    private val accountContext: AccountContextImpl
 
     init {
         val uuid = credentials.ecKeyPair.toUUID()
@@ -72,9 +71,7 @@ class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAcc
 
     private val ethBalanceService = EthBalanceService(credentials.address)
 
-    override fun getAccountBalance(): Balance {
-        return accountContext.balance
-    }
+    override fun getAccountBalance() = accountContext.balance
 
     override fun isMineAddress(address: GenericAddress) =
             address == EthAddress(coinType, "0x60c2A43Cc69658eC4b02a65A07623D7192166F4e")
