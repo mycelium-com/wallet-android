@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
-import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
@@ -12,33 +11,8 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
 import java.util.*
 
-class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAccount<EthAddress> {
-    private val queries = db.accountContextQueries
-    private val coinType = EthTest
-    private val accountContext: AccountContextImpl
-
-    init {
-        val uuid = credentials.ecKeyPair.toUUID()
-        val accountContextInDB = queries.selectByUUID(uuid)
-                .executeAsOneOrNull()
-        accountContext = if (accountContextInDB != null) {
-            AccountContextImpl(accountContextInDB.uuid,
-                    accountContextInDB.currency,
-                    accountContextInDB.accountName,
-                    accountContextInDB.balance,
-                    accountContextInDB.archived)
-        } else {
-            AccountContextImpl(
-                    uuid,
-                    coinType,
-                    "abacaba",
-                    Balance(Value.zeroValue(coinType),
-                            Value.zeroValue(coinType),
-                            Value.zeroValue(coinType),
-                            Value.zeroValue(coinType)),
-                    false)
-        }
-    }
+class EthAccount(private val credentials: Credentials,
+                 private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -65,9 +39,9 @@ class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAcc
     override fun getReceiveAddress() = EthAddress(coinType, credentials.address)
 
 
-    override fun getCoinType() = coinType
+    override fun getCoinType() = accountContext.currency
 
-    override fun getBasedOnCoinType() = getCoinType()
+    override fun getBasedOnCoinType() = coinType
 
     private val ethBalanceService = EthBalanceService(credentials.address)
 
@@ -113,10 +87,6 @@ class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAcc
                     Value(EthTest, 0),
                     Value(EthTest, 0),
                     Value(EthTest, 0))
-            queries.update(accountContext.accountName,
-                    balance,
-                    accountContext.archived,
-                    accountContext.uuid)
             accountContext.balance = balance
         }
         return succeed
@@ -149,10 +119,7 @@ class EthAccount(private val credentials: Credentials, db: WalletDB) : WalletAcc
                 Value(EthTest, 0),
                 Value(EthTest, 0),
                 Value(EthTest, 0))
-        queries.update(accountContext.accountName,
-                balance,
-                accountContext.archived,
-                accountContext.uuid)
+        accountContext.balance = balance
     }
 
     override fun isVisible() = true

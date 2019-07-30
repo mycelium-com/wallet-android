@@ -42,4 +42,9 @@ public class Balance {
     public Value getSpendable() {
         return confirmed.plus(pendingReceiving).plus(pendingChange);
     }
+
+    public static Balance getZeroBalance(GenericAssetInfo assetInfo) {
+        return new Balance(Value.zeroValue(assetInfo), Value.zeroValue(assetInfo),
+                Value.zeroValue(assetInfo), Value.zeroValue(assetInfo));
+    }
 }

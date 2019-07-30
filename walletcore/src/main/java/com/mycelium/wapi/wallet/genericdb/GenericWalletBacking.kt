@@ -1,32 +1,27 @@
 package com.mycelium.wapi.wallet.genericdb
 
 import com.mycelium.generated.wallet.database.AccountContext
-import com.mycelium.wapi.wallet.WalletBacking
+import com.mycelium.generated.wallet.database.WalletDB
 import java.util.*
-import kotlin.collections.HashMap
 
-class GenericWalletBacking<Context: AccountContext>: WalletBacking<Context> {
-    private val accountContexts = HashMap<UUID, Context>()
-    private val accountBackings = HashMap<UUID, AccountBacking>()
+class GenericWalletBacking(walletDB: WalletDB) {
+    private val queries = walletDB.accountContextQueries
 
-    override fun loadAccountContexts(): MutableList<Context> {
-        return accountContexts.values
-                .toMutableList()
+    fun loadAccountContexts() = queries.selectAll()
+                .executeAsList()
+
+    fun loadAccountContext(accountId: UUID) = queries.selectByUUID(accountId)
+            .executeAsOneOrNull()
+
+    fun createAccountContext(context: AccountContext) {
+        queries.insertFullObject(context)
     }
 
-    override fun getAccountBacking(accountId: UUID) = accountBackings[accountId]
-
-    override fun createAccountContext(context: Context) {
-        accountContexts[context.uuid] = context
-        accountBackings[context.uuid] = AccountBacking()
+    fun updateAccountContext(context: AccountContext) {
+        queries.update(context.accountName, context.balance, context.archived, context.uuid)
     }
 
-    override fun updateAccountContext(context: Context) {
-        accountContexts[context.uuid] = context
-    }
-
-    override fun deleteAccountContext(uuid: UUID) {
-        accountContexts.remove(uuid)
-        accountBackings.remove(uuid)
+    fun deleteAccountContext(uuid: UUID) {
+        queries.delete(uuid)
     }
 }

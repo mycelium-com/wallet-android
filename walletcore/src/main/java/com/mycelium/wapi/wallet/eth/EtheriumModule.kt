@@ -1,9 +1,10 @@
 package com.mycelium.wapi.wallet.eth
 
-import com.mycelium.generated.wallet.database.AccountContextQueries
-import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import com.mycelium.wapi.wallet.genericdb.GenericWalletBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -18,14 +19,12 @@ import java.util.*
 
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
-//        private val backing: GenericWalletBacking<AccountContext>,
-        metaDataStorage: IMetaDataStorage,
-        val db: WalletDB
-) : GenericModule(metaDataStorage), WalletModule {
+        private val backing: GenericWalletBacking,
+        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
+    private val coinType = EthTest
 
-    private val queries: AccountContextQueries = db.accountContextQueries
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
 
@@ -44,26 +43,32 @@ class EtheriumModule(
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
     override fun loadAccounts(): Map<UUID, WalletAccount<*>> =
-        queries.selectAll().executeAsList()
-                .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
+            backing.loadAccountContexts()
+                    .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
     override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        val ethAccount = ethAccount()
-        queries.insert(ethAccount.id, ethAccount.coinType, "abacaba", ethAccount.accountBalance,
-                ethAccount.isArchived)
+        val credentials = deriveKey()
+
+        val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
+        backing.createAccountContext(accountContext)
+
+        val ethAccount = EthAccount(credentials, accountContext)
+        accounts[ethAccount.id] = ethAccount
+
         return ethAccount
     }
 
     private fun ethAccountFromUUID(uuid: UUID): EthAccount {
         val credentials = Credentials.create(Keys.deserialize(secureStore.getPlaintextValue(uuid.toString().toByteArray())))
-        val ethAccount = EthAccount(credentials, db)
+        val accountContext = createAccountContext(uuid)
+        val ethAccount = EthAccount(credentials, accountContext)
         accounts[ethAccount.id] = ethAccount
         return ethAccount
     }
 
-    private fun ethAccount(): EthAccount {
+    private fun deriveKey(): Credentials {
         val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
 
         val masterKeypair = Bip32ECKeyPair.generateKeyPair(seed.bip32Seed)
@@ -73,15 +78,33 @@ class EtheriumModule(
         val bip44Keypair = Bip32ECKeyPair.deriveKeyPair(masterKeypair, path)
         val credentials = Credentials.create(bip44Keypair)
 
-        secureStore.storePlaintextValue(credentials.ecKeyPair.toUUID().toString().toByteArray(),
+        secureStore.storePlaintextValue(bip44Keypair.toUUID().toString().toByteArray(),
                 Keys.serialize(bip44Keypair))
-        val ethAccount = EthAccount(credentials, db)
-        accounts[ethAccount.id] = ethAccount
-        return ethAccount
+
+        return credentials
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return false
+    }
+
+    private fun createAccountContext(uuid: UUID): AccountContextImpl {
+        val accountContextInDB = backing.loadAccountContext(uuid)
+        return if (accountContextInDB != null) {
+            AccountContextImpl(accountContextInDB.uuid,
+                    accountContextInDB.currency,
+                    accountContextInDB.accountName,
+                    accountContextInDB.balance,
+                    backing::updateAccountContext,
+                    accountContextInDB.archived)
+        } else {
+            AccountContextImpl(
+                    uuid,
+                    coinType,
+                    "abacaba",
+                    Balance.getZeroBalance(coinType),
+                    backing::updateAccountContext)
+        }
     }
 
     companion object {

@@ -7,8 +7,30 @@ import java.util.*
 
 class AccountContextImpl(uuid: UUID,
                          currency: CryptoCurrency,
-                         override var accountName: String,
-                         override var balance: Balance,
-                         override var archived: Boolean) : AccountContext by
-    AccountContext.Impl(uuid, currency, accountName, balance, archived)
+                         accountName: String,
+                         balance: Balance,
+                         val listener: (AccountContext) -> Unit,
+                         archived: Boolean = false) :
+        AccountContext by AccountContext.Impl(
+                uuid,
+                currency,
+                accountName,
+                balance,
+                archived) {
+    override var archived = archived
+        set(value) {
+            field = value
+            listener.invoke(this)
+        }
+    override var accountName = accountName
+        set(value) {
+            field = value
+            listener.invoke(this)
+        }
+    override var balance = balance
+        set(value) {
+            field = value
+            listener.invoke(this)
+        }
+}
 
