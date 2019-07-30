@@ -445,15 +445,11 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         if (!uuid.isPresent || uuid.get().isEmpty()) {
             return arrayOf()
         }
-
-        val strUuids = uuid.get().split((",").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        val uuids = arrayOfNulls<UUID>(strUuids.size)
-
-        for (i in strUuids.indices) {
-            uuids[i] = UUID.fromString(strUuids[i])
-        }
-
-        return uuids
+        return uuid.get()
+                .split(",".toRegex())
+                .filter { !it.isEmpty() }
+                .map { UUID.fromString(it) }
+                .toTypedArray()
     }
 
     fun setLastFullSync(date: Long) {
