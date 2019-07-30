@@ -825,6 +825,26 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
                   try {
                      coinId = cursor.getString(4);
+
+                     // We can meet a case when coinId and publicKey are mixed up,
+                     // For read-only accounts publicKey field value is null in 3.0.0.5-3.0.0.8
+                     // Due for Colu accounts created in versions 3.0.0.5-3.0.0.8,
+                     // it could be written to coinId field, so it will be null.
+                     // We can check what type hes publicKey field.
+                     // If it contains a string, we have coinId there
+                     if (coinId == null) {
+                        try {
+                           // In the normal case we should have BLOB publiKey data here
+                           // but let's try to read string
+                           cursor.getString(5);
+                           // If we can read publicKey field data as string, our hypothesis about
+                           // mixed-up data is correct
+                           brokenCoinIdData = true;
+                        } catch(Exception ex) {
+                        }
+
+                     }
+
                   } catch (Exception ex) {
                      brokenCoinIdData = true; // Probably we could not read this field as String because there a BLOB record
                   }
@@ -837,7 +857,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         statement.bindString(2, cursor.getString(1));
                      }
 
-                     statement.bindString(5, coinId);
+                     if (coinId != null) {
+                        statement.bindString(5, coinId);
+                     }
                   } else {
                      // There was a bug when coinId and publicKey were mixed up between each other
                      // So here we try to read coinId saved in publicKey field
