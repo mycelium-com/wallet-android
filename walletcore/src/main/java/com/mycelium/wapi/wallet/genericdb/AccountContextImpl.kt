@@ -22,11 +22,13 @@ class AccountContextImpl(uuid: UUID,
             field = value
             listener.invoke(this)
         }
+
     override var accountName = accountName
         set(value) {
             field = value
             listener.invoke(this)
         }
+
     override var balance = balance
         set(value) {
             field = value
