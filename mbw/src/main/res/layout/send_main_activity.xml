@@ -238,8 +238,7 @@
 
                 <View
                     android:layout_width="1dp"
-                    android:layout_height="8dp">
-                </View>
+                    android:layout_height="8dp" />
 
                 <!-- Amount Title -->
 
@@ -287,8 +286,7 @@
 
                     <View
                         android:layout_width="20dp"
-                        android:layout_height="1dp">
-                    </View>
+                        android:layout_height="1dp" />
 
                     <!-- Enter Amount button -->
 
@@ -357,6 +355,7 @@
                         android:scrollbars="none"
                         android:textColor="@color/horizontalpicker_text_color"
                         android:textSize="14sp"
+                        android:layoutDirection="ltr"
                         app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                     <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
@@ -368,6 +367,7 @@
                         android:scrollbars="none"
                         android:textColor="@color/horizontalpicker_text_color"
                         android:textSize="14sp"
+                        android:layoutDirection="ltr"
                         app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                     <!--&lt;!&ndash; Fiat Fee &ndash;&gt;-->

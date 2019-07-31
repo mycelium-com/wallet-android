@@ -11,7 +11,8 @@
     android:focusable="true"
     android:columnCount="5"
     android:paddingEnd="8dp"
-    android:paddingStart="8dp">
+    android:paddingStart="8dp"
+    android:layoutDirection="ltr">
 
     <TextView
         android:id="@+id/bottom_button"
