@@ -27,8 +27,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvPaymentRequestTitle"
-                android:layout_toLeftOf="@+id/llValid"
-                android:layout_alignParentLeft="true"
+                android:layout_toStartOf="@+id/llValid"
+                android:layout_alignParentStart="true"
                 android:orientation="vertical"
                 >
 
@@ -52,7 +52,7 @@
                 android:orientation="vertical"
                 android:layout_below="@+id/tvPaymentRequestTitle"
                 android:gravity="end"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 >
 
             <TextView
@@ -199,8 +199,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_marginTop="5dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_toRightOf="@+id/llTime"
+                    android:layout_alignParentEnd="true"
+                    android:layout_toEndOf="@+id/llTime"
                     android:gravity="end"
                     >
 

@@ -34,7 +34,7 @@
             android:gravity="center"
             custom:textSize="20sp"
             custom:fiatOnly="false"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             />
     </RelativeLayout>
 
