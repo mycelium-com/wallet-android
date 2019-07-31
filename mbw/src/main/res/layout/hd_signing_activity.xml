@@ -20,13 +20,12 @@
                 android:layout_width="1dp"
                 android:layout_height="10dp" />
 
-
         <LinearLayout
                 android:id="@+id/listPrivateKeyAddresses"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="20dp" />
+                android:paddingStart="20dp" />
     </LinearLayout>
 
 </ScrollView>

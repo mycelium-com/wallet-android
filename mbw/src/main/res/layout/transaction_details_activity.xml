@@ -42,8 +42,8 @@
                         android:id="@+id/tvHash"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="4dp"
-                        android:paddingRight="4dp"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                 />
 
             </TableRow>
@@ -66,7 +66,7 @@
                         android:id="@+id/tvConfirmed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="4dp"
+                        android:paddingStart="4dp"
                         tools:text="in Block #123456"
                         android:textSize="18sp" />
 
@@ -84,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tx_details_num_confirmations"
-                        android:paddingRight="4dp"
+                        android:paddingEnd="4dp"
                         android:textSize="18sp" />
 
 
@@ -102,7 +102,7 @@
                             android:id="@+id/tcdConfirmations"
                             android:layout_width="wrap_content"
                             android:layout_gravity="center"
-                            android:paddingLeft="5dp"
+                            android:paddingStart="5dp"
                             android:layout_height="wrap_content" />
                 </LinearLayout>
 
@@ -133,7 +133,7 @@
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingLeft="4dp"
+                            android:paddingStart="4dp"
                             android:textSize="18sp" />
 
                     <TextView
@@ -141,7 +141,7 @@
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingLeft="4dp"
+                            android:paddingStart="4dp"
                             android:textSize="18sp" />
                 </LinearLayout>
             </TableRow>
@@ -191,7 +191,7 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:paddingLeft="4dp" />
+                            android:paddingStart="4dp" />
                 </LinearLayout>
 
             </TableRow>
@@ -215,7 +215,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:paddingLeft="4dp" />
+                        android:paddingStart="4dp" />
             </TableRow>
 
             <!-- Fee -->

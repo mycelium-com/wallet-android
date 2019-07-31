@@ -3,13 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="viewModel"
             type="com.mycelium.wallet.activity.main.address.AddressFragmentViewModel" />
     </data>
 
-    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:id="@+id/address_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

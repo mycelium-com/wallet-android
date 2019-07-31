@@ -3,7 +3,6 @@
     xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="activity"
             type="android.support.v7.app.AppCompatActivity" />

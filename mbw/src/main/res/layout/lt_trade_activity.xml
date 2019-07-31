@@ -13,7 +13,7 @@
         android:id="@+id/llRoot"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:orientation="vertical" >
 
         <!-- Base price -->
@@ -28,7 +28,7 @@
                 android:id="@+id/tvPriceLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:text="@string/lt_base_price_label"
                 android:textSize="16sp" />
 
@@ -41,7 +41,7 @@
                 android:id="@+id/tvPriceValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -57,7 +57,7 @@
                 android:id="@+id/tvPayLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:text="@string/lt_you_pay_label"
                 android:textSize="16sp" />
 
@@ -70,7 +70,7 @@
                 android:id="@+id/tvPayValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -86,7 +86,7 @@
                 android:id="@+id/tvGetLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:text="@string/lt_you_get_label"
                 android:textSize="16sp" />
 
@@ -99,7 +99,7 @@
                 android:id="@+id/tvGetValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -112,8 +112,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/lt_refresh_market_rate_button"
             android:textSize="14sp" />
 
@@ -126,8 +126,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/lt_change_price_button"
             android:textSize="14sp" />
 
@@ -167,8 +167,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:progressDrawable="@drawable/progress_bar" />
 
             <TextView

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="8dp">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp">
 
     <!-- Image -->
 
@@ -16,8 +17,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        >
+        android:layout_centerHorizontal="true">
 
         <ImageView
             android:id="@+id/ivExtra"
@@ -27,22 +27,19 @@
             android:src="@drawable/lt_local_only_warning"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/lt_cash_only_warning"
-            />
+            android:contentDescription="@string/lt_cash_only_warning" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/button_padding"
-            android:text="@string/lt_cash_only_hint_be_your_own_bank"
-            />
+            android:text="@string/lt_cash_only_hint_be_your_own_bank" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/lt_cash_only_hint_cash_only"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Date -->
@@ -51,12 +48,11 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginRight="5dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="5dp"
         android:minWidth="50dp"
         android:textSize="14sp"
-        />
-
+        tools:text="12.12.2012 12:12:12"/>
 
     <!-- Message -->
 
@@ -64,13 +60,11 @@
         android:id="@+id/tvMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:gravity="start"
         android:textSize="14sp"
-        android:layout_weight="1"
         android:layout_alignTop="@+id/tvDate"
-        android:layout_toRightOf="@+id/tvDate"
         android:layout_toEndOf="@+id/tvDate"
-        android:layout_marginLeft="14dp"
-        android:layout_marginStart="14dp"/>
+        android:layout_marginStart="14dp"
+        tools:text="Hiho trader how are you today?"/>
 
 </RelativeLayout>

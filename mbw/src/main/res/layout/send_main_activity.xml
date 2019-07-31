@@ -327,8 +327,8 @@
                         style="@style/MyceliumSlimButton"
                         android:paddingTop="4sp"
                         android:paddingBottom="4sp"
-                        android:paddingLeft="10sp"
-                        android:paddingRight="10sp"
+                        android:paddingStart="10sp"
+                        android:paddingEnd="10sp"
                         android:layout_marginBottom="8dp"
                         android:layout_gravity="center_horizontal"
                         android:textSize="16sp"
@@ -417,8 +417,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_gravity="center"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:text="@string/send"
                     android:textSize="20sp"/>
 

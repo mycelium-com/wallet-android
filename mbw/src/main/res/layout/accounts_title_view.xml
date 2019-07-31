@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layoutDirection="rtl"
     android:orientation="horizontal"
-    android:paddingLeft="2dp"
-    android:paddingRight="2dp"
+    android:paddingStart="2dp"
+    android:paddingEnd="2dp"
     android:paddingTop="5dp">
 
     <com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay
@@ -20,15 +20,15 @@
         custom:textSize="15sp" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:gravity="start"
         android:layout_weight="1">
         <TextView
             android:id="@+id/tvAccountsCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
+            android:layout_marginStart="2dp"
             android:lines="1"
             android:textSize="16sp"
             tools:text="(1)" />

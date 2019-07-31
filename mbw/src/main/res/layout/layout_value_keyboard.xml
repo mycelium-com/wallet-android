@@ -8,10 +8,10 @@
     android:layout_gravity="bottom"
     android:background="#eceef1"
     android:clickable="true"
+    android:focusable="true"
     android:columnCount="5"
     android:paddingEnd="8dp"
     android:paddingStart="8dp">
-
 
     <TextView
         android:id="@+id/bottom_button"
@@ -188,7 +188,6 @@
         app:layout_gravity="fill"
         app:layout_row="4"
         app:srcCompat="@drawable/ic_backspace" />
-
 
     <TextView
         android:id="@+id/btn_done"
