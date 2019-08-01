@@ -4,7 +4,6 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.Families
 import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 
 abstract class EthCoin: CryptoCurrency() {
     init {
@@ -17,12 +16,11 @@ abstract class EthCoin: CryptoCurrency() {
         return "Ether"
     }
 
-    @Throws(AddressMalformedException::class)
-    override fun parseAddress(addressString: String): GenericAddress {
-        try {
-            return EthAddress(this, addressString)
+    override fun parseAddress(addressString: String): GenericAddress? {
+        return try {
+            EthAddress(this, addressString)
         } catch (e: Exception) {
-            throw AddressMalformedException("$addressString is not an address")
+            null
         }
     }
 }

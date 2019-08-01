@@ -1,16 +1,14 @@
 package com.mycelium.wapi.wallet.genericdb
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.google.api.client.json.JsonObjectParser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.mycelium.generated.wallet.database.AccountContext
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.COINS
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
+import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.sqldelight.ColumnAdapter
 import java.util.*
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.mycelium.wapi.wallet.coins.Value
 
 
 object Adapters {
@@ -36,10 +34,10 @@ object Adapters {
             val childNodes = rootNode.get("Balance") as ArrayNode
             val asset = rootNode.get("Asset").asText()
 
-            val confirmed = Value(COINS[asset], childNodes[0].asLong())
-            val pendingReceiving = Value(COINS[asset], childNodes[1].asLong())
-            val pendingSending = Value(COINS[asset], childNodes[2].asLong())
-            val pendingChange = Value(COINS[asset], childNodes[3].asLong())
+            val confirmed = Value(COINS.getValue(asset), childNodes[0].asLong())
+            val pendingReceiving = Value(COINS.getValue(asset), childNodes[1].asLong())
+            val pendingSending = Value(COINS.getValue(asset), childNodes[2].asLong())
+            val pendingChange = Value(COINS.getValue(asset), childNodes[3].asLong())
 
             return Balance(confirmed, pendingReceiving, pendingSending, pendingChange)
         }
@@ -51,10 +49,10 @@ object Adapters {
             val rootNode = mapper.createObjectNode()
             val childNodes = mapper.createArrayNode()
 
-            childNodes.add(value.confirmed.getValue())
-            childNodes.add(value.pendingReceiving.getValue())
-            childNodes.add(value.pendingSending.getValue())
-            childNodes.add(value.pendingChange.getValue())
+            childNodes.add(value.confirmed.value)
+            childNodes.add(value.pendingReceiving.value)
+            childNodes.add(value.pendingSending.value)
+            childNodes.add(value.pendingChange.value)
             rootNode.set("Balance", childNodes)
             rootNode.put("Asset", value.confirmed.type.id)
             return rootNode.toString()

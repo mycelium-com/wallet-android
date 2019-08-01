@@ -141,7 +141,7 @@ class EthAccount(private val credentials: Credentials,
     }
 
     override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?) =
-            accountBalance.spendable.subtract(Value.valueOf(coinType, gasPrice * 21000))!!
+            accountBalance.spendable - Value.valueOf(coinType, gasPrice * 21000)
 
     override fun getSyncTotalRetrievedTransactions() = 0
 
