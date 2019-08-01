@@ -21,9 +21,7 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
-    override fun updateParentOutputs(txid: ByteArray?) {
-        // there is no parent update
-    }
+
 
     override fun queueTransaction(transaction: GenericTransaction) {
     }
