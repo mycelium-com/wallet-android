@@ -15,7 +15,11 @@ class EthAccount(private val credentials: Credentials,
                  private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
 
     override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return FeeEstimationsGeneric(Value.valueOf(coinType, 1000000000),
+                Value.valueOf(coinType, 33000000000),
+                Value.valueOf(coinType, 67000000000),
+                Value.valueOf(coinType, 100000000000),
+                System.currentTimeMillis())
 //        EthEstimateGas
     }
 
@@ -84,9 +88,9 @@ class EthAccount(private val credentials: Credentials,
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
             val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance),
-                    Value(EthTest, 0),
-                    Value(EthTest, 0),
-                    Value(EthTest, 0))
+                    Value.zeroValue(coinType),
+                    Value.zeroValue(coinType),
+                    Value.zeroValue(coinType))
             accountContext.balance = balance
         }
         return succeed
@@ -115,10 +119,10 @@ class EthAccount(private val credentials: Credentials,
     }
 
     override fun dropCachedData() {
-        val balance = Balance(Value.valueOf(EthTest, 0),
-                Value(EthTest, 0),
-                Value(EthTest, 0),
-                Value(EthTest, 0))
+        val balance = Balance(Value.zeroValue(coinType),
+                Value.zeroValue(coinType),
+                Value.zeroValue(coinType),
+                Value.zeroValue(coinType))
         accountContext.balance = balance
     }
 
@@ -136,31 +140,28 @@ class EthAccount(private val credentials: Credentials,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Long, destinationAddress: EthAddress?): Value {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?) =
+            accountBalance.spendable.subtract(Value.valueOf(coinType, gasPrice * 21000))!!
 
     override fun getSyncTotalRetrievedTransactions() = 0
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return FeeEstimationsGeneric(Value.zeroValue(coinType),
+                Value.valueOf(coinType, 300),
+                Value.valueOf(coinType, 30000),
+                Value.valueOf(coinType, 30000000),
+                System.currentTimeMillis())
     }
 
-    override fun getTypicalEstimatedTransactionSize(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTypicalEstimatedTransactionSize() = 21000
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getDummyAddress(): EthAddress {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getDummyAddress() = EthAddress.getDummyAddress(coinType)
 
-    override fun getDummyAddress(subType: String?): EthAddress {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
 
     override fun getDependentAccounts() = emptyList<WalletAccount<GenericAddress>>()
 

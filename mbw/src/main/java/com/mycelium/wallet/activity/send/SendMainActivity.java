@@ -141,6 +141,7 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
@@ -454,7 +455,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             verifyPaymentRequest(genericUri);
         }
 
-        if (!(account instanceof HDAccount  || account instanceof SingleAddressAccount || account instanceof ColuAccount)) {
+        if (!(account instanceof HDAccount || account instanceof SingleAddressAccount || account instanceof ColuAccount
+                || account instanceof EthAccount)) {
             llFee.setVisibility(GONE);
         }
 

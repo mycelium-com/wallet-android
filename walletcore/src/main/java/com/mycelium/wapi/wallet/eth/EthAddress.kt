@@ -15,4 +15,9 @@ class EthAddress(cryptoCurrency: CryptoCurrency, addressString: String) : Generi
     override fun getBytes() = address.toUint160().toString().toByteArray()
 
     override fun toString() = address.toString()
+
+    companion object {
+        fun getDummyAddress(cryptoCurrency: CryptoCurrency) =
+                EthAddress(cryptoCurrency, "0x000000000000000000000000000000000000dEaD")
+    }
 }
