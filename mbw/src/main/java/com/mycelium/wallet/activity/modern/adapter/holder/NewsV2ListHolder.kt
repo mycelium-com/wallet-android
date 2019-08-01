@@ -71,7 +71,7 @@ class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : Rec
         }
 
         override fun getItemViewType(position: Int): Int {
-            return NewsAdapter.TYPE_NEWS_V2
+            return NewsAdapter.TYPE_NEWS
         }
 
         override fun getItemCount(): Int {
