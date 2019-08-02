@@ -5,8 +5,8 @@
               android:layout_height="wrap_content"
               android:gravity="center_vertical"
               android:orientation="horizontal"
+              android:layoutDirection="ltr"
               android:layout_marginBottom="8dp">
-
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -14,8 +14,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        >
+        android:paddingEnd="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -25,8 +24,6 @@
             android:text="@string/total_balance_title">
         </TextView>
 
-
-
         <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
             android:id="@+id/tcdBalance"
             android:layout_width="wrap_content"
@@ -34,10 +31,6 @@
             android:gravity="center"
             custom:textSize="20sp"
             custom:fiatOnly="false"
-            android:layout_alignParentEnd="true"
-            />
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
-
-
-
 </LinearLayout>
