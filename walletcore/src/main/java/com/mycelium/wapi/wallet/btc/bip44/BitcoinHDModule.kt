@@ -422,10 +422,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
-                backing.setTransactionSuccessful()
                 account.archiveAccount()
-
                 accounts[account.id] = account
+                backing.setTransactionSuccessful()
                 return account.id
             } finally {
                 backing.endTransaction()
