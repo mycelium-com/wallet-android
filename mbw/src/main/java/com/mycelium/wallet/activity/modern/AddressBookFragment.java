@@ -173,21 +173,16 @@ public class AddressBookFragment extends Fragment {
     private void updateUiMine() {
         List<Entry> entries = new ArrayList<>();
         List<WalletAccount<?>> activeAccounts = new ArrayList<>(_mbwManager.getWalletManager(false).getAllActiveAccounts());
+        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
         for (WalletAccount account : Utils.sortAccounts(activeAccounts, _mbwManager.getMetadataStorage())) {
             String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
             Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-            //TODO a lot of pr
-            WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-            if (account.getReceiveAddress() != null) {
-                if (selectedAccount instanceof CoinapultAccount
-                        && (account instanceof CoinapultAccount || account.getCoinType() == BitcoinMain.get() || account.getCoinType() == BitcoinTest.get())) {
-                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-                } else if ((selectedAccount.getCoinType().equals(BitcoinMain.get()) || selectedAccount.getCoinType().equals(BitcoinTest.get()))
-                        && account instanceof CoinapultAccount) {
-                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-                } else if (selectedAccount.getCoinType().equals(account.getCoinType())) {
-                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
-                }
+            if (account.getReceiveAddress() != null &&
+                    (selectedAccount instanceof CoinapultAccount && isBtcOrCoinapult(account)
+                            || isBtcAccount(selectedAccount) && account instanceof CoinapultAccount
+                            || selectedAccount.getCoinType().equals(account.getCoinType()))
+            ) {
+                entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
         }
         if (entries.isEmpty()) {
@@ -199,6 +194,14 @@ public class AddressBookFragment extends Fragment {
             ListView list = (ListView) findViewById(R.id.lvForeignAddresses);
             list.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_my_address_row, entries));
         }
+    }
+
+    private boolean isBtcAccount(WalletAccount account) {
+        return account.getCoinType().equals(BitcoinMain.get()) || account.getCoinType().equals(BitcoinTest.get());
+    }
+
+    private boolean isBtcOrCoinapult(WalletAccount account) {
+        return account instanceof CoinapultAccount || isBtcAccount(account);
     }
 
     private void updateUiForeign() {
