@@ -97,7 +97,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
@@ -1031,11 +1030,7 @@ public class AccountsFragment extends Fragment {
                         update();
                     }
                 });
-                confirmDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }
-                });
+                confirmDialog.setNegativeButton(R.string.no, null);
                 confirmDialog.show();
             }
 
@@ -1076,13 +1071,13 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-        if (accountProtected(_focusedAccount)) {
+        final WalletAccount focusedAccount = accountListAdapter.getFocusedAccount();
+        if (accountProtected(focusedAccount)) {
             //this is the last active hd account, we dont allow archiving it
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        if (_focusedAccount instanceof CoinapultAccount) {
+        if (focusedAccount instanceof CoinapultAccount) {
             _mbwManager.runPinProtectedFunction(getActivity(), new Runnable() {
 
                 @Override
@@ -1091,13 +1086,13 @@ public class AccountsFragment extends Fragment {
                         return;
                     }
 
-                    archive(_focusedAccount);
+                    archive(focusedAccount);
                 }
 
             });
             return;
-        } else if (_focusedAccount instanceof HDAccount) {
-            HDAccount account = (HDAccount) _focusedAccount;
+        } else if (focusedAccount instanceof HDAccount) {
+            HDAccount account = (HDAccount) focusedAccount;
             if (!account.hasHadActivity()) {
                 //this account is unused, we dont allow archiving it
                 _toaster.toast(R.string.dont_allow_archiving_unused_notification, false);
@@ -1112,7 +1107,7 @@ public class AccountsFragment extends Fragment {
                     return;
                 }
 
-                archive(_focusedAccount);
+                archive(focusedAccount);
             }
 
         });
@@ -1136,14 +1131,14 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        final WalletAccount _focusedAccount = accountListAdapter.getFocusedAccount();
-        if (accountProtected(_focusedAccount)) {
+        final WalletAccount focusedAccount = accountListAdapter.getFocusedAccount();
+        if (accountProtected(focusedAccount)) {
             //this is the last active account, we dont allow hiding it
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        if (_focusedAccount instanceof HDAccount) {
-            final HDAccount account = (HDAccount) _focusedAccount;
+        if (focusedAccount instanceof HDAccount) {
+            final HDAccount account = (HDAccount) focusedAccount;
             if (account.hasHadActivity()) {
                 //this account is used, we don't allow hiding it
                 _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
@@ -1188,10 +1183,7 @@ public class AccountsFragment extends Fragment {
                         _toaster.toast(R.string.archived, false);
                     }
                 })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                    }
-                })
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
