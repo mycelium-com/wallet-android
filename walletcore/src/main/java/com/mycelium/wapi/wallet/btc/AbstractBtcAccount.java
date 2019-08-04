@@ -1941,7 +1941,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         return false;
     }
 
-   @Override
    public void updateParentOutputs(byte[] txid) throws WapiException  {
          TransactionEx transactionEx = getTransaction(Sha256Hash.of(txid));
          Transaction transaction = TransactionEx.toTransaction(transactionEx);

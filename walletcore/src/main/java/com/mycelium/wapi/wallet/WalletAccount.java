@@ -77,8 +77,6 @@ public interface WalletAccount<A extends GenericAddress> {
 
     boolean isSpendingUnconfirmed(GenericTransaction tx);
 
-    void updateParentOutputs(byte[] txid) throws WapiException;
-
     /**
      * Synchronize this account
      * <p/>
