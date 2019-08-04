@@ -469,7 +469,6 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
-
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
@@ -573,7 +572,6 @@ public class TransactionHistoryFragment extends Fragment {
                                  updateParentTask.cancel(true);
                               }
                            });
-
                            alertDialog.show();
                            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
                            updateParentTask.execute();
@@ -597,7 +595,6 @@ public class TransactionHistoryFragment extends Fragment {
                                             transaction = HexUtils.toHex(account
                                                 .getTransaction(Sha256Hash.of(record.getId())).binary);
                                          }
-
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
