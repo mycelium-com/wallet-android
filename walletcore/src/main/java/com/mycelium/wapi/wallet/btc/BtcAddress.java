@@ -34,11 +34,6 @@ public class BtcAddress implements GenericAddress {
         return currencyType;
     }
 
-    @Override
-    public long getId() {
-        return 0;
-    }
-
     @NotNull
     @Override
     public byte[] getBytes() {
