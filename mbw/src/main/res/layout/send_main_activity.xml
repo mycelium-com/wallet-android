@@ -155,6 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:background="@color/fee_recycler_item"
                                 android:orientation="horizontal"
+                                android:layoutDirection="ltr"
                                 android:scrollbars="none"
                                 android:textColor="@color/horizontalpicker_text_color"
                                 android:textSize="14sp"
