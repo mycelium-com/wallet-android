@@ -1,5 +1,7 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mycelium.wapi.wallet.*
@@ -7,9 +9,14 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import kotlinx.coroutines.runBlocking
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
+import org.web3j.utils.Convert
+import java.net.URL
 import java.util.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class EthAccount(private val credentials: Credentials,
                  private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
@@ -20,7 +27,6 @@ class EthAccount(private val credentials: Credentials,
                 Value.valueOf(coinType, 67000000000),
                 Value.valueOf(coinType, 100000000000),
                 System.currentTimeMillis())
-//        EthEstimateGas
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -146,11 +152,45 @@ class EthAccount(private val credentials: Credentials,
     override fun getSyncTotalRetrievedTransactions() = 0
 
     override fun getFeeEstimations(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(Value.zeroValue(coinType),
-                Value.valueOf(coinType, 300),
-                Value.valueOf(coinType, 30000),
-                Value.valueOf(coinType, 30000000),
-                System.currentTimeMillis())
+        val estimation = runBlocking { getFeeEstimationsAsync() }
+
+        return estimation
+    }
+
+    /**
+     * Gas station estimates are provided in GWEI*10
+     */
+    class GasStationEstimation {
+        var fast: Double = 0.0
+            get() = field / 10
+        var fastest: Double = 0.0
+            get() = field / 10
+        var average: Double = 0.0
+            get() = field / 10
+        var safeLow: Double = 0.0
+            get() = field / 10
+    }
+
+    private suspend fun getFeeEstimationsAsync(): FeeEstimationsGeneric {
+        return suspendCoroutine { continuation ->
+
+            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
+                    GasStationEstimation::class.java)
+                    .apply {
+                        continuation.resume(FeeEstimationsGeneric(
+                                Value.valueOf(coinType,
+                                        Convert.toWei(safeLow.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                Value.valueOf(coinType,
+                                        Convert.toWei(average.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                Value.valueOf(coinType,
+                                        Convert.toWei(fast.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                Value.valueOf(coinType,
+                                        Convert.toWei(fastest.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                System.currentTimeMillis()
+                        ))
+                    }
+        }
     }
 
     override fun getTypicalEstimatedTransactionSize() = 21000

@@ -3,10 +3,8 @@ package com.mycelium.wapi.wallet.genericdb
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.mycelium.generated.wallet.database.AccountContext
-import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.coins.COINS
-import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.generated.wallet.database.FeeEstimation
+import com.mycelium.wapi.wallet.coins.*
 import com.squareup.sqldelight.ColumnAdapter
 import java.util.*
 
@@ -26,6 +24,13 @@ object Adapters {
         override fun encode(value: CryptoCurrency): String = value.id
     }
 
+    val assetAdapter = object : ColumnAdapter<GenericAssetInfo, String> {
+        override fun decode(databaseValue: String): CryptoCurrency =
+                databaseValue.let(COINS::get) ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
+
+        override fun encode(value: GenericAssetInfo): String = value.id
+    }
+
     val balanceAdapter = object : ColumnAdapter<Balance, String> {
         override fun decode(databaseValue: String): Balance {
             val mapper = ObjectMapper()
@@ -42,7 +47,6 @@ object Adapters {
             return Balance(confirmed, pendingReceiving, pendingSending, pendingChange)
         }
 
-
         override fun encode(value: Balance): String {
             val mapper = ObjectMapper()
 
@@ -58,6 +62,29 @@ object Adapters {
             return rootNode.toString()
         }
     }
+
+    val valueAdapter = object : ColumnAdapter<Value, String> {
+        override fun decode(databaseValue: String): Value {
+            val mapper = ObjectMapper()
+
+            val rootNode = mapper.readTree(databaseValue)
+            val asset = COINS.getValue(rootNode["Asset"].asText())
+            val value = rootNode["Value"].asLong()
+            return Value(asset, value)
+        }
+
+        override fun encode(value: Value): String {
+            val mapper = ObjectMapper()
+
+            val rootNode = mapper.createObjectNode()
+            rootNode.put("Asset", assetAdapter.encode(value.type))
+            rootNode.put("Value", value.value)
+            return rootNode.toString()
+        }
+    }
 }
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter, Adapters.balanceAdapter)
+
+val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.cryptoCurrencyAdapter,
+        Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)
