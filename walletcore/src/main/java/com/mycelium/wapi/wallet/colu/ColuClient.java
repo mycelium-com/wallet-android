@@ -88,7 +88,7 @@ public class ColuClient {
         List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
-        dest.amount = nativeAmount.getValue();
+        dest.amount = nativeAmount.value;
         dest.assetId = nativeAmount.type.getId();
         to.add(dest);
 

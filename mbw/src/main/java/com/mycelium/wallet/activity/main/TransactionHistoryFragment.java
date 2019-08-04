@@ -290,8 +290,8 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       // Open transaction details
-      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
-      intent.putExtra("transaction", selected.getId());
+      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class)
+              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId());
       startActivity(intent);
    }
 
@@ -469,7 +469,6 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
-
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
@@ -573,7 +572,6 @@ public class TransactionHistoryFragment extends Fragment {
                                  updateParentTask.cancel(true);
                               }
                            });
-
                            alertDialog.show();
                            alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
                            updateParentTask.execute();
@@ -597,7 +595,6 @@ public class TransactionHistoryFragment extends Fragment {
                                             transaction = HexUtils.toHex(account
                                                 .getTransaction(Sha256Hash.of(record.getId())).binary);
                                          }
-
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
@@ -698,10 +695,10 @@ public class TransactionHistoryFragment extends Fragment {
       GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().getValue();
+         txFee += i.getValue().value;
       }
       for(GenericOutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().getValue();
+         txFee -= i.getValue().value;
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();

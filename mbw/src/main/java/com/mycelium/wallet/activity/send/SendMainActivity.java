@@ -1161,7 +1161,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         updateTransactionStatusAndUi();
         super.onResume();
-        if(activityResultDialog != null) {
+        if (activityResultDialog != null) {
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
         }
@@ -1328,13 +1328,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (_transactionLabel != null) {
                 _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), _transactionLabel);
             }
-            String hash = signedTransaction.getId().toString();
+            String hash = HexUtils.toHex(signedTransaction.getId());
             String fiat = getFiatValue();
             if (fiat != null) {
                 transactionFiatValuePref.edit().putString(hash, fiat).apply();
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
-                    .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
+                  .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
         }
         setResult(broadcastResult.getResultType() == BroadcastResultType.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
         finish();

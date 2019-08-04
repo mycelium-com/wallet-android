@@ -1,6 +1,5 @@
 package com.mycelium.wapi.wallet.colu
 
-import com.google.common.base.Preconditions
 import com.mrd.bitlib.model.OutPoint
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
@@ -12,26 +11,15 @@ import com.mycelium.wapi.wallet.colu.json.Tx
 import java.util.*
 
 class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountContext> {
-
     private val _values = HashMap<String, ByteArray>()
     private val _backings = HashMap<UUID, InMemoryColuAccountBacking>()
     private val _contexts = HashMap<UUID, ColuAccountContext>()
     private val _coluAccountContexts = HashMap<UUID, ColuAccountContext>()
     private var maxSubId = 0
 
-    override fun loadAccountContexts(): MutableList<ColuAccountContext> {
-        val list = mutableListOf<ColuAccountContext>()
-        for (c in _contexts.values) {
-            list.add(c)
-        }
-        return list
-    }
+    override fun loadAccountContexts(): MutableList<ColuAccountContext> = _contexts.values.toMutableList()
 
-    override fun getAccountBacking(accountId: UUID): CommonAccountBacking {
-        val backing = _backings[accountId]
-        Preconditions.checkNotNull<InMemoryColuAccountBacking>(backing)
-        return backing!!
-    }
+    override fun getAccountBacking(accountId: UUID): CommonAccountBacking = _backings[accountId]!!
 
     override fun createAccountContext(context: ColuAccountContext) {
         _contexts[context.id] = context
@@ -63,7 +51,7 @@ class InMemoryColuWalletManagerBacking : ColuWalletManagerBacking<ColuAccountCon
     }
 
     override fun setValue(id: ByteArray?, plaintextValue: ByteArray) {
-        _values.put(idToString(id), plaintextValue);
+        _values[idToString(id)] = plaintextValue
     }
 
     override fun getMaxSubId() = maxSubId

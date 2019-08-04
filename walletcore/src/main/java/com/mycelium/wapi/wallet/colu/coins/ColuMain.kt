@@ -7,7 +7,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.SoftDustPolicy
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException
 
 
 abstract class ColuMain : BitcoinBasedCryptoCurrency() {
@@ -42,13 +41,15 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         return javaClass.hashCode()
     }
 
-    @Throws(AddressMalformedException::class)
     override fun parseAddress(addressString: String): GenericAddress? {
         val address = Address.fromString(addressString) ?: return null
 
-        if (address.type === AddressType.P2WPKH)
-            throw AddressMalformedException("Address $addressString is malformed")
-
+        try {
+            if (address.type === AddressType.P2WPKH)
+                return null
+        } catch (e: IllegalStateException) {
+            return null
+        }
         return BtcAddress(this, address)
     }
 }
