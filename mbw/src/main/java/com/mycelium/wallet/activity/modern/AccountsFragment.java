@@ -351,7 +351,7 @@ public class AccountsFragment extends Fragment {
                                     //Check if this SingleAddress account is related with ColuAccount
                                     walletManager.deleteAccount(accountToDelete.getId());
                                     ((SingleAddressAccount) accountToDelete).forgetPrivateKey(AesKeyCipher.defaultKeyCipher());
-                                    for (WalletAccount dependentAccount : (List<WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                    for (WalletAccount dependentAccount : accountToDelete.getDependentAccounts()) {
                                         if (dependentAccount instanceof ColuAccount) {
                                             walletManager.deleteAccount(dependentAccount.getId());
                                             ColuAccountContext context = ((ColuAccount) dependentAccount).getContext();
@@ -369,7 +369,7 @@ public class AccountsFragment extends Fragment {
                                 if (accountToDelete instanceof ColuAccount) {
                                     try {
                                         walletManager.deleteAccount(accountToDelete.getId());
-                                        for (WalletAccount dependentAccount : (List <WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                        for (WalletAccount dependentAccount : accountToDelete.getDependentAccounts()) {
                                             if (dependentAccount != null) {
                                                 walletManager.deleteAccount(dependentAccount.getId());
                                                 _storage.deleteAccountMetadata(dependentAccount.getId());
@@ -393,7 +393,7 @@ public class AccountsFragment extends Fragment {
                                     }
                                 } else {
                                     //Check if this SingleAddress account is related with ColuAccount
-                                    for (WalletAccount dependentAccount : (List<WalletAccount>) accountToDelete.getDependentAccounts()) {
+                                    for (WalletAccount dependentAccount : accountToDelete.getDependentAccounts()) {
                                         if (dependentAccount instanceof ColuAccount) {
                                             walletManager.deleteAccount(dependentAccount.getId());
                                             _storage.deleteAccountMetadata(dependentAccount.getId());
@@ -416,8 +416,7 @@ public class AccountsFragment extends Fragment {
                     walletManager.deleteAccount(accountToDelete.getId());
                     _storage.deleteAccountMetadata(accountToDelete.getId());
                     //Check if this SingleAddress account is related with ColuAccount
-                    List<WalletAccount> dependentAccounts = accountToDelete.getDependentAccounts();
-                    for (WalletAccount dependentAccount : dependentAccounts) {
+                    for (WalletAccount dependentAccount : accountToDelete.getDependentAccounts()) {
                         walletManager.deleteAccount(dependentAccount.getId());
                         _storage.deleteAccountMetadata(dependentAccount.getId());
                     }
@@ -1014,9 +1013,9 @@ public class AccountsFragment extends Fragment {
         });
     }
 
-    private void activate(WalletAccount account) {
+    private void activate(WalletAccount<?> account) {
         account.activateAccount();
-        for (WalletAccount dependentAccount : (List<WalletAccount>) account.getDependentAccounts()) {
+        for (WalletAccount dependentAccount : account.getDependentAccounts()) {
             dependentAccount.activateAccount();
         }
         //setselected also broadcasts AccountChanged event

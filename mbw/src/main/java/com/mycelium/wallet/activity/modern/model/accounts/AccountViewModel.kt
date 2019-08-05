@@ -9,7 +9,6 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Balance
-import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 
@@ -23,7 +22,7 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
-    val isRMCLinkedAccount = if (mbwManager != null) isRmcAccountLinked(account, mbwManager) else false
+    val isRMCLinkedAccount = isRmcAccountLinked(account)
     var showBackupMissingWarning = if (mbwManager != null) showBackupMissingWarning(account, mbwManager) else false
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
@@ -89,14 +88,8 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     }
 
     companion object {
-        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
-            walletAccount.dependentAccounts.forEach { account ->
-                if (account is ColuAccount && (account.coinType == RMCCoin || account.coinType == RMCCoinTest)) {
-                    return true
-                }
-            }
-            return false
-        }
+        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>): Boolean =
+                walletAccount.dependentAccounts.any { it.coinType in listOf(RMCCoin, RMCCoinTest) }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
             if (account.isArchived) {
