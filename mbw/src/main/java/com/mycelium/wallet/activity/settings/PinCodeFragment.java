@@ -180,10 +180,11 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                                     .create()
                                     .show();
                         } else {
-                            _mbwManager.setFingerprintEnabled(checked);
+                            _mbwManager.setFingerprintEnabled(true);
                         }
                     } else {
                         _mbwManager.setFingerprintEnabled(false);
+                        _mbwManager.setTwoFactorEnabled(false);
                     }
                     update();
                 }
@@ -199,29 +200,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                 @Override
                 public void run() {
                     boolean checked = !((CheckBoxPreference) preference).isChecked();
-                    if (_mbwManager.isPinProtected() && checked) {
-                        if (!FingerprintHandler.Companion.isFingerprintAvailable(getContext())) {
-                            new AlertDialog.Builder(getContext())
-                                    .setMessage("You need add fingerprint before start fingerprint authentification")
-                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                                startActivity(new Intent(Settings.ACTION_FINGERPRINT_ENROLL));
-                                            } else {
-                                                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
-                                            }
-                                        }
-                                    })
-                                    .setNegativeButton(R.string.cancel, null)
-                                    .create()
-                                    .show();
-                        } else {
-                            _mbwManager.setFingerprintEnabled(checked);
-                        }
-                    } else {
-                        _mbwManager.setFingerprintEnabled(false);
-                    }
+                    _mbwManager.setTwoFactorEnabled(checked);
                     update();
                 }
             });
@@ -234,6 +213,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         setPinRequiredStartup.setChecked(_mbwManager.isPinProtected() && _mbwManager.getPinRequiredOnStartup());
         randomizePin.setChecked(_mbwManager.isPinProtected() && _mbwManager.isPinPadRandomized());
         fingerprint.setChecked(_mbwManager.isPinProtected() && _mbwManager.isFingerprintEnabled());
+        twoFactorAuth.setChecked(_mbwManager.isTwoFactorEnabled());
     }
 
     @SuppressLint("RestrictedApi")

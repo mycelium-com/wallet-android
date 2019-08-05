@@ -18,7 +18,13 @@
             android:layout_height="32dp"
             android:layout_margin="8dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_fingerprint" />
+            app:srcCompat="@drawable/ic_fingerprint_selector" />
+
+        <TextView
+            android:id="@+id/logicOperationHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/or"/>
 
         <include layout="@layout/enter_pin_keypad" />
     </LinearLayout>

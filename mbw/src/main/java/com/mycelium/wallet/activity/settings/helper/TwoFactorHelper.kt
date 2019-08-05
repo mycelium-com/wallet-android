@@ -4,9 +4,10 @@ import com.mycelium.wallet.PinDialog
 import com.mycelium.wallet.activity.util.Pin
 
 
-class TwoFactorHelper(val pinDialog: PinDialog, val listener: PinDialog.OnPinEntered) {
-    var isFingerprintSuccess = false;
+class TwoFactorHelper(val pinDialog: PinDialog) {
+    var isFingerprintSuccess = false
     var enteredPin: Pin = Pin("")
+    var listener: PinDialog.OnPinEntered? = null
 
     fun pinEntered(pin: Pin) {
         enteredPin = pin
@@ -20,9 +21,7 @@ class TwoFactorHelper(val pinDialog: PinDialog, val listener: PinDialog.OnPinEnt
 
     private fun checkAndCall() {
         if (isFingerprintSuccess && enteredPin.isSet) {
-            listener.pinEntered(pinDialog, enteredPin)
+            listener?.pinEntered(pinDialog, enteredPin)
         }
     }
-
-
 }

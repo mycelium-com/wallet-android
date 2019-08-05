@@ -80,9 +80,11 @@ public class PinDialog extends AppCompatDialog {
    protected FingerprintCallback fingerprintCallback;
    private boolean hidden;
    protected boolean pinPadIsRandomized;
+   protected boolean isTwoFactorAuth;
 
    public void setOnPinValid(OnPinEntered _onPinValid) {
       this.onPinValid = _onPinValid;
+      twoFactorHelper.setListener(_onPinValid);
    }
 
    public void setFingerprintCallback(FingerprintCallback fingerprintCallback) {
@@ -93,6 +95,7 @@ public class PinDialog extends AppCompatDialog {
       super(context);
       getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
       pinPadIsRandomized = MbwManager.getInstance(context).isPinPadRandomized();
+      isTwoFactorAuth = MbwManager.getInstance(context).isTwoFactorEnabled();
       this.hidden = hidden;
       setCancelable(cancelable);
       setCanceledOnTouchOutside(false);
@@ -103,11 +106,16 @@ public class PinDialog extends AppCompatDialog {
       updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
       initFingerprint(context);
-      twoFactorHelper = new TwoFactorHelper(this, )
+      initTwoFactorAuthentification();
+   }
+
+   private void initTwoFactorAuthentification() {
+      ((TextView) findViewById(R.id.logicOperationHint)).setText(isTwoFactorAuth ? R.string.and : R.string.or);
+      twoFactorHelper = new TwoFactorHelper(this);
    }
 
    private void initFingerprint(Context context) {
-      View view = findViewById(R.id.fingerprintHint);
+      final View view = findViewById(R.id.fingerprintHint);
       if (view != null) {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                  && MbwManager.getInstance(context).isFingerprintEnabled()
@@ -116,9 +124,14 @@ public class PinDialog extends AppCompatDialog {
             fingerprintHandler.startAuth(context, new Function0<Unit>() {
                @Override
                public Unit invoke() {
-                  dismiss();
-                  if (fingerprintCallback != null) {
-                     fingerprintCallback.onSuccess();
+                  if (isTwoFactorAuth) {
+                     view.setEnabled(false);
+                     twoFactorHelper.fingerprintSuccess();
+                  } else {
+                     dismiss();
+                     if (fingerprintCallback != null) {
+                        fingerprintCallback.onSuccess();
+                     }
                   }
                   return null;
                }
@@ -255,11 +268,17 @@ public class PinDialog extends AppCompatDialog {
    /**
     * Trick to make the last digit update before the dialog is disabled
     */
-  final Handler delayHandler = new Handler() {
+   final Handler delayHandler = new Handler() {
       public void handleMessage(Message msg) {
-         if (onPinValid != null) onPinValid.pinEntered(PinDialog.this, getPin());
-         enableButtons(true);
-         clearDigits();
+         if (isTwoFactorAuth) {
+            btnClear.setEnabled(false);
+            btnBack.setEnabled(false);
+            twoFactorHelper.pinEntered(getPin());
+         } else {
+            if (onPinValid != null) onPinValid.pinEntered(PinDialog.this, getPin());
+            enableButtons(true);
+            clearDigits();
+         }
       }
    };
 

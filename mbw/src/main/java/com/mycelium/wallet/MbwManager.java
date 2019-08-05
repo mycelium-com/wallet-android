@@ -469,7 +469,7 @@ public class MbwManager {
         getEditor().putBoolean(Constants.FINGERPRINT, enable).apply();
     }
 
-    public boolean isTwoFactorEnable() {
+    public boolean isTwoFactorEnabled() {
         return getPreferences().getBoolean(Constants.TWO_FACTOR, false);
     }
 
