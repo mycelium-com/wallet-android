@@ -47,14 +47,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
     }
 
-    private var dependentAccountList = mutableSetOf<WalletAccount<*>>()
+    private var dependentAccounts = mutableSetOf<WalletAccount<*>>()
 
     override fun getDependentAccounts(): List<WalletAccount<*>> {
-        return dependentAccountList.toList()
+        return dependentAccounts.toList()
     }
 
     override fun addDependentAccount(walletAccount: WalletAccount<*>) {
-        dependentAccountList.add(walletAccount)
+        dependentAccounts.add(walletAccount)
     }
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
