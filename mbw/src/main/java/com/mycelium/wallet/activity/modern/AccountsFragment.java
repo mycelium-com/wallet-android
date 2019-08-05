@@ -259,7 +259,7 @@ public class AccountsFragment extends Fragment {
         }
     }
 
-    private void deleteAccount(final WalletAccount accountToDelete) {
+     private void deleteAccount(final WalletAccount<?> accountToDelete) {
         checkNotNull(accountToDelete);
         final List<WalletAccount> dependentAccounts = accountToDelete.getDependentAccounts();
 
