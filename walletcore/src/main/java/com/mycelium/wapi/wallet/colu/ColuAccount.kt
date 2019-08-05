@@ -15,7 +15,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
-import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -44,14 +43,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
     }
 
-    var linkedAccount: SingleAddressAccount? = null
+    private var dependentAccounts = mutableSetOf<WalletAccount<*>>()
 
-    override fun getDependentAccounts(): MutableList<WalletAccount<*>> {
-        val result = ArrayList<WalletAccount<*>>()
-        linkedAccount?.let {
-            result.add(it)
-        }
-        return result
+    override fun getDependentAccounts(): List<WalletAccount<*>> {
+        return dependentAccounts.toList()
+    }
+
+    override fun addDependentAccount(walletAccount: WalletAccount<*>) {
+        dependentAccounts.add(walletAccount)
     }
 
     override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {

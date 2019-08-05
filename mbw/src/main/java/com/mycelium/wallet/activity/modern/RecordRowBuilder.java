@@ -64,8 +64,6 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
-
 
 public class RecordRowBuilder {
     private final MbwManager mbwManager;
@@ -188,9 +186,12 @@ public class RecordRowBuilder {
         result.accountType = walletAccount.getClass();
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
-        WalletAccount linked = Utils.getLinkedAccount(walletAccount, getColuAccounts(mbwManager.getWalletManager(false)));
-        if (linked != null && (linked.getCoinType().equals(RMCCoin.INSTANCE) || linked.getCoinType().equals(RMCCoinTest.INSTANCE))) {
-            result.isRMCLinkedAccount = true;
+        result.isRMCLinkedAccount = false;
+        for (WalletAccount dependentAccount : (List<WalletAccount>) walletAccount.getDependentAccounts()) {
+            if (dependentAccount != null && (dependentAccount.getCoinType().equals(RMCCoin.INSTANCE)
+                    || dependentAccount.getCoinType().equals(RMCCoinTest.INSTANCE))) {
+                result.isRMCLinkedAccount = true;
+            }
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
         if (walletAccount.isActive()) {

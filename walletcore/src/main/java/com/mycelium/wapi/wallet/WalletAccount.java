@@ -209,6 +209,8 @@ public interface WalletAccount<A extends GenericAddress> {
 
     List<WalletAccount> getDependentAccounts();
 
+    void addDependentAccount(WalletAccount walletAccount);
+
     /**
      * Queue a transaction for broadcasting.
      * <p/>

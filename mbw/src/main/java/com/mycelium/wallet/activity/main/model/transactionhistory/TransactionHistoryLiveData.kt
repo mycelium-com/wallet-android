@@ -10,7 +10,6 @@ import com.squareup.otto.Subscribe
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 /**
  * This class is intended to manage transaction history for current selected account.
@@ -99,7 +98,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
 
     @Subscribe
     fun accountChanged(event: AccountChanged) {
-        if (event.account == account.id) {
+        if (event.accounts.contains(account.id)) {
             startHistoryUpdate()
         }
     }
