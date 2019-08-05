@@ -299,7 +299,7 @@ public class AccountsFragment extends Fragment {
                     // Set the message. There are four combinations, with and without label, with and without BTC amount.
                     String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
                     int labelCount = 1;
-                    if (accountToDelete.getDependentAccounts().size() > 0) {
+                    if (!accountToDelete.getDependentAccounts().isEmpty()) {
                         label += ", " + getAccountLabels(accountToDelete.getDependentAccounts());
                         labelCount += accountToDelete.getDependentAccounts().size();
                     }
@@ -418,10 +418,8 @@ public class AccountsFragment extends Fragment {
                     //Check if this SingleAddress account is related with ColuAccount
                     List<WalletAccount> dependentAccounts = accountToDelete.getDependentAccounts();
                     for (WalletAccount dependentAccount : dependentAccounts) {
-                        if (dependentAccount != null) {
-                            walletManager.deleteAccount(dependentAccount.getId());
-                            _storage.deleteAccountMetadata(dependentAccount.getId());
-                        }
+                        walletManager.deleteAccount(dependentAccount.getId());
+                        _storage.deleteAccountMetadata(dependentAccount.getId());
                     }
                     finishCurrentActionMode();
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
@@ -465,7 +463,7 @@ public class AccountsFragment extends Fragment {
     private String getArchivedAccountDeleteText(List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
         List<WalletAccount> visibleDependentAccounts = getVisibleAccounts(linkedAccounts);
-        if (visibleDependentAccounts.size() > 0) {
+        if (!visibleDependentAccounts.isEmpty()) {
             String linkedAccountName = getAccountLabels(visibleDependentAccounts);
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
         } else {
@@ -497,7 +495,7 @@ public class AccountsFragment extends Fragment {
         String dialogText;
         String valueString = getBalancesString(Collections.singletonList(accountToDelete));
         List<WalletAccount> visibleDependentAccount = getVisibleAccounts(linkedAccounts);
-        if (visibleDependentAccount.size() > 0) {
+        if (!visibleDependentAccount.isEmpty()) {
             String linkedValueString = getBalancesString(visibleDependentAccount);
             String linkedAccountNames = getAccountLabels(visibleDependentAccount);
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
