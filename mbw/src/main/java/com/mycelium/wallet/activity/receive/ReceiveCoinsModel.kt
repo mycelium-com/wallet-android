@@ -130,7 +130,7 @@ class ReceiveCoinsModel(
         } else {
             interesting.first().transferred.abs()
         }
-        interesting.drop(1).forEach { sum = sum!!.add(it.transferred.abs())}
+        interesting.drop(1).forEach { sum = sum!!.plus(it.transferred.abs())}
         receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 

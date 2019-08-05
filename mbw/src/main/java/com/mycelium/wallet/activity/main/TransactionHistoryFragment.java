@@ -290,8 +290,8 @@ public class TransactionHistoryFragment extends Fragment {
          return;
       }
       // Open transaction details
-      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
-      intent.putExtra("transaction", selected.getId());
+      Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class)
+              .putExtra(TransactionDetailsActivity.EXTRA_TXID, selected.getId());
       startActivity(intent);
    }
 
@@ -695,10 +695,10 @@ public class TransactionHistoryFragment extends Fragment {
       GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().getValue();
+         txFee += i.getValue().value;
       }
       for(GenericOutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().getValue();
+         txFee -= i.getValue().value;
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();

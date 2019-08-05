@@ -1161,7 +1161,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         updateTransactionStatusAndUi();
         super.onResume();
-        if(activityResultDialog != null) {
+        if (activityResultDialog != null) {
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
         }

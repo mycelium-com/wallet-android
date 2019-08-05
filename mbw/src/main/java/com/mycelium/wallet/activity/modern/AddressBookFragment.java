@@ -57,7 +57,6 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -75,7 +74,6 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -96,7 +94,7 @@ public class AddressBookFragment extends Fragment {
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";
-    public static final String AVAILABLE_FOR_SENDING = "is_sending";
+    public static final String AVAILABLE_FOR_SENDING = "available_for_sending";
     public static final String SELECT_ONLY = "selectOnly";
     public static final String ADDRESS_RESULT_LABEL = "address_result_label";
 
@@ -202,10 +200,10 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiForeign() {
-        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<GenericAddress, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
-        for (Map.Entry<Address, String> e : rawEntries.entrySet()) {
-            entries.add(new Entry(AddressUtils.fromAddress(e.getKey()), e.getValue()));
+        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+            entries.add(new Entry(e.getKey(), e.getValue()));
         }
         entries = Utils.sortAddressbookEntries(entries);
         if (entries.isEmpty()) {
@@ -221,12 +219,12 @@ public class AddressBookFragment extends Fragment {
 
     private void updateUiSending() {
         List<GenericAddress> addresses = _mbwManager.getMetadataStorage().getAllGenericAddress();
-        Map<Address, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
+        Map<GenericAddress, String> rawEntries = _mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = _mbwManager.getSelectedAccount();
         for (GenericAddress address : addresses) {
             if (address.getCoinType().equals(account.getCoinType())) {
-                entries.add(new Entry(address, rawEntries.get(Address.fromString(address.toString()))));
+                entries.add(new Entry(address, rawEntries.get(address)));
             }
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -309,7 +307,7 @@ public class AddressBookFragment extends Fragment {
     };
 
     private void doEditEntry() {
-        EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
+        EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
                 mSelectedAddress, "", addressLabelChanged);
     }
 
@@ -322,7 +320,7 @@ public class AddressBookFragment extends Fragment {
         }
         boolean hasPrivateKey = _mbwManager.getWalletManager(false).hasPrivateKey(mSelectedAddress);
         UUID tempAccount = _mbwManager.createOnTheFlyAccount(mSelectedAddress);
-        ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
+        ReceiveCoinsActivity.callMe(requireActivity(), _mbwManager.getWalletManager(true).getAccount(tempAccount),
                 hasPrivateKey, false, true);
         finishActionMode();
     }
@@ -356,8 +354,7 @@ public class AddressBookFragment extends Fragment {
     }
 
     private class AddDialog extends Dialog {
-
-        public AddDialog(final Activity activity) {
+        AddDialog(final Activity activity) {
             super(activity);
             this.setContentView(R.layout.add_to_address_book_dialog);
             this.setTitle(R.string.add_to_address_book_dialog_title);
@@ -383,7 +380,7 @@ public class AddressBookFragment extends Fragment {
                     List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
                         SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                        dialog.show(getFragmentManager(), "dialog");
+                        dialog.show(requireFragmentManager(), "dialog");
                     } else {
                         Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                     }
@@ -433,7 +430,7 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void addFromAddress(GenericAddress address) {
-        EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
+        EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
         _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
     }
 
@@ -467,8 +464,8 @@ public class AddressBookFragment extends Fragment {
                 result.putExtra(ADDRESS_RESULT_ID, item.getId());
                 result.putExtra(ADDRESS_RESULT_LABEL, item.getName());
             }
-            getActivity().setResult(Activity.RESULT_OK, result);
-            getActivity().finish();
+            requireActivity().setResult(Activity.RESULT_OK, result);
+            requireActivity().finish();
         }
     }
 }
