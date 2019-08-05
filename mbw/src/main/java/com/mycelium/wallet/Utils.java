@@ -760,6 +760,23 @@ public class Utils {
       activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
    }
 
+   public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      return getLinkedAccount(account, accounts) != null;
+   }
+
+   public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            return walletAccount;
+         }
+      }
+      return null;
+   }
+
+   public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {
+      return new HashSet<>(accounts);
+   }
+
    public static List<WalletAccount<?>> sortAccounts(final Collection<WalletAccount<?>> accounts, final MetadataStorage storage) {
       Ordering<WalletAccount> type = Ordering.natural().onResultOf(new Function<WalletAccount, Integer>() {
          //maybe need to add new method in WalletAccount and use polymorphism
@@ -777,7 +794,7 @@ public class Utils {
                return 0;
             }
             if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
-               return !input.getDependentAccounts().isEmpty() ? 5 : 1;
+               return checkIsLinked(input, accounts) ? 5 : 1;
             }
             if(input instanceof ColuAccount) {
                return 5;
@@ -803,15 +820,17 @@ public class Utils {
          @Override
          public int compare(WalletAccount w1, WalletAccount w2) {
             if (w1 instanceof ColuAccount) {
-               if (w1.getDependentAccounts().isEmpty()) {
+               WalletAccount linkedAccount = getLinkedAccount(w1, accounts);
+               if (linkedAccount == null) {
                   return 0;
                }
-               return w1.getDependentAccounts().contains(w2) ? -1 : 0;
+               return linkedAccount.getId().equals(w2.getId()) ? -1 : 0;
             } else if (w2 instanceof ColuAccount) {
-               if (w2.getDependentAccounts().isEmpty()) {
+               WalletAccount linkedAccount = getLinkedAccount(w2, accounts);
+               if (linkedAccount == null) {
                   return 0;
                }
-               return w2.getDependentAccounts().contains(w1) ? 1 : 0;
+               return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
             }
             return 0;
 

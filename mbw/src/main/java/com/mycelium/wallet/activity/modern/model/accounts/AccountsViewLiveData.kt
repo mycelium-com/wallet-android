@@ -3,9 +3,7 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import android.arch.lifecycle.LiveData
 import android.os.AsyncTask
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
@@ -22,7 +20,6 @@ import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 /**
  * This class is intended to monitor current accounts and must post changes as soon as accounts list was updated.
@@ -88,8 +85,17 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun getColuAccounts(walletManager: WalletManager): List<WalletAccount<out GenericAddress>> =
-                ArrayList(walletManager.getColuAccounts() + walletManager.getColuAccounts().flatMap { it.dependentAccounts })
+        private fun getColuAccounts(walletManager: WalletManager): ArrayList<WalletAccount<out GenericAddress>> {
+            val coluAccounts = ArrayList<WalletAccount<out GenericAddress>>()
+            coluAccounts.addAll(walletManager.getColuAccounts())
+            for (walletAccount in walletManager.getColuAccounts()) {
+                val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
+                if (linkedAccount != null) {
+                    coluAccounts.add(linkedAccount)
+                }
+            }
+            return coluAccounts
+        }
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }

@@ -34,21 +34,15 @@
 
 package com.mycelium.wallet.event;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
  * Event telling that a property of an account changed
  */
 public class AccountChanged {
-   public final List<UUID> accounts = new ArrayList<>(); //group changed account to avoid call event many time in one place
+   public final UUID account;
 
    public AccountChanged(UUID account) {
-         this.accounts.add(account);
-   }
-
-   public AccountChanged(List<UUID> accounts) {
-         this.accounts.addAll(accounts);
+         this.account =   account;
    }
 }

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.persistence.MetadataStorage
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
@@ -9,6 +10,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 
@@ -22,7 +24,7 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
-    val isRMCLinkedAccount = isRmcAccountLinked(account)
+    val isRMCLinkedAccount = if (mbwManager != null) isRmcAccountLinked(account, mbwManager) else false
     var showBackupMissingWarning = if (mbwManager != null) showBackupMissingWarning(account, mbwManager) else false
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
@@ -88,8 +90,10 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     }
 
     companion object {
-        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>): Boolean =
-                walletAccount.dependentAccounts.any { it.coinType in listOf(RMCCoin, RMCCoinTest) }
+        private fun isRmcAccountLinked(walletAccount: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
+            val linked = Utils.getLinkedAccount(walletAccount, mbwManager.getWalletManager(false).getAccounts())
+            return linked is ColuAccount && (linked.coinType == RMCCoin || linked.coinType == RMCCoinTest)
+        }
 
         private fun showBackupMissingWarning(account: WalletAccount<out GenericAddress>, mbwManager: MbwManager): Boolean {
             if (account.isArchived) {

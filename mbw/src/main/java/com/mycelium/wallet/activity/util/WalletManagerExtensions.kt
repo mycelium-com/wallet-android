@@ -11,7 +11,7 @@ import com.mycelium.wapi.wallet.colu.getColuAccounts
  * @return list of accounts
  */
 fun WalletManager.getBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount
-        && it.dependentAccounts.isEmpty() && it.isVisible && !it.toRemove}
+        && !Utils.checkIsLinked(it, getColuAccounts()) && it.isVisible && !it.toRemove}
 
 fun WalletManager.getActiveBTCSingleAddressAccounts() = getAccounts().filter { it is SingleAddressAccount
-        && it.dependentAccounts.isEmpty() && it.isVisible && !it.toRemove && it.isActive }
+        && !Utils.checkIsLinked(it, getColuAccounts()) && it.isVisible && !it.toRemove && it.isActive }
