@@ -55,7 +55,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
 
     // ViewModel and LiveData
-    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0-rc01"
 
     //not upgrading. This will be replaced with firebase
     implementation 'com.google.android.gms:play-services-base:10.2.1'
@@ -121,8 +121,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = 'VERSION_1_7'
-        targetCompatibility = 'VERSION_1_7'
+        sourceCompatibility = 'VERSION_1_8'
+        targetCompatibility = 'VERSION_1_8'
     }
 
     compileSdkVersion androidCompileSdkVersion

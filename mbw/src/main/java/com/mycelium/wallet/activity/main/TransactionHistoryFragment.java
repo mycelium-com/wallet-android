@@ -749,7 +749,7 @@ public class TransactionHistoryFragment extends Fragment {
          PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());
          PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("android.support.v4.content.FileProvider")) {
+            if (info.name.equals("androidx.core.content.FileProvider")) {
                String authority = info.authority;
                Uri uri = FileProvider.getUriForFile(getActivity(), authority, historyData);
                Intent intent = ShareCompat.IntentBuilder.from(getActivity())

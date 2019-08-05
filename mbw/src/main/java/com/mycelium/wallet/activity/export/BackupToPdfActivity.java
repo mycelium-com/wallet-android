@@ -341,7 +341,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
          PackageManager packageManager = getApplication().getPackageManager();
          PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("android.support.v4.content.FileProvider")) {
+            if (info.name.equals("androidx.core.content.FileProvider")) {
                return info.authority;
             }
          }
