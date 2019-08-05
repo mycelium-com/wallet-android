@@ -73,13 +73,14 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         randomizePin.setOnPreferenceChangeListener(randomizePinListener);
 
         fingerprint = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("fingerprint"));
-        fingerprint.setOnPreferenceChangeListener(fingerprintListener);
+        twoFactorAuth = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("twoFactorAuth"));
         if (!FingerprintHandler.Companion.isHardwareSupported(getActivity())) {
             getPreferenceScreen().removePreference(fingerprint);
+            getPreferenceScreen().removePreference(twoFactorAuth);
+        }else {
+            fingerprint.setOnPreferenceChangeListener(fingerprintListener);
+            twoFactorAuth.setOnPreferenceChangeListener(twoFactorListener);
         }
-
-        twoFactorAuth = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("twoFactorAuth"));
-        twoFactorAuth.setOnPreferenceChangeListener(twoFactorListener);
         update();
 
         simulateClick(mOpenType);
