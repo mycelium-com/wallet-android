@@ -1107,7 +1107,7 @@ public class AccountsFragment extends Fragment {
         }
     }
 
-    private void archive(final WalletAccount account) {
+    private void archive(final WalletAccount<?> account) {
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
                 .setMessage(Html.fromHtml(createArchiveDialogText(account, account.getDependentAccounts())))
@@ -1116,7 +1116,7 @@ public class AccountsFragment extends Fragment {
                         List<UUID> changedAccountIds = new ArrayList<>();
                         account.archiveAccount();
                         changedAccountIds.add(account.getId());
-                        for (WalletAccount dependentAccount : (List<WalletAccount>) account.getDependentAccounts()) {
+                        for (WalletAccount dependentAccount : account.getDependentAccounts()) {
                             dependentAccount.archiveAccount();
                             changedAccountIds.add(dependentAccount.getId());
                         }
@@ -1143,7 +1143,7 @@ public class AccountsFragment extends Fragment {
         checkNotNull(account.getAccountBalance());
         List<WalletAccount> visibleDependentAccounts = getVisibleAccounts(linkedAccounts);
         String valueString = getBalancesString(Collections.singletonList(account));
-        if (visibleDependentAccounts.size() > 0) {
+        if (!visibleDependentAccounts.isEmpty()) {
             String linkedValueString = getBalancesString(visibleDependentAccounts);
             String linkedAccountName = getAccountLabels(visibleDependentAccounts);
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
