@@ -132,8 +132,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    private final BtcAccountBacking _backing;
    protected int syncTotalRetrievedTransactions = 0;
 
-   private List<WalletAccount> dependentAccountList = new ArrayList<>();
-
    protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
       _logger = wapi.getLogger();
@@ -1913,14 +1911,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    @Override
    public List<WalletAccount> getDependentAccounts() {
-      return dependentAccountList;
-   }
-
-   @Override
-   public void addDependentAccount(WalletAccount walletAccount) {
-      if (walletAccount != null) {
-         dependentAccountList.add(walletAccount);
-      }
+      // BTC accounts do not have any dependent accounts
+      return new ArrayList<>();
    }
 
    @Override

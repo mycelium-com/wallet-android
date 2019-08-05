@@ -59,6 +59,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
@@ -743,11 +744,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             protected Boolean doInBackground(Void... voids) {
                 try {
                     if(transaction instanceof ColuTransaction) {
-                        for (Object dependentAccount : _account.getDependentAccounts()) {
-                            if (dependentAccount instanceof SingleAddressAccount) {
-                                ((ColuTransaction) transaction).getFundingAccounts().add((SingleAddressAccount) dependentAccount);
-                            }
-                        }
+                        ((ColuTransaction) transaction).getFundingAccounts().add(Utils.getLinkedAccount(_account, _mbwManager.getWalletManager(false).getAccounts()));
                     }
                     _account.signTx(transaction, AesKeyCipher.defaultKeyCipher());
                     _account.broadcastTx(transaction);
@@ -765,10 +762,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _progress.dismiss();
                 if (isSent) {
                     _mbwManager.getWalletManager(false).startSynchronization(_account.getId());
-                    makeText(SendMainActivity.this, R.string.transaction_sent, LENGTH_SHORT).show();
+                    Toast.makeText(SendMainActivity.this, R.string.transaction_sent, Toast.LENGTH_SHORT).show();
                     SendMainActivity.this.finish();
                 } else {
-                    makeText(SendMainActivity.this, getString(R.string.asset_failed_to_broadcast, _account.getCoinType().getSymbol()), LENGTH_SHORT).show();
+                    Toast.makeText(SendMainActivity.this, getString(R.string.asset_failed_to_broadcast, _account.getCoinType().getSymbol()), Toast.LENGTH_SHORT).show();
                     updateUi();
                 }
             }

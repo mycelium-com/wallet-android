@@ -45,8 +45,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                 if (linked == null) {
                     linked = singleAddressModule.createAccount(PrivateSingleConfig(it.privateKey, AesKeyCipher.defaultKeyCipher(), it.label + " Bitcoin", AddressType.P2PKH)) as SingleAddressAccount
                 }
-                it.addDependentAccount(linked)
-                linked.addDependentAccount(it)
+                it.linkedAccount = linked
             } else {
                 val btcAddress = it.receiveAddress as BtcAddress
                 val saId = SingleAddressAccount.calculateId(btcAddress.address)
@@ -55,8 +54,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                     linked = singleAddressModule.createAccount(AddressSingleConfig(btcAddress)) as SingleAddressAccount
                     singleAddressModule.createLabel(it.label + " Bitcoin", linked.id)
                 }
-                it.addDependentAccount(linked)
-                linked.addDependentAccount(it)
+                it.linkedAccount = linked
             }
         }
     }
@@ -137,8 +135,7 @@ class ColuModule(val networkParameters: NetworkParameters,
             is AddressColuConfig -> AddressSingleConfig(result.receiveAddress as BtcAddress, result.label + " Bitcoin")
             else -> throw IllegalArgumentException("Unexpected config $config.")
         })
-        result.addDependentAccount(saAccount)
-        saAccount.addDependentAccount(result)
+        result.linkedAccount = saAccount as SingleAddressAccount
         return result
     }
 
