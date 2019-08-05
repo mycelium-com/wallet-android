@@ -45,6 +45,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.common.base.Strings;
+import com.mycelium.wallet.activity.settings.helper.TwoFactorHelper;
 import com.mycelium.wallet.activity.util.FingerprintHandler;
 import com.mycelium.wallet.activity.util.Pin;
 
@@ -61,6 +62,7 @@ public class PinDialog extends AppCompatDialog {
    protected Button btnBack;
    protected Button btnClear;
    private FingerprintHandler fingerprintHandler;
+   private TwoFactorHelper twoFactorHelper;
 
    public interface OnPinEntered {
       void pinEntered(PinDialog dialog, Pin pin);
@@ -101,6 +103,7 @@ public class PinDialog extends AppCompatDialog {
       updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
       initFingerprint(context);
+      twoFactorHelper = new TwoFactorHelper(this, )
    }
 
    private void initFingerprint(Context context) {

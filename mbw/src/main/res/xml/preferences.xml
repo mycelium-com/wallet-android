@@ -58,16 +58,19 @@
                     android:summary="Accept fingerprint to unlock"
                     android:title="Fingerprint"
                     android:widgetLayout="@layout/preference_switch" />
+
+                <CheckBoxPreference
+                    android:dependency="fingerprint"
+                    android:icon="@drawable/ic_fingerprint"
+                    android:key="twoFactorAuth"
+                    android:layout="@layout/preference_layout_no_icon"
+                    android:summary="Wallet is protected by pin code and fingerprint in one time"
+                    android:title="Two-factor authentication"
+                    android:widgetLayout="@layout/preference_switch" />
+
             </PreferenceCategory>
         </PreferenceScreen>
 
-
-        <!--<CheckBoxPreference-->
-        <!--android:icon="@drawable/ic_fingerprint"-->
-        <!--android:key="fingerprint"-->
-        <!--android:layout="@layout/preference_layout"-->
-        <!--android:title="Unlock with your fingerprint"-->
-        <!--android:widgetLayout="@layout/preference_switch" />-->
         <CheckBoxPreference
             android:icon="@drawable/ic_tor"
             android:key="useTor"

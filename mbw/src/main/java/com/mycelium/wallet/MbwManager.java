@@ -469,6 +469,15 @@ public class MbwManager {
         getEditor().putBoolean(Constants.FINGERPRINT, enable).apply();
     }
 
+    public boolean isTwoFactorEnable() {
+        return getPreferences().getBoolean(Constants.TWO_FACTOR, false);
+    }
+
+    public void setTwoFactorEnabled(boolean enable) {
+        getEditor().putBoolean(Constants.TWO_FACTOR, enable).apply();
+    }
+
+
     private LtApiClient initLt() {
         return new LtApiClient(_environment.getLtEndpoints(), new LtApiClient.Logger() {
             @Override
