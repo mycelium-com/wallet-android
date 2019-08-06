@@ -9,19 +9,10 @@
     android:paddingEnd="16dp"
     android:paddingBottom="16dp">
 
-    <FrameLayout
+    <View
         android:layout_width="match_parent"
         android:layout_height="260dp"
-        android:background="@drawable/background_news_item_loading1">
-
-        <Button
-            android:id="@+id/open_web"
-            style="@style/MyceliumButtonModern"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Open Web version" />
-    </FrameLayout>
+        android:background="@drawable/background_news_item_loading1"/>
 
     <View
         android:layout_width="match_parent"

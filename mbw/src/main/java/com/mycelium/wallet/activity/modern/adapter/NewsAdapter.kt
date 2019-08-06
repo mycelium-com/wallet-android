@@ -92,15 +92,6 @@ class NewsAdapter(val preferences: SharedPreferences)
         when (item.type) {
             TYPE_NEWS_LOADING -> {
                 (holder.itemView as LinearLayout).startLayoutAnimation()
-                if (position == 0) {
-                    holder.itemView.open_web.setOnClickListener {
-                        NewsSyncUtils.startNewsUpdateRepeating(it.context)
-                        it.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://media.mycelium.com/")))
-                    }
-                    holder.itemView.open_web.visibility = View.VISIBLE
-                } else {
-                    holder.itemView.open_web.visibility = View.GONE
-                }
             }
             TYPE_NEWS_CATEGORY -> {
                 val btnHolder = holder as NewsCategoryBtnHolder
