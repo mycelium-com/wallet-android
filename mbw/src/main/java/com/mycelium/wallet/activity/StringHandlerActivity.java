@@ -85,10 +85,9 @@ public class StringHandlerActivity extends Activity {
    public static final String RESULT_BIT_ID_REQUEST = "bit_id_request";
 
    public static Intent getIntent(Context currentActivity, StringHandleConfig stringHandleConfig, String contentString) {
-      Intent intent = new Intent(currentActivity, StringHandlerActivity.class);
-      intent.putExtra(CONFIG, stringHandleConfig);
-      intent.putExtra(CONTENT, contentString);
-      return intent;
+      return new Intent(currentActivity, StringHandlerActivity.class)
+              .putExtra(CONFIG, stringHandleConfig)
+              .putExtra(CONTENT, contentString);
    }
 
    public static ParseAbility canHandle(StringHandleConfig stringHandleConfig, String contentString, NetworkParameters network) {
@@ -113,15 +112,15 @@ public class StringHandlerActivity extends Activity {
    public static final int IMPORT_SSS_CONTENT_CODE = 4;
    public static final int SEND_INITIALIZATION_CODE = 5;
 
-   private MbwManager _mbwManager;
-   private StringHandleConfig _stringHandleConfig = null;
+   private MbwManager mbwManager;
+   private StringHandleConfig stringHandleConfig = null;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
-      _mbwManager = MbwManager.getInstance(this);
+      mbwManager = MbwManager.getInstance(this);
       Intent intent = getIntent();
-      _stringHandleConfig = Preconditions.checkNotNull((StringHandleConfig) intent.getSerializableExtra(CONFIG));
+      stringHandleConfig = Preconditions.checkNotNull((StringHandleConfig) intent.getSerializableExtra(CONFIG));
       String content = Preconditions.checkNotNull(intent.getStringExtra(CONTENT));
       handleContentString(content);
    }
@@ -178,8 +177,8 @@ public class StringHandlerActivity extends Activity {
       }
 
       boolean wasHandled = false;
-      for (Action action : _stringHandleConfig.getAllActions()) {
-         if (action.canHandle(_mbwManager.getNetwork(), content) && action.handle(this, content)) {
+      for (Action action : stringHandleConfig.getAllActions()) {
+         if (action.canHandle(mbwManager.getNetwork(), content) && action.handle(this, content)) {
             wasHandled = true;
             break;
          }
@@ -200,12 +199,12 @@ public class StringHandlerActivity extends Activity {
    }
 
    private Optional<String> handleMrdEncryptedPrivateKey(String encryptedPrivateKey) {
-      EncryptionParameters encryptionParameters = _mbwManager.getCachedEncryptionParameters();
+      EncryptionParameters encryptionParameters = mbwManager.getCachedEncryptionParameters();
       // Try and decrypt with cached parameters if we have them
       if (encryptionParameters != null) {
          try {
-            String key = MrdExport.V1.decryptPrivateKey(encryptionParameters, encryptedPrivateKey, _mbwManager.getNetwork());
-            Preconditions.checkNotNull(Record.fromString(key, _mbwManager.getNetwork()));
+            String key = MrdExport.V1.decryptPrivateKey(encryptionParameters, encryptedPrivateKey, mbwManager.getNetwork());
+            Preconditions.checkNotNull(Record.fromString(key, mbwManager.getNetwork()));
             return Optional.of(key);
          } catch (InvalidChecksumException e) {
             // We cannot reuse the cached password, fall through and decrypt
@@ -225,7 +224,7 @@ public class StringHandlerActivity extends Activity {
       // Cache the encryption parameters for next import
       EncryptionParameters encryptionParameters = (EncryptionParameters) intent
             .getSerializableExtra("encryptionParameters");
-      _mbwManager.setCachedEncryptionParameters(encryptionParameters);
+      mbwManager.setCachedEncryptionParameters(encryptionParameters);
       return key;
    }
 
@@ -239,11 +238,11 @@ public class StringHandlerActivity extends Activity {
    }
 
    private Optional<Bip39.MasterSeed> handleMrdEncryptedMasterSeed(String encryptedMasterSeed) {
-      EncryptionParameters encryptionParameters = _mbwManager.getCachedEncryptionParameters();
+      EncryptionParameters encryptionParameters = mbwManager.getCachedEncryptionParameters();
       // Try and decrypt with cached parameters if we have them
       if (encryptionParameters != null) {
          try {
-            return Optional.of(MrdExport.V1.decryptMasterSeed(encryptionParameters, encryptedMasterSeed, _mbwManager.getNetwork()));
+            return Optional.of(MrdExport.V1.decryptMasterSeed(encryptionParameters, encryptedMasterSeed, mbwManager.getNetwork()));
          } catch (InvalidChecksumException e) {
             // We cannot reuse the cached password, fall through and decrypt
             // with an entered password
@@ -262,7 +261,7 @@ public class StringHandlerActivity extends Activity {
       // Cache the encryption parameters for next import
       EncryptionParameters encryptionParameters = (EncryptionParameters) intent
             .getSerializableExtra("encryptionParameters");
-      _mbwManager.setCachedEncryptionParameters(encryptionParameters);
+      mbwManager.setCachedEncryptionParameters(encryptionParameters);
       return masterSeed;
    }
 
@@ -369,6 +368,6 @@ public class StringHandlerActivity extends Activity {
    }
 
    public NetworkParameters getNetwork() {
-      return _mbwManager.getNetwork();
+      return mbwManager.getNetwork();
    }
 }
