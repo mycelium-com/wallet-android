@@ -281,7 +281,6 @@ public class MbwManager {
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
-        //TODO: get it through coluManager instead ?
         Set<GenericAssetInfo> fiatCurrencies = new HashSet<>();
         if (currencyList == null || currencyList.isEmpty()) {
             //if there is no list take the default currency
@@ -793,12 +792,8 @@ public class MbwManager {
         // let the exchange-rate manager fetch all currencies, that we might need
         _exchangeRateManager.setCurrencyList(currencies);
 
-        Set<GenericAssetInfo> commonCurrencies = new HashSet<>(currencies);
-        commonCurrencies.add(RMCCoin.INSTANCE);
-        commonCurrencies.add(MASSCoin.INSTANCE);
-        commonCurrencies.add(MTCoin.INSTANCE);
         // but tell the currency-switcher only to switch over the user selected currencies
-        _currencySwitcher.setCurrencyList(commonCurrencies);
+        _currencySwitcher.setCurrencyList(currencies);
 
         Set<String> data = new HashSet<>();
         for (GenericAssetInfo currency : currencies) {
