@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical" >
 
     <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:paddingBottom="40dp"
@@ -14,12 +15,26 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
 
+        <ImageView
+            android:id="@+id/fingerprintHint"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_margin="8dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_fingerprint_selector" />
+
+        <TextView
+            android:id="@+id/logicOperationHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/or"/>
+
         <include layout="@layout/enter_pin_display"/>
 
 
         <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:gravity="center_horizontal">
             <LinearLayout
                     android:layout_width="wrap_content"
@@ -29,7 +44,7 @@
                 <include layout="@layout/enter_pin_numpad"/>
 
                 <Button
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:id="@+id/btn_forgot_pin"
                         android:textSize="20sp"
                         style="@style/MyceliumPinpadButton"

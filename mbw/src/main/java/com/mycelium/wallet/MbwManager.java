@@ -869,6 +869,7 @@ public class MbwManager {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
+                MbwManager.this.setTwoFactorEnabled(false);
                 Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
                 if (afterDialogClosed.isPresent()) {
                     afterDialogClosed.get().run();

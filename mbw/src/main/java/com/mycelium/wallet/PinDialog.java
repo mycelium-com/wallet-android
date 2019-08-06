@@ -106,16 +106,17 @@ public class PinDialog extends AppCompatDialog {
       updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
       initFingerprint(context);
-      initTwoFactorAuthentification();
+      initTwoFactorAuthentication();
    }
 
-   private void initTwoFactorAuthentification() {
-      ((TextView) findViewById(R.id.logicOperationHint)).setText(isTwoFactorAuth ? R.string.and : R.string.or);
-      twoFactorHelper = new TwoFactorHelper(this);
+   private void initTwoFactorAuthentication() {
+
    }
 
    private void initFingerprint(Context context) {
       final View view = findViewById(R.id.fingerprintHint);
+      TextView logicView  = findViewById(R.id.logicOperationHint);
+
       if (view != null) {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                  && MbwManager.getInstance(context).isFingerprintEnabled()
@@ -136,10 +137,13 @@ public class PinDialog extends AppCompatDialog {
                   return null;
                }
             });
+            logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
          } else {
             view.setVisibility(View.GONE);
+            logicView.setVisibility(View.GONE);
          }
       }
+      twoFactorHelper = new TwoFactorHelper(this);
    }
 
    @Override
