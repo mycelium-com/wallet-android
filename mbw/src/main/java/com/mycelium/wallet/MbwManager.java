@@ -112,9 +112,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
@@ -790,14 +787,8 @@ public class MbwManager {
     }
 
     public void setCurrencyList(Set<GenericAssetInfo> currencies) {
-        Set<GenericAssetInfo> allActiveFiatCurrencies = new HashSet<>();
-
-        allActiveFiatCurrencies.add(RMCCoin.INSTANCE);
-        allActiveFiatCurrencies.add(MASSCoin.INSTANCE);
-        allActiveFiatCurrencies.add(MTCoin.INSTANCE);
-
         // let the exchange-rate manager fetch all currencies, that we might need
-        _exchangeRateManager.setCurrencyList(Sets.union(currencies, allActiveFiatCurrencies));
+        _exchangeRateManager.setCurrencyList(currencies);
 
         // but tell the currency-switcher only to switch over the user selected currencies
         _currencySwitcher.setCurrencyList(currencies);
