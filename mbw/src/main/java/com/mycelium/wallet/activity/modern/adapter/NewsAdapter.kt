@@ -1,8 +1,6 @@
 package com.mycelium.wallet.activity.modern.adapter
 
-import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
@@ -13,10 +11,8 @@ import android.widget.LinearLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.news.NewsUtils
-import com.mycelium.wallet.external.mediaflow.NewsSyncUtils
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
-import kotlinx.android.synthetic.main.item_mediaflow_loading.view.*
 
 
 class NewsAdapter(val preferences: SharedPreferences)
