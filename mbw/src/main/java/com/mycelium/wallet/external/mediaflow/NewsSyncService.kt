@@ -21,6 +21,7 @@ import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
+import com.mycelium.wallet.external.mediaflow.model.NewsContainer
 import com.squareup.otto.Bus
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,19 +38,24 @@ class NewsSyncService : Service() {
     override fun onStart(intent: Intent?, startId: Int) {
         super.onStart(intent, startId)
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
-        val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null);
+        val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null)
         val updateTime = SimpleDateFormat("yyyy-MM-dd", Locale.UK).format(Date())
         NewsUpdate(MbwManager.getEventBus(), lastUpdateTime) {
+            if (it == null) {
+                return@NewsUpdate
+            }
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, updateTime)
                     .apply()
-            if (it?.isNotEmpty() == true) {
+            if (it.isNotEmpty() == true) {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
             }
 
-            if (SettingsPreference.getInstance().isNewsNotificationEnabled) {
+            if (SettingsPreference.getInstance().isNewsNotificationEnabled
+                    && lastUpdateTime != null // not show for init load
+            ) {
                 val newTopics = arrayListOf<News>()
-                it?.entries?.forEach {
+                it.entries.forEach {
                     if (it.value == NewsDatabase.SqlState.INSERTED) {
                         newTopics.add(it.key)
                     }
@@ -120,21 +126,30 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
     override fun doInBackground(vararg p0: Void?): Map<News, NewsDatabase.SqlState>? {
         var result: Map<News, NewsDatabase.SqlState>? = null
         try {
-            val news = if (after != null && after.isNotEmpty()) {
-                val res = mutableListOf<News>()
-                NewsFactory.getService().updatedPosts(after).execute().body()?.posts?.let {
-                    res.addAll(it)
+            result = fetchAllPages { nextPage ->
+                if (after != null && after.isNotEmpty()) {
+                    NewsFactory.getService().updatedPosts(after, nextPage).execute().body()
+                } else {
+                    NewsFactory.getService().posts(nextPage).execute().body()
                 }
-                res
-            } else {
-                NewsFactory.getService().posts().execute().body()?.posts
-            }
-            result = news?.let { NewsDatabase.saveNews(it) }
+            }.let { NewsDatabase.saveNews(it) }
         } catch (e: Exception) {
             Log.e("NewsSyncReceiver", "update news call", e)
         }
         return result
     }
+
+    private fun fetchAllPages(fetchPage: (String?) -> NewsContainer?) =
+            mutableListOf<News>().apply {
+                var nextPage: String? = ""
+                do {
+                    val newsContainer = fetchPage.invoke(nextPage)
+                    newsContainer?.posts?.let { posts ->
+                        addAll(posts)
+                    }
+                    nextPage = newsContainer?.meta?.nextPage
+                } while (nextPage?.isNotEmpty() == true)
+            }
 
     override fun onPostExecute(result: Map<News, NewsDatabase.SqlState>?) {
         super.onPostExecute(result)

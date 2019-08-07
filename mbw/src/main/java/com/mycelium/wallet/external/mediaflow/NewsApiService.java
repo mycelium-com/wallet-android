@@ -11,11 +11,8 @@ public interface NewsApiService {
     String responseFields = "&fields=ID,title,content,excerpt,date,author,short_URL,featured_image,categories";
 
     @GET("posts?number=100" + responseFields)
-    Call<NewsContainer> posts(@Query("after") String afterDate);
+    Call<NewsContainer> updatedPosts(@Query("modified_after") String updateAfterDate, @Query("page_handle") String nextPage);
 
     @GET("posts?number=100" + responseFields)
-    Call<NewsContainer> updatedPosts(@Query("modified_after") String updateAfterDate);
-
-    @GET("posts?number=100" + responseFields)
-    Call<NewsContainer> posts();
+    Call<NewsContainer> posts(@Query("page_handle") String nextPage);
 }

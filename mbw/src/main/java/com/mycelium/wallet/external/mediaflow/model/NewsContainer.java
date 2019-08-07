@@ -7,4 +7,7 @@ import java.util.List;
 public class NewsContainer {
     @JsonProperty("posts")
     public List<News> posts;
+
+    @JsonProperty("meta")
+    public MetaInfo meta;
 }
