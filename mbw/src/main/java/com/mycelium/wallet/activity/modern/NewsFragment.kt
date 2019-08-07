@@ -17,6 +17,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
+import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
@@ -34,11 +35,13 @@ class NewsFragment : Fragment() {
     var searchActive = false
 
     var currentNews: News? = null
+    private var loading = false
+    private var isLastPage = false
 
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == NewsConstants.NEWS_UPDATE_ACTION && !searchActive) {
-                startUpdate()
+                loadItems()
             }
         }
     }
@@ -60,6 +63,17 @@ class NewsFragment : Fragment() {
         val layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
         newsList.layoutManager = layoutManager
         newsList.setHasFixedSize(false)
+        newsList.addOnScrollListener(object : PaginationScrollListener(layoutManager) {
+            override fun loadMoreItems() {
+                if (!searchActive) {
+                    loadItems(adapter.itemCount)
+                }
+            }
+
+            override fun isLastPage() = isLastPage
+
+            override fun isLoading() = loading
+        })
         val newsClick: (News) -> Unit = {
             val intent = Intent(activity, NewsActivity::class.java)
             intent.putExtra(NewsConstants.NEWS, it)
@@ -92,7 +106,6 @@ class NewsFragment : Fragment() {
             } else {
                 search_input.text = null
             }
-            true
         }
         search_input.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
@@ -110,7 +123,7 @@ class NewsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        startUpdate()
+        loadItems()
         LocalBroadcastManager.getInstance(activity!!).registerReceiver(updateReceiver, IntentFilter(NewsConstants.NEWS_UPDATE_ACTION))
     }
 
@@ -144,7 +157,7 @@ class NewsFragment : Fragment() {
                     .putBoolean(NewsConstants.FAVORITE, preference.getBoolean(NewsConstants.FAVORITE, false).not())
                     .apply()
             updateFavoriteMenu(item)
-            startUpdate()
+            loadItems()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -161,7 +174,7 @@ class NewsFragment : Fragment() {
             tabs.visibility = View.VISIBLE
             discover.visibility = View.GONE
             search.visibility = View.GONE
-            startUpdate()
+            loadItems()
         }
     }
 
@@ -169,8 +182,7 @@ class NewsFragment : Fragment() {
         item.icon = resources.getDrawable(if (preference.getBoolean(NewsConstants.FAVORITE, false)) R.drawable.ic_favorite else R.drawable.ic_not_favorite)
     }
 
-    private var loading = false
-    private fun startUpdate() {
+    private fun loadItems(offset: Int = 0) {
         if (loading) {
             return
         }
@@ -186,28 +198,32 @@ class NewsFragment : Fragment() {
                     tabs.addTab(tab)
                 }
             }
-
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
 
-        val taskListener: (List<News>) -> Unit = {
+        val taskListener: (List<News>, Long) -> Unit = { pageData, count ->
             loading = false
-            var list = it
-            if (preference.getBoolean(NewsConstants.FAVORITE, false)) {
-                list = it.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
+            val list = if (preference.getBoolean(NewsConstants.FAVORITE, false)) {
+                pageData.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
+            } else pageData
+            if (offset == 0) {
+                adapter.setData(list)
+            } else {
+                adapter.addData(list)
             }
-            adapter.setData(list)
+            isLastPage = offset + PaginationScrollListener.PAGE_SIZE >= count
         }
         loading = true
-        GetNewsTask(listener = taskListener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        GetNewsTask(listener = taskListener, offset = offset, limit = PaginationScrollListener.PAGE_SIZE)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun startUpdateSearch(search: String? = null) {
-        val taskListener: (List<News>) -> Unit = {
+        val taskListener: (List<News>, Long) -> Unit = { data, count ->
             if (search == null || search.isEmpty()) {
-                adapterSearch.setData(it)
+                adapterSearch.setData(data)
                 adapterSearch.setSearchData(null)
             } else {
-                adapterSearch.setSearchData(it)
+                adapterSearch.setSearchData(data)
             }
         }
 
@@ -216,7 +232,7 @@ class NewsFragment : Fragment() {
     }
 
     private fun getTab(category: Category, tabLayout: TabLayout): TabLayout.Tab? {
-        for (i in 0..tabLayout.tabCount - 1) {
+        for (i in 0 until tabLayout.tabCount) {
             if (tabLayout.getTabAt(i)?.tag == category) {
                 return tabLayout.getTabAt(i)
             }

@@ -1,6 +1,7 @@
 package com.mycelium.wallet.external.mediaflow.database
 
 import android.content.Context
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.database.sqlite.SQLiteStatement
@@ -67,6 +68,20 @@ object NewsDatabase {
         }
         cursor.close()
         return result
+    }
+
+    fun getNewsCount(search: String?, categories: List<Category>): Long {
+        val where = StringBuilder()
+        if (search != null && search.isNotEmpty()) {
+            where.append("(title like '%$search%' OR content like '%$search%')")
+        }
+        if (categories.isNotEmpty()) {
+            if (where.isNotEmpty()) {
+                where.append(" AND ")
+            }
+            where.append(categories.map { "category = '${it.name}'" }.joinToString(" OR "))
+        }
+        return DatabaseUtils.queryNumEntries(database, NEWS, where.toString())
     }
 
     fun saveNews(news: List<News>): Map<News, SqlState> {

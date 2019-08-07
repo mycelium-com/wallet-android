@@ -37,13 +37,27 @@ class NewsAdapter(val preferences: SharedPreferences)
         updateData()
     }
 
+    fun addData(data: List<News>) {
+        data.forEach { news ->
+            val list = dataMap.getOrElse(news.categories.values.first()) {
+                mutableListOf()
+            }
+            if(!list.contains(news)) {
+                list.add(news)
+            }
+            dataMap[news.getCategory()] = list
+        }
+        updateData()
+    }
+
     private fun updateData() {
         val data = mutableListOf<Entry>()
-        if (dataMap.isEmpty()) {
-            data.add(Entry(TYPE_NEWS_LOADING, null))
-            data.add(Entry(TYPE_NEWS_LOADING, null))
-        } else if (selectedCategory == ALL) {
-            dataMap.forEach { entry ->
+        when {
+            dataMap.isEmpty() -> {
+                data.add(Entry(TYPE_NEWS_LOADING, null))
+                data.add(Entry(TYPE_NEWS_LOADING, null))
+            }
+            selectedCategory == ALL -> dataMap.forEach { entry ->
                 data.add(Entry(TYPE_NEWS_CATEGORY, entry.value[0]))
                 data.add(Entry(TYPE_NEWS_BIG, entry.value[0]))
                 if (entry.value.size > 1) {
@@ -53,8 +67,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                     data.add(Entry(TYPE_NEWS, entry.value[2]))
                 }
             }
-        } else {
-            dataMap[selectedCategory]?.forEachIndexed { index, news ->
+            else -> dataMap[selectedCategory]?.forEachIndexed { index, news ->
                 data.add(Entry(if (index == 0) TYPE_NEWS_BIG else TYPE_NEWS, news))
             }
         }
@@ -79,6 +92,7 @@ class NewsAdapter(val preferences: SharedPreferences)
             TYPE_NEWS_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
             TYPE_NEWS -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
             TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
+            TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
             else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
         }
     }
@@ -145,6 +159,8 @@ class NewsAdapter(val preferences: SharedPreferences)
         const val TYPE_NEWS_CATEGORY = 2
         const val TYPE_NEWS_BIG = 3
         const val TYPE_NEWS = 4
+
+        const val TYPE_NEWS_ITEM_LOADING = 5
 
         val ALL = Category("All")
     }
