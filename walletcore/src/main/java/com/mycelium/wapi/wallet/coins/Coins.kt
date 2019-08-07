@@ -8,7 +8,7 @@ import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
-public val COINS = mapOf<String, CryptoCurrency>(
+val COINS = mapOf<String, CryptoCurrency>(
         BitcoinMain.get().id to BitcoinMain.get(),
         BitcoinTest.get().id to BitcoinTest.get(),
         BchMain.id to BchMain,

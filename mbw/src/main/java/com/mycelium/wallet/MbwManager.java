@@ -119,7 +119,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.GenericWalletBacking;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
@@ -673,7 +673,7 @@ public class MbwManager {
             addCoinapultModule(context, environment,walletManager, accountListener);
         }
 
-        GenericWalletBacking genericBacking = new GenericWalletBacking(db);
+        AccountContextsBacking genericBacking = new AccountContextsBacking(db);
 
         walletManager.add(new EtheriumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
@@ -753,7 +753,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        GenericWalletBacking genericBacking = new GenericWalletBacking(db);
+        AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         walletManager.add(new EtheriumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
         walletManager.disableTransactionHistorySynchronization();

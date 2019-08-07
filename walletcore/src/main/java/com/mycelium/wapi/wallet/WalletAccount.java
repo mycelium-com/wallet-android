@@ -17,8 +17,6 @@ import java.util.UUID;
 
 public interface WalletAccount<A extends GenericAddress> {
 
-    FeeEstimationsGeneric getDefaultFeeEstimation();
-
     void setAllowZeroConfSpending(boolean b);
 
     GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
@@ -193,8 +191,6 @@ public interface WalletAccount<A extends GenericAddress> {
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
-
-    FeeEstimationsGeneric getFeeEstimations();
 
     int getTypicalEstimatedTransactionSize();
 

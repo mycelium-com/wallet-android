@@ -86,5 +86,5 @@ object Adapters {
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter, Adapters.balanceAdapter)
 
-val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.cryptoCurrencyAdapter,
+val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter, Adapters.valueAdapter)

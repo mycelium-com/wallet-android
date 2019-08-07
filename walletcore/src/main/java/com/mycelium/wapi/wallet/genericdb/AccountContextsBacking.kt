@@ -4,7 +4,7 @@ import com.mycelium.generated.wallet.database.AccountContext
 import com.mycelium.generated.wallet.database.WalletDB
 import java.util.*
 
-class GenericWalletBacking(walletDB: WalletDB) {
+class AccountContextsBacking(walletDB: WalletDB) {
     private val queries = walletDB.accountContextQueries
 
     fun loadAccountContexts() = queries.selectAll()

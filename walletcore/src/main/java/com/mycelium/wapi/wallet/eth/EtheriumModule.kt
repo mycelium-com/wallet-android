@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import com.mycelium.wapi.wallet.genericdb.GenericWalletBacking
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -19,7 +19,7 @@ import java.util.*
 
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
-        private val backing: GenericWalletBacking,
+        private val backing: AccountContextsBacking,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
