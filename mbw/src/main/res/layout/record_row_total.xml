@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             custom:textSize="20sp"
-            custom:fiatOnly="true"
+            custom:fiatOnly="false"
             android:layout_alignParentRight="true"
             />
     </RelativeLayout>
