@@ -5,7 +5,6 @@
     tools:showIn="@layout/export_as_qr_activity">
 
     <data>
-
         <import type="android.view.View" />
 
         <variable
@@ -23,8 +22,8 @@
             android:id="@+id/pub_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/public_key" />
 
         <android.support.v7.widget.SwitchCompat
@@ -38,8 +37,8 @@
             android:id="@+id/prv_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/private_key_s" />
 
     </LinearLayout>

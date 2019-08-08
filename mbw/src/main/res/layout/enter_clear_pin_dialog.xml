@@ -11,8 +11,8 @@
             android:paddingBottom="40dp"
 
             android:orientation="vertical"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
 
         <include layout="@layout/enter_pin_display"/>
 
@@ -37,7 +37,5 @@
 
             </LinearLayout>
         </LinearLayout>
-
-
     </LinearLayout>
 </ScrollView>

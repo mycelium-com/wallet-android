@@ -132,8 +132,8 @@
                 android:layout_width="130dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_blue"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/share_pdf"
                 android:textSize="20sp" />
 
@@ -142,9 +142,9 @@
                 android:layout_width="130dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_blue"
-                android:layout_marginLeft="@dimen/margin_large"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:layout_marginStart="@dimen/margin_large"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/verify"
                 android:textSize="20sp" />
         </LinearLayout>

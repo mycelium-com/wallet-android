@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
 
     <View
@@ -24,7 +25,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
             <TextView
                 android:id="@+id/tvErrorFrom"
                 android:layout_width="wrap_content"
@@ -37,7 +37,6 @@
                 android:textColor="#fb746d"
                 android:textSize="12sp"
                 android:visibility="invisible" />
-
 
             <RelativeLayout
                 android:id="@+id/fromValueLayout"
@@ -53,8 +52,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/margin_medium"
-                    android:layout_toLeftOf="@id/fromValue"
+                    android:layout_marginEnd="@dimen/margin_medium"
+                    android:layout_toStartOf="@id/fromValue"
                     android:paddingBottom="8dp"
                     android:text="BCH"
                     android:textColor="@color/white"
@@ -79,9 +78,9 @@
                     android:id="@+id/use_all_funds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="4dp"
+                    android:layout_marginEnd="4dp"
                     android:letterSpacing="0.04"
                     android:padding="@dimen/margin_medium"
                     android:text="@string/use_all_funds"
@@ -111,18 +110,19 @@
                     android:layout_height="75dp"
                     android:background="#fb746d"
                     android:orientation="horizontal"
+                    android:layoutDirection="ltr"
                     app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
                 <View
                     android:layout_width="40dp"
                     android:layout_height="75dp"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:background="@drawable/exchange_gradient_red" />
 
                 <View
                     android:layout_width="40dp"
                     android:layout_height="75dp"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:background="@drawable/exchange_gradient_red"
                     android:rotation="180" />
             </FrameLayout>
@@ -137,18 +137,19 @@
                     android:layout_height="75dp"
                     android:background="#77c298"
                     android:orientation="horizontal"
+                    android:layoutDirection="ltr"
                     app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
                 <View
                     android:layout_width="40dp"
                     android:layout_height="75dp"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:background="@drawable/exchange_gradient_green" />
 
                 <View
                     android:layout_width="40dp"
                     android:layout_height="75dp"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:background="@drawable/exchange_gradient_green"
                     android:rotation="180" />
             </FrameLayout>
@@ -180,7 +181,7 @@
                     android:layout_marginStart="@dimen/margin_small"
                     android:layout_marginTop="24dp"
                     android:alpha="0.6"
-                    android:text="1 BCH ~ 0.46BTC"
+                    tools:text="1 BCH ~ 0.46BTC"
                     android:textColor="#bdbdbd"
                     android:textSize="12sp"
                     android:visibility="invisible" />
@@ -199,8 +200,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="@dimen/margin_medium"
-                    android:layout_toLeftOf="@+id/toValue"
+                    android:layout_marginEnd="@dimen/margin_medium"
+                    android:layout_toStartOf="@+id/toValue"
                     android:paddingBottom="8dp"
                     android:text="BTC"
                     android:textColor="@color/white"
@@ -222,7 +223,6 @@
 
             </RelativeLayout>
 
-
             <TextView
                 android:id="@+id/exchange_rate"
                 android:layout_width="wrap_content"
@@ -232,7 +232,7 @@
                 android:layout_marginStart="@dimen/margin_small"
                 android:layout_marginTop="@dimen/margin_medium"
                 android:alpha="0.6"
-                android:text="1 BCH ~ 0.46BTC"
+                tools:text="1 BCH ~ 0.46BTC"
                 android:textColor="@color/white"
                 android:textSize="14sp"
                 android:visibility="invisible" />
