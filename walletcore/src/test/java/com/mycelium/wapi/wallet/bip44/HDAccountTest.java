@@ -6,6 +6,7 @@ import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
@@ -17,12 +18,15 @@ import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
+import com.squareup.sqldelight.db.SqlDriver;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -55,8 +59,10 @@ public class HDAccountTest {
         HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         currenciesSettingsMap.put(BitcoinHDModule.ID, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
+        WalletDB db = Mockito.mock(WalletDB.class);
+
         WalletManager walletManager = new WalletManager(NetworkParameters.productionNetwork, fakeWapi,
-                currenciesSettingsMap);
+                currenciesSettingsMap, db);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher);

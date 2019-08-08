@@ -7,12 +7,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import java.util.*
 
 class SQLiteCoinapultAccountBacking(id: UUID, val database: SQLiteDatabase) : CoinapultAccountBacking {
-    override fun saveLastFeeEstimation(feeEstimation: FeeEstimationsGeneric?, assetType: GenericAssetInfo?) {
-    }
-
-    override fun loadLastFeeEstimation(assetType: GenericAssetInfo?): FeeEstimationsGeneric? {
-        return null
-    }
 
     override fun beginTransaction() {
     }

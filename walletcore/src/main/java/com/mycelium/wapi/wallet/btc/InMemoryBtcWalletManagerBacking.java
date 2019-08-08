@@ -376,16 +376,6 @@ public class InMemoryBtcWalletManagerBacking implements BtcWalletManagerBacking<
       }
 
       @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         return null;
-      }
-
-      @Override
       public void deleteTxRefersParentTransaction(Sha256Hash txId) {
          _txRefersParentTxOpus.remove(txId);
       }
