@@ -21,7 +21,6 @@
         android:layout_gravity="center"
         android:fontFamily="sans-serif-medium"
         android:textAllCaps="true"
-        android:text="SCAN"
         android:textColor="@color/new_btn_text_color"
         android:textSize="14sp" />
 </LinearLayout>

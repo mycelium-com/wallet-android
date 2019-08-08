@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical">
 
     <View
@@ -30,7 +31,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-
         <TextView
             android:id="@+id/fromAmount"
             android:layout_width="wrap_content"
@@ -40,7 +40,6 @@
             android:textColor="@color/sender_recyclerview_background_red"
             android:textSize="18sp"
             tools:text="5.3092 BCH" />
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,23 +51,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:text="@string/exchanging"
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="left">
-
+                android:gravity="start">
 
                 <TextView
                     android:id="@+id/fromAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:singleLine="true"
                     tools:text="1p17cu…KNZa88"
                     android:textColor="#5c5c5c"
@@ -85,7 +83,6 @@
                     tools:text="from label" />
 
             </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 
@@ -121,7 +118,7 @@
                 android:id="@+id/toFiat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:fontFamily="sans-serif-medium"
                 android:lineSpacingExtra="11sp"
                 android:textColor="#5c5c5c"
@@ -140,23 +137,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end|bottom"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:lines="1"
                 android:text="@string/receiving_exchange"
                 android:textColor="#bdbdbd"
                 android:textSize="12sp" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="left">
+                android:gravity="start">
 
                 <TextView
                     android:id="@+id/toAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:ellipsize="middle"
                     android:singleLine="true"
                     tools:text="4bYT8…KRp88"
@@ -191,8 +188,8 @@
         android:id="@+id/offer_update_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:fontFamily="sans-serif"
         android:textColor="#ffffff"
         android:textSize="12sp"

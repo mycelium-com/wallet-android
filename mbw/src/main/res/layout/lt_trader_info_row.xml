@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
     android:paddingTop="8dp" >
 
     <!-- Label -->
@@ -14,7 +14,7 @@
         android:id="@+id/tvLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         android:textColor="@color/lightgrey"
         android:textSize="16sp"
         android:textStyle="bold" />

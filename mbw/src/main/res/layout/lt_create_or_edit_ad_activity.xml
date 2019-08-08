@@ -51,8 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_buy_or_sell"
@@ -63,8 +63,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp" />
 
                 <!-- Location -->
 
@@ -72,8 +72,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_location"
@@ -91,8 +91,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
                         android:gravity="center"
                         android:maxWidth="200dp"
                         android:textSize="16sp" />
@@ -102,7 +102,7 @@
                         style="@style/MyceliumButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
+                        android:layout_marginStart="15dp"
                         android:text="@string/lt_change_button" />
                 </LinearLayout>
 
@@ -112,8 +112,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_sell_order_choose_currency"
@@ -127,8 +127,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="8dp"
                     android:paddingBottom="7dp"
-                    android:paddingLeft="13dp"
-                    android:paddingRight="13dp"
+                    android:paddingStart="13dp"
+                    android:paddingEnd="13dp"
                     android:paddingTop="7dp"
                     android:textSize="22sp"
                     android:typeface="monospace" />
@@ -139,8 +139,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_base_price"
@@ -151,8 +151,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp" />
 
                 <!-- Premium -->
 
@@ -160,8 +160,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_sell_order_choose_premium"
@@ -172,8 +172,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp" />
 
                 <!-- Fiat Price -->
 
@@ -181,8 +181,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_fiat_price"
@@ -203,8 +203,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_minimum"
@@ -221,7 +221,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginEnd="10dp"
                         android:text="*"
                         android:textColor="@color/red"
                         android:textSize="18sp"
@@ -258,8 +258,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_choose_maximum"
@@ -276,7 +276,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginEnd="10dp"
                         android:text="*"
                         android:textColor="@color/red"
                         android:textSize="18sp"
@@ -313,8 +313,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
                     android:gravity="center"
                     android:text="@string/lt_create_order_description"
@@ -325,9 +325,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:gravity="left"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="start"
                     android:hint="@string/lt_create_order_description_hint"
                     android:textSize="16sp" />
 
@@ -348,13 +348,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="25dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:layout_marginBottom="10dp"
                     android:text="@string/lt_create_button"
                     android:textSize="20sp" />
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
-
 </LinearLayout>

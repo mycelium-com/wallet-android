@@ -1,130 +1,95 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context=".extsig.ledger.activity.LedgerAccountSelectorActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/activity_horizontal_margin"
+    android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".extsig.ledger.activity.LedgerAccountSelectorActivity">
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/ledger_cold_storage_header"
-                android:textSize="24sp"
-                android:id="@+id/tvCaption"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/ledger_cold_storage_header"
+            android:textSize="24sp"
+            android:id="@+id/tvCaption"/>
 
         <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="10sp"
-                android:id="@+id/llStatus"
-                >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10sp"
+            android:id="@+id/llStatus"
+            >
             <ProgressBar
-                    android:id="@+id/pbProgress"
-                    android:layout_width="25sp"
-                    android:layout_height="25sp"/>
+                android:id="@+id/pbProgress"
+                android:layout_width="25sp"
+                android:layout_height="25sp"/>
 
             <TextView android:id="@+id/txtStatus"
-                      android:text="@string/ledger_initial_status"
-                      android:layout_gravity="center_vertical"
-                      android:paddingLeft="10sp"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content" />
+                android:text="@string/ledger_initial_status"
+                android:layout_gravity="center_vertical"
+                android:paddingStart="10sp"
+                android:paddingEnd="10sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
-
-	<!--
-        <LinearLayout
-                android:id="@+id/llTrezorInfo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:orientation="horizontal">
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/trezor_name"/>
-
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                <TextView
-                        android:id="@+id/tvTrezorName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        tools:text="Name"/>
-                <TextView
-                        android:id="@+id/tvTrezorSerial"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/lightgrey"
-                        tools:text="Serial, Version"/>
-            </LinearLayout>
-        </LinearLayout>
-	-->
 
         <TextView
-                android:id="@+id/tvWaitForLedger"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="30sp"
-                tools:visibility="gone"
-                android:text="@string/connect_your_ledger_info"
-                />
+            android:id="@+id/tvWaitForLedger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="30sp"
+            tools:visibility="gone"
+            android:text="@string/connect_your_ledger_info" />
 
         <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            tools:visibility="gone">
+            <ImageView
+                android:id="@+id/ivConnectLedger"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                tools:visibility="gone"
-                >
-            <ImageView
-                    android:id="@+id/ivConnectLedger"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/connect_ledger"
-                    android:layout_alignParentBottom="true"
-                    android:contentDescription="Ledger-Logo"/>
+                android:src="@drawable/connect_ledger"
+                android:layout_alignParentBottom="true"
+                android:contentDescription="Ledger-Logo"/>
 
         </RelativeLayout>
 
         <LinearLayout
-                android:id="@+id/llSelectAccount"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
+            android:id="@+id/llSelectAccount"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
             <TextView
-                    android:id="@+id/tvSelectAccount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="left"
-                    android:text="@string/select_ledger_account_to_spend_from"
-                    android:paddingTop="20sp"
-                    />
+                android:id="@+id/tvSelectAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/select_ledger_account_to_spend_from"
+                android:paddingTop="20sp" />
 
             <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ListView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_above="@+id/btNextAccount"
-                    android:id="@+id/lvAccounts" >
-            </ListView>
-            <TextView
+                    android:id="@+id/lvAccounts" />
+                <TextView
                     android:id="@+id/tvNoAccounts"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -132,7 +97,7 @@
                     android:gravity="center"
                     android:visibility="gone"
                     android:text="@string/hd_account_selector_no_account_found"/>
-            <Button
+                <Button
                     android:id="@+id/btNextAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -145,8 +110,5 @@
                     android:layout_alignParentBottom="true"/>
             </RelativeLayout>
         </LinearLayout>
-
-
     </LinearLayout>
-
 </RelativeLayout>
