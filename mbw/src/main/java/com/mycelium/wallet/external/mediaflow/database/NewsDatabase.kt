@@ -41,7 +41,7 @@ object NewsDatabase {
             if (where.isNotEmpty()) {
                 where.append(" AND ")
             }
-            where.append(categories.map { "category = '${it.name}'" }.joinToString(" OR "))
+            where.append(categories.joinToString(" OR ") { "category = '${it.name}'" })
         }
         val builder = SQLiteQueryBuilder()
         builder.tables = NEWS

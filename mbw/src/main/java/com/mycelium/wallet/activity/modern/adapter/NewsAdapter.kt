@@ -19,7 +19,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
     private lateinit var layoutInflater: LayoutInflater
-    private val dataMap = mutableMapOf<Category, MutableList<News>>()
+    private val dataMap = mutableMapOf<Category, MutableSet<News>>()
     private var selectedCategory: Category = ALL
 
     var openClickListener: ((news: News) -> Unit)? = null
@@ -27,25 +27,17 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     fun setData(data: List<News>) {
         dataMap.clear()
-        data.forEach { news ->
-            val list = dataMap.getOrElse(news.categories.values.first()) {
-                mutableListOf()
-            }
-            list.add(news)
-            dataMap[news.getCategory()] = list
-        }
-        updateData()
+        addData(data)
     }
 
     fun addData(data: List<News>) {
         data.forEach { news ->
-            val list = dataMap.getOrElse(news.categories.values.first()) {
-                mutableListOf()
+            val set = dataMap.getOrElse(news.categories.values.first()) {
+                mutableSetOf()
             }
-            if(!list.contains(news)) {
-                list.add(news)
-            }
-            dataMap[news.getCategory()] = list
+            set.remove(news) // remove old news from data set
+            set.add(news)
+            dataMap[news.getCategory()] = set
         }
         updateData()
     }
@@ -58,13 +50,14 @@ class NewsAdapter(val preferences: SharedPreferences)
                 data.add(Entry(TYPE_NEWS_LOADING, null))
             }
             selectedCategory == ALL -> dataMap.forEach { entry ->
-                data.add(Entry(TYPE_NEWS_CATEGORY, entry.value[0]))
-                data.add(Entry(TYPE_NEWS_BIG, entry.value[0]))
-                if (entry.value.size > 1) {
-                    data.add(Entry(TYPE_NEWS, entry.value[1]))
+                val sortedList = entry.value.toList().sortedByDescending { it.date }
+                data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
+                data.add(Entry(TYPE_NEWS_BIG, sortedList[0]))
+                if (sortedList.size > 1) {
+                    data.add(Entry(TYPE_NEWS, sortedList[1]))
                 }
-                if (entry.value.size > 2) {
-                    data.add(Entry(TYPE_NEWS, entry.value[2]))
+                if (sortedList.size > 2) {
+                    data.add(Entry(TYPE_NEWS, sortedList[2]))
                 }
             }
             else -> dataMap[selectedCategory]?.forEachIndexed { index, news ->
@@ -79,6 +72,9 @@ class NewsAdapter(val preferences: SharedPreferences)
         this.selectedCategory = category
         updateData()
     }
+
+    fun getCategory() = selectedCategory
+
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -142,7 +138,8 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
-                oldItem.type == newItem.type && oldItem.news?.id == newItem.news?.id
+                oldItem.type == newItem.type && oldItem.news != null && newItem.news != null
+                        && oldItem.news.id == newItem.news.id
 
         override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean =
                 oldItem.type == newItem.type

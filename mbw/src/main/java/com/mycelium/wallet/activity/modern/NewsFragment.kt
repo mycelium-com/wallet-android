@@ -18,6 +18,7 @@ import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
+import com.mycelium.wallet.external.mediaflow.GetAllNewsTask
 import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
 import com.mycelium.wallet.external.mediaflow.GetNewsTask
 import com.mycelium.wallet.external.mediaflow.NewsConstants
@@ -93,6 +94,7 @@ class NewsFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab) {
                 adapter.setCategory(tab.tag as Category)
+                loadItems()
             }
         })
         adapterSearch.openClickListener = newsClick
@@ -150,7 +152,7 @@ class NewsFragment : Fragment() {
             activity?.invalidateOptionsMenu()
             updateUI()
             val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.showSoftInput(search_input, 0);
+            inputMethodManager.showSoftInput(search_input, 0)
             return true
         } else if (item?.itemId == R.id.action_favorite) {
             preference.edit()
@@ -204,7 +206,9 @@ class NewsFragment : Fragment() {
             loading = false
             val list = if (preference.getBoolean(NewsConstants.FAVORITE, false)) {
                 pageData.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
-            } else pageData
+            } else {
+                pageData
+            }
             if (offset == 0) {
                 adapter.setData(list)
             } else {
@@ -213,8 +217,11 @@ class NewsFragment : Fragment() {
             isLastPage = offset + PaginationScrollListener.PAGE_SIZE >= count
         }
         loading = true
-        GetNewsTask(listener = taskListener, offset = offset, limit = PaginationScrollListener.PAGE_SIZE)
-                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+        if (adapter.getCategory() == NewsAdapter.ALL) {
+            GetAllNewsTask(taskListener)
+        } else {
+            GetNewsTask(null, listOf(adapter.getCategory()), offset, PaginationScrollListener.PAGE_SIZE, taskListener)
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 
     private fun startUpdateSearch(search: String? = null) {

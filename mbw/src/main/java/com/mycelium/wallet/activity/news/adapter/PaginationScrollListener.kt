@@ -4,7 +4,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 
 
-abstract class PaginationScrollListener(val layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
+abstract class PaginationScrollListener(private val layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
@@ -28,6 +28,6 @@ abstract class PaginationScrollListener(val layoutManager: LinearLayoutManager) 
     abstract fun isLoading(): Boolean
 
     companion object {
-        const val PAGE_SIZE = 10
+        const val PAGE_SIZE = 7
     }
 }
