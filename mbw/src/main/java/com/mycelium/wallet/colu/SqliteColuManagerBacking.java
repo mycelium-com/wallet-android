@@ -40,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.net.Network;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -80,9 +79,7 @@ import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.json.Tx;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -472,7 +469,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         Gson gson = new Gson();
          String assetTypeName = assetType.getName();
          byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
          FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
@@ -486,7 +482,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         Gson gson = new Gson();
          String key = assetType.getName() + LAST_FEE_ESTIMATE;
          FeeEstimationSerialized feeValues;
          try {
@@ -591,22 +586,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public List<Tx.Json> getTransactionsSince(long since) {
-         Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
-                            + " WHERE time >= ?"
-                            + " ORDER BY height desc",
-                    new String[]{Long.toString(since / 1000)});
+         try (Cursor cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
+                         + " WHERE time >= ?"
+                         + " ORDER BY height desc",
+                 new String[]{Long.toString(since / 1000)})) {
 
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
-            }
-         } finally {
-            if (cursor != null) {
-               cursor.close();
             }
          }
          return result;
@@ -718,16 +707,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
             db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
             SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
-            for (SingleAddressAccountContext context : list) {
-               statement.bindBlob(1, uuidToBytes(context.getId()));
+            for (SingleAddressAccountContext saaContext : list) {
+               statement.bindBlob(1, uuidToBytes(saaContext.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: context.getAddresses().values()){
+               for (Address address: saaContext.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));
-               statement.bindLong(3, context.isArchived() ? 1 : 0);
-               statement.bindLong(4, context.getBlockHeight());
-               statement.bindString(5, gson.toJson(context.getDefaultAddressType()));
+               statement.bindLong(3, saaContext.isArchived() ? 1 : 0);
+               statement.bindLong(4, saaContext.getBlockHeight());
+               statement.bindString(5, gson.toJson(saaContext.getDefaultAddressType()));
 
                statement.executeInsert();
             }
@@ -839,11 +828,10 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                            // If we can read publicKey field data as string, our hypothesis about
                            // mixed-up data is correct
                            brokenCoinIdData = true;
-                        } catch(Exception ex) {
+                        } catch(Exception ignore) {
+                           // expected
                         }
-
                      }
-
                   } catch (Exception ex) {
                      brokenCoinIdData = true; // Probably we could not read this field as String because there a BLOB record
                   }
@@ -864,8 +852,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                      // So here we try to read coinId saved in publicKey field
                      try {
                         coinId = cursor.getString(5);
-                     } catch (Exception ex) {
-
+                     } catch (Exception ignore) {
+                        // expected
                      }
 
                      // If coinId is not null here,
@@ -877,21 +865,17 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         } else {
                            statement.bindString(2, cursor.getString(1));
                         }
-
                         statement.bindString(5, coinId);
                      }
                   }
-
                   statement.executeInsert();
                }
-
             }
 
             db.execSQL("ALTER TABLE single RENAME TO single_old");
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
          }
-
       }
 
       private String transformPublicKeyToAddressesList(byte[] publicKeyBytes,
@@ -903,6 +887,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          return gson.toJson(addresses);
       }
+
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column
