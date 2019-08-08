@@ -20,15 +20,13 @@ class BitcoinUriTest {
     }
 
     @Test
-    fun testParseBIP72withoutFallbackBitPayStyle() {
-        // from BIP72 without fallback
+    fun testParseBIP72withoutFallback() {
         testParse("bitcoin:?r=https://merchant.com/pay.php?h=2a8628fc2fbe", TN,
                 BitcoinUri.from(null, null, null, "https://merchant.com/pay.php?h=2a8628fc2fbe"))
     }
 
     @Test
     fun testParseMainnetBip72() {
-        // with mainnet
         testParse("bitcoin:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=0.11&r=https://merchant.com/pay.php?h=2a8628fc2fbe", PN,
                 BitcoinUri.from(AddressUtils.from(BitcoinMain.get(), "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"),
                         Value.valueOf(BitcoinMain.get(), 11000000), null, "https://merchant.com/pay.php?h=2a8628fc2fbe"))
@@ -36,7 +34,6 @@ class BitcoinUriTest {
 
     @Test
     fun testTestnetAddressOnly() {
-        // with only address
         testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", TN,
                 BitcoinUri.from(AddressUtils.from(BitcoinTest.get(), "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, null))
     }
@@ -55,7 +52,6 @@ class BitcoinUriTest {
 
     @Test
     fun testTestnetAddressAmount() {
-        // with only address and amount
         testParse("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11", TN,
                 BitcoinUri.from(AddressUtils.from(BitcoinTest.get(), "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"),
                         Value.valueOf(BitcoinMain.get(), 11000000), null, null))
