@@ -140,19 +140,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
-   @Override
-   public FeeEstimationsGeneric getDefaultFeeEstimation() {
-      return new FeeEstimationsGeneric(
-              Value.valueOf(getCoinType(), 1000),
-              Value.valueOf(getCoinType(), 3000),
-              Value.valueOf(getCoinType(), 6000),
-              Value.valueOf(getCoinType(), 8000),
-              0
-      );
-   }
-
-
-
     @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
@@ -1846,34 +1833,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    public int getSyncTotalRetrievedTransactions() {
       return syncTotalRetrievedTransactions;
-   }
-
-   @Override
-   public FeeEstimationsGeneric getFeeEstimations() {
-      // we try to get fee estimation from server
-      try {
-         WapiResponse<MinerFeeEstimationResponse> response = _wapi.getMinerFeeEstimations();
-         FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
-         Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
-         Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
-         Bitcoins economy = oldStyleFeeEstimation.getEstimation(10);
-         Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
-         FeeEstimationsGeneric result = new FeeEstimationsGeneric(
-                 Value.valueOf(getCoinType(), lowPriority.getLongValue()),
-                 Value.valueOf(getCoinType(), economy.getLongValue()),
-                 Value.valueOf(getCoinType(), normal.getLongValue()),
-                 Value.valueOf(getCoinType(), high.getLongValue()),
-                 System.currentTimeMillis()
-         );
-         //if all ok we return requested new fee estimation
-         _backing.saveLastFeeEstimation(result, getCoinType());
-         return result;
-      } catch (WapiException ex) {
-         //receiving data from the server failed then trying to read fee estimations from the DB
-         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
-         //if a read error has occurred from the DB, then we return the predefined default fee
-         return (feeFromDb == null) ? getDefaultFeeEstimation() : feeFromDb;
-      }
    }
 
    public void updateSyncProgress() {

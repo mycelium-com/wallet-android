@@ -1,15 +1,29 @@
 package com.mycelium.wapi.wallet.manager
 
-import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
-import com.mycelium.wapi.wallet.providers.EthFeeProvider
+import com.mycelium.wapi.wallet.coins.COINS
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.providers.FeeProvider
+import kotlinx.coroutines.*
+import kotlin.collections.HashMap
 
-class FeeEstimations(estimationsBacking: FeeEstimationsBacking) {
-    val feeProviders = ArrayList<FeeProvider>(2)
-    init {
-        feeProviders.add(EthFeeProvider(estimationsBacking))
+class FeeEstimations {
+    private val feeProviders = HashMap<GenericAssetInfo, FeeProvider>(COINS.size / 2 + 1)
+
+    fun addProvider(provider: FeeProvider) {
+        feeProviders[provider.coinType] = provider
     }
 
-    // todo recurrently and on start check for estimation updates for all the currencies
-    // todo elegant architectural decision depending on testnet/not needed, probably add some logic into coins
+    fun getProvider(asset: GenericAssetInfo) = feeProviders[asset]
+
+
+    /**
+     * This function must be triggered when wallet refreshes accounts/currency prices, e.t.c
+     */
+    fun triggerRefresh() {
+        feeProviders.values.forEach {
+            GlobalScope.launch {
+                it.updateFeeEstimationsAsync()
+            }
+        }
+    }
 }

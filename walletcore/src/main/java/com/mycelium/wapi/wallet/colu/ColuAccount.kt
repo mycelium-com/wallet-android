@@ -71,16 +71,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(
-                Value.valueOf(coinType, 1000),
-                Value.valueOf(coinType, 3000),
-                Value.valueOf(coinType, 6000),
-                Value.valueOf(coinType, 8000),
-                0
-        )
-    }
-
     override fun getDummyAddress(subType: String): BtcAddress {
         val address = Address.getNullAddress(networkParameters, AddressType.valueOf(subType))
         return BtcAddress(coinType, address)
@@ -176,33 +166,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
         return accountBalance.spendable
     }
-
-    override fun getFeeEstimations(): FeeEstimationsGeneric {
-        // we try to get fee estimation from server
-        try {
-            val response = wapi.minerFeeEstimations
-            val oldStyleFeeEstimation = response.result.feeEstimation
-            val lowPriority = oldStyleFeeEstimation.getEstimation(20)
-            val normal = oldStyleFeeEstimation.getEstimation(3)
-            val economy = oldStyleFeeEstimation.getEstimation(10)
-            val high = oldStyleFeeEstimation.getEstimation(1)
-            val result = FeeEstimationsGeneric(
-                    Value.valueOf(coinType, lowPriority!!.longValue),
-                    Value.valueOf(coinType, economy!!.longValue),
-                    Value.valueOf(coinType, normal!!.longValue),
-                    Value.valueOf(coinType, high!!.longValue),
-                    System.currentTimeMillis()
-            )
-            //if all ok we return requested new fee estimation
-            accountBacking.saveLastFeeEstimation(result, coinType)
-            return result
-        } catch (ex: WapiException) {
-            //receiving data from the server failed then trying to read fee estimations from the DB
-            //if a read error has occurred from the DB, then we return the predefined default fee
-            return accountBacking.loadLastFeeEstimation(coinType) ?: defaultFeeEstimation
-        }
-    }
-
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {

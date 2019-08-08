@@ -146,6 +146,8 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
+import com.mycelium.wapi.wallet.manager.FeeEstimations;
+import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.squareup.otto.Subscribe;
 
 import org.bitcoin.protocols.payments.PaymentACK;
@@ -294,6 +296,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private FeeEstimationsGeneric feeEstimation;
     private SharedPreferences transactionFiatValuePref;
     private FeeItemsBuilder feeItemsBuilder;
+    private FeeProvider feeProvider;
     private boolean showStaleWarning = false;
 
     int feeFirstItemWidth;
@@ -370,22 +373,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
         _account = checkNotNull(account, crashHint);
         feeLvl = _mbwManager.getMinerFee();
-        feeEstimation = _account.getDefaultFeeEstimation();
+        feeProvider = _mbwManager.getFeeProvider(account.getCoinType());
+        feeEstimation = feeProvider.getEstimation();
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                feeEstimation = _account.getFeeEstimations();
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void v) {
-                showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
-                updateUi();
-            }
-
-        }.execute();
+        if (feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME) {
+            showStaleWarning = true;
+        }
 
         selectedFee = getCurrentFeeEstimation();
 

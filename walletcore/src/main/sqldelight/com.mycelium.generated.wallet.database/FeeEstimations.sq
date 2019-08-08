@@ -18,5 +18,5 @@ SELECT * FROM FeeEstimation
 WHERE currency = (?);
 
 insertFullObject:
-INSERT INTO FeeEstimation(currency, low, economy, normal, high, lastCheck)
+INSERT OR REPLACE INTO FeeEstimation(currency, low, economy, normal, high, lastCheck)
 VALUES ?;

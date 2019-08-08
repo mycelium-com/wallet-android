@@ -3,29 +3,34 @@ package com.mycelium.wapi.wallet.providers
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
-import io.reactivex.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.utils.Convert
 import java.net.URL
 
 
-class EthFeeProvider(private val coinType: GenericAssetInfo, private val feeBacking: FeeEstimationsBacking) : FeeProvider {
-    override var estimation: FeeEstimationsGeneric = feeBacking.getEstimationForCurrency(coinType) ?:
-    FeeEstimationsGeneric(Value.valueOf(coinType, 1000000000),
-            Value.valueOf(coinType, 33000000000),
-            Value.valueOf(coinType, 67000000000),
-            Value.valueOf(coinType, 100000000000),
-            System.currentTimeMillis())
+class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBacking) : FeeProvider {
+    override val coinType = if (testnet) {
+        EthTest
+    } else {
+        EthMain
+    }
+    override var estimation: FeeEstimationsGeneric = feeBacking.getEstimationForCurrency(coinType)
+            ?: FeeEstimationsGeneric(Value.valueOf(coinType, 1000000000),
+                    Value.valueOf(coinType, 33000000000),
+                    Value.valueOf(coinType, 67000000000),
+                    Value.valueOf(coinType, 100000000000),
+                    0)
 
 
     override suspend fun updateFeeEstimationsAsync() {
         estimation = withContext(Dispatchers.IO) {
             val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            return@withContext mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
+            val newEstimation = mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
                     GasStationEstimation::class.java)
                     .run {
                         FeeEstimationsGeneric(
@@ -40,8 +45,9 @@ class EthFeeProvider(private val coinType: GenericAssetInfo, private val feeBack
                                 System.currentTimeMillis()
                         )
                     }
+            feeBacking.updateFeeEstimation(newEstimation)
+            return@withContext newEstimation
         }
-        feeBacking.updateFeeEstimation(estimation)
     }
 
     /**

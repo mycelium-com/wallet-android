@@ -1,9 +1,14 @@
 package com.mycelium.wapi.wallet
 
 import com.mrd.bitlib.model.NetworkParameters
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
+import com.mycelium.wapi.wallet.providers.BtcFeeProvider
+import com.mycelium.wapi.wallet.providers.ColuFeeProvider
+import com.mycelium.wapi.wallet.providers.EthFeeProvider
 import org.jetbrains.annotations.TestOnly
 import java.util.*
 
@@ -14,11 +19,14 @@ constructor(val network: NetworkParameters,
             val wapi: Wapi,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
-            var accountScanManager: AccountScanManager? = null) {
+            var accountScanManager: AccountScanManager? = null,
+            val walletDB: WalletDB) {
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
+
+    val feeEstimations = FeeEstimations()
 
     fun getCurrencySettings(moduleID: String): CurrencySettings? {
         return currencySettingsMap[moduleID]
@@ -57,6 +65,11 @@ constructor(val network: NetworkParameters,
                 accounts[it.id] = it
             }
         }
+
+        val backing = FeeEstimationsBacking(walletDB)
+        feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
+        feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
+        feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
 
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
@@ -124,12 +137,14 @@ constructor(val network: NetworkParameters,
         if (!isNetworkConnected) {
             return
         }
+        feeEstimations.triggerRefresh()
         Thread(Synchronizer(this, mode, accounts)).start()
     }
 
     fun startSynchronization(acc: UUID): Boolean {
         // Launch synchronizer thread
         val activeAccount = getAccount(acc)
+        feeEstimations.triggerRefresh()
         Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
         return isNetworkConnected
     }

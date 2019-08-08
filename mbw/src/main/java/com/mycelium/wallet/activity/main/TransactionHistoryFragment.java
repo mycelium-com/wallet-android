@@ -656,7 +656,10 @@ public class TransactionHistoryFragment extends Fragment {
       protected void onPostExecute(Boolean isResultOk) {
          super.onPostExecute(isResultOk);
          if (isResultOk) {
-            final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
+            final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
+                    .getEstimation()
+                    .getHigh()
+                    .value;
             final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
             if(unsigned != null) {
                long txFee = unsigned.calculateFee();

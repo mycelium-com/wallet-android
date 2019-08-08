@@ -120,9 +120,15 @@ import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
+import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking;
+import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
+import com.mycelium.wapi.wallet.providers.BtcFeeProvider;
+import com.mycelium.wapi.wallet.providers.ColuFeeProvider;
+import com.mycelium.wapi.wallet.providers.EthFeeProvider;
+import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
@@ -329,7 +335,7 @@ public class MbwManager {
         _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
-        _walletManager = createWalletManager(_applicationContext, _environment);
+        _walletManager = createWalletManager(_applicationContext, _environment, db);
         contentResolver = createContentResolver(getNetwork());
 
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
@@ -606,7 +612,8 @@ public class MbwManager {
      * @param environment the Mycelium environment
      * @return a new wallet manager instance
      */
-    private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
+    private WalletManager createWalletManager(final Context context, final MbwEnvironment environment,
+                                              final WalletDB walletDB) {
         // Create persisted account backing
         BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBackingWrapper(context);
 
@@ -615,7 +622,8 @@ public class MbwManager {
                 new AndroidRandomSource());
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
-        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
+        final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi,
+                currenciesSettingsMap, walletDB);
         masterSeedManager.setListener(new Listener() {
             @Override
             public void masterSeedConfigured() {
@@ -740,7 +748,7 @@ public class MbwManager {
 
 
         // Create and return wallet manager
-        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
+        WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap, db);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
         walletManager.setWalletListener(new SyncEventsListener());
 
@@ -1504,5 +1512,9 @@ public class MbwManager {
 
     public void setShowQueuedTransactionsRemovalAlert(boolean showQueuedTransactionsRemovalAlert) {
         this.showQueuedTransactionsRemovalAlert = showQueuedTransactionsRemovalAlert;
+    }
+
+    public FeeProvider getFeeProvider(GenericAssetInfo asset) {
+        return _walletManager.getFeeEstimations().getProvider(asset);
     }
 }

@@ -65,7 +65,6 @@ public class TradeActivityUtil {
 
    public static boolean canAffordTrade(TradeSession ts, MbwManager mbwManager) {
       WalletAccount account = mbwManager.getSelectedAccount();
-      LocalTraderManager lt = mbwManager.getLocalTraderManager();
 
       if (!account.canSpend()) {
          // this is a watch-only account
@@ -75,7 +74,12 @@ public class TradeActivityUtil {
       BtcReceiver receiver = null;
       receiver = new BtcReceiver(address, ts.satoshisFromSeller);
       try {
-         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), account.getFeeEstimations().getNormal().value);
+         long estimatedFee = mbwManager
+                 .getFeeProvider(account.getCoinType())
+                 .getEstimation()
+                 .getNormal()
+                 .value;
+         ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), estimatedFee);
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);
       } catch (InsufficientFundsException e) {
