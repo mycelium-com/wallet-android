@@ -17,14 +17,14 @@ class BitcoinUriParser(override val network: NetworkParameters) : GenericAssetUr
                 // not a bitcoin URI
                 return null
             }
-            var schemeSpecific = uri.schemeSpecificPart
+            var schemeSpecific = uri.toString().substring("bitcoin:".length)
             if (schemeSpecific.startsWith("//")) {
                 // Fix for invalid bitcoin URI in the form "bitcoin://"
                 schemeSpecific = schemeSpecific.substring(2)
             }
             uri = URI.create("bitcoin://$schemeSpecific")
 
-            return parseParameters(uri, if(network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
+            return parseParameters(uri, if (network.isProdnet) BitcoinMain.get() else BitcoinTest.get())
         } catch (e: Exception) {
         }
         return null
