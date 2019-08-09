@@ -542,7 +542,7 @@ public class MbwManager {
             }
 
             // See if we need to migrate this account to local trader
-            if (record.address.equals(localTraderAddress)) {
+            if (Address.fromString(record.address.toString()).equals(localTraderAddress)) {
                 if (record.hasPrivateKey()) {
                     _localTraderManager.setLocalTraderData(account, record.key, Address.fromString(record.address.toString()),
                             _localTraderManager.getNickname());
