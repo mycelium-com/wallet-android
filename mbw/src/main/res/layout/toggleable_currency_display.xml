@@ -7,8 +7,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:clickable="true"
-    android:paddingLeft="3dp"
-    android:paddingRight="3dp"
+    android:paddingStart="3dp"
+    android:paddingEnd="3dp"
     tools:context="com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay">
 
 
@@ -24,7 +24,7 @@
         android:id="@+id/tvCurrency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
         android:lines="1"
         android:textSize="22sp"
         android:typeface="monospace"

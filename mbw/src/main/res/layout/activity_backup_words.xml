@@ -8,8 +8,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/button_padding"
-            android:layout_marginRight="@dimen/button_padding"
+            android:layout_marginStart="@dimen/button_padding"
+            android:layout_marginEnd="@dimen/button_padding"
             android:layout_marginTop="@dimen/button_padding"
             >
 
@@ -23,8 +23,7 @@
 
         <View
                 android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+                android:layout_height="10dp" />
 
         <TextView
                 android:id="@+id/tvDescriptionWordlistBackup"
@@ -36,8 +35,7 @@
 
         <View
                 android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+                android:layout_height="10dp" />
 
         <LinearLayout
                 android:id="@+id/llShowWords"
@@ -61,7 +59,7 @@
                     android:id="@+id/tvShowWordNumber"
                     android:textSize="@dimen/bigtext"
                     android:textColor="@color/grey"
-                    android:paddingRight="@dimen/half_padding"
+                    android:paddingEnd="@dimen/half_padding"
                     android:layout_gravity="center"/>
             <TextView
                     android:layout_width="wrap_content"
@@ -82,23 +80,21 @@
                 android:visibility="gone"/>
 
         <View
-                android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+            android:layout_width="1dp"
+            android:layout_height="10dp" />
 
         <Button
                 android:id="@+id/btOkay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:text="@string/start_with_first_word_button" />
 
         <View
-                android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+            android:layout_width="1dp"
+            android:layout_height="10dp" />
 
     </LinearLayout>
 

@@ -20,9 +20,9 @@
         android:id="@+id/tvAddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:layout_weight="0"
-        android:paddingLeft="6dip"
+        android:paddingStart="6dip"
         android:textSize="18sp"
         tools:text="1A1zP1eP5Q\nGefi2DMPTfTL\n5SLmv7DivfNa"
         android:typeface="monospace" />

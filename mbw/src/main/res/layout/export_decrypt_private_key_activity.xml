@@ -32,8 +32,6 @@
             android:text="@string/import_decrypt_key_description"
             android:textSize="16sp" />
 
-
-
         <!-- Status -->
 
         <EditText

@@ -10,8 +10,8 @@
             android:layout_width="fill_parent"
             android:layout_alignParentTop="true"
             android:layout_above="@+id/llKeyBoard"
-            android:layout_marginLeft="@dimen/button_padding"
-            android:layout_marginRight="@dimen/button_padding"
+            android:layout_marginStart="@dimen/button_padding"
+            android:layout_marginEnd="@dimen/button_padding"
             android:layout_marginTop="@dimen/button_padding"
             android:layout_height="wrap_content">
 
@@ -19,8 +19,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
             <TextView
                     android:id="@+id/tvTitle"
@@ -70,8 +69,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_alignParentBottom="true"
-            >
+            android:layout_alignParentBottom="true">
 
         <fragment
                 android:id="@+id/wordAutoCompleter"
