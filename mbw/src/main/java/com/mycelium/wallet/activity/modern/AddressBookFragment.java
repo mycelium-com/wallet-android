@@ -93,7 +93,6 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 public class AddressBookFragment extends Fragment {
     public static final int SCAN_RESULT_CODE = 0;
-    private static int BECH32_ADDRESS_LENGTH = 42;
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";
@@ -382,7 +381,7 @@ public class AddressBookFragment extends Fragment {
                     String address = Utils.getClipboardString(activity);
                     List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
-                        if(address.length() == BECH32_ADDRESS_LENGTH){
+                        if(addresses.size() == 1){
                             CryptoCurrency curr = _mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
                             MbwManager.getEventBus().post(new AssetSelected(AddressUtils.from(curr, address)));
                         } else {
