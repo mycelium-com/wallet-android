@@ -74,12 +74,14 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -91,6 +93,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAddress;
 import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 public class AddressBookFragment extends Fragment {
     public static final int SCAN_RESULT_CODE = 0;
+    private static int BECH32_ADDRESS_LENGTH = 42;
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";
@@ -379,8 +382,13 @@ public class AddressBookFragment extends Fragment {
                     String address = Utils.getClipboardString(activity);
                     List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
-                        SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                        dialog.show(requireFragmentManager(), "dialog");
+                        if(address.length() == BECH32_ADDRESS_LENGTH){
+                            CryptoCurrency curr = _mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+                            MbwManager.getEventBus().post(new AssetSelected(AddressUtils.from(curr, address)));
+                        } else {
+                            SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+                            dialog.show(requireFragmentManager(), "dialog");
+                        }
                     } else {
                         Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                     }
