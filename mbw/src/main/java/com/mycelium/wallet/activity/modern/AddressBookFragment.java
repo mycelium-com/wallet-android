@@ -74,12 +74,14 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
+import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -379,8 +381,13 @@ public class AddressBookFragment extends Fragment {
                     String address = Utils.getClipboardString(activity);
                     List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
-                        SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                        dialog.show(requireFragmentManager(), "dialog");
+                        if(addresses.size() == 1){
+                            CryptoCurrency curr = _mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
+                            MbwManager.getEventBus().post(new AssetSelected(AddressUtils.from(curr, address)));
+                        } else {
+                            SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+                            dialog.show(requireFragmentManager(), "dialog");
+                        }
                     } else {
                         Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                     }
