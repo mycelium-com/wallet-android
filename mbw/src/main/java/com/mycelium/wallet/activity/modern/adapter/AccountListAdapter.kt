@@ -133,8 +133,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        val res = GroupTitleViewHolder(view)
-        return res
+        return GroupTitleViewHolder(view)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
@@ -149,8 +148,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        val res = TotalViewHolder(view)
-        return res
+        return TotalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

@@ -41,7 +41,7 @@
             android:layout_gravity="center_vertical"
             android:src="@drawable/simplex"
             android:contentDescription="@string/si_simplex"
-            android:layout_marginRight="@dimen/activity_vertical_margin"/>
+            android:layout_marginEnd="@dimen/activity_vertical_margin"/>
     </LinearLayout>
 
     <LinearLayout

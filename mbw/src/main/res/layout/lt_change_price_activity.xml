@@ -81,8 +81,8 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_column="1"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:text="@string/lt_new_price_column"
                                     android:textSize="20sp" />
 
@@ -91,8 +91,8 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_column="2"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:text="@string/lt_current_price_column"
                                     android:textSize="20sp" />
                             </TableRow>
@@ -107,8 +107,8 @@
                                     android:layout_width="fill_parent"
                                     android:layout_height="1dp"
                                     android:layout_marginBottom="5dp"
-                                    android:layout_marginLeft="15dp"
-                                    android:layout_marginRight="15dp"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_marginEnd="15dp"
                                     android:layout_marginTop="5dp"
                                     android:layout_span="3"
                                     android:background="@color/darkgrey" />
@@ -124,7 +124,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:text="@string/lt_base_price_label"
                                     android:textSize="16sp" />
 
@@ -133,8 +133,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -142,8 +142,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -157,8 +157,8 @@
                                     android:layout_width="fill_parent"
                                     android:layout_height="1dp"
                                     android:layout_marginBottom="5dp"
-                                    android:layout_marginLeft="15dp"
-                                    android:layout_marginRight="15dp"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_marginEnd="15dp"
                                     android:layout_marginTop="5dp"
                                     android:layout_span="3"
                                     android:background="@color/darkgrey" />
@@ -175,7 +175,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -183,8 +183,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -192,8 +192,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -207,7 +207,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:text="@string/lt_you_pay_label"
                                     android:textSize="16sp" />
 
@@ -216,8 +216,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -225,8 +225,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -240,7 +240,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:text="@string/lt_you_get_label"
                                     android:textSize="16sp" />
 
@@ -249,8 +249,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -258,8 +258,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -273,8 +273,8 @@
                                     android:layout_width="fill_parent"
                                     android:layout_height="1dp"
                                     android:layout_marginBottom="5dp"
-                                    android:layout_marginLeft="15dp"
-                                    android:layout_marginRight="15dp"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_marginEnd="15dp"
                                     android:layout_marginTop="5dp"
                                     android:layout_span="3"
                                     android:background="@color/darkgrey" />
@@ -291,7 +291,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -299,8 +299,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -308,8 +308,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -324,7 +324,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -332,8 +332,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -341,8 +341,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -357,7 +357,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -365,8 +365,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -374,8 +374,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -389,8 +389,8 @@
                                     android:layout_width="fill_parent"
                                     android:layout_height="1dp"
                                     android:layout_marginBottom="5dp"
-                                    android:layout_marginLeft="15dp"
-                                    android:layout_marginRight="15dp"
+                                    android:layout_marginStart="15dp"
+                                    android:layout_marginEnd="15dp"
                                     android:layout_marginTop="5dp"
                                     android:layout_span="3"
                                     android:background="@color/darkgrey" />
@@ -406,7 +406,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:text="@string/lt_commission_label"
                                     android:textSize="16sp" />
 
@@ -415,8 +415,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
 
                                 <TextView
@@ -424,8 +424,8 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="right"
-                                    android:layout_marginLeft="10dp"
+                                    android:layout_gravity="end"
+                                    android:layout_marginStart="10dp"
                                     android:textSize="16sp" />
                             </TableRow>
 
@@ -440,7 +440,7 @@
                                     style="@style/MyceliumText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_gravity="left"
+                                    android:layout_gravity="start"
                                     android:layout_span="3"
                                     android:textSize="12sp" />
                             </TableRow>
@@ -454,9 +454,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:gravity="left"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="start"
                     android:text="@string/lt_change_price_choose_base_price"
                     android:textSize="16sp" />
 
@@ -465,17 +465,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="15dp"
-                    android:gravity="left"
+                    android:gravity="start"
                     android:text="@string/lt_change_price_choose_premium"
                     android:textSize="16sp" />
 
@@ -484,8 +484,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp" />
 
                 <!-- Change Button -->
 
@@ -495,8 +495,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:text="@string/lt_change_price_button"
                     android:textSize="20sp" />
             </LinearLayout>

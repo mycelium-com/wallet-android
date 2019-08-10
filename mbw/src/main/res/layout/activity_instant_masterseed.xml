@@ -2,8 +2,8 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
                 tools:context="com.mycelium.wallet.activity.InstantMasterseedActivity">
@@ -12,7 +12,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
 
         <TextView
                 android:layout_width="wrap_content"
@@ -26,8 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="10sp"
-                android:id="@+id/llStatus"
-                >
+                android:id="@+id/llStatus">
             <ProgressBar
                     android:id="@+id/pbProgress"
                     android:layout_width="25sp"
@@ -36,7 +34,7 @@
             <TextView android:id="@+id/txtStatus"
                       android:text="@string/instant_masterseed_initializing"
                       android:layout_gravity="center_vertical"
-                      android:paddingLeft="10sp"
+                      android:paddingStart="10sp"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content" />
         </LinearLayout>
@@ -52,16 +50,14 @@
                     android:id="@+id/tvSelectAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="left"
+                    android:gravity="start"
                     android:text="@string/select_ext_sig_account_to_spend_from"
-                    android:paddingTop="20sp"
-                    />
+                    android:paddingTop="20sp" />
 
             <ListView
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:id="@+id/lvAccounts" >
-            </ListView>
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/lvAccounts" />
 
             <TextView
                     android:id="@+id/tvNoAccounts"
@@ -72,8 +68,5 @@
                     android:visibility="gone"
                     android:text="@string/hd_account_selector_no_account_found"/>
         </LinearLayout>
-
-
     </LinearLayout>
-
 </RelativeLayout>

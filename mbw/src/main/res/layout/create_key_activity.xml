@@ -81,39 +81,34 @@
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></View>
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/btShuffle"
-
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/shuffle" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></View>
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/btUse"
-
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/use_button" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_weight="1"></View>
+            android:layout_weight="1" />
     </LinearLayout>
-
 </LinearLayout>

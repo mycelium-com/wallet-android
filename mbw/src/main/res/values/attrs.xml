@@ -7,6 +7,7 @@
         <attr name="textColor" format="color"/>
         <attr name="precision" format="integer"/>
     </declare-styleable>
+
     <declare-styleable name = "ViewPagerIndicator">
         <attr name = "itemWidth" format = "dimension"/>
         <attr name = "itemHeight" format = "dimension"/>
@@ -18,6 +19,7 @@
     <declare-styleable name="RoundButton">
         <attr name="backgroundColor" />
     </declare-styleable>
+
     <declare-styleable name="RoundButtonWithText" >
         <attr name="backgroundColor" />
         <attr name="text" format="string|reference" />

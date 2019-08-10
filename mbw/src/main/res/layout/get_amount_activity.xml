@@ -41,9 +41,9 @@
                         android:id="@+id/tvAmount"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
+                        android:layout_marginEnd="5dp"
                         android:layout_weight="1"
-                        android:gravity="right"
+                        android:gravity="end"
                         android:hint="@string/amount_hint"
                         android:lines="1"
                         android:singleLine="true"
@@ -59,7 +59,8 @@
                         android:textColor="@color/lightgrey"
                         android:textSize="22sp"
                         android:typeface="monospace"
-                        tools:text="BTC"/>
+                        tools:text="BTC"
+                        tools:ignore="RtlSymmetry" />
 
                     <ImageView
                         android:id="@+id/currency_dropdown_image_view"
@@ -84,8 +85,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/MyceliumSlimButton"
-                        android:paddingLeft="3dp"
-                        android:paddingRight="3dp"
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp"
                         android:text="@string/paste"
                         android:textSize="22sp" />
 
@@ -108,7 +109,7 @@
                     android:id="@+id/tvMaxAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:visibility="gone"
                     android:text="@string/max_btc"
                     android:textSize="18sp" />
@@ -140,7 +141,7 @@
             android:id="@+id/tvHowIsItCalculated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:visibility="gone"
             android:text="@string/how_is_it_calculated"
             android:textSize="16sp"
@@ -172,8 +173,8 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/max"
                 android:textSize="20sp" />
 
@@ -188,8 +189,8 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
 
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/ok"
                 android:textSize="20sp" />
         </LinearLayout>
