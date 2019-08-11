@@ -18,7 +18,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/buttonspacing"
             android:layout_gravity="start">
-            <!--<android.support.v7.widget.GridLayout-->
 
 
             <LinearLayout

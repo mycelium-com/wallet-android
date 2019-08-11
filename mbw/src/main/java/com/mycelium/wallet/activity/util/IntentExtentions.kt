@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.util
 
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.app.FragmentManager
+import androidx.fragment.app.FragmentManager
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipSss

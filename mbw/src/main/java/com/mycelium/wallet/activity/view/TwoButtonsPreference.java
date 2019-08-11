@@ -2,8 +2,8 @@ package com.mycelium.wallet.activity.view;
 
 
 import android.content.Context;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceViewHolder;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceViewHolder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
