@@ -2,9 +2,9 @@ package com.mycelium.wallet.external.changelly;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.View;
@@ -13,28 +13,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Predicate;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mycelium.wallet.AccountManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wallet.activity.view.ValueKeyboard;
-import com.mycelium.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
-import com.mycelium.wapi.wallet.AbstractAccount;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +35,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
+import static com.mycelium.wallet.activity.util.WalletManagerExtensionsKt.getActiveBTCSingleAddressAccounts;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
+import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
+import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
+import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
 public class ChangellyActivity extends AppCompatActivity {
     public static final int REQUEST_OFFER = 100;
@@ -113,7 +106,7 @@ public class ChangellyActivity extends AppCompatActivity {
     private Double minAmount;
 
     private void requestOfferFunction(String amount, String fromCurrency, String toCurrency) {
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(amount);
         } catch (NumberFormatException e) {
@@ -167,26 +160,11 @@ public class ChangellyActivity extends AppCompatActivity {
                 }
             }
         });
-        List<WalletAccount> toAccounts = new ArrayList<>();
-        Collection<WalletAccount> btcBip44Accounts = AccountManager.INSTANCE.getBTCBip44Accounts().values();
-        List<WalletAccount> supportedHDAccounts = new ArrayList<>();
-        for (WalletAccount account: btcBip44Accounts) {
-            if (((HDAccount) account).getAvailableAddressTypes().contains(AddressType.P2SH_P2WPKH) ||
-                ((HDAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
-                supportedHDAccounts.add(account);
-            }
-        }
-        Collection<WalletAccount> btcSingleAccounts = AccountManager.INSTANCE.getBTCSingleAddressAccounts().values();
-        List<WalletAccount> supportedSAAccounts = new ArrayList<>();
-        for (WalletAccount account: btcSingleAccounts) {
-            if (((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2SH_P2WPKH) ||
-                ((AbstractAccount) account).getAvailableAddressTypes().contains(AddressType.P2PKH)) {
-                supportedSAAccounts.add(account);
-            }
-        }
-        toAccounts.addAll(supportedHDAccounts);
-        toAccounts.addAll(supportedSAAccounts);
-        toAccounts.addAll(AccountManager.INSTANCE.getCoinapultAccounts().values());
+        List<WalletAccount<?>> toAccounts = new ArrayList<>();
+        WalletManager walletManager = mbwManager.getWalletManager(false);
+        toAccounts.addAll(getActiveHDAccounts(walletManager));
+        toAccounts.addAll(getActiveBTCSingleAddressAccounts(walletManager));
+        toAccounts.addAll(getCoinapultAccounts(walletManager));
         accountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         accountSelector.setAdapter(accountAdapter);
         accountSelector.setSelectedItem(mbwManager.getSelectedAccount());
@@ -322,7 +300,7 @@ public class ChangellyActivity extends AppCompatActivity {
     @OnClick(R.id.btChangellyCreateTransaction)
     void offerClick() {
         String txtAmount = fromValue.getText().toString();
-        Double dblAmount;
+        double dblAmount;
         try {
             dblAmount = Double.parseDouble(txtAmount);
         } catch (NumberFormatException e) {
@@ -330,24 +308,15 @@ public class ChangellyActivity extends AppCompatActivity {
             btTakeOffer.setEnabled(false);
             return;
         }
+
         CurrencyAdapter.Item item = currencyAdapter.getItem(currencySelector.getSelectedItem());
         WalletAccount walletAccount = accountAdapter.getItem(accountSelector.getSelectedItem()).account;
-        String destination = walletAccount.getReceivingAddress().get().toString();
-        if (walletAccount instanceof CoinapultAccount) {
-            destination = walletAccount.getReceivingAddress().get().toString();
-        } else {
-            AbstractAccount account = (AbstractAccount) walletAccount;
-            if (account.getReceivingAddress(AddressType.P2SH_P2WPKH) != null) {
-                destination = account.getReceivingAddress(AddressType.P2SH_P2WPKH).toString();
-            } else if (account.getReceivingAddress(AddressType.P2PKH) != null) {
-                destination = account.getReceivingAddress(AddressType.P2PKH).toString();
-            }
-        }
         startActivityForResult(new Intent(ChangellyActivity.this, ChangellyOfferActivity.class)
                 .putExtra(ChangellyAPIService.FROM, item.currency)
                 .putExtra(ChangellyAPIService.TO, BTC)
                 .putExtra(ChangellyAPIService.AMOUNT, dblAmount)
-                .putExtra(ChangellyAPIService.DESTADDRESS, destination), REQUEST_OFFER);
+                .putExtra(ChangellyAPIService.DESTADDRESS, walletAccount.getReceiveAddress().toString()), REQUEST_OFFER);
+
     }
 
     boolean isValueForOfferOk() {
@@ -398,7 +367,7 @@ public class ChangellyActivity extends AppCompatActivity {
         return false;
     }
 
-    class GetMinCallback implements Callback<ChangellyAnswerDouble> {
+    class GetMinCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
         String from;
 
         GetMinCallback(String from) {
@@ -406,7 +375,7 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onResponse(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onResponse(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                                @NonNull Response<ChangellyAnswerDouble> response) {
             ChangellyAnswerDouble result = response.body();
             if(result == null || result.result == -1) {
@@ -427,13 +396,13 @@ public class ChangellyActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onFailure(@NonNull Call<ChangellyAnswerDouble> call,
+        public void onFailure(@NonNull Call<ChangellyAPIService.ChangellyAnswerDouble> call,
                               @NonNull Throwable t) {
             toast("Service unavailable");
         }
     }
 
-    class GetOfferCallback implements Callback<ChangellyAnswerDouble> {
+    class GetOfferCallback implements Callback<ChangellyAPIService.ChangellyAnswerDouble> {
         final String from;
         final String to;
         final double fromAmount;

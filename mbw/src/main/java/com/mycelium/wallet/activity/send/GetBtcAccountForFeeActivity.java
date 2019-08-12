@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,14 +21,17 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.AddressBookFragment;
 import com.mycelium.wallet.activity.modern.adapter.AddressBookAdapter;
 import com.mycelium.wallet.activity.send.model.AccountForFee;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 
 public class GetBtcAccountForFeeActivity extends AppCompatActivity {
@@ -49,16 +53,15 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
 
         List<AddressBookManager.Entry> entries = new ArrayList<>();
         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        Collection<WalletAccount> uniqueAccountsList = Utils.getUniqueAccounts(_mbwManager.getWalletManager(false).getActiveAccounts());
-        for (WalletAccount account : Utils.sortAccounts(uniqueAccountsList, _mbwManager.getMetadataStorage())) {
-            Optional<Address> receivingAddress = account.getReceivingAddress();
+        for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
+            Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
             if (receivingAddress.isPresent() && account.canSpend()
-                    && !account.getReceivingAddress().equals(selectedAccount.getReceivingAddress())
-                    && !account.getCurrencyBasedBalance().confirmed.isZero()
-                    && account.getCurrencyBasedBalance().confirmed.isBtc()) {
+                    && !((WalletBtcAccount)(account)).getReceivingAddress().equals(((WalletBtcAccount)(selectedAccount)).getReceivingAddress())
+                    && !account.getAccountBalance().confirmed.isZero()
+                    && isBtc(account.getAccountBalance().confirmed.type)) {
                 String name = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
                 Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
-                entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getCurrencyBasedBalance().confirmed));
+                entries.add(new AccountForFee(receivingAddress.get(), name, drawableForAccount, account.getId(), account.getAccountBalance().confirmed));
             }
         }
 
@@ -69,11 +72,12 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
             tvNoRecords.setVisibility(View.GONE);
             lvAccounts.setVisibility(View.VISIBLE);
             lvAccounts.setAdapter(new AddressBookAdapter(this, R.layout.btc_account_for_fee_row, entries) {
+                @NonNull
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     AccountForFee accountForFee = (AccountForFee) getItem(position);
-                    ((TextView) view.findViewById(R.id.tvBalance)).setText(Utils.getFormattedValueWithUnit(accountForFee.getBalance(), _mbwManager.getBitcoinDenomination()));
+                    ((TextView) view.findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(accountForFee.getBalance(), _mbwManager.getDenomination()));
                     return view;
                 }
             });

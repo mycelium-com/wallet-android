@@ -104,9 +104,14 @@ class WapiClientElectrumX(
             }
             val transactionHistoryArray = connectionManager.write(requestsList).responses
 
-            val outputs = transactionHistoryArray.flatMap { it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable() }
+            val outputs = transactionHistoryArray.filter { it.hasResult }.flatMap {
+                it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable()
+            }
+            val isPartialResult = transactionHistoryArray.any { it.hasError && it.error!!.code == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE}
             val txIds = outputs.map { Sha256Hash.fromString(it.tx_hash) }
-
+            if (isPartialResult) {
+                return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_RESPONSE_TOO_LARGE, null)
+            }
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
         } catch (ex: CancellationException) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)

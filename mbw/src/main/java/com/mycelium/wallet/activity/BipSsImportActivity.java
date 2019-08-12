@@ -45,7 +45,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.StringHandleConfig;
+import com.mycelium.wallet.content.HandleConfigFactory;
+import com.mycelium.wallet.content.ResultType;
+
+import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getShare;
 
 public class BipSsImportActivity extends Activity {
    public static final String RESULT_SECRET = "secret";
@@ -57,7 +60,7 @@ public class BipSsImportActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   private List<BipSss.Share> shares = new ArrayList<BipSss.Share>();
+   private List<BipSss.Share> shares = new ArrayList<>();
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -109,16 +112,16 @@ public class BipSsImportActivity extends Activity {
    OnClickListener scanClickListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, StringHandleConfig.getShare());
+         ScanActivity.callMe(BipSsImportActivity.this, REQUEST_SHARE_CODE, HandleConfigFactory.getShare());
       }
    };
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (Activity.RESULT_OK == resultCode) {
          if (REQUEST_SHARE_CODE == requestCode) {
-            StringHandlerActivity.ResultType type = (StringHandlerActivity.ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
-            if (type == StringHandlerActivity.ResultType.SHARE) {
-               BipSss.Share share = StringHandlerActivity.getShare(intent);
+            ResultType type = (ResultType) intent.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY);
+            if (type == ResultType.SHARE) {
+               BipSss.Share share = getShare(intent);
                shares.add(share);
             }
          }

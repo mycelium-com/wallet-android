@@ -44,19 +44,18 @@ import android.content.Intent;
 import android.content.Loader;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.util.Pin;
-import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
-import com.mycelium.wallet.extsig.common.activity.ExtSigAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AccountScanManager;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignaturesAccountConfig;
 import com.squareup.otto.Subscribe;
 import nordpol.android.TagDispatcher;
 
@@ -161,10 +160,10 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
          MbwManager mbwManager = MbwManager.getInstance(getContext());
 
          UUID acc = mbwManager.getWalletManager(false)
-                 .createExternalSignatureAccount(
+                 .createAccounts(new ExternalSignaturesAccountConfig(
                          item.publicKeyNodes,
                          ledgerManager,
-                         item.accountHdKeysPaths.iterator().next().getLastIndex());
+                         item.accountHdKeysPaths.iterator().next().getLastIndex())).get(0);
 
          // Mark this account as backup warning ignored
          mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
@@ -209,11 +208,11 @@ public class LedgerAccountImportActivity extends LedgerAccountSelectorActivity i
 
                         if (!nextAccounts.isEmpty()) {
                            final UUID acc = mbwManager.getWalletManager(false)
-                                 .createExternalSignatureAccount(
+                                 .createAccounts(new ExternalSignaturesAccountConfig(
                                        nextAccounts,
                                        (LedgerManager) masterseedScanManager,
                                        nextAccounts.get(0).getIndex()
-                                 );
+                                 )).get(0);
 
                            mbwManager.getMetadataStorage().setOtherAccountBackupState(acc, MetadataStorage.BackupState.IGNORED);
 

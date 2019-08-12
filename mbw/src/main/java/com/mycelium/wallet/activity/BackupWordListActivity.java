@@ -39,7 +39,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
@@ -75,7 +75,7 @@ public class BackupWordListActivity extends AppCompatActivity {
       MbwManager _mbwManager = MbwManager.getInstance(this);
       Bip39.MasterSeed masterSeed;
       try {
-         masterSeed = _mbwManager.getWalletManager(false).getMasterSeed(AesKeyCipher.defaultKeyCipher());
+         masterSeed = _mbwManager.getMasterSeedManager().getMasterSeed(AesKeyCipher.defaultKeyCipher());
       } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
          throw new RuntimeException(invalidKeyCipher);
       }

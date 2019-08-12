@@ -1,12 +1,12 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Activity
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -15,8 +15,8 @@ import com.mycelium.wallet.databinding.ExportAsQrBtcHdActivityBinding
 import com.mycelium.wallet.databinding.ExportAsQrBtcSaActivityBinding
 import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
 import java.util.*
 
@@ -92,7 +92,7 @@ class ExportAsQrActivity : AppCompatActivity() {
         private const val ACCOUNT_UUID = "accountUUID"
 
         @JvmStatic
-        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount) {
+        fun callMe(currentActivity: Activity, accountData: ExportableAccount.Data, account: WalletAccount<*>) {
             val intent = Intent(currentActivity, ExportAsQrActivity::class.java)
                     .putExtra(ACCOUNT_DATA, accountData)
                     .putExtra(ACCOUNT_UUID, account.id)

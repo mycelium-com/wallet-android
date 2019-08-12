@@ -36,8 +36,8 @@ package com.mycelium.wallet.activity.main;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,10 +50,11 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.address.AddressFragment;
 import com.mycelium.wallet.activity.rmc.RMCAddressFragment;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.squareup.otto.Subscribe;
 
 public class BalanceMasterFragment extends Fragment {
@@ -75,8 +76,8 @@ public class BalanceMasterFragment extends Fragment {
 
     private void defineAddressAccountView(FragmentTransaction fragmentTransaction, WalletAccount account) {
         fragmentTransaction.replace(R.id.phFragmentAddress,
-                account instanceof ColuAccount && ((ColuAccount) account).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC ?
-                        new RMCAddressFragment() : new AddressFragment());
+                (account.getCoinType() == RMCCoin.INSTANCE || account.getCoinType() == RMCCoinTest.INSTANCE) ?
+                new RMCAddressFragment() : new AddressFragment());
     }
 
     @Override

@@ -16,24 +16,19 @@
 
 package com.mrd.bitlib.model;
 
-import com.google.common.base.Function;
 import com.mrd.bitlib.bitcoinj.Base58;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 
 public class Address implements Serializable, Comparable<Address> {
    private static final long serialVersionUID = 1L;
    public static final int NUM_ADDRESS_BYTES = 21;
-   public static final Function<? super String,Address> FROM_STRING = new Function<String, Address>() {
-      @Override
-      public Address apply(String input) {
-         return Address.fromString(input);
-      }
-   };
 
    private byte[] _bytes;
    private String _address;
@@ -243,7 +238,7 @@ public class Address implements Serializable, Comparable<Address> {
    }
 
    @Override
-   public int compareTo(Address other) {
+   public int compareTo(@NotNull Address other) {
       // We sort on the actual address bytes.
       // We wish to achieve consistent sorting, the exact order is not
       // important.

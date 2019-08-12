@@ -1,58 +1,61 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.text.Html
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wapi.wallet.AbstractAccount
+import com.mycelium.wallet.activity.util.toString
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.bip44.HDAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.btc.BtcAddress
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.coins.Value
 
 class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(application) {
     val addressType: MutableLiveData<AddressType> = MutableLiveData()
 
-    override fun init(account: WalletAccount, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
+    override fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean) {
         super.init(account, hasPrivateKey, showIncomingUtxo)
         model = ReceiveCoinsModel(getApplication(), account, ACCOUNT_LABEL, showIncomingUtxo)
-        addressType.value = account.receivingAddress.get().type
+        addressType.value = (account as WalletBtcAccount).receivingAddress.get().type
     }
 
     fun setAddressType(addressType: AddressType) {
         this.addressType.value = addressType
         model.receivingAddress.value = when (account) {
-            is HDAccount -> (account as HDAccount).getReceivingAddress(addressType)!!
-            is SingleAddressAccount -> (account as SingleAddressAccount).getAddress(addressType)
+            is HDAccount -> BtcAddress(Utils.getBtcCoinType(), (account as HDAccount).getReceivingAddress(addressType)!!)
+            is SingleAddressAccount -> BtcAddress(Utils.getBtcCoinType(), (account as SingleAddressAccount).getAddress(addressType))
             else -> throw IllegalStateException()
         }
         model.updateObservingAddress()
     }
 
-    fun getAccountDefaultAddressType(): AddressType = when (account) {
-        is HDAccount -> (account as HDAccount).receivingAddress.get().type
-        is SingleAddressAccount -> (account as SingleAddressAccount).address.type
-        else -> throw IllegalStateException()
+    fun getAccountDefaultAddressType(): AddressType {
+        return when (account) {
+            is HDAccount -> (account as HDAccount).receivingAddress.get().type
+            is SingleAddressAccount -> (account as SingleAddressAccount).address.type
+            else -> throw IllegalStateException()
+        }
     }
 
     fun setCurrentAddressTypeAsDefault() {
-        (account as AbstractAccount).setDefaultAddressType(addressType.value)
+        (account as AbstractBtcAccount).setDefaultAddressType(addressType.value)
         this.addressType.value = addressType.value // this is required to update UI
     }
 
-    fun getAvailableAddressTypesCount() = (account as AbstractAccount).availableAddressTypes.size
+    fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
 
-    override fun getHint() = context.getString(R.string.amount_hint_denomination,
-                mbwManager.bitcoinDenomination.toString())
 
     override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: CurrencyValue) = Utils.getFormattedValueWithUnit(sum, mbwManager.bitcoinDenomination)
+    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.denomination)
 
     fun showAddressTypesInfo(activity: AppCompatActivity) {
         // building message based on networking preferences
@@ -80,6 +83,14 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     override fun saveInstance(outState: Bundle) {
         outState.putSerializable(ADDRESS_TYPE, addressType.value)
         super.saveInstance(outState)
+    }
+
+    override fun getTitle(): String {
+        return if (Value.isNullOrZero(model.amount.value)) {
+            context.getString(R.string.address_title, context.getString(R.string.bitcoin_name))
+        } else {
+            context.getString(R.string.payment_request)
+        }
     }
 
     companion object {

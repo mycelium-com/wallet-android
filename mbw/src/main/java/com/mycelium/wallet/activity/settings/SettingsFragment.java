@@ -10,22 +10,21 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.PreferenceViewHolder;
-import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.PreferenceViewHolder;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -40,22 +39,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
-import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.util.CoinUtil;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
-import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wallet.MinerFee;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
@@ -63,39 +58,34 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
-import com.mycelium.wallet.event.SpvSyncChanged;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wallet.modularisation.BCHHelper;
-import com.mycelium.wallet.modularisation.GooglePlayModuleCollection;
-import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.squareup.otto.Subscribe;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static com.mycelium.wallet.MinerFee.*;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-    public static final CharMatcher AMOUNT = CharMatcher.javaDigit().or(CharMatcher.anyOf(".,"));
     private static final int REQUEST_CODE_UNINSTALL = 1;
     // adding extra info to preferences (for search)
-    private static final String TAG = "settingsfragmenttag";
-
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference _bitcoinDenomination;
+    private ListPreference _denomination;
     private Preference _localCurrency;
     private ListPreference _exchangeSource;
     private CheckBoxPreference _ltNotificationSound;
@@ -107,7 +97,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
-    private PreferenceCategory modulesPrefs;
     private Preference externalPreference;
     private Preference versionPreference;
     private CheckBoxPreference localTraderDisable;
@@ -226,7 +215,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
         _ltManager = _mbwManager.getLocalTraderManager();
         // Bitcoin Denomination
-        _bitcoinDenomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
+        _denomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
@@ -245,7 +234,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
         // external Services
-        modulesPrefs = (PreferenceCategory) findPreference("modulesPrefs");
         localTraderDisable = (CheckBoxPreference) findPreference("ltDisable");
         externalPreference = findPreference("external_services");
         versionPreference = findPreference("updates");
@@ -396,22 +384,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        modulesPrefs.removeAll();
-        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
-            processPairedModules(modulesPrefs);
+        final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
+        String defaultValue = "";
+        for (Denomination value : Denomination.values()) {
+            String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
+            denominationMap.put(key, value);
+            if (value == _mbwManager.getDenomination()) {
+                defaultValue = key;
+            }
         }
-        processUnpairedModules(modulesPrefs);
-
-        _bitcoinDenomination.setDefaultValue(_mbwManager.getBitcoinDenomination().toString());
-        _bitcoinDenomination.setValue(_mbwManager.getBitcoinDenomination().toString());
-        CharSequence[] denominations = new CharSequence[]{CoinUtil.Denomination.BTC.toString(), CoinUtil.Denomination.mBTC.toString(),
-                CoinUtil.Denomination.uBTC.toString(), CoinUtil.Denomination.BITS.toString()};
-        _bitcoinDenomination.setEntries(denominations);
-        _bitcoinDenomination.setEntryValues(denominations);
-        _bitcoinDenomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        _denomination.setDefaultValue(defaultValue);
+        _denomination.setValue(defaultValue);
+        _denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
+        _denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBitcoinDenomination(CoinUtil.Denomination.fromString(newValue.toString()));
+                _mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
                 return true;
             }
         });
@@ -427,7 +416,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
-        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[exchangeSourceNamesList.size()]);
+        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
         _exchangeSource.setEntries(exchangeNames);
         if (exchangeNames.length == 0) {
             _exchangeSource.setEnabled(false);
@@ -465,10 +454,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setSummary(getMinerFeeSummary());
         _minerFee.setValue(_mbwManager.getMinerFee().toString());
         CharSequence[] minerFees = new CharSequence[]{
-                MinerFee.LOWPRIO.toString(),
-                MinerFee.ECONOMIC.toString(),
-                MinerFee.NORMAL.toString(),
-                MinerFee.PRIORITY.toString()};
+                LOWPRIO.toString(),
+                ECONOMIC.toString(),
+                NORMAL.toString(),
+                PRIORITY.toString()};
         CharSequence[] minerFeeNames = new CharSequence[]{
                 getString(R.string.miner_fee_lowprio_name),
                 getString(R.string.miner_fee_economic_name),
@@ -479,7 +468,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setMinerFee(MinerFee.fromString(newValue.toString()));
+                _mbwManager.setMinerFee(fromString(newValue.toString()));
                 _minerFee.setSummary(getMinerFeeSummary());
                 String description = _mbwManager.getMinerFee().getMinerFeeDescription(getActivity());
                 Utils.showSimpleMessageDialog(getActivity(), description);
@@ -588,9 +577,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -685,44 +672,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if(searchView.isIconified())
+            if(searchView.isIconified()) {
                 getActivity().finish();
-            else
+            } else {
                 searchView.setIconified(true);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void processPairedModules(PreferenceCategory modulesPrefs) {
-        for (final Module module : CommunicationManager.getInstance().getPairedModules()) {
-            final ButtonPreference preference = createUninstallableModulePreference(module);
-            modulesPrefs.addPreference(preference);
-        }
-    }
-
-    private void processUnpairedModules(PreferenceCategory modulesPrefs) {
-        for (final Module module : GooglePlayModuleCollection.getModules(getActivity()).values()) {
-            if (!CommunicationManager.getInstance().getPairedModules().contains(module)) {
-                if (Utils.isAppInstalled(getActivity(), module.getModulePackage()) && ModularisationVersionHelper.isUpdateRequired(getActivity(), module.getModulePackage())) {
-                    TwoButtonsPreference preference = createUpdateRequiredPreference(module);
-                    modulesPrefs.addPreference(preference);
-                    preference.setEnabled(false, true, true);
-                } else if (Utils.isAppInstalled(getActivity(), module.getModulePackage())) {
-                    final ButtonPreference preference = createUninstallableModulePreference(module);
-                    preference.setEnabled(false);
-                    preference.setButtonEnabled(true);
-                    modulesPrefs.addPreference(preference);
-                } else {
-                    ButtonPreference installPreference = new ButtonPreference(getActivity());
-                    installPreference.setButtonText(getString(R.string.install));
-                    installPreference.setButtonClickListener(getInstallClickListener(module));
-                    installPreference.setTitle(Html.fromHtml(module.getName()));
-                    installPreference.setSummary(module.getDescription());
-                    modulesPrefs.addPreference(installPreference);
-                }
-            }
-        }
     }
 
     @NonNull
@@ -732,7 +689,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module);
-        updateModuleSyncAsync(preference);
         preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -765,7 +721,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setTitle(Html.fromHtml(module.getName()));
         preference.setKey("Module_" + module.getModulePackage());
         updateModulePreference(preference, module);
-        updateModuleSyncAsync(preference);
         preference.setButtonsText(getString(R.string.uninstall), getString(R.string.update));
         preference.setTopButtonClickListener(new View.OnClickListener() {
             @Override
@@ -778,29 +733,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
         preference.setBottomButtonClickListener(getInstallClickListener(module));
         return preference;
-    }
-
-    private void updateModuleSyncAsync(final ModulePreference preference) {
-        new UpdateModuleSync(preference).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static class UpdateModuleSync extends AsyncTask<Void, Void, Float> {
-        private ModulePreference preference;
-
-        public UpdateModuleSync(ModulePreference preference) {
-            this.preference = preference;
-        }
-
-        @Override
-        protected Float doInBackground(Void... voids) {
-            return BCHHelper.getBCHSyncProgress(preference.getContext());
-        }
-
-        @Override
-        protected void onPostExecute(Float aFloat) {
-            super.onPostExecute(aFloat);
-            updateModulePreferenceSync(preference, aFloat);
-        }
     }
 
     @NonNull
@@ -824,16 +756,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             pleaseWait.show();
             if (resultCode == RESULT_CANCELED) {
                 pleaseWait.dismiss();
-                for (int index = 0; index < modulesPrefs.getPreferenceCount(); index++) {
-                    Preference preferenceButton = modulesPrefs.getPreference(index);
-                    if (preferenceButton instanceof ButtonPreference) {
-                        if (!ModularisationVersionHelper.isUpdateRequired(getActivity(), preferenceButton.getKey().replace("Module_", ""))) {
-                            preferenceButton.setEnabled(true);
-                        }
-                    } else if (preferenceButton instanceof TwoButtonsPreference) {
-                        ((TwoButtonsPreference) preferenceButton).setEnabled(false, true, true);
-                    }
-                }
             }
         }
     }
@@ -851,40 +773,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preference.setSyncStateText(syncStatus);
     }
 
-    @Subscribe
-    public void onSyncStateChanged(SpvSyncChanged syncChanged) {
-        String bchPackage = "Module_" + WalletApplication.getSpvModuleName(WalletAccount.Type.BCHBIP44);
-        Preference preference = modulesPrefs.findPreference(bchPackage);
-        updateModulePreferenceSync((ButtonPreference) preference, syncChanged.chainDownloadPercentDone);
-    }
-
     @Override
     public void onResume() {
         setupLocalTraderSettings();
         _localCurrency.setTitle(localCurrencyTitle());
         _localCurrency.setSummary(localCurrencySummary());
-        _mbwManager.getEventBus().register(this);
-        modulesPrefs.removeAll();
-        if (!CommunicationManager.getInstance().getPairedModules().isEmpty()) {
-            processPairedModules(modulesPrefs);
-        }
-        processUnpairedModules(modulesPrefs);
+        MbwManager.getEventBus().register(this);
         super.onResume();
     }
 
     private ProgressDialog pleaseWait;
 
-
     @Override
     public void onPause() {
-        _mbwManager.getEventBus().unregister(this);
+        MbwManager.getEventBus().unregister(this);
         refreshPreferences();
         if (pleaseWait != null) pleaseWait.dismiss();
         super.onPause();
     }
 
-    private void refreshPreferences()
-    {
+    private void refreshPreferences() {
         getPreferenceScreen().removeAll();
         for (Preference preference : rootPreferenceList)
             getPreferenceScreen().addPreference(preference);
@@ -965,18 +873,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (_mbwManager.hasFiatCurrency()) {
-            String currency = _mbwManager.getFiatCurrency();
-            List<String> currencyList = _mbwManager.getCurrencyList();
-            currencyList.remove(currency);
+            GenericAssetInfo currentCurrency = _mbwManager.getFiatCurrency();
+            String currencies = currentCurrency.getSymbol();
+            List<GenericAssetInfo> currencyList = _mbwManager.getCurrencyList();
+            currencyList.remove(currentCurrency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop
-                currency += ", " + currencyList.get(i);
+                currencies += ", " + currencyList.get(i).getSymbol();
             }
             if (_mbwManager.getCurrencyList().size() > 3) {
                 //multiple selected, add ...
-                currency += "...";
+                currencies += "...";
             }
-            return currency;
+            return currencies;
         } else {
             //nothing selected
             return getResources().getString(R.string.pref_no_fiat_selected);
@@ -984,8 +893,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String getMinerFeeSummary() {
+        int blocks = 0;
+        switch (_mbwManager.getMinerFee()){
+            case LOWPRIO:
+                blocks = 20;
+                break;
+            case NORMAL:
+                blocks = 3;
+                break;
+            case PRIORITY:
+                blocks = 1;
+                break;
+        }
         return getResources().getString(R.string.pref_miner_fee_block_summary,
-                Integer.toString(_mbwManager.getMinerFee().getNBlocks()));
+                Integer.toString(blocks));
     }
 
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {
@@ -1017,7 +938,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             emailEdit = new AppCompatEditText(getActivity()) {
                 @Override
                 protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-
                     super.onTextChanged(text, start, lengthBefore, lengthAfter);
                     if (okButton != null) { //setText is also set before the alert is finished constructing
                         boolean validMail = Strings.isNullOrEmpty(text.toString()) || //allow empty email, this removes email notifications

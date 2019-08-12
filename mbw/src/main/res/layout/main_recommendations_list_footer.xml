@@ -11,7 +11,7 @@
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:paddingBottom="12dp"
-        android:paddingLeft="12dp"
+        android:paddingStart="12dp"
         android:text="@string/partner_more_info"
         android:textColor="#53b3ff" />
 </LinearLayout>

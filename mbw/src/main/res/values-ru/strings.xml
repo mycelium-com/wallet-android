@@ -122,8 +122,8 @@
     <string name="export_to_clipboard_warning">Предупреждение: Экспорт закрытого ключа аккаунта в буфер обмена делает его доступным для других приложений на вашем устройстве.\n\nДержать ваш закрытый ключ в буфере обмена рискованно, необходимо скопировать его куда либо в безопасное место.\n\nХотите продолжить?</string>
     <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
     <string name="found_clipboard_public_key_title">В буфере обмена обнаружен публичный ключ</string>
-    <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\r\nВы хотите удалить его?</string>
-    <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\r\nВы хотите удалить его?</string>
+    <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\nВы хотите удалить его?</string>
+    <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\nВы хотите удалить его?</string>
     <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
     <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
     <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
@@ -509,9 +509,6 @@
     <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
     <string name="button_continue">Продолжить</string>
     <string name="butto_show_release_notes">Показать детали</string>
-    <string name="title_no_spvmodule_warning">Не найден SPV модуль</string>
-    <string name="no_spvmodule_warning_install">Установить</string>
-    <string name="no_spvmodule_warning_ignore">Закрыть кошелек</string>
     <string name="google_play_not_found">Google Play не найден</string>
     <string name="word_does_not_exist_in_wordlist">Слово, которое вы ввели, не существует в списке слов</string>
     <string name="pref_legacy_backup_title">Резервная копия старого образца</string>
@@ -817,7 +814,6 @@
     <string name="both_rmc_will_deleted" formatted="false">Оба аккаунта: %s and %s будут удалены.</string>
     <string name="total_rmc_issued_value">25000</string>
     <string name="restore_address_as">Восстановить адрес как</string>
-    <string name="restore_addres_as">Восстановить адрес как</string>
     <string name="verify_message">Проверить сообщение</string>
     <string name="changelly">Changelly</string>
     <string name="changelly_choose_your_currency">Выберите параметры обмена</string>
@@ -880,4 +876,9 @@
     <string name="bech32_receive_mode">SegWit native (Bech32)</string>
     <string name="tap_next">Тап для %s</string>
     <string name="account_upgraded">Аккаунт %d только что стал SegWit-совместимым</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Содержит %1$d приватный ключ.</item>
+        <item quantity="few">Содержит %1$d приватных ключа.</item>
+        <item quantity="many">Содержит %1$d приватных ключей.</item>
+    </plurals>
 </resources>

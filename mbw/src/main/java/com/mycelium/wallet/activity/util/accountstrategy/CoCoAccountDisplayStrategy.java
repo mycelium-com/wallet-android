@@ -3,9 +3,7 @@ package com.mycelium.wallet.activity.util.accountstrategy;
 import android.content.Context;
 
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
     private final ColuAccount account;
@@ -18,21 +16,16 @@ public class CoCoAccountDisplayStrategy implements AccountDisplayStrategy {
 
     @Override
     public String getLabel() {
-        return account.getColuAsset().label;
+        return account.getCoinType().getName();
     }
 
     @Override
     public String getCurrencyName() {
-        return account.getColuAsset().name;
+        return account.getCoinType().getSymbol();
     }
 
     @Override
     public String getHint() {
-        return context.getString(R.string.amount_hint_denomination, account.getAccountDefaultCurrency());
-    }
-
-    @Override
-    public String getFormattedValue(CurrencyValue sum) {
-        return Utils.getColuFormattedValueWithUnit(sum);
+        return context.getString(R.string.amount_hint_denomination, account.getCoinType().getSymbol());
     }
 }

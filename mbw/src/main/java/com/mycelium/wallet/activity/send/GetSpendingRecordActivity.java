@@ -38,7 +38,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +48,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.mycelium.wallet.BitcoinUri;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -56,14 +55,16 @@ import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetSpendingRecordActivity extends Activity {
+import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
-   private BitcoinUri _uri;
+public class GetSpendingRecordActivity extends Activity {
+   private GenericAssetUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
    private byte[] _rawPr;
@@ -72,7 +73,7 @@ public class GetSpendingRecordActivity extends Activity {
    private AccountsAdapter accountsAdapter;
    private RecordRowBuilder builder;
 
-   public static void callMeWithResult(Activity currentActivity, BitcoinUri uri, int request) {
+   public static void callMeWithResult(Activity currentActivity, GenericAssetUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
       intent.putExtra("uri", uri);
       currentActivity.startActivityForResult(intent, request);
@@ -95,7 +96,7 @@ public class GetSpendingRecordActivity extends Activity {
       listView.setOnItemClickListener(new RecordClicked());
 
       // Get intent parameters
-      _uri = (BitcoinUri) getIntent().getSerializableExtra("uri");
+      _uri = (GenericAssetUri) getIntent().getSerializableExtra("uri");
       _rawPr = getIntent().getByteArrayExtra("rawPr");
 
       if (savedInstanceState != null){
@@ -133,7 +134,6 @@ public class GetSpendingRecordActivity extends Activity {
       }
    }
 
-
    @Override
    protected void onSaveInstanceState(Bundle outState) {
       super.onSaveInstanceState(outState);
@@ -160,14 +160,14 @@ public class GetSpendingRecordActivity extends Activity {
       View warningNoSpendingAccounts = findViewById(R.id.tvNoSpendingAccounts);
       MetadataStorage storage = _mbwManager.getMetadataStorage();
       //get accounts with key and positive balance
-      List<WalletAccount> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
+      List<WalletAccount<?>> spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccountsWithBalance();
       if (spendingAccounts.isEmpty()) {
          //if we dont have any account with a balance, just show all accounts with priv key
          spendingAccounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
       }
-      ArrayList<WalletAccount> result = new ArrayList<>();
+      ArrayList<WalletAccount<?>> result = new ArrayList<>();
       for (WalletAccount spendingAccount : spendingAccounts) {
-         if(spendingAccount.getCurrencyBasedBalance().confirmed.isBtc()) {
+         if(isBtc(spendingAccount.getAccountBalance().confirmed.type)) {
             result.add(spendingAccount);
          }
       }
@@ -194,17 +194,17 @@ public class GetSpendingRecordActivity extends Activity {
          inflater = LayoutInflater.from(context);
       }
 
-       @Override
-       @NonNull
-       public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-           ViewAccountModel account = getItem(position);
-           if (convertView == null) {
-               convertView = inflater.inflate(R.layout.record_row, null, false);
-               convertView.setTag(new AccountViewHolder(convertView));
-           }
-           RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources());
-           recordRowBuilder.buildRecordView((AccountViewHolder) convertView.getTag(), account, false, false);
-           return convertView;
-       }
+      @Override
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+         ViewAccountModel account = getItem(position);
+         if (convertView == null) {
+            convertView = inflater.inflate(R.layout.record_row, null, false);
+            convertView.setTag(new AccountViewHolder(convertView));
+         }
+         RecordRowBuilder recordRowBuilder = new RecordRowBuilder(_mbwManager, getResources());
+         recordRowBuilder.buildRecordView((AccountViewHolder) convertView.getTag(), account, false, false);
+         return convertView;
+      }
    }
 }

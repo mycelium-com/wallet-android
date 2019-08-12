@@ -40,32 +40,40 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
+
 import com.btchip.BTChipDongle.BTChipOutput;
 import com.btchip.BTChipDongle.BTChipOutputKeycard;
 import com.btchip.BTChipDongle.UserConfirmation;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.TransactionOutput;
-import com.mrd.bitlib.util.CoinUtil;
-import com.mycelium.wallet.*;
+import com.mycelium.wallet.LedgerPin2FADialog;
+import com.mycelium.wallet.LedgerPinDialog;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.PinDialog;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.Pin;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
 import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.AccountScanManager.Status;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.BtcTransaction;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.squareup.otto.Subscribe;
-import nordpol.android.TagDispatcher;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class LedgerSignTransactionActivity extends SignTransactionActivity {
+import nordpol.android.TagDispatcher;
 
+public class LedgerSignTransactionActivity extends SignTransactionActivity {
    private final LedgerManager ledgerManager = MbwManager.getInstance(this).getLedgerManager();
    private boolean showTx;
    private TagDispatcher dispatcher;
@@ -88,7 +96,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    protected void onResume() {
       super.onResume();
       // setup the handlers for the Ledger manager to this activity
-      MbwManager.getInstance(this).getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       updateUi();
       dispatcher.enableExclusiveNfc();
    }
@@ -97,7 +105,7 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
    protected void onPause() {
       super.onPause();
       // unregister me as event handler for Ledger
-      MbwManager.getInstance(this).getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       dispatcher.disableExclusiveNfc();
    }
 
@@ -114,7 +122,6 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       dispatcher.interceptIntent(intent);
    }
 
-
    private void updateUi() {
       if ((ledgerManager.getCurrentState() != AccountScanManager.Status.unableToScan) &&
             (ledgerManager.getCurrentState() != AccountScanManager.Status.initializing)) {
@@ -129,11 +136,12 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          findViewById(R.id.ivConnectLedger).setVisibility(View.GONE);
          findViewById(R.id.llShowTx).setVisibility(View.VISIBLE);
 
-         ArrayList<String> toAddresses = new ArrayList<String>(1);
+         ArrayList<String> toAddresses = new ArrayList<>(1);
 
          long totalSending = 0;
+         UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
 
-         for (TransactionOutput o : _unsigned.getOutputs()) {
+         for (TransactionOutput o : unsigned.getOutputs()) {
             Address toAddress;
             toAddress = o.script.getAddress(_mbwManager.getNetwork());
             Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
@@ -146,9 +154,9 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
          }
 
          String toAddress = Joiner.on(",\n").join(toAddresses);
-         String amount = CoinUtil.valueString(totalSending, false) + " BTC";
-         String total = CoinUtil.valueString(totalSending + _unsigned.calculateFee(), false) + " BTC";
-         String fee = CoinUtil.valueString(_unsigned.calculateFee(), false) + " BTC";
+         String amount = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(totalSending));
+         String total = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(totalSending + unsigned.calculateFee()));
+         String fee = ValueExtensionsKt.toString(Utils.getBtcCoinType().value(unsigned.calculateFee()));
 
          ((TextView) findViewById(R.id.tvAmount)).setText(amount);
          ((TextView) findViewById(R.id.tvToAddress)).setText(toAddress);
@@ -157,15 +165,13 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       } else {
          findViewById(R.id.llShowTx).setVisibility(View.GONE);
       }
-
    }
 
-   private boolean showPinPad(int title, final PinDialog.OnPinEntered callback) {
+   private void showPinPad(int title, final PinDialog.OnPinEntered callback) {
       LedgerPinDialog pin = new LedgerPinDialog(LedgerSignTransactionActivity.this, true);
       pin.setTitle(title);
       pin.setOnPinValid(callback);
       pin.show();
-      return true;
    }
 
    final Handler disconnectHandler = new Handler(new Handler.Callback() {
@@ -189,8 +195,9 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
    private void onUserConfirmationRequest2FA(BTChipOutput outputParam) {
       BTChipOutputKeycard output = (BTChipOutputKeycard) outputParam;
-      ArrayList<String> toAddresses = new ArrayList<String>(1);
-      for (TransactionOutput o : _unsigned.getOutputs()) {
+      ArrayList<String> toAddresses = new ArrayList<>(1);
+      UnsignedTransaction unsigned = ((BtcTransaction) _transaction).getUnsignedTx();
+      for (TransactionOutput o : unsigned.getOutputs()) {
          Address toAddress;
          toAddress = o.script.getAddress(_mbwManager.getNetwork());
          Optional<Integer[]> addressId = ((HDAccount) _account).getAddressId(toAddress);
@@ -216,14 +223,11 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
    @NonNull
    private String convertPin2Fa(String pin) {
-      try {
-         byte[] binaryPin = new byte[pin.length()];
-         for (int i = 0; i < pin.length(); i++) {
-            binaryPin[i] = (byte) Integer.parseInt(pin.substring(i, i + 1), 16);
-         }
-         pin = new String(binaryPin, "ISO-8859-1");
-      } catch (UnsupportedEncodingException e) {
+      byte[] binaryPin = new byte[pin.length()];
+      for (int i = 0; i < pin.length(); i++) {
+         binaryPin[i] = (byte) Integer.parseInt(pin.substring(i, i + 1), 16);
       }
+      pin = new String(binaryPin, StandardCharsets.ISO_8859_1);
       return pin;
    }
 
@@ -268,7 +272,6 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
       // there is already the signing task running - run this on a different thread to get it executed now
       asyncCheckUnpluggedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, 1);
    }
-
 
    private void onUserConfirmationRequestKeyboard() {
       showTx = true;
@@ -330,8 +333,5 @@ public class LedgerSignTransactionActivity extends SignTransactionActivity {
 
          onUserConfirmationRequest2FA(event.output);
       }
-
    }
-
-
 }

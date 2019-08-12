@@ -4,7 +4,7 @@
     <data>
         <variable
             name="activity"
-            type="android.support.v4.app.FragmentActivity" />
+            type="androidx.fragment.app.FragmentActivity" />
 
         <variable
             name="viewModel"
@@ -20,9 +20,9 @@
         <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@+id/qrView"
-                android:layout_alignParentLeft="true"
-                android:layout_marginLeft="20dp"
+                android:layout_toStartOf="@+id/qrView"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="20dp"
                 android:layout_centerVertical="true">
 
             <LinearLayout
@@ -31,9 +31,9 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_transparent_slim"
                 android:clickable="true"
+                android:focusable="true"
                 android:layout_gravity="center"
                 android:orientation="vertical">
-
 
                 <include
                     layout="@layout/address_fragment_label"

@@ -46,7 +46,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +65,6 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetFinalTradeSessions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -78,14 +77,10 @@ public class TradeHistoryFragment extends Fragment {
    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View ret = checkNotNull(inflater.inflate(R.layout.lt_recent_trades_fragment, container, false));
       setHasOptionsMenu(true);
-      ListView ordersList = (ListView) ret.findViewById(R.id.lvRecentTrades);
+      ListView ordersList = ret.findViewById(R.id.lvRecentTrades);
       ordersList.setOnItemClickListener(itemListClickListener);
 
       return ret;
-   }
-
-   private View findViewById(int id) {
-      return getView().findViewById(id);
    }
 
    @Override
@@ -99,7 +94,7 @@ public class TradeHistoryFragment extends Fragment {
    public void onResume() {
       _myAdapter = new Wrapper(getActivity(), new ArrayList<TradeSession>());
       if (_ltManager.hasLocalTraderAccount()) {
-         ListView list = (ListView) findViewById(R.id.lvRecentTrades);
+         ListView list = getView().findViewById(R.id.lvRecentTrades);
          list.setAdapter(_myAdapter);
       }
       super.onResume();
@@ -168,7 +163,7 @@ public class TradeHistoryFragment extends Fragment {
          // Set Date
          Date date = new Date(o.lastChange);
          DateFormat dateFormat = date.before(_midnight) ? _dayFormat : _hourFormat;
-         TextView tvDate = (TextView) v.findViewById(R.id.tvDate);
+         TextView tvDate = v.findViewById(R.id.tvDate);
          tvDate.setText(dateFormat.format(date));
          ((TextView) v.findViewById(R.id.tvDate)).setText(dateFormat.format(date));
 
@@ -183,7 +178,7 @@ public class TradeHistoryFragment extends Fragment {
       private static final int FETCH_LIMIT = 10;
       private RotateAnimation rotate = null;
       private final List<TradeSession> _fetched;
-      private List<TradeSession> _toAdd;
+      private final List<TradeSession> _toAdd;
       private GetFinalTradeSessions _request;
 
       private Wrapper(Context ctxt, List<TradeSession> list) {
@@ -192,13 +187,12 @@ public class TradeHistoryFragment extends Fragment {
          rotate.setDuration(600);
          rotate.setRepeatMode(Animation.RESTART);
          rotate.setRepeatCount(Animation.INFINITE);
-         _fetched = new LinkedList<TradeSession>();
-         _toAdd = new LinkedList<TradeSession>();
+         _fetched = new LinkedList<>();
+         _toAdd = new LinkedList<>();
          _ltManager.subscribe(ltSubscriber);
       }
 
       private LocalTraderEventSubscriber ltSubscriber = new LocalTraderEventSubscriber(new Handler()) {
-
          @Override
          public void onLtError(int errorCode) {
             detach();
@@ -209,9 +203,7 @@ public class TradeHistoryFragment extends Fragment {
                if (_request != request) {
                   return;
                }
-               for (TradeSession item : list) {
-                  _fetched.add(item);
-               }
+               _fetched.addAll(list);
                _fetched.notify();
             }
          }
@@ -222,7 +214,6 @@ public class TradeHistoryFragment extends Fragment {
          synchronized (_fetched) {
             _fetched.notify();
          }
-
       }
 
       @Override
@@ -231,9 +222,6 @@ public class TradeHistoryFragment extends Fragment {
       }
 
       @Override
-      @SuppressFBWarnings(
-            justification = "looping happens anyway, but in a higher level",
-            value = "WA_NOT_IN_LOOP")
       protected boolean cacheInBackground() {
          if (!_ltManager.hasLocalTraderAccount()) {
             return false;
@@ -249,27 +237,19 @@ public class TradeHistoryFragment extends Fragment {
             }
          }
          synchronized (_toAdd) {
-            for (TradeSession item : _fetched) {
-               _toAdd.add(item);
-            }
+            _toAdd.addAll(_fetched);
          }
 
-         boolean moreToFetch = _fetched.size() == FETCH_LIMIT;
-         return moreToFetch;
+         return _fetched.size() == FETCH_LIMIT;
       }
 
       @Override
       protected void appendCachedData() {
          synchronized (_toAdd) {
             TradeSessionsAdapter a = (TradeSessionsAdapter) getWrappedAdapter();
-
-            for (TradeSession item : _toAdd) {
-               a.add(item);
-            }
+            a.addAll(_toAdd);
             _toAdd.clear();
          }
       }
-
    }
-
 }

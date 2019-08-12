@@ -5,9 +5,9 @@
     android:baselineAligned="false"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="16dp"
+    android:paddingStart="16dp"
     android:background="#2c2c2c"
-    android:paddingRight="16dp">
+    android:paddingEnd="16dp">
 
 
     <ImageView
@@ -20,11 +20,11 @@
     <LinearLayout
         android:layout_width="0dip"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:layout_weight="1"
         android:orientation="horizontal"
         android:paddingBottom="6dip"
-        android:paddingRight="1dip"
+        android:paddingEnd="1dip"
         android:paddingTop="6dip">
 
         <TextView

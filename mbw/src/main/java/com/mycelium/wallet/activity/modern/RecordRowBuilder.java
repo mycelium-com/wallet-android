@@ -34,10 +34,11 @@
 
 package com.mycelium.wallet.activity.modern;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
 
@@ -48,15 +49,23 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
-import com.mycelium.wallet.colu.ColuAccount;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
-import com.mycelium.wapi.wallet.bip44.HDPubOnlyAccount;
-import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
+import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mycelium.wapi.wallet.colu.ColuModuleKt.getColuAccounts;
+
 
 public class RecordRowBuilder {
     private final MbwManager mbwManager;
@@ -122,12 +131,9 @@ public class RecordRowBuilder {
 
         // Set balance
         if (model.isActive) {
-            CurrencyBasedBalance balance = model.balance;
+            Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = Utils.getFormattedValueWithUnit(balance.confirmed, mbwManager.getBitcoinDenomination());
-            if (model.accountType == WalletAccount.Type.COLU) {
-                balanceString = Utils.getColuFormattedValueWithUnit(balance.confirmed);
-            }
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
@@ -144,8 +150,8 @@ public class RecordRowBuilder {
             // We don't show anything if the account is archived
             holder.tvBalance.setVisibility(View.GONE);
             holder.backupMissing.setVisibility(View.GONE);
-            if (model.accountType == WalletAccount.Type.BCHBIP44
-                    || model.accountType == WalletAccount.Type.BCHSINGLEADDRESS) {
+            if (model.accountType.isInstance(Bip44BCHAccount.class)
+                    || model.accountType.isInstance(SingleAddressBCHAccount.class)) {
                 holder.tvAccountType.setText(Html.fromHtml(holder.tvAccountType.getResources().getString(R.string.bitcoin_cash)));
                 holder.tvAccountType.setVisibility(View.VISIBLE);
             } else {
@@ -172,19 +178,18 @@ public class RecordRowBuilder {
         }
     };
 
-    public ViewAccountModel convert(WalletAccount walletAccount) {
+    @SuppressLint("StringFormatMatches")
+    private ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
-        result.accountType = walletAccount.getType();
+        result.accountType = walletAccount.getClass();
         result.syncTotalRetrievedTransactions = walletAccount.getSyncTotalRetrievedTransactions();
 
-        WalletAccount linked = Utils.getLinkedAccount(walletAccount, mbwManager.getColuManager().getAccounts().values());
-        if (linked != null
-                && linked.getType() == WalletAccount.Type.COLU
-                && ((ColuAccount) linked).getColuAsset().assetType == ColuAccount.ColuAssetType.RMC) {
+        WalletAccount linked = Utils.getLinkedAccount(walletAccount, getColuAccounts(mbwManager.getWalletManager(false)));
+        if (linked != null && (linked.getCoinType().equals(RMCCoin.INSTANCE) || linked.getCoinType().equals(RMCCoinTest.INSTANCE))) {
             result.isRMCLinkedAccount = true;
         }
         result.label = mbwManager.getMetadataStorage().getLabelByAccount(walletAccount.getId());
@@ -196,7 +201,7 @@ public class RecordRowBuilder {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
                 result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
-                Optional<Address> receivingAddress = walletAccount.getReceivingAddress();
+                Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
                     if (result.label.length() == 0) {
                         // Display address in it's full glory, chopping it into three
@@ -214,14 +219,14 @@ public class RecordRowBuilder {
         }
         result.isActive = walletAccount.isActive();
         if (result.isActive) {
-            result.balance = walletAccount.getCurrencyBasedBalance();
+            result.balance = walletAccount.getAccountBalance();
             result.showBackupMissingWarning = showBackupMissingWarning(walletAccount, mbwManager);
         }
         return result;
     }
 
     @NonNull
-    public List<ViewAccountModel> convertList(List<WalletAccount> accounts) {
+    public List<ViewAccountModel> convertList(List<WalletAccount<?>> accounts) {
         List<ViewAccountModel> viewAccountList = new ArrayList<>();
         for (WalletAccount account : accounts) {
             viewAccountList.add(convert(account));

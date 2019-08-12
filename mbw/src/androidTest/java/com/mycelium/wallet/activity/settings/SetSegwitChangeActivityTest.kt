@@ -1,14 +1,14 @@
 package com.mycelium.wallet.activity.settings
 
 import android.app.Activity
-import android.support.test.InstrumentationRegistry
-import android.support.test.rule.ActivityTestRule
+import androidx.test.InstrumentationRegistry
+import androidx.test.rule.ActivityTestRule
 import android.view.View
 import com.mycelium.wallet.R
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.mycelium.wallet.Constants
-import com.mycelium.wapi.wallet.bip44.ChangeAddressMode
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 
 import org.junit.Before
 import org.junit.Rule

@@ -11,9 +11,9 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.mycelium.wallet.activity.rmc.model.BitcoinNetworkStats;
-import com.mycelium.wallet.colu.ColuAccount;
 import com.mycelium.wallet.external.rmc.remote.StatRmcFactory;
 import com.mycelium.wallet.external.rmc.remote.StatRmcService;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 import java.io.InputStream;
 import java.util.List;
@@ -52,7 +52,7 @@ public class BtcPoolStatisticsManager {
             Log.e(TAG, "service.getCommonHashrate", e);
         }
 
-        String address = coluAccount.getAddress().toString();
+        String address = coluAccount.getReceiveAddress().toString();
         long yourRmcHashrate = -1;
         try {
             yourRmcHashrate = service.getHashrate(address);

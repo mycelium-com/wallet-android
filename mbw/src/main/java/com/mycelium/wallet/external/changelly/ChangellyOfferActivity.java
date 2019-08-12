@@ -2,9 +2,9 @@ package com.mycelium.wallet.external.changelly;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +28,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
@@ -69,8 +68,12 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     @OnClick(R.id.tvSendToAddress)
     void clickAddress() {
-        Utils.setClipboardString(offer.payinAddress, this);
-        toast("Address copied to clipboard");
+        if(offer != null) {
+            Utils.setClipboardString(offer.payinAddress, this);
+            toast("Address copied to clipboard");
+        } else {
+            toast("Something went wrong. No offer");
+        }
     }
 
     @OnClick(R.id.tvFromAmount)

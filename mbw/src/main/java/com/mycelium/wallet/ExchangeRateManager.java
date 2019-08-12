@@ -37,13 +37,14 @@ package com.mycelium.wallet;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.mycelium.wallet.exchange.CoinmarketcapApi;
+import com.mycelium.wallet.exchange.GetExchangeRate;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService;
 import com.mycelium.wallet.external.changelly.ChangellyAPIService.ChangellyAnswerDouble;
@@ -53,8 +54,12 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.QueryExchangeRatesRequest;
 import com.mycelium.wapi.api.response.QueryExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -197,7 +202,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private List<QueryExchangeRatesResponse> localValues(List<String> selectedCurrencies,
-                                                                Map<String, String> savedExchangeRates) {
+                                                         Map<String, String> savedExchangeRates) {
         List<QueryExchangeRatesResponse> responses = new ArrayList<>();
 
         for (String currency : selectedCurrencies) {
@@ -401,10 +406,13 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     // set for which fiat currencies we should get fx rates for
-    void setCurrencyList(Set<String> currencies) {
+    public void setCurrencyList(Set<GenericAssetInfo> currencies) {
         synchronized (_requestLock) {
             // copy list to prevent changes from outside
-            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>().addAll(currencies);
+            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<String>();
+            for (GenericAssetInfo currency : currencies) {
+                listBuilder.add(currency.getSymbol());
+            }
             _fiatCurrencies = listBuilder.build();
         }
 
@@ -425,6 +433,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         @Override
         public void onFailure(@NonNull Call<ChangellyAnswerDouble> call, @NonNull Throwable t) {
             Toast.makeText(_applicationContext, "Service unavailable", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public Value get(Value value, GenericAssetInfo toCurrency) {
+        GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
+        BigDecimal rateValue = rate.getRate();
+        if(rateValue != null) {
+            BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.value))
+                    .movePointLeft(value.type.getUnitExponent())
+                    .round(MathContext.DECIMAL32);
+            return Value.parse(toCurrency, bigDecimal);
+        }else {
+            return null;
         }
     }
 }

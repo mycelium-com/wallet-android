@@ -41,8 +41,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -55,10 +55,12 @@ import android.widget.TextView;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.SeedFromWordsCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -94,7 +96,6 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
    private boolean usesPassphrase;
    private int numberOfWords;
    private int currentWordNum;
-   private WordAutoCompleterFragment _wordAutoCompleter;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -104,15 +105,15 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
       _mbwManager = MbwManager.getInstance(this);
       _progress = new ProgressDialog(this);
-      enteredWords = new ArrayList<String>();
-      enterWordInfo = (TextView) findViewById(R.id.tvEnterWord);
+      enteredWords = new ArrayList<>();
+      enterWordInfo = findViewById(R.id.tvEnterWord);
       findViewById(R.id.btDeleteLastWord).setOnClickListener(deleteListener);
-      _wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
-      _wordAutoCompleter.setListener(this);
-      _wordAutoCompleter.setMinimumCompletionCharacters(2);
-      _wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
+      WordAutoCompleterFragment wordAutoCompleter = (WordAutoCompleterFragment) getSupportFragmentManager().findFragmentById(R.id.wordAutoCompleter);
+      wordAutoCompleter.setListener(this);
+      wordAutoCompleter.setMinimumCompletionCharacters(2);
+      wordAutoCompleter.setCompletions(Bip39.ENGLISH_WORD_LIST);
       UsKeyboardFragment keyboard = (UsKeyboardFragment) getSupportFragmentManager().findFragmentById(R.id.usKeyboard);
-      keyboard.setListener(_wordAutoCompleter);
+      keyboard.setListener(wordAutoCompleter);
       currentWordNum = 1;
       _seedOnly = getIntent().getBooleanExtra(ONLY_SEED, false);
       if (savedInstanceState == null) {
@@ -121,26 +122,25 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       }
 
       // we don't want to proceed to enter the wordlist, we already have the master seed.
-      if (!_seedOnly && _mbwManager.getWalletManager(false).hasBip32MasterSeed()) {
+      if (!_seedOnly && _mbwManager.getMasterSeedManager().hasBip32MasterSeed()) {
          new AccountCreatorHelper.CreateAccountAsyncTask(EnterWordListActivity.this, EnterWordListActivity.this).execute();
       }
+
+      // Prevent the OS from taking screenshots of this activity
+      Utils.preventScreenshots(this);
    }
 
    private void askForWordNumber() {
       final View checkBoxView = View.inflate(this, R.layout.wordlist_checkboxes, null);
-      final CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkboxWordlistPassphrase);
-      final RadioButton words12 = (RadioButton) checkBoxView.findViewById(R.id.wordlist12);
-      final RadioButton words18 = (RadioButton) checkBoxView.findViewById(R.id.wordlist18);
-      final RadioButton words24 = (RadioButton) checkBoxView.findViewById(R.id.wordlist24);
+      final CheckBox checkBox = checkBoxView.findViewById(R.id.checkboxWordlistPassphrase);
+      final RadioButton words12 = checkBoxView.findViewById(R.id.wordlist12);
+      final RadioButton words18 = checkBoxView.findViewById(R.id.wordlist18);
+      final RadioButton words24 = checkBoxView.findViewById(R.id.wordlist24);
 
       checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
          @Override
          public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            if (b) {
-               checkBoxView.findViewById(R.id.tvPassphraseInfo).setVisibility(View.VISIBLE);
-            } else {
-               checkBoxView.findViewById(R.id.tvPassphraseInfo).setVisibility(View.GONE);
-            }
+            checkBoxView.findViewById(R.id.tvPassphraseInfo).setVisibility(b ? View.VISIBLE : View.GONE);
          }
       });
 
@@ -287,9 +287,9 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
       protected UUID doInBackground(Void... params) {
          try {
             Bip39.MasterSeed masterSeed = Bip39.generateSeedFromWordList(wordList, password);
-            _mbwManager.getWalletManager(false).configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
+            _mbwManager.getMasterSeedManager().configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
             _mbwManager.getMetadataStorage().setMasterSeedBackupState(MetadataStorage.BackupState.VERIFIED);
-            return _mbwManager.getWalletManager(false).createAdditionalBip44Account(AesKeyCipher.defaultKeyCipher());
+            return _mbwManager.getWalletManager(false).createAccounts(new AdditionalHDAccountConfig()).get(0);
          } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
             throw new RuntimeException(invalidKeyCipher);
          }

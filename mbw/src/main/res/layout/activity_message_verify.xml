@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:gravity="top|left"
+        android:gravity="top|start"
         android:lines="10" />
 
     <Button
@@ -25,6 +25,4 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/paste" />
-
-
 </LinearLayout>

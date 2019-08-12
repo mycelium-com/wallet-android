@@ -107,13 +107,6 @@
 
     </PreferenceCategory>
 
-
-
-    <PreferenceCategory
-        android:key="modulesPrefs"
-        android:layout="@layout/preference_category_layout"
-        android:title="@string/modules" />
-
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/currencies">

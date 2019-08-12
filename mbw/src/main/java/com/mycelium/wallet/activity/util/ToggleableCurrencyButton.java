@@ -35,19 +35,25 @@
 package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
+import androidx.appcompat.widget.PopupMenu;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.currency.CurrencyValue;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
@@ -67,7 +73,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    protected void updateUi(){
       super.updateUi();
 
-      final List<String> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList() : getCurrencySwitcher().getCurrencyList(CurrencyValue.BTC);
+      final List<GenericAssetInfo> currencies = getAvailableCurrencyList();
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -82,18 +88,20 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       });
 
       if (currencies.size() > 1) {
+         final Map<MenuItem, GenericAssetInfo> itemMap = new HashMap<>();
          for (int i = 0; i < currencies.size(); i++) {
-            String currency = currencies.get(i);
-            menu.getMenu().add(currency);
+            String currency = currencies.get(i).getSymbol();
+            MenuItem item = menu.getMenu().add(currency);
+            itemMap.put(item, currencies.get(i));
          }
 
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               getCurrencySwitcher().setCurrency(item.getTitle().toString());
-               if (getEventBus() != null) {
+               getCurrencySwitcher().setCurrency(itemMap.get(item));
+               if (MbwManager.getEventBus() != null) {
                   // update UI via event bus, also inform other parts of the app about the change
-                  getEventBus().post(new SelectedCurrencyChanged());
+                  MbwManager.getEventBus().post(new SelectedCurrencyChanged());
                } else {
                   updateUi();
                }
@@ -101,6 +109,21 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
             }
          });
       }
+      setVisibility(currencies.size() == 0 ? View.INVISIBLE : View.VISIBLE);
+   }
+
+   private List<GenericAssetInfo> getAvailableCurrencyList() {
+      List<GenericAssetInfo> result = new ArrayList<>();
+      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
+              : getCurrencySwitcher().getCurrencyList(Utils.getBtcCoinType());
+
+      for (GenericAssetInfo asset : currencies) {
+         Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());
+         if (exchangeValue != null) {
+            result.add(asset);
+         }
+      }
+      return result;
    }
 
    @Subscribe

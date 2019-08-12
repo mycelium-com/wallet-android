@@ -43,10 +43,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.Tab;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -72,7 +72,10 @@ import com.mycelium.wallet.lt.activity.buy.AdSearchFragment;
 import com.mycelium.wallet.lt.activity.sell.AdsFragment;
 import com.mycelium.wallet.lt.api.DeleteTrader;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
-import com.mycelium.wapi.wallet.*;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.ExportableAccount;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.Collections;
 
@@ -277,6 +280,12 @@ public class LtMainActivity extends AppCompatActivity {
 
    private void backupTraderAccount() throws KeyCipher.InvalidKeyCipher {
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(_ltManager.getLocalTraderAccountId());
+
+      // can happen if the account was deleted
+      if(account == null) {
+         Toast.makeText(getApplicationContext(), getResources().getString(R.string.lt_cant_backup), Toast.LENGTH_SHORT).show();
+         return;
+      }
       final InMemoryPrivateKey privateKey = _mbwManager.obtainPrivateKeyForAccount(account, LocalTraderManager.LT_DERIVATION_SEED, AesKeyCipher.defaultKeyCipher());
 
       ExportableAccount exportableAccount = new ExportableAccount() {

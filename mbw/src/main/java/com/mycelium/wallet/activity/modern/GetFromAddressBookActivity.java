@@ -35,10 +35,10 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.Tab;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -63,10 +63,11 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
       Tab myAddressesTab = bar.newTab();
-      Bundle bundle = addressBookBundle(true);
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class, bundle);
+      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class,
+              addressBookBundle(true, false));
       Tab contactsTab = bar.newTab();
-      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.foreign_addresses)), AddressBookFragment.class, addressBookBundle(false));
+      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
+              addressBookBundle(false, true));
 
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
@@ -77,10 +78,17 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       }
    }
 
-   private Bundle addressBookBundle(boolean own) {
+   /**
+    * Method for creating address book configuration which used in SendMainActivity
+    * @param own need for definition necessary configuration - print addresses from our wallet or not
+    * @param availableForSending need for definition necessary configuration - print only addresses available for sending or all addresses
+    * @return Bundle for address book
+    */
+   private Bundle addressBookBundle(boolean own, boolean availableForSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, availableForSending);
       return ownBundle;
    }
 }

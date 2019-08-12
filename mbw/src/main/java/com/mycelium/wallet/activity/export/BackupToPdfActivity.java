@@ -45,8 +45,8 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -341,7 +341,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
          PackageManager packageManager = getApplication().getPackageManager();
          PackageInfo packageInfo = packageManager.getPackageInfo(getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("android.support.v4.content.FileProvider")) {
+            if (info.name.equals("androidx.core.content.FileProvider")) {
                return info.authority;
             }
          }

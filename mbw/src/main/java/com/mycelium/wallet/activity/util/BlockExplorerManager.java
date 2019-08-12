@@ -43,8 +43,6 @@ import java.util.List;
 
 // BlockExplorerManager holds all BlockExplorers in List and return by Identifier
 public class BlockExplorerManager {
-
-
    private final MbwManager mbwManager;
    private final List<BlockExplorer> blockExplorerList;
    private BlockExplorer currentBlockExplorer;
@@ -54,7 +52,6 @@ public class BlockExplorerManager {
       this.blockExplorerList = blockExplorerList;
       this.currentBlockExplorer = getBlockExplorerById(blockExplorer);
    }
-
 
    public BlockExplorer getBlockExplorerById(String id) {
       for (BlockExplorer explorer : blockExplorerList) {
@@ -68,12 +65,12 @@ public class BlockExplorerManager {
       return blockExplorerList;
    }
 
-   public BlockExplorer getBlockExplorer (){
+   public BlockExplorer getBlockExplorer() {
       Preconditions.checkNotNull(currentBlockExplorer);
       // if tor mode is on and the current BE has no tor url, find the next best one
-      if(mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && !currentBlockExplorer.hasTor()){
-         for(BlockExplorer explorer : blockExplorerList){
-            if(explorer.hasTor()) {
+      if (mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR && !currentBlockExplorer.hasTor()) {
+         for (BlockExplorer explorer : blockExplorerList) {
+            if (explorer.hasTor()) {
                return explorer;
             }
          }
@@ -81,7 +78,7 @@ public class BlockExplorerManager {
       return currentBlockExplorer;
    }
 
-   public CharSequence[] getBlockExplorerIds(){
+   public CharSequence[] getBlockExplorerIds() {
       CharSequence[] ids = new CharSequence[blockExplorerList.size()];
       int index = 0;
       for (BlockExplorer explorer : blockExplorerList) {
@@ -91,7 +88,7 @@ public class BlockExplorerManager {
       return ids;
    }
 
-   public CharSequence[] getBlockExplorerNames(List<BlockExplorer> blockList){
+   public CharSequence[] getBlockExplorerNames(List<BlockExplorer> blockList) {
       CharSequence[] names = new CharSequence[blockList.size()];
       int index = 0;
       for (BlockExplorer explorer : blockList) {
@@ -100,7 +97,6 @@ public class BlockExplorerManager {
       }
       return names;
    }
-
 
    public void setBlockExplorer(BlockExplorer blockExplorer) {
       currentBlockExplorer = blockExplorer;

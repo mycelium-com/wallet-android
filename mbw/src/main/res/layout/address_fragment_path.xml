@@ -10,15 +10,15 @@
     </data>
 
     <merge>
-
         <TextView
                 android:id="@+id/tvAddressPath"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:gravity="left"
+                android:gravity="start"
                 android:textSize="12sp"
                 android:textColor="@color/lightgrey"
-                android:text="@{viewModel.addressPath}"/>
+                android:text="@{viewModel.addressPath}"
+                tools:text="m/44'/0'/0'/0/0"/>
     </merge>
 </layout>

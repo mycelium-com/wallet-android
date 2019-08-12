@@ -2,50 +2,48 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.app.NotificationManager
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import android.widget.Toast
-import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.util.CoinUtil
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
-import com.mycelium.wapi.model.TransactionSummary
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.currency.CurrencyValue
-import com.mycelium.wapi.wallet.currency.ExchangeBasedCurrencyValue
+import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
         val context: Application,
-        val account: WalletAccount,
+        val account: WalletAccount<*>,
         private val accountLabel: String,
         showIncomingUtxo: Boolean = false
 ) {
-    val amountData: MutableLiveData<CurrencyValue?> = MutableLiveData()
-    val alternativeAmountData: MutableLiveData<CurrencyValue?> = MutableLiveData()
+    val amount: MutableLiveData<Value?> = MutableLiveData()
+    val alternativeAmountData: MutableLiveData<Value?> = MutableLiveData()
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
-    val receivingAmount: MutableLiveData<CurrencyValue?> = MutableLiveData()
+    val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
-    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
+    val receivingAddress: MutableLiveData<GenericAddress> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
     private var receivingSince = System.currentTimeMillis()
-    private val accountDisplayType: AccountDisplayType = AccountDisplayType.getAccountType(account)
-    private var lastAddressBalance: CurrencyValue? = null
+    private var lastAddressBalance: Value? = null
+    private var accountDisplayType: AccountDisplayType? = null
 
     init {
         MbwManager.getEventBus().register(this)
         receivingAmountWrong.value = false
-        receivingAddress.value = account.receivingAddress.get()
+        receivingAddress.value = account.receiveAddress
 
         if (showIncomingUtxo) {
             updateObservingAddress()
@@ -53,7 +51,8 @@ class ReceiveCoinsModel(
     }
 
     fun updateObservingAddress() {
-        mbwManager.watchAddress(receivingAddress.value)
+        val address = receivingAddress.value
+        mbwManager.watchAddress(address)
     }
 
     fun onCleared() {
@@ -61,27 +60,19 @@ class ReceiveCoinsModel(
         MbwManager.getEventBus().unregister(this)
     }
 
-    fun setAmount(newAmount: CurrencyValue) {
-        if (!CurrencyValue.isNullOrZero(newAmount)) {
-            if (newAmount.currency == account.accountDefaultCurrency && newAmount.currency != mbwManager.fiatCurrency) {
-                alternativeAmountData.value = CurrencyValue.fromValue(newAmount, mbwManager.fiatCurrency, mbwManager
-                        .exchangeRateManager)
-                amountData.value = newAmount
-            } else {
-                amountData.value = if (account.accountDefaultCurrency != newAmount.currency) {
-                    // use the accounts default currency as alternative
-                    CurrencyValue.fromValue(newAmount, account.accountDefaultCurrency,
-                            mbwManager.exchangeRateManager)
-                } else {
-                    // special case for Coinapult
-                    CurrencyValue.fromValue(newAmount, CurrencyValue.BTC,
-                            mbwManager.exchangeRateManager)
-                }
-                alternativeAmountData.value = newAmount
-            }
+    fun setAmount(newAmount: Value) {
+        amount.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
         } else {
-            amountData.value = null
-            alternativeAmountData.value = null
+            null
+        }
+    }
+
+    fun setAlternativeAmount(newAmount: Value) {
+        alternativeAmountData.value = if (!Value.isNullOrZero(newAmount)) {
+            newAmount
+        } else {
+            null
         }
     }
 
@@ -90,15 +81,14 @@ class ReceiveCoinsModel(
         val uri = StringBuilder(prefix)
                 .append(':')
                 .append(receivingAddress.value)
-        if (!CurrencyValue.isNullOrZero(amountData.value)) {
+        if (!Value.isNullOrZero(amount.value)) {
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
-                uri.append("?amount=").append(amountData.value!!.value.toPlainString())
+                uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
-                val currency = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) CurrencyValue.BTC else account.accountDefaultCurrency
-                val value = ExchangeBasedCurrencyValue.fromValue(amountData.value,
-                        currency, mbwManager.exchangeRateManager).value
+                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+
                 if (value != null) {
-                    uri.append("?amount=").append(CoinUtil.valueString(value, CoinUtil.Denomination.BTC, false))
+                    uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
@@ -108,15 +98,15 @@ class ReceiveCoinsModel(
     }
 
     fun loadInstance(savedInstanceState: Bundle) {
-        amountData.value = savedInstanceState.getSerializable(AMOUNT) as CurrencyValue?
+        amount.value = savedInstanceState.getSerializable(AMOUNT) as Value?
         receivingSince = savedInstanceState.getLong(RECEIVING_SINCE)
         syncErrors = savedInstanceState.getInt(SYNC_ERRORS)
-        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as CurrencyValue?
+        lastAddressBalance = savedInstanceState.getSerializable(LAST_ADDRESS_BALANCE) as Value?
     }
 
     fun saveInstance(outState: Bundle) {
-        if (!CurrencyValue.isNullOrZero(amountData.value)) {
-            outState.putSerializable(AMOUNT, amountData.value)
+        if (!Value.isNullOrZero(amount.value)) {
+            outState.putSerializable(AMOUNT, amount.value)
         }
         outState.putLong(RECEIVING_SINCE, receivingSince)
         outState.putInt(SYNC_ERRORS, syncErrors)
@@ -138,21 +128,22 @@ class ReceiveCoinsModel(
         var sum = if (interesting.isEmpty()) {
             null
         } else {
-            interesting.first().value
+            interesting.first().transferred.abs()
         }
-        interesting.drop(1).forEach { sum = sum!!.add(it.value, mbwManager.exchangeRateManager) }
-        receivingAmount.value = sum
+        interesting.drop(1).forEach { sum = sum!!.plus(it.transferred.abs())}
+        receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
+        else Value.zeroValue(account.coinType)
 
-        if (!CurrencyValue.isNullOrZero(amountData.value) && sum != null) {
-            // if the user specified an amountData, check it if it matches up...
-            receivingAmountWrong.value = sum!! != amountData.value
+        if (!Value.isNullOrZero(amount.value) && sum != null) {
+            // if the user specified an amount, check it if it matches up...
+            receivingAmountWrong.value = sum!! != Value.valueOf(account.coinType, amount.value!!.value)
             if (sum != lastAddressBalance) {
                 makeNotification(sum)
             }
         }
     }
 
-    private fun makeNotification(sum: CurrencyValue?) {
+    private fun makeNotification(sum: Value?) {
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
         val mBuilder = NotificationCompat.Builder(context, "coins received channel")
@@ -162,8 +153,8 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: MutableList<TransactionSummary>) =
-            transactionsSince.filter { it.toAddresses.contains(receivingAddress.value) }
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransactionSummary>) =
+            transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {
         private const val MAX_SYNC_ERRORS = 8

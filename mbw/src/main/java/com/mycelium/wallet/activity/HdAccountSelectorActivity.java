@@ -42,21 +42,27 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.google.common.collect.Iterables;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wapi.wallet.AccountScanManager;
-import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
 import com.mycelium.wallet.activity.util.AbstractAccountScanManager;
-import com.mycelium.wapi.model.Balance;
+import com.mycelium.wallet.activity.util.MasterseedPasswordSetter;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.AccountScanManager;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.coins.Balance;
 import com.squareup.otto.Subscribe;
 
 import java.io.Serializable;
@@ -72,13 +78,9 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected AccountsAdapter accountsAdapter;
    protected AbstractAccountScanManager masterseedScanManager;
 
-
-
-   private ListView lvAccounts;
    protected TextView txtStatus;
 
    protected abstract AbstractAccountScanManager initMasterseedManager();
-
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +88,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
       setView();
 
-      lvAccounts = findViewById(R.id.lvAccounts);
+      ListView lvAccounts = findViewById(R.id.lvAccounts);
       txtStatus = findViewById(R.id.txtStatus);
 
       // Accounts listview + adapter
@@ -212,9 +214,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper that = (HdAccountWrapper) o;
 
-         if (id != null ? !id.equals(that.id) : that.id != null) return false;
-
-         return true;
+         return id != null ? id.equals(that.id) : that.id == null;
       }
 
       @Override
@@ -242,12 +242,13 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper account = getItem(position);
          ((TextView)row.findViewById(R.id.tvLabel)).setText(account.name);
-         WalletAccount walletAccount = MbwManager.getInstance(getContext()).getWalletManager(true).getAccount(account.id);
-         Balance balance = walletAccount.getBalance();
-         String balanceString = MbwManager.getInstance(getContext()).getBtcValueString(balance.confirmed + balance.pendingChange);
-
-         if (balance.getSendingBalance() > 0){
-            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount), MbwManager.getInstance(getContext()).getBtcValueString(balance.getSendingBalance()));
+         MbwManager mbwManager = MbwManager.getInstance(getContext());
+         WalletAccount walletAccount = mbwManager.getWalletManager(true).getAccount(account.id);
+         Balance balance = walletAccount.getAccountBalance();
+         String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
+         if (balance.getSendingToForeignAddresses().isPositive()) {
+            balanceString += " " + String.format(getString(R.string.account_balance_sending_amount)
+                    , ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), mbwManager.getDenomination()));
          }
          Drawable drawableForAccount = Utils.getDrawableForAccount(walletAccount, true, getResources());
 
@@ -263,12 +264,10 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       }
    }
 
-
    @Subscribe
    public void onScanError(AccountScanManager.OnScanError event){
       Utils.showSimpleMessageDialog(this, event.errorMessage);
    }
-
 
    @Subscribe
    public void onStatusChanged(AccountScanManager.OnStatusChanged event){
@@ -298,7 +297,5 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       MasterseedPasswordDialog pwd = new MasterseedPasswordDialog();
       pwd.show(getFragmentManager(), PASSPHRASE_FRAGMENT_TAG);
    }
-
 }
-
 
