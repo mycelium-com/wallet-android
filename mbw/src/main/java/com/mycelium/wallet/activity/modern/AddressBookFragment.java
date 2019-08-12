@@ -374,25 +374,20 @@ public class AddressBookFragment extends Fragment {
 
             Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
             findViewById(R.id.btClipboard).setEnabled(address.isPresent());
-            findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    String address = Utils.getClipboardString(activity);
-                    List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
-                    if (!addresses.isEmpty()) {
-                        if(addresses.size() == 1){
-                            CryptoCurrency curr = _mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-                            MbwManager.getEventBus().post(new AssetSelected(AddressUtils.from(curr, address)));
-                        } else {
-                            SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                            dialog.show(requireFragmentManager(), "dialog");
-                        }
+            findViewById(R.id.btClipboard).setOnClickListener(v -> {
+                String address1 = Utils.getClipboardString(activity);
+                List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address1);
+                if (!addresses.isEmpty()) {
+                    if (addresses.size() == 1) {
+                        addFromAddress(addresses.get(0));
                     } else {
-                        Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
+                        SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
+                        dialog.show(requireFragmentManager(), "dialog");
                     }
-                    AddDialog.this.dismiss();
+                } else {
+                    Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
                 }
+                AddDialog.this.dismiss();
             });
         }
     }
