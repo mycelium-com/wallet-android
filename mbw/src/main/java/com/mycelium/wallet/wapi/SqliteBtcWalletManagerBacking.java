@@ -714,38 +714,23 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       }
 
       public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
-         if (outputsList.isEmpty()) {
-            return;
-         }
-         //to prevent max params sql when insertion issue
-         SQLUtil.INSTANCE.doChunked(outputsList, 5, new Function1<List<? extends TransactionOutputEx>, Unit>() {
-            @Override
-            public Unit invoke(List<? extends TransactionOutputEx> transactionOutputExes) {
-               insertTransactionOutputs(transactionOutputExes);
-               return Unit.INSTANCE;
+         if (!outputsList.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (TransactionOutputEx outputEx : outputsList) {
+                  updateStatement.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
+                  updateStatement.bindLong(2, outputEx.height);
+                  updateStatement.bindLong(3, outputEx.value);
+                  updateStatement.bindLong(4, outputEx.isCoinBase ? 1 : 0);
+                  updateStatement.bindBlob(5, outputEx.script);
+                  updateStatement.executeInsert();
+               }
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
             }
-         });
-      }
-
-      private void insertTransactionOutputs(List<? extends TransactionOutputEx> outputsList) {
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            for (int i = 0; i < outputsList.size(); i++) {
-               int index = i * 5;
-               final TransactionOutputEx outputEx = outputsList.get(i);
-               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
-               updateStatement.bindLong(index + 2, outputEx.height);
-               updateStatement.bindLong(index + 3, outputEx.value);
-               updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
-               updateStatement.bindBlob(index + 5, outputEx.script);
-            }
-            updateStatement.executeInsert();
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
          }
       }
 
@@ -831,43 +816,27 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public void putTransactions(Collection<? extends TransactionEx> transactions) {
-         if (transactions.isEmpty()) {
-            return;
-         }
-         //to prevent max params sql when insertion issue
-         SQLUtil.INSTANCE.doChunked(transactions, 5, new Function1<List<? extends TransactionEx>, Unit>() {
-            @Override
-            public Unit invoke(List<? extends TransactionEx> transactionOutputExList) {
-               insertTransactions(transactionOutputExList);
-               return Unit.INSTANCE;
-            }
-         });
-      }
+         if (!transactions.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (TransactionEx transactionEx: transactions) {
+                  updateStatement.bindBlob(1, transactionEx.txid.getBytes());
+                  updateStatement.bindBlob(2, transactionEx.hash.getBytes());
+                  updateStatement.bindLong(3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
+                  updateStatement.bindLong(4, transactionEx.time);
+                  updateStatement.bindBlob(5, transactionEx.binary);
+                  updateStatement.executeInsert();
+               }
 
-      private void insertTransactions(List<? extends TransactionEx> transactions) {
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            int i = 0;
-            for (TransactionEx transactionEx: transactions) {
-               int index = i * 5;
-               updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
-               updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
-               updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
-               updateStatement.bindLong(index + 4, transactionEx.time);
-               updateStatement.bindBlob(index + 5, transactionEx.binary);
-               i++;
+               for (TransactionEx transaction : transactions) {
+                  putReferencedOutputs(transaction.binary);
+               }
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
             }
-            updateStatement.executeInsert();
-
-            for (TransactionEx transaction : transactions) {
-               putReferencedOutputs(transaction.binary);
-            }
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
          }
       }
 
