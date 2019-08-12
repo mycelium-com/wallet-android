@@ -166,7 +166,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                     if (_mbwManager.isPinProtected() && checked) {
                         if (!FingerprintHandler.Companion.isFingerprintAvailable(getContext())) {
                             new AlertDialog.Builder(getContext())
-                                    .setMessage("You need add fingerprint before start fingerprint authentification")
+                                    .setMessage(R.string.add_fingerprint_in_settings)
                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
