@@ -1,4 +1,4 @@
-package android.support.v7.widget;
+package androidx.recyclerview.widget;
 
 import android.content.Context;
 import android.graphics.PointF;

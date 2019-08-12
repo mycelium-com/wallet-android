@@ -1,10 +1,10 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
+import androidx.lifecycle.AndroidViewModel
 import android.content.Intent
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils

@@ -36,8 +36,8 @@ package com.mycelium.wallet.activity.main;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,13 +48,13 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ActionMode;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -749,7 +749,7 @@ public class TransactionHistoryFragment extends Fragment {
          PackageManager packageManager = Preconditions.checkNotNull(requireActivity().getPackageManager());
          PackageInfo packageInfo = packageManager.getPackageInfo(requireActivity().getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
-            if (info.name.equals("android.support.v4.content.FileProvider")) {
+            if (info.name.equals("androidx.core.content.FileProvider")) {
                String authority = info.authority;
                Uri uri = FileProvider.getUriForFile(requireContext(), authority, historyData);
                Intent intent = ShareCompat.IntentBuilder.from(requireActivity())

@@ -42,7 +42,7 @@ import com.satoshilabs.trezor.lib.ExternalSignatureDevice;
 import com.satoshilabs.trezor.lib.KeepKey;
 import com.squareup.otto.Bus;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class KeepKeyManager extends ExternalSignatureDeviceManager {
    public KeepKeyManager(Context context, NetworkParameters network, Bus eventBus) {

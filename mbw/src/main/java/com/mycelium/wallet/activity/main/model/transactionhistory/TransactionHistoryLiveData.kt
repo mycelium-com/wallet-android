@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.main.model.transactionhistory
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import android.os.AsyncTask
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.event.*

@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.send.helper;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MinerFee;

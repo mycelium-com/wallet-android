@@ -3,8 +3,8 @@ package com.mycelium.wallet.external;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
