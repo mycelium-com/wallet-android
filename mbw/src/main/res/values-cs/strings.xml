@@ -769,6 +769,6 @@
     <plurals name="contains_keys">
         <item quantity="one">Obsahuje %1$d soukromý klíč.</item>
         <item quantity="few">Obsahuje %1$d privátní klíče.</item>
-        <item quantity="many">Obsahuje %1$d soukromých klíčů.</item>
+        <item quantity="other">Obsahuje %1$d soukromých klíčů.</item>
     </plurals>
 </resources>
