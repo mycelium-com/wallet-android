@@ -382,8 +382,7 @@ public class AddressBookFragment extends Fragment {
                     List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
                         if(addresses.size() == 1){
-                            CryptoCurrency curr = _mbwManager.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-                            MbwManager.getEventBus().post(new AssetSelected(AddressUtils.from(curr, address)));
+                            MbwManager.getEventBus().post(new AssetSelected(addresses.get(0)));
                         } else {
                             SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
                             dialog.show(requireFragmentManager(), "dialog");
