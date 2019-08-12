@@ -753,8 +753,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       }
       String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;
-      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
-      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
+      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated);
+      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound);
       if (accountsCreated > 0 && existingAccountsFound == 0) {
          message = getString(R.string.d_coco_created, fundsFound, accountsCreatedString);
       } else if (accountsCreated > 0 && existingAccountsFound > 0) {
