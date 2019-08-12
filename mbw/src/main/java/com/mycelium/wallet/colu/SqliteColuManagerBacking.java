@@ -40,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.net.Network;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -79,22 +78,14 @@ import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.colu.json.Tx;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
@@ -563,17 +554,28 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void putTransactions(List<Tx.Json> transactions) {
-         if (transactions.isEmpty()) {
+      public void putTransactions(List<Tx.Json> transactionsAll) {
+         if (transactionsAll.isEmpty()) {
             return;
          }
+         //to prevent max params sql when insertion issue
+         SQLUtil.INSTANCE.doChunked(transactionsAll, 4, new Function1<List<? extends Tx.Json>, Unit>() {
+            @Override
+            public Unit invoke(List<? extends Tx.Json> jsons) {
+               insertTransactions(jsons);
+               return Unit.INSTANCE;
+            }
+         });
+      }
+
+      private void insertTransactions(List<? extends Tx.Json> transactions) {
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
                  + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
          SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
          try {
             int i = 0;
-            for (Tx.Json transaction: transactions) {
+            for (Tx.Json transaction : transactions) {
                int index = i * 4;
                updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
                updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
@@ -614,7 +616,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
    }
 
-   private class OpenHelper extends SQLiteOpenHelper {
+      private class OpenHelper extends SQLiteOpenHelper {
       private static final String DATABASE_NAME = "columanagerbacking.db";
       private static final int DATABASE_VERSION = 10;
       private Context context;

@@ -58,6 +58,7 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
+import com.mycelium.wallet.colu.SQLUtil;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
@@ -75,8 +76,8 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-
-
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -716,6 +717,17 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          if (outputsList.isEmpty()) {
             return;
          }
+         //to prevent max params sql when insertion issue
+         SQLUtil.INSTANCE.doChunked(outputsList, 5, new Function1<List<? extends TransactionOutputEx>, Unit>() {
+            @Override
+            public Unit invoke(List<? extends TransactionOutputEx> transactionOutputExes) {
+               insertTransactionOutputs(transactionOutputExes);
+               return Unit.INSTANCE;
+            }
+         });
+      }
+
+      private void insertTransactionOutputs(List<? extends TransactionOutputEx> outputsList) {
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
                  + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
@@ -822,6 +834,17 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          if (transactions.isEmpty()) {
             return;
          }
+         //to prevent max params sql when insertion issue
+         SQLUtil.INSTANCE.doChunked(transactions, 5, new Function1<List<? extends TransactionEx>, Unit>() {
+            @Override
+            public Unit invoke(List<? extends TransactionEx> transactionOutputExList) {
+               insertTransactions(transactionOutputExList);
+               return Unit.INSTANCE;
+            }
+         });
+      }
+
+      private void insertTransactions(List<? extends TransactionEx> transactions) {
          _database.beginTransaction();
          String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
                  + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
