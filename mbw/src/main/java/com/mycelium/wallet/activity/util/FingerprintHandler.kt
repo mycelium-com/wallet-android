@@ -4,10 +4,10 @@ import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.support.annotation.RequiresApi
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat
-import android.support.v4.os.CancellationSignal
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
+import androidx.core.os.CancellationSignal
 import java.security.KeyStore
 import java.security.KeyStoreException
 import javax.crypto.Cipher
@@ -19,6 +19,8 @@ class FingerprintHandler {
 
     private val cancelSignal = CancellationSignal()
     private var keyStore: KeyStore? = null
+
+    @RequiresApi(Build.VERSION_CODES.M)
     fun startAuth(context: Context, success: () -> Unit) {
         generateKey()
         val cipher = Cipher.getInstance(
