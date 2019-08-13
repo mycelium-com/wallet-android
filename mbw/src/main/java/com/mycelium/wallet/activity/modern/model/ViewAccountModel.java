@@ -39,10 +39,10 @@ public class ViewAccountModel{
         accountType = viewModel.getAccountType();
         if (HDPubOnlyAccount.class.isAssignableFrom(accountType) && viewModel.isActive()) {
             int numKeys = viewModel.getPrivateKeyCount();
-            displayAddress = context.getResources().getQuantityString(R.plurals.contains_addresses, numKeys);
+            displayAddress = context.getResources().getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
         } else if (HDAccount.class.isAssignableFrom(accountType) && viewModel.isActive()) {
             int numKeys = viewModel.getPrivateKeyCount();
-            displayAddress = context.getResources().getQuantityString(R.plurals.contains_keys, numKeys);
+            displayAddress = context.getResources().getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
         } else {
             displayAddress = viewModel.getDisplayAddress();
         }
