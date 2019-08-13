@@ -196,10 +196,10 @@ public class RecordRowBuilder {
         if (walletAccount.isActive()) {
             if (walletAccount instanceof HDPubOnlyAccount) {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys);
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_addresses, numKeys, numKeys);
             } else if (walletAccount instanceof HDAccount) {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
-                result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys);
+                result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
                 Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
