@@ -40,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -83,15 +82,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
@@ -158,7 +149,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                continue;
             }
 
-            Type type = new TypeToken<Collection<String>>() {}.getType();
+            Type type = new TypeToken<Collection<String>>() {
+            }.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
             if (addressStringsList != null) {
@@ -280,8 +272,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
          _database.setTransactionSuccessful();
-      }
-      finally {
+      } finally {
          _database.endTransaction();
       }
    }
@@ -299,7 +290,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          blobQuery.bindBlob(1, id);
          blobQuery.bindLong(2, (long) subId);
          cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ? and subId = ?", null, null, null,
-               null, null);
+                 null, null);
          if (cursor.moveToNext()) {
             byte[] retVal = cursor.getBlob(0);
             byte[] checkSumDb = cursor.getBlob(1);
@@ -366,15 +357,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {
       String tableSuffix = uuidToTableSuffix(id);
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getUtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+              + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+              + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       createTxTable(tableSuffix, db);
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, raw BLOB);");
+              + " (id BLOB PRIMARY KEY, raw BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxRefersPtxoTableName(tableSuffix)
-            + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );");
+              + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );");
    }
 
    private static String uuidToTableSuffix(UUID uuid) {
@@ -486,8 +477,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          FeeEstimationSerialized feeValues;
          try {
             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
+         } catch (Exception ignore) {
+            return null;
          }
-         catch(Exception ignore) { return null; }
 
          return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
                  Value.valueOf(assetType, feeValues.economy),
@@ -520,7 +512,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          try {
             return JSON_FACTORY.fromString(string, Tx.Json.class);
          } catch (IOException ex) {
-             Log.e("colu accountBacking", "Parse error", ex);
+            Log.e("colu accountBacking", "Parse error", ex);
          }
          return null;
       }
@@ -558,29 +550,24 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void putTransactions(List<Tx.Json> transactions) {
-         if (transactions.isEmpty()) {
-            return;
-         }
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            int i = 0;
-            for (Tx.Json transaction: transactions) {
-               int index = i * 4;
-               updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
-               updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
-               updateStatement.bindLong(index + 3, transaction.time / 1000);
-               updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
-               transaction.setFactory(JSON_FACTORY);
-               i++;
-            }
-            updateStatement.executeInsert();
+         if (!transactions.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (Tx.Json transaction: transactions) {
+                  updateStatement.bindBlob(1, Sha256Hash.fromString(transaction.txid).getBytes());
+                  updateStatement.bindLong(2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
+                  updateStatement.bindLong(3, transaction.time / 1000);
+                  updateStatement.bindBlob(4, transaction.toString().getBytes());
+                  transaction.setFactory(JSON_FACTORY);
+                  updateStatement.executeInsert();
+               }
 
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
+            }
          }
       }
 
@@ -733,7 +720,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   listForRemove.add(id);
-                  Type type = new TypeToken<Collection<String>>() {}.getType();
+                  Type type = new TypeToken<Collection<String>>() {
+                  }.getType();
                   Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
                   for (String addressString : addressStringsList) {
                      Address address = Address.fromString(addressString);
@@ -831,7 +819,9 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         } catch(Exception ignore) {
                            // expected
                         }
+
                      }
+
                   } catch (Exception ex) {
                      brokenCoinIdData = true; // Probably we could not read this field as String because there a BLOB record
                   }
@@ -854,6 +844,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         coinId = cursor.getString(5);
                      } catch (Exception ignore) {
                         // expected
+
                      }
 
                      // If coinId is not null here,
@@ -865,21 +856,25 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                         } else {
                            statement.bindString(2, cursor.getString(1));
                         }
+
                         statement.bindString(5, coinId);
                      }
                   }
+
                   statement.executeInsert();
                }
+
             }
 
             db.execSQL("ALTER TABLE single RENAME TO single_old");
             db.execSQL("ALTER TABLE single_new RENAME TO single");
             db.execSQL("DROP TABLE single_old");
          }
+
       }
 
       private String transformPublicKeyToAddressesList(byte[] publicKeyBytes,
-                                                             NetworkParameters networkParameters) {
+                                                       NetworkParameters networkParameters) {
          PublicKey key = new PublicKey(publicKeyBytes);
          List<String> addresses = new ArrayList<>();
          for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {
@@ -887,7 +882,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          return gson.toJson(addresses);
       }
-
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column
