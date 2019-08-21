@@ -248,12 +248,12 @@ public class NoticeFragment extends Fragment {
 
       if (resetPinRemainingBlocksCount.get()==0){
          // delay is done
-         _mbwManager.showClearPinDialog(getActivity(), Optional.<Runnable>of(new Runnable() {
+         _mbwManager.showClearPinDialog(getActivity(), new Runnable() {
             @Override
             public void run() {
                recheckNotice();
             }
-         }));
+         });
          return;
       }
 

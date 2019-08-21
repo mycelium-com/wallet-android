@@ -95,20 +95,16 @@ public class BackupFragment extends PreferenceFragmentCompat {
         super.onResume();
     }
 
-    private final Preference.OnPreferenceClickListener legacyBackupClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            Utils.pinProtectedBackup(getActivity());
-            return true;
-        }
-    };
-    private final Preference.OnPreferenceClickListener legacyBackupVerifyClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            VerifyBackupActivity.callMe(getActivity());
-            return true;
-        }
+    private final Preference.OnPreferenceClickListener legacyBackupClickListener = preference -> {
+        Utils.pinProtectedBackup(getActivity());
+        return true;
     };
 
-    @SuppressWarnings("deprecation")
+    private final Preference.OnPreferenceClickListener legacyBackupVerifyClickListener = preference -> {
+        VerifyBackupActivity.callMe(getActivity());
+        return true;
+    };
+
     private void showOrHideLegacyBackup() {
         List<WalletAccount<?>> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
         Preference legacyPref = findPreference("legacyBackup");
@@ -122,8 +118,6 @@ public class BackupFragment extends PreferenceFragmentCompat {
             }
         }
         //no matching account, hide setting
-        getPreferenceScreen().removePreference(legacyPref);
+        getPreferenceScreen().removePreferenceRecursively(legacyPref.getKey());
     }
-
-
 }

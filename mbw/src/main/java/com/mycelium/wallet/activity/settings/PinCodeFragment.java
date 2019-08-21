@@ -97,12 +97,12 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            Optional<Runnable> afterDialogClosed = Optional.<Runnable>of(new Runnable() {
+            Runnable afterDialogClosed = new Runnable() {
                 @Override
                 public void run() {
                     update();
                 }
-            });
+            };
 
             // This is an ugly hack to not to develop error handling for PinCode class.
             // Correct value would be automatically set on success and should not change on error.

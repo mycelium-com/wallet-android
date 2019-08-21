@@ -146,13 +146,13 @@ public class VerifyWordListActivity extends AppCompatActivity implements WordAut
                })
                .setNeutralButton(R.string.pref_set_pin, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
-                     _mbwManager.showSetPinDialog(VerifyWordListActivity.this, Optional.<Runnable>of(new Runnable() {
+                     _mbwManager.showSetPinDialog(VerifyWordListActivity.this, new Runnable() {
                         @Override
                         public void run() {
                            // close this activity after the PIN code dialog was closed
                            VerifyWordListActivity.this.finish();
                         }
-                     }));
+                     });
                   }
                });
          AlertDialog alertDialog = builder.create();
