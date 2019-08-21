@@ -4,10 +4,10 @@ import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.core.os.CancellationSignal
+import com.mycelium.wallet.R
 import java.security.KeyStore
 import java.security.KeyStoreException
 import javax.crypto.Cipher
@@ -35,7 +35,8 @@ class FingerprintHandler {
         val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
 
         val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
-        fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal, Callback(success, fail), null)
+        fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal,
+                Callback(context, success, fail), null)
     }
 
     fun cancelAuth() {
@@ -62,7 +63,9 @@ class FingerprintHandler {
         }
     }
 
-    class Callback(val success: () -> Unit, val fail: (String) -> Unit) : FingerprintManagerCompat.AuthenticationCallback() {
+    class Callback(val context: Context,
+                   val success: () -> Unit,
+                   private val fail: (String) -> Unit) : FingerprintManagerCompat.AuthenticationCallback() {
         override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
             super.onAuthenticationError(errMsgId, errString)
             fail.invoke(errString.toString())
@@ -73,13 +76,9 @@ class FingerprintHandler {
             success.invoke()
         }
 
-        override fun onAuthenticationHelp(helpMsgId: Int, helpString: CharSequence?) {
-            super.onAuthenticationHelp(helpMsgId, helpString)
-        }
-
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            fail.invoke("Fingerprint detection is failed")
+            fail.invoke(context.getString(R.string.fingerprint_detection_failed))
         }
     }
 
