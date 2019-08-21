@@ -75,7 +75,6 @@ class FingerprintHandler {
 
         override fun onAuthenticationHelp(helpMsgId: Int, helpString: CharSequence?) {
             super.onAuthenticationHelp(helpMsgId, helpString)
-            Log.e("!!!", "onAuthenticationHelp")
         }
 
         override fun onAuthenticationFailed() {
