@@ -1,9 +1,10 @@
 package com.mycelium.wallet.activity.modern.adapter.holder;
 
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.mycelium.wallet.R;
 

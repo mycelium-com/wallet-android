@@ -1,8 +1,8 @@
 package com.mycelium.wallet.activity.news.adapter.holder
 
 import android.content.SharedPreferences
-import android.support.v7.widget.RecyclerView
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2Holder
 import kotlinx.android.synthetic.main.item_mediaflow_news_all.view.*
 

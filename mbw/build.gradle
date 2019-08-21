@@ -67,9 +67,10 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.1.0-rc01"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-rc01"
-    implementation "androidx.recyclerview:recyclerview:1.1.0-beta01"
+    implementation "androidx.recyclerview:recyclerview:1.1.0-beta02"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.0-rc01"
+    implementation 'com.google.android.material:material:1.1.0-alpha09'
     implementation 'org.ocpsoft.prettytime:prettytime:3.2.5.Final'
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'

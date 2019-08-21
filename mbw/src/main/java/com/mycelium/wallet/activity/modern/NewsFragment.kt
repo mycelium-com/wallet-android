@@ -5,14 +5,14 @@ import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.tabs.TabLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
@@ -61,10 +61,8 @@ class NewsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val layoutManager = LinearLayoutManager(activity!!, LinearLayoutManager.VERTICAL, false)
-        newsList.layoutManager = layoutManager
         newsList.setHasFixedSize(false)
-        newsList.addOnScrollListener(object : PaginationScrollListener(layoutManager) {
+        newsList.addOnScrollListener(object : PaginationScrollListener(newsList.layoutManager as LinearLayoutManager) {
             override fun loadMoreItems() {
                 if (!searchActive) {
                     loadItems(adapter.itemCount)
@@ -134,27 +132,27 @@ class NewsFragment : Fragment() {
         super.onPause()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         if (currentNews == null) {
-            inflater?.inflate(R.menu.news, menu)
-            menu?.findItem(R.id.action_favorite)?.let {
+            inflater.inflate(R.menu.news, menu)
+            menu.findItem(R.id.action_favorite)?.let {
                 updateFavoriteMenu(it)
             }
         }
-        menu?.findItem(R.id.action_search)?.isVisible = searchActive.not()
-        menu?.findItem(R.id.action_favorite)?.isVisible = searchActive.not()
+        menu.findItem(R.id.action_search)?.isVisible = searchActive.not()
+        menu.findItem(R.id.action_favorite)?.isVisible = searchActive.not()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.action_search) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_search) {
             searchActive = true
             activity?.invalidateOptionsMenu()
             updateUI()
             val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.showSoftInput(search_input, 0)
             return true
-        } else if (item?.itemId == R.id.action_favorite) {
+        } else if (item.itemId == R.id.action_favorite) {
             preference.edit()
                     .putBoolean(NewsConstants.FAVORITE, preference.getBoolean(NewsConstants.FAVORITE, false).not())
                     .apply()

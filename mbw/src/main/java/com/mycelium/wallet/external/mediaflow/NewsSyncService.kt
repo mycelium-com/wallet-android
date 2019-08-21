@@ -9,11 +9,11 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StartupActivity
@@ -47,7 +47,7 @@ class NewsSyncService : Service() {
             preference.edit()
                     .putString(NewsConstants.UPDATE_TIME, updateTime)
                     .apply()
-            if (it.isNotEmpty() == true) {
+            if (it.isNotEmpty()) {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
             }
 

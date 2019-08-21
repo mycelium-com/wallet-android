@@ -1,9 +1,9 @@
 package com.mycelium.wallet.activity.news.adapter
 
 import android.content.SharedPreferences
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.getCategory
 import com.mycelium.wallet.activity.modern.adapter.holder.NewsV2Holder

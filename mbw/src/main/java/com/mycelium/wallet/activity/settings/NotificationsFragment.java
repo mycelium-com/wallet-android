@@ -2,6 +2,8 @@ package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
