@@ -1,6 +1,6 @@
 package com.mycelium.view;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 public class ItemCentralizer extends RecyclerView.OnScrollListener {

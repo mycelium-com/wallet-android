@@ -44,9 +44,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -404,7 +404,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             }
             break;
          case 0:
-//            // This branch is created to support import CoCo from bip32 accout
+            // This branch is created to support import CoCo from bip32 account
             if (hdKeyNode.isPrivateHdKeyNode()) {
                returnBip32Account(hdKeyNode);
             } else {
@@ -426,7 +426,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       private List<WalletAccount<?>> existingAccounts = new ArrayList<>();
       private int selectedItem;
 
-      public ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
+      ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
          this.backupState = backupState;
       }
@@ -465,7 +465,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
          if (existingAccounts.size() == 0) {
             switch (result) {
-               case HasColuAssets: {
+               case HasColuAssets:
                   final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
                   adapter.add(Utils.getBtcCoinType());
                   adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
@@ -495,21 +495,14 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                           .create()
                           .show();
                   break;
-               }
-
-               case NoColuAssets: {
+               case NoColuAssets:
                   finishOk(returnSAAccount(key, backupState), false);
-               }
             }
          } else {
-
             WalletAccount accountToUpgrade = null;
-
             switch (result) {
-               case HasColuAssets: {
-
+               case HasColuAssets:
                   WalletAccount coluAccount = null;
-
                   for(WalletAccount exAccount : existingAccounts) {
                      if (exAccount instanceof ColuAccount) {
                         coluAccount = exAccount;
@@ -557,11 +550,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                              .show();
 
                   }
-
                   break;
-               }
-               case NoColuAssets: {
-                  // Since there are no COLU assets availavble, only BTC SA could exist
+               case NoColuAssets:
+                  // Since there are no COLU assets available, only BTC SA could exist
                   WalletAccount existingAccount = existingAccounts.get(0);
 
                   if (!existingAccount.canSpend()) {
@@ -570,7 +561,6 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                      finishAlreadyExist(existingAccount.getReceiveAddress());
                   }
                   break;
-               }
             }
 
             if (accountToUpgrade != null) {
@@ -701,11 +691,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             case AccountExists:
                finishAlreadyExist(address);
                break;
-            case NoColuAssets: {
+            case NoColuAssets:
                UUID account = _mbwManager.getWalletManager(false)
                        .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
                finishOk(account, false);
-            }
                break;
             case HasColuAssets: {
                final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
@@ -738,7 +727,6 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        .show();
                }
             }
-
          }
    }
 
@@ -753,8 +741,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       }
       String fundsFound = TextUtils.join(", ", amountStrings);
       String message = null;
-      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated, accountsCreated);
-      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found, existingAccountsFound, existingAccountsFound);
+      String accountsCreatedString = getResources().getQuantityString(R.plurals.new_accounts_created, accountsCreated,
+              accountsCreated);
+      String existingFoundString = getResources().getQuantityString(R.plurals.existing_accounts_found,
+              existingAccountsFound, existingAccountsFound);
       if (accountsCreated > 0 && existingAccountsFound == 0) {
          message = getString(R.string.d_coco_created, fundsFound, accountsCreatedString);
       } else if (accountsCreated > 0 && existingAccountsFound > 0) {

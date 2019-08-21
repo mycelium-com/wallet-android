@@ -193,7 +193,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
                 // Get the master seed
                 val masterSeed = getMasterSeed(AesKeyCipher.defaultKeyCipher())
 
-                val accountIndex = getNextBip44Index()
+                val accountIndex = getCurrentBip44Index() + 1
 
                 // Create the base keys for the account
                 val keyManagerMap = HashMap<BipDerivationType, HDAccountKeyManager>()
@@ -284,7 +284,7 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
     private fun getBaseLabel(cfg: Config): String {
         return when (cfg) {
-            is AdditionalHDAccountConfig -> "Account " + getNextBip44Index()
+            is AdditionalHDAccountConfig -> "Account " + (getCurrentBip44Index() + 1)
             is ExternalSignaturesAccountConfig ->
                 signatureProviders!!.get(cfg.provider.biP44AccountType).labelOrDefault + " #" + (cfg.hdKeyNodes[0].index + 1)
             is UnrelatedHDAccountConfig -> if (cfg.hdKeyNodes[0].isPrivateHdKeyNode) "Account 1" else "Imported"
@@ -313,21 +313,11 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
         return accounts.values.firstOrNull { it.accountIndex == index }
     }
 
-    fun getCurrentBip44Index(): Int {
-        var maxIndex = -1
-        for (walletAccount in accounts.values) {
-            maxIndex = Math.max(walletAccount.accountIndex, maxIndex)
-        }
-        return maxIndex
-    }
-
-    private fun getNextBip44Index(): Int {
-        var maxIndex = -1
-        for (walletAccount in accounts.values) {
-            maxIndex = Math.max(walletAccount.accountIndex, maxIndex)
-        }
-        return maxIndex + 1
-    }
+    fun getCurrentBip44Index() = accounts.values
+        .filter { it.isDerivedFromInternalMasterseed }
+        .maxBy { it.accountIndex }
+        ?.accountIndex
+        ?: -1
 
     fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MASTER_SEED_ID)
 
@@ -422,10 +412,9 @@ class BitcoinHDModule(internal val backing: BtcWalletManagerBacking<HDAccountCon
 
                 // Finally persist context and add account
                 context.persist(accountBacking)
-                backing.setTransactionSuccessful()
                 account.archiveAccount()
-
                 accounts[account.id] = account
+                backing.setTransactionSuccessful()
                 return account.id
             } finally {
                 backing.endTransaction()

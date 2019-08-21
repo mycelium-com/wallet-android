@@ -37,7 +37,7 @@ package com.mycelium.wallet.activity.modern;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.widget.Toast;
 
 import com.mycelium.wallet.R;

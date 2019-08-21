@@ -16,9 +16,8 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/buttonspacing"
-            android:layout_gravity="left">
-            <!--<android.support.v7.widget.GridLayout-->
+            android:layout_marginStart="@dimen/buttonspacing"
+            android:layout_gravity="start">
 
 
             <LinearLayout
@@ -44,7 +43,7 @@
                     android:layout_height="wrap_content"
                     tools:text="(990)"
                     android:textColor="@color/lightgrey"
-                    android:paddingLeft="10sp"
+                    android:paddingStart="10sp"
                     android:id="@+id/tvVersionCode"/>
             </LinearLayout>
 
@@ -99,7 +98,7 @@
                 android:text="@string/company"
                 android:singleLine="false"
                 android:paddingTop="@dimen/button_padding"
-                android:paddingLeft="@dimen/about_caption_size"/>
+                android:paddingStart="@dimen/about_caption_size"/>
 
             <LinearLayout
                 android:layout_marginTop="5dp"
@@ -240,7 +239,7 @@
         <Button
             android:layout_width="@dimen/about_buttonsize"
             android:layout_height="wrap_content"
-            android:text="Connection Logs"
+            android:text="@string/connection_logs"
             android:id="@+id/bt_show_server_info"
             android:layout_marginBottom="@dimen/buttonspacing" />
 

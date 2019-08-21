@@ -60,7 +60,7 @@ public class BipSsImportActivity extends Activity {
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
-   private List<BipSss.Share> shares = new ArrayList<BipSss.Share>();
+   private List<BipSss.Share> shares = new ArrayList<>();
 
    @Override
    public void onCreate(Bundle savedInstanceState) {

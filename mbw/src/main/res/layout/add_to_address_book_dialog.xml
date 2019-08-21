@@ -21,14 +21,13 @@
         android:layout_marginBottom="20dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         android:text="@string/scan" />
 
     <View
         android:layout_width="wrap_content"
-        android:layout_height="10dp" >
-    </View>
+        android:layout_height="10dp" />
 
     <TextView
         style="@style/MyceliumText"
@@ -45,13 +44,12 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
         android:gravity="center"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         android:text="@string/clipboard" />
 
     <View
         android:layout_width="wrap_content"
-        android:layout_height="10dp" >
-    </View>
+        android:layout_height="10dp" />
 
 </LinearLayout>

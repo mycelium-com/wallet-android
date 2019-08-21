@@ -41,10 +41,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -341,11 +341,6 @@ public class ModernMain extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mBalanceTab.isSelected()) {
-//         if(Build.VERSION.SDK_INT >= 21) {
-//            finishAndRemoveTask();
-//         } else {
-//            finish();
-//         }
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
@@ -430,11 +425,10 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miColdStorage:
                 InstantWalletActivity.callMe(this);
                 return true;
-            case R.id.miSettings: {
+            case R.id.miSettings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intent, REQUEST_SETTING_CHANGED);
                 return true;
-            }
             case R.id.miBackup:
                 Utils.pinProtectedWordlistBackup(this);
                 return true;
@@ -464,17 +458,14 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miHelp:
                 openMyceliumHelp();
                 break;
-            case R.id.miAbout: {
-                Intent intent = new Intent(this, AboutActivity.class);
+            case R.id.miAbout:
+                intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
                 break;
-            }
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-
                 break;
-
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
                 break;

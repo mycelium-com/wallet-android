@@ -60,7 +60,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ledger_amount"/>
                 <TextView
                         android:id="@+id/tvAmount"
@@ -73,7 +73,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ledger_to"/>
                 <TextView
                         android:id="@+id/tvToAddress"
@@ -85,7 +85,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ledger_fee"/>
                 <TextView
                         android:id="@+id/tvFee"
@@ -97,7 +97,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ledger_total"/>
                 <TextView
                         android:id="@+id/tvTotal"

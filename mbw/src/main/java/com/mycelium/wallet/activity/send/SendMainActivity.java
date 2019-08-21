@@ -43,11 +43,11 @@ import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -1328,13 +1328,13 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             if (_transactionLabel != null) {
                 _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), _transactionLabel);
             }
-            String hash = signedTransaction.getId().toString();
+            String hash = HexUtils.toHex(signedTransaction.getId());
             String fiat = getFiatValue();
             if (fiat != null) {
                 transactionFiatValuePref.edit().putString(hash, fiat).apply();
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
-                    .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
+                  .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash);
         }
         setResult(broadcastResult.getResultType() == BroadcastResultType.SUCCESS ? RESULT_OK : RESULT_CANCELED, result);
         finish();

@@ -59,6 +59,7 @@ import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 
@@ -280,13 +281,15 @@ public class TransactionDetailsActivity extends Activity {
     private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected Boolean doInBackground(Void... ignore) {
-            byte[] txid = getTransactionIdFromIntent();
-            WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-            try {
-                selectedAccount.updateParentOutputs(txid);
-            } catch (WapiException e) {
-                _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
-                return false;
+            if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
+                byte[] txid = getTransactionIdFromIntent();
+                AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
+                try {
+                    selectedAccount.updateParentOutputs(txid);
+                } catch (WapiException e) {
+                    _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+                    return false;
+                }
             }
             return true;
         }

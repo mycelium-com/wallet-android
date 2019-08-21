@@ -36,7 +36,7 @@ package com.mycelium.wallet.extsig.keepkey.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.mycelium.wallet.MbwManager;

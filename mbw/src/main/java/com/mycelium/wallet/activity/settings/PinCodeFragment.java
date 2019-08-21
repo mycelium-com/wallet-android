@@ -2,10 +2,10 @@ package com.mycelium.wallet.activity.settings;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import com.google.common.base.Optional;
@@ -79,12 +79,12 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
     private final Preference.OnPreferenceClickListener setPinClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            Optional<Runnable> afterDialogClosed = Optional.<Runnable>of(new Runnable() {
+            Runnable afterDialogClosed = new Runnable() {
                 @Override
                 public void run() {
                     update();
                 }
-            });
+            };
 
             // This is an ugly hack to not to develop error handling for PinCode class.
             // Correct value would be automatically set on success and should not change on error.

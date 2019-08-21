@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.send.event;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by elvis on 31.08.17.
