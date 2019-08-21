@@ -21,7 +21,7 @@ class FingerprintHandler {
     private var keyStore: KeyStore? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun startAuth(context: Context, success: () -> Unit) {
+    fun startAuth(context: Context, success: () -> Unit, fail: (String) -> Unit) {
         generateKey()
         val cipher = Cipher.getInstance(
                 KeyProperties.KEY_ALGORITHM_AES + "/"
@@ -35,7 +35,7 @@ class FingerprintHandler {
         val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
 
         val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
-        fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal, Callback(success), null)
+        fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal, Callback(success, fail), null)
     }
 
     fun cancelAuth() {
@@ -62,10 +62,10 @@ class FingerprintHandler {
         }
     }
 
-    class Callback(val success: () -> Unit) : FingerprintManagerCompat.AuthenticationCallback() {
+    class Callback(val success: () -> Unit, val fail: (String) -> Unit) : FingerprintManagerCompat.AuthenticationCallback() {
         override fun onAuthenticationError(errMsgId: Int, errString: CharSequence?) {
             super.onAuthenticationError(errMsgId, errString)
-            Log.e("!!!", "onAuthenticationError")
+            fail.invoke(errString.toString())
         }
 
         override fun onAuthenticationSucceeded(result: FingerprintManagerCompat.AuthenticationResult?) {
@@ -80,7 +80,7 @@ class FingerprintHandler {
 
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
-            Log.e("!!!", "onAuthenticationFailed")
+            fail.invoke("Fingerprint detection is failed")
         }
     }
 
@@ -92,6 +92,7 @@ class FingerprintHandler {
         * to perform this check.
         *
         * */
+        @JvmStatic
         fun isHardwareSupported(context: Context): Boolean {
             val fingerprintManager = FingerprintManagerCompat.from(context)
             return fingerprintManager.isHardwareDetected
@@ -102,6 +103,7 @@ class FingerprintHandler {
         * registered fingerprint of the user. So we need to perform this check
         * in order to enable fingerprint authentication
         * */
+        @JvmStatic
         fun isFingerprintAvailable(context: Context): Boolean {
             val fingerprintManager = FingerprintManagerCompat.from(context)
             return fingerprintManager.hasEnrolledFingerprints()

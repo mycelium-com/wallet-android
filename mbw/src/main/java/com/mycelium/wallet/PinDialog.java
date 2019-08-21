@@ -38,11 +38,13 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import androidx.appcompat.app.AppCompatDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatDialog;
 
 import com.google.common.base.Strings;
 import com.mycelium.wallet.activity.settings.helper.TwoFactorHelper;
@@ -54,6 +56,7 @@ import java.util.Collections;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 public class PinDialog extends AppCompatDialog {
    public static final String PLACEHOLDER_TYPED = "\u25CF"; // Unicode Character 'BLACK CIRCLE' (which is a white circle in our dark theme)
@@ -134,6 +137,12 @@ public class PinDialog extends AppCompatDialog {
                         fingerprintCallback.onSuccess();
                      }
                   }
+                  return null;
+               }
+            }, new Function1<String, Unit>() {
+               @Override
+               public Unit invoke(String msg) {
+                  Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
                   return null;
                }
             });

@@ -74,7 +74,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
 
         fingerprint = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("fingerprint"));
         twoFactorAuth = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("twoFactorAuth"));
-        if (!FingerprintHandler.Companion.isHardwareSupported(getActivity())) {
+        if (!FingerprintHandler.isHardwareSupported(getActivity())) {
             getPreferenceScreen().removePreference(fingerprint);
             getPreferenceScreen().removePreference(twoFactorAuth);
         }else {
@@ -164,7 +164,7 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
                 public void run() {
                     boolean checked = !((CheckBoxPreference) preference).isChecked();
                     if (_mbwManager.isPinProtected() && checked) {
-                        if (!FingerprintHandler.Companion.isFingerprintAvailable(getContext())) {
+                        if (!FingerprintHandler.isFingerprintAvailable(getContext())) {
                             new AlertDialog.Builder(getContext())
                                     .setMessage(R.string.add_fingerprint_in_settings)
                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
