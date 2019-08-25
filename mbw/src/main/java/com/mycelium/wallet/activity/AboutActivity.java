@@ -34,9 +34,6 @@
 
 package com.mycelium.wallet.activity;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -49,8 +46,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
-
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteSource;
 import com.mycelium.wallet.*;
@@ -62,6 +57,12 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import de.cketti.library.changelog.ChangeLog;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import static java.util.Locale.US;
+
 public class AboutActivity extends Activity {
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class AboutActivity extends Activity {
       final MbwManager mbwManager = MbwManager.getInstance(this);
       final VersionManager versionManager = mbwManager.getVersionManager();
       ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
-      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format("(%d)", BuildConfig.VERSION_CODE));
+      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format(US, "(%d)", BuildConfig.VERSION_CODE));
       findViewById(R.id.bt_tou_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.tou_mycelium));
       findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
       findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
@@ -98,7 +99,7 @@ public class AboutActivity extends Activity {
                   progress.dismiss();
                   if (exception != null) {
                      new Toaster(AboutActivity.this).toast(R.string.version_check_failed, false);
-                     mbwManager.reportIgnoredException(new RuntimeException("WapiException: " + String.valueOf(exception.errorCode)));
+                     mbwManager.reportIgnoredException(new RuntimeException("WapiException: " + exception.errorCode));
                   } else {
                      showVersionInfo(versionManager, response);
                   }
@@ -117,7 +118,7 @@ public class AboutActivity extends Activity {
       setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
       setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
-      setMailTo((TextView) findViewById(R.id.tvContactEmail), R.string.contact_email);
+      setMailTo((TextView) findViewById(R.id.tvContactEmail));
 
       //set playstore link to qr code
       String packageName = getApplicationContext().getPackageName();
@@ -134,7 +135,6 @@ public class AboutActivity extends Activity {
          }
       });
 
-
       // show direct apk link for the - very unlikely - case that google blocks our playstore entry
       QrImageView directApkQr = (QrImageView) findViewById(R.id.ivDirectApkQR);
       directApkQr.setQrCode(Constants.DIRECT_APK_URL);
@@ -147,7 +147,6 @@ public class AboutActivity extends Activity {
             startActivity(intent);
          }
       });
-
    }
 
    private void showVersionInfo(VersionManager versionManager, VersionInfoExResponse response) {
@@ -171,14 +170,14 @@ public class AboutActivity extends Activity {
       textView.setMovementMethod(LinkMovementMethod.getInstance());
    }
 
-   private void setMailTo(TextView textView, int res) {
-      String mail_address = getResources().getString(res);
-      textView.setText(Html.fromHtml("<a href=\"mailto:" + mail_address + "\">" + mail_address + "</a>"));
+   private void setMailTo(TextView textView) {
+      String mailAddress = getResources().getString(R.string.contact_email);
+      textView.setText(Html.fromHtml("<a href=\"mailto:" + mailAddress + "\">" + mailAddress + "</a>"));
       textView.setMovementMethod(LinkMovementMethod.getInstance());
    }
 
-   private String hrefLink(Uri github_link) {
-      return "<a href=\"" + github_link + "\">" + github_link + "</a>";
+   private String hrefLink(Uri githubLink) {
+      return "<a href=\"" + githubLink + "\">" + githubLink + "</a>";
    }
 
    private class ShowLicenseListener implements View.OnClickListener {
@@ -198,17 +197,18 @@ public class AboutActivity extends Activity {
                      public InputStream openStream() throws IOException {
                         return getResources().openRawResource(resourceId);
                      }
-                  }).asCharSource(Charsets.UTF_8).readLines());
+                  }).asCharSource(StandardCharsets.UTF_8).readLines());
          } catch (IOException e) {
             throw new RuntimeException(e);
          }
-         AlertDialog.Builder builder = new AlertDialog.Builder(AboutActivity.this);
-         builder.setMessage(message).setCancelable(true)
-               .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int id) {
-                     dialog.cancel();
-                  }
-               }).show();
+         new AlertDialog.Builder(AboutActivity.this)
+                 .setMessage(message).setCancelable(true)
+                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                       dialog.cancel();
+                    }
+                 })
+                 .show();
       }
    }
 }

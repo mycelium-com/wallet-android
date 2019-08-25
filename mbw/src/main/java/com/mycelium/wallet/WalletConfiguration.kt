@@ -24,15 +24,13 @@ interface  MyceliumNodesApi {
     fun getNodes(): Call<MyceliumNodesResponse>
 }
 
-// A set of classes for parsing nodes.json file
+// A set of classes for parsing nodes-b.json file
 
-// MyceliumNodesResponse is intended for parsing nodes.json file
+// MyceliumNodesResponse is intended for parsing nodes-b.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse)
 
-const val ONION_DOMAIN = ".onion"
-
-// BTCNetResponse is intended for parsing nodes.json file
+// BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
@@ -52,7 +50,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         updateConfig()
     }
 
-    // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
+    // Makes a request to S3 storage to retrieve nodes-b.json and parses it to extract electrum servers list
     fun updateConfig() {
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
@@ -64,17 +62,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         .getNodes()
                         .execute()
                 if (resp.isSuccessful) {
-                    val myceliumNodesResponse = resp.body()
+                    val nodes = if (network.isTestnet())
+                        resp.body()?.btcTestnet else resp.body()?.btcMainnet
 
-                    val electrumXnodes = if (network.isTestnet())
-                        myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
-                    else
-                        myceliumNodesResponse?.btcMainnet?.electrumx?.primary?.map { it.url }?.toSet()
-
-                    val wapiNodes = if (network.isTestnet())
-                        myceliumNodesResponse?.btcTestnet?.wapi?.primary
-                    else
-                        myceliumNodesResponse?.btcMainnet?.wapi?.primary
+                    val electrumXnodes = nodes?.electrumx?.primary?.map { it.url }?.toSet()
+                    val wapiNodes = nodes?.wapi?.primary
 
                     prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
@@ -106,7 +98,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
-        var resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
+        val resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
         return resp.map {
             if (it.url.contains(ONION_DOMAIN)) {
                 TorHttpsEndpoint(it.url, it.cert)
@@ -125,6 +117,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val ONION_DOMAIN = ".onion"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
