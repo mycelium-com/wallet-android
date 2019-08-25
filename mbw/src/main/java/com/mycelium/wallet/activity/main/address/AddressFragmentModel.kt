@@ -19,6 +19,8 @@ import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
 import asStringRes
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.manager.Synchronizer
 
 class AddressFragmentModel(
         val context: Application,
@@ -89,6 +91,11 @@ class AddressFragmentModel(
         account = mbwManager.selectedAccount
         updateLabel()
         onAddressChange()
+
+        Thread(Synchronizer(mbwManager.getWalletManager(false),
+                SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(mbwManager.getWalletManager(false)
+                .getAccount(event.account)))).start()
+
     }
 
     fun onAddressChange() {
