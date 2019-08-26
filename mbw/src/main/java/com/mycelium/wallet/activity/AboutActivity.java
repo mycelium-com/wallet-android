@@ -37,23 +37,20 @@ package com.mycelium.wallet.activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
+import androidx.annotation.IdRes;
+import androidx.annotation.RawRes;
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteSource;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.activity.modern.DarkThemeChangeLog;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.QrImageView;
-import com.mycelium.wallet.api.AbstractCallbackHandler;
-import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import de.cketti.library.changelog.ChangeLog;
 
@@ -64,151 +61,116 @@ import java.nio.charset.StandardCharsets;
 import static java.util.Locale.US;
 
 public class AboutActivity extends Activity {
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-      setContentView(R.layout.about_activity);
+        setContentView(R.layout.about_activity);
 
-      final MbwManager mbwManager = MbwManager.getInstance(this);
-      final VersionManager versionManager = mbwManager.getVersionManager();
-      ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
-      ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format(US, "(%d)", BuildConfig.VERSION_CODE));
-      findViewById(R.id.bt_tou_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.tou_mycelium));
-      findViewById(R.id.bt_license_mycelium).setOnClickListener(new ShowLicenseListener(R.raw.license_mycelium));
-      findViewById(R.id.bt_license_zxing).setOnClickListener(new ShowLicenseListener(R.raw.license_zxing));
-      findViewById(R.id.bt_license_pdfwriter).setOnClickListener(new ShowLicenseListener(R.raw.license_pdfwriter));
-      findViewById(R.id.bt_special_thanks).setOnClickListener(new ShowLicenseListener(R.raw.special_thanks));
+        final MbwManager mbwManager = MbwManager.getInstance(this);
+        final VersionManager versionManager = mbwManager.getVersionManager();
+        ((TextView) findViewById(R.id.tvVersionNumber)).setText(BuildConfig.VERSION_NAME);
+        ((TextView) findViewById(R.id.tvVersionCode)).setText(String.format(US, "(%d)", BuildConfig.VERSION_CODE));
+        setLicenseForButton(R.id.bt_tou_mycelium, R.raw.tou_mycelium);
+        setLicenseForButton(R.id.bt_license_mycelium, R.raw.license_mycelium);
+        setLicenseForButton(R.id.bt_license_zxing, R.raw.license_zxing);
+        setLicenseForButton(R.id.bt_license_pdfwriter, R.raw.license_pdfwriter);
+        setLicenseForButton(R.id.bt_special_thanks, R.raw.special_thanks);
 
-      findViewById(R.id.bt_show_changelog).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            ChangeLog cl = new DarkThemeChangeLog(AboutActivity.this);
+        findViewById(R.id.bt_show_changelog).setOnClickListener(view -> {
+            ChangeLog cl = new DarkThemeChangeLog(this);
             cl.getFullLogDialog().show();
-         }
-      });
+        });
 
-      findViewById(R.id.bt_check_update).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            final ProgressDialog progress = ProgressDialog.show(AboutActivity.this, getString(R.string.update_check),
-                  getString(R.string.please_wait), true);
-            versionManager.checkForUpdateSync(new AbstractCallbackHandler<VersionInfoExResponse>() {
-               @Override
-               public void handleCallback(VersionInfoExResponse response, WapiException exception) {
-                  progress.dismiss();
-                  if (exception != null) {
-                     new Toaster(AboutActivity.this).toast(R.string.version_check_failed, false);
-                     mbwManager.reportIgnoredException(new RuntimeException("WapiException: " + exception.errorCode));
-                  } else {
-                     showVersionInfo(versionManager, response);
-                  }
-               }
+        findViewById(R.id.bt_check_update).setOnClickListener(v -> {
+            final ProgressDialog progress = ProgressDialog.show(this, getString(R.string.update_check),
+                    getString(R.string.please_wait), true);
+            versionManager.checkForUpdateSync((response, exception) -> {
+                progress.dismiss();
+                if (exception != null) {
+                    new Toaster(this).toast(R.string.version_check_failed, false);
+                    mbwManager.reportIgnoredException(new RuntimeException("WapiException: " + exception.errorCode));
+                } else {
+                    showVersionInfo(versionManager, response);
+                }
             });
-         }
-      });
+        });
 
-      findViewById(R.id.bt_show_server_info).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            ConnectionLogsActivity.callMe(AboutActivity.this);
-         }
-      });
+        findViewById(R.id.bt_show_server_info).setOnClickListener(view -> ConnectionLogsActivity.callMe(this));
 
-      setLinkTo((TextView) findViewById(R.id.tvSourceUrl), R.string.source_url);
-      setLinkTo((TextView) findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
+        setLinkTo(findViewById(R.id.tvSourceUrl), R.string.source_url);
+        setLinkTo(findViewById(R.id.tvHomepageUrl), R.string.homepage_url);
 
-      setMailTo((TextView) findViewById(R.id.tvContactEmail));
+        setMailTo(findViewById(R.id.tvContactEmail));
 
-      //set playstore link to qr code
-      String packageName = getApplicationContext().getPackageName();
-      final String playstoreUrl = Constants.PLAYSTORE_BASE_URL + packageName;
-      QrImageView playstoreQr = (QrImageView) findViewById(R.id.ivPlaystoreQR);
-      playstoreQr.setQrCode(playstoreUrl);
-      playstoreQr.setTapToCycleBrightness(false);
-      playstoreQr.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View v) {
+        //set playstore link to qr code
+        String packageName = getApplicationContext().getPackageName();
+        final String playstoreUrl = Constants.PLAYSTORE_BASE_URL + packageName;
+        QrImageView playstoreQr = findViewById(R.id.ivPlaystoreQR);
+        playstoreQr.setQrCode(playstoreUrl);
+        playstoreQr.setTapToCycleBrightness(false);
+        playstoreQr.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(playstoreUrl));
             startActivity(intent);
-         }
-      });
+        });
 
-      // show direct apk link for the - very unlikely - case that google blocks our playstore entry
-      QrImageView directApkQr = (QrImageView) findViewById(R.id.ivDirectApkQR);
-      directApkQr.setQrCode(Constants.DIRECT_APK_URL);
-      directApkQr.setTapToCycleBrightness(false);
-      directApkQr.setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View v) {
+        // show direct apk link for the - very unlikely - case that google blocks our playstore entry
+        QrImageView directApkQr = findViewById(R.id.ivDirectApkQR);
+        directApkQr.setQrCode(Constants.DIRECT_APK_URL);
+        directApkQr.setTapToCycleBrightness(false);
+        directApkQr.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(Constants.DIRECT_APK_URL));
             startActivity(intent);
-         }
-      });
-   }
+        });
+    }
 
-   private void showVersionInfo(VersionManager versionManager, VersionInfoExResponse response) {
-      if (response==null || versionManager.isSameVersion(response.versionNumber)) {
-         new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, BuildConfig.VERSION_NAME))
-               .setTitle(getString(R.string.update_check))
-               .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                     dialog.dismiss();
-                  }
-               }).create().show();
-      } else {
-         versionManager.showVersionDialog(response, this);
-      }
-   }
+    private void showVersionInfo(VersionManager versionManager, VersionInfoExResponse response) {
+        if (response == null || versionManager.isSameVersion(response.versionNumber)) {
+            new AlertDialog.Builder(this).setMessage(getString(R.string.version_uptodate, BuildConfig.VERSION_NAME))
+                    .setTitle(getString(R.string.update_check))
+                    .setNeutralButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                    .show();
+        } else {
+            versionManager.showVersionDialog(response, this);
+        }
+    }
 
-   private void setLinkTo(TextView textView, int res) {
-      Uri httplink = Uri.parse(getResources().getString(res));
-      textView.setText(Html.fromHtml(hrefLink(httplink)));
-      textView.setMovementMethod(LinkMovementMethod.getInstance());
-   }
+    private void setLinkTo(TextView textView, int res) {
+        Uri httplink = Uri.parse(getResources().getString(res));
+        textView.setText(Html.fromHtml(hrefLink(httplink)));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
-   private void setMailTo(TextView textView) {
-      String mailAddress = getResources().getString(R.string.contact_email);
-      textView.setText(Html.fromHtml("<a href=\"mailto:" + mailAddress + "\">" + mailAddress + "</a>"));
-      textView.setMovementMethod(LinkMovementMethod.getInstance());
-   }
+    private void setMailTo(TextView textView) {
+        String mailAddress = getResources().getString(R.string.contact_email);
+        textView.setText(Html.fromHtml("<a href=\"mailto:" + mailAddress + "\">" + mailAddress + "</a>"));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
-   private String hrefLink(Uri githubLink) {
-      return "<a href=\"" + githubLink + "\">" + githubLink + "</a>";
-   }
+    private String hrefLink(Uri githubLink) {
+        return "<a href=\"" + githubLink + "\">" + githubLink + "</a>";
+    }
 
-   private class ShowLicenseListener implements View.OnClickListener {
-      private final int resourceId;
-
-      public ShowLicenseListener(int resourceId) {
-         this.resourceId = resourceId;
-      }
-
-      @Override
-      public void onClick(View v) {
-         final String message;
-         try {
-            message = Joiner.on("\n").join(
-                  (new ByteSource() {
-                     @Override
-                     public InputStream openStream() throws IOException {
-                        return getResources().openRawResource(resourceId);
-                     }
-                  }).asCharSource(StandardCharsets.UTF_8).readLines());
-         } catch (IOException e) {
-            throw new RuntimeException(e);
-         }
-         new AlertDialog.Builder(AboutActivity.this)
-                 .setMessage(message).setCancelable(true)
-                 .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                       dialog.cancel();
-                    }
-                 })
-                 .show();
-      }
-   }
+    private void setLicenseForButton(@IdRes int buttonId, @RawRes int fileId) {
+        findViewById(buttonId).setOnClickListener(v -> {
+            final String message;
+            try {
+                message = Joiner.on("\n").join(
+                        (new ByteSource() {
+                            @Override
+                            public InputStream openStream() {
+                                return getResources().openRawResource(fileId);
+                            }
+                        }).asCharSource(StandardCharsets.UTF_8).readLines());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            new AlertDialog.Builder(this)
+                    .setMessage(message).setCancelable(true)
+                    .setPositiveButton("Okay", (dialog, id) -> dialog.cancel())
+                    .show();
+        });
+    }
 }
