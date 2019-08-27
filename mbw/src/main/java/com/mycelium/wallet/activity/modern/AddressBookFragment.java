@@ -55,7 +55,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
@@ -370,14 +369,12 @@ public class AddressBookFragment extends Fragment {
 
             });
 
-            Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), _mbwManager.getNetwork());
-            findViewById(R.id.btClipboard).setEnabled(address.isPresent());
+            final List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(Utils.getClipboardString(activity));
+            findViewById(R.id.btClipboard).setEnabled(addresses.size() != 0);
             findViewById(R.id.btClipboard).setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
-                    String address = Utils.getClipboardString(activity);
-                    List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(address);
                     if (!addresses.isEmpty()) {
                         SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
                         dialog.show(requireFragmentManager(), "dialog");

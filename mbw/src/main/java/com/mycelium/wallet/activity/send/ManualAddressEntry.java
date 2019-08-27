@@ -123,7 +123,7 @@ public class ManualAddressEntry extends Activity {
         public void afterTextChanged(Editable editable) {
             _entered = editable.toString();
             CryptoCurrency currencyType = _mbwManager.getSelectedAccount().getCoinType();
-            _address = AddressUtils.from(currencyType, _entered.trim());
+            _address = currencyType.parseAddress(_entered.trim());
             boolean addressValid = _address != null && AddressUtils.addressValidation(_address);
 
             findViewById(R.id.tvBitcoinAddressInvalid).setVisibility(!addressValid ? View.VISIBLE : View.GONE);
