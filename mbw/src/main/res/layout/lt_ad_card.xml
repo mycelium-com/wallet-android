@@ -102,7 +102,7 @@
                         android:id="@+id/tvLastActivity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginEnd="10dp"
                         android:text="2 months"
                         android:textColor="@color/white"
                         tools:ignore="HardcodedText" />
@@ -177,7 +177,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="left"
+                android:gravity="start"
                 android:textSize="18sp"
                 android:textStyle="italic" />
 
@@ -197,8 +197,8 @@
                     android:layout_margin="5dp"
                     android:background="@drawable/btn_blue_slim"
                     android:paddingBottom="5dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:paddingTop="5dp"
                     android:text="@string/lt_map_button"
                     android:textSize="18sp" />
@@ -215,8 +215,8 @@
                     android:layout_margin="5dp"
                     android:background="@drawable/btn_blue_slim"
                     android:paddingBottom="5dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:paddingTop="5dp"
                     android:text="@string/lt_info_button"
                     android:textSize="18sp" />
@@ -235,12 +235,11 @@
                     android:layout_margin="5dp"
                     android:background="@drawable/btn_blue_slim"
                     android:paddingBottom="5dp"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:paddingTop="5dp"
                     android:textSize="18sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
 </FrameLayout>

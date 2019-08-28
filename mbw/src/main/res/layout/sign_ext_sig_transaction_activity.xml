@@ -40,8 +40,8 @@
             android:layout_below="@+id/pbProgress"
             android:paddingTop="15dp"
             android:textSize="18sp"
-            android:paddingRight="30dp"
-            android:paddingLeft="30dp"/>
+            android:paddingEnd="30dp"
+            android:paddingStart="30dp"/>
         <LinearLayout
                 android:id="@+id/llShowTx"
                 android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ext_sig_amount"/>
                 <TextView
                         android:id="@+id/tvAmount"
@@ -95,7 +95,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ext_sig_to"/>
                 <TextView
                         android:id="@+id/tvToAddress"
@@ -109,7 +109,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ext_sig_change_to"/>
                 <TextView
                         android:id="@+id/changeToAddress"
@@ -122,7 +122,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ext_sig_fee"/>
                 <TextView
                         android:id="@+id/tvFee"
@@ -135,7 +135,7 @@
                         android:id="@+id/sendingValueLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:visibility="gone"
                         android:text="@string/ext_sig_sending"/>
                 <TextView
@@ -149,7 +149,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingRight="10dp"
+                        android:paddingEnd="10dp"
                         android:text="@string/ext_sig_total"/>
                 <TextView
                         android:id="@+id/tvTotal"

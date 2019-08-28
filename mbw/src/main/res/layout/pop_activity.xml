@@ -28,21 +28,21 @@
             android:textSize="15sp"
             android:text="@string/pop_transaction_info_advice"
             android:textAlignment="center"
-            android:paddingLeft="15dp"/>
+            android:paddingStart="15dp"/>
     <LinearLayout android:orientation="vertical"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="20dp"
-                  android:layout_gravity="left|center"
-                  android:paddingLeft="15dp">
+                  android:layout_gravity="start|center"
+                  android:paddingStart="15dp">
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
                 android:text="@string/pop_date"
-                android:paddingLeft="15dp"
+                android:paddingStart="15dp"
                 android:textColor="@color/lightgrey"
-                android:layout_gravity="left|center"
+                android:layout_gravity="start|center"
                 />
         <TextView
                 android:layout_width="wrap_content"
@@ -51,22 +51,22 @@
                 android:id="@+id/pop_transaction_date"
                 android:textSize="20sp"
                 android:gravity="center_horizontal"
-                android:paddingLeft="15dp"
-                android:layout_marginLeft="15dp"/>
+                android:paddingStart="15dp"
+                android:layout_marginStart="15dp"/>
         </LinearLayout>
     <LinearLayout android:orientation="vertical"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:layout_gravity="left|center"
-                  android:paddingLeft="15dp">
+                  android:layout_gravity="start|center"
+                  android:paddingStart="15dp">
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="10dp"
                 android:text="@string/pop_amount_title"
-                android:paddingLeft="15dp"
+                android:paddingStart="15dp"
                 android:textColor="@color/lightgrey"
-                android:layout_gravity="left|center"
+                android:layout_gravity="start|center"
                 />
 
         <TextView
@@ -75,15 +75,15 @@
                 android:textSize="20sp"
                 android:layout_height="wrap_content"
                 android:id="@+id/pop_transaction_amount"
-                android:paddingLeft="15dp"
-                android:layout_marginLeft="15dp"/>
+                android:paddingStart="15dp"
+                android:layout_marginStart="15dp"/>
         </LinearLayout>
 
         <LinearLayout
                 android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center"
-            android:paddingLeft="15dp"
+            android:layout_gravity="start|center"
+            android:paddingStart="15dp"
                 android:orientation="vertical">
 
             <TextView
@@ -92,8 +92,8 @@
                     android:paddingTop="10dp"
                     android:text="@string/transaction_label_title"
                     android:textColor="@color/lightgrey"
-                    android:layout_gravity="left|center"
-                    android:paddingLeft="15dp"
+                    android:layout_gravity="start|center"
+                    android:paddingStart="15dp"
                     android:textAllCaps="false"
                     />
 
@@ -102,8 +102,8 @@
                     android:layout_height="wrap_content"
                     tools:text="I'm just a label sitting here"
                     android:id="@+id/pop_transaction_label"
-                    android:layout_marginLeft="15dp"
-                    android:paddingLeft="15dp"
+                    android:layout_marginStart="15dp"
+                    android:paddingStart="15dp"
                     android:textSize="20sp"/>
 
         </LinearLayout>
@@ -111,15 +111,15 @@
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|center"
-                android:paddingLeft="15dp"
+                android:layout_gravity="start|center"
+                android:paddingStart="15dp"
                 android:orientation="vertical"
-                android:layout_marginLeft="15dp">
+                android:layout_marginStart="15dp">
 
             <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left|center"
+                    android:layout_gravity="start|center"
                     android:text="@string/pop_send_pop_to"
                     android:paddingTop="10dp"
                     android:textColor="@color/lightgrey"
@@ -130,8 +130,8 @@
                       android:layout_height="wrap_content"
                       android:textSize="30sp"
                       tools:text="www.example.com"
-                      android:paddingLeft="15dp"
-                      android:layout_marginLeft="0dp"
+                      android:paddingStart="15dp"
+                      android:layout_marginStart="0dp"
                       android:layout_marginTop="-10dp"/>
         </LinearLayout>
 
@@ -139,8 +139,8 @@
                 android:id="@+id/btSend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
                 android:text="@string/pop_prove"
                 android:textSize="20sp"
                 android:layout_gravity="center"
@@ -152,8 +152,8 @@
                 android:id="@+id/btSelectOther"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/pop_select_other_tx"
                 android:textSize="20sp"
                 android:layout_gravity="center"

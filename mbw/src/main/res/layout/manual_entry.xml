@@ -56,8 +56,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
 
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         android:text="@string/ok"
         android:textSize="20sp" />
 

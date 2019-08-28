@@ -43,6 +43,7 @@ import android.widget.LinearLayout;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -114,7 +115,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    private List<GenericAssetInfo> getAvailableCurrencyList() {
       List<GenericAssetInfo> result = new ArrayList<>();
       final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
-              : getCurrencySwitcher().getCurrencyList(getCurrencySwitcher().getWalletCurrencies());
+              : getCurrencySwitcher().getCurrencyList(Utils.getBtcCoinType());
 
       for (GenericAssetInfo asset : currencies) {
          Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());

@@ -33,7 +33,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
             android:orientation="vertical">
 
             <Button
@@ -72,8 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             android:text="@string/alert_button"
             android:background="@drawable/btn_red"
             android:textSize="20sp"
@@ -86,8 +86,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="5dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             android:text="@string/pin_reset_in_progress_alert"
             android:background="@drawable/btn_red"
             android:textSize="20sp"

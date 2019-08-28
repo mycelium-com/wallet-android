@@ -6,7 +6,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         android:orientation="vertical"
-        tools:showIn="@layout/enter_pin_dialog">
+        tools:showIn="@layout/enter_pin_dialog"
+        android:layoutDirection="ltr">
 
     <include layout="@layout/enter_pin_display"/>
 
