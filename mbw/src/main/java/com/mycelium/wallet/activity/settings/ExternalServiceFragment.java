@@ -15,82 +15,64 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import java.util.List;
 
 public class ExternalServiceFragment extends PreferenceFragmentCompat {
-    private MbwManager _mbwManager;
+    private MbwManager mbwManager;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences_external_service);
-        _mbwManager = MbwManager.getInstance(getActivity().getApplication());
+        mbwManager = MbwManager.getInstance(requireActivity().getApplication());
 
         setHasOptionsMenu(true);
-        ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((SettingsActivity) requireActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.external_service);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("container");
-        final List<BuySellServiceDescriptor> buySellServices = _mbwManager.getEnvironmentSettings().getBuySellServices();
+        final List<BuySellServiceDescriptor> buySellServices = mbwManager.getEnvironmentSettings().getBuySellServices();
 
         for (final BuySellServiceDescriptor buySellService : buySellServices) {
             if (!buySellService.showEnableInSettings()) {
                 continue;
             }
 
-            final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
+            final CheckBoxPreference cbService = new CheckBoxPreference(requireActivity());
             final String enableTitle = getResources().getString(R.string.settings_service_enabled,
                     getResources().getString(buySellService.title)
             );
             cbService.setTitle(enableTitle);
             cbService.setLayoutResource(R.layout.preference_layout);
             cbService.setSummary(buySellService.settingDescription);
-            cbService.setChecked(buySellService.isEnabled(_mbwManager));
+            cbService.setChecked(buySellService.isEnabled(mbwManager));
             cbService.setWidgetLayoutResource(R.layout.preference_switch);
             cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     CheckBoxPreference p = (CheckBoxPreference) preference;
-                    buySellService.setEnabled(_mbwManager, p.isChecked());
+                    buySellService.setEnabled(mbwManager, p.isChecked());
                     return true;
                 }
             });
             preferenceCategory.addPreference(cbService);
         }
 
-        if (!SettingsPreference.getInstance().isEndedMyDFS()) {
-            final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
-            cbService.setTitle(R.string.settings_mydfs_title);
-            cbService.setSummary(R.string.settings_mydfs_summary);
-            cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
-            cbService.setLayoutResource(R.layout.preference_layout);
-            cbService.setWidgetLayoutResource(R.layout.preference_switch);
-            cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        if (SettingsPreference.INSTANCE.getFioActive()) {
+            final CheckBoxPreference cbServiceFio = new CheckBoxPreference(requireActivity());
+            cbServiceFio.setTitle(R.string.settings_fio_title);
+            cbServiceFio.setSummary(R.string.settings_fio_summary);
+            cbServiceFio.setChecked(SettingsPreference.INSTANCE.getFioEnabled());
+            cbServiceFio.setLayoutResource(R.layout.preference_layout);
+            cbServiceFio.setWidgetLayoutResource(R.layout.preference_switch);
+            cbServiceFio.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
+                    SettingsPreference.INSTANCE.setFioEnabled(p.isChecked());
                     return true;
                 }
             });
-            preferenceCategory.addPreference(cbService);
-        }
-
-        if (!SettingsPreference.getInstance().isEndedApex()) {
-            final CheckBoxPreference cbServiceApex = new CheckBoxPreference(getActivity());
-            cbServiceApex.setTitle(R.string.settings_apex_title);
-            cbServiceApex.setSummary(R.string.settings_apex_summary);
-            cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
-            cbServiceApex.setLayoutResource(R.layout.preference_layout);
-            cbServiceApex.setWidgetLayoutResource(R.layout.preference_switch);
-            cbServiceApex.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableApex(p.isChecked());
-                    return true;
-                }
-            });
-            preferenceCategory.addPreference(cbServiceApex);
+            preferenceCategory.addPreference(cbServiceFio);
         }
     }
 

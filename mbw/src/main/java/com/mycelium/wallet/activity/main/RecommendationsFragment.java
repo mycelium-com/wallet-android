@@ -60,22 +60,7 @@ import com.mycelium.wallet.external.Ads;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mycelium.wallet.R.string.cancel;
-import static com.mycelium.wallet.R.string.ok;
-import static com.mycelium.wallet.R.string.partner_ledger;
-import static com.mycelium.wallet.R.string.partner_ledger_info;
-import static com.mycelium.wallet.R.string.partner_ledger_short;
-import static com.mycelium.wallet.R.string.partner_ledger_url;
-import static com.mycelium.wallet.R.string.partner_more_info_text;
-import static com.mycelium.wallet.R.string.partner_purse;
-import static com.mycelium.wallet.R.string.partner_purse_info;
-import static com.mycelium.wallet.R.string.partner_purse_short;
-import static com.mycelium.wallet.R.string.partner_purse_url;
-import static com.mycelium.wallet.R.string.partner_trezor;
-import static com.mycelium.wallet.R.string.partner_trezor_info;
-import static com.mycelium.wallet.R.string.partner_trezor_short;
-import static com.mycelium.wallet.R.string.partner_trezor_url;
-import static com.mycelium.wallet.R.string.warning_partner;
+import static com.mycelium.wallet.R.string.*;
 
 public class RecommendationsFragment extends Fragment {
     RecyclerView recommendationsList;
@@ -90,16 +75,15 @@ public class RecommendationsFragment extends Fragment {
         List<RecommendationInfo> list = new ArrayList<>();
         int fromItem = 1;
         list.add(new RecommendationHeader());
-        if (SettingsPreference.getInstance().isApexEnabled()) {
-            list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
+        if (SettingsPreference.INSTANCE.getFioEnabled()) {
+            list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.logo_fio)));
             fromItem++;
         }
 
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
-
-        list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
+        list.add(getPartnerInfo(partner_safervpn, partner_safervpn_short, partner_safervpn_info, partner_safervpn_url, R.drawable.safervpn_icon_small));
 
         list.add(new RecommendationFooter());
         RecommendationAdapter adapter = new RecommendationAdapter(list);
@@ -108,49 +92,43 @@ public class RecommendationsFragment extends Fragment {
             @Override
             public void onClick(final PartnerInfo bean) {
                 if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage(bean.getInfo());
-                    builder.setTitle(warning_partner);
-                    builder.setIcon(bean.getSmallIcon());
-                    builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if (bean.getUri() != null) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(bean.getUri()));
-                                startActivity(intent);
-                            }
-                        }
-                    });
-                    builder.setNegativeButton(cancel, null);
-                    alertDialog = builder.create();
+                    alertDialog = new AlertDialog.Builder(getActivity())
+                            .setMessage(bean.getInfo())
+                            .setTitle(warning_partner)
+                            .setIcon(bean.getSmallIcon())
+                            .setPositiveButton(ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    if (bean.getUri() != null) {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW)
+                                                .setData(Uri.parse(bean.getUri()));
+                                        startActivity(intent);
+                                    }
+                                }
+                            })
+                            .setNegativeButton(cancel, null)
+                            .create();
                     alertDialog.show();
                 } else {
                     if (bean.getUri() != null) {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
                     }
                 }
-
             }
 
             @Override
             public void onClick(RecommendationFooter recommendationFooter) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.your_privacy_out_priority);
-                builder.setMessage(partner_more_info_text);
-                builder.setPositiveButton(ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        });
-                builder.setIcon(R.drawable.mycelium_logo_transp_small);
-                alertDialog = builder.create();
+                alertDialog = new AlertDialog.Builder(getActivity())
+                        .setTitle(your_privacy_out_priority)
+                        .setMessage(partner_more_info_text)
+                        .setPositiveButton(ok, null)
+                        .setIcon(R.drawable.mycelium_logo_transp_small)
+                        .create();
                 alertDialog.show();
             }
 
             @Override
             public void onClick(RecommendationBanner recommendationBanner) {
-                Ads.INSTANCE.openApex(getActivity());
+                Ads.INSTANCE.openFio(requireContext());
             }
         });
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL);
