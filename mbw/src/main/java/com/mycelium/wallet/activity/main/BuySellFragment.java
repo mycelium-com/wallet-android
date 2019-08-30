@@ -134,11 +134,10 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     }
 
     private void addFioPreSale(List<ActionButton> actions) {
-//        if (SettingsPreference.getInstance().isMyDFSEnabled()) {
+        if (SettingsPreference.getInstance().isFiopresaleEnabled()) {
             ActionButton actionButton = new ActionButton(FIOPRESALE_ACTION, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small);
-//            actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
-//        }
+        }
     }
 
     @Override

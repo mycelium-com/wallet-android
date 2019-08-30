@@ -96,7 +96,9 @@ public class RecommendationsFragment extends Fragment {
 
         list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.string.partner_fiopresale_url, R.drawable.ic_fiopresale_icon_small));
+        if(SettingsPreference.getInstance().isFiopresaleEnabled()) {
+            list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.string.partner_fiopresale_url, R.drawable.ic_fiopresale_icon_small));
+        }
 
         list.add(new RecommendationFooter());
         RecommendationAdapter adapter = new RecommendationAdapter(list);

@@ -1322,4 +1322,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
     <string name="partner_fiopresale_info" />
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
+    <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
+    <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
 </resources>

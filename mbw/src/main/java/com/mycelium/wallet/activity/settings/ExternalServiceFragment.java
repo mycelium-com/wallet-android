@@ -1,12 +1,13 @@
 package com.mycelium.wallet.activity.settings;
 
 import android.os.Bundle;
+import android.view.MenuItem;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
-import android.view.MenuItem;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -56,6 +57,21 @@ public class ExternalServiceFragment extends PreferenceFragmentCompat {
             });
             preferenceCategory.addPreference(cbService);
         }
+        final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
+        cbService.setTitle(R.string.settings_fiopresale_title);
+        cbService.setSummary(R.string.settings_fiopresale_summary);
+        cbService.setChecked(SettingsPreference.getInstance().isFiopresaleEnabled());
+        cbService.setLayoutResource(R.layout.preference_layout);
+        cbService.setWidgetLayoutResource(R.layout.preference_switch);
+        cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                CheckBoxPreference p = (CheckBoxPreference) preference;
+                SettingsPreference.getInstance().setEnableFiopresale(p.isChecked());
+                return true;
+            }
+        });
+        preferenceCategory.addPreference(cbService);
     }
 
     @Override
