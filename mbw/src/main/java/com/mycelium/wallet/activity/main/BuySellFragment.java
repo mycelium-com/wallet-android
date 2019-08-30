@@ -79,8 +79,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     public static final int BCH_ACTION = 1;
     public static final int ALTCOIN_ACTION = 2;
     public static final int BTC_ACTION = 3;
-    public static final int MYDFS_ACTION = 4;
-    public static final int APEX_ACTION = 5;
+    public static final int FIOPRESALE_ACTION = 6;
     private MbwManager _mbwManager;
 
     @BindView(R.id.button_list)
@@ -116,18 +115,17 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 return input.isEnabled(_mbwManager);
             }
         });
-        int scrollTo = 0;
+        int scrollTo = 1;
         if (_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
                 _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
 
             actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
         } else {
             actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
-            scrollTo = addMyDfs(actions, scrollTo);
-            addApex(actions);
             if (showButton) {
                 actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
             }
+            addFioPreSale(actions);
         }
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
@@ -135,22 +133,12 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         }
     }
 
-    private void addApex(List<ActionButton> actions) {
-        if (SettingsPreference.getInstance().isApexEnabled()) {
-            ActionButton actionButton = new ActionButton(APEX_ACTION, getString(R.string.buy_apex_token), R.drawable.logo_apex_token);
-            actionButton.textColor = getResources().getColor(R.color.white);
+    private void addFioPreSale(List<ActionButton> actions) {
+//        if (SettingsPreference.getInstance().isMyDFSEnabled()) {
+            ActionButton actionButton = new ActionButton(FIOPRESALE_ACTION, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small);
+//            actionButton.textColor = getResources().getColor(R.color.white);
             actions.add(actionButton);
-        }
-    }
-
-    private int addMyDfs(List<ActionButton> actions, int scrollTo) {
-        if (SettingsPreference.getInstance().isMyDFSEnabled()) {
-            ActionButton actionButton = new ActionButton(MYDFS_ACTION, getString(R.string.buy_mydfs_token), R.drawable.ic_stars);
-            actionButton.textColor = getResources().getColor(R.color.white);
-            actions.add(actionButton);
-            scrollTo = actions.size() - 1;
-        }
-        return scrollTo;
+//        }
     }
 
     @Override
@@ -165,11 +153,8 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case BTC_ACTION:
                 startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                 break;
-            case MYDFS_ACTION:
-                Ads.INSTANCE.openMydfs(getActivity());
-                break;
-            case APEX_ACTION:
-                Ads.INSTANCE.openApex(getActivity());
+            case FIOPRESALE_ACTION:
+                Ads.INSTANCE.openFiopresale(getActivity());
                 break;
         }
     }

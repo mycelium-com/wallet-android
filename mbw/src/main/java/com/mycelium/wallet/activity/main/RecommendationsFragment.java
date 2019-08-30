@@ -89,10 +89,6 @@ public class RecommendationsFragment extends Fragment {
         List<RecommendationInfo> list = new ArrayList<>();
         int fromItem = 1;
         list.add(new RecommendationHeader());
-        if (SettingsPreference.getInstance().isApexEnabled()) {
-            list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
-            fromItem++;
-        }
 
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
@@ -100,7 +96,7 @@ public class RecommendationsFragment extends Fragment {
 
         list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.string.partner_fiopresale_url, R.drawable.fiopresale_icon_small));
+        list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.string.partner_fiopresale_url, R.drawable.ic_fiopresale_icon_small));
 
         list.add(new RecommendationFooter());
         RecommendationAdapter adapter = new RecommendationAdapter(list);
@@ -151,7 +147,6 @@ public class RecommendationsFragment extends Fragment {
 
             @Override
             public void onClick(RecommendationBanner recommendationBanner) {
-                Ads.INSTANCE.openApex(getActivity());
             }
         });
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL);

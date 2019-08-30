@@ -56,42 +56,6 @@ public class ExternalServiceFragment extends PreferenceFragmentCompat {
             });
             preferenceCategory.addPreference(cbService);
         }
-
-        if (!SettingsPreference.getInstance().isEndedMyDFS()) {
-            final CheckBoxPreference cbService = new CheckBoxPreference(getActivity());
-            cbService.setTitle(R.string.settings_mydfs_title);
-            cbService.setSummary(R.string.settings_mydfs_summary);
-            cbService.setChecked(SettingsPreference.getInstance().isMyDFSEnabled());
-            cbService.setLayoutResource(R.layout.preference_layout);
-            cbService.setWidgetLayoutResource(R.layout.preference_switch);
-            cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableMyDFS(p.isChecked());
-                    return true;
-                }
-            });
-            preferenceCategory.addPreference(cbService);
-        }
-
-        if (!SettingsPreference.getInstance().isEndedApex()) {
-            final CheckBoxPreference cbServiceApex = new CheckBoxPreference(getActivity());
-            cbServiceApex.setTitle(R.string.settings_apex_title);
-            cbServiceApex.setSummary(R.string.settings_apex_summary);
-            cbServiceApex.setChecked(SettingsPreference.getInstance().isApexEnabled());
-            cbServiceApex.setLayoutResource(R.layout.preference_layout);
-            cbServiceApex.setWidgetLayoutResource(R.layout.preference_switch);
-            cbServiceApex.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.getInstance().setEnableApex(p.isChecked());
-                    return true;
-                }
-            });
-            preferenceCategory.addPreference(cbServiceApex);
-        }
     }
 
     @Override

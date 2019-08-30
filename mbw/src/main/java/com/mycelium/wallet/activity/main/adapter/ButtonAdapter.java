@@ -60,7 +60,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             button.setTextColor(actionButton.textColor != 0 ?
                     actionButton.textColor : button.getResources().getColor(R.color.btn_text_color));
             button.setPadding(button.getResources().getDimensionPixelSize(actionButton.icon != 0 ?
-                            R.dimen.button_padding : R.dimen.button_padding_large)
+                            R.dimen.page_margin_width : R.dimen.button_padding_large)
                     , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
