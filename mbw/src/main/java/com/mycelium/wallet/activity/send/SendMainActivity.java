@@ -510,7 +510,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateTransactionStatusAndUi();
             }
         });
-        receiversAddressesList.setSelectedItem(2);
+        receiversAddressesList.setSelectedItem(receivingAddressesList.size() - 1);
     }
 
     @UiThread
@@ -1216,7 +1216,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
                             receivingAddressesList.add(AddressUtils.fromAddress(address));
                         }
-                        setUpMultiAddressView();
+                        if (receivingAddressesList.size() == 1) {
+                            _receivingAddress = receivingAddressesList.get(0);
+                        } else {
+                            setUpMultiAddressView();
+                        }
                         break;
                     case ADDRESS:
                         _receivingAddress = getAddress(intent);

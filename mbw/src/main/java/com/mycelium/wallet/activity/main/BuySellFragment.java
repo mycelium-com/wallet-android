@@ -37,14 +37,15 @@ package com.mycelium.wallet.activity.main;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.InfiniteLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -76,11 +77,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class BuySellFragment extends Fragment implements ButtonClickListener {
-    public static final int BCH_ACTION = 1;
-    public static final int ALTCOIN_ACTION = 2;
-    public static final int BTC_ACTION = 3;
-    public static final int FIOPRESALE_ACTION = 6;
-    private MbwManager _mbwManager;
+    public enum ACTION {
+        BCH, ALT_COIN, BTC, FIO
+    }
+
+    private MbwManager mbwManager;
 
     @BindView(R.id.button_list)
     RecyclerView recyclerView;
@@ -109,23 +110,23 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     private void recreateActions() {
         List<ActionButton> actions = new ArrayList<>();
-        boolean showButton = Iterables.any(_mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
+        boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
             @Override
             public boolean apply(@Nullable BuySellServiceDescriptor input) {
-                return input.isEnabled(_mbwManager);
+                return input.isEnabled(mbwManager);
             }
         });
         int scrollTo = 1;
-        if (_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
-                _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
+        if (mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
+                mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
 
-            actions.add(new ActionButton(BCH_ACTION, getString(R.string.exchange_bch_to_btc)));
+            actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
         } else {
-            actions.add(new ActionButton(ALTCOIN_ACTION, getString(R.string.exchange_altcoins_to_btc)));
+            actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
             if (showButton) {
-                actions.add(new ActionButton(BTC_ACTION, getString(R.string.gd_buy_sell_button)));
+                actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
             }
-            addFioPreSale(actions);
+            addFio(actions);
         }
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
@@ -133,27 +134,26 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         }
     }
 
-    private void addFioPreSale(List<ActionButton> actions) {
-        if (SettingsPreference.getInstance().isFiopresaleEnabled()) {
-            ActionButton actionButton = new ActionButton(FIOPRESALE_ACTION, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small);
-            actions.add(actionButton);
+    private void addFio(List<ActionButton> actions) {
+        if (SettingsPreference.INSTANCE.getFioEnabled()) {
+            actions.add(new ActionButton(ACTION.FIO, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small));
         }
     }
 
     @Override
     public void onClick(ActionButton actionButton) {
-        switch (actionButton.id) {
-            case BCH_ACTION:
+        switch (actionButton.getId()) {
+            case BCH:
                 startExchange(new Intent(getActivity(), ExchangeActivity.class));
                 break;
-            case ALTCOIN_ACTION:
+            case ALT_COIN:
                 startExchange(new Intent(getActivity(), ChangellyActivity.class));
                 break;
-            case BTC_ACTION:
+            case BTC:
                 startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                 break;
-            case FIOPRESALE_ACTION:
-                Ads.INSTANCE.openFiopresale(getActivity());
+            case FIO:
+                Ads.INSTANCE.openFio(requireContext());
                 break;
         }
     }
@@ -184,7 +184,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        _mbwManager = MbwManager.getInstance(context);
+        mbwManager = MbwManager.getInstance(context);
     }
 
     @Override

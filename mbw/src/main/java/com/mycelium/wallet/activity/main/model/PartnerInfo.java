@@ -34,7 +34,7 @@
 
 package com.mycelium.wallet.activity.main.model;
 
-public class PartnerInfo extends RecommendationInfo{
+public class PartnerInfo extends RecommendationInfo {
     public static final int PARTNER_TYPE = 1;
     private final String name;
     private final String description;
@@ -42,12 +42,21 @@ public class PartnerInfo extends RecommendationInfo{
     private final String uri;
     private final int icon;
     private final int smallIcon;
+    private final Runnable action;
+
+    public PartnerInfo(String name, String description, String disclaimer, int icon, Runnable action) {
+        this(name, description, disclaimer, null, icon, 0, action);
+    }
 
     public PartnerInfo(String name, String description, String disclaimer, String uri, int icon) {
         this(name, description, disclaimer, uri, icon, 0);
     }
 
     public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon) {
+        this(name, description, info, uri, icon, smallIcon, null);
+    }
+
+    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon, Runnable action) {
         super(PARTNER_TYPE);
         this.name = name;
         this.description = description;
@@ -55,6 +64,7 @@ public class PartnerInfo extends RecommendationInfo{
         this.uri = uri;
         this.icon = icon;
         this.smallIcon = smallIcon;
+        this.action = action;
     }
 
     public final String getName() {

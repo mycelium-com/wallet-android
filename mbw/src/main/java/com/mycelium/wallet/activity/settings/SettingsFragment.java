@@ -898,6 +898,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             case LOWPRIO:
                 blocks = 20;
                 break;
+            case ECONOMIC:
+                blocks = 10;
+                break;
             case NORMAL:
                 blocks = 3;
                 break;
