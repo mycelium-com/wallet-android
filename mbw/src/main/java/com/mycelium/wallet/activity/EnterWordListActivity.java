@@ -258,7 +258,7 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
          _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
          _progress.setMessage(getString(R.string.importing_master_seed_from_wordlist));
          _progress.show();
-         new MasterSeedFromWordsAsyncTask(_mbwManager.getEventBus(), enteredWords, password).execute();
+         new MasterSeedFromWordsAsyncTask(MbwManager.getEventBus(), enteredWords, password).execute();
       }
    }
 
@@ -315,14 +315,14 @@ public class EnterWordListActivity extends AppCompatActivity implements WordAuto
 
    @Override
    public void onResume() {
-      _mbwManager.getEventBus().register(this);
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    public void onPause() {
       _progress.dismiss();
-      _mbwManager.getEventBus().unregister(this);
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
