@@ -15,8 +15,7 @@ public class AndroidCard implements IsoCard {
     private static final int SAMSUNG_S5_MINI_MAX = 253;
 
     private IsoDep card;
-    private List<OnCardErrorListener> errorListeners =
-        new CopyOnWriteArrayList<OnCardErrorListener>();
+    private List<OnCardErrorListener> errorListeners = new CopyOnWriteArrayList<>();
 
     private AndroidCard(IsoDep card) {
         this.card = card;
@@ -33,11 +32,7 @@ public class AndroidCard implements IsoCard {
         card.connect();
         card.close();
 
-        if(card != null) {
-            return new AndroidCard(card);
-        } else {
-            return null;
-        }
+        return new AndroidCard(card);
     }
 
     private void notifyListeners(IOException exception) {
@@ -103,7 +98,7 @@ public class AndroidCard implements IsoCard {
 
     public List<byte[]> transceive(List<byte[]> commands) throws IOException {
         try {
-            ArrayList<byte[]> responses = new ArrayList<byte[]>();
+            ArrayList<byte[]> responses = new ArrayList<>();
             for(byte[] command: commands) {
                 responses.add(card.transceive(command));
             }
