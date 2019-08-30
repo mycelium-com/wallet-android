@@ -86,7 +86,6 @@ public class RecommendationsFragment extends Fragment {
         View root = inflater.inflate(R.layout.main_recommendations_view, container, false);
         recommendationsList = root.findViewById(R.id.list);
 
-        recommendationsList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         List<RecommendationInfo> list = new ArrayList<>();
         int fromItem = 1;
         list.add(new RecommendationHeader());
@@ -100,6 +99,8 @@ public class RecommendationsFragment extends Fragment {
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
 
         list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
+
+        list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.string.partner_fiopresale_url, R.drawable.fiopresale_icon_small));
 
         list.add(new RecommendationFooter());
         RecommendationAdapter adapter = new RecommendationAdapter(list);
