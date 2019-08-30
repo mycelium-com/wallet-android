@@ -221,7 +221,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                         try {
                             price = Double.parseDouble(entry.getValue());
                         } catch (NumberFormatException nfe) {
-                            price = null;
+                            price = 0.0;
                         }
                         ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), price, currency);
                         exchangeRates.add(exchangeRate);
@@ -355,7 +355,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         for (ExchangeRate r : exchangeRates) {
             if (r.name.equals(source)) {
                 //if the price is 0, obviously something went wrong
-                if (r.price == null || r.price.equals(0d)) {
+                if (r.price.equals(0d)) {
                     //we return an exchange rate with null price -> indicating missing rate
                     return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
                 }
@@ -385,11 +385,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
         }
         if ("MSS".equals(injectCurrency)) {
-            if(r.price == null) {
-                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "MSS");
-            }else {
-                rate = r.price * MSS_RATE;
-            }
+            rate = r.price * MSS_RATE;
         }
         if ("BCH".equals(injectCurrency)) {
             if (rateBchBtc != 0) {
