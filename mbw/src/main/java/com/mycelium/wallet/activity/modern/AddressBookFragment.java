@@ -360,11 +360,9 @@ public class AddressBookFragment extends Fragment {
                 AddDialog.this.dismiss();
             });
 
-            Optional<GenericAddress> address = Utils.addressFromString(Utils.getClipboardString(activity), mbwManager.getNetwork());
-            findViewById(R.id.btClipboard).setEnabled(address.isPresent());
+            final List<GenericAddress> addresses = mbwManager.getWalletManager(false).parseAddress(Utils.getClipboardString(activity));
+            findViewById(R.id.btClipboard).setEnabled(addresses.size() != 0);
             findViewById(R.id.btClipboard).setOnClickListener(v -> {
-                String address1 = Utils.getClipboardString(activity);
-                List<GenericAddress> addresses = mbwManager.getWalletManager(false).parseAddress(address1);
                 if (!addresses.isEmpty()) {
                     if(addresses.size() == 1){
                         addFromAddress(addresses.get(0));
