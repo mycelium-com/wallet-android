@@ -511,7 +511,7 @@ public class Utils {
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
+         return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
          GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {

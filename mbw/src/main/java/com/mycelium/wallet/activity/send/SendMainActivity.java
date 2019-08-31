@@ -510,7 +510,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateTransactionStatusAndUi();
             }
         });
-        receiversAddressesList.setSelectedItem(2);
+        receiversAddressesList.setSelectedItem(receivingAddressesList.size() - 1);
     }
 
     @UiThread
@@ -1216,7 +1216,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         for (Address address : publicKey.getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
                             receivingAddressesList.add(AddressUtils.fromAddress(address));
                         }
-                        setUpMultiAddressView();
+                        if (receivingAddressesList.size() == 1) {
+                            _receivingAddress = receivingAddressesList.get(0);
+                        } else {
+                            setUpMultiAddressView();
+                        }
                         break;
                     case ADDRESS:
                         _receivingAddress = getAddress(intent);
@@ -1359,13 +1363,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         String string = Utils.getClipboardString(this).trim();
         if (string.matches("[a-zA-Z0-9]+")) {
             // Raw format
-            List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(string);
-            for (GenericAddress address: addresses) {
-                if (address.getCoinType() == _account.getCoinType()) {
-                    return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
-                }
-            }
-            return null;
+            GenericAddress address = _account.getCoinType().parseAddress(string);
+            return address != null ? GenericAssetUriParser.createUriByCoinType(_account.getCoinType(),
+                    address, null, null, null) : null;
         } else {
             GenericAssetUri uri = _mbwManager.getContentResolver().resolveUri(string);
             if (uri == null || uri.getAddress() == null) {
