@@ -1363,13 +1363,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         String string = Utils.getClipboardString(this).trim();
         if (string.matches("[a-zA-Z0-9]+")) {
             // Raw format
-            List<GenericAddress> addresses = _mbwManager.getWalletManager(false).parseAddress(string);
-            for (GenericAddress address: addresses) {
-                if (address.getCoinType() == _account.getCoinType()) {
-                    return GenericAssetUriParser.createUriByCoinType(_account.getCoinType(), address, null, null, null);
-                }
-            }
-            return null;
+            GenericAddress address = _account.getCoinType().parseAddress(string);
+            return address != null ? GenericAssetUriParser.createUriByCoinType(_account.getCoinType(),
+                    address, null, null, null) : null;
         } else {
             GenericAssetUri uri = _mbwManager.getContentResolver().resolveUri(string);
             if (uri == null || uri.getAddress() == null) {

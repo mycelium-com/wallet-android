@@ -282,9 +282,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         val address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label)
 
         return if (address.isPresent) {
-            Optional.of<String>(address.get())
+            Optional.of(address.get())
         } else {
-            Optional.absent<String>()
+            Optional.absent()
         }
     }
 
@@ -373,9 +373,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
     fun getCoinapultAddress(forCurrency: String): Optional<Address> {
         val last = getKeyCategoryValueEntry(COINAPULT.of("last$forCurrency"))
         if (!last.isPresent) {
-            return Optional.absent<Address>()
+            return Optional.absent()
         }
-        return Optional.fromNullable<Address>(Address.fromString(last.get()))
+        return Optional.fromNullable(Address.fromString(last.get()))
     }
 
     fun storeColuAssetCoinSupply(assetIds: String, value: BigDecimal) {
