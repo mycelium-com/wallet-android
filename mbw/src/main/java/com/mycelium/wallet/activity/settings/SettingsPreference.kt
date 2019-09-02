@@ -10,7 +10,7 @@ object SettingsPreference {
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     var fioEnabled
-        get() = sharedPreferences.getBoolean(FIO_ENABLE, true) && isFioActive(FIO_ENABLE)
+        get() = sharedPreferences.getBoolean(FIO_ENABLE, true) && fioActive
         set(enable) {
             sharedPreferences.edit()
                     .putBoolean(FIO_ENABLE, enable)
@@ -18,14 +18,14 @@ object SettingsPreference {
         }
 
     val fioActive
-        get() = isFioActive(FIO_ENABLE)
+        get() = isActive(FIO_ENABLE)
 
-    private fun isFioActive(id: String) = when (id) {
-        FIO_ENABLE -> isFioBefore(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")
+    private fun isActive(id: String) = when (id) {
+        FIO_ENABLE -> isBefore(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")
         else -> false
     }
 
-    private fun isFioBefore(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String): Boolean {
+    private fun isBefore(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String): Boolean {
         val calendar = Calendar.getInstance()
         calendar.timeZone = TimeZone.getTimeZone(timezone)
         calendar.set(year, month, day, hour, minute)
