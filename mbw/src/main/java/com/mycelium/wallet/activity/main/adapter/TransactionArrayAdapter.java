@@ -176,7 +176,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       }
 
       // Show label or confirmations
-      TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
+      TextView tvLabel = rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getIdHex());
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced

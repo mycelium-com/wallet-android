@@ -503,13 +503,14 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
+                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
                                          } else {
                                             new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
                                          }
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -529,6 +530,7 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -675,6 +677,7 @@ public class TransactionHistoryFragment extends Fragment {
                      Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
                      startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      dialog.dismiss();
+                     finishActionMode();
                   }
                });
                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
