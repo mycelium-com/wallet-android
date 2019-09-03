@@ -8,8 +8,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
 
     companion object {
-        @JvmStatic
-        val lock = Any()
+        private val lock = Any()
     }
 
     override fun run() {
