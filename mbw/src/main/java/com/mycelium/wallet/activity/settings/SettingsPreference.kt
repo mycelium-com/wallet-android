@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wallet.WalletConfiguration
 import java.util.*
 
 object SettingsPreference {
@@ -18,17 +19,16 @@ object SettingsPreference {
         }
 
     val fioActive
-        get() = isActive(FIO_ENABLE)
+        get() = isFioActive(FIO_ENABLE)
 
-    private fun isActive(id: String) = when (id) {
-        FIO_ENABLE -> isBefore(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")
+    private fun isFioActive(id: String) = when (id) {
+        FIO_ENABLE -> Date().before(getFioEndDate())
         else -> false
     }
 
-    private fun isBefore(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.timeZone = TimeZone.getTimeZone(timezone)
-        calendar.set(year, month, day, hour, minute)
-        return Date().before(calendar.time)
-    }
+    private fun getFioEndDate(): Date =
+            Date(sharedPreferences.getLong(WalletConfiguration.PREFS_FIO_END_DATE, Calendar.getInstance().apply {
+                timeZone = TimeZone.getTimeZone("Europe/Paris")
+                set(2019, Calendar.NOVEMBER, 1, 0, 0)
+            }.timeInMillis))
 }
