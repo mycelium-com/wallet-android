@@ -30,7 +30,9 @@ interface  MyceliumNodesApi {
 // MyceliumNodesResponse is intended for parsing nodes.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
-                            @SerializedName("fiopresale-end-date") val fioEndDate: Date?)
+                            @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?)
+
+data class PartnerInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
 
 const val ONION_DOMAIN = ".onion"
 
@@ -83,7 +85,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
 
-                    myceliumNodesResponse?.fioEndDate?.let {
+                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
                     prefEditor.apply()
