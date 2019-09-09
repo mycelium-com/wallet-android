@@ -59,7 +59,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -112,9 +111,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
@@ -185,7 +181,6 @@ public class MbwManager {
     private final LtApiClient _ltApi;
     private Handler _torHandler;
     private Context _applicationContext;
-    private MetadataStorage _storage;
     private LocalTraderManager _localTraderManager;
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
@@ -276,7 +271,6 @@ public class MbwManager {
         WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
 
-        _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
@@ -1338,7 +1332,7 @@ public class MbwManager {
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);
-        _storage.storeAccountLabel(accountId, defaultName);
+        MetadataStorage.INSTANCE.storeAccountLabel(accountId, defaultName);
         return accountId;
     }
 
@@ -1347,7 +1341,7 @@ public class MbwManager {
     }
 
     public MetadataStorage getMetadataStorage() {
-        return _storage;
+        return MetadataStorage.INSTANCE;
     }
 
     public RandomSource getRandomSource() {

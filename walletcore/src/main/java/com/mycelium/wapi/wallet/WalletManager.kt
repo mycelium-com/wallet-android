@@ -26,7 +26,7 @@ constructor(val network: NetworkParameters,
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
         currencySettingsMap[moduleID] = settings
-        walletModules.get(moduleID)?.setCurrencySettings(settings)
+        walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
     var isNetworkConnected: Boolean = false
