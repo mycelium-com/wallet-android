@@ -81,7 +81,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         } else {
             Log.d("WalletApplication", "Inserted spongy castle provider");
         }
-        SettingsPreference.getInstance().init(this);
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()

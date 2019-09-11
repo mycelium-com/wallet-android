@@ -23,16 +23,16 @@ public class NotificationsFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        newsAllPreference = (CheckBoxPreference) findPreference("news_all_notification");
+        newsAllPreference = findPreference("news_all_notification");
     }
 
     @Override
     protected void onBindPreferences() {
-        newsAllPreference.setChecked(SettingsPreference.getInstance().isNewsNotificationEnabled());
+        newsAllPreference.setChecked(SettingsPreference.INSTANCE.getNewsNotificationEnabled());
         newsAllPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 CheckBoxPreference p = (CheckBoxPreference) preference;
-                SettingsPreference.getInstance().setNewsNotificationEnabled(p.isChecked());
+                SettingsPreference.INSTANCE.setNewsNotificationEnabled(p.isChecked());
                 return true;
             }
         });
