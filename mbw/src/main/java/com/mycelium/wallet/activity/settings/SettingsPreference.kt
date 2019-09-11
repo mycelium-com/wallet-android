@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletConfiguration
 import java.util.*
@@ -9,6 +10,9 @@ import java.util.*
 object SettingsPreference {
     private val FIO_ENABLE = "fio_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences("settings", Context.MODE_PRIVATE)
+    private val fioDefaultEndDate = date(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")
+    private val fioDefaultStartDate = date(2019, Calendar.SEPTEMBER, 1, 0, 0, "Europe/Paris")
+    private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
 
     var fioEnabled
         get() = sharedPreferences.getBoolean(FIO_ENABLE, true) && fioActive
@@ -22,10 +26,10 @@ object SettingsPreference {
         get() = isActive(FIO_ENABLE)
 
     private fun isActive(id: String) = when (id) {
-        FIO_ENABLE -> Date().before(getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE,
-                date(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")))
-        else -> false
-    }
+        FIO_ENABLE -> PartnerInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE, fioDefaultStartDate),
+                getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE, fioDefaultEndDate))
+        else -> PartnerInfo(oldDate, oldDate)
+    }.isActive()
 
     private fun getSharedDate(key: String, defaultDate: Date): Date =
             Date(sharedPreferences.getLong(key, defaultDate.time))
@@ -34,4 +38,8 @@ object SettingsPreference {
         timeZone = TimeZone.getTimeZone(timezone)
         set(year, month, day, hour, minute)
     }.time
+
+
+    private fun PartnerInfo.isActive() = Date().after(startDate) && Date().before(endDate)
+
 }

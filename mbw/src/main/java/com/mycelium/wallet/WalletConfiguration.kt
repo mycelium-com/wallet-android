@@ -88,6 +88,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
+                    myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.startDate?.let {
+                        prefEditor.putLong(PREFS_FIO_START_DATE, it.time)
+                    }
                     prefEditor.apply()
 
                     serverListChangedListener?.serverListChanged(getElectrumEndpoints())
@@ -135,6 +138,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
         const val PREFS_FIO_END_DATE = "fio_end_date"
+        const val PREFS_FIO_START_DATE = "fio_start_date"
 
         const val TCP_TLS_PREFIX = "tcp-tls://"
         const val AMAZON_S3_STORAGE_ADDRESS = "https://mycelium-wallet.s3.amazonaws.com"
