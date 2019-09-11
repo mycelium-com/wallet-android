@@ -19,16 +19,19 @@ object SettingsPreference {
         }
 
     val fioActive
-        get() = isFioActive(FIO_ENABLE)
+        get() = isActive(FIO_ENABLE)
 
-    private fun isFioActive(id: String) = when (id) {
-        FIO_ENABLE -> Date().before(getFioEndDate())
+    private fun isActive(id: String) = when (id) {
+        FIO_ENABLE -> Date().before(getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE,
+                date(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")))
         else -> false
     }
 
-    private fun getFioEndDate(): Date =
-            Date(sharedPreferences.getLong(WalletConfiguration.PREFS_FIO_END_DATE, Calendar.getInstance().apply {
-                timeZone = TimeZone.getTimeZone("Europe/Paris")
-                set(2019, Calendar.NOVEMBER, 1, 0, 0)
-            }.timeInMillis))
+    private fun getSharedDate(key: String, defaultDate: Date): Date =
+            Date(sharedPreferences.getLong(key, defaultDate.time))
+
+    private fun date(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String) = Calendar.getInstance().apply {
+        timeZone = TimeZone.getTimeZone(timezone)
+        set(year, month, day, hour, minute)
+    }.time
 }
