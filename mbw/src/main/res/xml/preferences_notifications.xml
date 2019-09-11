@@ -6,7 +6,7 @@
         <CheckBoxPreference
             android:key="news_all_notification"
             android:layout="@layout/preference_layout"
-            android:title="@string/show_all_notification"
+            android:title="@string/show_news_all_notification"
             android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
     <PreferenceCategory

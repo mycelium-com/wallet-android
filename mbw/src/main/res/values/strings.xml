@@ -1246,7 +1246,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bullet">&#8226;</string>
     <string name="select_flows">Select flows</string>
     <string name="view_more">View more</string>
-    <string name="show_all_notification">Show all notifications</string>
+    <string name="show_news_all_notification">Show media flow all notifications</string>
     <string name="media_flow">Media Flow</string>
     <string name="select_all">Show all</string>
     <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>

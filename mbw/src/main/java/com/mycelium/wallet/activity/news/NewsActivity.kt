@@ -66,8 +66,7 @@ class NewsActivity : AppCompatActivity() {
                 , resources.toWebViewPx(16f).toString()
                 , resources.toWebViewPx(2f).toString()
                 , resources.toWebViewPx(8f).toString()
-                , contentText
-                , resources.toWebViewPx(260f).toString())
+                , contentText)
         content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
 
         content.webViewClient = object : WebViewClient() {
