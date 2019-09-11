@@ -5,7 +5,6 @@ import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.GenericAssetUriParser;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
-import com.mycelium.wapi.content.colu.ColuAssetUri;
 import com.mycelium.wapi.content.colu.mss.MSSUri;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUri;

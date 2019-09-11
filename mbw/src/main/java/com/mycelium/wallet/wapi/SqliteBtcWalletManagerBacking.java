@@ -1090,7 +1090,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
