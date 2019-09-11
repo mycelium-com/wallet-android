@@ -10,8 +10,6 @@ import java.util.*
 object SettingsPreference {
     private val FIO_ENABLE = "fio_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences("settings", Context.MODE_PRIVATE)
-    private val fioDefaultEndDate = date(2019, Calendar.NOVEMBER, 1, 0, 0, "Europe/Paris")
-    private val fioDefaultStartDate = date(2019, Calendar.SEPTEMBER, 1, 0, 0, "Europe/Paris")
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
 
     var fioEnabled
@@ -26,12 +24,12 @@ object SettingsPreference {
         get() = isActive(FIO_ENABLE)
 
     private fun isActive(id: String) = when (id) {
-        FIO_ENABLE -> PartnerInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE, fioDefaultStartDate),
-                getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE, fioDefaultEndDate))
+        FIO_ENABLE -> PartnerInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE),
+                getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE))
         else -> PartnerInfo(oldDate, oldDate)
     }.isActive()
 
-    private fun getSharedDate(key: String, defaultDate: Date): Date =
+    private fun getSharedDate(key: String, defaultDate: Date = oldDate): Date =
             Date(sharedPreferences.getLong(key, defaultDate.time))
 
     private fun date(year: Int, month: Int, day: Int, hour: Int, minute: Int, timezone: String) = Calendar.getInstance().apply {
