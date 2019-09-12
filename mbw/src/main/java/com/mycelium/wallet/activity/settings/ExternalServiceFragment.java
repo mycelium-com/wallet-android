@@ -30,7 +30,7 @@ public class ExternalServiceFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("container");
+        PreferenceCategory preferenceCategory = findPreference("container");
         final List<BuySellServiceDescriptor> buySellServices = mbwManager.getEnvironmentSettings().getBuySellServices();
 
         for (final BuySellServiceDescriptor buySellService : buySellServices) {
