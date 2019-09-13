@@ -78,8 +78,8 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
    }
 
    @Override
-   protected String getLinkURL(BlockExplorer blockExplorer){
-      return blockExplorer.getUrl(transaction,MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
+   protected String getLinkURL(BlockExplorer blockExplorer) {
+      return blockExplorer.getUrl(transaction, MbwManager.getInstance(getContext()).getTorMode() == ServerEndpointType.Types.ONLY_TOR);
    }
 
    public void setTransaction(final GenericTransactionSummary tx) {

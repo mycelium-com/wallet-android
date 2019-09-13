@@ -492,7 +492,7 @@ public class TransactionHistoryFragment extends Fragment {
                               defaultName = ((ColuAccount) _mbwManager.getSelectedAccount()).getColuLabel();
                            }
                            GenericAddress address = record.getDestinationAddresses().get(0);
-                           EnterAddressLabelUtil.enterAddressLabel(getActivity(), _mbwManager.getMetadataStorage(),
+                           EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
                            _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
                            break;
@@ -503,13 +503,14 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
+                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
                                          } else {
-                                            new Toaster(getActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
+                                            new Toaster(requireActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
                                          }
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -529,6 +530,7 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -678,6 +680,7 @@ public class TransactionHistoryFragment extends Fragment {
                      Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
                      startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
                      dialog.dismiss();
+                     finishActionMode();
                   }
                });
                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
@@ -726,7 +729,7 @@ public class TransactionHistoryFragment extends Fragment {
    };
 
    private void setTransactionLabel(GenericTransactionSummary record) {
-      EnterAddressLabelUtil.enterTransactionLabel(getActivity(), Sha256Hash.of(record.getId()), _storage, transactionLabelChanged);
+      EnterAddressLabelUtil.enterTransactionLabel(requireContext(), Sha256Hash.of(record.getId()), _storage, transactionLabelChanged);
    }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
@@ -748,14 +751,14 @@ public class TransactionHistoryFragment extends Fragment {
          List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 
          File historyData = DataExport.getTxHistoryCsv(account, history, metaData,
-             getActivity().getFileStreamPath(fileName));
-         PackageManager packageManager = Preconditions.checkNotNull(getActivity().getPackageManager());
-         PackageInfo packageInfo = packageManager.getPackageInfo(getActivity().getPackageName(), PackageManager.GET_PROVIDERS);
+             requireActivity().getFileStreamPath(fileName));
+         PackageManager packageManager = Preconditions.checkNotNull(requireActivity().getPackageManager());
+         PackageInfo packageInfo = packageManager.getPackageInfo(requireActivity().getPackageName(), PackageManager.GET_PROVIDERS);
          for (ProviderInfo info : packageInfo.providers) {
             if (info.name.equals("androidx.core.content.FileProvider")) {
                String authority = info.authority;
-               Uri uri = FileProvider.getUriForFile(getActivity(), authority, historyData);
-               Intent intent = ShareCompat.IntentBuilder.from(getActivity())
+               Uri uri = FileProvider.getUriForFile(requireContext(), authority, historyData);
+               Intent intent = ShareCompat.IntentBuilder.from(requireActivity())
                        .setStream(uri)  // uri from FileProvider
                        .setType("text/plain")
                        .setSubject(getResources().getString(R.string.transaction_history_title))
@@ -771,7 +774,7 @@ public class TransactionHistoryFragment extends Fragment {
             }
          }
       } catch (IOException | PackageManager.NameNotFoundException e) {
-         new Toaster(getActivity()).toast("Export failed. Check your logs", false);
+         new Toaster(requireActivity()).toast("Export failed. Check your logs", false);
          e.printStackTrace();
       }
    }

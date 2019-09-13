@@ -29,8 +29,9 @@ public class BitcoinMain extends BitcoinBasedCryptoCurrency {
         }
 
         try {
-            if (!address.getNetwork().isProdnet())
+            if (!address.getNetwork().isProdnet()) {
                 return null;
+            }
         } catch (IllegalStateException e) {
             return null;
         }

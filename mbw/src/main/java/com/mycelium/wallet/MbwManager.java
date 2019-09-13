@@ -59,7 +59,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -198,7 +197,6 @@ public class MbwManager {
     private final LtApiClient _ltApi;
     private Handler _torHandler;
     private Context _applicationContext;
-    private MetadataStorage _storage;
     private LocalTraderManager _localTraderManager;
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
@@ -241,8 +239,6 @@ public class MbwManager {
 
         // Preferences
         SharedPreferences preferences = getPreferences();
-        // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
-        // Initialize proxy early, to enable error reporting during startup..
 
         configuration = new WalletConfiguration(preferences, getNetwork());
 
@@ -290,7 +286,6 @@ public class MbwManager {
         WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
 
-        _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
@@ -745,7 +740,6 @@ public class MbwManager {
         // Create secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
 
-
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap, db);
         walletManager.setIsNetworkConnected(Utils.isConnected(_applicationContext));
@@ -879,35 +873,35 @@ public class MbwManager {
             setPinBlockheight();
             return false;
         }
-        return !(pinLockdownDuration.get() > 0);
+        return pinLockdownDuration.get() <= 0;
     }
 
     public Pin getPin() {
         return _pin;
     }
 
-    public void showClearPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
+    public void showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
         this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
                 Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
-                if (afterDialogClosed.isPresent()) {
-                    afterDialogClosed.get().run();
+                if (afterDialogClosed != null) {
+                    afterDialogClosed.run();
                 }
             }
         });
     }
 
-    public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
+    public void showSetPinDialog(final Activity activity, final Runnable afterDialogClosed) {
         // Must make a backup before setting PIN
         if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-            Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first, afterDialogClosed.get());
+            Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first, afterDialogClosed);
             return;
         }
 
-        final NewPinDialog _dialog = new NewPinDialog(activity, false);
-        _dialog.setOnPinValid(new PinDialog.OnPinEntered() {
+        final NewPinDialog pinDialog = new NewPinDialog(activity, false);
+        pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
             private String newPin = null;
 
             @Override
@@ -919,24 +913,24 @@ public class MbwManager {
                     MbwManager.this.savePin(pin);
                     Toast.makeText(activity, R.string.pin_set, Toast.LENGTH_LONG).show();
                     dialog.dismiss();
-                    if (afterDialogClosed.isPresent()) {
-                        afterDialogClosed.get().run();
+                    if (afterDialogClosed != null) {
+                        afterDialogClosed.run();
                     }
                 } else {
                     Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
                     MbwManager.this.vibrate();
                     dialog.dismiss();
-                    if (afterDialogClosed.isPresent()) {
-                        afterDialogClosed.get().run();
+                    if (afterDialogClosed != null) {
+                        afterDialogClosed.run();
                     }
                 }
             }
         });
 
-        this.runPinProtectedFunction(activity, new Runnable() {
+        runPinProtectedFunction(activity, new Runnable() {
             @Override
             public void run() {
-                _dialog.show();
+                pinDialog.show();
             }
         });
     }
@@ -998,6 +992,7 @@ public class MbwManager {
                             Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
                             vibrate();
                             pinDialog.dismiss();
+                            Thread.currentThread().interrupt();
                             return;
                         }
                     }
@@ -1030,7 +1025,7 @@ public class MbwManager {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             pinDialog.dismiss();
-                                            MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
+                                            MbwManager.this.showClearPinDialog(activity, null);
                                         }
                                     })
 
@@ -1088,7 +1083,6 @@ public class MbwManager {
         _blockExplorerManager.setBlockExplorer(blockExplorer);
         getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
     }
-
 
     public Denomination getDenomination() {
         return _currencySwitcher.getDenomination();
@@ -1185,9 +1179,9 @@ public class MbwManager {
         return new Locale(_language);
     }
 
-    public void setLanguage(String _language) {
-        this._language = _language;
-        getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
+    public void setLanguage(String language) {
+        this._language = language;
+        getEditor().putString(Constants.LANGUAGE_SETTING, language).apply();
     }
 
     public void setTorMode(ServerEndpointType.Types torMode) {
@@ -1363,7 +1357,7 @@ public class MbwManager {
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);
-        _storage.storeAccountLabel(accountId, defaultName);
+        MetadataStorage.INSTANCE.storeAccountLabel(accountId, defaultName);
         return accountId;
     }
 
@@ -1372,7 +1366,7 @@ public class MbwManager {
     }
 
     public MetadataStorage getMetadataStorage() {
-        return _storage;
+        return MetadataStorage.INSTANCE;
     }
 
     public RandomSource getRandomSource() {
@@ -1429,10 +1423,10 @@ public class MbwManager {
         this.startUpPinUnlocked = unlocked;
     }
 
-    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
-        getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
+    public void setPinRequiredOnStartup(boolean pinRequiredOnStartup) {
+        getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, pinRequiredOnStartup).apply();
 
-        this._pinRequiredOnStartup = _pinRequiredOnStartup;
+        this._pinRequiredOnStartup = pinRequiredOnStartup;
     }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
@@ -1454,7 +1448,7 @@ public class MbwManager {
                 getWalletManager(false).startSynchronization(new SyncMode(address),
                         Collections.<WalletAccount<?>>singletonList(getSelectedAccount()));
             }
-        }, 1000, 5 * 1000);
+        }, SECONDS.toMillis(1), SECONDS.toMillis(5));
     }
 
     private void pinOkForOneS() {

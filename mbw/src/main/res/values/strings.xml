@@ -1165,9 +1165,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="d_coco_created">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
     <string name="d_coco_created_existing_found">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n%3$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
     <string name="d_coco_existing_found">We have found digital assets on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
-    <string name="settings_mydfs_title">Enable MYDFS token</string>
-    <string name="settings_mydfs_summary">Show MYDFS token buy option</string>
-    <string name="buy_mydfs_token">BUY MYDFS TOKEN</string>
     <string name="scaning_complete_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has been found!]]></string>
     <string name="scaning_complete_not_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has not been found!]]></string>
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
@@ -1211,9 +1208,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gp_required">Service is available for Google Play logged in users only.</string>
     <string name="active_bitcoin_sa_group_name">Bitcoin SA</string>
     <string name="value_conversion_error">Can\'t convert value. Please check connection to your exchange source</string>
-    <string name="settings_apex_title">Enable APEX token</string>
-    <string name="settings_apex_summary">Show APEX token buy option</string>
-    <string name="buy_apex_token">BUY APEX TOKEN</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
@@ -1325,4 +1319,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gaps_button_ignore">Ignore</string>
     <string name="hd_eth_account">Create ETH account</string>
     <string name="connection_logs">Connection Logs</string>
+    <string name="fio_requires_hd_account">Currently you can only link HD accounts to FIO labels. Please switch to another account.</string>
+    <string name="confirm_fio_link">Do you want to register a FIO address for your HD account %1$s?</string>
+    <string name="partner_fiopresale">FIO Address Presale</string>
+    <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
+    <string name="partner_fiopresale_info" />
+    <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
+    <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
+    <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
 </resources>

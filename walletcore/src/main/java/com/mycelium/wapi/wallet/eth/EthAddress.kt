@@ -7,8 +7,6 @@ import org.web3j.abi.datatypes.Address
 class EthAddress(cryptoCurrency: CryptoCurrency, addressString: String) : GenericAddress {
     val address = Address(addressString)
     override val coinType = cryptoCurrency
-    override val id: Long
-        get() = 2
 
     override fun getSubType() = "default"
 

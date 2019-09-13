@@ -72,9 +72,9 @@ class BitcoinUriTest {
 
     @Test
     fun testToString() {
-        assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),
+        assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx", BitcoinUri.from(AddressUtils.from(BitcoinTest.get(),
                 "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), null, null, null).toString())
-        assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11", BitcoinUri.from(AddressUtils.from(BitcoinMain.get(),
+        assertEquals("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11", BitcoinUri.from(AddressUtils.from(BitcoinTest.get(),
                 "mq7se9wy2egettFxPbmn99cK8v5AFq55Lx"), Value.valueOf(BitcoinMain.get(), 11000000), null, null).toString())
     }
 

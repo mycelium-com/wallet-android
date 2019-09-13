@@ -328,7 +328,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             notificationPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    getFragmentManager()
+                    requireFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, new NotificationsFragment())
                             .addToBackStack("pincode")
@@ -897,6 +897,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         switch (_mbwManager.getMinerFee()){
             case LOWPRIO:
                 blocks = 20;
+                break;
+            case ECONOMIC:
+                blocks = 10;
                 break;
             case NORMAL:
                 blocks = 3;

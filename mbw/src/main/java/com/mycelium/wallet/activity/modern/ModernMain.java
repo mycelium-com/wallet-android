@@ -324,11 +324,6 @@ public class ModernMain extends AppCompatActivity {
     public void onBackPressed() {
         ActionBar bar = getSupportActionBar();
         if (bar.getSelectedTab() == mBalanceTab) {
-//         if(Build.VERSION.SDK_INT >= 21) {
-//            finishAndRemoveTask();
-//         } else {
-//            finish();
-//         }
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
@@ -413,11 +408,10 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miColdStorage:
                 InstantWalletActivity.callMe(this);
                 return true;
-            case R.id.miSettings: {
+            case R.id.miSettings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intent, REQUEST_SETTING_CHANGED);
                 return true;
-            }
             case R.id.miBackup:
                 Utils.pinProtectedWordlistBackup(this);
                 return true;
@@ -447,17 +441,14 @@ public class ModernMain extends AppCompatActivity {
             case R.id.miHelp:
                 openMyceliumHelp();
                 break;
-            case R.id.miAbout: {
-                Intent intent = new Intent(this, AboutActivity.class);
+            case R.id.miAbout:
+                intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
                 break;
-            }
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
                 _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
-
                 break;
-
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
                 break;
