@@ -585,18 +585,8 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         String transaction;
-                                         if(_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
-                                            //TODO Module should provide full bytes of transaction.
-                                            transaction = HexUtils.toHex(((WalletBtcAccount)_mbwManager.getSelectedAccount()).
-                                                    getTransactionSummary(Sha256Hash.of(record.getId())).txid.getBytes());
-                                         } else {
-                                            //TODO non-generic classes are used
-                                            WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
-                                            transaction = HexUtils.toHex(account
-                                                .getTransaction(Sha256Hash.of(record.getId())).binary);
-                                         }
+                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().
+                                                 getTx(record.getId()).txBytes());
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
@@ -704,7 +694,7 @@ public class TransactionHistoryFragment extends Fragment {
          txFee -= i.getValue().value;
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
-         makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();
+         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
          return null;
       }
 

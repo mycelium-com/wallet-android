@@ -6,6 +6,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
+import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
@@ -62,8 +63,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getTx(byte: ByteArray): GenericTransaction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getTx(txid: ByteArray): GenericTransaction {
+        val txJson = accountBacking.getTx(Sha256Hash(txid))
+        val coluTx = ColuTransaction(coinType, null, null, null)
+        val bitcoinTx = Transaction.fromBytes(HexUtils.toBytes(txJson.hex))
+        coluTx.transaction = bitcoinTx
+        return coluTx
     }
 
     override fun isSyncing(): Boolean {
@@ -315,7 +320,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val feePerKb = (fee as FeePerKbFee).feePerKb
         val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
         val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
-        val json = coluClient.prepareTransaction(coluTx.destination, fromAddresses, coluTx.amount, feePerKb)
+        val json = coluClient.prepareTransaction(coluTx.destination!!, fromAddresses, coluTx.amount!!, feePerKb)
         coluTx.baseTransaction = json
         return coluTx
     }
