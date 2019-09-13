@@ -3,11 +3,8 @@
     xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <import type="androidx.lifecycle.AndroidViewModel" />
-
         <import type="androidx.appcompat.app.AppCompatActivity" />
-
         <import type="android.view.View" />
 
         <variable
@@ -55,7 +52,5 @@
                 bind:viewModel="@{viewModel}"
                 bind:activity="@{activity}" />
         </LinearLayout>
-
     </ScrollView>
-
 </layout>

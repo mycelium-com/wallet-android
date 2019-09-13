@@ -6,13 +6,13 @@
         android:rowCount="2"
         android:columnCount="1"
         android:paddingTop="10sp"
-        android:paddingLeft="10sp">
+        android:paddingStart="10sp">
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/last_log_entries"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             />
 
     <TextView

@@ -879,6 +879,6 @@
     <plurals name="contains_keys">
         <item quantity="one">Содержит %1$d приватный ключ.</item>
         <item quantity="few">Содержит %1$d приватных ключа.</item>
-        <item quantity="many">Содержит %1%d приватных ключей.</item>
+        <item quantity="many">Содержит %1$d приватных ключей.</item>
     </plurals>
 </resources>

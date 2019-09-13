@@ -6,7 +6,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
         android:gravity="center"
-        tools:showIn="@layout/enter_pin_keypad">
+        tools:showIn="@layout/enter_pin_keypad"
+        android:layoutDirection="ltr">
 
     <TextView
             android:id="@+id/pin_char_1"

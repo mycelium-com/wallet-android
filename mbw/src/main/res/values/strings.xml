@@ -1324,4 +1324,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
     <string name="hd_eth_account">Create ETH account</string>
+    <string name="connection_logs">Connection Logs</string>
 </resources>

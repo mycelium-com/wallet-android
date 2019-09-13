@@ -3,5 +3,4 @@
     android:orientation="vertical"
     android:layout_width="@dimen/item_addr_width"
     android:layout_height="120dp"
-    android:background="@drawable/sender_recyclerview_item_background_selector">
-</View>
+    android:background="@drawable/sender_recyclerview_item_background_selector" />

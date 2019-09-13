@@ -53,15 +53,15 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/mycelium_com"
-                    android:id="@+id/getMycelium" android:layout_weight="1" android:layout_marginRight="10dp"
-                    android:layout_marginLeft="10dp"/>
+                    android:id="@+id/getMycelium" android:layout_weight="1" android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"/>
             <Button
                     style="@style/MyceliumButton"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/google_play"
                     android:id="@+id/getPlay"
-                    android:layout_weight="1" android:layout_marginRight="10dp" android:layout_marginLeft="10dp"/>
+                    android:layout_weight="1" android:layout_marginEnd="10dp" android:layout_marginStart="10dp"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
