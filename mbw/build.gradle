@@ -96,6 +96,8 @@ dependencies {
     implementation('org.bitcoinj:orchid:1.2.1') {
         exclude(module: 'slf4j-api')
     }
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
 android {
@@ -129,8 +131,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000020
-        versionName '3.0.0.20'
+        versionCode 3000021
+        versionName '3.0.0.21'
         multiDexEnabled true
 
         minSdkVersion 19
