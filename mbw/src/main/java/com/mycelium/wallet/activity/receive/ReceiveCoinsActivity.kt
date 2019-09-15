@@ -64,12 +64,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
 
         if (viewModel is ReceiveBtcViewModel &&
                 (account as? AbstractBtcAccount)?.availableAddressTypes?.size ?: 0 > 1) {
-            val addressTypes = if ((account as? SingleAddressAccount)?.publicKey?.isCompressed != false) {
-                (account as AbstractBtcAccount).availableAddressTypes
-            } else {
-                mutableListOf(AddressType.P2PKH)
-            }
-            createAddressDropdown(addressTypes)
+            createAddressDropdown((account as AbstractBtcAccount).availableAddressTypes)
         }
     }
 
