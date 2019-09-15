@@ -11,6 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:focusable="true"
         android:orientation="horizontal"
         android:padding="@dimen/activity_vertical_margin">
 
@@ -19,7 +20,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="fitCenter"
-            android:layout_marginRight="@dimen/activity_vertical_margin"/>
+            android:layout_marginEnd="@dimen/activity_vertical_margin"/>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -31,16 +32,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textSize="18sp">
-            </TextView>
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/tvServiceDescription"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textSize="12sp">
-            </TextView>
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 

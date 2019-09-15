@@ -34,13 +34,13 @@
 
 package com.mycelium.wallet.persistence
 
-import android.content.Context
 import android.text.TextUtils
 
 import com.google.common.base.Optional
 import com.google.common.base.Splitter
 import com.google.common.base.Strings
 import com.mrd.bitlib.model.Address
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.bch.coins.BchMain
@@ -55,7 +55,7 @@ import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 import java.math.BigDecimal
 import java.util.*
 
-class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
+object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance()) {
     val allAddressLabels: MutableMap<GenericAddress, String>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY)
@@ -282,9 +282,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         val address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label)
 
         return if (address.isPresent) {
-            Optional.of<String>(address.get())
+            Optional.of(address.get())
         } else {
-            Optional.absent<String>()
+            Optional.absent()
         }
     }
 
@@ -373,9 +373,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
     fun getCoinapultAddress(forCurrency: String): Optional<Address> {
         val last = getKeyCategoryValueEntry(COINAPULT.of("last$forCurrency"))
         if (!last.isPresent) {
-            return Optional.absent<Address>()
+            return Optional.absent()
         }
-        return Optional.fromNullable<Address>(Address.fromString(last.get()))
+        return Optional.fromNullable(Address.fromString(last.get()))
     }
 
     fun storeColuAssetCoinSupply(assetIds: String, value: BigDecimal) {
@@ -446,26 +446,22 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         if (!uuid.isPresent || uuid.get().isEmpty()) {
             return arrayOf()
         }
-
-        val strUuids = uuid.get().split((",").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        val uuids = arrayOfNulls<UUID>(strUuids.size)
-
-        for (i in strUuids.indices) {
-            uuids[i] = UUID.fromString(strUuids[i])
-        }
-
-        return uuids
+        return uuid.get()
+                .split(",".toRegex())
+                .filter { !it.isEmpty() }
+                .map { UUID.fromString(it) }
+                .toTypedArray()
     }
 
     fun setLastFullSync(date: Long) {
-        storeKeyCategoryValueEntry(SYNC_LAST_FULLSYNC, java.lang.Long.toString(date))
+        storeKeyCategoryValueEntry(SYNC_LAST_FULLSYNC, date.toString())
     }
 
     enum class BackupState(private val _index: Int) {
         UNKNOWN(0), VERIFIED(1), IGNORED(2), NOT_VERIFIED(3);
 
         override fun toString(): String {
-            return Integer.toString(_index)
+            return _index.toString()
         }
 
         fun toInt(): Int {
@@ -490,17 +486,16 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         }
     }
 
-    companion object {
-        private val COINAPULT = MetadataCategory("coinapult_adddr")
-        private val ADDRESSLABEL_CATEGORY = MetadataCategory("addresslabel")
-        private val ADDRESSCOINTYPE_CATEGORY = MetadataCategory("addresscointype")
-        private val ACCOUNTLABEL_CATEGORY = MetadataCategory("al")
-        private val ARCHIVED = MetadataCategory("archived")
-        private val TRANSACTION_LABEL_CATEGORY = MetadataCategory("tl")
-        private val OTHER_ACCOUNT_BACKUPSTATE = MetadataCategory("single_key_bs")
-        private val PAIRED_SERVICES_CATEGORY = MetadataCategory("paired_services")
+    private val COINAPULT = MetadataCategory("coinapult_adddr")
+    private val ADDRESSLABEL_CATEGORY = MetadataCategory("addresslabel")
+    private val ADDRESSCOINTYPE_CATEGORY = MetadataCategory("addresscointype")
+    private val ACCOUNTLABEL_CATEGORY = MetadataCategory("al")
+    private val ARCHIVED = MetadataCategory("archived")
+    private val TRANSACTION_LABEL_CATEGORY = MetadataCategory("tl")
+    private val OTHER_ACCOUNT_BACKUPSTATE = MetadataCategory("single_key_bs")
+    private val PAIRED_SERVICES_CATEGORY = MetadataCategory("paired_services")
 
-        private val EXCHANGE_RATES_CATEGORY = MetadataCategory("exchange_rates")
+    private val EXCHANGE_RATES_CATEGORY = MetadataCategory("exchange_rates")
 
         // various key value fields info for colu
         private val COLU = MetadataCategory("colu_data")
@@ -516,5 +511,5 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         private val EMAIL = "email"
         @JvmField
         val PAIRED_SERVICE_COLU = "colu"
-    }
+
 }

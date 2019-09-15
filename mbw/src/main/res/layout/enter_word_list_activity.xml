@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-        >
+                android:layout_height="fill_parent">
 
     <ScrollView
             android:layout_width="fill_parent"
@@ -24,7 +23,6 @@
                     android:text="@string/import_words_title"
                     android:paddingBottom="5dp"
                     android:textSize="24sp"/>
-
 
             <TextView
                     android:id="@+id/tvHint"
@@ -55,7 +53,6 @@
                     android:paddingBottom="5dp"
                     android:gravity="center"/>
 
-
             <TextView
                     android:id="@+id/tvChecksumWarning"
                     android:layout_width="wrap_content"
@@ -66,20 +63,16 @@
                     android:paddingBottom="5dp"
                     android:visibility="gone"/>
 
-
             <Button
                     android:id="@+id/btDeleteLastWord"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
+                    android:paddingStart="30dp"
+                    android:paddingEnd="30dp"
                     android:enabled="false"
                     android:text="@string/delete_last_entered_word"/>
-
-
         </LinearLayout>
-
     </ScrollView>
 
     <LinearLayout
@@ -87,8 +80,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_alignParentBottom="true"
-            >
+            android:layout_alignParentBottom="true">
         <fragment
                 android:id="@+id/wordAutoCompleter"
                 android:layout_width="fill_parent"

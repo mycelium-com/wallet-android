@@ -33,7 +33,6 @@
                     android:paddingBottom="5dp"
                     tools:layout="@layout/main_balance_view"/>
 
-
             <FrameLayout
                     android:id="@+id/phFragmentBuySell"
                     android:layout_width="match_parent"
@@ -49,7 +48,7 @@
             style="@style/MyceliumText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:textColor="@color/transparentgrey"
             android:textSize="12sp"/>
 
@@ -58,9 +57,8 @@
             style="@style/MyceliumText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|left"
+            android:layout_gravity="bottom|start"
             android:textColor="@color/transparentgrey"
             android:textSize="12sp"
             android:visibility="gone"/>
-
 </FrameLayout>

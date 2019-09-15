@@ -16,17 +16,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import javax.annotation.Nullable;
-import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.security.Security;
 
 
 public class AdvancedHttpClient {
-    private static final String TAG = "AdvancedHttpClient";
-
-    private int DEFAULT_CONNECTION_TIMEOUT = 3000;
-    private int DEFAULT_READ_TIMEOUT = 3000;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 3000;
+    private static final int DEFAULT_READ_TIMEOUT = 3000;
 
     private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
     private int readTimeout = DEFAULT_READ_TIMEOUT;
@@ -73,7 +70,6 @@ public class AdvancedHttpClient {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 return makePostRequest(t, url, headers, data);
             } catch (Exception ex) {
-//                Log.e(TAG, "Failed to make POST request to host " + host + " : " + ex.getMessage());
                 ex.printStackTrace();
             }
         }
@@ -86,15 +82,12 @@ public class AdvancedHttpClient {
                 GenericUrl url = new GenericUrl(host + endpoint);
                 return makeGetRequest(t, url);
             } catch (Exception ex) {
-//                Log.e(TAG, "Failed to make GET request to host " + host + " : " + ex.getMessage());
             }
         }
         throw new IOException("Cannot connect to servers");
     }
 
     private <T> T makeGetRequest(Class<T> t, GenericUrl url) throws Exception {
-//        Log.d(TAG, "Making GET request to " + url.toString());
-
         HttpRequest request = requestFactory.buildGetRequest(url);
         setFailureRestrictions(request);
 
@@ -104,8 +97,6 @@ public class AdvancedHttpClient {
 
     private <T> T makePostRequest(Class<T> t, GenericUrl url, HttpHeaders headers,
                                   Object data) throws Exception {
-//        Log.d(TAG, "Making POST request to " + url.toString());
-
         HttpContent content = new JsonHttpContent(new JacksonFactory(), data);
         HttpRequest request = requestFactory.buildPostRequest(url, content);
 

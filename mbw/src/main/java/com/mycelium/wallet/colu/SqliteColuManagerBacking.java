@@ -79,15 +79,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
@@ -151,7 +143,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                continue;
             }
 
-            Type type = new TypeToken<Collection<String>>() {}.getType();
+            Type type = new TypeToken<Collection<String>>() {
+            }.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
             Map<AddressType, BtcAddress> addresses = new ArrayMap<>(3);
             if (addressStringsList != null) {
@@ -199,7 +192,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       } finally {
          _database.endTransaction();
       }
-
    }
 
    @Override
@@ -274,8 +266,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          _updateSingleAddressAccount.bindBlob(4, uuidToBytes(context.getId()));
          _updateSingleAddressAccount.execute();
          _database.setTransactionSuccessful();
-      }
-      finally {
+      } finally {
          _database.endTransaction();
       }
    }
@@ -293,7 +284,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          blobQuery.bindBlob(1, id);
          blobQuery.bindLong(2, (long) subId);
          cursor = blobQuery.query(false, TABLE_KV, new String[]{"v", "checksum"}, "k = ? and subId = ?", null, null, null,
-               null, null);
+                 null, null);
          if (cursor.moveToNext()) {
             byte[] retVal = cursor.getBlob(0);
             byte[] checkSumDb = cursor.getBlob(1);
@@ -360,15 +351,15 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private static void createAccountBackingTables(UUID id, SQLiteDatabase db) {
       String tableSuffix = uuidToTableSuffix(id);
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getUtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+              + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getPtxoTableName(tableSuffix)
-            + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
+              + " (outpoint BLOB PRIMARY KEY, height INTEGER, value INTEGER, isCoinbase INTEGER, script BLOB);");
       createTxTable(tableSuffix, db);
       db.execSQL("CREATE INDEX IF NOT EXISTS heightIndex ON " + getTxTableName(tableSuffix) + " (height);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getOutgoingTxTableName(tableSuffix)
-            + " (id BLOB PRIMARY KEY, raw BLOB);");
+              + " (id BLOB PRIMARY KEY, raw BLOB);");
       db.execSQL("CREATE TABLE IF NOT EXISTS " + getTxRefersPtxoTableName(tableSuffix)
-            + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );");
+              + " (txid BLOB, input BLOB, PRIMARY KEY (txid, input) );");
    }
 
    private static String uuidToTableSuffix(UUID uuid) {
@@ -485,7 +476,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          try {
             return JSON_FACTORY.fromString(string, Tx.Json.class);
          } catch (IOException ex) {
-             Log.e("colu accountBacking", "Parse error", ex);
+            Log.e("colu accountBacking", "Parse error", ex);
          }
          return null;
       }
@@ -523,50 +514,39 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void putTransactions(List<Tx.Json> transactions) {
-         if (transactions.isEmpty()) {
-            return;
-         }
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            int i = 0;
-            for (Tx.Json transaction: transactions) {
-               int index = i * 4;
-               updateStatement.bindBlob(index + 1, Sha256Hash.fromString(transaction.txid).getBytes());
-               updateStatement.bindLong(index + 2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
-               updateStatement.bindLong(index + 3, transaction.time / 1000);
-               updateStatement.bindBlob(index + 4, transaction.toString().getBytes());
-               transaction.setFactory(JSON_FACTORY);
-               i++;
-            }
-            updateStatement.executeInsert();
+         if (!transactions.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (Tx.Json transaction: transactions) {
+                  updateStatement.bindBlob(1, Sha256Hash.fromString(transaction.txid).getBytes());
+                  updateStatement.bindLong(2, transaction.blockheight == -1 ? Integer.MAX_VALUE : transaction.blockheight);
+                  updateStatement.bindLong(3, transaction.time / 1000);
+                  updateStatement.bindBlob(4, transaction.toString().getBytes());
+                  transaction.setFactory(JSON_FACTORY);
+                  updateStatement.executeInsert();
+               }
 
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
+            }
          }
       }
 
       @Override
       public List<Tx.Json> getTransactionsSince(long since) {
-         Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
-                            + " WHERE time >= ?"
-                            + " ORDER BY height desc",
-                    new String[]{Long.toString(since / 1000)});
+         try (Cursor cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
+                         + " WHERE time >= ?"
+                         + " ORDER BY height desc",
+                 new String[]{Long.toString(since / 1000)})) {
 
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(2), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
-            }
-         } finally {
-            if (cursor != null) {
-               cursor.close();
             }
          }
          return result;
@@ -634,7 +614,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
 
                Map<UUID, ColuMain> coluUUIDs = new ArrayMap<>();
                for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
@@ -678,16 +658,16 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
             }
             db.execSQL("CREATE TABLE single_new (id TEXT PRIMARY KEY, addresses TEXT, archived INTEGER, blockheight INTEGER, addressType TEXT);");
             SQLiteStatement statement = db.compileStatement("INSERT OR REPLACE INTO single_new VALUES (?,?,?,?,?)");
-            for (SingleAddressAccountContext context : list) {
-               statement.bindBlob(1, uuidToBytes(context.getId()));
+            for (SingleAddressAccountContext saaContext : list) {
+               statement.bindBlob(1, uuidToBytes(saaContext.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: context.getAddresses().values()){
+               for (Address address: saaContext.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));
-               statement.bindLong(3, context.isArchived() ? 1 : 0);
-               statement.bindLong(4, context.getBlockHeight());
-               statement.bindString(5, gson.toJson(context.getDefaultAddressType()));
+               statement.bindLong(3, saaContext.isArchived() ? 1 : 0);
+               statement.bindLong(4, saaContext.getBlockHeight());
+               statement.bindString(5, gson.toJson(saaContext.getDefaultAddressType()));
 
                statement.executeInsert();
             }
@@ -704,7 +684,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   listForRemove.add(id);
-                  Type type = new TypeToken<Collection<String>>() {}.getType();
+                  Type type = new TypeToken<Collection<String>>() {
+                  }.getType();
                   Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
                   for (String addressString : addressStringsList) {
                      Address address = Address.fromString(addressString);
@@ -732,7 +713,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
 
                SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
                for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
                   if (!Strings.isNullOrEmpty(coin.getId())) {
                      UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
@@ -799,7 +780,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                            // If we can read publicKey field data as string, our hypothesis about
                            // mixed-up data is correct
                            brokenCoinIdData = true;
-                        } catch(Exception ex) {
+                        } catch(Exception ignore) {
+                           // expected
                         }
 
                      }
@@ -824,7 +806,8 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                      // So here we try to read coinId saved in publicKey field
                      try {
                         coinId = cursor.getString(5);
-                     } catch (Exception ex) {
+                     } catch (Exception ignore) {
+                        // expected
 
                      }
 
@@ -855,7 +838,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       private String transformPublicKeyToAddressesList(byte[] publicKeyBytes,
-                                                             NetworkParameters networkParameters) {
+                                                       NetworkParameters networkParameters) {
          PublicKey key = new PublicKey(publicKeyBytes);
          List<String> addresses = new ArrayList<>();
          for (Address address : key.getAllSupportedAddresses(networkParameters).values()) {

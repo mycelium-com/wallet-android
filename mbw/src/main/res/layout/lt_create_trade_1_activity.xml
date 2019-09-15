@@ -37,9 +37,9 @@
                 android:id="@+id/tvAmount"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
                 android:layout_weight="1"
-                android:gravity="right"
+                android:gravity="end"
                 android:hint="@string/amount_hint"
                 android:lines="1"
                 android:singleLine="true"
@@ -49,8 +49,8 @@
                 android:id="@+id/tvCurrency"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
                 android:textSize="22sp" />
         </LinearLayout>
 
@@ -73,8 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/lt_start_trading_button"
             android:textSize="20sp" />
     </LinearLayout>

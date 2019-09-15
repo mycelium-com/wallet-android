@@ -81,6 +81,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -496,7 +497,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Grab and handle parent transactions
-      fetchStoreAndValidateParentOutputs(txArray,false);
+      fetchStoreAndValidateParentOutputs(txArray, this instanceof SingleAddressAccount);
 
       // Store transaction locally
       _backing.putTransactions(transactions);
