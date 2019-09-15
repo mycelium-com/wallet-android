@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class CurrencyValueTest {
    private ExchangeRateProvider fakeExchangeRate = new ExchangeRateProvider() {
       @Override
-      public ExchangeRate getExchangeRate(String currency) {
+      public ExchangeRate getExchangeRate(String cryptocurrency, String currency) {
          if (currency.equals("USD")) {
             return new ExchangeRate("FAKE", 0, 10, "USD"); // 1 BTC costs 10 USD
          } else if (currency.equals("EUR")) {
@@ -25,7 +25,7 @@ public class CurrencyValueTest {
 
    private ExchangeRateProvider fakeExchangeRate2 = new ExchangeRateProvider() {
       @Override
-      public ExchangeRate getExchangeRate(String currency) {
+      public ExchangeRate getExchangeRate(String cryptocurrency, String currency) {
          if (currency.equals("USD")) {
             return new ExchangeRate("FAKE", 0, 100, "USD"); // 1 BTC costs 100 USD
          } else if (currency.equals("EUR")) {

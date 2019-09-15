@@ -227,7 +227,7 @@ public class CurrencySwitcher {
       }
 
       // check if there is a rate available
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(getCurrentFiatCurrency().getSymbol());
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentCurrency.getSymbol(), getCurrentFiatCurrency().getSymbol());
       return rate != null && rate.price != null;
    }
 
@@ -249,7 +249,7 @@ public class CurrencySwitcher {
     * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
     */
    public synchronized Double getExchangeRatePrice() {
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentFiatCurrency.getSymbol());
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentCurrency.getSymbol(), currentFiatCurrency.getSymbol());
       return rate == null ? null : rate.price;
    }
 

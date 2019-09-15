@@ -37,5 +37,5 @@ package com.mycelium.wapi.wallet.currency;
 import com.mycelium.wapi.model.ExchangeRate;
 
 public interface ExchangeRateProvider {
-   ExchangeRate getExchangeRate(String currency);
+   ExchangeRate getExchangeRate(String cryptocurrency, String currency);
 }

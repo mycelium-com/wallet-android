@@ -20,7 +20,7 @@ public class ExchangeBasedCurrencyValueTest {
             .put("EUR", 5.0)
             .build();
 
-      public ExchangeRate getExchangeRate(String currency) {
+      public ExchangeRate getExchangeRate(String cryptocurrency, String currency) {
          return new ExchangeRate("TEST", 1000L, fx.get(currency), currency);
       }
    };

@@ -61,6 +61,7 @@ import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -105,7 +106,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private final Wapi _api;
 
     private volatile List<String> _fiatCurrencies;
-    private Map<String, GetExchangeRatesResponse> _latestRates;
+    private Map<String, Map<String, GetExchangeRatesResponse>> _latestRates;
     private long _latestRatesTime;
     private volatile Fetcher _fetcher;
     private final Object _requestLock = new Object();
@@ -122,10 +123,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     ExchangeRateManager(Context applicationContext, Wapi api, MetadataStorage storage) {
         _applicationContext = applicationContext;
         _api = api;
-        _latestRates = null;
         _latestRatesTime = 0;
         _currentExchangeSourceName = getPreferences().getString("currentRateName", DEFAULT_EXCHANGE);
-
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
@@ -153,9 +152,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
             try {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>();
-
-                for (String currency : selectedCurrencies) {
-                    responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, BTC, currency)).getResult());
+                List<GenericAssetInfo> assetTypes = MbwManager.getInstance(_applicationContext).getWalletManager(false).getAssetTypes();
+                for (GenericAssetInfo cryptocurrency : assetTypes) {
+                    for (String currency : selectedCurrencies) {
+                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, cryptocurrency.getSymbol(), currency)).getResult());
+                    }
                 }
                 synchronized (_requestLock) {
                     setLatestRates(responses);
@@ -273,11 +274,17 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private synchronized void setLatestRates(List<GetExchangeRatesResponse> latestRates) {
-        _latestRates = new HashMap<>();
+        // remove latest rates for a particular cryptocurrency if exists
+        if (latestRates.size() != 0) {
+            String fromCurrency = latestRates.get(0).getFromCurrency(); // should be the same within response
+            _latestRates.remove(fromCurrency);
+        }
+
         for (GetExchangeRatesResponse response : latestRates) {
-            _latestRates.put(response.getFromCurrency(), response);
+            _latestRates.put(response.getFromCurrency(), Collections.singletonMap(response.getToCurrency(), response));
 
             for(ExchangeRate rate : response.getExchangeRates()) {
+                // TODO store other cryptocurrencies' rates
                 storage.storeExchangeRate(BTC, rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
@@ -304,11 +311,12 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * Get the names of the currently available exchange rates. May be empty the
      * first time the app is running
      */
-    public synchronized List<String> getExchangeSourceNames() {
+    public synchronized List<String> getExchangeSourceNames(String cryptocurrency) {
         List<String> result = new LinkedList<>();
         //check whether we have any rates
-        if (_latestRates.isEmpty()) return result;
-        GetExchangeRatesResponse latestRates = _latestRates.values().iterator().next();
+        Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(cryptocurrency);
+        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() ) return result;
+        GetExchangeRatesResponse latestRates = latestRatesForCryptocurrency.values().iterator().next();
         if (latestRates != null) {
             for (ExchangeRate r : latestRates.getExchangeRates()) {
                 result.add(r.name);
@@ -331,17 +339,19 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * for callbacks. If a rate is returned the contained price may be null if
      * the currently chosen exchange source is not available.
      */
-    public ExchangeRate getExchangeRate(String currency, String source) {
+    public ExchangeRate getExchangeRate(String cryptocurrency, String currency, String source) {
+        Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(cryptocurrency);
+
         // TODO need some refactoring for this
         String injectCurrency = null;
         if (currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
             injectCurrency = currency;
             currency = "USD";
         }
-        if (_latestRates == null || _latestRates.isEmpty() || !_latestRates.containsKey(currency)) {
+        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() || !latestRatesForCryptocurrency.containsKey(currency)) {
             return null;
         }
-        GetExchangeRatesResponse latestRatesForCurrency = _latestRates.get(currency);
+        GetExchangeRatesResponse latestRatesForCurrency = latestRatesForCryptocurrency.get(currency);
         if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForCurrency == null) {
             //rate is too old or does not exists, source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
@@ -371,8 +381,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     @Override
-    public ExchangeRate getExchangeRate(String currency) {
-        return getExchangeRate(currency, _currentExchangeSourceName);
+    public ExchangeRate getExchangeRate(String cryptocurrency, String currency) {
+        return getExchangeRate(cryptocurrency, currency, _currentExchangeSourceName);
     }
 
     private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
