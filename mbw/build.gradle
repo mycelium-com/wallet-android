@@ -49,9 +49,9 @@ dependencies {
     implementation project(includePrefix + ':view')
 
     implementation guavaArtifact
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.4.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.6.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
 
     // ViewModel and LiveData
@@ -90,12 +90,14 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
     implementation 'com.madgag.spongycastle:core:1.58.0.0'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
     implementation('org.bitcoinj:orchid:1.2.1') {
         exclude(module: 'slf4j-api')
     }
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
 android {
@@ -129,8 +131,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000019
-        versionName '3.0.0.19'
+        versionCode 3000021
+        versionName '3.0.0.21'
         multiDexEnabled true
 
         minSdkVersion 19

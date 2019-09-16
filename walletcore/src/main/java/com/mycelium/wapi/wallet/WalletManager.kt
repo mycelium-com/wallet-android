@@ -26,7 +26,7 @@ constructor(val network: NetworkParameters,
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
         currencySettingsMap[moduleID] = settings
-        walletModules.get(moduleID)?.setCurrencySettings(settings)
+        walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
     var isNetworkConnected: Boolean = false
@@ -187,7 +187,6 @@ constructor(val network: NetworkParameters,
      *
      * @return the active accounts managed by the wallet manager
      */
-
     fun getActiveAccounts(): List<WalletAccount<*>> =
             accounts.values.filter { it.isActive && it.canSpend() }
 

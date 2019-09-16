@@ -135,9 +135,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    public List<BuySellServiceDescriptor> getBuySellServices(){
       return new ArrayList<BuySellServiceDescriptor>() {{
          add(new SimplexServiceDescription());
-         // add(new CreditCardBuyServiceDescription());
          add(new LocalTraderServiceDescription());
-         // add(new ChangellyServiceDescription());
       }};
    }
 }

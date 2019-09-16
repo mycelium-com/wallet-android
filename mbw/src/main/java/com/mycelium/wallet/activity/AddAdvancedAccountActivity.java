@@ -89,7 +89,6 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
-import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
@@ -240,7 +239,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
     */
    private void returnAccount(GenericAddress address) {
       //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
-      new ImportReadOnlySingleAddressAccountAsyncTask(address, AccountType.Unknown).execute();
+      new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
    /**
@@ -422,9 +421,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       private InMemoryPrivateKey key;
       private MetadataStorage.BackupState backupState;
       private ProgressDialog dialog;
-      private boolean askUserForColorize = false;
       private List<WalletAccount<?>> existingAccounts = new ArrayList<>();
       private int selectedItem;
+      private List<ColuMain> coluAssets;
 
       ImportSingleAddressAccountAsyncTask(InMemoryPrivateKey key, MetadataStorage.BackupState backupState) {
          this.key = key;
@@ -454,9 +453,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
          Address coluAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH);
          ColuModule coluModule = (ColuModule)_mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
-         askUserForColorize = coluModule.hasColuAssets(coluAddress);
-
-         return askUserForColorize ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
+         coluAssets = coluModule.getColuAssets(coluAddress);
+         return coluAssets.size() > 0 ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
       }
 
       @Override
@@ -466,6 +464,13 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          if (existingAccounts.size() == 0) {
             switch (result) {
                case HasColuAssets:
+                  // We support only one asset per address
+                  ColuMain coinType = coluAssets.get(0);
+                  UUID account = _mbwManager.getWalletManager(false)
+                          .createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher())).get(0);
+                  finishOk(account, false);
+                  break;
+               case NoColuAssets:
                   final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
                   adapter.add(Utils.getBtcCoinType());
                   adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
@@ -495,72 +500,15 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                           .create()
                           .show();
                   break;
-               case NoColuAssets:
-                  finishOk(returnSAAccount(key, backupState), false);
             }
          } else {
             WalletAccount accountToUpgrade = null;
-            switch (result) {
-               case HasColuAssets:
-                  WalletAccount coluAccount = null;
-                  for(WalletAccount exAccount : existingAccounts) {
-                     if (exAccount instanceof ColuAccount) {
-                        coluAccount = exAccount;
-                        break;
-                     }
-                  }
+            WalletAccount existingAccount = existingAccounts.get(0);
 
-                  // If we have a colu account
-                  if (coluAccount != null) {
-                     if (!coluAccount.canSpend()) {
-                        accountToUpgrade = coluAccount;
-                     } else {
-                        finishAlreadyExist(coluAccount.getReceiveAddress());
-                     }
-                  } else {
-                     // We do not have a colu account, should create it
-                     final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
-                     adapter.add(Utils.getBtcCoinType());
-                     adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
-                     new AlertDialog.Builder(AddAdvancedAccountActivity.this)
-                             .setTitle(R.string.restore_address_as)
-                             .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                   selectedItem = i;
-                                }
-                             })
-                             .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                   UUID account;
-                                   if (selectedItem == 0) {
-                                      doUpgrade(existingAccounts.get(0), key);
-                                      return;
-                                   } else {
-                                      ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
-                                      List<UUID> accounts = _mbwManager.getWalletManager(false)
-                                              .createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
-                                      account = accounts.get(0);
-                                   }
-                                   finishOk(account, false);
-                                }
-                             })
-                             .create()
-                             .show();
-
-                  }
-                  break;
-               case NoColuAssets:
-                  // Since there are no COLU assets available, only BTC SA could exist
-                  WalletAccount existingAccount = existingAccounts.get(0);
-
-                  if (!existingAccount.canSpend()) {
-                     accountToUpgrade = existingAccount;
-                  } else {
-                     finishAlreadyExist(existingAccount.getReceiveAddress());
-                  }
-                  break;
+            if (!existingAccount.canSpend()) {
+               accountToUpgrade = existingAccount;
+            } else {
+               finishAlreadyExist(existingAccount.getReceiveAddress());
             }
 
             if (accountToUpgrade != null) {
@@ -650,14 +598,12 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
       private GenericAddress address;
-      private AccountType addressType;
       private ProgressDialog dialog;
-      private boolean askUserForColorize = false;
       private int selectedItem;
+      private List<ColuMain> coluAssets;
 
-      ImportReadOnlySingleAddressAccountAsyncTask(GenericAddress address, AccountType addressType) {
+      ImportReadOnlySingleAddressAccountAsyncTask(GenericAddress address) {
          this.address = address;
-         this.addressType = addressType;
       }
 
       @Override
@@ -677,26 +623,27 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          }
 
          BtcAddress btcAddress = (BtcAddress) address;
-         ColuModule coluModule = (ColuModule)_mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
-         askUserForColorize = coluModule.hasColuAssets(btcAddress.getAddress());
-
-         return askUserForColorize ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
+         ColuModule coluModule = (ColuModule) _mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
+         coluAssets = coluModule.getColuAssets(btcAddress.getAddress());
+         return coluAssets.size() > 0 ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
       }
 
       @Override
       protected void onPostExecute(AddressCheckResult result) {
          dialog.dismiss();
 
-         switch(result) {
+         switch (result) {
             case AccountExists:
                finishAlreadyExist(address);
                break;
-            case NoColuAssets:
+            case HasColuAssets:
+               // We support only one asset per address
+               ColuMain coinType = coluAssets.get(0);
                UUID account = _mbwManager.getWalletManager(false)
-                       .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
+                       .createAccounts(new AddressColuConfig((BtcAddress) address, coinType)).get(0);
                finishOk(account, false);
                break;
-            case HasColuAssets: {
+            case NoColuAssets:
                final ColuCoinAdapter adapter = new ColuCoinAdapter(AddAdvancedAccountActivity.this);
                adapter.add(Utils.getBtcCoinType());
                adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
@@ -725,9 +672,9 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                        })
                        .create()
                        .show();
-               }
-            }
+               break;
          }
+      }
    }
 
    @Override

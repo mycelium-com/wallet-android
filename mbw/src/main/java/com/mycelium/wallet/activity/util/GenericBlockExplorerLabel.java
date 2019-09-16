@@ -46,12 +46,13 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.google.common.base.Strings;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
 public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
-   private void init(){
+   private void init() {
       this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
       this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       this.setTypeface(Typeface.MONOSPACE);
@@ -73,13 +74,15 @@ public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
    }
 
    abstract protected String getLinkText();
+
    abstract protected String getFormattedLinkText();
+
    abstract protected String getLinkURL(BlockExplorer blockExplorer);
 
-   void update_ui(){
-      if (Strings.isNullOrEmpty(getLinkText())){
+   void update_ui() {
+      if (Strings.isNullOrEmpty(getLinkText())) {
          super.setText("");
-      }else {
+      } else {
          SpannableString link = new SpannableString(getFormattedLinkText());
          link.setSpan(new UnderlineSpan(), 0, link.length(), 0);
          this.setText(link);
@@ -105,7 +108,7 @@ public abstract class GenericBlockExplorerLabel extends AppCompatTextView {
                intent.setData(Uri.parse(getLinkURL(blockExplorer)));
                GenericBlockExplorerLabel.this.getContext().startActivity(intent);
                Toast.makeText(GenericBlockExplorerLabel.this.getContext(), R.string.redirecting_to_block_explorer, Toast.LENGTH_SHORT)
-                     .show();
+                       .show();
             }
          });
       }

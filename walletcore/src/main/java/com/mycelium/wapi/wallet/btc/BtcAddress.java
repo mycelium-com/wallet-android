@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class BtcAddress implements GenericAddress {
-
     private Address address;
     private CryptoCurrency currencyType;
 
@@ -32,11 +31,6 @@ public class BtcAddress implements GenericAddress {
     @Override
     public CryptoCurrency getCoinType() {
         return currencyType;
-    }
-
-    @Override
-    public long getId() {
-        return 0;
     }
 
     @NotNull
@@ -68,5 +62,4 @@ public class BtcAddress implements GenericAddress {
     {
         return address.getType();
     }
-
 }
