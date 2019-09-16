@@ -12,6 +12,7 @@ object SettingsPreference {
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences("settings", Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
 
+    @JvmStatic
     var fioEnabled
         get() = sharedPreferences.getBoolean(FIO_ENABLE, true) && fioActive
         set(enable) {
@@ -20,6 +21,7 @@ object SettingsPreference {
                     .apply()
         }
 
+    @JvmStatic
     val fioActive
         get() = isActive(FIO_ENABLE)
 

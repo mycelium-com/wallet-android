@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.fio.FioKeyManager
 
 
 object Ads {
+    @JvmStatic
     fun openFio(context: Context) {
         val mbwManager = MbwManager.getInstance(context)
         val account = mbwManager.selectedAccount
