@@ -710,7 +710,7 @@
     <string name="ledger_enter_pin">Enter Ledger Wallet PIN</string>
     <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Confirm output address using your Security Card</string>
-    <string name="ledger_please_wait">Please wait ...</string>
+    <string name="ledger_please_wait">Please wait …</string>
     <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
     <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
     <string name="ledger_check_unplugged_aid">Invalid AID, please recheck</string>
@@ -1094,7 +1094,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
-    <string name="changelly_loading_currencies">Loading currencies...</string>
+    <string name="changelly_loading_currencies">Loading currencies…</string>
     <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
     <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
