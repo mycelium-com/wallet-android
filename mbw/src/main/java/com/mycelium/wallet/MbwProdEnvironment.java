@@ -43,6 +43,7 @@ import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
+import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 
 import java.util.ArrayList;
@@ -135,6 +136,7 @@ public class MbwProdEnvironment extends MbwEnvironment {
    public List<BuySellServiceDescriptor> getBuySellServices(){
       return new ArrayList<BuySellServiceDescriptor>() {{
          add(new SimplexServiceDescription());
+         add(new SepaServiceDescription());
          add(new LocalTraderServiceDescription());
       }};
    }
