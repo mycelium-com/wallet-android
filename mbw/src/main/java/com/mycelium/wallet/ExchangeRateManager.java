@@ -151,8 +151,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
 
             try {
-                List<GetExchangeRatesResponse> responses = new ArrayList<>();
                 List<GenericAssetInfo> assetTypes = MbwManager.getInstance(_applicationContext).getWalletManager(false).getAssetTypes();
+                List<GetExchangeRatesResponse> responses = new ArrayList<>(assetTypes.size() * selectedCurrencies.size());
                 for (GenericAssetInfo cryptocurrency : assetTypes) {
                     for (String currency : selectedCurrencies) {
                         responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, cryptocurrency.getSymbol(), currency)).getResult());
@@ -172,7 +172,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                         _fetcher = null;
                         notifyRefreshingExchangeRatesSucceeded();
                     }
-
                 } else {
                     synchronized (_requestLock) {
                         _fetcher = null;
@@ -204,7 +203,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
     private List<GetExchangeRatesResponse> localValues(List<String> selectedCurrencies,
                                                          Map<String, String> savedExchangeRates) {
-        List<GetExchangeRatesResponse> responses = new ArrayList<>();
+        List<GetExchangeRatesResponse> responses = new ArrayList<>(selectedCurrencies.size());
 
         for (String currency : selectedCurrencies) {
             List<ExchangeRate> exchangeRates = new ArrayList<>();
@@ -274,12 +273,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private synchronized void setLatestRates(List<GetExchangeRatesResponse> latestRates) {
-        // remove latest rates for a particular cryptocurrency if exists
-        if (latestRates.size() != 0) {
-            String fromCurrency = latestRates.get(0).getFromCurrency(); // should be the same within response
-            _latestRates.remove(fromCurrency);
-        }
-
+        _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
             _latestRates.put(response.getFromCurrency(), Collections.singletonMap(response.getToCurrency(), response));
 
@@ -315,7 +309,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         List<String> result = new LinkedList<>();
         //check whether we have any rates
         Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(cryptocurrency);
-        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() ) return result;
+        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty()) {
+            return result;
+        }
         GetExchangeRatesResponse latestRates = latestRatesForCryptocurrency.values().iterator().next();
         if (latestRates != null) {
             for (ExchangeRate r : latestRates.getExchangeRates()) {
@@ -339,50 +335,50 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * for callbacks. If a rate is returned the contained price may be null if
      * the currently chosen exchange source is not available.
      */
-    public ExchangeRate getExchangeRate(String cryptocurrency, String currency, String source) {
-        Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(cryptocurrency);
+    public ExchangeRate getExchangeRate(String source, String destination, String exchangeSource) {
+        Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(source);
 
         // TODO need some refactoring for this
         String injectCurrency = null;
-        if (currency.equals("RMC") || currency.equals("MSS") || currency.equals("BCH")) {
-            injectCurrency = currency;
-            currency = "USD";
+        if (destination.equals("RMC") || destination.equals("MSS") || destination.equals("BCH")) {
+            injectCurrency = destination;
+            destination = "USD";
         }
-        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() || !latestRatesForCryptocurrency.containsKey(currency)) {
+        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() || !latestRatesForCryptocurrency.containsKey(destination)) {
             return null;
         }
-        GetExchangeRatesResponse latestRatesForCurrency = latestRatesForCryptocurrency.get(currency);
+        GetExchangeRatesResponse latestRatesForCurrency = latestRatesForCryptocurrency.get(destination);
         if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForCurrency == null) {
-            //rate is too old or does not exists, source seems to not be available
+            //rate is too old or does not exists, exchange source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
-            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+            return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
         }
 
         ExchangeRate[] exchangeRates = latestRatesForCurrency.getExchangeRates();
         if (exchangeRates == null) {
-            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+            return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
         }
         for (ExchangeRate r : exchangeRates) {
-            if (r.name.equals(source)) {
+            if (r.name.equals(exchangeSource)) {
                 //if the price is 0, obviously something went wrong
                 if (r.price.equals(0d)) {
                     //we return an exchange rate with null price -> indicating missing rate
-                    return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+                    return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
                 }
                 //everything is fine, return the rate
                 return getOtherExchangeRate(injectCurrency, r);
             }
         }
-        if (source != null) {
+        if (exchangeSource != null) {
             // We end up here if the exchange is no longer on the list
-            return ExchangeRate.missingRate(source, System.currentTimeMillis(), currency);
+            return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
         }
         return null;
     }
 
     @Override
-    public ExchangeRate getExchangeRate(String cryptocurrency, String currency) {
-        return getExchangeRate(cryptocurrency, currency, _currentExchangeSourceName);
+    public ExchangeRate getExchangeRate(String source, String destination) {
+        return getExchangeRate(source, destination, _currentExchangeSourceName);
     }
 
     private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
@@ -419,7 +415,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public void setCurrencyList(Set<GenericAssetInfo> currencies) {
         synchronized (_requestLock) {
             // copy list to prevent changes from outside
-            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<>();
+            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<>(currencies.size());
             for (GenericAssetInfo currency : currencies) {
                 listBuilder.add(currency.getSymbol());
             }
