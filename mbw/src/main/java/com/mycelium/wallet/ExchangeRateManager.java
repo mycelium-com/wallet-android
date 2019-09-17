@@ -143,19 +143,18 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
     private class Fetcher implements Runnable {
         public void run() {
-
             List<String> selectedCurrencies;
+            List<String> cryptocurrencies = MbwManager.getInstance(_applicationContext).getWalletManager(false).getCryptocurrencies();
 
             synchronized (_requestLock) {
                 selectedCurrencies = new ArrayList<>(_fiatCurrencies);
             }
 
             try {
-                List<GenericAssetInfo> assetTypes = MbwManager.getInstance(_applicationContext).getWalletManager(false).getAssetTypes();
-                List<GetExchangeRatesResponse> responses = new ArrayList<>(assetTypes.size() * selectedCurrencies.size());
-                for (GenericAssetInfo cryptocurrency : assetTypes) {
+                List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
+                for (String cryptocurrency : cryptocurrencies) {
                     for (String currency : selectedCurrencies) {
-                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, cryptocurrency.getSymbol(), currency)).getResult());
+                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, cryptocurrency, currency)).getResult());
                     }
                 }
                 synchronized (_requestLock) {
@@ -168,7 +167,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 Map<String, String> savedExchangeRates = storage.getAllExchangeRates();
                 if (savedExchangeRates.entrySet().size() > 0) {
                     synchronized (_requestLock) {
-                        setLatestRates(localValues(selectedCurrencies, savedExchangeRates));
+                        setLatestRates(localValues(cryptocurrencies, selectedCurrencies, savedExchangeRates));
                         _fetcher = null;
                         notifyRefreshingExchangeRatesSucceeded();
                     }
@@ -201,35 +200,37 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    private List<GetExchangeRatesResponse> localValues(List<String> selectedCurrencies,
+    private List<GetExchangeRatesResponse> localValues(List<String> cryptocurrencies, List<String> selectedCurrencies,
                                                          Map<String, String> savedExchangeRates) {
         List<GetExchangeRatesResponse> responses = new ArrayList<>(selectedCurrencies.size());
 
         for (String currency : selectedCurrencies) {
-            List<ExchangeRate> exchangeRates = new ArrayList<>();
-            for (Map.Entry<String, String> entry : savedExchangeRates.entrySet()) {
-                String key = entry.getKey();
-                Matcher matcher = EXCHANGE_RATE_PATTERN.matcher(key);
+            for (String cryptocurrency : cryptocurrencies) {
+                List<ExchangeRate> exchangeRates = new ArrayList<>();
+                for (Map.Entry<String, String> entry : savedExchangeRates.entrySet()) {
+                    String key = entry.getKey();
+                    Matcher matcher = EXCHANGE_RATE_PATTERN.matcher(key);
 
-                if (matcher.find()) {
-                    String market = matcher.group(1);
-                    String relatedCurrency = matcher.group(2); //BTC
-                    String baseCurrency = matcher.group(3); //fiat
+                    if (matcher.find()) {
+                        String market = matcher.group(1);
+                        String relatedCurrency = matcher.group(2); //BTC
+                        String baseCurrency = matcher.group(3); //fiat
 
-                    if (relatedCurrency.equals(BTC) && baseCurrency.equals(currency)) {
-                        double price;
-                        try {
-                            price = Double.parseDouble(entry.getValue());
-                        } catch (NumberFormatException nfe) {
-                            price = 0.0;
+                        if (relatedCurrency.equals(cryptocurrency) && baseCurrency.equals(currency)) {
+                            double price;
+                            try {
+                                price = Double.parseDouble(entry.getValue());
+                            } catch (NumberFormatException nfe) {
+                                price = 0.0;
+                            }
+                            ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), price, currency);
+                            exchangeRates.add(exchangeRate);
                         }
-                        ExchangeRate exchangeRate = new ExchangeRate(market, new Date().getTime(), price, currency);
-                        exchangeRates.add(exchangeRate);
                     }
                 }
-            }
 
-            responses.add(new GetExchangeRatesResponse(BTC, currency, exchangeRates.toArray(new ExchangeRate[0])));
+                responses.add(new GetExchangeRatesResponse(cryptocurrency, currency, exchangeRates.toArray(new ExchangeRate[0])));
+            }
         }
 
         return responses;
@@ -278,8 +279,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             _latestRates.put(response.getFromCurrency(), Collections.singletonMap(response.getToCurrency(), response));
 
             for(ExchangeRate rate : response.getExchangeRates()) {
-                // TODO store other cryptocurrencies' rates
-                storage.storeExchangeRate(BTC, rate.currency, rate.name, String.valueOf(rate.price));
+                storage.storeExchangeRate(response.getFromCurrency(), rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
         _latestRatesTime = System.currentTimeMillis();
@@ -415,7 +415,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public void setCurrencyList(Set<GenericAssetInfo> currencies) {
         synchronized (_requestLock) {
             // copy list to prevent changes from outside
-            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<>(currencies.size());
+            ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<>();
             for (GenericAssetInfo currency : currencies) {
                 listBuilder.add(currency.getSymbol());
             }
@@ -445,12 +445,12 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public Value get(Value value, GenericAssetInfo toCurrency) {
         GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
-        if(rateValue != null) {
+        if (rateValue != null) {
             BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.value))
                     .movePointLeft(value.type.getUnitExponent())
                     .round(MathContext.DECIMAL32);
             return Value.parse(toCurrency, bigDecimal);
-        }else {
+        } else {
             return null;
         }
     }
