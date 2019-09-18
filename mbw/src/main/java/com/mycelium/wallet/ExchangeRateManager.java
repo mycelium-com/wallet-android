@@ -276,8 +276,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private synchronized void setLatestRates(List<GetExchangeRatesResponse> latestRates) {
         _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
-            _latestRates.put(response.getFromCurrency(), Collections.singletonMap(response.getToCurrency(), response));
-
+            if (_latestRates.get(response.getFromCurrency()) != null) {
+                _latestRates.get(response.getFromCurrency()).put(response.getToCurrency(), response);
+            } else {
+                _latestRates.put(response.getFromCurrency(), new HashMap<>(Collections.singletonMap(response.getToCurrency(), response)));
+            }
             for(ExchangeRate rate : response.getExchangeRates()) {
                 storage.storeExchangeRate(response.getFromCurrency(), rate.currency, rate.name, String.valueOf(rate.price));
             }
