@@ -184,6 +184,14 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             storeKeyCategoryValueEntry(SIMPLEX_IS_ENABLED, if (enable) "1" else "0")
         }
 
+    var sepaIsEnabled: Boolean
+        get() {
+            return getKeyCategoryValueEntry(SEPA_IS_ENABLED, "1") == "1"
+        }
+        set(enable) {
+            storeKeyCategoryValueEntry(SEPA_IS_ENABLED, if (enable) "1" else "0")
+        }
+
     var changellyIsEnabled: Boolean
         get() {
             return getKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, "1") == "1"
@@ -511,6 +519,7 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
     private val SHOW_BIP44_PATH = MetadataKeyCategory("ui", "show_bip44_path")
     private val SWISH_CREDIT_CARD_IS_ENABLED = MetadataKeyCategory("swish_cc", "enable")
     private val SIMPLEX_IS_ENABLED = MetadataKeyCategory("simplex", "enable")
+    private val SEPA_IS_ENABLED = MetadataKeyCategory("sepa", "enable")
     private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
     private val EMAIL = "email"
     val PAIRED_SERVICE_COINAPULT = "coinapult"

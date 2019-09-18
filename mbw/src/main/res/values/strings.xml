@@ -1327,4 +1327,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
     <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
     <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
+    <string name="sepa_buy_sell_title">SEPA</string>
+    <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
 </resources>
