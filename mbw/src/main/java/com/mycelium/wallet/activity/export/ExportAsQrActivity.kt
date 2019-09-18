@@ -42,8 +42,7 @@ class ExportAsQrActivity : AppCompatActivity() {
             account is HDAccount && (accountData.publicDataMap?.size ?: 0 > 1) ->
                 ExportAsQrBtcHDViewModel::class.java
             account is SingleAddressAccount && accountData.publicDataMap!!.size > 1
-                    && account.availableAddressTypes.size > 1
-                    && account.publicKey.isCompressed ->
+                    && account.availableAddressTypes.size > 1 ->
                 ExportAsQrBtcSAViewModel::class.java
             else -> ExportAsQrViewModel::class.java
         })

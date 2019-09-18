@@ -30,6 +30,8 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    private boolean isSyncing;
 
+   private String accountLabel;
+
    /**
     * Checks if the account needs to be synchronized, according to the provided SyncMode
     *
@@ -125,11 +127,12 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public String getLabel() {
-      return null;
+      return accountLabel;
    }
 
    @Override
    public void setLabel(String label) {
+      accountLabel = label;
    }
 
    @Override

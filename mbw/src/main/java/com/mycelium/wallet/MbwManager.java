@@ -1238,8 +1238,7 @@ public class MbwManager {
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {
-        UUID accountId;
-        accountId = _tempWalletManager.createAccounts(new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher())).get(0);
+        UUID accountId = _tempWalletManager.createAccounts(new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher())).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId); // this also starts a sync
         return accountId;
