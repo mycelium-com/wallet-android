@@ -339,7 +339,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * the currently chosen exchange source is not available.
      */
     public ExchangeRate getExchangeRate(String source, String destination, String exchangeSource) {
-        Map<String, GetExchangeRatesResponse> latestRatesForCryptocurrency = _latestRates.get(source);
+        if (source.equals(destination)) {
+            source = MbwManager.getInstance(_applicationContext).getSelectedAccount().getCoinType().getSymbol();
+        }
+        Map<String, GetExchangeRatesResponse> latestRatesForSourceCurrency = _latestRates.get(source);
 
         // TODO need some refactoring for this
         String injectCurrency = null;
@@ -347,17 +350,17 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             injectCurrency = destination;
             destination = "USD";
         }
-        if (latestRatesForCryptocurrency == null || latestRatesForCryptocurrency.isEmpty() || !latestRatesForCryptocurrency.containsKey(destination)) {
+        if (latestRatesForSourceCurrency == null || latestRatesForSourceCurrency.isEmpty() || !latestRatesForSourceCurrency.containsKey(destination)) {
             return null;
         }
-        GetExchangeRatesResponse latestRatesForCurrency = latestRatesForCryptocurrency.get(destination);
-        if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForCurrency == null) {
+        GetExchangeRatesResponse latestRatesForTargetCurrency = latestRatesForSourceCurrency.get(destination);
+        if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForTargetCurrency == null) {
             //rate is too old or does not exists, exchange source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
             return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
         }
 
-        ExchangeRate[] exchangeRates = latestRatesForCurrency.getExchangeRates();
+        ExchangeRate[] exchangeRates = latestRatesForTargetCurrency.getExchangeRates();
         if (exchangeRates == null) {
             return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
         }

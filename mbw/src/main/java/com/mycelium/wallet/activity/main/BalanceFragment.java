@@ -215,7 +215,7 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onStart() {
         MbwManager.getEventBus().register(this);
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         if (_exchangeRatePrice == null) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
@@ -457,20 +457,20 @@ public class BalanceFragment extends Fragment {
 
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
         updateExchangeSourceMenu();
     }
 
     @Subscribe
     public void exchangeSourceChanged(ExchangeSourceChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
     }
 
     @Subscribe
     public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
         updateExchangeSourceMenu();
     }

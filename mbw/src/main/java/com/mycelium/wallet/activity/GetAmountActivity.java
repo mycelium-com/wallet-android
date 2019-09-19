@@ -433,7 +433,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       tvAmount.setText(amountText);
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
-              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()
+              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType().getSymbol())
               || Value.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
       } else {
@@ -582,7 +582,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    private void updateExchangeRateDisplay() {
       if(_amount != null) {
-         Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+         Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType().getSymbol());
          if (exchangeRatePrice != null) {
             updateAmountsDisplay(_numberEntry.getEntry());
          }

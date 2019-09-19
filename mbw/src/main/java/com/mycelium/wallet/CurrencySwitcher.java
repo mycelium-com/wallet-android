@@ -220,14 +220,14 @@ public class CurrencySwitcher {
       this.denomination = _denomination;
    }
 
-   public boolean isFiatExchangeRateAvailable() {
+   public boolean isFiatExchangeRateAvailable(String fromCurrency) {
       if (currentFiatCurrency == null) {
          // we dont even have a fiat currency...
          return false;
       }
 
       // check if there is a rate available
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentCurrency.getSymbol(), getCurrentFiatCurrency().getSymbol());
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(fromCurrency, getCurrentFiatCurrency().getSymbol());
       return rate != null && rate.price != null;
    }
 
@@ -248,8 +248,8 @@ public class CurrencySwitcher {
     * Returns null if the current rate is too old or for a different currency.
     * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
     */
-   public synchronized Double getExchangeRatePrice() {
-      ExchangeRate rate = exchangeRateManager.getExchangeRate(currentCurrency.getSymbol(), currentFiatCurrency.getSymbol());
+   public synchronized Double getExchangeRatePrice(String fromCurrency) {
+      ExchangeRate rate = exchangeRateManager.getExchangeRate(fromCurrency, currentFiatCurrency.getSymbol());
       return rate == null ? null : rate.price;
    }
 
