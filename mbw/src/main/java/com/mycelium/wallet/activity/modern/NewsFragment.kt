@@ -50,7 +50,7 @@ class NewsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        preference = activity?.getSharedPreferences(NewsConstants.NEWS_PREF, MODE_PRIVATE)!!
+        preference = requireActivity().getSharedPreferences(NewsConstants.NEWS_PREF, MODE_PRIVATE)
         adapter = NewsAdapter(preference)
         adapterSearch = NewsSearchAdapter(preference)
     }
@@ -140,8 +140,8 @@ class NewsFragment : Fragment() {
                 updateFavoriteMenu(it)
             }
         }
-        menu.findItem(R.id.action_search)?.isVisible = searchActive.not()
-        menu.findItem(R.id.action_favorite)?.isVisible = searchActive.not()
+        menu.findItem(R.id.action_search)?.isVisible = !searchActive
+        menu.findItem(R.id.action_favorite)?.isVisible = !searchActive
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -149,7 +149,7 @@ class NewsFragment : Fragment() {
             searchActive = true
             activity?.invalidateOptionsMenu()
             updateUI()
-            val inputMethodManager = activity?.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.showSoftInput(search_input, 0)
             return true
         } else if (item.itemId == R.id.action_favorite) {

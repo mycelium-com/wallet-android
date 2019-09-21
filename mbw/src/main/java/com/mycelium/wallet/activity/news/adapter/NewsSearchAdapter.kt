@@ -42,13 +42,12 @@ class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapt
         layoutInflater = LayoutInflater.from(recyclerView.context)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            TYPE_NEWS_ITEM_ALL -> NewsSearchItemAllHolder(preferences, layoutInflater.inflate(R.layout.item_all_news_search, parent, false))
-            TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
-            else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
-        }
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+            when (viewType) {
+                TYPE_NEWS_ITEM_ALL -> NewsSearchItemAllHolder(preferences, layoutInflater.inflate(R.layout.item_all_news_search, parent, false))
+                TYPE_NEWS_V2 -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
+                else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
+            }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == TYPE_NEWS_ITEM_ALL) {
@@ -81,9 +80,10 @@ class NewsSearchAdapter(val preferences: SharedPreferences) : RecyclerView.Adapt
         return (searchDataMap?.size ?: dataMap.size) + 1
     }
 
-    override fun getItemViewType(position: Int): Int {
-        if (position == itemCount - 1) return TYPE_SPACE
-        return if (searchDataMap == null) TYPE_NEWS_ITEM_ALL else TYPE_NEWS_V2
+    override fun getItemViewType(position: Int): Int = when {
+        position == itemCount - 1 -> TYPE_SPACE
+        searchDataMap == null -> TYPE_NEWS_ITEM_ALL
+        else -> TYPE_NEWS_V2
     }
 
     companion object {

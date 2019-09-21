@@ -31,9 +31,7 @@ const val mediaFlowNotificationGroup = "Media Flow"
 
 class NewsSyncService : Service() {
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStart(intent: Intent?, startId: Int) {
         super.onStart(intent, startId)
@@ -95,9 +93,7 @@ class NewsSyncService : Service() {
                     builder.setContent(remoteViews)
                             .setContentIntent(pIntent)
                     builder.setGroup(mediaFlowNotificationGroup)
-                    NotificationManagerCompat.from(this).apply {
-                        notify(mediaFlowNotificationId, builder.build())
-                    }
+                    NotificationManagerCompat.from(this).notify(mediaFlowNotificationId, builder.build())
                 } else if (newTopics.size > 1) {
                     builder.setGroupSummary(true)
                     val inboxStyle = NotificationCompat.InboxStyle()
@@ -112,9 +108,7 @@ class NewsSyncService : Service() {
                     val pIntent = PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
                     builder.setContentIntent(pIntent)
                             .setGroup(mediaFlowNotificationGroup)
-                    NotificationManagerCompat.from(this).apply {
-                        notify(mediaFlowNotificationId, builder.build())
-                    }
+                    NotificationManagerCompat.from(this).notify(mediaFlowNotificationId, builder.build())
                 }
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
@@ -128,9 +122,9 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
         try {
             result = fetchAllPages { nextPage ->
                 if (after != null && after.isNotEmpty()) {
-                    NewsFactory.getService().updatedPosts(after, nextPage).execute().body()
+                    NewsFactory.service.updatedPosts(after, nextPage).execute().body()
                 } else {
-                    NewsFactory.getService().posts(nextPage).execute().body()
+                    NewsFactory.service.posts(nextPage).execute().body()
                 }
             }.let { NewsDatabase.saveNews(it) }
         } catch (e: Exception) {
