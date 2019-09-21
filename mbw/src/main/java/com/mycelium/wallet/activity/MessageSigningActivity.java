@@ -57,6 +57,8 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
+import java.text.Normalizer;
+
 /*
 todo HD: root seeds will for now not support signing directly. only support single addresses.
 
@@ -136,7 +138,7 @@ public class MessageSigningActivity extends Activity {
                 new Thread() {
                     @Override
                     public void run() {
-                        messageText = messageToSign.getText().toString();
+                        messageText = Normalizer.normalize(messageToSign.getText().toString(), Normalizer.Form.NFKD);
                         SignedMessage signedMessage = privateKey.signMessage(messageText);
                         base64Signature = signedMessage.getBase64Signature();
                         runOnUiThread(new Runnable() {

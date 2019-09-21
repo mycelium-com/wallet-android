@@ -103,6 +103,8 @@ dependencies {
         exclude group: "com.android.support"
     }
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 }
 
 android {
@@ -136,8 +138,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3000020
-        versionName '3.0.0.20'
+        versionCode 3000022
+        versionName '3.0.0.22'
         multiDexEnabled true
 
         minSdkVersion 19
@@ -227,6 +229,7 @@ android {
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
                 safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
+                sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -254,6 +257,7 @@ android {
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
                 safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
+                sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -273,6 +277,7 @@ android {
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
         variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
+        variant.buildConfigField "String", "SEPA", "\"${flavor.ext.sepa}\""
     }
 
     testOptions {

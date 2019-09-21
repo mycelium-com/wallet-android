@@ -53,9 +53,9 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             LoadingProgressTracker.setPercent(counter * 100 / contexts.size)
             // The only way to know if we are migrating now
             if (loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMHD || loadingProgressUpdater.status is LoadingProgressStatus.MigratingNOfMSA) {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size)))
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.MigratingNOfMSA(Integer.toString(counter++), contexts.size.toString()))
             } else {
-                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMSA(Integer.toString(counter++), Integer.toString(contexts.size)))
+                LoadingProgressTracker.setStatus(LoadingProgressStatus.LoadingNOfMSA(Integer.toString(counter++), contexts.size.toString()))
             }
             val store = publicPrivateKeyStore
             val accountBacking = backing.getSingleAddressAccountBacking(context.id)
@@ -76,26 +76,28 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
 
     override fun createAccount(config: Config): WalletAccount<*> {
         var result: WalletAccount<*>? = null
-        var baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
-        var configLabel = (config as LabeledConfig).label
+        val baseLabel = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
+        val configLabel = (config as LabeledConfig).label
 
-        if (config is PublicSingleConfig) {
-            result = createAccount(config.publicKey, settings.defaultAddressType)
-        } else if (config is PrivateSingleConfig) {
-            val addressType = if (config.addressType != null) config.addressType else settings.defaultAddressType
-            result = createAccount(config.privateKey, config.cipher, addressType)
-        } else if (config is AddressSingleConfig) {
-            val id = SingleAddressAccount.calculateId(config.address.address)
-            backing.beginTransaction()
-            try {
-                val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0, config.address.address.type)
-                backing.createSingleAddressAccountContext(context)
-                val accountBacking = backing.getSingleAddressAccountBacking(context.id)
-                result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
-                context.persist(accountBacking)
-                backing.setTransactionSuccessful()
-            } finally {
-                backing.endTransaction()
+        when (config) {
+            is PublicSingleConfig -> result = createAccount(config.publicKey, settings.defaultAddressType)
+            is PrivateSingleConfig -> {
+                val addressType = config.addressType ?: settings.defaultAddressType
+                result = createAccount(config.privateKey, config.cipher, addressType)
+            }
+            is AddressSingleConfig -> {
+                val id = SingleAddressAccount.calculateId(config.address.address)
+                backing.beginTransaction()
+                try {
+                    val context = SingleAddressAccountContext(id, mapOf(config.address.address.type to config.address.address), false, 0, config.address.address.type)
+                    backing.createSingleAddressAccountContext(context)
+                    val accountBacking = backing.getSingleAddressAccountBacking(context.id)
+                    result = SingleAddressAccount(context, publicPrivateKeyStore, networkParameters, accountBacking, _wapi, settings.changeAddressModeReference)
+                    context.persist(accountBacking)
+                    backing.setTransactionSuccessful()
+                } finally {
+                    backing.endTransaction()
+                }
             }
         }
 

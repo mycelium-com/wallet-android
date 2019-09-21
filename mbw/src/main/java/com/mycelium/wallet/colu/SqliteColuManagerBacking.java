@@ -650,7 +650,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
 
                Map<UUID, ColuMain> coluUUIDs = new ArrayMap<>();
                for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
@@ -749,7 +749,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
                db.execSQL("ALTER TABLE single ADD COLUMN coinId TEXT");
 
                SQLiteStatement updateCoinIdStatement = db.compileStatement("UPDATE single SET coinId=? WHERE id=?");
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
                for (ColuMain coin : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
                   if (!Strings.isNullOrEmpty(coin.getId())) {
                      UUID[] uuids = metadataStorage.getColuAssetUUIDs(coin.getId());
