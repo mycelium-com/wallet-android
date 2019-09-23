@@ -16,7 +16,6 @@ import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
-import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,7 +77,7 @@ public class MessageVerifyActivity extends Activity {
         Matcher matcher = messagePattern.matcher(msgWithSign);
         if (matcher.find()) {
             address = Address.fromString(matcher.group(6));
-            String msg = Normalizer.normalize(matcher.group(1), Normalizer.Form.NFKD);;
+            String msg = matcher.group(1);
             Sha256Hash data = HashUtils.doubleSha256(X509Utils.formatMessageForSigning(msg));
             try {
                 SignedMessage signedMessage = SignedMessage.validate(address, msg, matcher.group(7));
