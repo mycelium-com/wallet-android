@@ -16,7 +16,7 @@ import com.mycelium.wallet.external.mediaflow.model.News
 
 
 class NewsAdapter(val preferences: SharedPreferences)
-    : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback(preferences)) {
+    : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
     private lateinit var layoutInflater: LayoutInflater
     private val dataMap = mutableMapOf<Category, MutableSet<News>>()
@@ -49,19 +49,19 @@ class NewsAdapter(val preferences: SharedPreferences)
                 data.add(Entry(TYPE_NEWS_LOADING, null))
                 data.add(Entry(TYPE_NEWS_LOADING, null))
             }
-            selectedCategory == ALL -> dataMap.forEach { entry ->
-                val sortedList = entry.value.toList().sortedByDescending { it.date }
+            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach {
+                val sortedList = dataMap[it]?.toList()?.sortedByDescending { it.date } ?: listOf()
                 data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
-                data.add(Entry(TYPE_NEWS_BIG, sortedList[0]))
+                data.add(Entry(TYPE_NEWS_BIG, sortedList[0], sortedList[0].isFavorite(preferences)))
                 if (sortedList.size > 1) {
-                    data.add(Entry(TYPE_NEWS, sortedList[1]))
+                    data.add(Entry(TYPE_NEWS, sortedList[1], sortedList[1].isFavorite(preferences)))
                 }
                 if (sortedList.size > 2) {
-                    data.add(Entry(TYPE_NEWS, sortedList[2]))
+                    data.add(Entry(TYPE_NEWS, sortedList[2], sortedList[2].isFavorite(preferences)))
                 }
             }
             else -> dataMap[selectedCategory]?.forEachIndexed { index, news ->
-                data.add(Entry(if (index == 0) TYPE_NEWS_BIG else TYPE_NEWS, news))
+                data.add(Entry(if (index == 0) TYPE_NEWS_BIG else TYPE_NEWS, news, news.isFavorite(preferences)))
             }
         }
         data.add(Entry(TYPE_SPACE, null))
@@ -132,9 +132,9 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    data class Entry(val type: Int, val news: News?)
+    data class Entry(val type: Int, val news: News?, val favorite: Boolean = false)
 
-    class ItemListDiffCallback(val preferences: SharedPreferences) : DiffUtil.ItemCallback<Entry>() {
+    class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
                 oldItem.type == newItem.type && oldItem.news != null && newItem.news != null
                         && oldItem.news.id == newItem.news.id
@@ -143,7 +143,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                 oldItem.type == newItem.type
                         && oldItem.news?.title == newItem.news?.title
                         && oldItem.news?.content == newItem.news?.content
-                        && oldItem.news?.isFavorite(preferences) == newItem.news?.isFavorite(preferences)
+                        && oldItem.favorite == newItem.favorite
     }
 
     companion object {

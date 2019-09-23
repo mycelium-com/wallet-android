@@ -1,38 +1,31 @@
 package com.mycelium.wallet.activity.news
 
 import android.content.Context
-import android.graphics.Color
 import android.text.format.DateUtils
 import com.mycelium.wallet.R
+import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 
 
 object NewsUtils {
-    fun getCategoryTextColor(category: String) = when (category) {
-        "All" -> Color.WHITE
-        "News" -> Color.parseColor("#e31a62")
-        "Features" -> Color.parseColor("#4276ff")
-        "Announcements" -> Color.parseColor("#fa9f01")
-        "How to" -> Color.parseColor("#00a9ff")
-        "Buy/Sell" -> Color.parseColor("#67b032")
-        "Uncategorized" -> Color.parseColor("#3E167E")
-        else -> Color.parseColor("#4276ff")
-    }
+
+    const val MEDIA_FLOW_ACTION: String = "media_flow"
+
+    private val sortedMap = mapOf("All" to 0, "News" to 1, "Micro OTC" to 2,
+            "Wallet Features" to 3, "Knowledge Center" to 4)
 
     fun getCategoryIcon(category: String) = when (category) {
         "News" -> R.drawable.ic_earth
-        "Education Center" -> R.drawable.ic_education
+        "Knowledge Center" -> R.drawable.ic_education
         else -> R.drawable.ic_mediaflow_category_default_icon
     }
 
-    const val myceliumAuthor = "myceliumholding"
-    const val MEDIA_FLOW_ACTION: String = "media_flow"
-
-    fun getDateAuthorString(context: Context, news: News): String {
-        return (if (news.author.name != myceliumAuthor) {
-            "${news.author.name} ${context.getString(R.string.bullet)} "
-        } else "") + "${DateUtils.getRelativeTimeSpanString(news.date.time, System.currentTimeMillis(),
-                0L, DateUtils.FORMAT_ABBREV_MONTH.or(DateUtils.FORMAT_ABBREV_TIME))}"
+    fun sort(categories: MutableList<Category>): MutableList<Category> {
+        categories.sortWith(Comparator { p0, p1 ->
+            val result = sortedMap[p0?.name]?.minus(sortedMap[p1?.name] ?: 100) ?: 0
+            if (result != 0) result else p0?.name?.compareTo(p1?.name ?: "") ?: 0
+        })
+        return categories
     }
 
     fun getDateString(context: Context, news: News): String {

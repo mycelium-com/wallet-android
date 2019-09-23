@@ -17,6 +17,7 @@ import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.NewsActivity
+import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
 import com.mycelium.wallet.external.mediaflow.GetAllNewsTask
@@ -190,7 +191,7 @@ class NewsFragment : Fragment() {
         GetCategoriesTask {
             val list = mutableListOf(Category("All"))
             list.addAll(it)
-            list.forEach { category ->
+            NewsUtils.sort(list).forEach { category ->
                 if (getTab(category, tabs) == null) {
                     val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
                     view.text.text = category.name
