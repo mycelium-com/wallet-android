@@ -16,7 +16,7 @@ import com.mycelium.wallet.external.mediaflow.model.News
 
 
 class NewsAdapter(val preferences: SharedPreferences)
-    : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
+    : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback(preferences)) {
 
     private lateinit var layoutInflater: LayoutInflater
     private val dataMap = mutableMapOf<Category, MutableSet<News>>()
@@ -81,16 +81,14 @@ class NewsAdapter(val preferences: SharedPreferences)
         layoutInflater = LayoutInflater.from(recyclerView.context)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
-            TYPE_NEWS_CATEGORY -> NewsCategoryBtnHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_category_btn, parent, false))
-            TYPE_NEWS_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
-            TYPE_NEWS -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
-            TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
-            TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
-            else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
+        TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
+        TYPE_NEWS_CATEGORY -> NewsCategoryBtnHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_category_btn, parent, false))
+        TYPE_NEWS_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
+        TYPE_NEWS -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
+        TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
+        TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
+        else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -115,8 +113,8 @@ class NewsAdapter(val preferences: SharedPreferences)
             }
             TYPE_NEWS_BIG -> {
                 val bigHolder = holder as NewsV2BigHolder
-                val news = item.news
-                bigHolder.bind(news!!)
+                val news = item.news!!
+                bigHolder.bind(news)
                 bigHolder.openClickListener = {
                     openClickListener?.invoke(it)
                 }
@@ -136,7 +134,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     data class Entry(val type: Int, val news: News?)
 
-    class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
+    class ItemListDiffCallback(val preferences: SharedPreferences) : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
                 oldItem.type == newItem.type && oldItem.news != null && newItem.news != null
                         && oldItem.news.id == newItem.news.id
@@ -145,6 +143,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                 oldItem.type == newItem.type
                         && oldItem.news?.title == newItem.news?.title
                         && oldItem.news?.content == newItem.news?.content
+                        && oldItem.news?.isFavorite(preferences) == newItem.news?.isFavorite(preferences)
     }
 
     companion object {
@@ -162,6 +161,8 @@ class NewsAdapter(val preferences: SharedPreferences)
         val ALL = Category("All")
     }
 }
+
+fun News.isFavorite(preferences: SharedPreferences) = preferences.getBoolean(NewsAdapter.PREF_FAVORITE + id, false)
 
 fun News.getCategory(): Category = if (this.categories.values.isNotEmpty()) this.categories.values.first() else Category("Uncategorized")
 

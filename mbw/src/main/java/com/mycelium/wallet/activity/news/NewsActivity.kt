@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -45,7 +46,7 @@ class NewsActivity : AppCompatActivity() {
             val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
             category.alpha = 1 - scrollDelta
             toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
-            collapsing_toolbar.title = if (scrollDelta == 1f) news.title else ""
+            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title) else ""
             llRoot.clipChildren = scrollDelta == 1f
             llRoot.clipToPadding = scrollDelta == 1f
         })
@@ -106,7 +107,7 @@ class NewsActivity : AppCompatActivity() {
             scrollBar.layoutParams = layoutParams
         })
 
-        tvTitle.text = news.title
+        tvTitle.text = Html.fromHtml(news.title)
         tvDate.text = NewsUtils.getDateString(this, news)
         author.text = news.author?.name
 
@@ -125,7 +126,7 @@ class NewsActivity : AppCompatActivity() {
 
     private fun share() {
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
-                .putExtra(Intent.EXTRA_SUBJECT, news.title)
+                .putExtra(Intent.EXTRA_SUBJECT, Html.fromHtml(news.title))
                 .putExtra(Intent.EXTRA_TEXT, news.link)
                 .setType("text/plain"), getString(R.string.share_news)))
     }
@@ -137,14 +138,9 @@ class NewsActivity : AppCompatActivity() {
         invalidateOptionsMenu()
     }
 
-    fun Resources.toWebViewPx(dipValue: Float): Float {
+    private fun Resources.toWebViewPx(dipValue: Float): Float {
         val metrics = this.displayMetrics
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics) / metrics.density
-    }
-
-    fun Resources.fromWebViewPx(value: Int): Int {
-        val metrics = this.displayMetrics
-        return (value * metrics.density).toInt()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

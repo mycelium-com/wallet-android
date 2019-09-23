@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
+import android.text.Html
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -79,11 +80,11 @@ class NewsSyncService : Service() {
 
                 if (newTopics.size == 1) {
                     val news = newTopics[0]
-                    builder.setContentText(news.title)
-                    builder.setTicker(news.title)
+                    builder.setContentText(Html.fromHtml(news.title))
+                    builder.setTicker(Html.fromHtml(news.title))
 
                     val remoteViews = RemoteViews(packageName, R.layout.layout_news_notification)
-                    remoteViews.setTextViewText(R.id.title, news.title)
+                    remoteViews.setTextViewText(R.id.title, Html.fromHtml(news.title))
 
                     val activityIntent = Intent(this, StartupActivity::class.java)
                     activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
@@ -98,8 +99,8 @@ class NewsSyncService : Service() {
                     builder.setGroupSummary(true)
                     val inboxStyle = NotificationCompat.InboxStyle()
                             .setBigContentTitle(getString(R.string.media_flow_notification_title))
-                    newTopics.forEach {
-                        inboxStyle.addLine(it.title)
+                    newTopics.forEach { news ->
+                        inboxStyle.addLine(Html.fromHtml(news.title))
                     }
                     builder.setStyle(inboxStyle)
 
