@@ -35,7 +35,7 @@ class NewsAdapter(val preferences: SharedPreferences)
             val set = dataMap.getOrElse(news.categories.values.first()) {
                 mutableSetOf()
             }
-            set.remove(news) // remove old news from data set
+            set.remove(news) // allow potentially changed news to be updated
             set.add(news)
             dataMap[news.getCategory()] = set
         }

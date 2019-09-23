@@ -79,7 +79,7 @@ object NewsDatabase {
             if (where.isNotEmpty()) {
                 where.append(" AND ")
             }
-            where.append(categories.map { "category = '${it.name}'" }.joinToString(" OR "))
+            where.append("(").append(categories.map { "category = '${it.name}'" }.joinToString(" OR ")).append(")")
         }
         return DatabaseUtils.queryNumEntries(database, NEWS, where.toString())
     }
