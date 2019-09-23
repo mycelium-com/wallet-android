@@ -62,7 +62,7 @@ constructor(val network: NetworkParameters,
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
-    fun getAccountIds(): List<UUID> = accounts.keys.toList()
+    fun getAccountIds(): List<UUID> = accounts.keys().toList()
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
