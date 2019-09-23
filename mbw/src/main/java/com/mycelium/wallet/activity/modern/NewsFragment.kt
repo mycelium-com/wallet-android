@@ -16,6 +16,7 @@ import com.google.android.material.tabs.TabLayout
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.activity.modern.adapter.isFavorite
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
@@ -204,13 +205,14 @@ class NewsFragment : Fragment() {
 
         val taskListener: (List<News>, Long) -> Unit = { pageData, count ->
             loading = false
-            val list = if (preference.getBoolean(NewsConstants.FAVORITE, false)) {
-                pageData.filter { news -> preference.getBoolean(NewsAdapter.PREF_FAVORITE + news.id, false) }
+            val favorite = preference.getBoolean(NewsConstants.FAVORITE, false)
+            val list = if (favorite) {
+                pageData.filter { news -> news.isFavorite(preference) }
             } else {
                 pageData
             }
             if (offset == 0) {
-                adapter.setData(list)
+                adapter.setData(list, favorite)
             } else {
                 adapter.addData(list)
             }

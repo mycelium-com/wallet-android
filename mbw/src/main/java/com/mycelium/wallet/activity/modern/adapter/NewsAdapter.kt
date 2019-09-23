@@ -24,8 +24,10 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
+    var favorite: Boolean = false
 
-    fun setData(data: List<News>) {
+    fun setData(data: List<News>, favorite: Boolean) {
+        this.favorite = favorite
         dataMap.clear()
         addData(data)
     }
@@ -46,8 +48,12 @@ class NewsAdapter(val preferences: SharedPreferences)
         val data = mutableListOf<Entry>()
         when {
             dataMap.isEmpty() -> {
-                data.add(Entry(TYPE_NEWS_LOADING, null))
-                data.add(Entry(TYPE_NEWS_LOADING, null))
+                if (favorite) {
+                    data.add(Entry(TYPE_NEWS_NO_BOOKMARKS))
+                } else {
+                    data.add(Entry(TYPE_NEWS_LOADING))
+                    data.add(Entry(TYPE_NEWS_LOADING))
+                }
             }
             selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach {
                 val sortedList = dataMap[it]?.toList()?.sortedByDescending { it.date } ?: listOf()
@@ -88,6 +94,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         TYPE_NEWS -> NewsV2Holder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2, parent, false), preferences)
         TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
         TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
+        TYPE_NEWS_NO_BOOKMARKS -> NewsNoBookmarksHolder(layoutInflater.inflate(R.layout.item_mediaflow_no_bookmarks, parent, false))
         else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
     }
 
@@ -132,7 +139,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    data class Entry(val type: Int, val news: News?, val favorite: Boolean = false)
+    data class Entry(val type: Int, val news: News? = null, val favorite: Boolean = false)
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
@@ -157,6 +164,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         const val TYPE_NEWS = 4
 
         const val TYPE_NEWS_ITEM_LOADING = 5
+        const val TYPE_NEWS_NO_BOOKMARKS = 6
 
         val ALL = Category("All")
     }
