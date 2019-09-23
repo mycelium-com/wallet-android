@@ -1247,7 +1247,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bullet">&#8226;</string>
     <string name="select_flows">Select flows</string>
     <string name="view_more">View more</string>
-    <string name="show_news_all_notification">Show media flow all notifications</string>
+    <string name="settings_show_news_all_notification">Show Media Flow notifications</string>
     <string name="media_flow">Media Flow</string>
     <string name="select_all">Show all</string>
     <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>
@@ -1349,4 +1349,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
     <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
+    <string name="settings_media_flow_notification_category">Media Flow</string>
 </resources>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:key="media_flow_category"
         android:layout="@layout/preference_category_layout_first_item"
-        android:title="News notifications">
+        android:title="@string/settings_media_flow_notification_category">
         <CheckBoxPreference
             android:key="news_all_notification"
             android:layout="@layout/preference_layout"
-            android:title="@string/show_news_all_notification"
+            android:title="@string/settings_show_news_all_notification"
             android:widgetLayout="@layout/preference_switch" />
     </PreferenceCategory>
     <PreferenceCategory

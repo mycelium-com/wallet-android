@@ -50,7 +50,7 @@ class NewsSyncService : Service() {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
             }
 
-            if (SettingsPreference.newsNotificationEnabled
+            if (SettingsPreference.mediaFLowNotificationEnabled
                     && lastUpdateTime != null // not show for init load
             ) {
                 val newTopics = arrayListOf<News>()

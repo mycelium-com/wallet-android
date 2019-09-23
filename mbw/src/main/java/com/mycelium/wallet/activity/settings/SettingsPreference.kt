@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletConfiguration
+import com.mycelium.wallet.external.mediaflow.model.Category
 import java.util.*
 
 object SettingsPreference {
@@ -41,7 +42,14 @@ object SettingsPreference {
 
     private fun PartnerInfo.isActive() = Date().after(startDate) && Date().before(endDate)
 
-    var newsNotificationEnabled
+    var mediaFLowNotificationEnabled
         get() = sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE, true)
         set(value) = sharedPreferences.edit().putBoolean(NEWS_NOTIFICATION_ENABLE, value).apply()
+
+    fun setMediaFlowCategoryNotificationEnabled(category: Category, enable: Boolean) {
+        sharedPreferences.edit().putBoolean(NEWS_NOTIFICATION_ENABLE + category.name, enable).apply()
+    }
+
+    fun getMediaFlowCategoryNotificationEnabled(category: Category) =
+            sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE + category.name, true)
 }
