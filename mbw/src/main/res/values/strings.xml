@@ -710,7 +710,7 @@
     <string name="ledger_enter_pin">Enter Ledger Wallet PIN</string>
     <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Confirm output address using your Security Card</string>
-    <string name="ledger_please_wait">Please wait ...</string>
+    <string name="ledger_please_wait">Please wait …</string>
     <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
     <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
     <string name="ledger_check_unplugged_aid">Invalid AID, please recheck</string>
@@ -818,6 +818,7 @@
     <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
+    <string name="bumping_not_necessary">Bumping not necessary</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
     <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
@@ -1093,7 +1094,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
-    <string name="changelly_loading_currencies">Loading currencies...</string>
+    <string name="changelly_loading_currencies">Loading currencies…</string>
     <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
     <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
@@ -1326,4 +1327,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
     <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
     <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
+    <string name="sepa_buy_sell_title">SEPA</string>
+    <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
 </resources>

@@ -10,7 +10,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 
 
-class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress, val amount: Value, val feePerKb: Value?)
+class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress?, val amount: Value?, val feePerKb: Value?)
     : GenericTransaction(type) {
     var txHex: String? = null
 

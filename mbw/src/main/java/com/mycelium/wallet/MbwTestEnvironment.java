@@ -42,6 +42,7 @@ import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
+import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
 
 import java.util.ArrayList;
@@ -93,13 +94,14 @@ public class MbwTestEnvironment extends MbwEnvironment {
    }};
 
    public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<BlockExplorer>(testnetExplorerClearEndpoints);
+      return new ArrayList<>(testnetExplorerClearEndpoints);
    }
 
    public List<BuySellServiceDescriptor> getBuySellServices(){
       return new ArrayList<BuySellServiceDescriptor>() {{
-         add(new SimplexServiceDescription());
-         add(new LocalTraderServiceDescription());
+          add(new SimplexServiceDescription());
+          add(new SepaServiceDescription());
+          add(new LocalTraderServiceDescription());
       }};
    }
 }
