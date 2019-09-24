@@ -154,7 +154,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 List<GetExchangeRatesResponse> responses = new ArrayList<>(cryptocurrencies.size() * selectedCurrencies.size());
                 for (String cryptocurrency : cryptocurrencies) {
                     for (String currency : selectedCurrencies) {
-                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, cryptocurrency, currency)).getResult());
+                        responses.add(_api.getExchangeRates(new GetExchangeRatesRequest(Wapi.VERSION, trimSymbolDecorations(cryptocurrency), currency)).getResult());
                     }
                 }
                 synchronized (_requestLock) {
@@ -198,6 +198,30 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                 rateBchBtc = Float.parseFloat(rate.get());
             }
         }
+    }
+
+    private String trimSymbolDecorations(String symbol) {
+        if (BuildConfig.FLAVOR.equals("btctestnet")) {
+            if (symbol.startsWith("t")) {
+                return symbol.substring(1);
+            }
+            if (symbol.endsWith("t")) {
+                return symbol.substring(0, symbol.length() - 1);
+            }
+        }
+        return symbol;
+    }
+
+    private String addSymbolDecorations(String symbol) {
+        if (BuildConfig.FLAVOR.equals("btctestnet")) {
+            if (symbol.equals("BTC")) {
+                return "t" + symbol;
+            }
+            if (symbol.equals("MT")) {
+                return symbol + "t";
+            }
+        }
+        return symbol;
     }
 
     private List<GetExchangeRatesResponse> localValues(List<String> cryptocurrencies, List<String> selectedCurrencies,
@@ -276,13 +300,15 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private synchronized void setLatestRates(List<GetExchangeRatesResponse> latestRates) {
         _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
-            if (_latestRates.get(response.getFromCurrency()) != null) {
-                _latestRates.get(response.getFromCurrency()).put(response.getToCurrency(), response);
+            String fromCurrency = addSymbolDecorations(response.getFromCurrency());
+            String toCurrency = addSymbolDecorations(response.getToCurrency());
+            if (_latestRates.get(fromCurrency) != null) {
+                _latestRates.get(fromCurrency).put(toCurrency, response);
             } else {
-                _latestRates.put(response.getFromCurrency(), new HashMap<>(Collections.singletonMap(response.getToCurrency(), response)));
+                _latestRates.put(fromCurrency, new HashMap<>(Collections.singletonMap(toCurrency, response)));
             }
             for(ExchangeRate rate : response.getExchangeRates()) {
-                storage.storeExchangeRate(response.getFromCurrency(), rate.currency, rate.name, String.valueOf(rate.price));
+                storage.storeExchangeRate(fromCurrency, rate.currency, rate.name, String.valueOf(rate.price));
             }
         }
         _latestRatesTime = System.currentTimeMillis();

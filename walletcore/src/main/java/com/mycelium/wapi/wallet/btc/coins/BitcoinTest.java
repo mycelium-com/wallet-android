@@ -11,8 +11,7 @@ public class BitcoinTest extends BitcoinBasedCryptoCurrency {
         id = "bitcoin.test";
 
         name = "Bitcoin Test";
-        // TODO temporary tBTC -> BTC
-        symbol = "BTC";
+        symbol = "tBTC";
         unitExponent = 8;
     }
 
