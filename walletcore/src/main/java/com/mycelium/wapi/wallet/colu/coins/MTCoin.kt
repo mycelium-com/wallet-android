@@ -14,7 +14,7 @@ object MTCoinTest : ColuMain() {
     init {
         id = "La7C2gJZWeyqwxRPovbhBwtZKzCZxbG6SeYWMA"
         name = "Mycelium Token Test"
-        symbol = "MT"
+        symbol = "MTt"
         unitExponent = 7
     }
 }
