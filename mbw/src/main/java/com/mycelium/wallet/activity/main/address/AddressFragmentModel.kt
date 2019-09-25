@@ -92,10 +92,10 @@ class AddressFragmentModel(
         updateLabel()
         onAddressChange()
 
-        Thread(Synchronizer(mbwManager.getWalletManager(false),
-                SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(mbwManager.getWalletManager(false)
-                .getAccount(event.account)))).start()
-
+        mbwManager.getWalletManager(false).run {
+            startSynchronization(
+                    SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account)!!))
+        }
     }
 
     fun onAddressChange() {

@@ -4,7 +4,6 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.manager.*
-import org.jetbrains.annotations.TestOnly
 import java.util.*
 
 
@@ -95,11 +94,6 @@ constructor(val network: NetworkParameters,
         return result.keys.toList()
     }
 
-    @TestOnly
-    fun addAccount(account: WalletAccount<*>) {
-        accounts[account.id] = account
-    }
-
     @JvmOverloads
     fun deleteAccount(id: UUID, keyCipher: KeyCipher = AesKeyCipher.defaultKeyCipher()) {
         accounts.remove(id)?.also { account ->
@@ -128,9 +122,9 @@ constructor(val network: NetworkParameters,
     }
 
     fun startSynchronization(acc: UUID): Boolean {
-        // Launch synchronizer thread
         val activeAccount = getAccount(acc)
-        Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
+                ?: return false
+        startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
         return isNetworkConnected
     }
 
@@ -216,7 +210,7 @@ constructor(val network: NetworkParameters,
      * address has been used a lot.
      */
     fun disableTransactionHistorySynchronization() {
-
+        // TODO: implement
     }
 
     /**
