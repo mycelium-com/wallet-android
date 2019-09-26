@@ -8,7 +8,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 
 object NewsFactory {
     private const val ENDPOINT = "https://public-api.wordpress.com/rest/v1.2/sites/media.mycelium.com/"
-    var objectMapper: ObjectMapper = ObjectMapper()
+    private val objectMapper: ObjectMapper = ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
 
