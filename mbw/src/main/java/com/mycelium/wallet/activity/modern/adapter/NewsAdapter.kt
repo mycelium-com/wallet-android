@@ -55,10 +55,12 @@ class NewsAdapter(val preferences: SharedPreferences)
                     data.add(Entry(TYPE_NEWS_LOADING))
                 }
             }
-            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach {
-                val sortedList = dataMap[it]?.toList()?.sortedByDescending { it.date } ?: listOf()
-                data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
-                data.add(Entry(TYPE_NEWS_BIG, sortedList[0], sortedList[0].isFavorite(preferences)))
+            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach { category ->
+                val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date } ?: listOf()
+                if (sortedList.isNotEmpty()) {
+                    data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
+                    data.add(Entry(TYPE_NEWS_BIG, sortedList[0], sortedList[0].isFavorite(preferences)))
+                }
                 if (sortedList.size > 1) {
                     data.add(Entry(TYPE_NEWS, sortedList[1], sortedList[1].isFavorite(preferences)))
                 }

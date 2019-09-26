@@ -11,7 +11,8 @@ object NewsUtils {
 
     const val MEDIA_FLOW_ACTION: String = "media_flow"
 
-    private val sortedMap = mapOf("All" to 0, "News" to 1, "Micro OTC" to 2,
+    // Priorities will be sorted in ascending order given these values
+    private val categoryPriorities = mapOf("All" to 0, "News" to 1, "Micro OTC" to 2,
             "Wallet Features" to 3, "Knowledge Center" to 4)
 
     fun getCategoryIcon(category: String) = when (category) {
@@ -22,7 +23,7 @@ object NewsUtils {
 
     fun sort(categories: MutableList<Category>): MutableList<Category> {
         categories.sortWith(Comparator { p0, p1 ->
-            val result = sortedMap[p0?.name]?.minus(sortedMap[p1?.name] ?: 100) ?: 0
+            val result = categoryPriorities[p0?.name]?.minus(categoryPriorities[p1?.name] ?: 100) ?: 0
             if (result != 0) result else p0?.name?.compareTo(p1?.name ?: "") ?: 0
         })
         return categories
