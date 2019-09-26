@@ -7,6 +7,8 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
@@ -15,6 +17,7 @@ import org.web3j.crypto.TransactionEncoder
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.infura.InfuraHttpService
+import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
@@ -26,14 +29,25 @@ class EthAccount(private val credentials: Credentials,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
-        val nonce = getNonce(credentials.address)
+        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb.value
+        // check whether account has enough funds
+        if (value > calculateMaxSpendableAmount(gasPriceLong, null)) {
+            throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
+                    " ether with gas price " + Convert.fromWei(gasPriceLong.toBigDecimal(), Convert.Unit.GWEI) + " gwei"))
+        }
 
-        val rawTransaction =
-                RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf((gasPrice as FeePerKbFee).feePerKb.value), BigInteger.valueOf(21000), toAddress.toString(), BigInteger.valueOf(value.value))
-        val ethTransaction = EthTransaction(coinType, toAddress, value, gasPrice)
-        ethTransaction.rawTransaction = rawTransaction
-        return ethTransaction
+        try {
+            val nonce = getNonce(credentials.address)
+            val rawTransaction =
+                    RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000), toAddress.toString(), BigInteger.valueOf(value.value))
+            val ethTransaction = EthTransaction(coinType, toAddress, value, gasPrice)
+            ethTransaction.rawTransaction = rawTransaction
+            return ethTransaction
+        } catch (e: Exception) {
+            throw  GenericBuildTransactionException(Throwable(e.localizedMessage))
+        }
     }
 
     @Throws(Exception::class)

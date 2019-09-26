@@ -16,6 +16,7 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig
 import com.mycelium.wapi.wallet.eth.EtheriumModule
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -37,6 +38,7 @@ class EthAccountTest {
     private val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
     private var account: EthAccount? = null
 
+    @Suppress("UNCHECKED_CAST")
     @Before
     fun setup() {
         val fakeRandomSource = mock<RandomSource>(RandomSource::class.java)
@@ -57,7 +59,6 @@ class EthAccountTest {
         `when`<Optional<String>>(fakeMetadataStorage.getFirstKeyForCategoryValue(any(String::class.java), any(String::class.java))).thenReturn(Optional.absent())
         `when`<String>(fakeMetadataStorage.getKeyCategoryValueEntry(any(String::class.java), any(String::class.java), any(String::class.java))).thenReturn("")
 
-        // TODO btc
         val backing = InMemoryBtcWalletManagerBacking()
         val store = SecureKeyValueStore(backing, fakeRandomSource)
         val cipher = AesKeyCipher.defaultKeyCipher()
@@ -66,6 +67,9 @@ class EthAccountTest {
 
         val walletManager = WalletManager(NetworkParameters.testNetwork, fakeWapi,
                 HashMap(), null, db)
+        val listener = SynchronizeFinishedListener()
+        walletManager.walletListener = listener
+        walletManager.setIsNetworkConnected(true)
 
         val masterSeedManager = MasterSeedManager(store)
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher)
@@ -75,6 +79,10 @@ class EthAccountTest {
 
         val uuid = walletManager.createAccounts(EtheriumAccountConfig())[0]
         account = walletManager.getAccount(uuid) as EthAccount
+
+        // to update account's balance
+        walletManager.startSynchronization()
+        listener.waitForSyncFinished()
     }
 
     // some Kotlin/Mockito's business
@@ -87,7 +95,19 @@ class EthAccountTest {
         val gasPrice = FeePerKbFee(Value.valueOf(account!!.coinType, Convert.toWei("20", Convert.Unit.GWEI).toBigInteger()))
         val tx = account!!.createTx(toAddress, value, gasPrice)
         account!!.signTx(tx, AesKeyCipher.defaultKeyCipher())
-        val broadcastResult = account!!.broadcastTx(tx)
-        assertTrue(broadcastResult.errorMessage, broadcastResult.resultType == BroadcastResultType.SUCCESS)
+//        val broadcastResult = account!!.broadcastTx(tx)
+//        assertTrue(broadcastResult.errorMessage, broadcastResult.resultType == BroadcastResultType.SUCCESS)
+    }
+
+    @Test(expected = GenericInsufficientFundsException::class)
+    fun whenTryingToSendMoreThanHaveThenThrow() {
+        val coinType = account!!.coinType
+        val toAddress = EthAddress(coinType, "0xD7677B6e62F283E1775B05d9e875B03C27c298a9")
+
+        val value = Value.valueOf(coinType, Convert.toWei("1", Convert.Unit.ETHER).toBigInteger())
+        val gasPrice = FeePerKbFee(Value.valueOf(coinType, Convert.toWei("20", Convert.Unit.GWEI).toBigInteger()))
+        assert(account!!.calculateMaxSpendableAmount(gasPrice.feePerKb.value, null) < value)
+
+        account!!.createTx(toAddress, value, gasPrice)
     }
 }
