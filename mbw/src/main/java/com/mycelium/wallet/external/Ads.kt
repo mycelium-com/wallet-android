@@ -21,12 +21,13 @@ object Ads {
         if (account is HDAccount && account.isDerivedFromInternalMasterseed) {
             AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.confirm_fio_link, (account.accountIndex + 1).toString()))
-                    .setPositiveButton(R.string.button_ok) { _, _ ->
+                    .setPositiveButton(R.string.yes) { _, _ ->
                         val fioKeyManager = FioKeyManager(mbwManager.masterSeedManager)
                         val fpk = fioKeyManager.getFioPublicKey(account.accountIndex)
                         val fpkString = fioKeyManager.formatPubKey(fpk)
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://addresses.fio.foundation/fiorequest/mycelium/$fpkString")))
                     }
+                    .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
         } else {
