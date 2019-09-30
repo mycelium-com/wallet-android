@@ -20,7 +20,8 @@ import java.util.*
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: AccountContextsBacking,
-        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+        metaDataStorage: IMetaDataStorage,
+        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
     private val coinType = EthTest
@@ -54,7 +55,7 @@ class EtheriumModule(
         val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
         backing.createAccountContext(accountContext)
 
-        val ethAccount = EthAccount(credentials, accountContext)
+        val ethAccount = EthAccount(credentials, accountContext, accountListener)
         accounts[ethAccount.id] = ethAccount
 
         return ethAccount
@@ -63,7 +64,7 @@ class EtheriumModule(
     private fun ethAccountFromUUID(uuid: UUID): EthAccount {
         val credentials = Credentials.create(Keys.deserialize(secureStore.getPlaintextValue(uuid.toString().toByteArray())))
         val accountContext = createAccountContext(uuid)
-        val ethAccount = EthAccount(credentials, accountContext)
+        val ethAccount = EthAccount(credentials, accountContext, accountListener)
         accounts[ethAccount.id] = ethAccount
         return ethAccount
     }

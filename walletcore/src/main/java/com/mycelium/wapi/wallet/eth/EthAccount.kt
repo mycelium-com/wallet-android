@@ -1,25 +1,19 @@
 package com.mycelium.wapi.wallet.eth
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import kotlinx.coroutines.runBlocking
+import io.reactivex.disposables.Disposable
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
-import org.web3j.utils.Convert
-import java.net.URL
 import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class EthAccount(private val credentials: Credentials,
-                 private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
+                 private val accountContext: AccountContextImpl,
+                 private val accountListener: AccountListener?) : WalletAccount<EthAddress> {
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -45,7 +39,9 @@ class EthAccount(private val credentials: Credentials,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(credentials.address)
+    private val ethBalanceService = EthBalanceService(credentials.address, coinType)
+
+    private var pendingTxDisposable: Disposable = subscribeOnPendingTx()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -85,11 +81,7 @@ class EthAccount(private val credentials: Credentials,
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType))
-            accountContext.balance = balance
+            accountContext.balance = ethBalanceService.balance
         }
         return succeed
     }
@@ -109,11 +101,13 @@ class EthAccount(private val credentials: Credentials,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
+        pendingTxDisposable.dispose()
     }
 
     override fun activateAccount() {
         accountContext.archived = false
         dropCachedData()
+        pendingTxDisposable = subscribeOnPendingTx()
     }
 
     override fun dropCachedData() {
@@ -157,6 +151,15 @@ class EthAccount(private val credentials: Credentials,
 
     override fun queueTransaction(transaction: GenericTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun subscribeOnPendingTx(): Disposable {
+        return ethBalanceService.pendingTxObservable.subscribe({ balance ->
+            accountContext.balance = balance
+            accountListener?.balanceUpdated(this)
+        }, {
+            // TODO decide when and how to resubscribe
+        })
     }
 }
 
