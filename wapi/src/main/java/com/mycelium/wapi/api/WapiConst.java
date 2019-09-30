@@ -25,7 +25,7 @@ public interface WapiConst {
        String GET_TRANSACTIONS = "getTransactions";
        String BROADCAST_TRANSACTION = "broadcastTransaction";
        String CHECK_TRANSACTIONS = "checkTransactions";
-       String QUERY_EXCHANGE_RATES = "queryExchangeRates";
+       String GET_EXCHANGE_RATES = "getExchangeRates";
        String PING = "ping";
        String COLLECT_ERROR = "collectError";
        String GET_VERSION_INFO = "getVersion";

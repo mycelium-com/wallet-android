@@ -4,6 +4,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider
@@ -214,6 +215,10 @@ constructor(val network: NetworkParameters,
                 .toList()
 
     fun getAssetTypes(): List<GenericAssetInfo> = accounts.values.map { it.coinType }.distinct()
+
+    fun getCryptocurrencies(): List<String> = accounts.values.map { it.coinType }.distinct()
+            .filterNot { it is ColuMain }
+            .map { it.symbol }
 
     fun parseAddress(address: String): List<GenericAddress> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

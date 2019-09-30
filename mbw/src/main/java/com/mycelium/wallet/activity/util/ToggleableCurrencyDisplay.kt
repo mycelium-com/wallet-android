@@ -124,7 +124,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             showFiat()
         } else {
             // Switch to BTC if no fiat fx rate is available
-            if (!currencySwitcher.isFiatExchangeRateAvailable
+            if (!currencySwitcher.isFiatExchangeRateAvailable(MbwManager.getInstance(context).selectedAccount.coinType.symbol)
                     && currencySwitcher.isFiatCurrency(currencySwitcher.currentCurrency)
                     && !currencySwitcher.isFiatCurrency(currencySwitcher.defaultCurrency)) {
                 currencySwitcher.setCurrency(Utils.getBtcCoinType())
@@ -138,7 +138,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
     }
 
     private fun showFiat() {
-        visibility = if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable) {
+        visibility = if (hideOnNoExchangeRate && !currencySwitcher.isFiatExchangeRateAvailable(MbwManager.getInstance(context).selectedAccount.coinType.symbol)) {
             // hide everything
             View.GONE
         } else {

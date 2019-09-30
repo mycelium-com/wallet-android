@@ -157,7 +157,8 @@ public class BalanceFragment extends Fragment {
         });
 
         ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
-        final List<String> sources = exchangeRateManager.getExchangeSourceNames();
+        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+        final List<String> sources = exchangeRateManager.getExchangeSourceNames(selectedAccount.getCoinType().getSymbol());
         final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
 
         Collections.sort(sources, new Comparator<String>() {
@@ -169,11 +170,11 @@ public class BalanceFragment extends Fragment {
 
         for (int i = 0; i < sources.size(); i++) {
             String source = sources.get(i);
-            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
+            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(selectedAccount.getCoinType().getSymbol(), _mbwManager.getFiatCurrency().getSymbol(), source);
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
                     : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
             String item;
-            if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            if (selectedAccount instanceof ColuAccount) {
                 item = COINMARKETCAP + "/" + source;
             } else {
                 item = source + " (" + price + ")";
@@ -182,10 +183,17 @@ public class BalanceFragment extends Fragment {
             exchangeMenu.getMenu().add(item);
         }
 
+        // if we ended up with not existent source name for current cryptocurrency (CC)
+        // after we have switched accounts for different CC
+        // then use the first existent one for current CC
+        if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName())) {
+            exchangeRateManager.setCurrentExchangeSourceName(sources.get(0));
+        }
+
         exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+                exchangeRateManager.setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
                 return false;
             }
         });
@@ -207,7 +215,7 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onStart() {
         MbwManager.getEventBus().register(this);
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         if (_exchangeRatePrice == null) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
@@ -449,20 +457,20 @@ public class BalanceFragment extends Fragment {
 
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
         updateExchangeSourceMenu();
     }
 
     @Subscribe
     public void exchangeSourceChanged(ExchangeSourceChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
     }
 
     @Subscribe
     public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         updateUi();
         updateExchangeSourceMenu();
     }

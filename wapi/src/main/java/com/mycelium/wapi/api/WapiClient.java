@@ -192,9 +192,9 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    @Override
-   public WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request) {
-      TypeReference<WapiResponse<QueryExchangeRatesResponse>> typeref = new TypeReference<WapiResponse<QueryExchangeRatesResponse>>() { };
-      return sendRequest(Function.QUERY_EXCHANGE_RATES, request, typeref);
+   public WapiResponse<GetExchangeRatesResponse> getExchangeRates(GetExchangeRatesRequest request) {
+      TypeReference<WapiResponse<GetExchangeRatesResponse>> typeref = new TypeReference<WapiResponse<GetExchangeRatesResponse>>() { };
+      return sendRequest(Function.GET_EXCHANGE_RATES, request, typeref);
    }
 
    @Override

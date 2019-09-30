@@ -137,7 +137,7 @@ public class ColdStorageSummaryActivity extends Activity {
       // BalanceSatoshis
       ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
 
-      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType().getSymbol());
 
       // Fiat
       TextView tvFiat = findViewById(R.id.tvFiat);

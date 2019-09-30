@@ -1147,7 +1147,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         MbwManager.getEventBus().register(this);
 
         // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-        if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable()) {
+        if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType().getSymbol())) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
 

@@ -287,7 +287,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             long totalAmount = requestInformation.getOutputs().getTotalAmount();
             tvAmount.setText(mbw.getBtcValueString(totalAmount));
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
-            if (currencySwitcher.isFiatExchangeRateAvailable()){
+            if (currencySwitcher.isFiatExchangeRateAvailable(Utils.getBtcCoinType().getSymbol())){
                tvFiatAmount.setVisibility(View.VISIBLE);
                Value btcValue = Utils.getBtcCoinType().value(totalAmount);
                Value fiatValue = currencySwitcher.getAsFiatValue(btcValue);

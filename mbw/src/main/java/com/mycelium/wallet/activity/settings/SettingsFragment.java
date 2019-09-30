@@ -408,7 +408,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _localCurrency.setTitle(localCurrencyTitle());
 
         ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
-        List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames();
+        List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
         Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
             @Override
             public int compare(String rate1, String rate2) {
