@@ -1244,6 +1244,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="bullet">&#8226;</string>
+    <string name="select_flows">Select flows</string>
+    <string name="view_more">View more</string>
+    <string name="settings_show_news_all_notification">Show Media Flow notifications</string>
+    <string name="media_flow">Media Flow</string>
+    <string name="select_all">Show all</string>
+    <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
     <string name="change_address_type">Transaction change address type</string>
@@ -1289,6 +1296,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="account_upgraded">Account %d just received SegWit support</string>
     <string name="hardware_account_create">Creating new hardware wallet account</string>
     <string name="please_wait_hardware">Please wait</string>
+    <string name="share_news">Share News</string>
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
@@ -1301,6 +1309,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="asia">Asia</string>
     <string name="united_states">United States</string>
     <string name="australia">Australia/New Zealand</string>
+    <string name="share">Share</string>
+    <string name="explorer_topics">Explorer topics</string>
+    <string name="search_topics_and_articles">Search topics and articles</string>
+    <string name="other_news">Other news</string>
+    <string name="discover">Discover</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
@@ -1312,6 +1325,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <plurals name="new_accounts_created">
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
+    </plurals>
+    <plurals name="media_flow_new_topic">
+        <item quantity="one">one new topic</item>
+        <item quantity="other">%d new topics</item>
     </plurals>
     <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
     <string name="account_gap">Account Gap</string>
@@ -1327,7 +1344,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
     <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
     <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
+    <string name="media_flow_notification_title" >"Mycelium Wallet / Mediaflow"</string>
     <string name="sepa_buy_sell_title">SEPA</string>
     <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
+    <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
+    <string name="settings_media_flow_notification_category">Media Flow</string>
 </resources>
