@@ -39,7 +39,11 @@ class NewsSyncService : Service() {
         val preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null)
         val updateTime = SimpleDateFormat("yyyy-MM-dd", Locale.UK).format(Date())
-        NewsUpdate(MbwManager.getEventBus(), lastUpdateTime) {
+        preference.edit()
+                .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_LOADING)
+                .apply()
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_START_LOAD_ACTION))
+        NewsUpdate(MbwManager.getEventBus(), lastUpdateTime, {
             if (it == null) {
                 return@NewsUpdate
             }
@@ -47,7 +51,7 @@ class NewsSyncService : Service() {
                     .putString(NewsConstants.UPDATE_TIME, updateTime)
                     .apply()
             if (it.isNotEmpty()) {
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.NEWS_UPDATE_ACTION))
+                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
             }
 
             if (SettingsPreference.mediaFLowNotificationEnabled
@@ -112,12 +116,24 @@ class NewsSyncService : Service() {
                     NotificationManagerCompat.from(this).notify(mediaFlowNotificationId, builder.build())
                 }
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            preference.edit()
+                    .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_DONE)
+                    .apply()
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_DONE_ACTION))
+        }, {
+            preference.edit()
+                    .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_FAIL)
+                    .apply()
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
     }
 }
 
-class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, NewsDatabase.SqlState>?) -> Unit)?)
+class NewsUpdate(val bus: Bus, val after: String?,
+                 val listener: ((Map<News, NewsDatabase.SqlState>?) -> Unit),
+                 val failListener: (() -> Unit))
     : AsyncTask<Void, Void, Map<News, NewsDatabase.SqlState>>() {
+    var failed = false
     override fun doInBackground(vararg p0: Void?): Map<News, NewsDatabase.SqlState>? {
         var result: Map<News, NewsDatabase.SqlState>? = null
         try {
@@ -129,6 +145,7 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
                 }
             }.let { NewsDatabase.saveNews(it) }
         } catch (e: Exception) {
+            failed = true
             Log.e("NewsSyncReceiver", "update news call", e)
         }
         return result
@@ -148,6 +165,10 @@ class NewsUpdate(val bus: Bus, val after: String?, val listener: ((Map<News, New
 
     override fun onPostExecute(result: Map<News, NewsDatabase.SqlState>?) {
         super.onPostExecute(result)
-        listener?.invoke(result)
+        if(failed) {
+            failListener.invoke()
+        } else {
+            listener.invoke(result)
+        }
     }
 }

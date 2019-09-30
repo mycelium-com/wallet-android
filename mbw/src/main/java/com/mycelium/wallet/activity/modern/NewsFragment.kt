@@ -8,12 +8,13 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.modern.adapter.isFavorite
@@ -21,10 +22,7 @@ import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
-import com.mycelium.wallet.external.mediaflow.GetAllNewsTask
-import com.mycelium.wallet.external.mediaflow.GetCategoriesTask
-import com.mycelium.wallet.external.mediaflow.GetNewsTask
-import com.mycelium.wallet.external.mediaflow.NewsConstants
+import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.fragment_news.*
@@ -44,9 +42,21 @@ class NewsFragment : Fragment() {
 
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == NewsConstants.NEWS_UPDATE_ACTION && !searchActive) {
+            if (intent?.action == NewsConstants.MEDIA_FLOW_UPDATE_ACTION && !searchActive) {
                 loadItems()
             }
+        }
+    }
+
+    private val failReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            updateUI()
+        }
+    }
+
+    private val startLoadReceiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            updateUI()
         }
     }
 
@@ -58,9 +68,8 @@ class NewsFragment : Fragment() {
         adapterSearch = NewsSearchAdapter(preference)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_news, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_news, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,7 +95,7 @@ class NewsFragment : Fragment() {
             val tab = getTab(it, tabs)
             tab?.select()
         }
-        tabs.addOnTabSelectedListener(object : TabLayout.BaseOnTabSelectedListener<TabLayout.Tab> {
+        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
 
@@ -121,17 +130,24 @@ class NewsFragment : Fragment() {
                 startUpdateSearch(search_input.text.toString())
             }
         })
+        unable_to_load.setOnClickListener {
+            requireContext().startService(Intent(context, NewsSyncService::class.java))
+        }
         updateUI()
     }
 
     override fun onResume() {
         super.onResume()
         loadItems()
-        LocalBroadcastManager.getInstance(activity!!).registerReceiver(updateReceiver, IntentFilter(NewsConstants.NEWS_UPDATE_ACTION))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(failReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(startLoadReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_START_LOAD_ACTION))
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(activity!!).unregisterReceiver(updateReceiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(updateReceiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(failReceiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(startLoadReceiver)
         super.onPause()
     }
 
@@ -168,15 +184,17 @@ class NewsFragment : Fragment() {
     private fun updateUI() {
         if (searchActive) {
             newsList.adapter = adapterSearch
-            tabs.visibility = View.GONE
-            discover.visibility = View.VISIBLE
-            search.visibility = View.VISIBLE
+            tabs.visibility = GONE
+            discover.visibility = VISIBLE
+            search.visibility = VISIBLE
+            unable_to_load.visibility = GONE
+            media_flow_loading.visibility = GONE
             startUpdateSearch()
         } else {
             newsList.adapter = adapter
-            tabs.visibility = View.VISIBLE
-            discover.visibility = View.GONE
-            search.visibility = View.GONE
+            tabs.visibility = VISIBLE
+            discover.visibility = GONE
+            search.visibility = GONE
             loadItems()
         }
     }
@@ -190,15 +208,43 @@ class NewsFragment : Fragment() {
             return
         }
         GetCategoriesTask {
-            val list = mutableListOf(Category("All"))
-            list.addAll(it)
-            NewsUtils.sort(list).forEach { category ->
-                if (getTab(category, tabs) == null) {
-                    val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
-                    view.text.text = category.name
-                    val tab = tabs.newTab().setCustomView(view)
-                    tab.tag = category
-                    tabs.addTab(tab)
+            if (it.isNotEmpty()) {
+                val list = mutableListOf(Category("All"))
+                list.addAll(it)
+                NewsUtils.sort(list).forEach { category ->
+                    if (getTab(category, tabs) == null) {
+                        val view = layoutInflater.inflate(R.layout.media_flow_tab_item, tabs, false)
+                        view.text.text = category.name
+                        val tab = tabs.newTab().setCustomView(view)
+                        tab.tag = category
+                        tabs.addTab(tab)
+                    }
+                }
+                unable_to_load.visibility = GONE
+                media_flow_loading.visibility = GONE
+            } else {
+                when (preference.getString(NewsConstants.MEDIA_FLOW_LOAD_STATE, "")) {
+                    NewsConstants.MEDIA_FLOW_FAIL -> {
+                        unable_to_load.visibility = VISIBLE
+                        media_flow_loading.visibility = GONE
+
+                    }
+                    else -> {
+                        unable_to_load.visibility = GONE
+                        media_flow_loading.visibility = VISIBLE
+                        media_flow_loading.postOnAnimationDelayed(object : Runnable {
+                            var tick = 0;
+                            override fun run() {
+                                media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait,
+                                        when (tick++ % 3) {
+                                            0 -> ".  "
+                                            1 -> ".. "
+                                            else -> "..."
+                                        })
+                                media_flow_loading.postOnAnimationDelayed(this, 1000);
+                            }
+                        }, 1000)
+                    }
                 }
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
