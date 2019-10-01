@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             android:gravity="center"
             android:visibility="gone"
@@ -47,23 +47,26 @@
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
-            android:orientation="horizontal"
-            android:visibility="gone">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="15sp"
                 android:text="@string/we_were_unable_to_load_media_flow_feed" />
 
             <Button
+                android:id="@+id/retry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
                 style="@style/MyceliumButtonModern"
-                android:background="@null"
                 android:text="@string/retry" />
         </LinearLayout>
     </FrameLayout>
@@ -74,6 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/discover"
+        android:visibility="gone"
         android:textColor="#FFFFFD"
         android:textSize="18sp" />
 
@@ -83,6 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:visibility="gone"
         android:background="@drawable/background_news_search">
 
         <EditText

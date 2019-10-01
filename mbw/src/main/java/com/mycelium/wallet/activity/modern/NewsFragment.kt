@@ -50,12 +50,14 @@ class NewsFragment : Fragment() {
 
     private val failReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
+            adapter.state = NewsAdapter.State.FAIL
             updateUI()
         }
     }
 
     private val startLoadReceiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
+            adapter.state = NewsAdapter.State.LOADING
             updateUI()
         }
     }
@@ -86,9 +88,8 @@ class NewsFragment : Fragment() {
             override fun isLoading() = loading
         })
         val newsClick: (News) -> Unit = {
-            val intent = Intent(activity, NewsActivity::class.java)
-            intent.putExtra(NewsConstants.NEWS, it)
-            startActivity(intent)
+            startActivity(Intent(activity, NewsActivity::class.java)
+                    .putExtra(NewsConstants.NEWS, it))
         }
         adapter.openClickListener = newsClick
         adapter.categoryClickListener = {
@@ -130,7 +131,7 @@ class NewsFragment : Fragment() {
                 startUpdateSearch(search_input.text.toString())
             }
         })
-        unable_to_load.setOnClickListener {
+        retry.setOnClickListener {
             requireContext().startService(Intent(context, NewsSyncService::class.java))
         }
         updateUI()
@@ -223,13 +224,14 @@ class NewsFragment : Fragment() {
                 unable_to_load.visibility = GONE
                 media_flow_loading.visibility = GONE
             } else {
-                when (preference.getString(NewsConstants.MEDIA_FLOW_LOAD_STATE, "")) {
+                when (preference.getString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_LOADING)) {
                     NewsConstants.MEDIA_FLOW_FAIL -> {
+                        adapter.state = NewsAdapter.State.FAIL
                         unable_to_load.visibility = VISIBLE
                         media_flow_loading.visibility = GONE
-
                     }
-                    else -> {
+                    NewsConstants.MEDIA_FLOW_LOADING  -> {
+                        adapter.state = NewsAdapter.State.LOADING
                         unable_to_load.visibility = GONE
                         media_flow_loading.visibility = VISIBLE
                         media_flow_loading.postOnAnimationDelayed(object : Runnable {
@@ -253,12 +255,13 @@ class NewsFragment : Fragment() {
             loading = false
             val favorite = preference.getBoolean(NewsConstants.FAVORITE, false)
             val list = if (favorite) {
+                adapter.state = NewsAdapter.State.FAVORITE
                 pageData.filter { news -> news.isFavorite(preference) }
             } else {
                 pageData
             }
             if (offset == 0) {
-                adapter.setData(list, favorite)
+                adapter.setData(list)
             } else {
                 adapter.addData(list)
             }
