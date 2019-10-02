@@ -253,9 +253,8 @@ class NewsFragment : Fragment() {
 
         val taskListener: (List<News>, Long) -> Unit = { pageData, count ->
             loading = false
-            val favorite = preference.getBoolean(NewsConstants.FAVORITE, false)
-            val list = if (favorite) {
-                adapter.state = NewsAdapter.State.FAVORITE
+            adapter.isFavorite = preference.getBoolean(NewsConstants.FAVORITE, false)
+            val list = if (adapter.isFavorite) {
                 pageData.filter { news -> news.isFavorite(preference) }
             } else {
                 pageData

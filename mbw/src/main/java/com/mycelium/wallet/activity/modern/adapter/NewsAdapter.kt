@@ -18,7 +18,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
     enum class State {
-        DEFAULT, LOADING, FAIL, FAVORITE
+        DEFAULT, LOADING, FAIL
     }
 
     private lateinit var layoutInflater: LayoutInflater
@@ -28,6 +28,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
     var state = State.DEFAULT
+    var isFavorite = false
 
     fun setData(data: List<News>) {
         dataMap.clear()
@@ -51,13 +52,14 @@ class NewsAdapter(val preferences: SharedPreferences)
         when {
             dataMap.isEmpty() -> {
                 when (state) {
-                    State.FAVORITE -> data.add(Entry(TYPE_NEWS_NO_BOOKMARKS))
                     State.LOADING -> {
                         data.add(Entry(TYPE_NEWS_LOADING))
                         data.add(Entry(TYPE_NEWS_LOADING))
                     }
                     State.FAIL -> data.add(Entry(TYPE_NEWS_EMPTY))
-                    else -> data.add(Entry(TYPE_NEWS_EMPTY))
+                    else -> {
+                        data.add(Entry(if (isFavorite) TYPE_NEWS_NO_BOOKMARKS else TYPE_NEWS_EMPTY))
+                    }
                 }
             }
             selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach { category ->
