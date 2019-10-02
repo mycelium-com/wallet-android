@@ -82,6 +82,9 @@ class EthAccount(private val credentials: Credentials,
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
             accountContext.balance = ethBalanceService.balance
+            if (pendingTxDisposable.isDisposed) {
+                pendingTxDisposable = subscribeOnPendingTx()
+            }
         }
         return succeed
     }
@@ -107,7 +110,6 @@ class EthAccount(private val credentials: Credentials,
     override fun activateAccount() {
         accountContext.archived = false
         dropCachedData()
-        pendingTxDisposable = subscribeOnPendingTx()
     }
 
     override fun dropCachedData() {
@@ -158,8 +160,12 @@ class EthAccount(private val credentials: Credentials,
             accountContext.balance = balance
             accountListener?.balanceUpdated(this)
         }, {
-            // TODO decide when and how to resubscribe
+            // ignore. we'll resubscribe on next synchronization
         })
+    }
+
+    fun stopSubscriptions() {
+        pendingTxDisposable.dispose()
     }
 }
 
