@@ -140,15 +140,19 @@ class NewsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadItems()
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(failReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(startLoadReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_START_LOAD_ACTION))
+        LocalBroadcastManager.getInstance(requireContext()).run {
+            registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
+            registerReceiver(failReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
+            registerReceiver(startLoadReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_START_LOAD_ACTION))
+        }
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(updateReceiver)
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(failReceiver)
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(startLoadReceiver)
+        LocalBroadcastManager.getInstance(requireContext()).run {
+            unregisterReceiver(updateReceiver)
+            unregisterReceiver(failReceiver)
+            unregisterReceiver(startLoadReceiver)
+        }
         super.onPause()
     }
 
