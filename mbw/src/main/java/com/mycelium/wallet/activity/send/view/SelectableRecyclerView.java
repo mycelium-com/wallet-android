@@ -10,14 +10,18 @@ import android.view.View;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.event.SelectListener;
 
+import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 public class SelectableRecyclerView extends RecyclerView {
     private SelectListener selectListener;
     private int itemWidth = getResources().getDimensionPixelSize(R.dimen.item_dob_width);
     private int padding;
-
     private View header;
     private View footer;
+    private int oldWidth = 0;
 
     public SelectableRecyclerView(Context context) {
         super(context);
@@ -51,14 +55,14 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     public int getSelectedItem() {
-        return ((Adapter) getAdapter()).getSelectedItem();
+        return checkNotNull(((SRVAdapter) getAdapter())).getSelectedItem();
     }
 
     public void setSelectedItem(int selectedItem) {
         if (getAdapter() == null) {
             return;
         }
-        ((Adapter) getAdapter()).setSelectedItem(selectedItem);
+        ((SRVAdapter) getAdapter()).setSelectedItem(selectedItem);
         scrollListToPosition(selectedItem);
         if (selectListener != null) {
             selectListener.onSelect(getAdapter(), selectedItem);
@@ -66,8 +70,9 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     public void setSelectedItem(Object selected) {
-        int selectIndex = ((Adapter) getAdapter()).findIndex(selected);
-        selectIndex = selectIndex == -1 ? getAdapter().getItemCount() / 2 : selectIndex;
+        SRVAdapter adapter = checkNotNull((SRVAdapter) getAdapter());
+        int selectIndex = adapter.findIndex(selected);
+        selectIndex = selectIndex == -1 ? adapter.getItemCount() / 2 : selectIndex;
         setSelectedItem(selectIndex);
     }
 
@@ -78,13 +83,6 @@ public class SelectableRecyclerView extends RecyclerView {
             calculatePositionAndScroll();
         }
     }
-
-    @Override
-    public void setAdapter(RecyclerView.Adapter adapter) {
-        super.setAdapter(adapter);
-    }
-
-    private int oldWidth = 0;
 
     public void setItemWidth(int itemWidthPx) {
         itemWidth = itemWidthPx;
@@ -116,7 +114,7 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     private void calculatePositionAndScroll() {
-        int expectedPosition = Math.round((computeHorizontalScrollOffset() + itemWidth / 2 - 1) / itemWidth);
+        int expectedPosition = Math.round((computeHorizontalScrollOffset() + itemWidth / 2f - 1) / itemWidth);
         if (expectedPosition < 0) {
             expectedPosition = 0;
         } else if (getAdapter() != null && expectedPosition > getAdapter().getItemCount() - 1) {
@@ -135,7 +133,7 @@ public class SelectableRecyclerView extends RecyclerView {
                 smoothScrollToPosition(expectedPosition);
             }
         } else if (expectedPosition != getSelectedItem()) {
-            ((Adapter) getAdapter()).setSelectedItem(expectedPosition);
+            checkNotNull(((SRVAdapter) getAdapter())).setSelectedItem(expectedPosition);
         }
     }
 
@@ -158,30 +156,30 @@ public class SelectableRecyclerView extends RecyclerView {
         }
     }
 
-    public static abstract class Adapter<VH extends ViewHolder> extends RecyclerView.Adapter<VH> implements Selectable {
+    public abstract static class SRVAdapter<H extends ViewHolder> extends RecyclerView.Adapter<H> implements Selectable {
         public static final int VIEW_TYPE_ITEM = 2;
         private int selectedItem;
         private SelectableRecyclerView recyclerView;
 
         @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        public void onAttachedToRecyclerView(@Nonnull RecyclerView recyclerView) {
             super.onAttachedToRecyclerView(recyclerView);
             this.recyclerView = (SelectableRecyclerView) recyclerView;
         }
 
         @Override
-        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        public void onDetachedFromRecyclerView(@Nonnull RecyclerView recyclerView) {
             super.onDetachedFromRecyclerView(recyclerView);
             this.recyclerView = null;
         }
 
         @Override
-        public void onBindViewHolder(VH holder, final int position) {
+        public void onBindViewHolder(final H holder, int position) {
             holder.itemView.setActivated(position == selectedItem);
             holder.itemView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    recyclerView.setSelectedItem(position);
+                    recyclerView.setSelectedItem(holder.getAdapterPosition());
                 }
             });
         }

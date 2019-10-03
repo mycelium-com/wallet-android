@@ -22,7 +22,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AccountAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerView.ViewHolder> {
     public enum AccountUseType {
         OUT(R.drawable.sender_recyclerview_item_background_selector_red
                 , R.drawable.recyclerview_item_bottom_rectangle_selector
