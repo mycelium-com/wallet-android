@@ -490,7 +490,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
+        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
     }
 
     /**
