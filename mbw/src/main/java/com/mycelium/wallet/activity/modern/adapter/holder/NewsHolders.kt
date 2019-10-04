@@ -9,7 +9,6 @@ class NewsItemLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 class NewsCategoryBtnHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val text = itemView.text
-    val icon = itemView.icon
 }
 
 class NewsLoadingHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

@@ -1350,4 +1350,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
     <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
     <string name="settings_media_flow_notification_category">Media Flow</string>
+    <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
+    <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
+    <string name="retry">RETRY</string>
 </resources>

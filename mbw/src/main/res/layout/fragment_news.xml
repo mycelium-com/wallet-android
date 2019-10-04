@@ -6,22 +6,70 @@
     android:background="#272727"
     android:orientation="vertical">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="1dp"
-        app:tabGravity="center"
-        app:tabIndicatorHeight="0dp"
-        app:tabMode="scrollable"
-        app:tabPaddingEnd="4dp"
-        app:tabPaddingStart="4dp"
-        app:tabRippleColor="#ff272727"
-        app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="1dp"
+            app:tabGravity="center"
+            app:tabIndicatorHeight="0dp"
+            app:tabMode="scrollable"
+            app:tabPaddingEnd="4dp"
+            app:tabPaddingStart="4dp"
+            app:tabRippleColor="#ff272727"
+            app:tabTextAppearance="@style/MediaFlowTabTextAppearance" />
+
+        <TextView
+            android:id="@+id/media_flow_loading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:text="@string/loading_media_flow_feed_please_wait" />
+
+        <LinearLayout
+            android:id="@+id/unable_to_load"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:text="@string/we_were_unable_to_load_media_flow_feed" />
+
+            <Button
+                android:id="@+id/retry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"
+                style="@style/MyceliumButtonModern"
+                android:text="@string/retry" />
+        </LinearLayout>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/discover"
@@ -29,6 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="@string/discover"
+        android:visibility="gone"
         android:textColor="#FFFFFD"
         android:textSize="18sp" />
 
@@ -38,19 +87,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:visibility="gone"
         android:background="@drawable/background_news_search">
 
         <EditText
             android:id="@+id/search_input"
             android:layout_width="match_parent"
             android:layout_height="32dp"
-            android:drawableStart="@drawable/ic_search"
-            android:paddingStart="12dp"
-            android:imeOptions="actionSearch"
-            android:singleLine="true"
-            android:drawablePadding="8dp"
-            android:textColor="#FFFFFD"
             android:background="@null"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:imeOptions="actionSearch"
+            android:paddingStart="12dp"
+            android:singleLine="true"
+            android:textColor="#FFFFFD"
             android:textSize="16sp" />
 
         <ImageView
@@ -68,6 +118,6 @@
         android:layout_height="match_parent"
         android:layout_marginTop="16dp"
         android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:requiresFadingEdge="vertical" />
+        android:requiresFadingEdge="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </LinearLayout>

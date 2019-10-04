@@ -21,13 +21,8 @@ object NewsUtils {
         else -> R.drawable.ic_mediaflow_category_default_icon
     }
 
-    fun sort(categories: MutableList<Category>): MutableList<Category> {
-        categories.sortWith(Comparator { p0, p1 ->
-            val result = categoryPriorities[p0?.name]?.minus(categoryPriorities[p1?.name] ?: 100) ?: 0
-            if (result != 0) result else p0?.name?.compareTo(p1?.name ?: "") ?: 0
-        })
-        return categories
-    }
+    fun sort(categories: MutableList<Category>): List<Category> =
+            categories.sortedWith(compareBy<Category, Int?>(nullsLast<Int>(), { categoryPriorities[it.name] }).then(compareBy { it.name }))
 
     fun getDateString(context: Context, news: News): String {
         return DateUtils.getRelativeTimeSpanString(news.date.time, System.currentTimeMillis(),

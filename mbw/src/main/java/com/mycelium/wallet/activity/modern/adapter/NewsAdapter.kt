@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.modern.adapter
 
 import android.content.SharedPreferences
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.DiffUtil
@@ -18,16 +17,20 @@ import com.mycelium.wallet.external.mediaflow.model.News
 class NewsAdapter(val preferences: SharedPreferences)
     : ListAdapter<NewsAdapter.Entry, RecyclerView.ViewHolder>(ItemListDiffCallback()) {
 
+    enum class State {
+        DEFAULT, LOADING, FAIL
+    }
+
     private lateinit var layoutInflater: LayoutInflater
     private val dataMap = mutableMapOf<Category, MutableSet<News>>()
     private var selectedCategory: Category = ALL
 
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
-    var favorite: Boolean = false
+    var state = State.DEFAULT
+    var isFavorite = false
 
-    fun setData(data: List<News>, favorite: Boolean) {
-        this.favorite = favorite
+    fun setData(data: List<News>) {
         dataMap.clear()
         addData(data)
     }
@@ -48,15 +51,20 @@ class NewsAdapter(val preferences: SharedPreferences)
         val data = mutableListOf<Entry>()
         when {
             dataMap.isEmpty() -> {
-                if (favorite) {
-                    data.add(Entry(TYPE_NEWS_NO_BOOKMARKS))
-                } else {
-                    data.add(Entry(TYPE_NEWS_LOADING))
-                    data.add(Entry(TYPE_NEWS_LOADING))
+                when (state) {
+                    State.LOADING -> {
+                        data.add(Entry(TYPE_NEWS_LOADING))
+                        data.add(Entry(TYPE_NEWS_LOADING))
+                    }
+                    State.FAIL -> data.add(Entry(TYPE_NEWS_EMPTY))
+                    else -> {
+                        data.add(Entry(if (isFavorite) TYPE_NEWS_NO_BOOKMARKS else TYPE_NEWS_EMPTY))
+                    }
                 }
             }
             selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach { category ->
-                val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date } ?: listOf()
+                val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
+                        ?: listOf()
                 if (sortedList.isNotEmpty()) {
                     data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
                     data.add(Entry(TYPE_NEWS_BIG, sortedList[0], sortedList[0].isFavorite(preferences)))
@@ -110,12 +118,6 @@ class NewsAdapter(val preferences: SharedPreferences)
                 val btnHolder = holder as NewsCategoryBtnHolder
                 val category = item.news?.getCategory()!!
                 btnHolder.text.text = category.name
-                if (NewsUtils.getCategoryIcon(category.name) != 0) {
-                    btnHolder.icon.setImageResource(NewsUtils.getCategoryIcon(category.name))
-                    btnHolder.icon.visibility = View.VISIBLE
-                } else {
-                    btnHolder.icon.visibility = View.GONE
-                }
                 btnHolder.itemView.setOnClickListener {
                     categoryClickListener?.invoke(category)
                 }
@@ -167,6 +169,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
         const val TYPE_NEWS_ITEM_LOADING = 5
         const val TYPE_NEWS_NO_BOOKMARKS = 6
+        const val TYPE_NEWS_EMPTY = 7
 
         val ALL = Category("All")
     }

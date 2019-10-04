@@ -44,7 +44,7 @@ public class NewsSyncUtils {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(NewsConstants.NEWS_UPDATE_ACTION));
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION));
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

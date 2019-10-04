@@ -5,9 +5,9 @@
     android:layoutAnimation="@anim/anim_news_pulse"
     android:orientation="vertical"
     android:paddingStart="16dp"
-    android:paddingTop="32dp"
+    android:paddingTop="8dp"
     android:paddingEnd="16dp"
-    android:paddingBottom="16dp">
+    android:paddingBottom="32dp">
 
     <View
         android:layout_width="match_parent"
