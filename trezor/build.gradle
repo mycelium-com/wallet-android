@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath androidBuildArtifact
+        classpath "com.android.tools.build:gradle:$gradleVersion"
     }
 }
 
@@ -17,8 +17,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.protobuf:protobuf-java:3.4.0'
+    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
+    implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
 
     testImplementation "junit:junit:$junitVersion"
 }
@@ -28,8 +28,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
     }
 
     lintOptions {
