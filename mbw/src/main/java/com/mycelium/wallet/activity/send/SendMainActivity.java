@@ -401,7 +401,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 _paymentRequestHandler = (PaymentRequestHandler) _mbwManager.getBackgroundObjectsCache()
                         .getIfPresent(_paymentRequestHandlerUuid);
             }
-            feeEstimation = (FeeEstimationsGeneric) savedInstanceState.getSerializable(FEE_ESTIMATION);
         }
 
         //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
@@ -629,7 +628,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         savedInstanceState.putSerializable(ASSET_URI, genericUri);
         savedInstanceState.putSerializable(PAYMENT_REQUEST_HANDLER_ID, _paymentRequestHandlerUuid);
         savedInstanceState.putSerializable(SIGNED_TRANSACTION, signedTransaction);
-        savedInstanceState.putSerializable(FEE_ESTIMATION , feeEstimation);
     }
 
     @OnClick(R.id.colu_tips_check_address)
