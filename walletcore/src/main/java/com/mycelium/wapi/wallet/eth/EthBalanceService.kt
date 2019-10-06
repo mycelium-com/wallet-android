@@ -4,11 +4,11 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.methods.response.Transaction
 import org.web3j.protocol.http.HttpService
+import java.math.BigInteger
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -18,75 +18,50 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
         private set
 
     val pendingTxObservable: Observable<Balance> = Observable.create<Balance> { observer ->
-        // check whether we have missed any pending transactions events while app was inactive
         try {
-            val response = web3j.ethGetBlockByNumber(DefaultBlockParameterName.PENDING, true).send()
+            // check whether we have missed any pending transactions events while app was inactive
+            pollAndUpdateBalance()
 
-            if (response.hasError()) {
-                observer.onError(Throwable("${response.error.code}: ${response.error.message}"))
-                // todo decide what to do with this observable
-            }
-
-            val txs = response.block.transactions.map { txResult -> txResult as Transaction }
-
-            // process incoming pending txs
-            txs.filter { it.to == address }.forEach { pendingTx ->
-                processIncomingTx(pendingTx, observer)
-            }
-
-            // process outgoing pending txs
-            txs.filter { it.from == address }.forEach { pendingTx ->
-                processOutgoingTx(pendingTx, observer)
-            }
+            // start listening for new pending transactions
+            @Suppress("CheckResult")
+            web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
+                    .subscribe({
+                        pollAndUpdateBalance()
+                        observer.onNext(balance)
+                    }, { observer.onError(it) })
+            web3j.transactionFlowable().filter { tx -> tx.to == address || tx.from == address }
+                    .subscribe({
+                        pollAndUpdateBalance()
+                        observer.onNext(balance)
+                    }, { observer.onError(it) })
         } catch (e: Exception) {
             observer.onError(e)
             // todo decide what to do with this observable
         }
+    }
 
-        // start listening for new pending transactions
-        // incoming
-        val disposable = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address }
-                .subscribe({ pendingTx ->
-                    processIncomingTx(pendingTx, observer)
-                }, { observer.onError(it) })
+    @Throws(Exception::class)
+    private fun pollAndUpdateBalance() {
+        val response = web3j.ethGetBlockByNumber(DefaultBlockParameterName.PENDING, true).send()
 
-        // outgoing
-        if (!disposable.isDisposed) {
-            web3j.pendingTransactionFlowable().filter { tx -> tx.from == address }
-                    .subscribe({ pendingTx ->
-                        processOutgoingTx(pendingTx, observer)
-                    }, { observer.onError(it) })
+        if (response.hasError()) {
+            throw Exception("${response.error.code}: ${response.error.message}")
         }
+
+        val txs = response.block.transactions.map { txResult -> txResult as Transaction }
+        val incomingTx = txs.filter { it.to == address }
+        val outgoingTx = txs.filter { it.from == address }
+        val incomingSum: BigInteger = incomingTx
+                .takeIf { it.isNotEmpty() }?.map { tx -> tx.value }?.reduce { acc, value -> acc + value } ?: BigInteger.ZERO
+        val outgoingSum: BigInteger = outgoingTx
+                .takeIf { it.isNotEmpty() }?.map { tx -> tx.value + tx.gasPrice * tx.gas }?.reduce { acc, value -> acc + value } ?: BigInteger.ZERO
+        updateBalance(incomingSum.toLong(), outgoingSum.toLong())
     }
 
-    private fun processIncomingTx(pendingTx: Transaction, observer: ObservableEmitter<Balance>) {
-        val receiveAmount = Value.valueOf(coinType, pendingTx.value)
-        balance = Balance(balance.confirmed, balance.pendingReceiving + receiveAmount, balance.pendingSending,
-                balance.pendingChange)
-        observer.onNext(balance)
-
-        // wait for the tx confirmation
-        @Suppress("CheckResult")
-        web3j.transactionFlowable().filter { tx -> tx.hash == pendingTx.hash }.firstOrError().subscribe({
-            balance = Balance(balance.confirmed + receiveAmount,balance.pendingReceiving - receiveAmount, balance.pendingSending,
-                    balance.pendingChange)
-            observer.onNext(balance)
-        }, { observer.onError(it) })
-    }
-
-    private fun processOutgoingTx(pendingTx: Transaction, observer: ObservableEmitter<Balance>) {
-        val spentAmount = Value.valueOf(coinType, pendingTx.value + pendingTx.gasPrice * pendingTx.gas)
-        balance = Balance(balance.confirmed - spentAmount, balance.pendingReceiving,
-                balance.pendingSending + spentAmount, balance.pendingChange)
-        observer.onNext(balance)
-
-        // wait for the tx confirmation
-        @Suppress("CheckResult")
-        web3j.transactionFlowable().filter { tx -> tx.hash == pendingTx.hash }.firstOrError().subscribe({
-            balance = Balance(balance.confirmed, balance.pendingReceiving, balance.pendingSending - spentAmount,
-                    balance.pendingChange)
-            observer.onNext(balance)
-        }, { observer.onError(it) })
+    private fun updateBalance(incomingSum: Long, outgoingSumWithGas: Long) {
+        balance = Balance(balance.confirmed, Value.valueOf(coinType, incomingSum),
+                Value.valueOf(coinType, outgoingSumWithGas), balance.pendingChange)
+        updateBalanceCache()
     }
 
     fun updateBalanceCache(): Boolean {
