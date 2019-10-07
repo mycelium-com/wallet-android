@@ -22,9 +22,9 @@ repositories {
 }
 
 dependencies {
-    compile project(includePrefix + ':bitlib')
-    compile guavaArtifact
-    testCompile "junit:junit:$junitVersion"
+    implementation project(includePrefix + ':bitlib')
+    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    testImplementation "junit:junit:$junitVersion"
 }
 
 jar {

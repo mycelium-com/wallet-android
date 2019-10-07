@@ -35,7 +35,6 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,13 +83,12 @@ import static com.mycelium.wallet.R.string.warning_partner;
 import static com.mycelium.wallet.R.string.your_privacy_out_priority;
 
 public class RecommendationsFragment extends Fragment {
-    RecyclerView recommendationsList;
     private AlertDialog alertDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_recommendations_view, container, false);
-        recommendationsList = root.findViewById(R.id.list);
+        RecyclerView recommendationsList = root.findViewById(R.id.list);
 
         List<RecommendationInfo> list = new ArrayList<>();
         int fromItem = 1;
@@ -101,9 +99,9 @@ public class RecommendationsFragment extends Fragment {
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
         list.add(getPartnerInfo(partner_safervpn, partner_safervpn_short, partner_safervpn_info, partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        if (SettingsPreference.INSTANCE.getFioEnabled()) {
+        if (SettingsPreference.getFioEnabled()) {
             list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.drawable.ic_fiopresale_icon_small,
-                    () -> Ads.INSTANCE.openFio(requireContext())));
+                    () -> Ads.openFio(requireContext())));
         }
 
         list.add(new RecommendationFooter());
@@ -117,13 +115,11 @@ public class RecommendationsFragment extends Fragment {
                             .setMessage(bean.getInfo())
                             .setTitle(warning_partner)
                             .setIcon(bean.getSmallIcon())
-                            .setPositiveButton(ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    if (bean.getUri() != null) {
-                                        Intent intent = new Intent(Intent.ACTION_VIEW)
-                                                .setData(Uri.parse(bean.getUri()));
-                                        startActivity(intent);
-                                    }
+                            .setPositiveButton(ok, (dialog, id) -> {
+                                if (bean.getUri() != null) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW)
+                                            .setData(Uri.parse(bean.getUri()));
+                                    startActivity(intent);
                                 }
                             })
                             .setNegativeButton(cancel, null)
@@ -149,6 +145,7 @@ public class RecommendationsFragment extends Fragment {
 
             @Override
             public void onClick(RecommendationBanner recommendationBanner) {
+                // implement when using big Banner Ad
             }
         });
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL);

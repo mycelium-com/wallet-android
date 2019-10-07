@@ -15,9 +15,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath androidBuildArtifact
+        classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.google.gms:google-services:4.3.2'
     }
 }
 

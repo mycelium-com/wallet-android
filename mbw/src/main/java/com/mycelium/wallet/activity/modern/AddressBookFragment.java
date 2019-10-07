@@ -42,10 +42,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +52,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ActionMode;
+import androidx.fragment.app.Fragment;
+
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -74,14 +74,12 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -317,19 +315,7 @@ public class AddressBookFragment extends Fragment {
         }
     };
 
-    private final Runnable pinProtectedEditEntry = new Runnable() {
-        @Override
-        public void run() {
-            doEditEntry();
-        }
-
-        private void doEditEntry() {
-            EnterAddressLabelUtil.enterAddressLabel(requireActivity(), mbwManager.getMetadataStorage(),
-                    mSelectedAddress, "", addressLabelChanged);
-        }
-    };
-
-    final Runnable pinProtectedDeleteEntry = () -> new AlertDialog.Builder(getActivity())
+    private final Runnable pinProtectedDeleteEntry = () -> new AlertDialog.Builder(getActivity())
             .setMessage(R.string.delete_address_confirmation)
             .setCancelable(false)
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -367,8 +353,7 @@ public class AddressBookFragment extends Fragment {
                     if(addresses.size() == 1){
                         addFromAddress(addresses.get(0));
                     } else {
-                        SelectAssetDialog dialog = SelectAssetDialog.getInstance(addresses);
-                        dialog.show(requireFragmentManager(), "dialog");
+                        SelectAssetDialog.getInstance(addresses).show(requireFragmentManager(), "dialog");
                     }
                 } else {
                     Toast.makeText(AddDialog.this.getContext(), R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
@@ -426,6 +411,10 @@ public class AddressBookFragment extends Fragment {
         finishActionMode();
         MbwManager.getEventBus().post(new AddressBookChanged());
     };
+
+    private final Runnable pinProtectedEditEntry = () ->
+            EnterAddressLabelUtil.enterAddressLabel(requireActivity(), mbwManager.getMetadataStorage(),
+                    mSelectedAddress, "", addressLabelChanged);
 
     @Subscribe
     public void onAddressBookChanged(AddressBookChanged event) {

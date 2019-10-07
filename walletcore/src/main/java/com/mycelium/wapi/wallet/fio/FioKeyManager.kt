@@ -3,10 +3,8 @@ package com.mycelium.wapi.wallet.fio
 import com.mrd.bitlib.bitcoinj.Base58
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
-import com.mrd.bitlib.crypto.PrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mycelium.wapi.wallet.AesKeyCipher
-import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 
 class FioKeyManager(private val masterSeedManager: MasterSeedManager) {
