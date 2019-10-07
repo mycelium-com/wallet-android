@@ -2,21 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mycelium.wallet">
 
-    <permission
-        android:name="${applicationId}.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
-
     <!-- basics -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!-- Permissions required for Google Cloud Messaging -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- sending an NFC payment request -->
     <uses-permission android:name="android.permission.NFC" />
@@ -50,22 +40,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MyceliumModern">
-
         <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
 
-        <!-- Receiver for Google Cloud Messaging -->
-        <receiver
-            android:name=".lt.notification.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <!-- Note that the below must match the package name -->
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </receiver>
         <!-- file provider to enable secure intent sharing for encrypted backups -->
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -74,8 +53,13 @@
                 android:resource="@xml/my_paths" />
         </provider>
 
-        <!-- Service for Google Cloud Messaging -->
-        <service android:name=".lt.notification.GcmIntentService" />
+        <!-- Service for Cloud Messaging -->
+        <service
+            android:name=".lt.notification.FcmListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <service
             android:name=".service.TaskExecutionService"
             android:enabled="true"
@@ -86,6 +70,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
+        <receiver
+            android:name=".external.mediaflow.NewsSyncReceiver"
+            android:enabled="true" />
         <!-- Startup -->
         <activity
             android:name=".activity.StartupActivity"
@@ -266,5 +253,19 @@
             android:theme="@style/MyceliumExchange"/>
         <activity android:name=".activity.settings.SetSegwitChangeActivity"
             android:theme="@style/MyceliumSettings"/>
+        <activity
+            android:name=".activity.news.NewsActivity"
+            android:theme="@style/MyceliumNews" >
+            <meta-data android:name="android.app.default_searchable"
+                android:value=".activity.news.NewsSearchableActivity" />
+        </activity>
+        <activity android:name=".activity.news.NewsImageActivity"
+            android:screenOrientation="landscape"/>
+
+        <service
+            android:name=".external.mediaflow.NewsSyncService"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 </manifest>

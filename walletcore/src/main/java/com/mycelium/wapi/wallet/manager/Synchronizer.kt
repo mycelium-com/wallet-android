@@ -38,18 +38,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }
     }
 
-    private fun broadcastOutgoingTransactions(): Boolean {
-        val accountsForTxsBroadcasting = if (accounts.isEmpty()) walletManager.getAllActiveAccounts() else accounts
-        for (account in accountsForTxsBroadcasting) {
-            if (account!!.isArchived) {
-                continue
-            }
-            if (!account.broadcastOutgoingTransactions()) {
-                // We failed to broadcast due to API error, we will have to try
-                // again later
-                return false
-            }
-        }
-        return true
-    }
+    private fun broadcastOutgoingTransactions(): Boolean =
+            if (accounts.isEmpty()) { walletManager.getAllActiveAccounts() } else { accounts }
+                    .filterNotNull()
+                    .filterNot { it.isArchived }
+                    .all { it.broadcastOutgoingTransactions() }
 }

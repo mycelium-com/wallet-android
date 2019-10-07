@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.SecureKeyValueStore
 
 
 class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
-
     var listener: Listener? = null
 
     private var identityAccountKeyManager: IdentityAccountKeyManager? = null

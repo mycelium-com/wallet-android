@@ -8,7 +8,7 @@
 
         <variable
             name="activity"
-            type="android.support.v7.app.AppCompatActivity" />
+            type="androidx.appcompat.app.AppCompatActivity" />
 
         <variable
             name="viewModel"

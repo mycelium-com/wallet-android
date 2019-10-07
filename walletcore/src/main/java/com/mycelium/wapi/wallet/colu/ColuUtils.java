@@ -20,8 +20,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 public class ColuUtils {
-    public static final int METADATA_OUTPUT_SIZE = 1;
-
     public static UUID getGuidForAsset(CryptoCurrency coluType, byte[] addressBytes) {
         ByteWriter byteWriter = new ByteWriter(36);
         byteWriter.putBytes(addressBytes);

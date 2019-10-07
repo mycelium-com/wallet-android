@@ -3,13 +3,14 @@
     xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="android.arch.lifecycle.AndroidViewModel" />
-        <import type="android.support.v7.app.AppCompatActivity" />
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="androidx.appcompat.app.AppCompatActivity" />
         <import type="android.view.View" />
 
         <variable
             name="activity"
-            type="android.support.v7.app.AppCompatActivity" />
+            type="androidx.appcompat.app.AppCompatActivity" />
 
         <variable
             name="viewModel"

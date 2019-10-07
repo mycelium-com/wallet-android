@@ -35,7 +35,7 @@
 package com.mycelium.wallet.activity.util;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;

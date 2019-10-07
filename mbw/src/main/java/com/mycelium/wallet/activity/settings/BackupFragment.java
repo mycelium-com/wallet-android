@@ -2,9 +2,9 @@ package com.mycelium.wallet.activity.settings;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
 
 import com.google.common.base.Preconditions;
@@ -95,20 +95,16 @@ public class BackupFragment extends PreferenceFragmentCompat {
         super.onResume();
     }
 
-    private final Preference.OnPreferenceClickListener legacyBackupClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            Utils.pinProtectedBackup(getActivity());
-            return true;
-        }
-    };
-    private final Preference.OnPreferenceClickListener legacyBackupVerifyClickListener = new Preference.OnPreferenceClickListener() {
-        public boolean onPreferenceClick(Preference preference) {
-            VerifyBackupActivity.callMe(getActivity());
-            return true;
-        }
+    private final Preference.OnPreferenceClickListener legacyBackupClickListener = preference -> {
+        Utils.pinProtectedBackup(getActivity());
+        return true;
     };
 
-    @SuppressWarnings("deprecation")
+    private final Preference.OnPreferenceClickListener legacyBackupVerifyClickListener = preference -> {
+        VerifyBackupActivity.callMe(getActivity());
+        return true;
+    };
+
     private void showOrHideLegacyBackup() {
         List<WalletAccount<?>> accounts = _mbwManager.getWalletManager(false).getSpendingAccounts();
         Preference legacyPref = findPreference("legacyBackup");
@@ -122,8 +118,6 @@ public class BackupFragment extends PreferenceFragmentCompat {
             }
         }
         //no matching account, hide setting
-        getPreferenceScreen().removePreference(legacyPref);
+        getPreferenceScreen().removePreferenceRecursively(legacyPref.getKey());
     }
-
-
 }
