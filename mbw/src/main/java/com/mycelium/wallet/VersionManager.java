@@ -93,25 +93,9 @@ public class VersionManager {
       ignoredVersions = Sets.newHashSet(Splitter.on("\n").omitEmptyStrings().split(ignored));
 
       this.eventBus = eventBus;
-      new Handler(context.getMainLooper()).post(new Runnable() {
-         @Override
-         public void run() {
-            eventBus.register(VersionManager.this);
-         }
-      });
+      new Handler(context.getMainLooper()).post(() -> eventBus.register(VersionManager.this));
 
       backgroundHandler = new Handler(context.getMainLooper());
-   }
-
-   @Override
-   protected void finalize() throws Throwable {
-      new Handler(context.getMainLooper()).post(new Runnable() {
-         @Override
-         public void run() {
-            eventBus.unregister(VersionManager.this);
-         }
-      });
-      super.finalize();
    }
 
    public void showVersionDialog(final VersionInfoExResponse response, final Context activity) {
@@ -172,8 +156,7 @@ public class VersionManager {
    public void getWalletVersionExResult(final WalletVersionExEvent result) {
       // if the last result had no featureWarnings and now we have some, broadcast them.
       if ((lastVersionResult == null || lastVersionResult.response.featureWarnings == null || lastVersionResult.response.featureWarnings.size() == 0)
-            && (result.response.featureWarnings != null && result.response.featureWarnings.size() > 0) )
-      {
+            && (result.response.featureWarnings != null && result.response.featureWarnings.size() > 0) ) {
          eventBus.post(new FeatureWarningsAvailable(result.response));
       }
 
@@ -273,12 +256,7 @@ public class VersionManager {
 
             // add a additional cancel button to emphasize that you might cancel this action (back button works always)
             if (runFeature != null){
-               dialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                     dialog.dismiss();
-                  }
-               });
+               dialog.setNegativeButton(R.string.cancel, (dialog12, which) -> dialog12.dismiss());
             }
 
             //text.setTextColor(context.getResources().getColor(R.color.red));
@@ -304,12 +282,7 @@ public class VersionManager {
                }
             });
          } else {
-            dialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-               @Override
-               public void onClick(DialogInterface dialog, int which) {
-                  dialog.dismiss();
-               }
-            });
+            dialog.setPositiveButton(R.string.ok, (dialog1, which) -> dialog1.dismiss());
          }
 
          // set the content
