@@ -66,7 +66,6 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeLvlV
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
             FeeLvlItem item = mDataset.get(position);
-//            holder.categoryTextView.setText(mDataset[position].getCategory());
             holder.itemTextView.setText(item.minerFee.getMinerFeeName(holder.itemView.getContext()));
             holder.valueTextView.setText(item.duration);
         } else {

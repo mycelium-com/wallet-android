@@ -114,7 +114,7 @@ public class SelectableRecyclerView extends RecyclerView {
     }
 
     private void calculatePositionAndScroll() {
-        int expectedPosition = Math.round((computeHorizontalScrollOffset() + itemWidth / 2f - 1) / itemWidth);
+        int expectedPosition = (computeHorizontalScrollOffset() + itemWidth / 2 - 1) / itemWidth;
         if (expectedPosition < 0) {
             expectedPosition = 0;
         } else if (getAdapter() != null && expectedPosition > getAdapter().getItemCount() - 1) {
@@ -176,12 +176,9 @@ public class SelectableRecyclerView extends RecyclerView {
         @Override
         public void onBindViewHolder(final H holder, int position) {
             holder.itemView.setActivated(position == selectedItem);
-            holder.itemView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    recyclerView.setSelectedItem(holder.getAdapterPosition());
-                }
-            });
+            holder.itemView.setOnClickListener(
+                    view -> recyclerView.setSelectedItem(holder.getAdapterPosition())
+            );
         }
 
         @Override
