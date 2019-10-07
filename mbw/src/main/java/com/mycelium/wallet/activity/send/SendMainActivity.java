@@ -100,10 +100,7 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
-import com.mycelium.wallet.event.ExchangeRatesRefreshed;
-import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wallet.event.SyncFailed;
-import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
@@ -709,6 +706,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                             _mbwManager.runPinProtectedFunction(SendMainActivity.this, pinProtectedSignAndSend);
                         }
                     });
+        }
+        UUID receivingAccount = _mbwManager.getWalletManager(false).getAccountByAddress(_receivingAddress);
+        if(receivingAccount != null) {
+            MbwManager.getEventBus().post( new AccountChanged(receivingAccount));
         }
     }
 
