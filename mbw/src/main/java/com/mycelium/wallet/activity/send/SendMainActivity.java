@@ -577,13 +577,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void updateFeeDataset() {
         List<FeeItem> feeItems = feeItemsBuilder.getFeeItemList(activeAccount.getBasedOnCoinType(), feeEstimation, feeLvl, estimateTxSize());
         feeViewAdapter.setDataset(feeItems);
-        FeeItem selectedFeeItem = null;
         if (feeViewAdapter.getSelectedItem() < feeViewAdapter.getItemCount()) {
-            selectedFeeItem = feeViewAdapter.getItem(feeViewAdapter.getSelectedItem());
-        }
-        if (selectedFeeItem != null && selectedFeeItem.feePerKb == selectedFee.value) {
-            // everything is fine already
-            return;
+            FeeItem selectedFeeItem = feeViewAdapter.getItem(feeViewAdapter.getSelectedItem());
+            if (selectedFeeItem != null && selectedFeeItem.feePerKb == selectedFee.value) {
+                // everything is fine already
+                return;
+            }
         }
         if (isInRange(feeItems, selectedFee)) {
             feeValueList.setSelectedItem(selectedFee);
@@ -872,7 +871,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @UiThread
     private void updateUi() {
-        Log.d("UI", "updateUI()");
         // TODO: profile. slow!
         updateFeeText();
         updateFeeDataset();

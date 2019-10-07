@@ -63,7 +63,7 @@ public class SelectableRecyclerView extends RecyclerView {
             return;
         }
         ((SRVAdapter) getAdapter()).setSelectedItem(selectedItem);
-        scrollListToPosition(selectedItem);
+        scrollListToItem(selectedItem);
         if (selectListener != null) {
             selectListener.onSelect(getAdapter(), selectedItem);
         }
@@ -95,7 +95,7 @@ public class SelectableRecyclerView extends RecyclerView {
             padding = (getWidth() - itemWidth) / 2;
             setPadding(padding, getPaddingTop(), padding, getPaddingBottom());
             if (getAdapter() != null) {
-                scrollListToPosition(getSelectedItem());
+                scrollListToItem(getSelectedItem());
             }
             oldWidth = getWidth();
         }
@@ -123,17 +123,17 @@ public class SelectableRecyclerView extends RecyclerView {
         setSelectedItem(expectedPosition);
     }
 
-    private void scrollListToPosition(int expectedPosition) {
-        int targetScrollPos = expectedPosition * itemWidth;
+    private void scrollListToItem(int item) {
+        int targetScrollPos = item * itemWidth;
         final int missingPx = targetScrollPos - computeHorizontalScrollOffset();
         if (missingPx != 0f) {
             if (missingPx == 1) {
                 scrollBy(missingPx, 0);
             } else {
-                smoothScrollToPosition(expectedPosition);
+                smoothScrollToPosition(item);
             }
-        } else if (expectedPosition != getSelectedItem()) {
-            checkNotNull(((SRVAdapter) getAdapter())).setSelectedItem(expectedPosition);
+        } else if (item != getSelectedItem()) {
+            checkNotNull(((SRVAdapter) getAdapter())).setSelectedItem(item);
         }
     }
 

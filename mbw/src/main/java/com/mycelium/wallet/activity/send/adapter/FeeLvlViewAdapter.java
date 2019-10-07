@@ -18,17 +18,17 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 public class FeeLvlViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeLvlViewAdapter.FeeLvlViewHolder> {
-    private List<FeeLvlItem> mDataset;
+    private List<FeeLvlItem> feeLvlItems;
 
     private int paddingWidth;
 
     public FeeLvlViewAdapter(List<FeeLvlItem> values, int paddingWidth) {
-        mDataset = values;
+        feeLvlItems = values;
         this.paddingWidth = paddingWidth;
     }
 
     public FeeLvlItem getItem(int position) {
-        return mDataset.get(position);
+        return feeLvlItems.get(position);
     }
 
     @Nonnull
@@ -65,7 +65,7 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeLvlV
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
-            FeeLvlItem item = mDataset.get(position);
+            FeeLvlItem item = feeLvlItems.get(position);
             holder.itemTextView.setText(item.minerFee.getMinerFeeName(holder.itemView.getContext()));
             holder.valueTextView.setText(item.duration);
         } else {
@@ -78,8 +78,8 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeLvlV
     @Override
     public int findIndex(Object object) {
         int selected = -1;
-        for (int i = 0; i < mDataset.size(); i++) {
-            if (mDataset.get(i).equals(object) || mDataset.get(i).minerFee.equals(object)) {
+        for (int i = 0; i < feeLvlItems.size(); i++) {
+            if (feeLvlItems.get(i).equals(object) || feeLvlItems.get(i).minerFee.equals(object)) {
                 selected = i;
                 break;
             }
@@ -89,12 +89,12 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeLvlV
 
     @Override
     public int getItemViewType(int position) {
-        return mDataset.get(position).type;
+        return feeLvlItems.get(position).type;
     }
 
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return feeLvlItems.size();
     }
 
     static class FeeLvlViewHolder extends RecyclerView.ViewHolder {
