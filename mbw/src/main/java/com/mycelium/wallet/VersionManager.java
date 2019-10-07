@@ -64,7 +64,6 @@ import com.mycelium.wapi.api.response.FeatureWarning;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 import com.mycelium.wapi.api.response.WarningKind;
 import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
@@ -186,17 +185,7 @@ public class VersionManager {
       }
    }
 
-   @Produce
-   public FeatureWarningsAvailable areFeatureWarningsAvailable(){
-      if (lastVersionResult != null && lastVersionResult.response.featureWarnings != null && lastVersionResult.response.featureWarnings.size() > 0){
-         return new FeatureWarningsAvailable(lastVersionResult.response);
-      } else {
-         return null;
-      }
-   }
-
-   @Produce
-   public NewWalletVersionAvailable isWalletUpdateAvailable(){
+   private NewWalletVersionAvailable isWalletUpdateAvailable(){
       if (lastVersionResult != null
             && lastVersionResult.response.versionNumber != null
             && !isIgnored(lastVersionResult.response.versionNumber)){
