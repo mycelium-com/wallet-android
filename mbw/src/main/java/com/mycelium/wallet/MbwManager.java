@@ -1228,7 +1228,7 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            uuid = _walletManager.getAccounts().get(0).getId();
+            uuid = _walletManager.getAllActiveAccounts().get(0).getId();
             setSelectedAccount(uuid);
         }
 
