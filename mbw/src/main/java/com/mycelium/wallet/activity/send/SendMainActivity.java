@@ -350,7 +350,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         setContentView(R.layout.send_main_activity);
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(getApplication());
-        feeItemsBuilder = new FeeItemsBuilder(_mbwManager.getExchangeRateManager(), mbwManager.getFiatCurrency());
+        feeItemsBuilder = new FeeItemsBuilder(mbwManager.getExchangeRateManager(), mbwManager.getFiatCurrency());
 
         // Get intent parameters
         UUID accountId = checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
