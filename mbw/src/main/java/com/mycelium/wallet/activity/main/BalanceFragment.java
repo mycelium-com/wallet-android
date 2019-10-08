@@ -407,7 +407,7 @@ public class BalanceFragment extends Fragment {
                             //its an xPriv, we want to cold-spend from it
                             final WalletManager tempWalletManager = _mbwManager.getWalletManager(true);
                             UUID acc = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
-                            tempWalletManager.setActiveAccount(acc);
+                            tempWalletManager.startSynchronization(acc);
                             SendInitializationActivity.callMeWithResult(getActivity(), acc, true,
                                     StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         } else {
