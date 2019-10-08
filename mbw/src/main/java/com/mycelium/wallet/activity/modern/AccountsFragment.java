@@ -420,9 +420,7 @@ public class AccountsFragment extends Fragment {
                         _storage.deleteAccountMetadata(linkedColuAccount.getId());
                     }
                     finishCurrentActionMode();
-                    requireActivity().runOnUiThread(
-                            () -> eventBus.post(new AccountChanged(accountToDelete.getId()))
-                    );
+                    eventBus.post(new AccountChanged(accountToDelete.getId()));
                     _toaster.toast(R.string.account_deleted, false);
                 }
             }
