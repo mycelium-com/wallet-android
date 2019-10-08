@@ -127,11 +127,7 @@ public class SelectableRecyclerView extends RecyclerView {
         int targetScrollPos = expectedPosition * itemWidth;
         final int missingPx = targetScrollPos - computeHorizontalScrollOffset();
         if (missingPx != 0f) {
-            if (missingPx == 1) {
-                scrollBy(missingPx, 0);
-            } else {
-                smoothScrollToPosition(expectedPosition);
-            }
+            smoothScrollToPosition(expectedPosition);
         } else if (expectedPosition != getSelectedItem()) {
             checkNotNull(((SRVAdapter) getAdapter())).setSelectedItem(expectedPosition);
         }
