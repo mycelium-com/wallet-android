@@ -12,7 +12,6 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
@@ -157,7 +156,7 @@ class WalletConsole {
             walletManager.add(bitcoinSingleAddressModule);
 
 //             display HD account balance
-            List<WalletAccount<?>> accounts = walletManager.getActiveAccounts();
+            List<WalletAccount<?>> accounts = walletManager.getActiveSpendingAccounts();
             WalletAccount account = accounts.get(0);
             account.synchronize(SyncMode.NORMAL);
             System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());

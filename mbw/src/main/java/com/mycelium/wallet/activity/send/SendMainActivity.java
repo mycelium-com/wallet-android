@@ -350,6 +350,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         setContentView(R.layout.send_main_activity);
         ButterKnife.bind(this);
         mbwManager = MbwManager.getInstance(getApplication());
+        feeItemsBuilder = new FeeItemsBuilder(_mbwManager.getExchangeRateManager(), mbwManager.getFiatCurrency());
 
         // Get intent parameters
         UUID accountId = checkNotNull((UUID) getIntent().getSerializableExtra(ACCOUNT));
@@ -516,7 +517,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void initFeeView() {
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        feeItemsBuilder = new FeeItemsBuilder(mbwManager.getExchangeRateManager(), mbwManager.getFiatCurrency());
         feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectedItem(selectedFee);
         feeValueList.setSelectListener(new SelectListener() {
