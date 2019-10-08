@@ -105,7 +105,9 @@ public class AccountAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerVi
             layoutParams.gravity = accountUseType.gravity;
             layoutParams.height = parent.getResources().getDimensionPixelSize(accountUseType.heightRes);
             imageView.setLayoutParams(layoutParams);
-            return new ViewHolder(v);
+            ViewHolder viewHolder = new ViewHolder(v);
+            viewHolder.valueTextView.setMaxLines(1);
+            return viewHolder;
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(accountUseType.paddingLayout,
                     parent, false);
