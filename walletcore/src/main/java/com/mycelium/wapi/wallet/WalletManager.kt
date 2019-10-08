@@ -182,7 +182,7 @@ constructor(val network: NetworkParameters,
      *
      * @return the active accounts managed by the wallet manager
      */
-    fun getActiveAccounts(): List<WalletAccount<*>> =
+    fun getActiveSpendingAccounts(): List<WalletAccount<*>> =
             accounts.values.filter { it.isActive && it.canSpend() }
 
     fun getAllActiveAccounts():  List<WalletAccount<*>> = accounts.values.filter { it.isActive }
