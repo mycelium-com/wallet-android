@@ -152,6 +152,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -195,7 +196,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
     public static final String FEE_ESTIMATION = "fee_estimation";
-    private static final int FEE_EXPIRATION_TIME = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+    private static final long FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2);
     private boolean spendingUnconfirmed;
 
     private enum TransactionStatus {
@@ -386,7 +387,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
                 updateUi();
             }
-
         }.execute();
 
         selectedFee = getCurrentFeeEstimation();
@@ -562,7 +562,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         final FeeLvlViewAdapter feeLvlViewAdapter = new FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth);
         feeLvlList.setAdapter(feeLvlViewAdapter);
-        feeLvlList.setSelectedItem(feeLvl);
         feeLvlList.setSelectListener(new SelectListener() {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
@@ -572,6 +571,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 updateFeeDataset();
             }
         });
+        feeLvlList.setSelectedItem(feeLvl);
     }
 
     private void updateFeeDataset() {
