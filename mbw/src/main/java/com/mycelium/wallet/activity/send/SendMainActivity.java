@@ -283,6 +283,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private GenericTransaction signedTransaction;
     private MinerFee feeLvl;
     private Value selectedFee;
+    private Boolean selectedFeeFromSaved = false;
     private ProgressDialog progressDialog;
     private UUID receivingAcc;
     private boolean xpubSyncing = false;
@@ -377,6 +378,12 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
         new AsyncTask<Void, Void, Void>() {
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                progressBarBusy.setVisibility(VISIBLE);
+            }
+
+            @Override
             protected Void doInBackground(Void... voids) {
                 feeEstimation = SendMainActivity.this.activeAccount.getFeeEstimations();
                 return null;
@@ -386,6 +393,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             protected void onPostExecute(Void v) {
                 showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
                 updateUi();
+                if(savedInstanceState == null) {
+                    feeValueList.setSelectedItem(getCurrentFeeEstimation());
+                }
+                progressBarBusy.setVisibility(GONE);
             }
         }.execute();
 
