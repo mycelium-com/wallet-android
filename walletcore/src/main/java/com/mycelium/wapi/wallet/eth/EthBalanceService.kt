@@ -6,14 +6,18 @@ import com.mycelium.wapi.wallet.coins.Value
 import io.reactivex.Observable
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.protocol.core.Request
+import org.web3j.protocol.core.Response
 import org.web3j.protocol.core.methods.response.Transaction
 import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.Semaphore
 
 class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
-    private val web3j: Web3j = Web3j.build(HttpService("http://ropsten-index.mycelium.com:18545"))
+    private val web3jService = HttpService("http://ropsten-index.mycelium.com:18545")
+    private val web3j: Web3j = Web3j.build(web3jService)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
@@ -42,13 +46,7 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
 
     @Throws(Exception::class)
     private fun pollAndUpdateBalance() {
-        val response = web3j.ethGetBlockByNumber(DefaultBlockParameterName.PENDING, true).send()
-
-        if (response.hasError()) {
-            throw Exception("${response.error.code}: ${response.error.message}")
-        }
-
-        val txs = response.block.transactions.map { txResult -> txResult as Transaction }
+        val txs = getPendingTransactions()
         val incomingTx = txs.filter { it.to == address }
         val outgoingTx = txs.filter { it.from == address }
         val incomingSum: BigInteger = incomingTx
@@ -79,4 +77,22 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
             false
         }
     }
+
+    private fun getPendingTransactions(): List<Transaction> {
+        val request = Request<Any, ParityAllTransactionsResponse>(
+                "parity_allTransactions",
+                emptyList(),
+                web3jService,
+                ParityAllTransactionsResponse::class.java).send()
+        if (request.hasError()) {
+            throw Exception("${request.error.code}: ${request.error.message}")
+        } else {
+            return request.transactions
+        }
+    }
+}
+
+class ParityAllTransactionsResponse : Response<ArrayList<Transaction>>() {
+    val transactions: ArrayList<Transaction>
+        get() = result
 }
