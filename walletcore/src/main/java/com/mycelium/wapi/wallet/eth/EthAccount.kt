@@ -82,6 +82,7 @@ class EthAccount(private val credentials: Credentials,
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
             accountContext.balance = ethBalanceService.balance
+            accountListener?.balanceUpdated(this)
             if (pendingTxDisposable.isDisposed) {
                 pendingTxDisposable = subscribeOnPendingTx()
             }
@@ -113,11 +114,7 @@ class EthAccount(private val credentials: Credentials,
     }
 
     override fun dropCachedData() {
-        val balance = Balance(Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType))
-        accountContext.balance = balance
+        accountContext.balance = Balance.getZeroBalance(coinType)
     }
 
     override fun isVisible() = true
