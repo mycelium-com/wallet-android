@@ -38,8 +38,6 @@ import com.google.api.client.util.Lists;
 import com.mycelium.view.Denomination;
 import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.bch.coins.BchMain;
-import com.mycelium.wapi.wallet.bch.coins.BchTest;
 import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -52,18 +50,18 @@ import java.util.List;
 import java.util.Set;
 
 public class CurrencySwitcher {
-    private final ExchangeRateManager exchangeRateManager;
+   private final ExchangeRateManager exchangeRateManager;
 
-    private List<GenericAssetInfo> fiatCurrencies;
-    private List<GenericAssetInfo> walletCurrencies;
-    private Denomination denomination;
+   private List<GenericAssetInfo> fiatCurrencies;
+   private List<GenericAssetInfo> walletCurrencies;
+   private Denomination denomination;
 
-    // the last selected/shown fiat currency
-    private GenericAssetInfo currentFiatCurrency;
+   // the last selected/shown fiat currency
+   private GenericAssetInfo currentFiatCurrency;
 
-    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
-    private GenericAssetInfo currentCurrency;
-    private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
+   // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
+   private GenericAssetInfo currentCurrency;
+   private GenericAssetInfo defaultCurrency = Utils.getBtcCoinType();
 
    public CurrencySwitcher(final ExchangeRateManager exchangeRateManager, final Set<GenericAssetInfo> fiatCurrencies
            , GenericAssetInfo currentCurrency, final Denomination denomination) {
@@ -77,14 +75,10 @@ public class CurrencySwitcher {
       });
       this.fiatCurrencies = currencies;
       this.denomination = denomination;
-
       this.currentCurrency = currentCurrency;
 
-      // if BTC is selected or current currency is not in list of available currencies (e.g. after update)
-      // select a default one or none
-      if (currentCurrency.equals(Utils.getBtcCoinType())
-              || currentCurrency.equals(BchMain.INSTANCE) || currentCurrency.equals(BchTest.INSTANCE)
-              || !fiatCurrencies.contains(currentCurrency)) {
+      // if currentCurrency is not fiat then take as fiat currency first from fiat or null
+      if (!fiatCurrencies.contains(currentCurrency)) {
          if (fiatCurrencies.size() == 0) {
             this.currentFiatCurrency = null;  // no fiat currency selected
          } else {
@@ -130,16 +124,12 @@ public class CurrencySwitcher {
         }
     }
 
-   public List<GenericAssetInfo> getCurrencyList(GenericAssetInfo ... additions) {
+   public List<GenericAssetInfo> getCurrencyList(GenericAssetInfo... additions) {
       //make a copy to prevent others from changing our internal list
       List<GenericAssetInfo> result = new ArrayList<>(fiatCurrencies);
       Collections.addAll(result, additions);
       return result;
    }
-
-    public List<GenericAssetInfo> getCurrencyList(List<GenericAssetInfo> additions) {
-        return getCurrencyList(additions.toArray(new GenericAssetInfo[0]));
-    }
 
    public void setCurrencyList(final Set<GenericAssetInfo> fiatCurrencies) {
       // convert the set to a list and sort it
