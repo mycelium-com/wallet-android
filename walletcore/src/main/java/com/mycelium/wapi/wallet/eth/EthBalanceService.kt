@@ -20,8 +20,8 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val pendingTxObservable: Observable<Balance> = Observable.create<Balance> { observer ->
-        val pendingTxDisposable = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
+    val balanceObservable: Observable<Balance> = Observable.create<Balance> { observer ->
+        web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
                 .subscribe({
                     updateBalanceCache()
                     observer.onNext(balance)

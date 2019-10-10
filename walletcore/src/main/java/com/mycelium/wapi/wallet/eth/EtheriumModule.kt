@@ -86,7 +86,7 @@ class EtheriumModule(
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        (walletAccount as EthAccount).stopSubscriptions()
+        (walletAccount as? EthAccount)?.stopSubscriptions()
         return false
     }
 

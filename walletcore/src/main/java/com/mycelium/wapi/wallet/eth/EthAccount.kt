@@ -41,7 +41,7 @@ class EthAccount(private val credentials: Credentials,
 
     private val ethBalanceService = EthBalanceService(credentials.address, coinType)
 
-    private var pendingTxDisposable: Disposable = subscribeOnPendingTx()
+    private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -83,8 +83,8 @@ class EthAccount(private val credentials: Credentials,
         if (succeed) {
             accountContext.balance = ethBalanceService.balance
             accountListener?.balanceUpdated(this)
-            if (pendingTxDisposable.isDisposed) {
-                pendingTxDisposable = subscribeOnPendingTx()
+            if (balanceDisposable.isDisposed) {
+                balanceDisposable = subscribeOnBalanceUpdates()
             }
         }
         return succeed
@@ -105,7 +105,7 @@ class EthAccount(private val credentials: Credentials,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        pendingTxDisposable.dispose()
+        balanceDisposable.dispose()
     }
 
     override fun activateAccount() {
@@ -152,8 +152,8 @@ class EthAccount(private val credentials: Credentials,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun subscribeOnPendingTx(): Disposable {
-        return ethBalanceService.pendingTxObservable.subscribe({ balance ->
+    private fun subscribeOnBalanceUpdates(): Disposable {
+        return ethBalanceService.balanceObservable.subscribe({ balance ->
             accountContext.balance = balance
             accountListener?.balanceUpdated(this)
         }, {
@@ -162,7 +162,7 @@ class EthAccount(private val credentials: Credentials,
     }
 
     fun stopSubscriptions() {
-        pendingTxDisposable.dispose()
+        balanceDisposable.dispose()
     }
 }
 
