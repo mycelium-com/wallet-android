@@ -43,7 +43,7 @@
             tools:text="(1)" />
     </LinearLayout>
 
-    <com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay
+    <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
         android:id="@+id/tvBalance"
         style="@style/GenericText"
         android:layout_width="wrap_content"

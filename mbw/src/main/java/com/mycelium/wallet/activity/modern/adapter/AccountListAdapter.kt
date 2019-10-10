@@ -172,6 +172,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
                 val sum = getSpendableBalance(listOf(group))
+                groupHolder.tvBalance.coinType = group.coinType
                 groupHolder.tvBalance.setValue(sum)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
@@ -202,7 +203,6 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             refreshList(listModel.accountsData.value!!)
         }
         groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
-        groupHolder.coinType = group.coinType
     }
 
     private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {

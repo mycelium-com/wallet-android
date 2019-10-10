@@ -329,7 +329,6 @@ public class BalanceFragment extends Fragment {
         ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
         // Show alternative values
-        _tcdFiatDisplay.setFiatOnly(true);
         _tcdFiatDisplay.setValue(balance.getSpendable());
 
         // Show/Hide Receiving
