@@ -48,6 +48,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
@@ -67,6 +68,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         get() = currencySwitcher.getAsFiatValue(currentValue)
 
     private var isAddedToBus = false
+    var coinType: CryptoCurrency? = null
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         init(context)
@@ -143,7 +145,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             View.GONE
         } else {
             val value = currencySwitcher.getAsFiatValue(currentValue)
-            tvCurrency.text = currencySwitcher.currentFiatCurrency.symbol
+            tvCurrency.text = currencySwitcher.currentFiatCurrency!!.symbol
             tvDisplayValue.text = value?.toString(currencySwitcher.denomination)
             View.VISIBLE
         }

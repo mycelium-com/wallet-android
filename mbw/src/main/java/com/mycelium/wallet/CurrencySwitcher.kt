@@ -37,7 +37,6 @@ package com.mycelium.wallet
 import com.google.api.client.util.Lists
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.model.ExchangeRate
 import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
@@ -45,9 +44,8 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType
 
 import java.util.ArrayList
 import java.util.Collections
-import java.util.Comparator
 
-class CurrencySwitcher(val exchangeRateManager: ExchangeRateManager, fiatCurrencies: Set<GenericAssetInfo>, currentCurrency: GenericAssetInfo, var denomination: Denomination?) {
+class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fiatCurrencies: Set<GenericAssetInfo>, currentCurrency: GenericAssetInfo, var denomination: Denomination) {
 
     private var fiatCurrencies: List<GenericAssetInfo>? = null
     var walletCurrencies: List<GenericAssetInfo>? = null
@@ -59,35 +57,26 @@ class CurrencySwitcher(val exchangeRateManager: ExchangeRateManager, fiatCurrenc
     // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
     var currentCurrency: GenericAssetInfo? = null
         private set
-    //      Set<GenericAssetInfo> currencies = new HashSet<>(getCurrencyList());
-    //      if (!defaultCurrency.equals(currency.getSymbol())) {
-    //         currencies.remove(defaultCurrency);
-    //         currencies.add(currency);
-    //      }
+
     var defaultCurrency: GenericAssetInfo = Utils.getBtcCoinType()
 
     val currentCurrencyIncludingDenomination: String
         get() = if (currentCurrency is FiatType || currentCurrency is Currency) {
             currentCurrency!!.symbol
         } else {
-            denomination!!.getUnicodeString(currentCurrency!!.symbol)
+            denomination.getUnicodeString(currentCurrency!!.symbol)
         }
 
     init {
         val currencies = Lists.newArrayList(fiatCurrencies)
-        Collections.sort(currencies) { cryptoCurrency, t1 -> cryptoCurrency.symbol.compareTo(t1.symbol) }
+        currencies.sortWith(Comparator { cryptoCurrency, t1 -> cryptoCurrency.symbol.compareTo(t1.symbol) })
         this.fiatCurrencies = currencies
         this.currentCurrency = currentCurrency
 
-        // if currentCurrency is not fiat then take as fiat currency first from fiat or null
-        if (!fiatCurrencies.contains(currentCurrency)) {
-            if (fiatCurrencies.size == 0) {
-                this.currentFiatCurrency = null  // no fiat currency selected
-            } else {
-                this.currentFiatCurrency = currencies[0]
-            }
-        } else {
+        if (isFiatCurrency(currentCurrency)) {
             this.currentFiatCurrency = currentCurrency
+        } else {
+            this.currentFiatCurrency = currencies.firstOrNull()
         }
     }
 
@@ -112,7 +101,7 @@ class CurrencySwitcher(val exchangeRateManager: ExchangeRateManager, fiatCurrenc
     fun setCurrencyList(fiatCurrencies: Set<GenericAssetInfo>) {
         // convert the set to a list and sort it
         val currencies = Lists.newArrayList(fiatCurrencies)
-        Collections.sort(currencies) { abstractAsset, t1 -> abstractAsset.symbol.compareTo(t1.symbol) }
+        currencies.sortWith(Comparator { abstractAsset, t1 -> abstractAsset.symbol.compareTo(t1.symbol) })
 
         //if we de-selected our current active currency, we switch it
         if (!currencies.contains(currentFiatCurrency)) {
@@ -166,7 +155,7 @@ class CurrencySwitcher(val exchangeRateManager: ExchangeRateManager, fiatCurrenc
 
         // check if there is a rate available
         val rate = exchangeRateManager.getExchangeRate(fromCurrency, currentFiatCurrency!!.symbol)
-        return rate != null && rate.price != null
+        return rate?.price != null
     }
 
 
@@ -193,13 +182,14 @@ class CurrencySwitcher(val exchangeRateManager: ExchangeRateManager, fiatCurrenc
     }
 
     fun getValue(sum: ValueSum): Value {
-        var result = Value.zeroValue(currentCurrency!!)
-        for (value in sum.values) {
-            val value1 = exchangeRateManager.get(value, result.type)
-            if (value1 != null) {
-                result = result.plus(value1)
-            }
+        // currentCurrency could be a cryptocurrency itself
+        // don't bother then to get exchange rate, just sum
+        if (currentCurrency!! == sum.values[0].type) {
+            return sum.values.reduce { acc, value -> acc + value }
         }
-        return result
+        return sum.values.mapNotNull {
+            exchangeRateManager.get(it, currentCurrency!!)
+        }.takeIf { it.isNotEmpty() }?.reduce { acc, value -> acc + value }
+                ?: Value.zeroValue(currentCurrency!!)
     }
 }

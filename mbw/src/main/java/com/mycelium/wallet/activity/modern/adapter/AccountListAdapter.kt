@@ -202,6 +202,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             refreshList(listModel.accountsData.value!!)
         }
         groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
+        groupHolder.coinType = group.coinType
     }
 
     private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {

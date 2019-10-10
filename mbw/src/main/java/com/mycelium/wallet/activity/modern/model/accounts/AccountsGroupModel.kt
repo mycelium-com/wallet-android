@@ -1,18 +1,19 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.content.Context
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
 /**
  * Model for the accounts group on the accounts tab.
  */
 class AccountsGroupModel(val titleId: Int, private val groupType: AccountListItem.Type,
-                         val accountsList: List<AccountViewModel>) : AccountListItem {
+                         val accountsList: List<AccountViewModel>, val coinType: CryptoCurrency) : AccountListItem {
     var isCollapsed = false // Is only used to handle state between updates.
 
     /**
      * @param context - context must be passed, as with language change title might change.
      */
-    fun getTitle(context: Context) = context.getString(titleId)!!
+    fun getTitle(context: Context): String = context.getString(titleId)
 
     override fun getType(): AccountListItem.Type = groupType
 
