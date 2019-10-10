@@ -43,11 +43,10 @@ import android.widget.LinearLayout;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -70,10 +69,10 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    }
 
    @Override
-   protected void updateUi(){
+   protected void updateUi() {
       super.updateUi();
 
-      final List<GenericAssetInfo> currencies = getAvailableCurrencyList();
+      final List<GenericAssetInfo> currencies = getAvailableCurrenciesList();
       // there are more than one fiat-currency
       // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -112,14 +111,21 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       setVisibility(currencies.size() == 0 ? View.INVISIBLE : View.VISIBLE);
    }
 
-   private List<GenericAssetInfo> getAvailableCurrencyList() {
+   private List<GenericAssetInfo> getAvailableCurrenciesList() {
       List<GenericAssetInfo> result = new ArrayList<>();
-      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
-              : getCurrencySwitcher().getCurrencyList(Utils.getBtcCoinType());
+      MbwManager mbwManager = MbwManager.getInstance(getContext());
 
-      for (GenericAssetInfo asset : currencies) {
-         Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());
-         if (exchangeValue != null) {
+      if (!getFiatOnly()) {
+         result.add(getCoinType());
+      }
+
+      // add such fiat currencies for which exchange rate is available
+      GenericAssetInfo baseCurrency = getFiatOnly() ?
+              mbwManager.getSelectedAccount().getCoinType() : getCoinType();
+      for (GenericAssetInfo asset : getCurrencySwitcher().getCurrencyList()) {
+         ExchangeRate exchangeRate = mbwManager.getExchangeRateManager()
+                 .getExchangeRate(baseCurrency.getSymbol(), asset.getSymbol());
+         if (exchangeRate != null && exchangeRate.price != null) {
             result.add(asset);
          }
       }
