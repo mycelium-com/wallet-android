@@ -2,6 +2,8 @@ package com.mycelium.wallet.activity.modern.adapter
 
 import android.content.SharedPreferences
 import android.view.LayoutInflater
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.DiffUtil
@@ -118,6 +120,12 @@ class NewsAdapter(val preferences: SharedPreferences)
                 val btnHolder = holder as NewsCategoryBtnHolder
                 val category = item.news?.getCategory()!!
                 btnHolder.text.text = category.name
+                if (NewsUtils.getCategoryIcon(category.name) != 0) {
+                    btnHolder.icon.setImageResource(NewsUtils.getCategoryIcon(category.name))
+                    btnHolder.icon.visibility = VISIBLE
+                } else {
+                    btnHolder.icon.visibility = GONE
+                }
                 btnHolder.itemView.setOnClickListener {
                     categoryClickListener?.invoke(category)
                 }
