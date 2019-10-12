@@ -58,6 +58,8 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
     var currentCurrency: GenericAssetInfo? = null
         private set
 
+    val currentCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo>()
+
     var defaultCurrency: GenericAssetInfo = Utils.getBtcCoinType()
 
     val currentCurrencyIncludingDenomination: String
@@ -173,7 +175,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
      *
      *
      * Returns null if the current rate is too old or for a different currency.
-     * In that the case the caller could choose to call refreshRates() and supply a handler to get a callback.
+     * In that case the caller could choose to call refreshRates() and supply a handler to get a callback.
      */
     @Synchronized
     fun getExchangeRatePrice(fromCurrency: String): Double? {
@@ -181,15 +183,19 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
         return rate?.price
     }
 
-    fun getValue(sum: ValueSum): Value {
-        // currentCurrency could be a cryptocurrency itself
-        // don't bother then to get exchange rate, just sum
-        if (currentCurrency!! == sum.values[0].type) {
+    /**
+     * Converts set of Values (generally consisting of different coin types)
+     * represented by sum to the toCurrency and returns sum of converted values.
+     */
+    fun getValue(sum: ValueSum, toCurrency: GenericAssetInfo): Value {
+        val distinctTypes = sum.values.distinctBy { it.type }
+
+        if (distinctTypes.size == 1 && distinctTypes[0] == toCurrency) {
             return sum.values.reduce { acc, value -> acc + value }
         }
         return sum.values.mapNotNull {
-            exchangeRateManager.get(it, currentCurrency!!)
+            exchangeRateManager.get(it, toCurrency)
         }.takeIf { it.isNotEmpty() }?.reduce { acc, value -> acc + value }
-                ?: Value.zeroValue(currentCurrency!!)
+                ?: Value.zeroValue(toCurrency)
     }
 }

@@ -255,7 +255,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
       } else {
          _amount = _maxSpendableAmount;
-         // set the current shown currency to the amounts currency
+         // set the current shown currency to the amount's currency
          _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
          updateUI();
          checkEntry();
