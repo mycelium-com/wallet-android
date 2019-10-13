@@ -105,8 +105,8 @@
     <string name="export_to_clipboard_warning">Внимание: експортирането на лични данни от сметката в клипборда ги прави достъпни за всички други приложения на устройството Ви.\n\nЗабележка: не е достатъчно да съхраните личните данни в клипборда, трябва след това да ги поставите някъде на сигурно място.\n\nЖелаете ли да продължите?</string>
     <string name="found_clipboard_private_key_title">Частен ключ намерен в клипборда</string>
     <string name="exchange_source_not_available">Обменният курс на %1$s не е наличен</string>
-    <string name="my_own_address_warning">Забележка: изпращате към ваш собствен адрес.</string>
-    <string name="read_only_warning">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Забележка: изпращате към ваш собствен адрес.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добави адрес</string>
     <string name="scan_address_book_desc">Сканиране на биткоин адрес.</string>
     <string name="clipboard_address_book_desc">Прочитане на биткоин адрес от клипборда.</string>

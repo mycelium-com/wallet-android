@@ -258,7 +258,7 @@ public class NoticeFragment extends Fragment {
       }
 
       // delay is still remaining, provide option to abort
-      String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
+      String remaining = Utils.formatBlockcountAsApproxDuration(_mbwManager, resetPinRemainingBlocksCount.or(1));
       new AlertDialog.Builder(getActivity())
               .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
               .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))

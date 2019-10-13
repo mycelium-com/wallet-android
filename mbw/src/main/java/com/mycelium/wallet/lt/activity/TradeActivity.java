@@ -81,7 +81,7 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -868,7 +868,7 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
             Transaction tx = btcTransaction.getTx();
             if (tx == null) {

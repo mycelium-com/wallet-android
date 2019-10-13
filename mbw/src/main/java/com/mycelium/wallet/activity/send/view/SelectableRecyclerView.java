@@ -58,11 +58,13 @@ public class SelectableRecyclerView extends RecyclerView {
         if (getAdapter() == null) {
             return;
         }
-        ((Adapter) getAdapter()).setSelectedItem(selectedItem);
-        scrollListToPosition(selectedItem);
-        if (selectListener != null) {
-            selectListener.onSelect(getAdapter(), selectedItem);
+        if (((Adapter) getAdapter()).getSelectedItem() != selectedItem) {
+            ((Adapter) getAdapter()).setSelectedItem(selectedItem);
+            if (selectListener != null) {
+                selectListener.onSelect(getAdapter(), selectedItem);
+            }
         }
+        scrollListToPosition(selectedItem);
     }
 
     public void setSelectedItem(Object selected) {

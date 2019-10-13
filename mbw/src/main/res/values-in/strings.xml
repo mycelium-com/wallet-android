@@ -81,7 +81,7 @@
     <string name="delete">Hapus</string>
     <string name="payment_request">Permintaan Pembayaran</string>
     <string name="found_clipboard_private_key_title">Private Key ditemukan di Clipboard</string>
-    <string name="my_own_address_warning">Note: Anda mengirim ke salah satu alamat anda.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: Anda mengirim ke salah satu alamat anda.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Menambahkan Alamat</string>
     <string name="scan_address_book_desc">Memindai alamat Bitcoin.</string>
     <string name="clipboard_address_book_desc">Mendapatkan alamat Bitcoin dari Clipboard.</string>

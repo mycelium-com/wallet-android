@@ -106,9 +106,9 @@ public class FeeLvlViewAdapter extends SelectableRecyclerView.Adapter<FeeLvlView
 
         public ViewHolder(View v, FeeLvlViewAdapter adapter) {
             super(v);
-            categoryTextView = (TextView) v.findViewById(R.id.categorytextView);
-            itemTextView = (TextView) v.findViewById(R.id.itemTextView);
-            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+            categoryTextView = v.findViewById(R.id.categorytextView);
+            itemTextView = v.findViewById(R.id.itemTextView);
+            valueTextView = v.findViewById(R.id.valueTextView);
             this.adapter = adapter;
         }
     }

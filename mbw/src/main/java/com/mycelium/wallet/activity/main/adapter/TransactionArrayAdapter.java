@@ -14,6 +14,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -33,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIAT_VALUE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
@@ -65,7 +65,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       _storage = _mbwManager.getMetadataStorage();
       _addressBook = addressBook;
       _alwaysShowAddress = alwaysShowAddress;
-      transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+      transactionFiatValuePref = context.getSharedPreferences(SendCoinsActivity.TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
       SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
       exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());

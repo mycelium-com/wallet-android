@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_activity">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <!-- Transaction Label -->
+    <merge>
+
+        <TextView
+            android:id="@+id/tvTransactionLabelTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transaction_label_title"
+            android:visibility="@{viewModel.transactionLabel.isEmpty() ? View.GONE : View.VISIBLE }"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvTransactionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:text="@{viewModel.transactionLabel}"
+            android:visibility="@{viewModel.transactionLabel.isEmpty() ? View.GONE : View.VISIBLE }"
+            android:typeface="monospace" />
+    </merge>
+</layout>
