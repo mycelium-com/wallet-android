@@ -757,10 +757,8 @@
     <string name="credit_card_buy_description">Купить Bitcoin кредитной картой</string>
     <string name="credit_card_buy_setting_description">Купить Bitcoin кредитной картой</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
     <string name="error_details">Сведения об ошибке</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <string name="si_loading">загрузка…</string>
     <!-- Simplex end -->

@@ -705,12 +705,10 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="credit_card_buy_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
     <string name="credit_card_buy_setting_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Bitcoin kaufen/verkaufen</string>
     <string name="error_details">Fehlerdetails</string>
     <string name="warning_sync_failed_reusing_first">Synchronisierung fehlgeschlagen! Verwende Adresse Nr. 1 von diesem xPub wieder!</string>
     <string name="tap_to_toggle_through_other_currencies">Tippen, um durch andere Währungen zu wechseln</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">%1$s aktivieren</string>
     <!-- Simplex start -->
     <!-- Simplex end -->

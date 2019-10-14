@@ -724,12 +724,10 @@
     <string name="credit_card_buy_description">Koupit bitcoiny kreditní kartou</string>
     <string name="credit_card_buy_setting_description">Koupit bitcoiny kreditní kartou</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
     <string name="error_details">Podrobnosti chyby</string>
     <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
     <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">Povolit %1$s</string>
     <!-- Simplex start -->
     <!-- Simplex end -->

@@ -326,9 +326,7 @@
     <string name="buy_one">Beli satu&#8230;</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Jual / Beli Bitcoin</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

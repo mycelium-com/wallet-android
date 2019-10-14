@@ -689,9 +689,7 @@
     <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="error_details">Detalles del error</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <plurals name="contains_keys">

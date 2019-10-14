@@ -720,11 +720,9 @@
     <string name="mycelium_terms_of_use">Mycelium使用條款</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">買/賣比特幣</string>
     <string name="error_details">錯誤詳細資訊</string>
     <string name="warning_sync_failed_reusing_first">同步失敗 ！重用此 xpub #1地址 ！</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

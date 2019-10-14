@@ -725,12 +725,10 @@
     <string name="mycelium_terms_of_use">Mycelium使用条款</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">买/卖比特币</string>
     <string name="error_details">详细错误信息</string>
     <string name="warning_sync_failed_reusing_first">同步失败 ！重用此 xpub #1 地址 ！</string>
     <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="label_single_key_icon">单一密钥</string>

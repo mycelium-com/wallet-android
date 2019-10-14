@@ -692,10 +692,8 @@
     <string name="credit_card_buy_description">Compra bitcoin con carta di credito</string>
     <string name="credit_card_buy_setting_description">Compra bitcoin usando una carta di credito</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Compra / Vendi bitcoin</string>
     <string name="error_details">Dettagli dell\'errore</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">Attiva %1$s</string>
     <!-- Simplex start -->
     <string name="si_buy_sell">Carta di credito</string>

@@ -704,10 +704,8 @@
     <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Comprar / Vender Bitcoin</string>
     <string name="error_details">Detalhes do erro</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="label_use_device_location">usar localização do dispositivo</string>

@@ -720,12 +720,10 @@
     <string name="credit_card_buy_description">Acheter Bitcoin avec une carte de crédit</string>
     <string name="credit_card_buy_setting_description">Acheter Bitcoin à l’aide de la carte de crédit</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Acheter / Vendre Bitcoin</string>
     <string name="error_details">Détails de l’erreur</string>
     <string name="warning_sync_failed_reusing_first">Échec de la synchronisation ! Réutilisation de l’adresse n ° 1 de cette xpub !</string>
     <string name="tap_to_toggle_through_other_currencies">Appuyez pour alterner entre les autres monnaies</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">Activez %1$s</string>
     <!-- Simplex start -->
     <string name="si_buy_sell">Carte de Crédit</string>
