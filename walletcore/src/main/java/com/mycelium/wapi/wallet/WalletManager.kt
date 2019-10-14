@@ -34,9 +34,6 @@ constructor(val network: NetworkParameters,
 
     var state: State = State.OFF
 
-    @Volatile
-    private var activeAccountId: UUID? = null
-
     fun add(walletModule: WalletModule) = walletModules.put(walletModule.getId(), walletModule)
 
     fun remove(walletModule: WalletModule) = walletModules.remove(walletModule.getId())
@@ -122,22 +119,13 @@ constructor(val network: NetworkParameters,
         Thread(Synchronizer(this, mode, accounts)).start()
     }
 
-    fun startSynchronization(acc: UUID): Boolean {
-        val activeAccount = getAccount(acc)
-                ?: return false
+    fun startSynchronization(acc: UUID?): Boolean {
+        val activeAccount = getAccount(acc ?: return false) ?: return false
         startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
         return isNetworkConnected
     }
 
     fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
-
-    fun setActiveAccount(accountId: UUID) {
-        activeAccountId = accountId
-        if (hasAccount(accountId)) {
-            // this account might not be synchronized - start a background sync
-            startSynchronization(SyncMode.NORMAL)
-        }
-    }
 
     /**
      * Determine whether this address is managed by an account of the wallet
