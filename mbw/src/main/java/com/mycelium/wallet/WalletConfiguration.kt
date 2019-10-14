@@ -25,18 +25,16 @@ interface  MyceliumNodesApi {
     fun getNodes(): Call<MyceliumNodesResponse>
 }
 
-// A set of classes for parsing nodes.json file
+// A set of classes for parsing nodes-b.json file
 
-// MyceliumNodesResponse is intended for parsing nodes.json file
+// MyceliumNodesResponse is intended for parsing nodes-b.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?)
 
 data class PartnerInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
 
-const val ONION_DOMAIN = ".onion"
-
-// BTCNetResponse is intended for parsing nodes.json file
+// BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
@@ -56,7 +54,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         updateConfig()
     }
 
-    // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
+    // Makes a request to S3 storage to retrieve nodes-b.json and parses it to extract electrum servers list
     fun updateConfig() {
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
@@ -84,7 +82,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
@@ -118,7 +115,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
-        var resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
+        val resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
         return resp.map {
             if (it.url.contains(ONION_DOMAIN)) {
                 TorHttpsEndpoint(it.url, it.cert)
@@ -137,6 +134,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"
 
