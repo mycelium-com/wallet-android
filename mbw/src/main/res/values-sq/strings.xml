@@ -586,11 +586,6 @@
     <string name="label_cold_storage_external_signing">Firmos me:</string>
     <string name="spending_unconfirmed_title">Duke shpenzuar fonde të pakonfirmuara</string>
     <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
-    <string name="coinapult_mail_verification_description">Ju lutem vendosni linkun e verifikimit nga Coinapult email në fushën më poshtë.</string>
-    <string name="coinapult_mail_verification_hint">vendosni komplet linkun e verifikimit</string>
-    <string name="coinapult_tos_link">Hapë Termat dhe Kushtet të Coinapult</string>
-    <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
-    <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->

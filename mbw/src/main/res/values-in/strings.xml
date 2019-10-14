@@ -307,17 +307,6 @@
     <string name="cancel_transaction">Batalkan transaksi</string>
     <string name="transaction_history_title">Riwayat Transaksi</string>
     <string name="menu_item_cancel_transaction">Batalkan transaksi</string>
-    <string name="coinapult_sending_via_coinapult">Mengirim Bitcoins lewat Coinapult</string>
-    <string name="coinapult_mail_hint">Masukkan alamat email</string>
-    <string name="coinapult_setting_email">Mengirim alamat email ke Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_menu_title">Verifikasi alamat email</string>
-    <string name="coinapult_mail_verification">Verifikasi alamat email coinapult anda</string>
-    <string name="coinapult_verifying_email">Mengirim link verifikasi ke coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Alamat email coinapult anda sukses diverifikasi.</string>
-    <string name="coinapult_unable_to_create_account">Tidak dapat membiat akun coinapult</string>
-    <string name="coinapult_tos_link">Buka Syarat dan Ketentuan Coinapult</string>
-    <string name="coinapult_create_account">Membuat akun Coinapult&#8230;</string>
-    <string name="coinapult_currency_account">%1$s Akun</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->

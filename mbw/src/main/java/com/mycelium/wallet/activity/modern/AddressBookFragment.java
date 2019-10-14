@@ -56,7 +56,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -74,14 +73,9 @@ import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -179,9 +173,7 @@ public class AddressBookFragment extends Fragment {
             String name = mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
             Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
             if (account.getReceiveAddress() != null &&
-                    (selectedAccount instanceof CoinapultAccount && isBtcOrCoinapult(account)
-                            || isBtcAccount(selectedAccount) && account instanceof CoinapultAccount
-                            || selectedAccount.getCoinType().equals(account.getCoinType()))
+                    selectedAccount.getCoinType().equals(account.getCoinType())
             ) {
                     entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
@@ -195,14 +187,6 @@ public class AddressBookFragment extends Fragment {
             ListView list = (ListView) findViewById(R.id.lvForeignAddresses);
             list.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_my_address_row, entries));
         }
-    }
-
-    private boolean isBtcAccount(WalletAccount account) {
-        return account.getCoinType().equals(BitcoinMain.get()) || account.getCoinType().equals(BitcoinTest.get());
-    }
-
-    private boolean isBtcOrCoinapult(WalletAccount account) {
-        return account instanceof CoinapultAccount || isBtcAccount(account);
     }
 
     private void updateUiForeign() {
