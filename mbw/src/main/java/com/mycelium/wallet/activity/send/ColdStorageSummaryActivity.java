@@ -137,14 +137,14 @@ public class ColdStorageSummaryActivity extends Activity {
       // BalanceSatoshis
       ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
 
-      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType().getSymbol());
+      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType());
 
       // Fiat
       TextView tvFiat = findViewById(R.id.tvFiat);
       if (!_mbwManager.hasFiatCurrency() || price == null) {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
-         GenericAssetInfo currency = _mbwManager.getFiatCurrency();
+         GenericAssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
          String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable()
                  , currency).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency.getSymbol()

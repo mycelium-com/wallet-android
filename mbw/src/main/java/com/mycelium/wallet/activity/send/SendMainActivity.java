@@ -511,7 +511,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     private void initFeeView() {
         feeValueList.setHasFixedSize(true);
         feeViewAdapter = new FeeViewAdapter(feeFirstItemWidth);
-        feeItemsBuilder = new FeeItemsBuilder(_mbwManager.getExchangeRateManager(), _mbwManager.getFiatCurrency());
+        feeItemsBuilder = new FeeItemsBuilder(_mbwManager.getExchangeRateManager(),
+                _mbwManager.getFiatCurrency(_account.getCoinType()));
         feeValueList.setAdapter(feeViewAdapter);
         feeValueList.setSelectedItem(selectedFee);
         feeValueList.setSelectListener(new SelectListener() {
@@ -997,7 +998,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         Value primaryAmount = _amountToSend;
                         Value alternativeAmount = _mbwManager.getExchangeRateManager().get(primaryAmount,
                                 primaryAmount.type.equals(_account.getCoinType())
-                                        ? _mbwManager.getFiatCurrency() : _account.getCoinType());
+                                        ? _mbwManager.getFiatCurrency(_account.getCoinType()) : _account.getCoinType());
                         String sendAmount = ValueExtensionsKt.toStringWithUnit(primaryAmount, _mbwManager.getDenomination());
                         if (!primaryAmount.getCurrencySymbol().equals(Utils.getBtcCoinType().getSymbol())) {
                             // if the amount is not in BTC, show a ~ to inform the user, its only approximate and depends
@@ -1114,7 +1115,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 long fee = unsigned.calculateFee();
                 if (fee != size * selectedFee.value / 1000) {
                     Value value = Value.valueOf(_account.getCoinType(), fee);
-                    Value fiatValue = _mbwManager.getExchangeRateManager().get(value, _mbwManager.getFiatCurrency());
+                    Value fiatValue = _mbwManager.getExchangeRateManager().get(value,
+                            _mbwManager.getFiatCurrency(_account.getCoinType()));
                     String fiat = "";
                     if (fiatValue != null) {
                         fiat = ValueExtensionsKt.toStringWithUnit(fiatValue, _mbwManager.getDenomination());
@@ -1145,7 +1147,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         MbwManager.getEventBus().register(this);
 
         // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-        if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType().getSymbol())) {
+        if (!_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
 
@@ -1338,7 +1340,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     }
 
     private String getFiatValue() {
-        Value fiat = _mbwManager.getExchangeRateManager().get(_amountToSend, _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency());
+        Value fiat = _mbwManager.getExchangeRateManager().get(_amountToSend,
+                _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency(_account.getCoinType()));
         return fiat != null ? ValueExtensionsKt.toStringWithUnit(fiat) : null;
     }
 

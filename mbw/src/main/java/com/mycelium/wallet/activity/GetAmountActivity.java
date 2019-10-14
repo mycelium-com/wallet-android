@@ -165,7 +165,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       mainCurrencyType = (CryptoCurrency) getIntent().getSerializableExtra(BASIC_CURRENCY);
 
       _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType);
-      _mbwManager.getCurrencySwitcher().setCurrency(mainCurrencyType);
+      _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), mainCurrencyType);
 
       initNumberEntry(savedInstanceState);
       if (isSendMode) {
@@ -231,7 +231,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          asset = _amount != null && _amount.getCurrencySymbol() != null ? _amount.type : _account.getCoinType();
          amountString = "";
       }
-      _mbwManager.getCurrencySwitcher().setCurrency(asset);
+      _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), asset);
       _numberEntry = new NumberEntry(getMaxDecimal(asset), this, this, amountString);
    }
 
@@ -256,7 +256,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       } else {
          _amount = _maxSpendableAmount;
          // set the current shown currency to the amount's currency
-         _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
+         _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), _amount.type);
          updateUI();
          checkEntry();
       }
@@ -275,7 +275,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
             public boolean onMenuItemClick(MenuItem menuItem) {
                for (GenericAssetInfo genericAssetInfo : currencyList) {
                   if (menuItem.getTitle().equals(genericAssetInfo.getSymbol())) {
-                     _mbwManager.getCurrencySwitcher().setCurrency(genericAssetInfo);
+                     _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), genericAssetInfo);
                      if (_amount != null) {
                         _amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, genericAssetInfo);
                      }
@@ -307,7 +307,8 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          return;
       }
       setEnteredAmount(clipboardValue);
-      _numberEntry.setEntry(_amount.getValueAsBigDecimal(), getMaxDecimal(_mbwManager.getCurrencySwitcher().getCurrentCurrency()));
+      _numberEntry.setEntry(_amount.getValueAsBigDecimal(), getMaxDecimal(_mbwManager
+              .getCurrencySwitcher().getCurrentCurrency(_account.getCoinType())));
    }
 
    @OnClick(R.id.tvHowIsItCalculated)
@@ -348,12 +349,12 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
       currencyDropDown.setVisibility(getAvailableCurrencyList().size() > 1 ? View.VISIBLE : View.GONE);
       CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-      btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination());
+      btCurrency.setText(currencySwitcher.getCurrentCurrencyIncludingDenomination(_account.getCoinType()));
       if (_amount != null) {
          // Set current currency name button
          //update amount
          BigDecimal newAmount;
-         if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
+         if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
             int toTargetUnit = _mbwManager.getDenomination().getScale();
@@ -370,9 +371,9 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _mbwManager.getCurrencySwitcher().getCurrentCurrency());
+      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()));
       String maxBalanceString = getResources().getString(R.string.max_btc
-              , ValueExtensionsKt.toStringWithUnit(maxSpendable != null ? maxSpendable : Value.zeroValue(_mbwManager.getCurrencySwitcher().getCurrentCurrency()), _mbwManager.getDenomination()));
+              , ValueExtensionsKt.toStringWithUnit(maxSpendable != null ? maxSpendable : Value.zeroValue(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType())), _mbwManager.getDenomination()));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -394,7 +395,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    protected void onPause() {
       MbwManager.getEventBus().unregister(this);
       CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-      currencySwitcher.setCurrency(currencySwitcher.getCurrentCurrency());
+      currencySwitcher.setCurrency(_account.getCoinType(), currencySwitcher.getCurrentCurrencyMap().get(_account.getCoinType()));
       super.onPause();
    }
 
@@ -410,15 +411,15 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    private void setEnteredAmount(String value) {
       try {
-         Value val = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(value);
+         Value val = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(value);
          CurrencySwitcher currencySwitcher = _mbwManager.getCurrencySwitcher();
-         if (currencySwitcher.getCurrentCurrency() instanceof FiatType) {
+         if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             _amount = val;
          } else {
             _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
          }
       }catch (NumberFormatException e){
-         _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency().value(0);
+         _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(0);
       }
 
       if (isSendMode) {
@@ -433,14 +434,14 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       tvAmount.setText(amountText);
       // Set alternate amount if we can
       if (!_mbwManager.hasFiatCurrency()
-              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType().getSymbol())
+              || !_mbwManager.getCurrencySwitcher().isFiatExchangeRateAvailable(_account.getCoinType())
               || Value.isNullOrZero(_amount)) {
          tvAlternateAmount.setText("");
       } else {
          Value convertedAmount;
-         if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+         if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
             // Show Fiat as alternate amount
-            GenericAssetInfo currency = _mbwManager.getFiatCurrency();
+            GenericAssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
             convertedAmount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, currency);
          } else {
             try {
@@ -528,7 +529,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       // Check whether we have sufficient funds, and whether the output is too small
       Value amount = _amount;
       // if _amount is not in account's currency then convert to account's currency before checking amount
-      if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+      if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
          amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType);
       }
       checkSendAmount(amount, new CheckListener() {
@@ -540,7 +541,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                tvAmount.setTextColor(getResources().getColor(R.color.red));
                Value amount = _amount;
                // if _amount is not in account's currency then convert to account's currency before checking amount
-               if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency())) {
+               if (!mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
                   amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType);
                }
                if (result == AmountValidation.NotEnoughFunds) {
@@ -582,7 +583,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    private void updateExchangeRateDisplay() {
       if(_amount != null) {
-         Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType().getSymbol());
+         Double exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType());
          if (exchangeRatePrice != null) {
             updateAmountsDisplay(_numberEntry.getEntry());
          }

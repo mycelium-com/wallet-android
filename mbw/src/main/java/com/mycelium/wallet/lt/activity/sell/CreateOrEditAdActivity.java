@@ -160,7 +160,7 @@ public class CreateOrEditAdActivity extends Activity {
       String description = isEdit() ? _ad.description : null;
       PriceFormula priceFormula = isEdit() ? _ad.priceFormula : null;
       _location = isEdit() ? _ad.location : _ltManager.getUserLocation();
-      _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency().getSymbol();
+      _currency = isEdit() ? _ad.currency : _mbwManager.getFiatCurrency(Utils.getBtcCoinType()).getSymbol();
       if (_currency.equals("")) {
          //lt without fiat is pointless, if there is none, revert to usd
          _currency = "USD";

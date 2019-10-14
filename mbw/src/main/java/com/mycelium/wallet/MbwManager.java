@@ -791,8 +791,8 @@ public class MbwManager {
         return migrationProgressTracker;
     }
 
-    public GenericAssetInfo getFiatCurrency() {
-        return _currencySwitcher.getCurrentFiatCurrency();
+    public GenericAssetInfo getFiatCurrency(GenericAssetInfo coinType) {
+        return _currencySwitcher.getCurrentFiatCurrency(coinType);
     }
 
     public boolean hasFiatCurrency() {
@@ -1402,7 +1402,7 @@ public class MbwManager {
 
     @Subscribe
     public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
+        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getSymbol()).apply();
     }
 
     @Subscribe

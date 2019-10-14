@@ -111,7 +111,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher()
+              .getCurrentFiatCurrency(_mbwManager.getSelectedAccount().getCoinType());
 
       if (alternativeCurrency != null) {
          Value recordValue = record.getTransferred().abs();

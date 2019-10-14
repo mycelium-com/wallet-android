@@ -173,7 +173,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 buildGroupBase(group, groupHolder)
                 val sum = getSpendableBalance(listOf(group))
                 groupHolder.tvBalance.coinType = group.coinType
-                groupHolder.tvBalance.setValue(sum)
+                groupHolder.tvBalance.setValue(sum, totalBalance = false)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
@@ -184,7 +184,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             TOTAL_BALANCE_TYPE -> {
                 val totalHolder = holder as TotalViewHolder
                 val sum = (item as TotalViewModel).balance
-                totalHolder.tcdBalance.setValue(sum)
+                totalHolder.tcdBalance.setValue(sum, totalBalance = true)
             }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")
         }

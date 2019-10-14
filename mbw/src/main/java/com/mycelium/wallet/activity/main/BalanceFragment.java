@@ -170,9 +170,11 @@ public class BalanceFragment extends Fragment {
 
         for (int i = 0; i < sources.size(); i++) {
             String source = sources.get(i);
-            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(selectedAccount.getCoinType().getSymbol(), _mbwManager.getFiatCurrency().getSymbol(), source);
+            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(selectedAccount.getCoinType().getSymbol(),
+                    _mbwManager.getFiatCurrency(selectedAccount.getCoinType()).getSymbol(), source);
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
-                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
+                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() +
+                    " " + _mbwManager.getFiatCurrency(selectedAccount.getCoinType()).getSymbol();
             String item;
             if (selectedAccount instanceof ColuAccount) {
                 item = COINMARKETCAP + "/" + source;
@@ -215,7 +217,7 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onStart() {
         MbwManager.getEventBus().register(this);
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         if (_exchangeRatePrice == null) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
@@ -297,6 +299,7 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
+        _tcdFiatDisplay.setCoinType(account.getCoinType());
         updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
 
         TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
@@ -307,7 +310,8 @@ public class BalanceFragment extends Fragment {
             tvBtcRate.setVisibility(View.INVISIBLE);
             exchangeSourceLayout.setVisibility(View.GONE);
         } else {
-            Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(), _mbwManager.getFiatCurrency());
+            Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(),
+                    _mbwManager.getFiatCurrency(account.getCoinType()));
             if (value == null) {
                 // We have no price, exchange not available
                 tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
@@ -315,7 +319,7 @@ public class BalanceFragment extends Fragment {
             } else {
                 tvBtcRate.setText(getResources().getString(R.string.balance_rate
                         , account.getCoinType().getSymbol()
-                        , _mbwManager.getFiatCurrency().getSymbol()
+                        , _mbwManager.getFiatCurrency(account.getCoinType()).getSymbol()
                         , ValueExtensionsKt.toString(value)));
             }
             tvBtcRate.setVisibility(View.VISIBLE);
@@ -369,7 +373,8 @@ public class BalanceFragment extends Fragment {
         } else {
             try {
                 tv.setVisibility(View.VISIBLE);
-                Value converted = _mbwManager.getExchangeRateManager().get(value,  _mbwManager.getFiatCurrency());
+                Value converted = _mbwManager.getExchangeRateManager().get(value,
+                        _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                 tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
             } catch (IllegalArgumentException ex) {
                 // something failed while calculating the bitcoin amount
@@ -456,20 +461,20 @@ public class BalanceFragment extends Fragment {
 
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
         updateExchangeSourceMenu();
     }
 
     @Subscribe
     public void exchangeSourceChanged(ExchangeSourceChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
     }
 
     @Subscribe
     public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
         updateExchangeSourceMenu();
     }

@@ -287,11 +287,15 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             long totalAmount = requestInformation.getOutputs().getTotalAmount();
             tvAmount.setText(mbw.getBtcValueString(totalAmount));
             CurrencySwitcher currencySwitcher = mbw.getCurrencySwitcher();
-            if (currencySwitcher.isFiatExchangeRateAvailable(Utils.getBtcCoinType().getSymbol())){
+            if (currencySwitcher.isFiatExchangeRateAvailable(Utils.getBtcCoinType())){
                tvFiatAmount.setVisibility(View.VISIBLE);
                Value btcValue = Utils.getBtcCoinType().value(totalAmount);
                Value fiatValue = currencySwitcher.getAsFiatValue(btcValue);
-               tvFiatAmount.setText(String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue)));
+               String fiatAppendment = "";
+               if (fiatValue != null) {
+                  fiatAppendment = String.format("(~%s)", ValueExtensionsKt.toStringWithUnit(fiatValue));
+               }
+               tvFiatAmount.setText(fiatAppendment);
             } else {
                tvFiatAmount.setVisibility(View.GONE);
             }

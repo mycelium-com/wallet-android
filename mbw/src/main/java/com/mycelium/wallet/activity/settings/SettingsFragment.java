@@ -873,7 +873,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (_mbwManager.hasFiatCurrency()) {
-            GenericAssetInfo currentCurrency = _mbwManager.getFiatCurrency();
+            GenericAssetInfo currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
             String currencies = currentCurrency.getSymbol();
             List<GenericAssetInfo> currencyList = _mbwManager.getCurrencyList();
             currencyList.remove(currentCurrency);

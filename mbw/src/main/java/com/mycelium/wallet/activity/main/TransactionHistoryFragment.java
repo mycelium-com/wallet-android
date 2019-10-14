@@ -667,7 +667,8 @@ public class TransactionHistoryFragment extends Fragment {
                long txFee = unsigned.calculateFee();
                Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
                String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
-               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
+               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
+                       _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                if(!Value.isNullOrZero(txFeeCurrencyValue)) {
                   txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
                }

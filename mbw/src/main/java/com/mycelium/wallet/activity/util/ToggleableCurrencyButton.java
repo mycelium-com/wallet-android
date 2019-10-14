@@ -97,7 +97,11 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               getCurrencySwitcher().setCurrency(itemMap.get(item));
+               if (getCoinType() == null) { // then it's a total TCB
+                  getCurrencySwitcher().setCurrentTotalCurrency(itemMap.get(item));
+               } else { // else it's a currency group TCB
+                  getCurrencySwitcher().setCurrency(getCoinType(), itemMap.get(item));
+               }
                if (MbwManager.getEventBus() != null) {
                   // update UI via event bus, also inform other parts of the app about the change
                   MbwManager.getEventBus().post(new SelectedCurrencyChanged());

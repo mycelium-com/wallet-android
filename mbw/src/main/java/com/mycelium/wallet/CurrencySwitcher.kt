@@ -49,44 +49,51 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
 
     private var fiatCurrencies: List<GenericAssetInfo>? = null
     var walletCurrencies: List<GenericAssetInfo>? = null
+        set(walletAssetTypes) {
+            field = walletAssetTypes
+            walletAssetTypes?.filterNot { currentCurrencyMap.containsKey(it) }.orEmpty()
+                    .forEach { asset ->
+                        currentCurrencyMap[asset] = asset
+                        currentFiatCurrencyMap[asset] = currentTotalCurrency
+                    }
+        }
 
-    // the last selected/shown fiat currency
-    var currentFiatCurrency: GenericAssetInfo? = null
-        private set
+    // general fiat currency equals the last selected currency in total balance for all currency groups
+    var currentTotalCurrency: GenericAssetInfo? = null
 
-    // the last shown currency (usually same as fiat currency, but in some spots we cycle through all currencies including Bitcoin)
-    var currentCurrency: GenericAssetInfo? = null
-        private set
-
-    val currentCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo>()
+    // the last selected currency for each currency group that user has
+    val currentCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
+    val currentFiatCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
 
     var defaultCurrency: GenericAssetInfo = Utils.getBtcCoinType()
-
-    val currentCurrencyIncludingDenomination: String
-        get() = if (currentCurrency is FiatType || currentCurrency is Currency) {
-            currentCurrency!!.symbol
-        } else {
-            denomination.getUnicodeString(currentCurrency!!.symbol)
-        }
 
     init {
         val currencies = Lists.newArrayList(fiatCurrencies)
         currencies.sortWith(Comparator { cryptoCurrency, t1 -> cryptoCurrency.symbol.compareTo(t1.symbol) })
-        this.fiatCurrencies = currencies
-        this.currentCurrency = currentCurrency
+        currentTotalCurrency = currentCurrency
+    }
 
-        if (isFiatCurrency(currentCurrency)) {
-            this.currentFiatCurrency = currentCurrency
+    fun getCurrentCurrency(coinType: GenericAssetInfo): GenericAssetInfo? {
+        return currentCurrencyMap[coinType]
+    }
+
+    fun getCurrentFiatCurrency(coinType: GenericAssetInfo): GenericAssetInfo? {
+        return currentFiatCurrencyMap[coinType]
+    }
+
+    fun getCurrentCurrencyIncludingDenomination(coinType: GenericAssetInfo): String {
+        return if (currentCurrencyMap[coinType] is FiatType || currentCurrencyMap[coinType] is Currency) {
+            currentCurrencyMap[coinType]!!.symbol
         } else {
-            this.currentFiatCurrency = currencies.firstOrNull()
+            denomination.getUnicodeString(currentCurrencyMap[coinType]!!.symbol)
         }
     }
 
-    fun setCurrency(setToCurrency: GenericAssetInfo?) {
+    fun setCurrency(coinType: GenericAssetInfo, setToCurrency: GenericAssetInfo?) {
         if (isFiatCurrency(setToCurrency)) {
-            currentFiatCurrency = setToCurrency
+            currentFiatCurrencyMap[coinType] = setToCurrency
         }
-        currentCurrency = setToCurrency
+        currentCurrencyMap[coinType] = setToCurrency
     }
 
     fun isFiatCurrency(currency: GenericAssetInfo?): Boolean {
@@ -106,14 +113,14 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
         currencies.sortWith(Comparator { abstractAsset, t1 -> abstractAsset.symbol.compareTo(t1.symbol) })
 
         //if we de-selected our current active currency, we switch it
-        if (!currencies.contains(currentFiatCurrency)) {
-            if (currencies.isEmpty()) {
-                //no fiat
-                setCurrency(null)
-            } else {
-                setCurrency(currencies[0])
+        if (!currencies.contains(currentTotalCurrency)) {
+            currentTotalCurrency = currencies.firstOrNull()
+            currentCurrencyMap.filterValues { currCurrency -> !currencies.contains(currCurrency) }
+                    .keys.forEach { coinType ->
+                setCurrency(coinType, currencies.firstOrNull())
             }
         }
+
         //copy to prevent changes by caller
         this.fiatCurrencies = ArrayList(currencies)
     }
@@ -123,51 +130,54 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
 
         //just to be sure we dont cycle through a single one
         if (!includeBitcoin && currencies.size <= 1) {
-            return currentFiatCurrency
+            return currentFiatCurrencyMap[Utils.getBtcCoinType()]
         }
 
-        var index = currencies.indexOf(currentCurrency)
+        var index = currencies.indexOf(currentCurrencyMap[Utils.getBtcCoinType()])
         index++ //hop one forward
 
         if (index >= currencies.size) {
             // we are at the end of the fiat-list. return BTC if we should include Bitcoin, otherwise wrap around
             if (includeBitcoin) {
                 // only set currentCurrency, but leave currentFiat currency as it was
-                currentCurrency = defaultCurrency
+                currentCurrencyMap[Utils.getBtcCoinType()] = defaultCurrency
             } else {
                 index -= currencies.size //wrap around
-                currentCurrency = currencies[index]
-                currentFiatCurrency = currentCurrency
+                currentCurrencyMap[Utils.getBtcCoinType()] = currencies[index]
+                currentFiatCurrencyMap[Utils.getBtcCoinType()] = currentCurrencyMap[Utils.getBtcCoinType()]
             }
         } else {
-            currentCurrency = currencies[index]
-            currentFiatCurrency = currentCurrency
+            currentCurrencyMap[Utils.getBtcCoinType()] = currencies[index]
+            currentFiatCurrencyMap[Utils.getBtcCoinType()] = currentCurrencyMap[Utils.getBtcCoinType()]
         }
 
         exchangeRateManager.requestOptionalRefresh()
 
-        return currentCurrency
+        return currentCurrencyMap[Utils.getBtcCoinType()]
     }
 
-    fun isFiatExchangeRateAvailable(fromCurrency: String): Boolean {
-        if (currentFiatCurrency == null) {
+    fun isFiatExchangeRateAvailable(fromCurrency: GenericAssetInfo): Boolean {
+        if (currentFiatCurrencyMap[fromCurrency] == null) {
             // we dont even have a fiat currency...
             return false
         }
 
         // check if there is a rate available
-        val rate = exchangeRateManager.getExchangeRate(fromCurrency, currentFiatCurrency!!.symbol)
+        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, currentFiatCurrencyMap[fromCurrency]!!.symbol)
         return rate?.price != null
     }
 
 
     fun getAsFiatValue(value: Value?): Value? {
+        if (isFiatCurrency(value?.type)) {
+            return value
+        }
         if (value == null) {
             return null
         }
-        return if (currentFiatCurrency == null) {
+        return if (currentFiatCurrencyMap[value.type] == null) {
             null
-        } else exchangeRateManager.get(value, currentFiatCurrency!!)
+        } else exchangeRateManager.get(value, currentFiatCurrencyMap[value.type]!!)
     }
 
     /**
@@ -178,8 +188,8 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
      * In that case the caller could choose to call refreshRates() and supply a handler to get a callback.
      */
     @Synchronized
-    fun getExchangeRatePrice(fromCurrency: String): Double? {
-        val rate = exchangeRateManager.getExchangeRate(fromCurrency, currentFiatCurrency!!.symbol)
+    fun getExchangeRatePrice(fromCurrency: GenericAssetInfo): Double? {
+        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, currentFiatCurrencyMap[fromCurrency]!!.symbol)
         return rate?.price
     }
 
