@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Application
+import android.content.Intent
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.wallet.GenericAddress
@@ -16,11 +17,8 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 
 class SendCoinapultModel(context: Application,
                          account: WalletAccount<*>,
-                         amount: Value?,
-                         receivingAddress: GenericAddress?,
-                         transactionLabel: String?,
-                         isColdStorage: Boolean)
-    : SendCoinsModel(context, account, amount, receivingAddress, transactionLabel, isColdStorage) {
+                         intent: Intent)
+    : SendCoinsModel(context, account, intent) {
 
     // Handles BTC payment request
     @Throws(GenericBuildTransactionException::class, GenericInsufficientFundsException::class, GenericOutputTooSmallException::class)

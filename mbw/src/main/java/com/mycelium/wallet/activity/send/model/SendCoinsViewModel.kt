@@ -90,10 +90,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
 
     open fun init(account: WalletAccount<*>,
-                  amount: Value?,
-                  receivingAddress: GenericAddress?,
-                  transactionLabel: String?,
-                  isColdStorage: Boolean) {
+                  intent: Intent) {
+
         amountHint = context.getString(R.string.amount_hint_denomination,
                 mbwManager.denomination.getUnicodeString(account.coinType.symbol))
         if (::model.isInitialized) {
@@ -163,6 +161,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getSignedTransaction() = model.signedTransaction
 
+    fun getGenericUri() = model.genericUri
+
     fun getFiatValue(): String? {
         val fiat = mbwManager.exchangeRateManager.get(model.amount.value,
                 mbwManager.currencySwitcher.currentFiatCurrency)
@@ -221,12 +221,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             val enteredAmount = data?.getSerializableExtra(GetAmountActivity.AMOUNT) as Value?
             model.apply {
                 amount.value = enteredAmount
-                val exchangeTo = if (account.coinType == enteredAmount?.type) {
-                    mbwManager.fiatCurrency
-                } else {
-                    account.coinType
-                }
-                alternativeAmount.value = mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo)
+                updateAlternativeAmount(enteredAmount)
             }
         } else if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {
             handleScanResults(resultCode, data, activity)

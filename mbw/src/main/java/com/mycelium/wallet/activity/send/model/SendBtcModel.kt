@@ -3,8 +3,8 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import android.content.Intent
 import android.text.Html
-import android.view.View
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.makeText
 import com.mrd.bitlib.FeeEstimatorBuilder
@@ -12,8 +12,6 @@ import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.BitcoinBasedGenericTransaction
@@ -29,16 +27,12 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
-import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 
 class SendBtcModel(context: Application,
                    account: WalletAccount<*>,
-                   amount: Value?,
-                   receivingAddress: GenericAddress?,
-                   transactionLabel: String?,
-                   isColdStorage: Boolean)
-    : SendCoinsModel(context, account, amount, receivingAddress, transactionLabel, isColdStorage) {
+                   intent: Intent)
+    : SendCoinsModel(context, account, intent) {
     val receivingAddressesList: MutableLiveData<List<GenericAddress>> = MutableLiveData()
     val feeDescription: MutableLiveData<String> = MutableLiveData()
     val isFeeExtended: MutableLiveData<Boolean> = MutableLiveData()
@@ -76,6 +70,7 @@ class SendBtcModel(context: Application,
                                         value.toStringWithUnit(mbwManager.denomination), fiat)))
                                 isFeeExtended.postValue(true)
                             } else {
+                                feeWarning.postValue("")
                                 isFeeExtended.postValue(false)
                             }
                         }

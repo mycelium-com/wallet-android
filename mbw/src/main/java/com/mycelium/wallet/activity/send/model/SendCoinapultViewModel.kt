@@ -2,17 +2,15 @@ package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
 import android.app.Application
-import com.mycelium.wapi.wallet.GenericAddress
+import android.content.Intent
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.coins.Value
 
 class SendCoinapultViewModel(context: Application) : SendBtcViewModel(context) {
 
-    override fun init(account: WalletAccount<*>, amount: Value?, receivingAddress: GenericAddress?,
-                      transactionLabel: String?, isColdStorage: Boolean) {
-        super.init(account, amount, receivingAddress, transactionLabel, isColdStorage)
-        model = SendCoinapultModel(context, account, amount, receivingAddress, transactionLabel, false)
+    override fun init(account: WalletAccount<*>, intent: Intent) {
+        super.init(account, intent)
+        model = SendCoinapultModel(context, account, intent)
     }
 
     override fun sendTransaction(activity: Activity) {

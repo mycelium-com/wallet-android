@@ -14,13 +14,13 @@ import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
+import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wallet.Constants
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.Utils.getFiatValue
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
@@ -37,6 +37,7 @@ import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
 import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.BroadcastResult
 import com.mycelium.wapi.wallet.BroadcastResultType
@@ -60,12 +61,9 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
         mbwManager = MbwManager.getInstance(application)
         val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
-        val amountToSend = intent.getSerializableExtra(AMOUNT) as Value?
-        val receivingAddress = intent.getSerializableExtra(RECEIVING_ADDRESS) as GenericAddress?
-        val transactionLabel = intent.getStringExtra(TRANSACTION_LABEL)
         val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
-        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was " + accountId + ")"
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
         val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
                 ?: throw IllegalStateException(crashHint)
 
@@ -77,10 +75,10 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
             else -> throw NotImplementedError()
         }
-        //TODO do init using intent!
         if (!viewModel.isInitialized()) {
-            viewModel.init(account, amountToSend, receivingAddress, transactionLabel, isColdStorage)
+            viewModel.init(account, intent)
         }
+
         if (savedInstanceState != null) {
             viewModel.loadInstance(savedInstanceState)
         }
@@ -98,8 +96,17 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
+        // TODO probably rework everything related to payment request as btc
         if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler().value!!) {
             viewModel.verifyPaymentRequest(rawPaymentRequest, this)
+        }
+
+        // lets check whether we got a payment request uri and need to fetch payment data
+        val genericUri = viewModel.getGenericUri().value
+        if (genericUri is WithCallback
+                && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
+                && viewModel.hasPaymentRequestHandler().value == false) {
+            viewModel.verifyPaymentRequest(genericUri, this)
         }
 
         initDatabinding(account)
@@ -110,6 +117,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     override fun onResume() {
         super.onResume()
+
+        // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
+        if (!mbwManager.currencySwitcher.isFiatExchangeRateAvailable) {
+            mbwManager.exchangeRateManager.requestRefresh()
+        }
 
         viewModel.updateClipboardUri()
         if (viewModel.activityResultDialog != null) {
@@ -132,6 +144,11 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
         finish()
         return
+    }
+
+    override fun onPause() {
+        mbwManager.versionManager.closeDialog()
+        super.onPause()
     }
 
     private fun initDatabinding(account: WalletAccount<*>) {

@@ -26,15 +26,13 @@ import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 
 open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
 
-    override fun init(account: WalletAccount<*>, amount: Value?, receivingAddress: GenericAddress?,
-                      transactionLabel: String?, isColdStorage: Boolean) {
-        super.init(account, amount, receivingAddress, transactionLabel, isColdStorage)
-        model = SendBtcModel(context, account, amount, receivingAddress, transactionLabel, false)
+    override fun init(account: WalletAccount<*>, intent: Intent) {
+        super.init(account, intent)
+        model = SendBtcModel(context, account, intent)
     }
 
     override fun sendTransaction(activity: Activity) {
