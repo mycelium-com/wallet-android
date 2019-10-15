@@ -122,6 +122,11 @@ class NewsActivity : AppCompatActivity() {
         }
         val fragment = supportFragmentManager.findFragmentById(R.id.otherNews) as NewsFragment
         fragment.currentNews = news
+        fragment.newsClick = {
+            finish()
+            startActivity(Intent(this, NewsActivity::class.java)
+                    .putExtra(NewsConstants.NEWS, it))
+        }
     }
 
     private fun share() {

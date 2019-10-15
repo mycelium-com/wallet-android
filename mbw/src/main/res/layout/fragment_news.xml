@@ -95,6 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:background="@null"
+            app:drawableStartCompat="@drawable/ic_search"
             android:drawablePadding="8dp"
             android:imeOptions="actionSearch"
             android:paddingStart="12dp"
