@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="@layout/send_coins_activity">
 
     <data>
@@ -15,22 +16,20 @@
     </data>
 
 
-    <FrameLayout
-        android:id="@+id/progressBarBusy"
+    <LinearLayout
+        android:id="@+id/send_coins_progress"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.8"
-        android:background="#000000"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="@{viewModel.transactionStatus == TransactionStatus.Building ? View.VISIBLE : View.GONE}">
+        android:layout_height="wrap_content"
+        app:animatedVisibility="@{viewModel.transactionStatus == TransactionStatus.Building}"
+        android:orientation="vertical">
 
         <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:id="@+id/progress_bar"
+            style="@style/AccountProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginTop="-7dp"
             android:indeterminate="true" />
-    </FrameLayout>
+    </LinearLayout>
 
 </layout>

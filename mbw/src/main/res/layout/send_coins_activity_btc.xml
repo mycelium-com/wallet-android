@@ -54,7 +54,8 @@
                     android:orientation="vertical">
 
                     <!--Transaction label (might be part of bip21)-->
-                    <include layout="@layout/send_coins_tx_label"
+                    <include
+                        layout="@layout/send_coins_tx_label"
                         bind:viewModel="@{viewModel}" />
 
                     <!--Contains amount selection-->
@@ -64,7 +65,8 @@
                         bind:viewModel="@{viewModel}" />
 
                     <!--Fee selector-->
-                    <include layout="@layout/send_coins_fee_block_btc"
+                    <include
+                        layout="@layout/send_coins_fee_block_btc"
                         bind:viewModel="@{viewModel}" />
                 </LinearLayout>
 
@@ -73,17 +75,17 @@
                     layout="@layout/send_coins_insufficient"
                     bind:viewModel="@{viewModel}" />
 
-                <!-- Send -->
+                <!--Update progress bar-->
+                <include
+                    layout="@layout/send_coins_progress"
+                    bind:viewModel="@{viewModel}" />
 
+                <!-- Send -->
                 <include
                     layout="@layout/send_coins_send_section"
                     bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
             </LinearLayout>
         </ScrollView>
-
-        <include
-            layout="@layout/send_coins_progress"
-            bind:viewModel="@{viewModel}" />
     </FrameLayout>
 </layout>

@@ -389,3 +389,19 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
         }
     }
 }
+
+@BindingAdapter("animatedVisibility")
+fun setVisibilityAnimated(target: View, visible: Boolean) {
+    val newVisibility = if (visible) View.VISIBLE else View.GONE
+    if (target.visibility == newVisibility) {
+        return
+    }
+    if (visible) {
+        target.visibility = newVisibility
+        AnimationUtils.expand(target, null)
+    } else {
+        AnimationUtils.collapse(target) {
+            target.visibility = newVisibility
+        }
+    }
+}
