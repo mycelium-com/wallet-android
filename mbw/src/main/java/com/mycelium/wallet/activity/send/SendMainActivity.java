@@ -130,8 +130,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
@@ -1062,15 +1060,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         switch (_transactionStatus) {
             case OutputTooSmall:
                 // Amount too small
-                if (_account instanceof CoinapultAccount) {
-                    CoinapultAccount coinapultAccount = (CoinapultAccount) _account;
-                    tvError.setText(getString(R.string.coinapult_amount_too_small,
-                            ((Currency) coinapultAccount.getCoinType()).minimumConversationValue,
-                            coinapultAccount.getCoinType().getSymbol())
-                    );
-                } else {
-                    tvError.setText(R.string.amount_too_small_short);
-                }
+                tvError.setText(R.string.amount_too_small_short);
                 tvErrorShow = true;
                 break;
             case InsufficientFunds:

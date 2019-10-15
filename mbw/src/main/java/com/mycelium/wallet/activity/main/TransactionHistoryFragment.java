@@ -448,7 +448,7 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   //We need implementations of GenericTransactionSummary for using something like
-                  //hasDetails|canCoinapult|canCancel
+                  //hasDetails|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
@@ -463,12 +463,12 @@ public class TransactionHistoryFragment extends Fragment {
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getConfirmations() == 0));// and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0));
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);

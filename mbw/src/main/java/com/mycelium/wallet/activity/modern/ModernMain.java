@@ -90,7 +90,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
@@ -549,10 +548,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
-
-        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
-            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
-        }
     }
 
     @Subscribe
