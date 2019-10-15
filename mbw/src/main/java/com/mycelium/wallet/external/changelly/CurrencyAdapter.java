@@ -16,7 +16,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrencyAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CurrencyAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerView.ViewHolder> {
     private List<Item> items = new ArrayList<>();
     private int paddingWidth = 0;
 

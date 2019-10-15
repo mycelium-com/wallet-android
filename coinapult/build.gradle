@@ -9,14 +9,14 @@ dependencies {
     implementation project(includePrefix +':bitlib')
     implementation project(includePrefix +':mbwlib')
 
-    implementation guavaArtifact
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
-    implementation 'com.google.http-client:google-http-client-jackson2:1.19.0'
-    implementation 'com.madgag.spongycastle:core:1.58.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
-    implementation 'com.madgag.spongycastle:pg:1.54.0.0'
+    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.9.9"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
+    implementation "com.madgag.spongycastle:core:$spongyCoreVersion"
+    implementation "com.madgag.spongycastle:prov:$spongyProvVersion"
+    implementation "com.madgag.spongycastle:pkix:$spongyPkixVersion"
+    implementation "com.madgag.spongycastle:pg:$spongyPgVersion"
     testImplementation "junit:junit:$junitVersion"
 }

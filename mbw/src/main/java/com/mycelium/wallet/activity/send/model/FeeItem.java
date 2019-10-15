@@ -1,12 +1,13 @@
 package com.mycelium.wallet.activity.send.model;
 
+import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import com.mycelium.wapi.wallet.coins.Value;
 
 public class FeeItem {
     public long feePerKb;
     public Value value; // Fee value in minimal asset's units
     public Value fiatValue;
-    /** as defined in {@link com.mycelium.wallet.activity.send.view.SelectableRecyclerView.Adapter} */
+    /** as defined in {@link SelectableRecyclerView.SRVAdapter} */
     public int type;
 
     public FeeItem(long feePerKb, Value value, Value fiatValue, int type) {
