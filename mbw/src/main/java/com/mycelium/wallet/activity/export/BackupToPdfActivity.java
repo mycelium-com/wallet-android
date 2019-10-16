@@ -92,17 +92,14 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    private boolean _isPdfGenerated;
    private boolean _oomDetected;
 
-   /**
-    * Called when the activity is first created.
-    */
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.export_to_pdf_activity);
       Utils.preventScreenshots(this);
 
-      _mbwManager = MbwManager.getInstance(this.getApplication());
+      _mbwManager = MbwManager.getInstance(getApplication());
 
       // Load saved state
       if (savedInstanceState != null) {
@@ -131,12 +128,10 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       ((TextView) findViewById(R.id.tvChecksum)).setText(checksumString);
 
       findViewById(R.id.btSharePdf).setOnClickListener(new OnClickListener() {
-
          @Override
          public void onClick(View arg0) {
             sharePdf();
          }
-
       });
 
       findViewById(R.id.btVerify).setOnClickListener(new OnClickListener() {
@@ -307,8 +302,7 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
       grantPermissions(intent, uri);
-      startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.share_with)),
-            SHARE_REQUEST_CODE);
+      startActivityForResult(Intent.createChooser(intent, getResources().getString(R.string.share_with)), SHARE_REQUEST_CODE);
    }
 
    private String getSubject() {

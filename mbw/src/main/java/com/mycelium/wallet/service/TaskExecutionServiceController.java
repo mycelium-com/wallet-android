@@ -49,6 +49,10 @@ import android.os.RemoteException;
 import android.util.Log;
 
 public class TaskExecutionServiceController {
+   private static final String TAG = "TaskExecutionService";
+   private MyServiceConnection connection;
+   private TaskExecutionServiceCallback callbackHandler;
+
    public interface TaskExecutionServiceCallback {
       void onStatusReceived(ServiceTaskStatusEx status);
 
@@ -57,13 +61,13 @@ public class TaskExecutionServiceController {
 
    @SuppressLint("HandlerLeak")
    private class MyServiceConnection extends Handler implements ServiceConnection {
-      private Messenger _serviceMessenger;
-      private Messenger _myMessenger;
-      private boolean _sendStop;
-      private ServiceTask<?> _task;
+      private Messenger serviceMessenger;
+      private Messenger myMessenger;
+      private boolean sendStop;
+      private ServiceTask<?> task;
 
-      public MyServiceConnection() {
-         _myMessenger = new Messenger(this);
+      MyServiceConnection() {
+         myMessenger = new Messenger(this);
       }
 
       @Override
@@ -71,11 +75,11 @@ public class TaskExecutionServiceController {
          switch (msg.what) {
          case TaskExecutionService.MSG_STATUS:
             ServiceTaskStatusEx status = (ServiceTaskStatusEx) msg.getData().getSerializable("status");
-            _callbackHandler.onStatusReceived(status);
+            callbackHandler.onStatusReceived(status);
             break;
          case TaskExecutionService.MSG_RESULT:
             ServiceTask<?> result = (ServiceTask<?>) msg.getData().getSerializable("result");
-            _callbackHandler.onResultReceived(result);
+            callbackHandler.onResultReceived(result);
             break;
          default:
             super.handleMessage(msg);
@@ -83,136 +87,118 @@ public class TaskExecutionServiceController {
       }
 
       public void onServiceConnected(ComponentName name, IBinder binder) {
-         _serviceMessenger = new Messenger(binder);
-         if (_sendStop) {
+         serviceMessenger = new Messenger(binder);
+         if (sendStop) {
             terminate();
          }
-         if (_task != null) {
-            _error = start(_task);
+         if (task != null) {
+            start(task);
          }
       }
 
       public void onServiceDisconnected(ComponentName name) {
-         _serviceMessenger = null;
+         serviceMessenger = null;
       }
 
       public boolean start(ServiceTask<?> task) {
-         if (_serviceMessenger == null) {
+         if (serviceMessenger == null) {
             // Not yet connected, send it when we get a connection
-            _task = task;
+            this.task = task;
             return false;
          }
          try {
             Message msg = Message.obtain(null, TaskExecutionService.MSG_START);
             Bundle b = new Bundle();
-            b.putSerializable("task", _task);
+            b.putSerializable("task", this.task);
             msg.setData(b);
-            msg.replyTo = _myMessenger;
-            _serviceMessenger.send(msg);
-            _task = null;
+            msg.replyTo = myMessenger;
+            serviceMessenger.send(msg);
+            this.task = null;
             return true;
          } catch (RemoteException e) {
-            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
+            Log.e(TAG, "Remote exception: " + e.getMessage());
             return false;
          }
       }
 
-      public boolean requestStatus() {
-         if (_serviceMessenger == null) {
+      void requestStatus() {
+         if (serviceMessenger == null) {
             // Not yet connected
-            return false;
+            return;
          }
          try {
             Message msg = Message.obtain(null, TaskExecutionService.MSG_GET_STATUS);
-            msg.replyTo = _myMessenger;
-            _serviceMessenger.send(msg);
-            return true;
+            msg.replyTo = myMessenger;
+            serviceMessenger.send(msg);
          } catch (RemoteException e) {
-            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
-            return false;
+            Log.e(TAG, "Remote exception: " + e.getMessage());
          }
       }
 
-      public boolean requestResult() {
-         if (_serviceMessenger == null) {
+      void requestResult() {
+         if (serviceMessenger == null) {
             // Not yet connected
-            return false;
+            return;
          }
          try {
             Message msg = Message.obtain(null, TaskExecutionService.MSG_GET_RESULT);
-            msg.replyTo = _myMessenger;
-            _serviceMessenger.send(msg);
-            return true;
+            msg.replyTo = myMessenger;
+            serviceMessenger.send(msg);
          } catch (RemoteException e) {
-            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
-            return false;
+            Log.e(TAG, "Remote exception: " + e.getMessage());
          }
       }
 
       public boolean terminate() {
-         if (_serviceMessenger == null) {
+         if (serviceMessenger == null) {
             // Not yet connected
-            _sendStop = true;
+            sendStop = true;
             return false;
          }
          try {
             Message msg = Message.obtain(null, TaskExecutionService.MSG_TERMINATE);
-            _serviceMessenger.send(msg);
-            _sendStop = false;
+            serviceMessenger.send(msg);
+            sendStop = false;
             return true;
          } catch (RemoteException e) {
-            Log.e("TaskExecutionService", "Remote exception: " + e.getMessage());
+            Log.e(TAG, "Remote exception: " + e.getMessage());
             return false;
          }
       }
-
    }
 
-   private MyServiceConnection _connection;
-   private TaskExecutionServiceCallback _callbackHandler;
-   private boolean _error;
-
-   @SuppressLint("InlinedApi")
-   public TaskExecutionServiceController() {
-   }
-
-   public boolean hasError() {
-      return _error;
-   }
-
-   @SuppressLint("InlinedApi")
    public void bind(Activity activity, TaskExecutionServiceCallback callbackHandler) {
-      _connection = new MyServiceConnection();
-      _callbackHandler = callbackHandler;
+      connection = new MyServiceConnection();
+      this.callbackHandler = callbackHandler;
       Intent intent = new Intent(activity, TaskExecutionService.class);
-      activity.bindService(intent, _connection, Context.BIND_IMPORTANT | Context.BIND_AUTO_CREATE);
+      activity.bindService(intent, connection, Context.BIND_IMPORTANT | Context.BIND_AUTO_CREATE);
    }
 
    public void unbind(Activity activity) {
-      if (_connection == null) {
+      if (connection == null) {
          // Not yet bound, no need to unbind
          return;
       }
-      activity.unbindService(_connection);
+      activity.unbindService(connection);
    }
 
    public void start(ServiceTask<?> task) {
-      _connection.start(task);
+      connection.start(task);
    }
 
    public void requestStatus() {
-      _connection.requestStatus();
+      connection.requestStatus();
    }
 
    public void requestResult() {
-      _connection.requestResult();
+      connection.requestResult();
    }
 
    public void terminate() {
-      if (_connection == null) {
+      if (connection == null) {
          // Not yet bound, no need to terminate
          return;
       }
-      _connection.terminate();
+      connection.terminate();
    }
 }
