@@ -376,7 +376,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         feeLvl = mbwManager.getMinerFee();
         feeEstimation = this.activeAccount.getDefaultFeeEstimation();
 
-        new AsyncTask<Void, Void, Void>() {
+        // get new fee estimation from remote
+        AsyncTask feeEstimateTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -385,7 +386,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
             @Override
             protected Void doInBackground(Void... voids) {
-                feeEstimation = SendMainActivity.this.activeAccount.getFeeEstimations();
+                feeEstimation = activeAccount.getFeeEstimations();
                 return null;
             }
 
@@ -453,6 +454,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             }
 
             //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
+            feeEstimateTask.cancel(true);
             finish();
             return;
         }
