@@ -47,8 +47,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 import com.google.common.base.Preconditions;
@@ -86,7 +84,6 @@ public class BackupToPdfActivity extends Activity {
    private ProgressUpdater progressupdater;
    private ServiceTaskStatusEx taskStatus;
    private boolean isPdfGenerated;
-   private boolean oomDetected;
    private CreateMrdBackupTask task;
 
    @Override
@@ -123,19 +120,9 @@ public class BackupToPdfActivity extends Activity {
       String checksumString = ("  " + checksumChar).toUpperCase(Locale.US);
       ((TextView) findViewById(R.id.tvChecksum)).setText(checksumString);
 
-      findViewById(R.id.btSharePdf).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View arg0) {
-            sharePdf();
-         }
-      });
+      findViewById(R.id.btSharePdf).setOnClickListener(arg0 -> sharePdf());
 
-      findViewById(R.id.btVerify).setOnClickListener(new OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            VerifyBackupActivity.callMe(BackupToPdfActivity.this);
-         }
-      });
+      findViewById(R.id.btVerify).setOnClickListener(view -> VerifyBackupActivity.callMe(this));
 
       progressupdater = new ProgressUpdater();
    }
@@ -194,12 +181,6 @@ public class BackupToPdfActivity extends Activity {
        */
       @Override
       public void run() {
-         if (oomDetected) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
-            ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-            return;
-         }
-
          if (isPdfGenerated) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_document_ready);
@@ -340,7 +321,7 @@ public class BackupToPdfActivity extends Activity {
 
    @Subscribe
    public void onResultReceived(CreateMrdBackupTask.BackupResult result) {
-      isPdfGenerated = result.success;
+      isPdfGenerated = result.isSuccess();
       if (isPdfGenerated) {
          enableSharing();
       }

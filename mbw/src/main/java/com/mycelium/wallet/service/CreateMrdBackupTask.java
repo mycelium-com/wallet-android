@@ -196,14 +196,7 @@ public class CreateMrdBackupTask extends AsyncTask<Void, Void, Boolean> {
       } catch (OutOfMemoryError | IOException e) {
          throw new RuntimeException(e);
       }
-
-      publishProgress();
       return true;
-   }
-
-   protected void terminate() {
-      // Tell scrypt to stop
-      kdfParameters.terminate();
    }
 
    private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
@@ -219,11 +212,11 @@ public class CreateMrdBackupTask extends AsyncTask<Void, Void, Boolean> {
    protected void onProgressUpdate(Void... voids) {
       super.onProgressUpdate(voids);
       if (pdfProgress != null) {
-         bus.post(new ServiceTaskStatusEx(pdfStatusMessage, pdfProgress.getProgress(), ServiceTaskStatusEx.State.RUNNING));
+         bus.post(new ServiceTaskStatus(pdfStatusMessage, pdfProgress.getProgress()));
       } else if (encryptionProgress != null) {
-         bus.post(new ServiceTaskStatusEx(encryptStatusMessage, encryptionProgress, ServiceTaskStatusEx.State.RUNNING));
+         bus.post(new ServiceTaskStatus(encryptStatusMessage, encryptionProgress));
       } else {
-         bus.post(new ServiceTaskStatusEx(stretchStatusMessage, kdfParameters.getProgress(), ServiceTaskStatusEx.State.RUNNING));
+         bus.post(new ServiceTaskStatus(stretchStatusMessage, kdfParameters.getProgress()));
       }
    }
 
@@ -233,10 +226,14 @@ public class CreateMrdBackupTask extends AsyncTask<Void, Void, Boolean> {
    }
 
    public static class BackupResult {
-      public boolean success;
+      private boolean success;
 
-      public BackupResult(boolean success) {
+      BackupResult(boolean success) {
          this.success = success;
+      }
+
+      public boolean isSuccess() {
+         return success;
       }
    }
 }
