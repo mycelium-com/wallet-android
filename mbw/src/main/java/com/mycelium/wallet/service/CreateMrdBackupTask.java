@@ -35,6 +35,7 @@
 package com.mycelium.wallet.service;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.EncryptionParameters;
@@ -42,8 +43,8 @@ import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.pdf.ExportDistiller;
 import com.mycelium.wallet.pdf.ExportDistiller.ExportEntry;
@@ -56,6 +57,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.squareup.otto.Bus;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -65,17 +67,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class CreateMrdBackupTask extends ServiceTask<Boolean> {
-   private static final long serialVersionUID = 1L;
-
+public class CreateMrdBackupTask extends AsyncTask<Void, Void, Boolean> {
    private static class EntryToExport implements Serializable {
       private static final long serialVersionUID = 1L;
-      public String base58PrivateKey;
-      public String label;
+      private String base58PrivateKey;
+      private String label;
       private final Map<AddressType, Address> addresses;
-      public boolean isBch;
+      private boolean isBch;
 
-      public EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, boolean isBch) {
+      private EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, boolean isBch) {
          this.base58PrivateKey = base58PrivateKey;
          this.label = label;
          this.addresses = addresses;
@@ -83,24 +83,27 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
       }
    }
 
-   private KdfParameters _kdfParameters;
-   private List<EntryToExport> _active;
-   private List<EntryToExport> _archived;
-   private NetworkParameters _network;
-   private String _exportFilePath;
-   private String _stretchStatusMessage;
-   private String _encryptStatusMessage;
-   private String _pdfStatusMessage;
-   private Double _encryptionProgress;
-   private ExportProgressTracker _pdfProgress;
+   private KdfParameters kdfParameters;
+   private List<EntryToExport> active;
+   private List<EntryToExport> archived;
+   private NetworkParameters networkParameters;
+   private String exportFilePath;
+   private String stretchStatusMessage;
+   private String encryptStatusMessage;
+   private String pdfStatusMessage;
+   private Double encryptionProgress;
+   private ExportProgressTracker pdfProgress;
+   private Context context;
+   private Bus bus;
 
    public CreateMrdBackupTask(KdfParameters kdfParameters, Context context, WalletManager walletManager, KeyCipher cipher,
                               MetadataStorage storage, NetworkParameters network, String exportFilePath) {
-      _kdfParameters = kdfParameters;
+      this.kdfParameters = kdfParameters;
+      this.bus = MbwManager.getEventBus();
 
       // Populate the active and archived entries to export
-      _active = new LinkedList<>();
-      _archived = new LinkedList<>();
+      active = new LinkedList<>();
+      archived = new LinkedList<>();
       List<WalletAccount<?>> accounts = walletManager.getSpendingAccounts();
       accounts = Utils.sortAccounts(accounts, storage);
       EntryToExport entry;
@@ -140,68 +143,67 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
 
          if (entry != null) {
             if (account.isActive()) {
-               _active.add(entry);
+               active.add(entry);
             } else {
-               _archived.add(entry);
+               archived.add(entry);
             }
             storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
          }
       }
 
-      _exportFilePath = exportFilePath;
-      _network = network;
-      _stretchStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_stretching);
-      _encryptStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_encrypting);
-      _pdfStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_creating);
+      this.exportFilePath = exportFilePath;
+      networkParameters = network;
+      stretchStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_stretching);
+      encryptStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_encrypting);
+      pdfStatusMessage = context.getResources().getString(R.string.encrypted_pdf_backup_creating);
+      this.context = context;
    }
 
    @Override
-   protected Boolean doTask(Context context) throws UserFacingException {
+   protected Boolean doInBackground(Void ... voids) {
       try {
          // Generate Encryption parameters by doing key stretching
-         EncryptionParameters encryptionParameters;
-         try {
-            encryptionParameters = EncryptionParameters.generate(_kdfParameters);
-         } catch (InterruptedException e) {
-            return false;
-         }
-
+         EncryptionParameters encryptionParameters = EncryptionParameters.generate(kdfParameters);
+         publishProgress();
          // Encrypt
-         _encryptionProgress = 0D;
-         double increment = 1D / (_active.size() + _archived.size());
+         encryptionProgress = 0D;
+         double increment = 1D / (active.size() + archived.size());
 
          // Encrypt active
          List<ExportEntry> encryptedActiveKeys = new LinkedList<>();
-         for (EntryToExport e : _active) {
-            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, _network));
-            _encryptionProgress += increment;
+         for (EntryToExport e : active) {
+            encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, networkParameters));
+            encryptionProgress += increment;
+            publishProgress();
          }
          // Encrypt archived
          List<ExportEntry> encryptedArchivedKeys = new LinkedList<>();
-         for (EntryToExport e : _archived) {
-            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, _network));
-            _encryptionProgress += increment;
+         for (EntryToExport e : archived) {
+            encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, networkParameters));
+            encryptionProgress += increment;
+            publishProgress();
          }
 
          // Generate PDF document
          String exportFormatString = "Mycelium Backup 1.1";
          ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
                encryptedActiveKeys, encryptedArchivedKeys);
-         _pdfProgress = new ExportProgressTracker(exportParameters.getAllEntries());
-         ExportDistiller.exportPrivateKeysToFile(context, exportParameters, _pdfProgress, _exportFilePath);
-      } catch (OutOfMemoryError e) {
-         throw new UserFacingException(e);
-      } catch (IOException e) {
+         pdfProgress = new ExportProgressTracker(exportParameters.getAllEntries());
+         ExportDistiller.exportPrivateKeysToFile(context, exportParameters, pdfProgress, exportFilePath);
+      } catch (InterruptedException e) {
+         Thread.currentThread().interrupt();
+         return false;
+      } catch (OutOfMemoryError | IOException e) {
          throw new RuntimeException(e);
       }
 
+      publishProgress();
       return true;
    }
 
-   @Override
    protected void terminate() {
       // Tell scrypt to stop
-      _kdfParameters.terminate();
+      kdfParameters.terminate();
    }
 
    private static ExportEntry createExportEntry(EntryToExport toExport, EncryptionParameters parameters,
@@ -214,13 +216,27 @@ public class CreateMrdBackupTask extends ServiceTask<Boolean> {
    }
 
    @Override
-   protected ServiceTaskStatus getStatus() {
-      if (_pdfProgress != null) {
-         return new ServiceTaskStatus(_pdfStatusMessage, _pdfProgress.getProgress());
-      } else if (_encryptionProgress != null) {
-         return new ServiceTaskStatus(_encryptStatusMessage, _encryptionProgress);
+   protected void onProgressUpdate(Void... voids) {
+      super.onProgressUpdate(voids);
+      if (pdfProgress != null) {
+         bus.post(new ServiceTaskStatusEx(pdfStatusMessage, pdfProgress.getProgress(), ServiceTaskStatusEx.State.RUNNING));
+      } else if (encryptionProgress != null) {
+         bus.post(new ServiceTaskStatusEx(encryptStatusMessage, encryptionProgress, ServiceTaskStatusEx.State.RUNNING));
       } else {
-         return new ServiceTaskStatus(_stretchStatusMessage, _kdfParameters.getProgress());
+         bus.post(new ServiceTaskStatusEx(stretchStatusMessage, kdfParameters.getProgress(), ServiceTaskStatusEx.State.RUNNING));
+      }
+   }
+
+   @Override
+   protected void onPostExecute(Boolean success) {
+      bus.post(new BackupResult(success));
+   }
+
+   public static class BackupResult {
+      public boolean success;
+
+      public BackupResult(boolean success) {
+         this.success = success;
       }
    }
 }

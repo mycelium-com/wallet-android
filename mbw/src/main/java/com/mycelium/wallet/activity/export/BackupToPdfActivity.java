@@ -56,12 +56,9 @@ import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
 import com.mycelium.wallet.*;
 import com.mycelium.wallet.service.CreateMrdBackupTask;
-import com.mycelium.wallet.service.ServiceTask;
 import com.mycelium.wallet.service.ServiceTaskStatusEx;
-import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
-import com.mycelium.wallet.service.TaskExecutionServiceController;
-import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.squareup.otto.Subscribe;
 
 //todo HD: export master seed without address/xpub extra data.
 //todo HD: later: be compatible with a common format
@@ -72,7 +69,7 @@ import java.util.Locale;
 
 import static android.text.format.DateFormat.getDateFormat;
 
-public class BackupToPdfActivity extends Activity implements TaskExecutionServiceCallback {
+public class BackupToPdfActivity extends Activity {
    public static void callMe(Activity currentActivity) {
       Intent intent = new Intent(currentActivity, BackupToPdfActivity.class);
       currentActivity.startActivity(intent);
@@ -82,15 +79,15 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    private static final int SHARE_REQUEST_CODE = 1;
 
-   private MbwManager _mbwManager;
-   private long _backupTime;
-   private String _fileName;
-   private String _password;
-   private ProgressUpdater _progressUpdater;
-   private TaskExecutionServiceController _taskExecutionServiceController;
-   private ServiceTaskStatusEx _taskStatus;
-   private boolean _isPdfGenerated;
-   private boolean _oomDetected;
+   private MbwManager mbwManager;
+   private long backupTime;
+   private String fileName;
+   private String password;
+   private ProgressUpdater progressupdater;
+   private ServiceTaskStatusEx taskStatus;
+   private boolean isPdfGenerated;
+   private boolean oomDetected;
+   private CreateMrdBackupTask task;
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
@@ -99,31 +96,30 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       setContentView(R.layout.export_to_pdf_activity);
       Utils.preventScreenshots(this);
 
-      _mbwManager = MbwManager.getInstance(getApplication());
+      mbwManager = MbwManager.getInstance(getApplication());
 
       // Load saved state
       if (savedInstanceState != null) {
-         _backupTime = savedInstanceState.getLong("backupTime", 0);
-         _password = savedInstanceState.getString("password");
-         _isPdfGenerated = savedInstanceState.getBoolean("isPdfGenerated");
+         backupTime = savedInstanceState.getLong("backupTime", 0);
+         password = savedInstanceState.getString("password");
+         isPdfGenerated = savedInstanceState.getBoolean("isPdfGenerated");
       }
 
-      if (_backupTime == 0) {
-         _backupTime = new Date().getTime();
+      if (backupTime == 0) {
+         backupTime = new Date().getTime();
       }
 
-      if (_password == null) {
-         _password = MrdExport.V1.generatePassword(new AndroidRandomSource()).toUpperCase(Locale.US);
+      if (password == null) {
+         password = MrdExport.V1.generatePassword(new AndroidRandomSource()).toUpperCase(Locale.US);
       }
 
-      _fileName = getExportFileName(_backupTime);
-      _taskExecutionServiceController = new TaskExecutionServiceController();
+      fileName = getExportFileName(backupTime);
 
       // Populate Password
-      ((TextView) findViewById(R.id.tvPassword)).setText(splitPassword(_password));
+      ((TextView) findViewById(R.id.tvPassword)).setText(splitPassword(password));
 
       // Populate Checksum
-      char checksumChar = MrdExport.V1.calculatePasswordChecksum(_password);
+      char checksumChar = MrdExport.V1.calculatePasswordChecksum(password);
       String checksumString = ("  " + checksumChar).toUpperCase(Locale.US);
       ((TextView) findViewById(R.id.tvChecksum)).setText(checksumString);
 
@@ -141,14 +137,14 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
          }
       });
 
-      _progressUpdater = new ProgressUpdater();
+      progressupdater = new ProgressUpdater();
    }
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      outState.putLong("backupTime", _backupTime);
-      outState.putString("password", _password);
-      outState.putBoolean("isPdfGenerated", _isPdfGenerated);
+      outState.putLong("backupTime", backupTime);
+      outState.putString("password", password);
+      outState.putBoolean("isPdfGenerated", isPdfGenerated);
       super.onSaveInstanceState(outState);
    }
 
@@ -170,29 +166,26 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
 
    @Override
    protected void onResume() {
-      if (!_isPdfGenerated) {
+      MbwManager.getEventBus().register(this);
+      if (!isPdfGenerated) {
          startTask();
       } else {
          enableSharing();
       }
 
-      _progressUpdater.start();
+      progressupdater.start();
       super.onResume();
    }
 
    class ProgressUpdater implements Runnable {
-      final Handler _handler;
-
-      ProgressUpdater() {
-         _handler = new Handler();
-      }
+      final Handler handler = new Handler();
 
       public void start() {
-         _handler.post(this);
+         handler.post(this);
       }
 
       public void stop() {
-         _handler.removeCallbacks(this);
+         handler.removeCallbacks(this);
       }
 
       /**
@@ -201,45 +194,41 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
        */
       @Override
       public void run() {
-         if (_oomDetected) {
+         if (oomDetected) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
             return;
          }
 
-         if (_isPdfGenerated) {
+         if (isPdfGenerated) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_document_ready);
             return;
          }
 
-         if (_taskStatus == null) {
+         if (taskStatus == null) {
             ((TextView) findViewById(R.id.tvProgress)).setText("");
             ((TextView) findViewById(R.id.tvStatus)).setText("");
-            _taskExecutionServiceController.requestStatus();
          } else {
-            if (_taskStatus.state != State.FINISHED) {
-               _taskExecutionServiceController.requestStatus();
-            }
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_taskStatus.progress * 100) + "%");
-            ((TextView) findViewById(R.id.tvStatus)).setText(_taskStatus.statusMessage);
+            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (taskStatus.progress * 100) + "%");
+            ((TextView) findViewById(R.id.tvStatus)).setText(taskStatus.statusMessage);
          }
 
          // Reschedule
-         _handler.postDelayed(this, 300);
+         handler.postDelayed(this, 300);
       }
    }
 
    @Override
    protected void onPause() {
-      _progressUpdater.stop();
+      progressupdater.stop();
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
    @Override
    protected void onDestroy() {
-      _taskExecutionServiceController.terminate();
-      _taskExecutionServiceController.unbind(this);
+      task.cancel(true);
       super.onDestroy();
    }
 
@@ -269,19 +258,18 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
    }
 
    private String getFullExportFilePath() {
-      return _fileName;
+      return fileName;
    }
 
    private void startTask() {
       findViewById(R.id.btSharePdf).setEnabled(false);
       findViewById(R.id.btVerify).setEnabled(false);
-      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(_password, new AndroidRandomSource(),
-            _mbwManager.getDeviceScryptParameters());
-      CreateMrdBackupTask task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
-            _mbwManager.getWalletManager(false), AesKeyCipher.defaultKeyCipher(), _mbwManager.getMetadataStorage(),
-            _mbwManager.getNetwork(), getFullExportFilePath());
-      _taskExecutionServiceController.bind(this, this);
-      _taskExecutionServiceController.start(task);
+      KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(password, new AndroidRandomSource(),
+            mbwManager.getDeviceScryptParameters());
+      task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
+            mbwManager.getWalletManager(false), AesKeyCipher.defaultKeyCipher(), mbwManager.getMetadataStorage(),
+            mbwManager.getNetwork(), getFullExportFilePath());
+      task.execute();
    }
 
    private void enableSharing() {
@@ -345,24 +333,15 @@ public class BackupToPdfActivity extends Activity implements TaskExecutionServic
       throw new RuntimeException("No file provider authority specified in manifest");
    }
 
-   @Override
+   @Subscribe
    public void onStatusReceived(ServiceTaskStatusEx status) {
-      _taskStatus = status;
-      if (_taskStatus != null && _taskStatus.state == State.FINISHED) {
-         _taskExecutionServiceController.requestResult();
-      }
+      taskStatus = status;
    }
 
-   @Override
-   public void onResultReceived(ServiceTask<?> result) {
-      CreateMrdBackupTask task = (CreateMrdBackupTask) result;
-      try {
-         _isPdfGenerated = task.getResult();
-      } catch (UserFacingException e) {
-         _oomDetected = true;
-         _mbwManager.reportIgnoredException(e);
-      }
-      if (_isPdfGenerated) {
+   @Subscribe
+   public void onResultReceived(CreateMrdBackupTask.BackupResult result) {
+      isPdfGenerated = result.success;
+      if (isPdfGenerated) {
          enableSharing();
       }
    }
