@@ -28,13 +28,7 @@ class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Ge
         //always perform the default de-serialization first
         inputStream.defaultReadObject()
 
-        //make defensive copy of the mutable Date field
         address = Address(addressString)
-
-        //ensure that object state has not been corrupted or tampered with maliciously
-        if (address.toString() != addressString) {
-            throw IllegalStateException("Unable to deserilize object")
-        }
     }
 
     companion object {

@@ -10,10 +10,7 @@ import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import org.web3j.crypto.Credentials
-import org.web3j.crypto.ECKeyPair
-import org.web3j.crypto.RawTransaction
-import org.web3j.crypto.TransactionEncoder
+import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.infura.InfuraHttpService
@@ -40,11 +37,10 @@ class EthAccount(private val credentials: Credentials,
 
         try {
             val nonce = getNonce(credentials.address)
-            val rawTransaction =
-                    RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000), toAddress.toString(), BigInteger.valueOf(value.value))
-            val ethTransaction = EthTransaction(coinType, toAddress, value, gasPrice)
-            ethTransaction.rawTransaction = rawTransaction
-            return ethTransaction
+            val rawTransaction = RawTransaction.createEtherTransaction(nonce,
+                    BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000),
+                    toAddress.toString(), BigInteger.valueOf(value.value))
+            return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw  GenericBuildTransactionException(Throwable(e.localizedMessage))
         }
@@ -65,6 +61,7 @@ class EthAccount(private val credentials: Credentials,
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.signedHex = hexValue
+        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
     }
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
@@ -117,7 +114,8 @@ class EthAccount(private val credentials: Credentials,
     }
 
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return false
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
@@ -177,7 +175,7 @@ class EthAccount(private val credentials: Credentials,
     }
 
     override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?) =
-            accountBalance.spendable - Value.valueOf(coinType, gasPrice * 21000)
+            accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
 
     override fun getSyncTotalRetrievedTransactions() = 0
 

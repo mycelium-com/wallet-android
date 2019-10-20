@@ -27,8 +27,10 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import java.util.*
+import java.util.regex.Pattern
 
 open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
+    override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)

@@ -60,39 +60,49 @@ abstract class SendCoinsModel(
 
     val receivingAddress: MutableLiveData<GenericAddress?> = object : MutableLiveData<GenericAddress?>() {
         override fun setValue(value: GenericAddress?) {
-            super.setValue(value)
-            receiverChanged.onNext(Unit)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                receiverChanged.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
 
     val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
         override fun setValue(value: TransactionStatus) {
-            super.setValue(value)
-            amountUpdatePublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                amountUpdatePublisher.onNext(Unit)
+            }
         }
     }
 
     val amount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
-            super.setValue(value)
-            txRebuildPublisher.onNext(Unit)
-            amountUpdatePublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+                amountUpdatePublisher.onNext(Unit)
+            }
         }
     }
 
     val selectedFee = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
-            super.setValue(value)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
 
     val feeLvl: MutableLiveData<MinerFee> = object : MutableLiveData<MinerFee>() {
         override fun setValue(value: MinerFee) {
-            super.setValue(value)
-            feeUpdatePublisher.onNext(Unit)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                feeUpdatePublisher.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
     var transaction: GenericTransaction? = null
@@ -447,7 +457,6 @@ abstract class SendCoinsModel(
         private const val SELECTED_FEE = "selectedFee"
         private const val FEE_LVL = "feeLvl"
         private const val PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId"
-        private const val FEE_ESTIMATION = "fee_estimation"
         private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2)
     }
 }

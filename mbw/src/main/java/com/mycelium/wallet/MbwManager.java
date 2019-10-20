@@ -100,6 +100,7 @@ import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
+import com.mycelium.wapi.content.eth.EthUriParser;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.*;
@@ -353,6 +354,7 @@ public class MbwManager {
         result.add(new MTUriParser(network));
         result.add(new MSSUriParser(network));
         result.add(new RMCUriParser(network));
+        result.add(new EthUriParser(network));
         return result;
     }
 

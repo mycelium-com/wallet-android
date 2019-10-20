@@ -49,7 +49,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     protected lateinit var model: SendCoinsModel
     protected var progressDialog: ProgressDialog? = null
 
-    private val uriPattern = Pattern.compile("[a-zA-Z0-9]+")
+    abstract val uriPattern: Pattern
     private var receivingAcc: UUID? = null
     private var xpubSyncing: Boolean = false
 
