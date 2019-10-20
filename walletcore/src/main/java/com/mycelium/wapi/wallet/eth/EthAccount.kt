@@ -1,22 +1,26 @@
 package com.mycelium.wapi.wallet.eth
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import kotlinx.coroutines.runBlocking
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.RawTransaction
+import org.web3j.crypto.TransactionEncoder
+import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.protocol.infura.InfuraHttpService
 import org.web3j.utils.Convert
-import java.net.URL
+import org.web3j.utils.Numeric
+import java.math.BigInteger
 import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class EthAccount(private val credentials: Credentials,
                  private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
@@ -25,17 +29,51 @@ class EthAccount(private val credentials: Credentials,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun createTx(addres: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction {
-//        Transfer.sendFunds()
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
+    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
+        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb.value
+        // check whether account has enough funds
+        if (value > calculateMaxSpendableAmount(gasPriceLong, null)) {
+            throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
+                    " ether with gas price " + Convert.fromWei(gasPriceLong.toBigDecimal(), Convert.Unit.GWEI) + " gwei"))
+        }
+
+        try {
+            val nonce = getNonce(credentials.address)
+            val rawTransaction =
+                    RawTransaction.createEtherTransaction(nonce, BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000), toAddress.toString(), BigInteger.valueOf(value.value))
+            val ethTransaction = EthTransaction(coinType, toAddress, value, gasPrice)
+            ethTransaction.rawTransaction = rawTransaction
+            return ethTransaction
+        } catch (e: Exception) {
+            throw  GenericBuildTransactionException(Throwable(e.localizedMessage))
+        }
+    }
+
+    @Throws(Exception::class)
+    private fun getNonce(address: String): BigInteger {
+        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+        val ethGetTransactionCount = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST)
+                .sendAsync()
+                .get()
+
+        return ethGetTransactionCount.transactionCount
     }
 
     override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val rawTransaction = (request as EthTransaction).rawTransaction
+        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
+        val hexValue = Numeric.toHexString(signedMessage)
+        request.signedHex = hexValue
     }
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+        val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).sendAsync().get()
+        if (ethSendTransaction.hasError()) {
+            return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
+        }
+        return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
     override fun getReceiveAddress() = EthAddress(coinType, credentials.address)
