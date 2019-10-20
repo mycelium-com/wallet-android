@@ -16,7 +16,7 @@
         android:textColor="@color/horizontalpicker_text_color"
         android:textSize="14sp"
         android:layoutDirection="ltr"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
         android:id="@+id/feeValueList"
@@ -28,5 +28,5 @@
         android:textColor="@color/horizontalpicker_text_color"
         android:textSize="14sp"
         android:layoutDirection="ltr"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </merge>

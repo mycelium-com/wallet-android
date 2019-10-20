@@ -57,6 +57,6 @@
             android:visibility="@{viewModel.receivingAddresses.isEmpty() ? View.GONE : View.VISIBLE}"
             app:receivingAddressesList="@{viewModel.receivingAddresses}"
             app:address="@{viewModel.receivingAddress}"
-            app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
     </LinearLayout>
 </layout>
