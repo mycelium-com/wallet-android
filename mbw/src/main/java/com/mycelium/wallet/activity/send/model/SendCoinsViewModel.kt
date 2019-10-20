@@ -3,13 +3,13 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.app.ProgressDialog
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Transformations
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
 import android.widget.Toast.*
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mycelium.paymentrequest.PaymentRequestException
 import com.mycelium.wallet.MbwManager

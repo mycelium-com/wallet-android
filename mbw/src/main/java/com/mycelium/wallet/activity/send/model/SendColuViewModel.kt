@@ -4,9 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
 import android.app.ProgressDialog
-import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
-import android.databinding.BindingAdapter
 import android.graphics.Point
 import android.os.AsyncTask
 import android.util.Log

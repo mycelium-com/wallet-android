@@ -2,18 +2,18 @@ package com.mycelium.wallet.activity.send
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
-import android.databinding.BindingAdapter
-import android.databinding.DataBindingUtil
 import android.graphics.Point
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.BindingAdapter
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils

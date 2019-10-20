@@ -2,10 +2,10 @@ package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
+import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R

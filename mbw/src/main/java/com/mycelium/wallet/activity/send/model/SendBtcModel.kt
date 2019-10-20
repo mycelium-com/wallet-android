@@ -2,11 +2,11 @@ package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
 import android.text.Html
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.makeText
+import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MinerFee

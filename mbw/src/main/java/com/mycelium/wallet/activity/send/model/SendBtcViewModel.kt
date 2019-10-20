@@ -3,13 +3,13 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
 import android.content.Intent
-import android.databinding.BindingAdapter
 import android.graphics.Point
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.makeText
+import androidx.databinding.BindingAdapter
+import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
