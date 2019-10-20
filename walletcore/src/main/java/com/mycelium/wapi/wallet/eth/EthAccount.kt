@@ -84,8 +84,8 @@ class EthAccount(private val credentials: Credentials,
 
     override fun getAccountBalance() = accountContext.balance
 
-    override fun isMineAddress(address: GenericAddress) =
-            address == EthAddress(coinType, "0x60c2A43Cc69658eC4b02a65A07623D7192166F4e")
+    override fun isMineAddress(address: GenericAddress?) =
+            address == EthAddress(coinType, credentials.address)
 
     override fun isExchangeable() = true
 

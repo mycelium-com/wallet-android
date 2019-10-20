@@ -7,6 +7,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 public class AddressUtils {
 
@@ -23,6 +25,9 @@ public class AddressUtils {
             } else {
                 return null;
             }
+        } else if (currencyType instanceof EthCoin) {
+            EthAddress addr = new EthAddress(currencyType, address);
+            return addr;
         } else {
             return null;
         }

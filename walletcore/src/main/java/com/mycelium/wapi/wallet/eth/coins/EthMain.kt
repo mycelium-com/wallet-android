@@ -4,7 +4,7 @@ object EthMain: EthCoin() {
 
     init {
         id = "etherium.main"
-        name = "Ether"
+        name = "Ethereum"
         symbol = "ETH"
     }
 }
