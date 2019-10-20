@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:showIn="@layout/send_coins_fee_block">
+
+
+    <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+        android:id="@+id/feeLvlList"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:background="@color/fee_recycler_item"
+        android:orientation="horizontal"
+        android:scrollbars="none"
+        android:textColor="@color/horizontalpicker_text_color"
+        android:textSize="14sp"
+        android:layoutDirection="ltr"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+        android:id="@+id/feeValueList"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:background="@color/fee_recycler_item"
+        android:orientation="horizontal"
+        android:scrollbars="none"
+        android:textColor="@color/horizontalpicker_text_color"
+        android:textSize="14sp"
+        android:layoutDirection="ltr"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+</merge>

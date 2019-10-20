@@ -103,8 +103,8 @@
     <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: No es suficiente almacenar la clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Deseas continuar?</string>
     <string name="found_clipboard_private_key_title">Clave privada encontrada en el portapapeles</string>
     <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
-    <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
-    <string name="read_only_warning">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Estás enviando a una de tus propias direcciones.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Añadir dirección</string>
     <string name="scan_address_book_desc">Escanear una dirección de Bitcoin.</string>
     <string name="clipboard_address_book_desc">Obtener una dirección de Bitcoin desde el portapapeles.</string>
@@ -647,32 +647,6 @@
     <string name="block_explorer_summary">Los detalles de la transacción se pueden consultar usando el explorador de bloques %1$s</string>
     <string name="lt_warning_wrong_account_type">Compra-Venta Local no funciona con el tipo de cuenta seleccionada, por favor selecciona otra cuenta.</string>
     <string name="lt_account_not_allowed">El tipo de la cuenta seleccionada no funciona con la compra-venta local. Necesitas seleccionar otra cuenta para realizar esta operación.</string>
-    <string name="coinapult_sending_via_coinapult">Enviando Bitcoin via Coinapult</string>
-    <string name="coinapult_account_notes">Una cuenta de Coinapult permite almacenar valores en varias monedas fiduciarias y pasar al instante a cualquier dirección bitcoin. \nMientras utilices tus claves privadas para acceder a ella, están bajo el control de Coinapult, a diferencia de tus fondos en cuentas HD normales.</string>
-    <string name="coinapult_mail_hint">Introducir dirección de correo</string>
-    <string name="coinapult_mail_description">Si proporcionas tu dirección de email, puedes abrir un ticket de soporte con Coinapult enviando un email a support@coinapult.com desde tu correo.</string>
-    <string name="coinapult_threshold_warning">Advertencia: Las cuentas de Coinapult no pueden completar operaciones de conversión de valor inferior a %1$s.</string>
-    <string name="coinapult_amount_too_small">Importe demasiado bajo, la retirada mínima es %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Establecer dirección de email</string>
-    <string name="coinapult_set_mail_failed">Error al establecer la dirección de email, por favor, comprueba que la has escrito correctamente y asegúrate de que tu dispositivo tiene conexión a internet.</string>
-    <string name="coinapult_setting_email">Enviando dirección de email a Coinapult&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Se ha establecido tu dirección de email, recibirás un email con un enlace de confirmación. Por favor, copia ese enlace y elige \"verificar email\" desde la configuración de cuenta, para pegar el enlace y verificar que la dirección de email es correcta.</string>
-    <string name="coinapult_verify_mail_menu_title">Verificar la dirección de email</string>
-    <string name="coinapult_mail_verification">Verificar tu dirección de email de coinapult</string>
-    <string name="coinapult_mail_verification_description">Por favor, pega el enlace de verificación de tu correo de Coinapult en el cuadro de texto inferior.</string>
-    <string name="coinapult_mail_verification_hint">pega el enlace de verificación completo</string>
-    <string name="coinapult_verifying_email">Enviando enlace de verificación a Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Tu dirección email de Coinapult fue verificada con éxito.</string>
-    <string name="coinapult_verify_mail_error">Ha ocurrido un error al verificar tu dirección de correo. Por favor, asegúrate de copiar el link de verificación completo y correctamente.</string>
-    <string name="coinapult_unable_to_create_account">No se puede crear la cuenta Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Error al transmitir una transacción de Coinapult</string>
-    <string name="coinapult_add_locks_account">Añadir una cuenta Coinapult Locks</string>
-    <string name="coinapult_tos_link">Abrir los Términos y Condiciones de Coinapult</string>
-    <string name="coinapult_tos_question">Para crear una cuenta de Coinapult debes aceptar sus Términos y Condiciones</string>
-    <string name="coinapult_mail_question">¿Quieres proporcionar tu dirección de email?</string>
-    <string name="coinapult_create_account">Creando cuenta Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">Tu clave de acceso a la cuenta de Coinapult deriva de tu semilla. Si tienes una copia de seguridad válida, el acceso a tu cuenta Coinapult también está incluido.</string>
-    <string name="coinapult_currency_account">Cuenta %1$s</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -715,9 +689,7 @@
     <string name="warning_amount_does_not_match">Aviso: La cantidad no coincide.</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="error_details">Detalles del error</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <plurals name="contains_keys">

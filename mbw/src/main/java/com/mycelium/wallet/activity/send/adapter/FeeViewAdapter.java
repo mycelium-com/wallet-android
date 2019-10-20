@@ -85,7 +85,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
                 holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
             }
 
-            holder.valueTextView.setText(Math.round(item.feePerKb / 1000f) + " sat/byte");
+            holder.valueTextView.setText(Math.round(item.feePerKb / 1000f) + " sat/byte"); // TODO decide how to fix
 
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="androidx.lifecycle.AndroidViewModel" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <!--Heading, containing buttons, or currently selected address-->
+                <include
+                    layout="@layout/send_coins_heading"
+                    bind:viewModel="@{viewModel}"
+                    bind:activity="@{activity}" />
+
+
+                <!--Warnings-->
+                <include
+                    layout="@layout/send_coins_activity_warnings_heap"
+                    bind:activity="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+
+                <TextView
+                    android:id="@+id/colu_tips_check_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/colu_before_sending_make_sure"
+                    android:textColor="@color/white"
+                    android:onClick="@{_ -> activity.onColuTipClick()}"
+                    android:visibility="visible"
+                    android:textSize="14sp" />
+
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <!--Transaction label (might be part of bip21)-->
+                    <include
+                        layout="@layout/send_coins_tx_label"
+                        bind:viewModel="@{viewModel}" />
+
+                    <!--Contains amount selection-->
+                    <include
+                        layout="@layout/send_coins_amount"
+                        bind:activity="@{activity}"
+                        bind:viewModel="@{viewModel}" />
+
+                    <!--Fee selector-->
+                    <include
+                        layout="@layout/send_coins_fee_block"
+                        bind:viewModel="@{viewModel}" />
+                </LinearLayout>
+
+                <!-- Amount Error -->
+                <include
+                    layout="@layout/send_coins_insufficient"
+                    bind:viewModel="@{viewModel}" />
+
+                <!--Update progress bar-->
+                <include
+                    layout="@layout/send_coins_progress"
+                    bind:viewModel="@{viewModel}" />
+
+                <!-- Send -->
+
+                <include
+                    layout="@layout/send_coins_send_section"
+                    bind:activity="@{activity}"
+                    bind:viewModel="@{viewModel}" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</layout>

@@ -107,8 +107,8 @@
     <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
     <string name="found_clipboard_private_key_title">Zasebni ključ najden na odložišču</string>
     <string name="exchange_source_not_available">Menjalni tečaj za %1$s ni na voljo</string>
-    <string name="my_own_address_warning">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</string>
-    <string name="read_only_warning">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </font>]]></string>
     <string name="add_to_address_book_dialog_title">Dodaj naslov</string>
     <string name="scan_address_book_desc">Prečitaj bitcoin naslov.</string>
     <string name="clipboard_address_book_desc">Pridobi bitcoin naslov z odložišča.</string>
@@ -646,8 +646,6 @@
     <string name="pop_message_from_server">Sporočilo s strežnika:</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

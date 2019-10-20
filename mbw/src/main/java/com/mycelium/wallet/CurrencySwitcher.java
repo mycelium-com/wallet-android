@@ -40,7 +40,6 @@ import com.mycelium.wallet.exchange.ValueSum;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.bch.coins.BchMain;
 import com.mycelium.wapi.wallet.bch.coins.BchTest;
-import com.mycelium.wapi.wallet.coinapult.Currency;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
@@ -123,7 +122,7 @@ public class CurrencySwitcher {
    }
 
     public String getCurrentCurrencyIncludingDenomination() {
-        if (currentCurrency instanceof FiatType || currentCurrency instanceof Currency) {
+        if (currentCurrency instanceof FiatType) {
             return currentCurrency.getSymbol();
         } else {
             return denomination.getUnicodeString(currentCurrency.getSymbol());

@@ -85,26 +85,6 @@
                 android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:layout_marginTop="4dp"
-                android:text="@string/coinapult_account_notes"
-                android:layout_marginBottom="20dp" />
-
-        <Button
-                android:id="@+id/btCoinapultCreate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/coinapult_add_locks_account"
-                android:layout_marginBottom="40dp" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
                 android:text="@string/colu_account_notes"
                 android:id="@+id/textView2"
                 android:layout_marginBottom="20dp" />

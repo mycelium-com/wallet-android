@@ -5,7 +5,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 
 public enum AccountDisplayType {
@@ -13,7 +12,6 @@ public enum AccountDisplayType {
     BCH_ACCOUNT("BCH"),
     DASH_ACCOUNT("DASH"),
     COLU_ACCOUNT("COLU"),
-    COINAPULT_ACCOUNT("COINAPULT"),
     UNKNOWN_ACCOUNT("UNKNOWN");
 
     private final String accountLabel;
@@ -28,9 +26,6 @@ public enum AccountDisplayType {
         }
         if (account instanceof Bip44BCHAccount || account instanceof SingleAddressBCHAccount) {
             return BCH_ACCOUNT;
-        }
-        if (account instanceof CoinapultAccount){
-            return COINAPULT_ACCOUNT;
         }
         if (account instanceof ColuAccount) {
             return COLU_ACCOUNT;

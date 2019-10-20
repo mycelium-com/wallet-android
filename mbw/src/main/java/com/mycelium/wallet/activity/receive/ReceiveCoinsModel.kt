@@ -77,7 +77,7 @@ class ReceiveCoinsModel(
     }
 
     fun getPaymentUri(): String {
-        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val prefix = accountLabel
         val uri = StringBuilder(prefix)
                 .append(':')
                 .append(receivingAddress.value)

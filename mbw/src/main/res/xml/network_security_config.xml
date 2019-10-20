@@ -3,5 +3,6 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">testnet.api.coloredcoins.org</domain>
         <domain includeSubdomains="true">coloredcoins-test.mycelium.com</domain>
+        <domain includeSubdomains="true">public-api.wordpress.com</domain>
     </domain-config>
 </network-security-config>

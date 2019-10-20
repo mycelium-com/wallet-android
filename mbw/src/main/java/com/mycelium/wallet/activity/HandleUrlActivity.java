@@ -46,7 +46,7 @@ import com.mycelium.paymentrequest.PaymentRequestException;
 import com.mycelium.paymentrequest.PaymentRequestInformation;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 
 public class HandleUrlActivity extends Activity {
@@ -94,7 +94,7 @@ public class HandleUrlActivity extends Activity {
                // handle the payment request
                MbwManager mbw = MbwManager.getInstance(HandleUrlActivity.this);
 
-               Intent intent = SendMainActivity.getIntent(
+               Intent intent = SendCoinsActivity.getIntent(
                      HandleUrlActivity.this,
                      mbw.getSelectedAccount().getId(),
                      paymentRequestAsyncTaskResult.paymentRequest.getRawPaymentRequest(),

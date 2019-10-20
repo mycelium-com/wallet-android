@@ -46,9 +46,13 @@ import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.util.Log;
+
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
+import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Provider;
@@ -108,6 +112,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
         PackageRemovedReceiver.register(getApplicationContext());
+        NewsDatabase.INSTANCE.initialize(this);
+        NewsSyncUtils.startNewsUpdateRepeating(this);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
