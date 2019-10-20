@@ -4,7 +4,7 @@
 
     <data>
 
-        <import type="android.arch.lifecycle.AndroidViewModel" />
+        <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
             name="activity"
@@ -34,7 +34,8 @@
                 <!--Heading, containing buttons, or currently selected address-->
                 <include
                     layout="@layout/send_coins_heading"
-                    bind:viewModel="@{viewModel}" />
+                    bind:viewModel="@{viewModel}"
+                    bind:activity="@{activity}" />
 
 
                 <!--Warnings-->
@@ -65,18 +66,31 @@
                     android:orientation="vertical">
 
                     <!--Transaction label (might be part of bip21)-->
-                    <include layout="@layout/send_coins_tx_label" />
+                    <include
+                        layout="@layout/send_coins_tx_label"
+                        bind:viewModel="@{viewModel}" />
 
                     <!--Contains amount selection-->
-                    <include layout="@layout/send_coins_amount" />
+                    <include
+                        layout="@layout/send_coins_amount"
+                        bind:activity="@{activity}"
+                        bind:viewModel="@{viewModel}" />
 
                     <!--Fee selector-->
-                    <include layout="@layout/send_coins_fee_block"
-                        bind:viewModel="@{viewModel}"  />
+                    <include
+                        layout="@layout/send_coins_fee_block"
+                        bind:viewModel="@{viewModel}" />
                 </LinearLayout>
 
                 <!-- Amount Error -->
-                <include layout="@layout/send_coins_insufficient" />
+                <include
+                    layout="@layout/send_coins_insufficient"
+                    bind:viewModel="@{viewModel}" />
+
+                <!--Update progress bar-->
+                <include
+                    layout="@layout/send_coins_progress"
+                    bind:viewModel="@{viewModel}" />
 
                 <!-- Send -->
 
@@ -86,9 +100,5 @@
                     bind:viewModel="@{viewModel}" />
             </LinearLayout>
         </ScrollView>
-
-        <include
-            layout="@layout/send_coins_progress"
-            bind:viewModel="@{viewModel}" />
     </FrameLayout>
 </layout>

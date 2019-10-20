@@ -27,20 +27,19 @@
         android:orientation="vertical">
 
         <!-- Receiver Label -->
-
-        <include layout="@layout/send_coins_recipient_label"
+        <include
+            layout="@layout/send_coins_recipient_label"
             bind:viewModel="@{viewModel}" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.receivingAddresses.isEmpty() ? View.VISIBLE : View.GONE}">
 
-            <!-- Receiver Address -->
-            <include layout="@layout/send_coins_recipient_address"
+            <include
+                layout="@layout/send_coins_recipient_address"
                 bind:viewModel="@{viewModel}" />
         </LinearLayout>
     </LinearLayout>

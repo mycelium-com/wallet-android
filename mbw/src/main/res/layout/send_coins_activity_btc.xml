@@ -4,7 +4,7 @@
 
     <data>
 
-        <import type="android.arch.lifecycle.AndroidViewModel" />
+        <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
             name="activity"

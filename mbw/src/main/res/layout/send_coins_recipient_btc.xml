@@ -59,5 +59,4 @@
             app:address="@{viewModel.receivingAddress}"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
     </LinearLayout>
-    <!--</LinearLayout>-->
 </layout>

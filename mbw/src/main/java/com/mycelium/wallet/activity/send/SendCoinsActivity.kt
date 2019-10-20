@@ -93,15 +93,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
-        // TODO probably rework everything related to payment request as btc
         if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler().value!!) {
             viewModel.verifyPaymentRequest(rawPaymentRequest, this)
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
         val genericUri = viewModel.getGenericUri().value
-        if (genericUri is WithCallback
-                && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
+        if (genericUri is WithCallback && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
                 && viewModel.hasPaymentRequestHandler().value == false) {
             viewModel.verifyPaymentRequest(genericUri, this)
         }
@@ -280,13 +278,12 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val result = Intent()
         if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
             val signedTransaction = viewModel.getSignedTransaction()!!
-            if (viewModel.getTransactionLabel().value != null) {
-                mbwManager.metadataStorage.storeTransactionLabel(HexUtils.toHex(signedTransaction.id),
-                        viewModel.getTransactionLabel().value!!)
+            viewModel.getTransactionLabel().value?.run {
+                mbwManager.metadataStorage.storeTransactionLabel(HexUtils.toHex(signedTransaction.id), this)
             }
             val hash = HexUtils.toHex(signedTransaction.id)
             val fiat = viewModel.getFiatValue()
-            if (fiat != null) {
+            fiat?.run {
                 getSharedPreferences(TRANSACTION_FIAT_VALUE, Context.MODE_PRIVATE).edit().putString(hash, fiat).apply()
             }
             result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
@@ -307,7 +304,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     companion object {
-        private val TAG = "SendCoinsActivity"
         const val GET_AMOUNT_RESULT_CODE = 1
         const val SCAN_RESULT_CODE = 2
         const val ADDRESS_BOOK_RESULT_CODE = 3
