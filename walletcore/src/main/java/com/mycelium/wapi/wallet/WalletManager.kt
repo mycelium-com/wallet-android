@@ -6,6 +6,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.manager.*
 import org.jetbrains.annotations.TestOnly
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 
 class WalletManager
@@ -15,7 +16,7 @@ constructor(val network: NetworkParameters,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null) {
-    private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
+    private val accounts = ConcurrentHashMap<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
@@ -26,7 +27,7 @@ constructor(val network: NetworkParameters,
 
     fun setCurrencySettings(moduleID: String, settings: CurrencySettings) {
         currencySettingsMap[moduleID] = settings
-        walletModules.get(moduleID)?.setCurrencySettings(settings)
+        walletModules[moduleID]?.setCurrencySettings(settings)
     }
 
     var isNetworkConnected: Boolean = false
@@ -61,7 +62,7 @@ constructor(val network: NetworkParameters,
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
-    fun getAccountIds(): List<UUID> = accounts.keys.toList()
+    fun getAccountIds(): List<UUID> = accounts.keys().toList()
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
@@ -187,7 +188,6 @@ constructor(val network: NetworkParameters,
      *
      * @return the active accounts managed by the wallet manager
      */
-
     fun getActiveAccounts(): List<WalletAccount<*>> =
             accounts.values.filter { it.isActive && it.canSpend() }
 

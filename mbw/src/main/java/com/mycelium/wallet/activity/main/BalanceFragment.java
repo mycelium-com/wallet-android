@@ -40,8 +40,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,7 +57,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.BipSsImportActivity;
 import com.mycelium.wallet.activity.HandleUrlActivity;
 import com.mycelium.wallet.activity.ScanActivity;
@@ -91,7 +90,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -228,10 +226,6 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        if (account instanceof CoinapultAccount) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
-            return;
-        }
         if (account.canSpend()) {
             if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
                 new AlertDialog.Builder(getActivity())
@@ -257,20 +251,12 @@ public class BalanceFragment extends Fragment {
 
     @OnClick(R.id.btReceive)
     void onClickReceive() {
-        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
-            return;
-        }
         ReceiveCoinsActivity.callMe(getActivity(), _mbwManager.getSelectedAccount(),
                 _mbwManager.getSelectedAccount().canSpend(), true);
     }
 
     @OnClick(R.id.btScan)
     void onClickScan() {
-        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
-            Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_gone_details);
-            return;
-        }
         if (isBCH()) {
             return;
         }

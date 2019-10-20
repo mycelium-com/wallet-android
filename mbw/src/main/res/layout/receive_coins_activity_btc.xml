@@ -3,11 +3,11 @@
 
     <data>
 
-        <import type="android.arch.lifecycle.AndroidViewModel" />
+        <import type="androidx.lifecycle.AndroidViewModel" />
 
         <variable
             name="activity"
-            type="android.support.v7.app.AppCompatActivity" />
+            type="androidx.appcompat.app.AppCompatActivity" />
 
         <variable
             name="viewModel"

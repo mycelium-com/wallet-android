@@ -15,12 +15,7 @@ public class AddressUtils {
             return null;
         }
         if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
-            Address addr = Address.fromString(address);
-            if (addr != null) {
-                return fromAddress(addr);
-            } else {
-                return null;
-            }
+            return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
             Address addr = Address.fromString(address);
             if (addr != null) {
@@ -42,10 +37,7 @@ public class AddressUtils {
 
     // Use only for bitcoin address
     public static boolean addressValidation(GenericAddress address) {
-        if (Address.fromString(address.toString()) != null) {
-            return true;
-        }
-        return false;
+        return Address.fromString(address.toString()) != null;
     }
 
     public static String toMultiLineString(String address) {

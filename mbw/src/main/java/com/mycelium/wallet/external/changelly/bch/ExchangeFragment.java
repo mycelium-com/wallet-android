@@ -6,9 +6,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.util.TypedValue;
@@ -60,7 +60,6 @@ import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 import static com.mycelium.wapi.wallet.bch.bip44.Bip44BCHHDModuleKt.getBCHBip44Accounts;
 import static com.mycelium.wapi.wallet.bch.single.BitcoinCashSingleAddressModuleKt.getBCHSingleAddressAccounts;
 import static com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModuleKt.getActiveHDAccounts;
-import static com.mycelium.wapi.wallet.coinapult.CoinapultModuleKt.getCoinapultAccounts;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BCH;
 import static com.mycelium.wapi.wallet.currency.CurrencyValue.BTC;
 
@@ -73,7 +72,7 @@ public class ExchangeFragment extends Fragment {
     public static final String TO_ACCOUNT = "toAccount";
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String FROM_VALUE = "fromValue";
-    private static String TAG = "ChangellyActivity";
+    private static final String TAG = "ChangellyActivity";
     private ChangellyAPIService changellyAPIService = ChangellyAPIService.retrofit.create(ChangellyAPIService.class);
 
     @BindView(R.id.scrollView)
@@ -148,7 +147,6 @@ public class ExchangeFragment extends Fragment {
         List<WalletAccount<?>> toAccounts = new ArrayList<>();
         toAccounts.addAll(getActiveHDAccounts(walletManager));
         toAccounts.addAll(getActiveBTCSingleAddressAccounts(walletManager));
-        toAccounts.addAll(getCoinapultAccounts(walletManager));
         toAccountAdapter = new AccountAdapter(mbwManager, toAccounts, firstItemWidth);
         toAccountAdapter.setAccountUseType(AccountAdapter.AccountUseType.IN);
         toRecyclerView.setAdapter(toAccountAdapter);

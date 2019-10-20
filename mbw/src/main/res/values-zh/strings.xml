@@ -681,32 +681,6 @@
     <string name="block_explorer_summary">使用%1$s区块浏览器寻找交易细节</string>
     <string name="lt_warning_wrong_account_type">本地商家与所选帐户类型不匹配，请选择另一个帐户。</string>
     <string name="lt_account_not_allowed">所选帐户类型不能与本地商家进行交易。您需要选择要另一个帐户来进行这种贸易。</string>
-    <string name="coinapult_sending_via_coinapult">通过 Coinapult 发送比特币</string>
-    <string name="coinapult_account_notes">Coinapult 帐户允许您以各种法定货币进行储蓄并且立即对任何比特币地址进行付款。\n 当你使用你的私钥访问它时，它们不同于您在正常HD帐户上的资金, 因为它们受到Coinapult的保护。</string>
-    <string name="coinapult_mail_hint">输入电子邮箱地址</string>
-    <string name="coinapult_mail_description">如果您能够提供您的电子邮件地址，您可以通过向 support@coinapult.com 发送一封电子邮件提交一个Coinapult 支持请求。</string>
-    <string name="coinapult_threshold_warning">警告 ︰ Coinapult 帐户无法完成 小于%1$s 的转换交易。</string>
-    <string name="coinapult_amount_too_small">金额太小，最低提金款为%1$s %2$s。</string>
-    <string name="coinapult_set_mail_menu_item">设置电子邮件地址</string>
-    <string name="coinapult_set_mail_failed">设置电子邮件地址失败，请检查拼写是否正确，并且确保您的设备可以使用互联网连接。</string>
-    <string name="coinapult_setting_email">将电子邮件地址发送到 Coinapult...</string>
-    <string name="coinapult_set_mail_please_verify">您的电子邮件地址已经被设置，您将收到一封含有确认链接的邮件。请复制该链接并在帐户设置中选择\'验证电子邮件\' ，然后将该链接粘贴并验证电子邮件地址正确是否正确。</string>
-    <string name="coinapult_verify_mail_menu_title">验证电子邮件地址</string>
-    <string name="coinapult_mail_verification">验证您的 coinapult 电子邮件地址</string>
-    <string name="coinapult_mail_verification_description">请将您的 coinapult 电子邮件验证链接粘贴到下面的文本框中。</string>
-    <string name="coinapult_mail_verification_hint">粘贴完整的验证链接</string>
-    <string name="coinapult_verifying_email">正在发送验证链接到 coinapult...</string>
-    <string name="coinapult_verify_mail_success">您的 coinapult 电子邮件地址已经成功完成验证。</string>
-    <string name="coinapult_verify_mail_error">您的电子邮件地址验证链接不正确。请确保您复制正确完整的验证链接。</string>
-    <string name="coinapult_unable_to_create_account">无法创建 coinapult 帐户</string>
-    <string name="coinapult_failed_to_broadcast">无法播报 coinapult 交易</string>
-    <string name="coinapult_add_locks_account">添加 Coinapult 锁定帐户</string>
-    <string name="coinapult_tos_link">打开 Coinapult 条款和条件</string>
-    <string name="coinapult_tos_question">若要创建一个 Coinapult 帐户你必须同意其条款和条件</string>
-    <string name="coinapult_mail_question">你想要提供您的邮件地址吗？</string>
-    <string name="coinapult_create_account">正在创建 Coinapult 帐户...</string>
-    <string name="coinapult_backup_info">您的 Coinapult 帐户访问密钥是基于你的主种子。如果您有一个有效的备份，它也可以对您的 Coinapult 帐户进行访问。</string>
-    <string name="coinapult_currency_account">%1$s 帐户</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -751,12 +725,10 @@
     <string name="mycelium_terms_of_use">Mycelium使用条款</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">买/卖比特币</string>
     <string name="error_details">详细错误信息</string>
     <string name="warning_sync_failed_reusing_first">同步失败 ！重用此 xpub #1 地址 ！</string>
     <string name="tap_to_toggle_through_other_currencies">通过点击切换其它货币</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="label_single_key_icon">单一密钥</string>

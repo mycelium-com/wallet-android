@@ -35,7 +35,7 @@
 package com.mycelium.wallet.activity.util;
 
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
+import androidx.appcompat.widget.PopupMenu;
 import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,8 +74,7 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       super.updateUi();
 
       final List<GenericAssetInfo> currencies = getAvailableCurrencyList();
-      // there are more than one fiat-currency
-      // there is only one currency to show - don't show a triangle hinting that the user can toggle
+      // if there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
       LinearLayout linearLayout = findViewById(R.id.llContainer);
@@ -114,15 +113,20 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
 
    private List<GenericAssetInfo> getAvailableCurrencyList() {
       List<GenericAssetInfo> result = new ArrayList<>();
-      final List<GenericAssetInfo> currencies = getFiatOnly() ? getCurrencySwitcher().getCurrencyList()
-              : getCurrencySwitcher().getCurrencyList(Utils.getBtcCoinType());
 
-      for (GenericAssetInfo asset : currencies) {
+      // add fiat currencies for which exchange rate is available
+      for (GenericAssetInfo asset : getCurrencySwitcher().getCurrencyList()) {
          Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());
          if (exchangeValue != null) {
             result.add(asset);
          }
       }
+
+      // also add BTC if not only fiat is of interest
+      if (!getFiatOnly()) {
+         result.add(Utils.getBtcCoinType());
+      }
+
       return result;
    }
 

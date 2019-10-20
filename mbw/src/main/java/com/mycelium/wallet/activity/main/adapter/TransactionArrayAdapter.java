@@ -2,8 +2,8 @@ package com.mycelium.wallet.activity.main.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.SendCoinsActivity;
@@ -176,7 +177,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       }
 
       // Show label or confirmations
-      TextView tvLabel = (TextView) rowView.findViewById(R.id.tvTransactionLabel);
+      TextView tvLabel = rowView.findViewById(R.id.tvTransactionLabel);
       String label = _storage.getLabelByTransaction(record.getIdHex());
       if (label.length() == 0) {
          // if we have no txLabel show the confirmation state instead - to keep they layout ballanced

@@ -1,8 +1,8 @@
 package com.mycelium.wallet.activity.main.adapter;
 
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,12 +55,12 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (getItemViewType(position) == BUTTON) {
             final ActionButton actionButton = buttons.get(position);
             Button button = ((ButtonHolder) holder).button;
-            button.setText(actionButton.text);
-            button.setCompoundDrawablesWithIntrinsicBounds(actionButton.icon, 0, 0, 0);
-            button.setTextColor(actionButton.textColor != 0 ?
-                    actionButton.textColor : button.getResources().getColor(R.color.btn_text_color));
-            button.setPadding(button.getResources().getDimensionPixelSize(actionButton.icon != 0 ?
-                            R.dimen.button_padding : R.dimen.button_padding_large)
+            button.setText(actionButton.getText());
+            button.setCompoundDrawablesWithIntrinsicBounds(actionButton.getIcon(), 0, 0, 0);
+            button.setTextColor(actionButton.getTextColor() != 0 ?
+                    actionButton.getTextColor() : button.getResources().getColor(R.color.btn_text_color));
+            button.setPadding(button.getResources().getDimensionPixelSize(actionButton.getIcon() != 0 ?
+                            R.dimen.page_margin_width : R.dimen.button_padding_large)
                     , button.getPaddingTop(), button.getPaddingRight(), button.getPaddingBottom());
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -77,9 +77,9 @@ public class ButtonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             paint.setTextSize(textSize);
             String text;
             if (position == 0) {
-                text = buttons.get(1).text;
+                text = buttons.get(1).getText();
             } else {
-                text = buttons.get(buttons.size() - 2).text;
+                text = buttons.get(buttons.size() - 2).getText();
             }
             int width = (int) paint.measureText(text);
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="16dp">
+
+    <include
+        layout="@layout/item_mediaflow_news_category_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        layout="@layout/item_mediaflow_news_v2_big" />
+
+    <include
+        android:id="@+id/news_1"
+        layout="@layout/item_mediaflow_news_v2" />
+
+    <include
+        android:id="@+id/news_2"
+        layout="@layout/item_mediaflow_news_v2" />
+
+</LinearLayout>

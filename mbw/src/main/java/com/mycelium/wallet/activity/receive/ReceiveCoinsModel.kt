@@ -2,13 +2,13 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.app.NotificationManager
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -77,7 +77,7 @@ class ReceiveCoinsModel(
     }
 
     fun getPaymentUri(): String {
-        val prefix = if (accountDisplayType == AccountDisplayType.COINAPULT_ACCOUNT) "CoinapultApiBroken" else accountLabel
+        val prefix = accountLabel
         val uri = StringBuilder(prefix)
                 .append(':')
                 .append(receivingAddress.value)

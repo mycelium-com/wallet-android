@@ -1,15 +1,14 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
+import androidx.lifecycle.AndroidViewModel
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.FragmentActivity
 import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
     protected val mbwManager = MbwManager.getInstance(context)!!
@@ -42,16 +41,9 @@ abstract class AddressFragmentViewModel(val context: Application) : AndroidViewM
         Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 
-    fun getAddressString(): String {
-        val addressString = getAccountAddress().value!!.toString()
-        return if(mbwManager.selectedAccount is CoinapultAccount) {
-            "Coinapult stopped working! Handle with care: " + addressString.chunked(5).joinToString(" ")
-        } else { addressString }
-    }
+    fun getAddressString(): String = getAccountAddress().value!!.toString()
 
     fun isLabelNullOrEmpty() = (getAccountLabel().value == null || getAccountLabel().value!!.toString().equals(""))
-
-    fun isCoinapult() = mbwManager.selectedAccount is CoinapultAccount
 
     abstract fun qrClickReaction(activity: FragmentActivity)
 

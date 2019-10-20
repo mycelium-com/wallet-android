@@ -40,7 +40,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -106,11 +106,6 @@ public class AddAccountActivity extends Activity {
 
     @OnClick(R.id.btHdBchCreate)
     void onAddBchHD() {}
-
-    @OnClick(R.id.btCoinapultCreate)
-    void onAddCoinapultAccount() {
-        Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
-    }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
         @Override

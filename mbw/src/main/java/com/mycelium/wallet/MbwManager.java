@@ -45,12 +45,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
-import com.coinapult.api.httpclient.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -59,7 +58,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
@@ -84,7 +82,6 @@ import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
-import com.mycelium.wallet.coinapult.SQLiteCoinapultBacking;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
 import com.mycelium.wallet.event.*;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
@@ -106,18 +103,12 @@ import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.*;
 import com.mycelium.wapi.wallet.btc.bip44.*;
 import com.mycelium.wapi.wallet.btc.single.*;
-import com.mycelium.wapi.wallet.coinapult.CoinapultApiImpl;
-import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.manager.WalletListener;
-import com.mycelium.wapi.wallet.masterseed.Listener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -185,7 +176,6 @@ public class MbwManager {
     private final LtApiClient _ltApi;
     private Handler _torHandler;
     private Context _applicationContext;
-    private MetadataStorage _storage;
     private LocalTraderManager _localTraderManager;
     private Pin _pin;
     private boolean _pinRequiredOnStartup;
@@ -227,8 +217,6 @@ public class MbwManager {
 
         // Preferences
         SharedPreferences preferences = getPreferences();
-        // setProxy(preferences.getString(Constants.PROXY_SETTING, ""));
-        // Initialize proxy early, to enable error reporting during startup..
 
         configuration = new WalletConfiguration(preferences, getNetwork());
 
@@ -276,7 +264,6 @@ public class MbwManager {
         WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
 
-        _storage = new MetadataStorage(_applicationContext);
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
@@ -604,12 +591,6 @@ public class MbwManager {
 
         masterSeedManager = new MasterSeedManager(secureKeyValueStore);
         final WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
-        masterSeedManager.setListener(new Listener() {
-            @Override
-            public void masterSeedConfigured() {
-                addCoinapultModule(context, environment, walletManager, accountListener);
-            }
-        });
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy(
                 getTrezorManager(),
@@ -657,30 +638,9 @@ public class MbwManager {
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
                 , new ColuApiImpl(coluClient), _wapi, coluBacking, accountListener, getMetadataStorage(), saModule));
 
-        if (masterSeedManager.hasBip32MasterSeed()) {
-            addCoinapultModule(context, environment,walletManager, accountListener);
-        }
-
         walletManager.init();
 
         return walletManager;
-    }
-
-    private void addCoinapultModule(Context context, MbwEnvironment environment
-            , WalletManager walletManager, AccountListener accountListener) {
-        NetworkParameters networkParameters = environment.getNetwork();
-        try {
-            Bip39.MasterSeed masterSeed = masterSeedManager.getMasterSeed(AesKeyCipher.defaultKeyCipher());
-            InMemoryPrivateKey inMemoryPrivateKey = createBip32WebsitePrivateKey(masterSeed.getBip32Seed(), 0, "coinapult.com");
-            SQLiteCoinapultBacking coinapultBacking = new SQLiteCoinapultBacking(context
-                    , getMetadataStorage(), inMemoryPrivateKey.getPublicKey().getPublicKeyBytes(),
-                    networkParameters);
-            walletManager.add(new CoinapultModule(inMemoryPrivateKey, networkParameters
-                    , new CoinapultApiImpl(createClient(environment, inMemoryPrivateKey, retainingWapiLogger), retainingWapiLogger)
-                    , coinapultBacking, accountListener, getMetadataStorage()));
-        } catch (KeyCipher.InvalidKeyCipher invalidKeyCipher) {
-            invalidKeyCipher.printStackTrace();
-        }
     }
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
@@ -694,21 +654,6 @@ public class MbwManager {
         }
     }
 
-    private CoinapultClient createClient(MbwEnvironment env, InMemoryPrivateKey accountKey, WapiLogger logger) {
-        CoinapultConfig cc;
-        NetworkParameters network = env.getNetwork();
-        if (network.equals(NetworkParameters.testNetwork)) {
-            cc = new CoinapultPlaygroundConfig();
-        } else if (network.equals(NetworkParameters.productionNetwork)) {
-            cc = new CoinapultProdConfig();
-        } else {
-            throw new IllegalStateException("unknown network: " + network);
-        }
-
-        return new CoinapultClient(AndroidKeyConverter.convertKeyFormat(accountKey), new ECC_SC(), cc, logger);
-    }
-
-
     /**
      * Create a Wallet Manager instance for temporary accounts just backed by in-memory persistence
      *
@@ -721,7 +666,6 @@ public class MbwManager {
 
         // Create secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing, new AndroidRandomSource());
-
 
         // Create and return wallet manager
         WalletManager walletManager = new WalletManager(environment.getNetwork(), _wapi, currenciesSettingsMap);
@@ -854,35 +798,35 @@ public class MbwManager {
             setPinBlockheight();
             return false;
         }
-        return !(pinLockdownDuration.get() > 0);
+        return pinLockdownDuration.get() <= 0;
     }
 
     public Pin getPin() {
         return _pin;
     }
 
-    public void showClearPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
+    public void showClearPinDialog(final Activity activity, final Runnable afterDialogClosed) {
         this.runPinProtectedFunction(activity, new ClearPinDialog(activity, true), new Runnable() {
             @Override
             public void run() {
                 MbwManager.this.savePin(Pin.CLEAR_PIN);
                 Toast.makeText(_applicationContext, R.string.pin_cleared, Toast.LENGTH_LONG).show();
-                if (afterDialogClosed.isPresent()) {
-                    afterDialogClosed.get().run();
+                if (afterDialogClosed != null) {
+                    afterDialogClosed.run();
                 }
             }
         });
     }
 
-    public void showSetPinDialog(final Activity activity, final Optional<Runnable> afterDialogClosed) {
+    public void showSetPinDialog(final Activity activity, final Runnable afterDialogClosed) {
         // Must make a backup before setting PIN
         if (this.getMetadataStorage().getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-            Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first, afterDialogClosed.get());
+            Utils.showSimpleMessageDialog(activity, R.string.pin_backup_first, afterDialogClosed);
             return;
         }
 
-        final NewPinDialog _dialog = new NewPinDialog(activity, false);
-        _dialog.setOnPinValid(new PinDialog.OnPinEntered() {
+        final NewPinDialog pinDialog = new NewPinDialog(activity, false);
+        pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
             private String newPin = null;
 
             @Override
@@ -894,24 +838,24 @@ public class MbwManager {
                     MbwManager.this.savePin(pin);
                     Toast.makeText(activity, R.string.pin_set, Toast.LENGTH_LONG).show();
                     dialog.dismiss();
-                    if (afterDialogClosed.isPresent()) {
-                        afterDialogClosed.get().run();
+                    if (afterDialogClosed != null) {
+                        afterDialogClosed.run();
                     }
                 } else {
                     Toast.makeText(activity, R.string.pin_codes_dont_match, Toast.LENGTH_LONG).show();
                     MbwManager.this.vibrate();
                     dialog.dismiss();
-                    if (afterDialogClosed.isPresent()) {
-                        afterDialogClosed.get().run();
+                    if (afterDialogClosed != null) {
+                        afterDialogClosed.run();
                     }
                 }
             }
         });
 
-        this.runPinProtectedFunction(activity, new Runnable() {
+        runPinProtectedFunction(activity, new Runnable() {
             @Override
             public void run() {
-                _dialog.show();
+                pinDialog.show();
             }
         });
     }
@@ -973,6 +917,7 @@ public class MbwManager {
                             Toast.makeText(activity, "Something weird is happening. avoid getting to pin check", Toast.LENGTH_LONG).show();
                             vibrate();
                             pinDialog.dismiss();
+                            Thread.currentThread().interrupt();
                             return;
                         }
                     }
@@ -1005,7 +950,7 @@ public class MbwManager {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             pinDialog.dismiss();
-                                            MbwManager.this.showClearPinDialog(activity, Optional.<Runnable>absent());
+                                            MbwManager.this.showClearPinDialog(activity, null);
                                         }
                                     })
 
@@ -1063,7 +1008,6 @@ public class MbwManager {
         _blockExplorerManager.setBlockExplorer(blockExplorer);
         getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
     }
-
 
     public Denomination getDenomination() {
         return _currencySwitcher.getDenomination();
@@ -1160,9 +1104,9 @@ public class MbwManager {
         return new Locale(_language);
     }
 
-    public void setLanguage(String _language) {
-        this._language = _language;
-        getEditor().putString(Constants.LANGUAGE_SETTING, _language).apply();
+    public void setLanguage(String language) {
+        this._language = language;
+        getEditor().putString(Constants.LANGUAGE_SETTING, language).apply();
     }
 
     public void setTorMode(ServerEndpointType.Types torMode) {
@@ -1338,7 +1282,7 @@ public class MbwManager {
         //set default label for the created HD account
         WalletAccount account = _walletManager.getAccount(accountId);
         String defaultName = Utils.getNameForNewAccount(account, context);
-        _storage.storeAccountLabel(accountId, defaultName);
+        MetadataStorage.INSTANCE.storeAccountLabel(accountId, defaultName);
         return accountId;
     }
 
@@ -1347,7 +1291,7 @@ public class MbwManager {
     }
 
     public MetadataStorage getMetadataStorage() {
-        return _storage;
+        return MetadataStorage.INSTANCE;
     }
 
     public RandomSource getRandomSource() {
@@ -1404,10 +1348,10 @@ public class MbwManager {
         this.startUpPinUnlocked = unlocked;
     }
 
-    public void setPinRequiredOnStartup(boolean _pinRequiredOnStartup) {
-        getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, _pinRequiredOnStartup).apply();
+    public void setPinRequiredOnStartup(boolean pinRequiredOnStartup) {
+        getEditor().putBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, pinRequiredOnStartup).apply();
 
-        this._pinRequiredOnStartup = _pinRequiredOnStartup;
+        this._pinRequiredOnStartup = pinRequiredOnStartup;
     }
 
     public Cache<String, Object> getBackgroundObjectsCache() {
@@ -1429,7 +1373,7 @@ public class MbwManager {
                 getWalletManager(false).startSynchronization(new SyncMode(address),
                         Collections.<WalletAccount<?>>singletonList(getSelectedAccount()));
             }
-        }, 1000, 5 * 1000);
+        }, SECONDS.toMillis(1), SECONDS.toMillis(5));
     }
 
     private void pinOkForOneS() {
