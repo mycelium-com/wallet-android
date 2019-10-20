@@ -28,7 +28,6 @@ import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
 import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wallet.activity.send.model.SendBtcViewModel
-import com.mycelium.wallet.activity.send.model.SendCoinapultViewModel
 import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
 import com.mycelium.wallet.activity.send.model.SendColuViewModel
 import com.mycelium.wallet.activity.util.AnimationUtils
@@ -45,7 +44,6 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import kotlinx.android.synthetic.main.send_coins_activity.*
@@ -71,7 +69,6 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
         viewModel = when (account) {
             is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
-            is CoinapultAccount -> viewModelProvider.get(SendCoinapultViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
             else -> throw NotImplementedError()
         }
