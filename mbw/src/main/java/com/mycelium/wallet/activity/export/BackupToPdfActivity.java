@@ -43,8 +43,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
+
+import androidx.annotation.StringRes;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import android.view.WindowManager;
@@ -52,18 +54,34 @@ import android.widget.TextView;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.MrdExport;
 import com.mrd.bitlib.crypto.MrdExport.V1.KdfParameters;
+import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.AddressType;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.*;
-import com.mycelium.wallet.service.CreateMrdBackupTask;
-import com.mycelium.wallet.service.ServiceTaskStatusEx;
+import com.mycelium.wallet.pdf.ExportDistiller;
+import com.mycelium.wallet.pdf.ExportPdfParameters;
+import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 //todo HD: export master seed without address/xpub extra data.
 //todo HD: later: be compatible with a common format
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.text.format.DateFormat.getDateFormat;
 
@@ -81,8 +99,6 @@ public class BackupToPdfActivity extends Activity {
    private long backupTime;
    private String fileName;
    private String password;
-   private ProgressUpdater progressupdater;
-   private ServiceTaskStatusEx taskStatus;
    private boolean isPdfGenerated;
    private CreateMrdBackupTask task;
 
@@ -123,8 +139,6 @@ public class BackupToPdfActivity extends Activity {
       findViewById(R.id.btSharePdf).setOnClickListener(arg0 -> sharePdf());
 
       findViewById(R.id.btVerify).setOnClickListener(view -> VerifyBackupActivity.callMe(this));
-
-      progressupdater = new ProgressUpdater();
    }
 
    @Override
@@ -159,57 +173,20 @@ public class BackupToPdfActivity extends Activity {
       } else {
          enableSharing();
       }
-
-      progressupdater.start();
       super.onResume();
-   }
-
-   class ProgressUpdater implements Runnable {
-      final Handler handler = new Handler();
-
-      public void start() {
-         handler.post(this);
-      }
-
-      public void stop() {
-         handler.removeCallbacks(this);
-      }
-
-      /**
-       * Update the percentage of work completed for key stretching and pdf
-       * generation
-       */
-      @Override
-      public void run() {
-         if (isPdfGenerated) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
-            ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_document_ready);
-            return;
-         }
-
-         if (taskStatus == null) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
-            ((TextView) findViewById(R.id.tvStatus)).setText("");
-         } else {
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (taskStatus.progress * 100) + "%");
-            ((TextView) findViewById(R.id.tvStatus)).setText(taskStatus.statusMessage);
-         }
-
-         // Reschedule
-         handler.postDelayed(this, 300);
-      }
    }
 
    @Override
    protected void onPause() {
-      progressupdater.stop();
       MbwManager.getEventBus().unregister(this);
       super.onPause();
    }
 
    @Override
    protected void onDestroy() {
-      task.cancel(true);
+      if (task != null && !task.isCancelled()) {
+         task.cancel(true);
+      }
       super.onDestroy();
    }
 
@@ -247,7 +224,7 @@ public class BackupToPdfActivity extends Activity {
       findViewById(R.id.btVerify).setEnabled(false);
       KdfParameters kdfParameters = KdfParameters.createNewFromPassphrase(password, new AndroidRandomSource(),
             mbwManager.getDeviceScryptParameters());
-      task = new CreateMrdBackupTask(kdfParameters, this.getApplicationContext(),
+      task = new CreateMrdBackupTask(kdfParameters, getApplicationContext(),
             mbwManager.getWalletManager(false), AesKeyCipher.defaultKeyCipher(), mbwManager.getMetadataStorage(),
             mbwManager.getNetwork(), getFullExportFilePath());
       task.execute();
@@ -256,6 +233,7 @@ public class BackupToPdfActivity extends Activity {
    private void enableSharing() {
       findViewById(R.id.btSharePdf).setEnabled(true);
       findViewById(R.id.btVerify).setEnabled(true);
+      ((TextView) findViewById(R.id.tvProgress)).setText("");
       ((TextView) findViewById(R.id.tvStatus)).setText(R.string.encrypted_pdf_backup_document_ready);
    }
 
@@ -315,15 +293,195 @@ public class BackupToPdfActivity extends Activity {
    }
 
    @Subscribe
-   public void onStatusReceived(ServiceTaskStatusEx status) {
-      taskStatus = status;
+   public void onResultReceived(BackupResult result) {
+      isPdfGenerated = result.success;
+      if (isPdfGenerated) {
+         enableSharing();
+      }
    }
 
    @Subscribe
-   public void onResultReceived(CreateMrdBackupTask.BackupResult result) {
-      isPdfGenerated = result.isSuccess();
+   public void onProgressReceived(BackupProgress progress) {
       if (isPdfGenerated) {
-         enableSharing();
+         return;
+      }
+      ((TextView) findViewById(R.id.tvProgress)).setText(progress.message);
+      ((TextView) findViewById(R.id.tvStatus)).setText("" + (int) (progress.progress * 100) + "%");
+   }
+
+   private static class CreateMrdBackupTask extends AsyncTask<Void, Void, Boolean> {
+      private KdfParameters kdfParameters;
+      private List<EntryToExport> active;
+      private List<EntryToExport> archived;
+      private NetworkParameters networkParameters;
+      private String exportFilePath;
+      private Double encryptionProgress;
+      private ExportDistiller.ExportProgressTracker pdfProgress;
+      private Context context;
+      private Bus bus;
+
+      private CreateMrdBackupTask(KdfParameters kdfParameters, Context context, WalletManager walletManager, KeyCipher cipher,
+                                 MetadataStorage storage, NetworkParameters network, String exportFilePath) {
+         this.kdfParameters = kdfParameters;
+         this.bus = MbwManager.getEventBus();
+
+         // Populate the active and archived entries to export
+         active = new LinkedList<>();
+         archived = new LinkedList<>();
+         List<WalletAccount<?>> accounts = walletManager.getSpendingAccounts();
+         accounts = Utils.sortAccounts(accounts, storage);
+         EntryToExport entry;
+         for (WalletAccount account : accounts) {
+            //TODO: add check whether coluaccount is in hd or singleaddress mode
+            entry = null;
+            if (account instanceof SingleAddressAccount) {
+               if (!account.isVisible()) {
+                  continue;
+               }
+               SingleAddressAccount a = (SingleAddressAccount) account;
+               String label = storage.getLabelByAccount(a.getId());
+
+               String base58EncodedPrivateKey;
+               if (a.canSpend()) {
+                  try {
+                     base58EncodedPrivateKey = a.getPrivateKey(cipher).getBase58EncodedPrivateKey(network);
+                     entry = new EntryToExport(a.getPublicKey().getAllSupportedAddresses(network),
+                             base58EncodedPrivateKey, label, account instanceof SingleAddressBCHAccount);
+
+                  } catch (KeyCipher.InvalidKeyCipher e) {
+                     throw new RuntimeException(e);
+                  }
+               } else {
+                  Address address = a.getReceivingAddress().get();
+                  Map<AddressType, Address> addressMap = new HashMap<>();
+                  addressMap.put(address.getType(), address);
+                  entry = new EntryToExport(addressMap, null, label, account instanceof SingleAddressBCHAccount);
+               }
+            } else if (account instanceof ColuAccount && account.canSpend()) {
+               ColuAccount a = (ColuAccount) account;
+               String label = storage.getLabelByAccount(a.getId());
+               String base58EncodedPrivateKey = a.getPrivateKey().getBase58EncodedPrivateKey(network);
+               entry = new EntryToExport(a.getPrivateKey().getPublicKey().getAllSupportedAddresses(network),
+                       base58EncodedPrivateKey, label, false);
+            }
+
+            if (entry != null) {
+               if (account.isActive()) {
+                  active.add(entry);
+               } else {
+                  archived.add(entry);
+               }
+               storage.setOtherAccountBackupState(account.getId(), MetadataStorage.BackupState.NOT_VERIFIED);
+            }
+         }
+
+         this.exportFilePath = exportFilePath;
+         networkParameters = network;
+         this.context = context;
+      }
+
+      @Override
+      protected Boolean doInBackground(Void ... voids) {
+         try {
+            // Generate Encryption parameters by doing key stretching
+            MrdExport.V1.EncryptionParameters encryptionParameters = MrdExport.V1.EncryptionParameters.generate(kdfParameters);
+            publishProgress();
+            // Encrypt
+            encryptionProgress = 0D;
+            double increment = 1D / (active.size() + archived.size());
+
+            // Encrypt active
+            List<ExportDistiller.ExportEntry> encryptedActiveKeys = new LinkedList<>();
+            for (EntryToExport e : active) {
+               encryptedActiveKeys.add(createExportEntry(e, encryptionParameters, networkParameters));
+               encryptionProgress += increment;
+               publishProgress();
+            }
+            // Encrypt archived
+            List<ExportDistiller.ExportEntry> encryptedArchivedKeys = new LinkedList<>();
+            for (EntryToExport e : archived) {
+               encryptedArchivedKeys.add(createExportEntry(e, encryptionParameters, networkParameters));
+               encryptionProgress += increment;
+               publishProgress();
+            }
+
+            // Generate PDF document
+            String exportFormatString = "Mycelium Backup 1.1";
+            ExportPdfParameters exportParameters = new ExportPdfParameters(new Date().getTime(), exportFormatString,
+                    encryptedActiveKeys, encryptedArchivedKeys);
+            pdfProgress = new ExportDistiller.ExportProgressTracker(exportParameters.getAllEntries());
+            ExportDistiller.exportPrivateKeysToFile(context, exportParameters, pdfProgress, exportFilePath);
+         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+         } catch (OutOfMemoryError | IOException e) {
+            return false;
+         }
+         return true;
+      }
+
+      private static ExportDistiller.ExportEntry createExportEntry(EntryToExport toExport, MrdExport.V1.EncryptionParameters parameters,
+                                                                   NetworkParameters network) {
+         String encrypted = null;
+         if (toExport.base58PrivateKey != null) {
+            encrypted = MrdExport.V1.encryptPrivateKey(parameters, toExport.base58PrivateKey, network);
+         }
+         return new ExportDistiller.ExportEntry(toExport.addresses, encrypted, null, toExport.label, toExport.isBch);
+      }
+
+      @Override
+      protected void onProgressUpdate(Void... voids) {
+         super.onProgressUpdate(voids);
+         if (pdfProgress != null) {
+            bus.post(new BackupProgress(R.string.encrypted_pdf_backup_creating, pdfProgress.getProgress()));
+         } else if (encryptionProgress != null) {
+            bus.post(new BackupProgress(R.string.encrypted_pdf_backup_encrypting, encryptionProgress));
+         } else {
+            bus.post(new BackupProgress(R.string.encrypted_pdf_backup_stretching));
+         }
+      }
+
+      @Override
+      protected void onPostExecute(Boolean success) {
+         bus.post(new BackupResult(success));
+      }
+   }
+
+   private static class EntryToExport implements Serializable {
+      private static final long serialVersionUID = 1L;
+      private String base58PrivateKey;
+      private String label;
+      private final Map<AddressType, Address> addresses;
+      private boolean isBch;
+
+      private EntryToExport(Map<AddressType, Address> addresses, String base58PrivateKey, String label, boolean isBch) {
+         this.base58PrivateKey = base58PrivateKey;
+         this.label = label;
+         this.addresses = addresses;
+         this.isBch = isBch;
+      }
+   }
+
+   private static class BackupResult {
+      boolean success;
+
+      BackupResult(boolean success) {
+         this.success = success;
+      }
+   }
+
+   private static class BackupProgress {
+      @StringRes
+      Integer message;
+      double progress;
+
+      BackupProgress(Integer message, double progress) {
+         this.message = message;
+         this.progress = progress;
+      }
+
+      BackupProgress(Integer message) {
+         this.message = message;
       }
    }
 }
