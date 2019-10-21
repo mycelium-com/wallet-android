@@ -67,6 +67,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -253,10 +254,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // sub screens and sub prefs
         backupPreferenceScreen = findPreference("backup");
         if (backupPreferenceScreen != null) {
+            backupPrefs.clear();
             createSubPreferences(backupPreferenceScreen, backupPrefs);
         }
         pinPreferenceScreen = findPreference("pincode");
         if (pinPreferenceScreen != null) {
+            pinPrefs.clear();
             createSubPreferences(pinPreferenceScreen, pinPrefs);
         }
     }
@@ -636,18 +639,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
 
             private boolean isValid(Preference preference, String text) {
-                return isTitleValid(preference, text) || isSummaryValid(preference, text);
+                return (isTitleValid(preference, text) || isSummaryValid(preference, text)) && isIndependent(preference);
             }
 
             private void findSearchResult(String s) {
-                getPreferenceScreen().removeAll();
-                addPreferencesFromResource(R.xml.preferences);
-                assignPreferences();
-                onBindPreferences();
-                setupLocalTraderSettings();
+                refreshPreferences();
+
+                // adding hidden prefs
+                List<PreferenceScreen> hiddenPreferencesScreenList = Arrays.asList(backupPreferenceScreen, pinPreferenceScreen);
+                for (PreferenceScreen preferenceScreen : hiddenPreferencesScreenList) {
+                    for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+                        Preference preference = preferenceScreen.getPreference(i);
+                        if (preference.getParent() != null) {
+                            preference.getParent().removePreference(preference);
+                        }
+                        preference.setOrder(getPreferenceScreen().getPreferenceCount());
+                        getPreferenceScreen().addPreference(preference);
+                    }
+                }
+
 
                 for (int j = getPreferenceScreen().getPreferenceCount() - 1; j >= 0; j--) {
                     Preference preference = getPreferenceScreen().getPreference(j);
+                    preference.setOrder(j);
                     if (preference instanceof PreferenceCategory) {
                         PreferenceCategory preferenceCategory = (PreferenceCategory) preference;
                         for (int i = preferenceCategory.getPreferenceCount() - 1; i >= 0; i--) {
@@ -831,6 +845,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.preferences);
         assignPreferences();
         onBindPreferences();
+        setupLocalTraderSettings();
     }
 
     private void setupLocalTraderSettings() {
