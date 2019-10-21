@@ -217,10 +217,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mbwManager = MbwManager.getInstance(requireActivity().getApplication());
         ltManager = mbwManager.getLocalTraderManager();
         displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
-        bindPreferences();
+        assignPreferences();
     }
 
-    private void bindPreferences() {
+    private void assignPreferences() {
         // Bitcoin Denomination
         denomination = findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
@@ -642,8 +642,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             private void findSearchResult(String s) {
                 getPreferenceScreen().removeAll();
                 addPreferencesFromResource(R.xml.preferences);
-                bindPreferences();
+                assignPreferences();
                 onBindPreferences();
+                setupLocalTraderSettings();
 
                 for (int j = getPreferenceScreen().getPreferenceCount() - 1; j >= 0; j--) {
                     Preference preference = getPreferenceScreen().getPreference(j);
@@ -818,7 +819,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onPause() {
         MbwManager.getEventBus().unregister(this);
-//        refreshPreferences();
+        refreshPreferences();
         if (pleaseWait != null) {
             pleaseWait.dismiss();
         }
@@ -828,11 +829,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void refreshPreferences() {
         getPreferenceScreen().removeAll();
         addPreferencesFromResource(R.xml.preferences);
-        bindPreferences();
+        assignPreferences();
         onBindPreferences();
-//        for (Preference preference : rootPreferenceList) {
-//            addPreference(getPreferenceScreen(), preference);
-//        }
     }
 
     private void setupLocalTraderSettings() {
