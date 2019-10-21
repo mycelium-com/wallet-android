@@ -4,6 +4,7 @@
 
     <PreferenceCategory
         android:layout="@layout/preference_category_layout_first_item"
+        android:order="1"
         android:title="@string/personalization">
         <ListPreference
             android:icon="@drawable/ic_language_24_px"
@@ -15,9 +16,11 @@
             android:icon="@drawable/ic_notifications"
             android:key="notifications"
             android:layout="@layout/preference_layout"
+            android:summary="@string/notifications_summary"
             android:title="@string/notifications" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:order="2"
         android:layout="@layout/preference_category_layout"
         android:title="@string/security_and_privacy">
 
@@ -70,6 +73,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:order="3"
         android:layout="@layout/preference_category_layout">
         <PreferenceScreen
             android:key="backup"
@@ -97,6 +101,7 @@
 
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
+        android:order="4"
         android:title="@string/currencies">
         <ListPreference
             android:dialogTitle="Bitcoin denomination"
@@ -124,6 +129,7 @@
 
     <!-- Accounts -->
     <PreferenceCategory
+        android:order="5"
         android:layout="@layout/preference_category_layout"
         android:title="@string/tab_accounts">
 
@@ -137,6 +143,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:order="6"
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
         <ListPreference
@@ -167,6 +174,7 @@
 
     <!-- Local Trader Settings -->
     <PreferenceCategory
+        android:order="7"
         android:key="localtraderPrefs"
         android:layout="@layout/preference_category_layout"
         android:title="@string/mycelium_services">
@@ -202,6 +210,7 @@
     <!-- Ledger -->
     <PreferenceCategory
         android:key="ledger"
+        android:order="8"
         android:layout="@layout/preference_category_layout"
         android:title="@string/hardware_wallets">
         <CheckBoxPreference
@@ -217,7 +226,8 @@
             android:title="@string/ledger_unplugged_aid_preference" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:layout="@layout/preference_category_layout">
+    <PreferenceCategory android:layout="@layout/preference_category_layout"
+        android:order="9">
         <Preference
             android:key="external_services"
             android:layout="@layout/preference_layout_no_icon"
@@ -225,7 +235,8 @@
             android:widgetLayout="@layout/preference_arrow" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:layout="@layout/preference_category_layout">
+    <PreferenceCategory android:layout="@layout/preference_category_layout"
+        android:order="10">
         <Preference
             android:key="updates"
             android:layout="@layout/preference_layout_no_icon"
@@ -234,6 +245,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:order="100"
         android:key="space"
         android:layout="@layout/preference_category_end_space" />
 </PreferenceScreen>
