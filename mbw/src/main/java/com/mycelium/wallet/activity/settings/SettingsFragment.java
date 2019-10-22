@@ -122,6 +122,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private ProgressDialog pleaseWait;
 
+    private boolean isSearchViewOpen = false;
+
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             SetLocalCurrencyActivity.callMe(getActivity());
@@ -614,11 +616,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) searchItem.getActionView();
 
+        isSearchViewOpen = false;
+        ((SettingsActivity) requireActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
+                isSearchViewOpen = false;
                 refreshPreferences();
                 return false;
+            }
+        });
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isSearchViewOpen = true;
+                ((SettingsActivity) requireActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -841,6 +853,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void refreshPreferences() {
+        ((SettingsActivity) requireActivity()).getSupportActionBar()
+                .setDisplayShowTitleEnabled(!isSearchViewOpen);
         getPreferenceScreen().removeAll();
         addPreferencesFromResource(R.xml.preferences);
         assignPreferences();
