@@ -37,7 +37,7 @@ package com.mycelium.wallet.activity.send;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -174,7 +174,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
                   UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
-                  tempWalletManager.setActiveAccount(account);
+                  tempWalletManager.startSynchronization(account);
                   sendWithAccount(account);
                   break;
                case SHARE:

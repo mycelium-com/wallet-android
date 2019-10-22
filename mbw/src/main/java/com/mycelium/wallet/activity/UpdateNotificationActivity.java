@@ -36,6 +36,7 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -49,7 +50,6 @@ import com.mycelium.wallet.VersionManager;
 import com.mycelium.wapi.api.response.VersionInfoExResponse;
 
 public class UpdateNotificationActivity extends Activity {
-
    public static final String RESPONSE = "WalletVersionResponse";
 
    @Override
@@ -59,11 +59,11 @@ public class UpdateNotificationActivity extends Activity {
       setContentView(R.layout.update_notification);
 
       final VersionInfoExResponse response = Preconditions.checkNotNull((VersionInfoExResponse) getIntent().getSerializableExtra(RESPONSE));
-      Button ignoreButton = (Button) findViewById(R.id.ignoreUpdate);
-      Button playButton = (Button) findViewById(R.id.getPlay);
-      Button myceliumButton = (Button) findViewById(R.id.getMycelium);
-      TextView versionNumber = (TextView) findViewById(R.id.versionNumber);
-      TextView message = (TextView) findViewById(R.id.updateMessage);
+      Button ignoreButton = findViewById(R.id.ignoreUpdate);
+      Button playButton = findViewById(R.id.getPlay);
+      Button myceliumButton = findViewById(R.id.getMycelium);
+      TextView versionNumber = findViewById(R.id.versionNumber);
+      TextView message = findViewById(R.id.updateMessage);
 
       versionNumber.setText(response.versionNumber);
       message.setText(response.versionMessage);
@@ -71,32 +71,23 @@ public class UpdateNotificationActivity extends Activity {
          message.setVisibility(View.GONE);
       }
 
-      myceliumButton.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            Uri parse = Uri.parse(response.directDownload.toString());
-            startActivity(new Intent(Intent.ACTION_VIEW, parse));
-         }
+      myceliumButton.setOnClickListener(v -> {
+         Uri uri = Uri.parse(response.directDownload.toString());
+         startActivity(new Intent(Intent.ACTION_VIEW, uri));
       });
 
-      playButton.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            Uri parse = Uri.parse("market://details?id=com.mycelium.wallet");
-            startActivity(new Intent(Intent.ACTION_VIEW, parse));
-         }
-      });
+      Intent playStoreIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.mycelium.wallet"));
+      boolean hasPlaystore = getPackageManager().resolveActivity(playStoreIntent, PackageManager.GET_RESOLVED_FILTER) != null;
+      if (hasPlaystore) {
+         playButton.setOnClickListener(v -> startActivity(playStoreIntent));
+      } else {
+         playButton.setVisibility(View.GONE);
+      }
 
-      ignoreButton.setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View v) {
-            VersionManager versionManager = MbwManager.getInstance(UpdateNotificationActivity.this).getVersionManager();
-            versionManager.ignoreVersion(response.versionNumber);
-            finish();
-         }
+      ignoreButton.setOnClickListener(v -> {
+         VersionManager versionManager = MbwManager.getInstance(this).getVersionManager();
+         versionManager.ignoreVersion(response.versionNumber);
+         finish();
       });
-
    }
-
-
 }

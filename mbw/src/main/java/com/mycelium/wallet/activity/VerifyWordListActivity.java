@@ -39,11 +39,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -146,13 +145,13 @@ public class VerifyWordListActivity extends AppCompatActivity implements WordAut
                })
                .setNeutralButton(R.string.pref_set_pin, new DialogInterface.OnClickListener() {
                   public void onClick(DialogInterface dialog, int id) {
-                     _mbwManager.showSetPinDialog(VerifyWordListActivity.this, Optional.<Runnable>of(new Runnable() {
+                     _mbwManager.showSetPinDialog(VerifyWordListActivity.this, new Runnable() {
                         @Override
                         public void run() {
                            // close this activity after the PIN code dialog was closed
                            VerifyWordListActivity.this.finish();
                         }
-                     }));
+                     });
                   }
                });
          AlertDialog alertDialog = builder.create();

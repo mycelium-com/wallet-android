@@ -44,9 +44,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -403,7 +403,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             }
             break;
          case 0:
-            // This branch is created to support import CoCo from bip32 accout
+            // This branch is created to support import CoCo from bip32 account
             if (hdKeyNode.isPrivateHdKeyNode()) {
                returnBip32Account(hdKeyNode);
             } else {

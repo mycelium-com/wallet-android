@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -35,7 +35,6 @@ import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 
 public class GetBtcAccountForFeeActivity extends AppCompatActivity {
-
     private MbwManager _mbwManager;
 
     @BindView(R.id.lvAccounts)
@@ -53,7 +52,7 @@ public class GetBtcAccountForFeeActivity extends AppCompatActivity {
 
         List<AddressBookManager.Entry> entries = new ArrayList<>();
         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
-        for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveAccounts(), _mbwManager.getMetadataStorage())) {
+        for (WalletAccount account : Utils.sortAccounts(_mbwManager.getWalletManager(false).getActiveSpendingAccounts(), _mbwManager.getMetadataStorage())) {
             Optional<Address> receivingAddress = ((WalletBtcAccount)(account)).getReceivingAddress();
             if (receivingAddress.isPresent() && account.canSpend()
                     && !((WalletBtcAccount)(account)).getReceivingAddress().equals(((WalletBtcAccount)(selectedAccount)).getReceivingAddress())

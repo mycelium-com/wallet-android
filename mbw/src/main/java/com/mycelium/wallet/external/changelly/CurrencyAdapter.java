@@ -1,7 +1,7 @@
 package com.mycelium.wallet.external.changelly;
 
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +16,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrencyAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CurrencyAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerView.ViewHolder> {
     private List<Item> items = new ArrayList<>();
     private int paddingWidth = 0;
 

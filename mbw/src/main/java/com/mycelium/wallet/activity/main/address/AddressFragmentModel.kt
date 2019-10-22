@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.main.address
 
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
 import asStringRes

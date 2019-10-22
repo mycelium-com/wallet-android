@@ -36,7 +36,7 @@ package com.mycelium.wallet.extsig.common.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.*;
 import android.widget.*;
 import com.google.common.base.Strings;

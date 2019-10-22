@@ -35,16 +35,16 @@
 package com.mycelium.wallet.activity.main;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.RecommendationAdapter;
@@ -71,35 +71,38 @@ import static com.mycelium.wallet.R.string.partner_purse;
 import static com.mycelium.wallet.R.string.partner_purse_info;
 import static com.mycelium.wallet.R.string.partner_purse_short;
 import static com.mycelium.wallet.R.string.partner_purse_url;
+import static com.mycelium.wallet.R.string.partner_safervpn;
+import static com.mycelium.wallet.R.string.partner_safervpn_info;
+import static com.mycelium.wallet.R.string.partner_safervpn_short;
+import static com.mycelium.wallet.R.string.partner_safervpn_url;
 import static com.mycelium.wallet.R.string.partner_trezor;
 import static com.mycelium.wallet.R.string.partner_trezor_info;
 import static com.mycelium.wallet.R.string.partner_trezor_short;
 import static com.mycelium.wallet.R.string.partner_trezor_url;
 import static com.mycelium.wallet.R.string.warning_partner;
+import static com.mycelium.wallet.R.string.your_privacy_out_priority;
 
 public class RecommendationsFragment extends Fragment {
-    RecyclerView recommendationsList;
     private AlertDialog alertDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_recommendations_view, container, false);
-        recommendationsList = root.findViewById(R.id.list);
+        RecyclerView recommendationsList = root.findViewById(R.id.list);
 
-        recommendationsList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         List<RecommendationInfo> list = new ArrayList<>();
         int fromItem = 1;
         list.add(new RecommendationHeader());
-        if (SettingsPreference.getInstance().isApexEnabled()) {
-            list.add(new RecommendationBanner(getResources().getDrawable(R.drawable.apex_banner)));
-            fromItem++;
-        }
 
         list.add(getPartnerInfo(partner_ledger, partner_ledger_short, partner_ledger_info, partner_ledger_url, R.drawable.ledger_icon));
         list.add(getPartnerInfo(partner_trezor, partner_trezor_short, partner_trezor_info, partner_trezor_url, R.drawable.trezor2));
         list.add(getPartnerInfo(partner_purse, partner_purse_short, partner_purse_info, partner_purse_url, R.drawable.purse_small));
+        list.add(getPartnerInfo(partner_safervpn, partner_safervpn_short, partner_safervpn_info, partner_safervpn_url, R.drawable.safervpn_icon_small));
 
-        list.add(getPartnerInfo(R.string.partner_safervpn, R.string.partner_safervpn_short, R.string.partner_safervpn_info, R.string.partner_safervpn_url, R.drawable.safervpn_icon_small));
+        if (SettingsPreference.getFioEnabled()) {
+            list.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.drawable.ic_fiopresale_icon_small,
+                    () -> Ads.openFio(requireContext())));
+        }
 
         list.add(new RecommendationFooter());
         RecommendationAdapter adapter = new RecommendationAdapter(list);
@@ -108,49 +111,41 @@ public class RecommendationsFragment extends Fragment {
             @Override
             public void onClick(final PartnerInfo bean) {
                 if (bean.getInfo() != null && bean.getInfo().length() > 0) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setMessage(bean.getInfo());
-                    builder.setTitle(warning_partner);
-                    builder.setIcon(bean.getSmallIcon());
-                    builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            if (bean.getUri() != null) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse(bean.getUri()));
-                                startActivity(intent);
-                            }
-                        }
-                    });
-                    builder.setNegativeButton(cancel, null);
-                    alertDialog = builder.create();
+                    alertDialog = new AlertDialog.Builder(getActivity())
+                            .setMessage(bean.getInfo())
+                            .setTitle(warning_partner)
+                            .setIcon(bean.getSmallIcon())
+                            .setPositiveButton(ok, (dialog, id) -> {
+                                if (bean.getUri() != null) {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW)
+                                            .setData(Uri.parse(bean.getUri()));
+                                    startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton(cancel, null)
+                            .create();
                     alertDialog.show();
                 } else {
                     if (bean.getUri() != null) {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(bean.getUri())));
                     }
                 }
-
             }
 
             @Override
             public void onClick(RecommendationFooter recommendationFooter) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.your_privacy_out_priority);
-                builder.setMessage(partner_more_info_text);
-                builder.setPositiveButton(ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        });
-                builder.setIcon(R.drawable.mycelium_logo_transp_small);
-                alertDialog = builder.create();
+                alertDialog = new AlertDialog.Builder(getActivity())
+                        .setTitle(your_privacy_out_priority)
+                        .setMessage(partner_more_info_text)
+                        .setPositiveButton(ok, null)
+                        .setIcon(R.drawable.mycelium_logo_transp_small)
+                        .create();
                 alertDialog.show();
             }
 
             @Override
             public void onClick(RecommendationBanner recommendationBanner) {
-                Ads.INSTANCE.openApex(getActivity());
+                // implement when using big Banner Ad
             }
         });
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list), LinearLayoutManager.VERTICAL);
@@ -182,7 +177,7 @@ public class RecommendationsFragment extends Fragment {
         return new PartnerInfo(getString(name), getString(description), getString(disclaimer), getString(uri), icon);
     }
 
-    private PartnerInfo getPartnerInfo(int name, int description, int disclaimer, int uri, int icon, int smallIcon) {
-        return new PartnerInfo(getString(name), getString(description), getString(disclaimer), getString(uri), icon, smallIcon);
+    private PartnerInfo getPartnerInfo(int name, int description, int disclaimer, int icon, Runnable action) {
+        return new PartnerInfo(getString(name), getString(description), getString(disclaimer), icon, action);
     }
 }

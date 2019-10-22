@@ -57,6 +57,7 @@ import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 
+
 /*
 todo HD: root seeds will for now not support signing directly. only support single addresses.
 

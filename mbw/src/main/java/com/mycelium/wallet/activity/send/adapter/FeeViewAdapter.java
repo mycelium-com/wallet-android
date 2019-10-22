@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.send.adapter;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +19,12 @@ import com.mycelium.wapi.wallet.coins.Value;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 
-public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapter.ViewHolder> {
 
+public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAdapter.FeeViewHolder> {
     private List<FeeItem> mDataset;
-    private int paddingWidth = 0;
+    private int paddingWidth;
 
     public FeeViewAdapter(int paddingWidth) {
         this.paddingWidth = paddingWidth;
@@ -44,13 +45,14 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         return getItem(position).feePerKb;
     }
 
+    @Nonnull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FeeViewHolder onCreateViewHolder(@Nonnull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             // create a new view
-            View v = LayoutInflater.from(parent.getContext())
+            View view = LayoutInflater.from(parent.getContext())
                      .inflate(R.layout.recyclerview_item_fee_lvl, parent, false);
-            ImageView imageView = (ImageView) v.findViewById(R.id.rectangle);
+            ImageView imageView = view.findViewById(R.id.rectangle);
             imageView.setImageResource(R.drawable.recyclerview_item_top_rectangle_selector);
             FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) imageView.getLayoutParams();
             layoutParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
@@ -58,7 +60,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             imageView.setLayoutParams(layoutParams);
             // set the view's size, margins, paddings and layout parameters
             //...
-            return new FeeViewAdapter.ViewHolder(v, this);
+            return new FeeViewHolder(view, this);
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_padding_sender,
                         parent, false);
@@ -66,13 +68,12 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
             layoutParams.width = paddingWidth;
             view.setLayoutParams(layoutParams);
-            return new FeeViewAdapter.ViewHolder(view, this);
+            return new FeeViewHolder(view, this);
         }
     }
 
-
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@Nonnull FeeViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
             // - get element from your dataset at this position
@@ -84,9 +85,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             if (item.fiatValue != null) {
                 holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
             }
-
-            holder.valueTextView.setText(String.valueOf(Math.round(item.feePerKb / 1000f)) + " sat/byte");
-
+            holder.valueTextView.setText(Math.round(item.feePerKb / 1000f) + " sat/byte");
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -123,14 +122,14 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
         return mDataset.get(position).type;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class FeeViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView categoryTextView;
-        public TextView itemTextView;
-        public TextView valueTextView;
+        TextView categoryTextView;
+        TextView itemTextView;
+        TextView valueTextView;
         RecyclerView.Adapter adapter;
 
-        public ViewHolder(View v, FeeViewAdapter adapter) {
+        FeeViewHolder(View v, FeeViewAdapter adapter) {
             super(v);
             categoryTextView = v.findViewById(R.id.categorytextView);
             itemTextView = v.findViewById(R.id.itemTextView);

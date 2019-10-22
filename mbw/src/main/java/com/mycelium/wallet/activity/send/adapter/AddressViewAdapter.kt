@@ -1,6 +1,6 @@
 package com.mycelium.wallet.activity.send.adapter
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +14,9 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wapi.wallet.AddressUtils
 
 class AddressViewAdapter(private val dataSet: List<AddressItem>, private val paddingWidth: Int)
-    : SelectableRecyclerView.Adapter<AddressViewAdapter.ViewHolder>() {
+    : SelectableRecyclerView.SRVAdapter<AddressViewAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        if (viewType == SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM) {
+        if (viewType == SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM) {
             // create a new view
             val v = LayoutInflater.from(parent.context)
                     .inflate(R.layout.recyclerview_address, parent, false)
@@ -38,7 +38,7 @@ class AddressViewAdapter(private val dataSet: List<AddressItem>, private val pad
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
 
-        if (getItemViewType(position) == SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM) {
+        if (getItemViewType(position) == SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM) {
             // - get element from your dataSet at this position
             // - replace the contents of the view with that element
             val item = dataSet[position]

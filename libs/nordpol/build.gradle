@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath androidBuildArtifact
+        classpath "com.android.tools.build:gradle:$gradleVersion"
     }
 }
 
@@ -16,8 +16,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
     }
     lintOptions {
         ignoreWarnings true

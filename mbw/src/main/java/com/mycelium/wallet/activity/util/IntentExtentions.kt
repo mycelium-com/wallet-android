@@ -2,7 +2,7 @@ package com.mycelium.wallet.activity.util
 
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.app.FragmentManager
+import androidx.fragment.app.FragmentManager
 import com.google.common.base.Preconditions
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.BipSss
@@ -33,8 +33,7 @@ fun Intent.getAddress(walletManager: WalletManager, fragmentManager: FragmentMan
     checkType(ResultType.ADDRESS_STRING)
     val address = getStringExtra(RESULT_ADDRESS_STRING_KEY)
     val addresses = walletManager.parseAddress(address)
-    val dialog = SelectAssetDialog.getInstance(addresses)
-    dialog.show(fragmentManager, "dialog")
+    SelectAssetDialog.getInstance(addresses).show(fragmentManager, "dialog")
 }
 
 fun Intent.getAddress(): GenericAddress {
