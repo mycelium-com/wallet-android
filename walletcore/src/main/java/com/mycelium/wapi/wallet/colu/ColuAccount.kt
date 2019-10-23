@@ -8,7 +8,6 @@ import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress

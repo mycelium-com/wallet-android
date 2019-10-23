@@ -60,6 +60,9 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.primitives.Ints;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -112,31 +115,27 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
-import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking;
-import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.Listener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
-import com.mycelium.wapi.wallet.providers.BtcFeeProvider;
-import com.mycelium.wapi.wallet.providers.ColuFeeProvider;
-import com.mycelium.wapi.wallet.providers.EthFeeProvider;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
+
+import org.json.JSONObject;
+
 import kotlin.jvm.Synchronized;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -152,6 +151,7 @@ public class MbwManager {
     private static final String PROXY_HOST = "socksProxyHost";
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
+    private static final String LOG_TBC = "tbc";
     private static volatile MbwManager _instance = null;
 
     /**
@@ -309,10 +309,16 @@ public class MbwManager {
         if (denomination == null) {
             denomination = Denomination.UNIT;
         }
+        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, (new JSONObject()).toString());
+        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, (new JSONObject()).toString());
+        Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
+        Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
         _currencySwitcher = new CurrencySwitcher(
                 _exchangeRateManager,
                 fiatCurrencies,
-                new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                currentCurrencyMap,
+                currentFiatMap,
                 denomination
         );
 
@@ -350,6 +356,31 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                         _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    private Map<GenericAssetInfo, GenericAssetInfo> getCurrentCurrenciesMap(String jsonString) {
+        Log.d(LOG_TBC, "Was read from settings: " + jsonString);
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Map<GenericAssetInfo, GenericAssetInfo> result = new HashMap<>();
+
+        Map<String, String> coinNamesMap = gson.fromJson(jsonString, type);
+        for (Map.Entry<String, String> entry : coinNamesMap.entrySet()) {
+            result.put(Utils.getTypeByName(entry.getKey()),
+                    Utils.getTypeByName(entry.getValue()));
+        }
+        return result;
+    }
+
+    private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
+        Log.d(LOG_TBC, "CurrentCurrencyMap or CurrentFiatCurrency maps contents: " + currenciesMap.toString());
+        Gson gson = new GsonBuilder().create();
+        Map<String, String> coinNamesMap = new HashMap<>();
+        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry: currenciesMap.entrySet()) {
+            coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
+        }
+        Log.d(LOG_TBC, "Json to save: " + coinNamesMap);
+        return gson.toJson(coinNamesMap);
     }
 
     private ContentResolver createContentResolver(NetworkParameters network) {
@@ -1402,7 +1433,11 @@ public class MbwManager {
 
     @Subscribe
     public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getSymbol()).apply();
+        String currentCurrenciesString = getCurrentCurrenciesString(_currencySwitcher.getCurrentCurrencyMap());
+        String currentFiatString = getCurrentCurrenciesString(_currencySwitcher.getCurrentFiatCurrencyMap());
+        getEditor().putString(Constants.CURRENT_CURRENCIES_SETTING, currentCurrenciesString).apply();
+        getEditor().putString(Constants.FIAT_CURRENCIES_SETTING, currentFiatString).apply();
+        getEditor().putString(Constants.TOTAL_FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getName()).apply();
     }
 
     @Subscribe

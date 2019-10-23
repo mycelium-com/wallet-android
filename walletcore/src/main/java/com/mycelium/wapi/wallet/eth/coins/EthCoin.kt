@@ -12,10 +12,6 @@ abstract class EthCoin: CryptoCurrency() {
         addressPrefix = ""
     }
 
-    override fun getName(): String {
-        return "Ether"
-    }
-
     override fun parseAddress(addressString: String): GenericAddress? {
         return try {
             EthAddress(this, addressString)

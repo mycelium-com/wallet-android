@@ -45,16 +45,27 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import java.util.ArrayList
 import java.util.Collections
 
-class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fiatCurrencies: Set<GenericAssetInfo>, currentCurrency: GenericAssetInfo, var denomination: Denomination) {
+
+class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
+                       fiatCurrencies: Set<GenericAssetInfo>,
+                       currentTotalCurrency: GenericAssetInfo,
+                       currentCurrencyMap: MutableMap<GenericAssetInfo, GenericAssetInfo?>,
+                       currentFiatMap: MutableMap<GenericAssetInfo, GenericAssetInfo?>,
+                       var denomination: Denomination) {
 
     private var fiatCurrencies: List<GenericAssetInfo>? = null
     var walletCurrencies: List<GenericAssetInfo>? = null
         set(walletAssetTypes) {
             field = walletAssetTypes
+            // if one of the current currencies maps weren't init during
+            // preference reading then init it with default values
             walletAssetTypes?.filterNot { currentCurrencyMap.containsKey(it) }.orEmpty()
                     .forEach { asset ->
                         currentCurrencyMap[asset] = asset
-                        currentFiatCurrencyMap[asset] = currentTotalCurrency
+                    }
+            walletAssetTypes?.filterNot { currentFiatCurrencyMap.containsKey(it) }.orEmpty()
+                    .forEach { asset ->
+                        currentFiatCurrencyMap[asset] = FiatType(Constants.DEFAULT_CURRENCY)
                     }
         }
 
@@ -62,15 +73,18 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
     var currentTotalCurrency: GenericAssetInfo? = null
 
     // the last selected currency for each currency group that user has
-    val currentCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
-    val currentFiatCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
+    var currentCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
+    var currentFiatCurrencyMap = mutableMapOf<GenericAssetInfo, GenericAssetInfo?>()
 
     var defaultCurrency: GenericAssetInfo = Utils.getBtcCoinType()
 
     init {
         val currencies = Lists.newArrayList(fiatCurrencies)
         currencies.sortWith(Comparator { cryptoCurrency, t1 -> cryptoCurrency.symbol.compareTo(t1.symbol) })
-        currentTotalCurrency = currentCurrency
+        this.fiatCurrencies = currencies
+        this.currentCurrencyMap = currentCurrencyMap
+        this.currentFiatCurrencyMap = currentFiatMap
+        this.currentTotalCurrency = currentTotalCurrency
     }
 
     fun getCurrentCurrency(coinType: GenericAssetInfo): GenericAssetInfo? {
@@ -189,7 +203,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager, fia
      */
     @Synchronized
     fun getExchangeRatePrice(fromCurrency: GenericAssetInfo): Double? {
-        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, currentFiatCurrencyMap[fromCurrency]!!.symbol)
+        val rate = exchangeRateManager.getExchangeRate(fromCurrency.symbol, currentFiatCurrencyMap[fromCurrency]?.symbol)
         return rate?.price
     }
 
