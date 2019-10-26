@@ -96,14 +96,14 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
-        if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler().value!!) {
+        if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler()) {
             viewModel.verifyPaymentRequest(rawPaymentRequest, this)
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
         val genericUri = viewModel.getGenericUri().value
         if (genericUri is WithCallback && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
-                && viewModel.hasPaymentRequestHandler().value == false) {
+                && !viewModel.hasPaymentRequestHandler()) {
             viewModel.verifyPaymentRequest(genericUri, this)
         }
 
@@ -187,6 +187,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
 
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
+        feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
 
         feeValueList.adapter = feeViewAdapter
         feeViewAdapter.setDataset(viewModel.getFeeDataset().value)

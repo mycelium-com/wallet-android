@@ -81,7 +81,6 @@
                     bind:viewModel="@{viewModel}" />
 
                 <!-- Send -->
-
                 <include
                     layout="@layout/send_coins_send_section"
                     bind:activity="@{activity}"

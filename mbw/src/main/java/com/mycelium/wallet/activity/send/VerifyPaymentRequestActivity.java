@@ -128,7 +128,6 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       setContentView(R.layout.verify_payment_request_activity);
       ButterKnife.bind(this);
       mbw = MbwManager.getInstance(this);
-      mbw.getEventBus().register(this);
 
       // only popup the keyboard if the user taps the textbox
       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
