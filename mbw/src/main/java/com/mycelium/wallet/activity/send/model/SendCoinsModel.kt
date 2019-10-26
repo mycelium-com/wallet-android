@@ -40,7 +40,6 @@ abstract class SendCoinsModel(
         intent: Intent
 ) {
     val spendingUnconfirmed: MutableLiveData<Boolean> = MutableLiveData()
-    val alternativeAmount: MutableLiveData<Value> = MutableLiveData()
     val transactionLabel: MutableLiveData<String> = MutableLiveData()
     val receivingAddressText: MutableLiveData<String> = MutableLiveData()
     val receivingAddressAdditional: MutableLiveData<String> = MutableLiveData()
@@ -83,6 +82,15 @@ abstract class SendCoinsModel(
                 super.setValue(value)
                 txRebuildPublisher.onNext(Unit)
                 amountUpdatePublisher.onNext(Unit)
+            }
+        }
+    }
+
+    val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
+        override fun setValue(value: Value) {
+            if (value != this.value) {
+                super.setValue(value)
+                alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
             }
         }
     }
@@ -214,7 +222,7 @@ abstract class SendCoinsModel(
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
                     amountFormatted.postValue(getRequestedAmountFormatted())
-                    alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
+                    updateAlternativeAmount(amount.value)
                     Completable.complete()
                 }
                 .subscribe())
@@ -318,7 +326,7 @@ abstract class SendCoinsModel(
         } else {
             account.coinType
         }
-        alternativeAmount.value = mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo)
+        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo))
     }
 
     private fun updateReceiverAddressText(hasPaymentRequest: Boolean) {
