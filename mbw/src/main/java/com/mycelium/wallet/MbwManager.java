@@ -128,8 +128,6 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import org.json.JSONObject;
-
 import kotlin.jvm.Synchronized;
 
 import javax.net.ssl.SSLSocket;
@@ -309,8 +307,13 @@ public class MbwManager {
         if (denomination == null) {
             denomination = Denomination.UNIT;
         }
-        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, (new JSONObject()).toString());
-        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, (new JSONObject()).toString());
+        StringBuilder defaultCurrencyJson = new StringBuilder("{\"")
+                .append(Utils.getBtcCoinType().getName())
+                .append("\":\"")
+                .append(Constants.DEFAULT_CURRENCY)
+                .append("\"}");
+        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
+        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
         Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
         Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
         _currencySwitcher = new CurrencySwitcher(
