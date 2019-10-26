@@ -124,7 +124,6 @@ open class ToggleableCurrencyDisplay : LinearLayout {
         if (fiatOnly) {
             showFiat()
         } else {
-            assert(coinType != null)
             // Switch to cryptocurrency if no fiat fx rate is available
             if (!currencySwitcher.isFiatExchangeRateAvailable(coinType!!)
                     && currencySwitcher.isFiatCurrency(currencySwitcher.currentCurrencyMap[coinType!!])) {
