@@ -9,11 +9,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.Collections;
@@ -84,13 +82,13 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(formatter.getCategoryText(item.value));
+                holder.categoryTextView.setText(formatter.getFeeAbsValue(item.value));
             }
             if (item.fiatValue != null) {
-                holder.itemTextView.setText(formatter.getItemText(item.fiatValue));
+                holder.itemTextView.setText(formatter.getAltValue(item.fiatValue));
             }
 
-            holder.valueTextView.setText(formatter.getValueText(item.feePerKb));
+            holder.valueTextView.setText(formatter.getFeePerUnit(item.feePerKb));
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -144,8 +142,8 @@ public class FeeViewAdapter extends SelectableRecyclerView.Adapter<FeeViewAdapte
     }
 
     public interface FeeItemFormatter {
-        String getCategoryText(Value value);
-        String getItemText(Value value);
-        String getValueText(long value);
+        String getFeeAbsValue(Value value);
+        String getAltValue(Value value);
+        String getFeePerUnit(long value);
     }
 }

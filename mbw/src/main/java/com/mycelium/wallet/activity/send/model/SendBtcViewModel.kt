@@ -58,11 +58,11 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
     fun isFeeExtended() = (model as SendBtcModel).isFeeExtended
 
     override fun getFeeFormatter() = object : FeeViewAdapter.FeeItemFormatter {
-        override fun getCategoryText(value: Value) = value.toStringWithUnit(Denomination.MILLI)
+        override fun getFeeAbsValue(value: Value) = value.toStringWithUnit(Denomination.MILLI)
 
-        override fun getItemText(value: Value) = "~${value.toStringWithUnit()}"
+        override fun getAltValue(value: Value) = "~${value.toStringWithUnit()}"
 
-        override fun getValueText(value: Long) = "${(value / 1000f).roundToLong()} sat/byte"
+        override fun getFeePerUnit(value: Long) = "${(value / 1000f).roundToLong()} sat/byte"
     }
 
     override fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {

@@ -27,7 +27,6 @@ import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -87,9 +86,9 @@ abstract class SendCoinsModel(
     }
 
     val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
-        override fun setValue(value: Value) {
+        override fun setValue(value: Value?) {
             if (value != this.value) {
-                super.setValue(value)
+                super.setValue(value ?: Value.zeroValue(account.coinType))
                 alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
             }
         }
@@ -343,7 +342,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    private fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
+    fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
      * Recalculate the transaction based on the current choices.
