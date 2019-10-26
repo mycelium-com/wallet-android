@@ -319,7 +319,7 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
-                    mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress) mSelectedAddress).getAddress());
+                    mbwManager.getMetadataStorage().deleteAddressMetadata(mSelectedAddress);
                     finishActionMode();
                     MbwManager.getEventBus().post(new AddressBookChanged());
                 }

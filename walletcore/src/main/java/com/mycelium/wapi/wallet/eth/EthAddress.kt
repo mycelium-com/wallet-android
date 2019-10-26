@@ -6,6 +6,7 @@ import org.web3j.abi.datatypes.Address
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.lang.IllegalStateException
+import java.util.*
 
 
 class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : GenericAddress {
@@ -29,6 +30,17 @@ class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Ge
         inputStream.defaultReadObject()
 
         address = Address(addressString)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is EthAddress) {
+            return false
+        }
+        return getBytes().contentEquals(other.getBytes())
+    }
+
+    override fun hashCode(): Int {
+        return getBytes().contentHashCode()
     }
 
     companion object {

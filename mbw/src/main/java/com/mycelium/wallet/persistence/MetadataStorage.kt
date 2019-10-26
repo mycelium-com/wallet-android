@@ -257,7 +257,7 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "")
     }
 
-    fun deleteAddressMetadata(address: Address) {
+    fun deleteAddressMetadata(address: GenericAddress) {
         // delete everything related to this address from metadata
         deleteAllByKey(address.toString())
     }
