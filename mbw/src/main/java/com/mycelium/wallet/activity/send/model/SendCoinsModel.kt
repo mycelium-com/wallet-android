@@ -51,7 +51,6 @@ abstract class SendCoinsModel(
     val paymentFetched: MutableLiveData<Boolean> = MutableLiveData()
     val amountFormatted: MutableLiveData<String> = MutableLiveData()
     val alternativeAmountFormatted: MutableLiveData<String> = MutableLiveData()
-    val paymentRequestHandler: MutableLiveData<PaymentRequestHandler?> = MutableLiveData()
     val heapWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val feeWarning: MutableLiveData<CharSequence> = MutableLiveData()
     val showStaleWarning: MutableLiveData<Boolean> = MutableLiveData()
@@ -60,39 +59,58 @@ abstract class SendCoinsModel(
 
     val receivingAddress: MutableLiveData<GenericAddress?> = object : MutableLiveData<GenericAddress?>() {
         override fun setValue(value: GenericAddress?) {
-            super.setValue(value)
-            receiverChanged.onNext(Unit)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                receiverChanged.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
 
     val transactionStatus: MutableLiveData<TransactionStatus> = object : MutableLiveData<TransactionStatus>() {
         override fun setValue(value: TransactionStatus) {
-            super.setValue(value)
-            amountUpdatePublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                amountUpdatePublisher.onNext(Unit)
+            }
         }
     }
 
     val amount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
-            super.setValue(value)
-            txRebuildPublisher.onNext(Unit)
-            amountUpdatePublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+                amountUpdatePublisher.onNext(Unit)
+            }
         }
     }
 
     val selectedFee = object : MutableLiveData<Value>() {
         override fun setValue(value: Value) {
-            super.setValue(value)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
 
     val feeLvl: MutableLiveData<MinerFee> = object : MutableLiveData<MinerFee>() {
         override fun setValue(value: MinerFee) {
-            super.setValue(value)
-            feeUpdatePublisher.onNext(Unit)
-            txRebuildPublisher.onNext(Unit)
+            if (value != this.value) {
+                super.setValue(value)
+                feeUpdatePublisher.onNext(Unit)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
+    val paymentRequestHandler: MutableLiveData<PaymentRequestHandler?> = object : MutableLiveData<PaymentRequestHandler?>() {
+        override fun setValue(value: PaymentRequestHandler?) {
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
         }
     }
 
@@ -127,7 +145,6 @@ abstract class SendCoinsModel(
     }
 
     init {
-
         selectedFee.value = getCurrentFeeEstimation()
         feeLvl.value = mbwManager.minerFee
         transactionStatus.value = TransactionStatus.MissingArguments
@@ -291,9 +308,7 @@ abstract class SendCoinsModel(
      */
     fun onCleared() {
         MbwManager.getEventBus().unregister(eventListener)
-        for (disposable in listToDispose) {
-            disposable.dispose()
-        }
+        listToDispose.forEach(Disposable::dispose)
     }
 
     fun updateAlternativeAmount(enteredAmount: Value?) {
@@ -328,7 +343,7 @@ abstract class SendCoinsModel(
     private fun updateAdditionalReceiverInfo(hasPaymentRequest: Boolean) {
         if (hasPaymentRequest && this.receivingAddress.value != null) {
             receivingAddressAdditional.postValue(
-                    AddressUtils.toDoubleLineString(this.receivingAddress.toString()))
+                    AddressUtils.toDoubleLineString(this.receivingAddress.value.toString()))
         }
     }
 
@@ -355,7 +370,7 @@ abstract class SendCoinsModel(
                 errorText.postValue(context.getString(R.string.insufficient_funds))
             }
             else -> errorText.postValue("")
-        } //check if we need to warn the user about unconfirmed funds
+        }
     }
 
     private fun getRequestedAmountFormatted(): String {

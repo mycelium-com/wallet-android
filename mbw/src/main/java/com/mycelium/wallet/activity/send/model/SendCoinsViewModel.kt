@@ -143,13 +143,23 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getTransactionLabel() = model.transactionLabel
 
-    fun hasPaymentRequestHandler(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler) {
-        it != null
-    }
+    fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
+            this::hasPaymentRequestHandler)
 
-    fun hasPaymentRequestAmount(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler) {
-        it?.paymentRequestInformation?.hasAmount() ?: false
-    }
+    fun hasPaymentRequestAmountTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
+            this::hasPaymentRequestAmount)
+
+
+    fun hasPaymentRequestHandler() = hasPaymentRequestHandler(model.paymentRequestHandler.value)
+
+    private fun hasPaymentRequestHandler(paymentRequestHandler: PaymentRequestHandler?) =
+            paymentRequestHandler != null
+
+    fun hasPaymentRequestAmount() = hasPaymentRequestAmount(model.paymentRequestHandler.value)
+
+    private fun hasPaymentRequestAmount(paymentRequestHandler: PaymentRequestHandler?) =
+            paymentRequestHandler?.paymentRequestInformation?.hasAmount() ?: false
+
 
     fun isInitialized() = ::model.isInitialized
 

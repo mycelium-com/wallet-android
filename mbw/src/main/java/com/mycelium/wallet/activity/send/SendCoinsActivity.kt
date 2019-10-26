@@ -93,14 +93,14 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
-        if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler().value!!) {
+        if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler()) {
             viewModel.verifyPaymentRequest(rawPaymentRequest, this)
         }
 
         // lets check whether we got a payment request uri and need to fetch payment data
         val genericUri = viewModel.getGenericUri().value
         if (genericUri is WithCallback && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
-                && viewModel.hasPaymentRequestHandler().value == false) {
+                && !viewModel.hasPaymentRequestHandler()) {
             viewModel.verifyPaymentRequest(genericUri, this)
         }
 
