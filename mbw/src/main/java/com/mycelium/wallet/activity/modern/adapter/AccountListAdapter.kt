@@ -137,7 +137,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
-        val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
+        val view = layoutInflater.inflate(R.layout.archived_accounts_title_view, parent, false)
         return ArchivedGroupTitleViewHolder(view)
     }
 

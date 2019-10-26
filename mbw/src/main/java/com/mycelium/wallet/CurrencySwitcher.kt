@@ -57,8 +57,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
     var walletCurrencies: List<GenericAssetInfo>? = null
         set(walletAssetTypes) {
             field = walletAssetTypes
-            // if one of the current currencies maps weren't init during
-            // preference reading then init it with default values
+            // fills current currencies maps with default values
             walletAssetTypes?.filterNot { currentCurrencyMap.containsKey(it) }.orEmpty()
                     .forEach { asset ->
                         currentCurrencyMap[asset] = asset

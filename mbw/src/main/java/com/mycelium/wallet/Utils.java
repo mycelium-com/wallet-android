@@ -121,8 +121,6 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
-import com.mycelium.wapi.wallet.eth.coins.EthMain;
-import com.mycelium.wapi.wallet.eth.coins.EthTest;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import org.ocpsoft.prettytime.Duration;
@@ -132,10 +130,8 @@ import org.ocpsoft.prettytime.TimeUnit;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -972,10 +968,6 @@ public class Utils {
 
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
-   }
-
-   public static CryptoCurrency getEthCoinType() {
-      return BuildConfig.FLAVOR.equals("prodnet") ? EthMain.INSTANCE : EthTest.INSTANCE;
    }
 
    public static boolean isValidEmailAddress(String value) {
