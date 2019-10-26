@@ -31,6 +31,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 abstract class SendCoinsModel(
@@ -369,6 +370,9 @@ abstract class SendCoinsModel(
             TransactionStatus.InsufficientFunds -> {
                 errorText.postValue(context.getString(R.string.insufficient_funds))
             }
+            TransactionStatus.BuildError -> {
+                errorText.postValue(context.getString(R.string.tx_build_error))
+            }
             else -> errorText.postValue("")
         }
     }
@@ -435,6 +439,8 @@ abstract class SendCoinsModel(
             return TransactionStatus.OutputTooSmall
         } catch (ex: GenericInsufficientFundsException) {
             return TransactionStatus.InsufficientFunds
+        } catch (ex: IOException) {
+            return TransactionStatus.BuildError
         }
     }
 
@@ -470,7 +476,7 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        Building, MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, OK
+        Building, MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, BuildError, OK
     }
 
     companion object {
