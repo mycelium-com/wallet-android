@@ -184,6 +184,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
 
         val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
+        feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
 
         feeValueList.adapter = feeViewAdapter
         feeViewAdapter.setDataset(viewModel.getFeeDataset().value)

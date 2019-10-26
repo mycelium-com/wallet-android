@@ -23,6 +23,7 @@ import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.VerifyPaymentRequestActivity
+import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.content.ResultType
 import com.mycelium.wallet.event.SyncFailed
@@ -102,6 +103,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     }
 
     abstract fun sendTransaction(activity: Activity)
+
+    abstract fun getFeeFormatter(): FeeViewAdapter.FeeItemFormatter
 
     fun getSelectedFee() = model.selectedFee
 
