@@ -109,8 +109,10 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
+import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
@@ -294,7 +296,8 @@ public class MbwManager {
         }
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(), AdaptersKt.getEthContextAdapter(),
+                AdaptersKt.getFeeEstimatorAdapter());
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
@@ -659,8 +662,9 @@ public class MbwManager {
                 , new ColuApiImpl(coluClient), _wapi, coluBacking, accountListener, getMetadataStorage(), saModule));
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
+        EthBacking ethBacking = new EthBacking(db, genericBacking);
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, getMetadataStorage()));
 
         walletManager.init();
 
@@ -705,7 +709,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        GenericBacking genericBacking = new InMemoryAccountContextsBacking();
+        GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
         walletManager.disableTransactionHistorySynchronization();

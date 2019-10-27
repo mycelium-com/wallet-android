@@ -19,7 +19,7 @@ import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
 
-class EthAccount(private val accountContext: AccountContextImpl,
+class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
@@ -44,19 +44,23 @@ class EthAccount(private val accountContext: AccountContextImpl,
                     toAddress.toString(), BigInteger.valueOf(value.value))
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
-            throw  GenericBuildTransactionException(Throwable(e.localizedMessage))
+            throw GenericBuildTransactionException(Throwable(e.localizedMessage))
         }
     }
 
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
-        val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
-                DefaultBlockParameterName.PENDING)
-                .sendAsync()
-                .get()
+        return try {
+            val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+            val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
+                    DefaultBlockParameterName.PENDING)
+                    .send()
 
-        return ethGetTransactionCount.transactionCount
+            accountContext.nonce = ethGetTransactionCount.transactionCount
+            accountContext.nonce
+        } catch (e: Exception) {
+            accountContext.nonce
+        }
     }
 
     override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
@@ -69,7 +73,7 @@ class EthAccount(private val accountContext: AccountContextImpl,
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
         val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
-        val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).sendAsync().get()
+        val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }

@@ -19,7 +19,7 @@ import java.util.*
 
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
-        private val backing: GenericBacking,
+        private val backing: GenericBacking<EthAccountContext>,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -127,17 +127,18 @@ class EthereumModule(
         }
     }
 
-    private fun createAccountContext(uuid: UUID): AccountContextImpl {
+    private fun createAccountContext(uuid: UUID): EthAccountContext {
         val accountContextInDB = backing.loadAccountContext(uuid)
         return if (accountContextInDB != null) {
-            AccountContextImpl(accountContextInDB.uuid,
+            EthAccountContext(accountContextInDB.uuid,
                     accountContextInDB.currency,
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                     backing::updateAccountContext,
-                    accountContextInDB.archived)
+                    accountContextInDB.archived,
+                    accountContextInDB.nonce)
         } else {
-            AccountContextImpl(
+            EthAccountContext(
                     uuid,
                     coinType,
                     "Ethereum",

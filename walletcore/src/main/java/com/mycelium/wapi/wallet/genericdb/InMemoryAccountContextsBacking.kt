@@ -5,17 +5,17 @@ import com.mycelium.generated.wallet.database.AccountContextQueries
 import com.mycelium.generated.wallet.database.WalletDB
 import java.util.*
 
-class InMemoryAccountContextsBacking() : GenericBacking {
-    private val accountContexts = hashMapOf<UUID, AccountContext>()
-    override fun loadAccountContexts() = accountContexts.values.toList()
+class InMemoryAccountContextsBacking<T: AccountContext> : GenericBacking<T> {
+    private val accountContexts = hashMapOf<UUID, T>()
+    override fun loadAccountContexts(): List<T> = accountContexts.values.toList()
 
     override fun loadAccountContext(accountId: UUID) = accountContexts[accountId]
 
-    override fun createAccountContext(context: AccountContext) {
+    override fun createAccountContext(context: T) {
         accountContexts[context.uuid] = context
     }
 
-    override fun updateAccountContext(context: AccountContext) = createAccountContext(context)
+    override fun updateAccountContext(context: T) = createAccountContext(context)
 
     override fun deleteAccountContext(uuid: UUID) {
         accountContexts.remove(uuid)
