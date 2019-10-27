@@ -112,11 +112,15 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking;
+import com.mycelium.wapi.wallet.genericdb.GenericBacking;
+import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
@@ -709,7 +713,7 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        AccountContextsBacking genericBacking = new AccountContextsBacking(db);
+        GenericBacking genericBacking = new InMemoryAccountContextsBacking();
         walletManager.add(new EtheriumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
         walletManager.disableTransactionHistorySynchronization();
@@ -1184,10 +1188,11 @@ public class MbwManager {
         if (address instanceof BtcAddress) {
             accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
                     new BtcAddress(Utils.getBtcCoinType(), ((BtcAddress) address).getAddress()))).get(0);
+        } else if (address instanceof EthAddress) {
+            accountId = _tempWalletManager.createAccounts(new EthAddressConfig((EthAddress) address)).get(0);
         } else {
             throw new IllegalArgumentException("Not implemented");
         }
-        _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
         _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
         return accountId;
     }

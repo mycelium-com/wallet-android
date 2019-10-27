@@ -19,8 +19,10 @@ import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
 
-class EthAccount(private val credentials: Credentials,
-                 private val accountContext: AccountContextImpl) : WalletAccount<EthAddress> {
+class EthAccount(private val accountContext: AccountContextImpl,
+                 private val credentials: Credentials? = null,
+                 receivingAddress: EthAddress? = null) : WalletAccount<EthAddress> {
+    val receivingAddress = credentials?.run { EthAddress(coinType, this.address) } ?: receivingAddress!!
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -36,7 +38,7 @@ class EthAccount(private val credentials: Credentials,
         }
 
         try {
-            val nonce = getNonce(credentials.address)
+            val nonce = getNonce(receivingAddress.toString())
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
                     BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000),
                     toAddress.toString(), BigInteger.valueOf(value.value))
@@ -73,19 +75,18 @@ class EthAccount(private val credentials: Credentials,
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
-    override fun getReceiveAddress() = EthAddress(coinType, credentials.address)
-
+    override fun getReceiveAddress() = receivingAddress
 
     override fun getCoinType() = accountContext.currency
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(credentials.address)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString())
 
     override fun getAccountBalance() = accountContext.balance
 
     override fun isMineAddress(address: GenericAddress?) =
-            address == EthAddress(coinType, credentials.address)
+            address == receivingAddress
 
     override fun isExchangeable() = true
 
@@ -134,7 +135,7 @@ class EthAccount(private val credentials: Credentials,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun canSpend() = true
+    override fun canSpend() = credentials != null
 
     override fun isSyncing() = false
 
@@ -164,7 +165,7 @@ class EthAccount(private val credentials: Credentials,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = credentials.ecKeyPair.toUUID()
+    override fun getId() = credentials?.ecKeyPair?.toUUID() ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun isSynchronizing() = false
 

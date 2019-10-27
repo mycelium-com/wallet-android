@@ -1,10 +1,12 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
+import com.mycelium.wapi.wallet.genericdb.GenericBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
@@ -19,7 +21,7 @@ import java.util.*
 
 class EtheriumModule(
         private val secureStore: SecureKeyValueStore,
-        private val backing: AccountContextsBacking,
+        private val backing: GenericBacking,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -46,26 +48,54 @@ class EtheriumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig && accounts.isEmpty()
+    override fun canCreateAccount(config: Config) = (config is EtheriumMasterseedConfig && accounts.isEmpty())
+            || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        val credentials = deriveKey()
+        return when (config) {
+            is EtheriumMasterseedConfig -> {
+                val credentials = deriveKey()
 
-        val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
-        backing.createAccountContext(accountContext)
+                val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
+                backing.createAccountContext(accountContext)
 
-        val ethAccount = EthAccount(credentials, accountContext)
-        accounts[ethAccount.id] = ethAccount
+                val ethAccount = EthAccount(accountContext, credentials)
+                accounts[ethAccount.id] = ethAccount
 
-        return ethAccount
+                return ethAccount
+            }
+            is EthAddressConfig -> {
+                val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
+                secureStore.storePlaintextValue(uuid.toString().toByteArray(),
+                        config.address.addressString.toByteArray())
+                val accountContext = createAccountContext(uuid)
+                backing.createAccountContext(accountContext)
+
+                val ethAccount = EthAccount(accountContext, receivingAddress = config.address)
+                accounts[ethAccount.id] = ethAccount
+                return ethAccount
+            }
+            else -> {
+                throw NotImplementedError("Unknown config")
+            }
+        }
     }
 
     private fun ethAccountFromUUID(uuid: UUID): EthAccount {
-        val credentials = Credentials.create(Keys.deserialize(secureStore.getPlaintextValue(uuid.toString().toByteArray())))
-        val accountContext = createAccountContext(uuid)
-        val ethAccount = EthAccount(credentials, accountContext)
-        accounts[ethAccount.id] = ethAccount
-        return ethAccount
+        return if (secureStore.hasCiphertextValue(uuid.toString().toByteArray())) {
+            val credentials = Credentials.create(Keys.deserialize(
+                    secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
+            val accountContext = createAccountContext(uuid)
+            val ethAccount = EthAccount(accountContext, credentials)
+            accounts[ethAccount.id] = ethAccount
+            ethAccount
+        } else {
+            val accountContext = createAccountContext(uuid)
+            val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
+            val ethAccount = EthAccount(accountContext, receivingAddress = ethAddress)
+            accounts[ethAccount.id] = ethAccount
+            ethAccount
+        }
     }
 
     private fun deriveKey(): Credentials {
@@ -78,8 +108,8 @@ class EtheriumModule(
         val bip44Keypair = Bip32ECKeyPair.deriveKeyPair(masterKeypair, path)
         val credentials = Credentials.create(bip44Keypair)
 
-        secureStore.storePlaintextValue(bip44Keypair.toUUID().toString().toByteArray(),
-                Keys.serialize(bip44Keypair))
+        secureStore.encryptAndStoreValue(bip44Keypair.toUUID().toString().toByteArray(),
+                Keys.serialize(bip44Keypair), AesKeyCipher.defaultKeyCipher())
 
         return credentials
     }

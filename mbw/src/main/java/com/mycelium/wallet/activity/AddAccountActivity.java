@@ -47,7 +47,6 @@ import android.view.WindowManager;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -55,7 +54,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig;
+import com.mycelium.wapi.wallet.eth.EtheriumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.squareup.otto.Subscribe;
 
@@ -112,7 +111,7 @@ public class AddAccountActivity extends Activity {
         // at this point, we have to have a master seed, since we created one on startup
         Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
 
-        boolean canCreateAccount = wallet.getModuleById(EtheriumModule.ID).canCreateAccount(new AdditionalHDAccountConfig());
+        boolean canCreateAccount = wallet.getModuleById(EtheriumModule.ID).canCreateAccount(new EtheriumMasterseedConfig());
         if (!canCreateAccount) {
             _toaster.toast(R.string.use_acc_first, false);
             return;
@@ -192,7 +191,7 @@ public class AddAccountActivity extends Activity {
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new EtheriumAccountConfig()).get(0);
+            return _mbwManager.getWalletManager(false).createAccounts(new EtheriumMasterseedConfig()).get(0);
         }
 
         @Override

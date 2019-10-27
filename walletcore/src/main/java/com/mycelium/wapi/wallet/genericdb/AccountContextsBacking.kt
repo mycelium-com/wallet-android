@@ -4,24 +4,24 @@ import com.mycelium.generated.wallet.database.AccountContext
 import com.mycelium.generated.wallet.database.WalletDB
 import java.util.*
 
-class AccountContextsBacking(walletDB: WalletDB) {
+class AccountContextsBacking(walletDB: WalletDB): GenericBacking {
     private val queries = walletDB.accountContextQueries
 
-    fun loadAccountContexts() = queries.selectAll()
+    override fun loadAccountContexts() = queries.selectAll()
                 .executeAsList()
 
-    fun loadAccountContext(accountId: UUID) = queries.selectByUUID(accountId)
+    override fun loadAccountContext(accountId: UUID) = queries.selectByUUID(accountId)
             .executeAsOneOrNull()
 
-    fun createAccountContext(context: AccountContext) {
+    override fun createAccountContext(context: AccountContext) {
         queries.insertFullObject(context)
     }
 
-    fun updateAccountContext(context: AccountContext) {
+    override fun updateAccountContext(context: AccountContext) {
         queries.update(context.accountName, context.balance, context.archived, context.uuid)
     }
 
-    fun deleteAccountContext(uuid: UUID) {
+    override fun deleteAccountContext(uuid: UUID) {
         queries.delete(uuid)
     }
 }

@@ -14,7 +14,7 @@ import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig
+import com.mycelium.wapi.wallet.eth.EtheriumMasterseedConfig
 import com.mycelium.wapi.wallet.eth.EtheriumModule
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
@@ -22,7 +22,6 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.squareup.sqldelight.Query
 import com.squareup.sqldelight.db.SqlCursor
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -77,7 +76,7 @@ class EthAccountTest {
         val genericBacking = AccountContextsBacking(db)
         walletManager.add(EtheriumModule(store, genericBacking, fakeMetadataStorage))
 
-        val uuid = walletManager.createAccounts(EtheriumAccountConfig())[0]
+        val uuid = walletManager.createAccounts(EtheriumMasterseedConfig())[0]
         account = walletManager.getAccount(uuid) as EthAccount
 
         // to update account's balance
