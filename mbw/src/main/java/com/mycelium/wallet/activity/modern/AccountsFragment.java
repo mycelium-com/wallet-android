@@ -117,6 +117,7 @@ import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
@@ -560,7 +561,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
             menus.add(R.menu.record_options_menu_delete);
         }
 

@@ -115,7 +115,18 @@ class EtheriumModule(
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        return false
+        if (walletAccount is EthAccount) {
+            if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
+                secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
+            } else {
+                secureStore.deletePlaintextValue(walletAccount.id.toString().toByteArray())
+            }
+            backing.deleteAccountContext(walletAccount.id)
+
+            return true
+        } else {
+            return false
+        }
     }
 
     private fun createAccountContext(uuid: UUID): AccountContextImpl {
