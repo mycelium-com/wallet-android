@@ -46,7 +46,7 @@ class EtheriumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig
+    override fun canCreateAccount(config: Config) = config is EtheriumAccountConfig && accounts.isEmpty()
 
     override fun createAccount(config: Config): WalletAccount<*> {
         val credentials = deriveKey()

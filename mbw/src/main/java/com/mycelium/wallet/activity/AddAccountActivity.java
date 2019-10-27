@@ -56,6 +56,7 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig;
+import com.mycelium.wapi.wallet.eth.EtheriumModule;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -107,6 +108,16 @@ public class AddAccountActivity extends Activity {
 
     @OnClick(R.id.btEthCreate)
     void onAddEth() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+
+        boolean canCreateAccount = wallet.getModuleById(EtheriumModule.ID).canCreateAccount(new AdditionalHDAccountConfig());
+        if (!canCreateAccount) {
+            _toaster.toast(R.string.use_acc_first, false);
+            return;
+        }
+
         new ETHCreationAsyncTask().execute();
     }
 
