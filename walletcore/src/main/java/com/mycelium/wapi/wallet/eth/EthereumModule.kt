@@ -1,11 +1,9 @@
 package com.mycelium.wapi.wallet.eth
 
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
 import com.mycelium.wapi.wallet.genericdb.GenericBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
@@ -19,7 +17,7 @@ import org.web3j.crypto.Keys
 import java.util.*
 
 
-class EtheriumModule(
+class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
@@ -48,12 +46,12 @@ class EtheriumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = (config is EtheriumMasterseedConfig && accounts.isEmpty())
+    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig && accounts.isEmpty())
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
         return when (config) {
-            is EtheriumMasterseedConfig -> {
+            is EthereumMasterseedConfig -> {
                 val credentials = deriveKey()
 
                 val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
@@ -71,7 +69,7 @@ class EtheriumModule(
                 val accountContext = createAccountContext(uuid)
                 backing.createAccountContext(accountContext)
 
-                val ethAccount = EthAccount(accountContext, receivingAddress = config.address)
+                val ethAccount = EthAccount(accountContext, address = config.address)
                 accounts[ethAccount.id] = ethAccount
                 return ethAccount
             }
@@ -92,7 +90,7 @@ class EtheriumModule(
         } else {
             val accountContext = createAccountContext(uuid)
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
-            val ethAccount = EthAccount(accountContext, receivingAddress = ethAddress)
+            val ethAccount = EthAccount(accountContext, address = ethAddress)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -142,14 +140,14 @@ class EtheriumModule(
             AccountContextImpl(
                     uuid,
                     coinType,
-                    "abacaba",
+                    "Ethereum",
                     Balance.getZeroBalance(coinType),
                     backing::updateAccountContext)
         }
     }
 
     companion object {
-        const val ID: String = "Etherium"
+        const val ID: String = "Ethereum"
     }
 }
 

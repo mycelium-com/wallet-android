@@ -21,8 +21,8 @@ import java.util.*
 
 class EthAccount(private val accountContext: AccountContextImpl,
                  private val credentials: Credentials? = null,
-                 receivingAddress: EthAddress? = null) : WalletAccount<EthAddress> {
-    val receivingAddress = credentials?.run { EthAddress(coinType, this.address) } ?: receivingAddress!!
+                 address: EthAddress? = null) : WalletAccount<EthAddress> {
+    val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -38,7 +38,7 @@ class EthAccount(private val accountContext: AccountContextImpl,
         }
 
         try {
-            val nonce = getNonce(receivingAddress.toString())
+            val nonce = getNonce(receivingAddress)
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
                     BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000),
                     toAddress.toString(), BigInteger.valueOf(value.value))
@@ -49,9 +49,10 @@ class EthAccount(private val accountContext: AccountContextImpl,
     }
 
     @Throws(Exception::class)
-    private fun getNonce(address: String): BigInteger {
+    private fun getNonce(address: EthAddress): BigInteger {
         val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
-        val ethGetTransactionCount = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST)
+        val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
+                DefaultBlockParameterName.PENDING)
                 .sendAsync()
                 .get()
 
@@ -175,8 +176,13 @@ class EthAccount(private val accountContext: AccountContextImpl,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?) =
-            accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
+    override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?): Value {
+        val spendable = accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
+        if (spendable < 0) {
+            return Value.zeroValue(coinType)
+        }
+        return spendable
+    }
 
     override fun getSyncTotalRetrievedTransactions() = 0
 

@@ -13,7 +13,7 @@ class SendEthModel(context: Application,
                    intent: Intent)
     : SendCoinsModel(context, account, intent) {
     override fun handlePaymentRequest(toSend: Value): TransactionStatus {
-        throw IllegalStateException("Etherium does not support payment requests")
+        throw IllegalStateException("Ethereum does not support payment requests")
     }
 
     override fun getFeeLvlItems(): List<FeeLvlItem> {

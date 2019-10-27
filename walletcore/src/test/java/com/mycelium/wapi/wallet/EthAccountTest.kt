@@ -14,8 +14,8 @@ import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.EtheriumMasterseedConfig
-import com.mycelium.wapi.wallet.eth.EtheriumModule
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
+import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
@@ -74,9 +74,9 @@ class EthAccountTest {
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher)
 
         val genericBacking = AccountContextsBacking(db)
-        walletManager.add(EtheriumModule(store, genericBacking, fakeMetadataStorage))
+        walletManager.add(EthereumModule(store, genericBacking, fakeMetadataStorage))
 
-        val uuid = walletManager.createAccounts(EtheriumMasterseedConfig())[0]
+        val uuid = walletManager.createAccounts(EthereumMasterseedConfig())[0]
         account = walletManager.getAccount(uuid) as EthAccount
 
         // to update account's balance

@@ -2,7 +2,7 @@ package com.mycelium.wapi.wallet.eth.coins
 
 object EthTest: EthCoin() {
     init {
-        id = "etherium.test"
+        id = "ethereum.test"
         name = "Ethereum test"
         symbol = "ETH"
     }

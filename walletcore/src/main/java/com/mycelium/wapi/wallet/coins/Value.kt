@@ -85,6 +85,8 @@ open class Value(
 
     operator fun compareTo(other: Value): Int = value.compareTo(other.value)
 
+    operator fun compareTo(other: Long): Int = value.compareTo(other)
+
     fun shiftLeft(n: Int): Value = Value(this.type, this.value shl n)
 
     fun shiftRight(n: Int): Value = Value(this.type, this.value shr n)

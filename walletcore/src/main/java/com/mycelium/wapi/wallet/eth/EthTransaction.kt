@@ -22,6 +22,7 @@ class EthTransaction(val type: CryptoCurrency, val toAddress: GenericAddress, va
 
     override fun txBytes() = TransactionEncoder.encode(rawTransaction)!!
 
+    // This only true for pure ETH transaction, without contracts.
     override fun getEstimatedTransactionSize() = 21000
 
     /**

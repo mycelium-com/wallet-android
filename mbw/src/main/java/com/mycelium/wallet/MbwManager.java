@@ -109,24 +109,16 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
-import com.mycelium.wapi.wallet.colu.coins.MTCoin;
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
-import com.mycelium.wapi.wallet.eth.EtheriumModule;
+import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
-import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
-import com.mycelium.wapi.wallet.manager.FeeEstimations;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
-import com.mycelium.wapi.wallet.providers.BtcFeeProvider;
-import com.mycelium.wapi.wallet.providers.ColuFeeProvider;
-import com.mycelium.wapi.wallet.providers.EthFeeProvider;
 import com.mycelium.wapi.wallet.providers.FeeProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -668,7 +660,7 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
 
-        walletManager.add(new EtheriumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
         walletManager.init();
 
@@ -714,7 +706,7 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
         GenericBacking genericBacking = new InMemoryAccountContextsBacking();
-        walletManager.add(new EtheriumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
