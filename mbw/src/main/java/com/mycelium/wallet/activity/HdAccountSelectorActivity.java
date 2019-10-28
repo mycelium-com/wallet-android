@@ -69,10 +69,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 public abstract class HdAccountSelectorActivity extends Activity implements MasterseedPasswordSetter {
-   protected final static int REQUEST_SEND = 1;
+   protected static final int REQUEST_SEND = 1;
    public static final String PASSPHRASE_FRAGMENT_TAG = "passphrase";
    protected ArrayList<HdAccountWrapper> accounts = new ArrayList<>();
    protected AccountsAdapter accountsAdapter;
@@ -103,33 +106,30 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    }
 
    protected void startBackgroundScan() {
-      masterseedScanManager.startBackgroundAccountScan(new AccountScanManager.AccountCallback() {
-         @Override
-         public UUID checkForTransactions(AbstractAccountScanManager.HdKeyNodeWrapper account) {
-            MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-            WalletManager walletManager = mbwManager.getWalletManager(true);
+      masterseedScanManager.startBackgroundAccountScan(account -> {
+         MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
+         WalletManager walletManager = mbwManager.getWalletManager(true);
 
-            UUID id = masterseedScanManager.createOnTheFlyAccount(
-                  account.accountsRoots,
-                  walletManager,
-                  account.keysPaths.iterator().next().getLastIndex());
+         UUID id = masterseedScanManager.createOnTheFlyAccount(
+               account.accountsRoots,
+               walletManager,
+               account.keysPaths.iterator().next().getLastIndex());
 
-            HDAccount tempAccount = (HDAccount) walletManager.getAccount(id);
-            tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
+         HDAccount tempAccount = (HDAccount) walletManager.getAccount(id);
+         tempAccount.doSynchronization(SyncMode.NORMAL_WITHOUT_TX_LOOKUP);
 
-            if (tempAccount.hasHadActivity()) {
-               return id;
-            } else {
-               tempAccount.dropCachedData();
-               return null;
-            }
+         if (tempAccount.hasHadActivity()) {
+            return id;
+         } else {
+            tempAccount.dropCachedData();
+            return null;
          }
       });
    }
 
-   abstract protected AdapterView.OnItemClickListener accountClickListener();
+   protected abstract AdapterView.OnItemClickListener accountClickListener();
 
-   abstract protected void setView();
+   protected abstract void setView();
 
    @Override
    public void finish() {
@@ -152,7 +152,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
    protected void updateUi() {
       if (masterseedScanManager.getCurrentAccountState() == AccountScanManager.AccountStatus.scanning) {
          findViewById(R.id.llStatus).setVisibility(View.VISIBLE);
-         if (accounts.size()>0) {
+         if (!accounts.isEmpty()) {
             txtStatus.setText(String.format(getString(R.string.account_found), Iterables.getLast(accounts).name));
             findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
          }
@@ -160,7 +160,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
          // DONE
          findViewById(R.id.llStatus).setVisibility(View.GONE);
          findViewById(R.id.llSelectAccount).setVisibility(View.VISIBLE);
-         if (accounts.size()==0) {
+         if (accounts.isEmpty()) {
             // no accounts found
             findViewById(R.id.tvNoAccounts).setVisibility(View.VISIBLE);
             findViewById(R.id.lvAccounts).setVisibility(View.GONE);
@@ -201,7 +201,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       }
    }
 
-   protected class HdAccountWrapper implements Serializable {
+   protected static class HdAccountWrapper implements Serializable {
       public UUID id;
       public Collection<HdKeyPath> accountHdKeysPaths;
       public List<HdKeyNode> publicKeyNodes;
@@ -214,7 +214,7 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
 
          HdAccountWrapper that = (HdAccountWrapper) o;
 
-         return id != null ? id.equals(that.id) : that.id == null;
+         return Objects.equals(id, that.id);
       }
 
       @Override
@@ -232,7 +232,8 @@ public abstract class HdAccountSelectorActivity extends Activity implements Mast
       }
 
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @Nonnull
+      public View getView(int position, View convertView, @Nonnull ViewGroup parent) {
          View row;
          if (convertView == null) {
             row = inflater.inflate(R.layout.record_row, parent, false);

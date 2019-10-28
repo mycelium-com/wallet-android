@@ -9,7 +9,7 @@ import com.mycelium.wallet.R
 class NotificationsFragment : PreferenceFragmentCompat() {
     private var newsAllPreference: CheckBoxPreference? = null
 
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_notifications)
 
         setHasOptionsMenu(true)

@@ -135,12 +135,7 @@ public class EnterAddressLabelUtil {
         }
         String invalidOkToastMessage = context.getResources().getString(R.string.account_label_not_unique);
         Bus bus = MbwManager.getEventBus();
-        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {
-            @Override
-            public void onDismiss() {
-                super.onDismiss();
-            }
-        };
+        EnterAccountLabelHandler handler = new EnterAccountLabelHandler(account, invalidOkToastMessage, storage, bus) {};
         EnterTextDialog.show(context, title_id, hintText, currentName, true, handler);
     }
 
