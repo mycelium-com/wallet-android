@@ -23,7 +23,10 @@
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="12sp"
             tools:text="My BTC Account" />
-
+        <!-- single line produce bug API 19,
+            hide(not show on page but you can see view in layout inspector)
+            text view in random cases,
+            so we shouldn't use it here -->
         <TextView
             android:id="@+id/itemTextView"
             android:layout_width="match_parent"
@@ -31,7 +34,7 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:gravity="center_horizontal"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="14sp"
             tools:text="MRD" />
@@ -43,7 +46,6 @@
             android:ellipsize="middle"
             android:fontFamily="sans-serif"
             android:gravity="center_horizontal"
-            android:singleLine="true"
             android:textColor="@color/horizontalpicker_text_color"
             android:textSize="12sp"
             tools:text="0.5556 BTC" />

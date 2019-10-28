@@ -39,6 +39,10 @@ class NewsFragment : Fragment() {
     var currentNews: News? = null
     private var loading = false
     private var isLastPage = false
+    var newsClick: (News) -> Unit = {
+        startActivity(Intent(activity, NewsActivity::class.java)
+                .putExtra(NewsConstants.NEWS, it))
+    }
 
     private val updateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -87,11 +91,6 @@ class NewsFragment : Fragment() {
 
             override fun isLoading() = loading
         })
-        val newsClick: (News) -> Unit = {
-            startActivity(Intent(activity, NewsActivity::class.java)
-                    .putExtra(NewsConstants.NEWS, it))
-        }
-        adapter.openClickListener = newsClick
         adapter.categoryClickListener = {
             val tab = getTab(it, tabs)
             tab?.select()
@@ -108,7 +107,6 @@ class NewsFragment : Fragment() {
                 loadItems()
             }
         })
-        adapterSearch.openClickListener = newsClick
         search_close.setOnClickListener {
             if (search_input.text.isEmpty()) {
                 searchActive = false
@@ -139,6 +137,8 @@ class NewsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        adapter.openClickListener = newsClick
+        adapterSearch.openClickListener = newsClick
         loadItems()
         LocalBroadcastManager.getInstance(requireContext()).run {
             registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))

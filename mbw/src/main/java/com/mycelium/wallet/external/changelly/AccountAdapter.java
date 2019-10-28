@@ -22,7 +22,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AccountAdapter extends SelectableRecyclerView.SRVAdapter<RecyclerView.ViewHolder> {
     public enum AccountUseType {
         OUT(R.drawable.sender_recyclerview_item_background_selector_red
                 , R.drawable.recyclerview_item_bottom_rectangle_selector
@@ -105,7 +105,9 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
             layoutParams.gravity = accountUseType.gravity;
             layoutParams.height = parent.getResources().getDimensionPixelSize(accountUseType.heightRes);
             imageView.setLayoutParams(layoutParams);
-            return new ViewHolder(v);
+            ViewHolder viewHolder = new ViewHolder(v);
+            viewHolder.valueTextView.setMaxLines(1);
+            return viewHolder;
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(accountUseType.paddingLayout,
                     parent, false);

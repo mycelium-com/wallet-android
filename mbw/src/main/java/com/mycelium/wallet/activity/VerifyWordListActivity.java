@@ -43,7 +43,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
-import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
