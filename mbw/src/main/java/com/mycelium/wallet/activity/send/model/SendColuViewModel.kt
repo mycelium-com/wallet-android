@@ -1,45 +1,27 @@
 package com.mycelium.wallet.activity.send.model
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Application
 import android.app.ProgressDialog
-import android.content.Intent
-import android.graphics.Point
-import android.os.AsyncTask
 import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.makeText
-import com.mrd.bitlib.model.AddressType
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.StringHandlerActivity
-import com.mycelium.wallet.activity.send.SendCoinsActivity
-import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter
-import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
-import com.mycelium.wallet.activity.util.getAssetUri
-import com.mycelium.wallet.activity.util.getPrivateKey
-import com.mycelium.wallet.content.ResultType
 import com.mycelium.wapi.api.response.Feature
-import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.colu.ColuTransaction
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin
 import com.mycelium.wapi.wallet.colu.coins.MTCoin
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 
 class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
     override fun sendTransaction(activity: Activity) {
@@ -83,7 +65,8 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnComplete {
                     progressDialog?.dismiss()
-                    mbwManager.getWalletManager(false).startSynchronization(model.account.id)
+                    mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL,
+                            (model.transaction as ColuTransaction).fundingAccounts + model.account)
                     makeText(activity, R.string.transaction_sent, Toast.LENGTH_SHORT).show()
                     activity.finish()
                 }

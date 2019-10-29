@@ -326,7 +326,8 @@ abstract class SendCoinsModel(
         } else {
             account.coinType
         }
-        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo))
+        alternativeAmount.postValue(mbwManager.exchangeRateManager.get(enteredAmount, exchangeTo)
+                ?: Value.zeroValue(account.coinType))
     }
 
     private fun updateReceiverAddressText(hasPaymentRequest: Boolean) {
