@@ -174,7 +174,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
                   UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
-                  tempWalletManager.setActiveAccount(account);
+                  tempWalletManager.startSynchronization(account);
                   sendWithAccount(account);
                   break;
                case SHARE:
