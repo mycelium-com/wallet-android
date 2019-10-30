@@ -63,20 +63,20 @@ public class PinCodeFragment extends PreferenceFragmentCompat {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Set PIN
-        setPin = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("setPin"));
+        setPin = Preconditions.checkNotNull(findPreference("setPin"));
         setPin.setOnPreferenceClickListener(setPinClickListener);
 
-        setPinRequiredStartup = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
+        setPinRequiredStartup = Preconditions.checkNotNull(findPreference("requirePinOnStartup"));
         setPinRequiredStartup.setOnPreferenceChangeListener(setPinOnStartupClickListener);
 
-        randomizePin = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("pinPadIsRandomized"));
+        randomizePin = Preconditions.checkNotNull(findPreference("pinPadIsRandomized"));
         randomizePin.setOnPreferenceChangeListener(randomizePinListener);
 
-        fingerprint = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("fingerprint"));
-        twoFactorAuth = (CheckBoxPreference) Preconditions.checkNotNull(findPreference("twoFactorAuth"));
+        fingerprint = Preconditions.checkNotNull(findPreference("fingerprint"));
+        twoFactorAuth = Preconditions.checkNotNull(findPreference("twoFactorAuth"));
         if (!FingerprintHandler.isHardwareSupported(getActivity())) {
-            getPreferenceScreen().removePreference(fingerprint);
-            getPreferenceScreen().removePreference(twoFactorAuth);
+            fingerprint.getParent().removePreference(fingerprint);
+            twoFactorAuth.getParent().removePreference(twoFactorAuth);
         }else {
             fingerprint.setOnPreferenceChangeListener(fingerprintListener);
             twoFactorAuth.setOnPreferenceChangeListener(twoFactorListener);

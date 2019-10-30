@@ -120,8 +120,10 @@ public class PinDialog extends AppCompatDialog {
                  && MbwManager.getInstance(context).isFingerprintEnabled()) {
             if (!FingerprintHandler.isFingerprintAvailable(context)) {
                TextView fingerprintError = findViewById(R.id.fingerprintErrorMessage);
-               fingerprintError.setText(R.string.fingerprint_not_enroled);
-               fingerprintError.setVisibility(View.VISIBLE);
+               if(fingerprintError != null) {
+                  fingerprintError.setText(R.string.fingerprint_not_enroled);
+                  fingerprintError.setVisibility(View.VISIBLE);
+               }
             }else {
                fingerprintHandler = new FingerprintHandler();
                fingerprintHandler.startAuth(context, new Function0<Unit>() {
