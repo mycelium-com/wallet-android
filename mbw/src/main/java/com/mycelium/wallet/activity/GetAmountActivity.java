@@ -243,7 +243,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
       // Return the entered value and set a positive result code
       Intent result = new Intent();
-      result.putExtra(AMOUNT, ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, mainCurrencyType));
+      result.putExtra(AMOUNT, _amount);
       setResult(RESULT_OK, result);
       finish();
    }

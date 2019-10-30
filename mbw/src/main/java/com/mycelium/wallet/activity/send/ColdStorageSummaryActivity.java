@@ -181,7 +181,7 @@ public class ColdStorageSummaryActivity extends Activity {
             btSend.setOnClickListener(new OnClickListener() {
                @Override
                public void onClick(View arg0) {
-                  Intent intent = SendMainActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
+                  Intent intent = SendCoinsActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
                   ColdStorageSummaryActivity.this.startActivityForResult(intent, SEND_MAIN_REQUEST_CODE);
                }
             });

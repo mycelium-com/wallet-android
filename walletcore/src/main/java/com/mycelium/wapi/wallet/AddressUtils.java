@@ -7,6 +7,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 public class AddressUtils {
 
@@ -23,6 +25,9 @@ public class AddressUtils {
             } else {
                 return null;
             }
+        } else if (currencyType instanceof EthCoin) {
+            EthAddress addr = new EthAddress(currencyType, address);
+            return addr;
         } else {
             return null;
         }
@@ -35,6 +40,7 @@ public class AddressUtils {
         return res;
     }
 
+    // Use only for bitcoin address
     public static boolean addressValidation(GenericAddress address) {
         return Address.fromString(address.toString()) != null;
     }
@@ -49,7 +55,7 @@ public class AddressUtils {
             int i = 0;
             StringBuilder result = new StringBuilder();
             while (i + 12 < address.length()) {
-                result.append(address, i, i + 12).append("\r\n");
+                result.append(address, i, i + 12).append(System.lineSeparator());
                 i = i + 12;
             }
             return result.append(address.substring(i)).toString();
@@ -58,7 +64,7 @@ public class AddressUtils {
 
     public static String toDoubleLineString(String address) {
         int splitIndex = address.length() / 2;
-        return address.substring(0, splitIndex) + "\r\n" + address.substring(splitIndex);
+        return address.substring(0, splitIndex) + System.lineSeparator() + address.substring(splitIndex);
     }
 
     public static String toShortString(String address) {

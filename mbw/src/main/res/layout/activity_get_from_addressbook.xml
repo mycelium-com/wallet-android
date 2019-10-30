@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.modern.ModernMain">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/pager_tabs"
+        style="@style/MyceliumTabBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorColor="#ebedf0"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        app:tabMode="fixed"
+        app:tabTextAppearance="@style/MyceliumTabTextStyle" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

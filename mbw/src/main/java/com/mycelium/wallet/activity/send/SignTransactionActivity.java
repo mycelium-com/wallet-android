@@ -93,8 +93,8 @@ public class SignTransactionActivity extends Activity {
       Preconditions.checkNotNull(account);
 
       return new Intent(currentActivity, targetClass)
-              .putExtra(SendMainActivity.ACCOUNT, account)
-              .putExtra(SendMainActivity.IS_COLD_STORAGE, isColdStorage)
+              .putExtra(SendCoinsActivity.ACCOUNT, account)
+              .putExtra(SendCoinsActivity.IS_COLD_STORAGE, isColdStorage)
               .putExtra(TRANSACTION, transaction);
    }
 
@@ -105,8 +105,8 @@ public class SignTransactionActivity extends Activity {
       setView();
       _mbwManager = MbwManager.getInstance(getApplication());
       // Get intent parameters
-      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(SendMainActivity.ACCOUNT));
-      _isColdStorage = getIntent().getBooleanExtra(SendMainActivity.IS_COLD_STORAGE, false);
+      UUID accountId = Preconditions.checkNotNull((UUID) getIntent().getSerializableExtra(SendCoinsActivity.ACCOUNT));
+      _isColdStorage = getIntent().getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false);
       _account = Preconditions.checkNotNull(_mbwManager.getWalletManager(_isColdStorage).getAccount(accountId));
       _transaction = Preconditions.checkNotNull((GenericTransaction) getIntent().getSerializableExtra(TRANSACTION));
 
@@ -157,7 +157,7 @@ public class SignTransactionActivity extends Activity {
          protected void onPostExecute(GenericTransaction signedTransaction) {
             if (signedTransaction != null) {
                Intent ret = new Intent();
-               ret.putExtra(SendMainActivity.SIGNED_TRANSACTION, signedTransaction);
+               ret.putExtra(SendCoinsActivity.SIGNED_TRANSACTION, signedTransaction);
                setResult(RESULT_OK, ret);
                SignTransactionActivity.this.finish();
             } else {

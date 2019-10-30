@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.providers.ColuFeeProvider
 import com.mycelium.wapi.wallet.providers.EthFeeProvider
 import org.jetbrains.annotations.TestOnly
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 
 class WalletManager
@@ -22,7 +23,7 @@ constructor(val network: NetworkParameters,
             @JvmField
             var accountScanManager: AccountScanManager? = null,
             val walletDB: WalletDB) {
-    private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
+    private val accounts = ConcurrentHashMap<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
     private val _logger = wapi.logger
@@ -75,7 +76,7 @@ constructor(val network: NetworkParameters,
         startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
-    fun getAccountIds(): List<UUID> = accounts.keys.toList()
+    fun getAccountIds(): List<UUID> = accounts.keys().toList()
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 

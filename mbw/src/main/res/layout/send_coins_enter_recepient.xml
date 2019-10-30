@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_heading">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendCoinsViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/llEnterRecipient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="@{(viewModel.receivingAddressText.isEmpty() &amp;&amp; !viewModel.hasPaymentRequestHandler) ? View.VISIBLE : View.GONE}"
+        android:paddingTop="6dp">
+
+        <!-- Scan button -->
+        <Button
+            android:id="@+id/btScan"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/scan_qr_code"
+            android:onClick="@{_ -> activity.onClickScan()}"
+            android:textSize="20sp" />
+
+        <!-- Address Book -->
+        <Button
+            android:id="@+id/btAddressBook"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:onClick="@{_ -> activity.onClickAddressBook()}"
+            android:text="@string/my_addresses"
+            android:textSize="20sp" />
+
+        <!-- Clipboard -->
+        <Button
+            android:id="@+id/btClipboard"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:text="@string/clipboard"
+            android:enabled="@{viewModel.getClipboardUri != null}"
+            android:onClick="@{_ -> viewModel.onClickClipboard()}"
+            android:textSize="20sp" />
+
+        <!-- Manual Entry -->
+        <Button
+            android:id="@+id/btManualEntry"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:onClick="@{_ -> activity.onClickManualEntry()}"
+            android:text="@string/manual_entry"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+</layout>

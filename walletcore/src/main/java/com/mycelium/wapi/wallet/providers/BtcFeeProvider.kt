@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 open class BtcFeeProvider(testnet: Boolean, private val wapi: Wapi, private val feeBacking: FeeEstimationsBacking) : FeeProvider {
-    override val coinType = if (testnet) {
+    final override val coinType = if (testnet) {
         BitcoinTest.get()!!
     } else {
         BitcoinMain.get()!!

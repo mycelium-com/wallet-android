@@ -5,11 +5,11 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import java.util.*
 
-class AccountContextImpl(uuid: UUID,
+open class AccountContextImpl<Context: AccountContext>(uuid: UUID,
                          currency: CryptoCurrency,
                          accountName: String,
                          balance: Balance,
-                         val listener: (AccountContext) -> Unit,
+                         val listener: (Context) -> Unit,
                          archived: Boolean = false) :
         AccountContext by AccountContext.Impl(
                 uuid,
@@ -20,19 +20,19 @@ class AccountContextImpl(uuid: UUID,
     override var archived = archived
         set(value) {
             field = value
-            listener.invoke(this)
+            listener.invoke(this as Context)
         }
 
     override var accountName = accountName
         set(value) {
             field = value
-            listener.invoke(this)
+            listener.invoke(this as Context)
         }
 
     override var balance = balance
         set(value) {
             field = value
-            listener.invoke(this)
+            listener.invoke(this as Context)
         }
 }
 

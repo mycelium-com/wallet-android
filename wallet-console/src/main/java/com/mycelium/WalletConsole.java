@@ -133,7 +133,8 @@ class WalletConsole {
 
         SqlDriver driver = new JdbcSqliteDriver( "wallet.db", new Properties());
         WalletDB.Companion.getSchema().create(driver);
-        WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+        WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
 
         WalletManager walletManager = new WalletManager(
                 network,

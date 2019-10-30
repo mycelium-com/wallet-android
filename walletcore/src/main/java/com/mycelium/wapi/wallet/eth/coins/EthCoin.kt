@@ -13,7 +13,7 @@ abstract class EthCoin: CryptoCurrency() {
     }
 
     override fun getName(): String {
-        return "Ether"
+        return name
     }
 
     override fun parseAddress(addressString: String): GenericAddress? {
