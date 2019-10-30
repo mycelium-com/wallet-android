@@ -108,12 +108,7 @@ public class PinDialog extends AppCompatDialog {
       clearDigits();
       updatePinDisplay();
       this.setTitle(R.string.pin_enter_pin);
-      initFingerprint(context);
-      initTwoFactorAuthentication();
-   }
-
-   private void initTwoFactorAuthentication() {
-
+      twoFactorHelper = new TwoFactorHelper(this);
    }
 
    private void initFingerprint(Context context) {
@@ -122,64 +117,74 @@ public class PinDialog extends AppCompatDialog {
 
       if (view != null) {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                 && MbwManager.getInstance(context).isFingerprintEnabled()
-                 && FingerprintHandler.Companion.isFingerprintAvailable(context)) {
-            fingerprintHandler = new FingerprintHandler();
-            fingerprintHandler.startAuth(context, new Function0<Unit>() {
-               @Override
-               public Unit invoke() {
-                  if (isTwoFactorAuth) {
-                     view.setEnabled(false);
-                     twoFactorHelper.fingerprintSuccess();
-                  } else {
-                     dismiss();
-                     if (fingerprintCallback != null) {
-                        fingerprintCallback.onSuccess();
+                 && MbwManager.getInstance(context).isFingerprintEnabled()) {
+            if (!FingerprintHandler.isFingerprintAvailable(context)) {
+               TextView fingerprintError = findViewById(R.id.fingerprintErrorMessage);
+               fingerprintError.setText(R.string.fingerprint_not_enroled);
+               fingerprintError.setVisibility(View.VISIBLE);
+            }else {
+               fingerprintHandler = new FingerprintHandler();
+               fingerprintHandler.startAuth(context, new Function0<Unit>() {
+                  @Override
+                  public Unit invoke() {
+                     if (isTwoFactorAuth) {
+                        view.setEnabled(false);
+                        twoFactorHelper.fingerprintSuccess();
+                     } else {
+                        dismiss();
+                        if (fingerprintCallback != null) {
+                           fingerprintCallback.onSuccess();
+                        }
                      }
+                     return null;
                   }
-                  return null;
-               }
-            }, new Function1<String, Unit>() {
-               @Override
-               public Unit invoke(String msg) {
-                  Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
-                  return null;
-               }
-            });
+               }, new Function1<String, Unit>() {
+                  @Override
+                  public Unit invoke(String msg) {
+                     Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
+                     return null;
+                  }
+               });
+            }
             logicView.setText(isTwoFactorAuth ? R.string.and : R.string.or);
          } else {
             view.setVisibility(View.GONE);
             logicView.setVisibility(View.GONE);
          }
       }
-      twoFactorHelper = new TwoFactorHelper(this);
    }
 
    @Override
-   public void dismiss() {
-      super.dismiss();
+   protected void onStart() {
+      super.onStart();
+      initFingerprint(getContext());
+   }
+
+   @Override
+   protected void onStop() {
       if (fingerprintHandler != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
          fingerprintHandler.cancelAuth();
       }
+      super.onStop();
    }
 
    protected void initPinPad() {
-      disps.add((TextView) findViewById(R.id.pin_char_1));
-      disps.add((TextView) findViewById(R.id.pin_char_2));
-      disps.add((TextView) findViewById(R.id.pin_char_3));
-      disps.add((TextView) findViewById(R.id.pin_char_4));
-      disps.add((TextView) findViewById(R.id.pin_char_5));
-      disps.add((TextView) findViewById(R.id.pin_char_6));
-      buttons.add( ((Button) findViewById(R.id.pin_button0)));
-      buttons.add( ((Button) findViewById(R.id.pin_button1)));
-      buttons.add( ((Button) findViewById(R.id.pin_button2)));
-      buttons.add( ((Button) findViewById(R.id.pin_button3)));
-      buttons.add( ((Button) findViewById(R.id.pin_button4)));
-      buttons.add( ((Button) findViewById(R.id.pin_button5)));
-      buttons.add( ((Button) findViewById(R.id.pin_button6)));
-      buttons.add( ((Button) findViewById(R.id.pin_button7)));
-      buttons.add( ((Button) findViewById(R.id.pin_button8)));
-      buttons.add( ((Button) findViewById(R.id.pin_button9)));
+      disps.add(findViewById(R.id.pin_char_1));
+      disps.add(findViewById(R.id.pin_char_2));
+      disps.add(findViewById(R.id.pin_char_3));
+      disps.add(findViewById(R.id.pin_char_4));
+      disps.add(findViewById(R.id.pin_char_5));
+      disps.add(findViewById(R.id.pin_char_6));
+      buttons.add(findViewById(R.id.pin_button0));
+      buttons.add(findViewById(R.id.pin_button1));
+      buttons.add(findViewById(R.id.pin_button2));
+      buttons.add(findViewById(R.id.pin_button3));
+      buttons.add(findViewById(R.id.pin_button4));
+      buttons.add(findViewById(R.id.pin_button5));
+      buttons.add(findViewById(R.id.pin_button6));
+      buttons.add(findViewById(R.id.pin_button7));
+      buttons.add(findViewById(R.id.pin_button8));
+      buttons.add(findViewById(R.id.pin_button9));
 
       ArrayList<Integer> numbers = new ArrayList<>();
       for (int i = 0; i < 10; i++) {

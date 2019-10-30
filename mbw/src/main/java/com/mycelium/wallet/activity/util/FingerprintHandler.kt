@@ -22,21 +22,23 @@ class FingerprintHandler {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun startAuth(context: Context, success: () -> Unit, fail: (String) -> Unit) {
-        generateKey()
-        val cipher = Cipher.getInstance(
-                KeyProperties.KEY_ALGORITHM_AES + "/"
-                        + KeyProperties.BLOCK_MODE_CBC + "/"
-                        + KeyProperties.ENCRYPTION_PADDING_PKCS7)
+        if (isFingerprintAvailable(context)) {
+            generateKey()
+            val cipher = Cipher.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES + "/"
+                            + KeyProperties.BLOCK_MODE_CBC + "/"
+                            + KeyProperties.ENCRYPTION_PADDING_PKCS7)
 
-        keyStore?.load(null)
-        val key = keyStore?.getKey("key", null) as SecretKey
-        cipher.init(Cipher.ENCRYPT_MODE, key)
+            keyStore?.load(null)
+            val key = keyStore?.getKey("key", null) as SecretKey
+            cipher.init(Cipher.ENCRYPT_MODE, key)
 
-        val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
+            val cryptoObject = FingerprintManagerCompat.CryptoObject(cipher)
 
-        val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
-        fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal,
-                Callback(context, success, fail), null)
+            val fingerprintManagerCompat = FingerprintManagerCompat.from(context)
+            fingerprintManagerCompat.authenticate(cryptoObject, 0, cancelSignal,
+                    Callback(context, success, fail), null)
+        }
     }
 
     fun cancelAuth() {

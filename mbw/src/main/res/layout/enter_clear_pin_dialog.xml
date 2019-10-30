@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:scrollbars="vertical">
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -19,9 +20,22 @@
             android:id="@+id/fingerprintHint"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_margin="8dp"
             android:layout_gravity="center"
+            android:layout_margin="8dp"
             app:srcCompat="@drawable/ic_fingerprint_selector" />
+
+        <TextView
+            android:id="@+id/fingerprintErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/status_red"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16sp"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:text="@string/fingerprint_not_enroled" />
 
         <TextView
             android:id="@+id/logicOperationHint"

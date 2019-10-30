@@ -1332,4 +1332,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="retry">RETRY</string>
     <string name="notifications_summary">Media Flow</string>
     <string name="fingerprint_detection_failed">Fingerprint detection failed</string>
+    <string name="fingerprint_not_enroled">Your fingerprints have not been enrolled</string>
 </resources>
