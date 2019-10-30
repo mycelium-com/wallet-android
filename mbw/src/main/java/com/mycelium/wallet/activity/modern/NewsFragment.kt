@@ -132,6 +132,7 @@ class NewsFragment : Fragment() {
         retry.setOnClickListener {
             requireContext().startService(Intent(context, NewsSyncService::class.java))
         }
+        media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
     }
 
@@ -234,20 +235,20 @@ class NewsFragment : Fragment() {
                         unable_to_load.visibility = VISIBLE
                         media_flow_loading.visibility = GONE
                     }
-                    NewsConstants.MEDIA_FLOW_LOADING  -> {
+                    NewsConstants.MEDIA_FLOW_LOADING -> {
                         adapter.state = NewsAdapter.State.LOADING
                         unable_to_load.visibility = GONE
                         media_flow_loading.visibility = VISIBLE
                         media_flow_loading.postOnAnimationDelayed(object : Runnable {
                             var tick = 0;
                             override fun run() {
-                                media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait,
+                                media_flow_loading?.text = getString(R.string.loading_media_flow_feed_please_wait,
                                         when (tick++ % 3) {
                                             0 -> ".  "
                                             1 -> ".. "
                                             else -> "..."
                                         })
-                                media_flow_loading.postOnAnimationDelayed(this, 1000);
+                                media_flow_loading?.postOnAnimationDelayed(this, 1000);
                             }
                         }, 1000)
                     }
