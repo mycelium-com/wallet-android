@@ -448,7 +448,7 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   //We need implementations of GenericTransactionSummary for using something like
-                  //hasDetails|canCoinapult|canCancel
+                  //hasDetails|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
@@ -463,12 +463,12 @@ public class TransactionHistoryFragment extends Fragment {
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getConfirmations() == 0));// and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0));
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
@@ -503,13 +503,14 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         boolean okay = ((WalletBtcAccount)_mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
+                                         boolean okay = ((WalletBtcAccount) _mbwManager.getSelectedAccount()).cancelQueuedTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
                                          if (okay) {
                                             Utils.showSimpleMessageDialog(getActivity(), _context.getString(R.string.remove_queued_transaction_hint));
                                          } else {
                                             new Toaster(requireActivity()).toast(_context.getString(R.string.remove_queued_transaction_error), false);
                                          }
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -529,6 +530,7 @@ public class TransactionHistoryFragment extends Fragment {
                                       public void onClick(DialogInterface dialog, int which) {
                                          ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
                                          dialog.dismiss();
+                                         finishActionMode();
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -583,18 +585,8 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         String transaction;
-                                         if(_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
-                                            //TODO Module should provide full bytes of transaction.
-                                            transaction = HexUtils.toHex(((WalletBtcAccount)_mbwManager.getSelectedAccount()).
-                                                    getTransactionSummary(Sha256Hash.of(record.getId())).txid.getBytes());
-                                         } else {
-                                            //TODO non-generic classes are used
-                                            WalletBtcAccount account = (WalletBtcAccount)_mbwManager.getSelectedAccount();
-                                            transaction = HexUtils.toHex(account
-                                                .getTransaction(Sha256Hash.of(record.getId())).binary);
-                                         }
+                                         String transaction = HexUtils.toHex(_mbwManager.getSelectedAccount().
+                                                 getTx(record.getId()).txBytes());
                                          Intent shareIntent = new Intent(Intent.ACTION_SEND);
                                          shareIntent.setType("text/plain");
                                          shareIntent.putExtra(Intent.EXTRA_TEXT, transaction);
@@ -667,16 +659,14 @@ public class TransactionHistoryFragment extends Fragment {
                   txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
                }
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
-               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                     CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                     BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
-                     Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
-                     startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                     dialog.dismiss();
-                  }
-               });
+               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                  CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+                  BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
+                  Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
+                  startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                  dialog.dismiss();
+                  finishActionMode();
+               }));
                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
             } else {
                alertDialog.dismiss();
@@ -701,7 +691,7 @@ public class TransactionHistoryFragment extends Fragment {
          txFee -= i.getValue().value;
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
-         makeText(getActivity(), "bumping not necessary", LENGTH_LONG).show();
+         makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
          return null;
       }
 

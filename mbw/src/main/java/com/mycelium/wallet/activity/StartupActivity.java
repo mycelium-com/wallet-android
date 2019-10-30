@@ -72,6 +72,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.export.DecryptBip38PrivateKeyActivity;
 import com.mycelium.wallet.activity.modern.ModernMain;
+import com.mycelium.wallet.activity.news.NewsUtils;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.send.GetSpendingRecordActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
@@ -99,6 +100,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -200,7 +202,7 @@ public class StartupActivity extends AppCompatActivity implements AccountCreator
          }
 
          // in case the masterSeed was created but account does not exist yet (rotation problem)
-         if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
+         if (_mbwManager.getWalletManager(false).getActiveSpendingAccounts().isEmpty()) {
             new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this).execute();
             return;
          }
@@ -402,9 +404,16 @@ public class StartupActivity extends AppCompatActivity implements AccountCreator
    }
 
    private void normalStartup() {
-      // Normal startup, show the selected account in the BalanceActivity
-      startActivity(new Intent(StartupActivity.this, ModernMain.class));
-      finish();
+       // Normal startup, show the selected account in the BalanceActivity
+       Intent intent = new Intent(StartupActivity.this, ModernMain.class);
+       if (Objects.equals(getIntent().getAction(), NewsUtils.MEDIA_FLOW_ACTION)) {
+           intent.setAction(NewsUtils.MEDIA_FLOW_ACTION);
+           if(getIntent().getExtras() != null) {
+              intent.putExtras(getIntent().getExtras());
+           }
+       }
+       startActivity(intent);
+       finish();
    }
 
    private boolean handleIntent() {

@@ -12,16 +12,14 @@ enum class BipDerivationType(val purpose: Byte, val addressType: AddressType) : 
     fun getHardenedPurpose() = purpose + 0x80000000.toInt()
 
     companion object {
-        fun getDerivationTypeByAddress(address: Address): BipDerivationType {
-            return getDerivationTypeByAddressType(address.type)
-        }
+        fun getDerivationTypeByAddress(address: Address): BipDerivationType =
+                getDerivationTypeByAddressType(address.type)
 
-        fun getDerivationTypeByAddressType(addressType: AddressType): BipDerivationType {
-            return when (addressType) {
-                AddressType.P2PKH -> BIP44
-                AddressType.P2SH_P2WPKH -> BIP49
-                AddressType.P2WPKH -> BIP84
-            }
-        }
+        fun getDerivationTypeByAddressType(addressType: AddressType): BipDerivationType =
+                when (addressType) {
+                    AddressType.P2PKH -> BIP44
+                    AddressType.P2SH_P2WPKH -> BIP49
+                    AddressType.P2WPKH -> BIP84
+                }
     }
 }

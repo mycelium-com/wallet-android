@@ -660,32 +660,6 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="block_explorer_summary">Transaktionsdetails werden mittels des %1$s Block-Explorers nachgeschlagen</string>
     <string name="lt_warning_wrong_account_type">Local Trader funktioniert nicht mit dem ausgewählten Konten-Typ. Bitte wählen Sie ein anderes Konto.</string>
     <string name="lt_account_not_allowed">Der ausgewählte Konto-Typ funktioniert nicht mit Local-Trader. Sie müssen ein anderes Konto auswählen um diesen Handel auszuführen.</string>
-    <string name="coinapult_sending_via_coinapult">Bitcoins senden über Coinapult</string>
-    <string name="coinapult_account_notes">Ein Coinapult-Konto lässt Sie ihr Vermögen in verschiedenen Fiat-Währungen halten und es sofort an eine beliebige Bitcoin-Addresse senden.\nObwohl Sie ihre privaten Schlüssel nutzen, um über es zu verfügen, ist es dennoch unter der Kontrolle von Coinapult, im Gegensatz zu jenen in ihrem normalen HD-Konto.</string>
-    <string name="coinapult_mail_hint">Geben Sie eine E-Mail-Adresse ein</string>
-    <string name="coinapult_mail_description">Wenn Sie Ihre e-Mail-Adresse angeben, können Sie ein Support-Ticket mit Coinapult einreichen, indem Sie eine e-Mail an support@coinapult.com senden von der e-Mail, die Sie angeben.</string>
-    <string name="coinapult_threshold_warning">Warnung: Coinapult-Konten können keine Transaktionen abschließen unter einem Wert von %1$s.</string>
-    <string name="coinapult_amount_too_small">Betrag zu niedrig, minimale Auszahlung ist %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Geben Sie eine E-Mail-Adresse ein</string>
-    <string name="coinapult_set_mail_failed">Setzen der e-Mail-Adresse ist fehlgeschlagen, bitte auf korrekte Schreibweise überprüfen und sicherstellen, dass Ihr Gerät eine funktionierende Internet-Verbindung hat.</string>
-    <string name="coinapult_setting_email">Sende E-Mail-Adresse an Coinapult&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Ihre e-Mail-Adresse wurde gesetzt, Sie werden eine e-Mail mit einem Bestätigungslink erhalten. Bitte kopieren Sie diesen Link und wählen Sie \"e-Mail-Adresse bestätigen\" über die Kontoeinstellungen, fügen Sie den Link ein und stellen Sie sicher, dass die e-Mail-Adresse korrekt ist.</string>
-    <string name="coinapult_verify_mail_menu_title">E-Mail-Adresse bestätigen</string>
-    <string name="coinapult_mail_verification">Ihre Coinapult E-Mail-Adresse bestätigen</string>
-    <string name="coinapult_mail_verification_description">Bitte fügen Sie den Bestätigungs-Link aus Ihrer Coinapult-Email in das untenstehende Textfeld ein.</string>
-    <string name="coinapult_mail_verification_hint">kompletten Bestätigungs-Link einfügen</string>
-    <string name="coinapult_verifying_email">Sende Bestätigungs-Link an Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Deine E-Mail-Adresse wurde bestätigt.</string>
-    <string name="coinapult_verify_mail_error">Während des überprüfens Ihrer e-Mail-Adresse ist ein Fehler aufgetreten. Bitte stellen Sie sicher, dass Sie den vollständigen und korrekten Bestätigungs-Link kopieren.</string>
-    <string name="coinapult_unable_to_create_account">Das Coinapult-Konto konnte nicht erstellt werden</string>
-    <string name="coinapult_failed_to_broadcast">Beim Senden der Coinapult Transaktion ist ein Fehler aufgetreten</string>
-    <string name="coinapult_add_locks_account">Coinapult-Locks-Konto hinzufügen</string>
-    <string name="coinapult_tos_link">Die allgemeinen Geschäftsbedingungen von Coinapult einsehen</string>
-    <string name="coinapult_tos_question">Um ein Coinapult Konto zu erstellen, müssen Sie den allgemeinen Geschäftsbedingungen von Coinapult zustimmen</string>
-    <string name="coinapult_mail_question">Möchten Sie Ihre E-Mail-Adresse eingeben?</string>
-    <string name="coinapult_create_account">Coinapult-Konto wird erstellt&#8230;</string>
-    <string name="coinapult_backup_info">Ihre Coinapult Zugriffsschlüssel werden von ihrem Masterseed abgeleitet. Falls Sie ein gültiges Backup haben, ist der Zugang zu ihrem Coinapult-Konto ebenfalls enthalten.</string>
-    <string name="coinapult_currency_account">%1$s Konto</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -731,12 +705,10 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="credit_card_buy_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
     <string name="credit_card_buy_setting_description">Kaufen Sie Bitcoins mit Kreditkarte</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Bitcoin kaufen/verkaufen</string>
     <string name="error_details">Fehlerdetails</string>
     <string name="warning_sync_failed_reusing_first">Synchronisierung fehlgeschlagen! Verwende Adresse Nr. 1 von diesem xPub wieder!</string>
     <string name="tap_to_toggle_through_other_currencies">Tippen, um durch andere Währungen zu wechseln</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">%1$s aktivieren</string>
     <!-- Simplex start -->
     <!-- Simplex end -->

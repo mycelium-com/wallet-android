@@ -110,11 +110,6 @@ public class AddAccountActivity extends AppCompatActivity {
     @OnClick(R.id.btHdBchCreate)
     void onAddBchHD() {}
 
-    @OnClick(R.id.btCoinapultCreate)
-    void onAddCoinapultAccount() {
-        Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
-    }
-
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

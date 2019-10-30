@@ -194,6 +194,9 @@
     </style>
     <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
         <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:clipToPadding">false</item>
     </style>
 
     <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">
@@ -342,7 +345,7 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/background_action_btn</item>
-        <item name="android:textColor">@color/btn_text_color</item>
+        <item name="android:textColor">@color/btn_text_color_selector</item>
         <item name="android:paddingStart">@dimen/button_padding_large</item>
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
@@ -353,7 +356,21 @@
         <item name="colorControlActivated">@color/buttonredcolor</item>
     </style>
 
-    <color name="btn_text_color">#5aa7e6</color>
+    <style name="MyceliumNews" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="MediaFlowTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="MyceliumNewsSearchView">
+        <item name="android:textSize">16sp</item>
+    </style>
 
 
 
@@ -365,5 +382,4 @@
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
     </style>
-
 </resources>

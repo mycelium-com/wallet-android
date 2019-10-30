@@ -46,9 +46,14 @@ import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.util.Log;
+
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
+import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
 import java.security.Security;
 import java.util.*;
@@ -77,7 +82,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         } else {
             Log.d("WalletApplication", "Inserted spongy castle provider");
         }
-        SettingsPreference.getInstance().init(this);
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -93,6 +97,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
         PackageRemovedReceiver.register(getApplicationContext());
+        NewsDatabase.INSTANCE.initialize(this);
+        NewsSyncUtils.startNewsUpdateRepeating(this);
+        FirebaseApp.initializeApp(this);
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {

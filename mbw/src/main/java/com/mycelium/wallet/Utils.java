@@ -109,7 +109,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
@@ -511,7 +510,7 @@ public class Utils {
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
+         return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
          GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {
@@ -789,7 +788,6 @@ public class Utils {
             // "anything else"????
             // PrivateColuAccount and their linked SingleAddressAccount
             // PublicColuAccount (never has anything linked)
-            // CoinapultAccount
             if(input instanceof HDAccount) { // also covers Bip44BCHAccount
                return 0;
             }
@@ -798,9 +796,6 @@ public class Utils {
             }
             if(input instanceof ColuAccount) {
                return 5;
-            }
-            if(input instanceof CoinapultAccount) {
-               return 6;
             }
             return 4;
          }
@@ -894,13 +889,6 @@ public class Utils {
       if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
       }
-      if (CoinapultAccount.class.isAssignableFrom(accountType)) {
-         if (isSelectedAccount) {
-            return resources.getDrawable(R.drawable.coinapult);
-         } else {
-            return resources.getDrawable(R.drawable.coinapultgrey);
-         }
-      }
 
       //single key account
       return resources.getDrawable(R.drawable.singlekey_grey);
@@ -928,11 +916,10 @@ public class Utils {
    }
 
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
-      if (account instanceof CoinapultAccount
-              || account instanceof Bip44BCHAccount
+      if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount) {
-         return false; //we do not support coinapult accs in lt (yet)
+         return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
          return false;  // the account has no valid receiving address (should not happen) - dont use it

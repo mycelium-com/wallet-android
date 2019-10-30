@@ -102,8 +102,4 @@ public class TransactionSummary implements Comparable<TransactionSummary> {
    public boolean hasDetails() {
       return true;
    }
-
-   public boolean canCoinapult() {
-      return false;
-   }
 }

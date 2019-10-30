@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:background="@drawable/shadow_news_item" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="236dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/background_news_item"
+        android:tint="#66000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="236dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_news_category"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="10sp"
+                android:paddingBottom="4dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="4dp"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="normal"
+                tools:text="Announcements" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/read_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.4"
+                app:srcCompat="@drawable/ic_done_all" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="4sp"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            tools:text="Long Two Line Item Headline Example" />
+
+        <com.mycelium.wallet.activity.view.EllipsizingTextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:autoLink="all"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="6sp"
+            android:linksClickable="true"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:alpha="0.4"
+                android:fontFamily="sans-serif"
+                android:textColor="#ffffff"
+                android:textSize="10sp"
+                android:textStyle="normal"
+                tools:text="16:20" />
+
+            <ImageView
+                android:id="@+id/bt_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.4"
+                app:srcCompat="@drawable/ic_share_24px" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -162,7 +162,7 @@ public class GpsLocationFetcher {
       return (res == PackageManager.PERMISSION_GRANTED);
    }
 
-   private Address getAddress(Context context, double lat, double lng) {
+   private Address getAddress(final Context context, double lat, double lng) {
       if (Geocoder.isPresent()) {
          Geocoder geocoder = new Geocoder(context, Locale.getDefault());
          try {
@@ -170,9 +170,14 @@ public class GpsLocationFetcher {
             if (addresses != null && addresses.size() > 0) {
                return addresses.get(0);
             }
-         } catch (IOException e) {
+         } catch (final IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            new Handler(context.getMainLooper()).post(new Runnable() {
+               @Override
+               public void run() {
+                  Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+               }
+            });
          }
       }
       if (backendGeocoder == null) {
@@ -190,9 +195,14 @@ public class GpsLocationFetcher {
             address.setCountryName(geocode.getCountryCode());
             return address;
          }
-      } catch (RemoteGeocodeException e) {
+      } catch (final RemoteGeocodeException e) {
          e.printStackTrace();
-         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+         new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+               Toast.makeText(context, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+         });
       }
       return null;
    }
