@@ -27,10 +27,17 @@ import com.squareup.otto.Bus
 import java.text.SimpleDateFormat
 import java.util.*
 
-const val mediaFlowNotificationId = 34563487
-const val mediaFlowNotificationGroup = "Media Flow"
 
 class NewsSyncService : Service() {
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+        startForeground(mediaFlowServiceId,
+                createNotificationMediaFlowBuilder()
+                        .setContentText(getString(R.string.synchronization))
+                        .build())
+
+    }
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -64,23 +71,7 @@ class NewsSyncService : Service() {
                     }
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val name = getString(R.string.media_flow_notification_title)
-                    val importance = NotificationManager.IMPORTANCE_DEFAULT
-                    val channel = NotificationChannel(NewsConstants.NEWS, name, importance).apply {
-                        description = name
-                    }
-                    // Register the channel with the system
-                    val notificationManager: NotificationManager =
-                            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    notificationManager.createNotificationChannel(channel)
-                }
-
-                val builder = NotificationCompat.Builder(this, NewsConstants.NEWS)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setAutoCancel(true)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        .setContentTitle(getString(R.string.media_flow_notification_title))
+                val builder = createNotificationMediaFlowBuilder()
 
                 if (newTopics.size == 1) {
                     val news = newTopics[0]
@@ -120,12 +111,46 @@ class NewsSyncService : Service() {
                     .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_DONE)
                     .apply()
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_DONE_ACTION))
+            stopSelf()
         }, {
             preference.edit()
                     .putString(NewsConstants.MEDIA_FLOW_LOAD_STATE, NewsConstants.MEDIA_FLOW_FAIL)
                     .apply()
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
+            stopSelf()
         }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    }
+
+    override fun onDestroy() {
+        stopForeground(true)
+        super.onDestroy()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.media_flow_notification_title)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(NewsConstants.NEWS, name, importance).apply {
+                description = name
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotificationMediaFlowBuilder(): NotificationCompat.Builder =
+            NotificationCompat.Builder(this, NewsConstants.NEWS)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentTitle(getString(R.string.media_flow_notification_title))
+
+    companion object {
+        const val mediaFlowNotificationId = 34563487
+        const val mediaFlowServiceId = 34563488
+        const val mediaFlowNotificationGroup = "Media Flow"
     }
 }
 
@@ -165,7 +190,7 @@ class NewsUpdate(val bus: Bus, val after: String?,
 
     override fun onPostExecute(result: Map<News, NewsDatabase.SqlState>?) {
         super.onPostExecute(result)
-        if(failed) {
+        if (failed) {
             failListener.invoke()
         } else {
             listener.invoke(result)
