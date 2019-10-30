@@ -15,7 +15,7 @@ import java.math.BigInteger
 class EthSendTxTest {
     // use this mnemonic to have 0xD7677B6e62F283E1775B05d9e875B03C27c298a9 as first account:
     // "else tape female vast twist mandate lucky now license stand skull garment"
-    // then you can observe sending (@Test account2_account1()) / receiving (@Test account1_account2()) indications
+    // then you can observe sending (@Test account1_account2()) / receiving (@Test account2_account1()) indications
 
     // 0x021D61c16ed105e491210360a49bb793d5eB85b0
     private val credentials1: Credentials = Credentials.create("0xBD7AAA21DE06DA4E982FF51AFAD6E6E654CA456F212A0A5D235ACF6707EF8C9F")
@@ -35,7 +35,7 @@ class EthSendTxTest {
 
     @Test
     fun account2_account1() {
-        val howMuchToSend = 1
+        val howMuchToSend = 2
         var nonce = getNonce(credentials2.address)
         for (i in 1..howMuchToSend) {
             sendTx21(nonce++)

@@ -153,7 +153,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        balanceDisposable.dispose()
+        stopSubscriptions()
     }
 
     override fun activateAccount() {
