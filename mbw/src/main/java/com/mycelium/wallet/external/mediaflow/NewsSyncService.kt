@@ -31,9 +31,9 @@ import java.util.*
 class NewsSyncService : Service() {
     override fun onCreate() {
         super.onCreate()
-        createChanal()
+        createNotificationChannel()
         startForeground(mediaFlowServiceId,
-                notificationMediaFLowBuilder()
+                createNotificationMediaFlowBuilder()
                         .setContentText(getString(R.string.synchronization))
                         .build())
 
@@ -71,7 +71,7 @@ class NewsSyncService : Service() {
                     }
                 }
 
-                val builder = notificationMediaFLowBuilder()
+                val builder = createNotificationMediaFlowBuilder()
 
                 if (newTopics.size == 1) {
                     val news = newTopics[0]
@@ -126,7 +126,7 @@ class NewsSyncService : Service() {
         super.onDestroy()
     }
 
-    private fun createChanal() {
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.media_flow_notification_title)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -140,7 +140,7 @@ class NewsSyncService : Service() {
         }
     }
 
-    private fun notificationMediaFLowBuilder(): NotificationCompat.Builder =
+    private fun createNotificationMediaFlowBuilder(): NotificationCompat.Builder =
             NotificationCompat.Builder(this, NewsConstants.NEWS)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setAutoCancel(true)
