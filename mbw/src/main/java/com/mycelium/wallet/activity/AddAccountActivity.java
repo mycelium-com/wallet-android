@@ -113,7 +113,7 @@ public class AddAccountActivity extends Activity {
 
         boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
         if (!canCreateAccount) {
-            _toaster.toast(R.string.use_acc_first, false);
+            _toaster.toast(R.string.single_eth_account, false);
             return;
         }
 

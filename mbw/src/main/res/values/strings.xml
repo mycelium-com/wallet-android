@@ -1326,5 +1326,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
     <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
     <string name="retry">RETRY</string>
-    <string name="single_eth_account">You can only have one ETH Account.</string>
+    <string name="single_eth_account">You can only have one Ethereum account.</string>
 </resources>
