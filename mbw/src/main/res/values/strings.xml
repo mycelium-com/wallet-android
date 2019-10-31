@@ -149,8 +149,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
-    <string name="scan_address_book_desc">Scan Bitcoin address.</string>
-    <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
+    <string name="scan_address_book_desc">Scan address.</string>
+    <string name="clipboard_address_book_desc">Get address from clipboard.</string>
     <string name="max">Max</string>
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>

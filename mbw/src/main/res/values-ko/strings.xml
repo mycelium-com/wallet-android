@@ -85,8 +85,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">참고: 고객께서 고객 자신의 여러 주소중 하나의 주소로 비트코인을 전송할려고 합니다.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">경고: 고객의 지갑에는 이 주소의 개인 키가 없습니다.\n 고객께서는 개인 키가 없으시면 코인을 수신하실 수 없습니다. </font>]]></string>
     <string name="add_to_address_book_dialog_title">주소 추가</string>
-    <string name="scan_address_book_desc">Bitcoin 주소를 검색 합니다.</string>
-    <string name="clipboard_address_book_desc">클립보드에서 Bitcoin 주소가져오기 </string>
+    <string name="scan_address_book_desc">주소를 검색 합니다.</string>
+    <string name="clipboard_address_book_desc">클립보드에서 주소가져오기 </string>
     <string name="max">최대 사용가능한 금액</string>
     <string name="get_private_key">개인 키를 가져오기 </string>
     <string name="cold_storage">Cold Storage(오프라인 보관)</string>

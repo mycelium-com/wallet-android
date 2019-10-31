@@ -102,8 +102,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Uwaga: wysyłasz do jednego ze swoich adresów.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Uwaga: Twój portfel nie zawiera klucza prywatnego do tego adresu.\n Nie masz dostępu do otrzymanych funduszy bez klucza prywatnego - możesz go dodać.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Dodaj adres</string>
-    <string name="scan_address_book_desc">Zeskanuj adres BTC.</string>
-    <string name="clipboard_address_book_desc">Pobierz adres BTC ze schowka.</string>
+    <string name="scan_address_book_desc">Zeskanuj adres.</string>
+    <string name="clipboard_address_book_desc">Pobierz adres ze schowka.</string>
     <string name="get_private_key">Uzyskaj klucz prywatny z:</string>
     <string name="cold_storage">Portfel offline</string>
     <string name="cold_storage_title">Wydawanie z portfela offline</string>

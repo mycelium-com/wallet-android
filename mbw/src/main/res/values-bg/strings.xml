@@ -108,8 +108,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Забележка: изпращате към ваш собствен адрес.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Внимание: вашият портфейл не съдържа частния ключ за този адрес.\nНе можете да харчите получени на него суми освен ако не разполагате с частния ключ другаде.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добави адрес</string>
-    <string name="scan_address_book_desc">Сканиране на биткоин адрес.</string>
-    <string name="clipboard_address_book_desc">Прочитане на биткоин адрес от клипборда.</string>
+    <string name="scan_address_book_desc">Сканиране на адрес.</string>
+    <string name="clipboard_address_book_desc">Прочитане на адрес от клипборда.</string>
     <string name="max">Максимум</string>
     <string name="get_private_key">Прочитане на частен ключ от:</string>
     <string name="cold_storage">Замразено хранилище</string>

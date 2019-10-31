@@ -85,8 +85,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Pridať Adresu</string>
-    <string name="scan_address_book_desc">Skenovať Bitcoinovú Adresu.</string>
-    <string name="clipboard_address_book_desc">Použi Bitcoinovú Adresu zo Schránky.</string>
+    <string name="scan_address_book_desc">Skenovať Adresu.</string>
+    <string name="clipboard_address_book_desc">Použi Adresu zo Schránky.</string>
     <string name="get_private_key">Získaj Privátny Kľúč z:</string>
     <string name="cold_storage">Offline úložisko</string>
     <string name="cold_storage_title">Útratiť z Offlinového Úložiska</string>
