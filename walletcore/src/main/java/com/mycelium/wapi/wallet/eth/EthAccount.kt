@@ -127,7 +127,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance),
+            val balance = Balance(Value.valueOf(coinType, ethBalanceService.balance),
                     Value.zeroValue(coinType),
                     Value.zeroValue(coinType),
                     Value.zeroValue(coinType))
