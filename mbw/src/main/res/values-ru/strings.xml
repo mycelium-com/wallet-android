@@ -125,11 +125,11 @@
     <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\nВы хотите удалить его?</string>
     <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\nВы хотите удалить его?</string>
     <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
-    <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
-    <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Примечание: Вы отправляете на один из ваших собственных адресов.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добавить адрес </string>
-    <string name="scan_address_book_desc">Сканировать биткойн адрес.</string>
-    <string name="clipboard_address_book_desc">Получить биткойн адрес из буфера обмена.</string>
+    <string name="scan_address_book_desc">Сканировать адрес.</string>
+    <string name="clipboard_address_book_desc">Получить адрес из буфера обмена.</string>
     <string name="max">Макс.</string>
     <string name="get_private_key">Получить приватный ключ:</string>
     <string name="cold_storage">\"Холодное хранилище\"</string>
@@ -712,32 +712,6 @@
     <string name="block_explorer_summary">Детали транзакции будут показаны с помощью %1$s \"Просмотрщика Блоков\"</string>
     <string name="lt_warning_wrong_account_type">Local Trader не работает с выбранным типом аккаунта - пожалуйста, выберете другой аккаунт.</string>
     <string name="lt_account_not_allowed">Выбранный тип аккаунта не работает с Local Trader. Вам необходимо выбрать другой аккаунт для выполнения этой сделки.</string>
-    <string name="coinapult_sending_via_coinapult">Передать Биткойны через Coinapult</string>
-    <string name="coinapult_account_notes">Аккаунт Coinapult позволяет хранить сбережения в разных фиатных валютах и посылать их немедленно на любой биткойн адрес.\nПоскольку вы используете приватные ключи для отправки биткойнов, они под контролем компании Coinapult, что контрастирует с тем, когда вы тратите ваши средства со своих HD аккаунтов, которые только под вашим контролем.</string>
-    <string name="coinapult_mail_hint">Введите ваш email адрес</string>
-    <string name="coinapult_mail_description">Если вы укажите свой email адрес, поддержка Coinapult сможет соотнести вас с этой проблемой, если вы напишите им на адрес support@coinapult.com с адреса, который вы указали здесь.</string>
-    <string name="coinapult_threshold_warning">Предупреждение: Coinapult аккаунты не работают с транзакциями, которые по объёму посылаемых средств меньше, чем %1$s.</string>
-    <string name="coinapult_amount_too_small">Сумма слишком мала - минимальный вывод средств %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Указать email-адрес</string>
-    <string name="coinapult_set_mail_failed">Установка email-адреса не удалась - пожалуйста, проверьте правильность написания и убедитесь, что ваше устройство подключено к интернет.</string>
-    <string name="coinapult_setting_email">Отправка email-адреса на Coinapult&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Ваш email-адрес установлен - к вам придёт письмо со ссылкой подтверждения. Пожалуйста, скопируйте эту ссылку и вставьте её в настройках вашей учётной записи в пункте \'Проверить email\', чтобы мы могли проверить, что адрес верный.</string>
-    <string name="coinapult_verify_mail_menu_title">Проверка email-адреса</string>
-    <string name="coinapult_mail_verification">Проверка вашего Coinapult email-адреса</string>
-    <string name="coinapult_mail_verification_description">Пожалуйста, вставьте проверочную ссылку, которая пришла на ваш email-адрес, в текстовое поле ниже.</string>
-    <string name="coinapult_mail_verification_hint">вставьте проверочную ссылку</string>
-    <string name="coinapult_verifying_email">Передача проверочной ссылки на Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Ваш Coinapult email-адрес успешно проверен.</string>
-    <string name="coinapult_verify_mail_error">Произошла ошибка проверки вашего email-адреса. Пожалуйста, убедитесь, что вы вставили правильную проверочную ссылку.</string>
-    <string name="coinapult_unable_to_create_account">Не удается создать учетную запись Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Не удалось транслировать Coinapult транзакцию</string>
-    <string name="coinapult_add_locks_account">Добавить Coinapult учётную запись блокировок</string>
-    <string name="coinapult_tos_link">Открыть Coinapult определения и условия использования</string>
-    <string name="coinapult_tos_question">Чтобы создать учетную запись Coinapult, вы должны согласиться с их условиями</string>
-    <string name="coinapult_mail_question">Вы хотите предоставить ваш почтовый адрес?</string>
-    <string name="coinapult_create_account">Создание учётной записи Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">Ключ доступа к учетной записи Coinapult формируется из вашего мастер-ключа seed. Если у вас есть резервная копия вашего мастер-ключа seed, доступ к вашей учетной записи Coinapult также будет работать.</string>
-    <string name="coinapult_currency_account">%1$s Аккаунт</string>
     <string name="colu_add_cc_account">Добавить аккаунт Digital Asset</string>
     <string name="colu_create_account">Создать %s аккаунт</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
@@ -783,10 +757,8 @@
     <string name="credit_card_buy_description">Купить Bitcoin кредитной картой</string>
     <string name="credit_card_buy_setting_description">Купить Bitcoin кредитной картой</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
     <string name="error_details">Сведения об ошибке</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <string name="si_loading">загрузка…</string>
     <!-- Simplex end -->

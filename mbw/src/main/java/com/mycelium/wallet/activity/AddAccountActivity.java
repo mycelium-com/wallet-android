@@ -47,7 +47,6 @@ import android.view.WindowManager;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -55,7 +54,8 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.eth.EtheriumAccountConfig;
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
+import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.squareup.otto.Subscribe;
 
 import java.util.UUID;
@@ -107,16 +107,21 @@ public class AddAccountActivity extends Activity {
 
     @OnClick(R.id.btEthCreate)
     void onAddEth() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
+
+        boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
+        if (!canCreateAccount) {
+            _toaster.toast(R.string.single_eth_account, false);
+            return;
+        }
+
         new ETHCreationAsyncTask().execute();
     }
 
     @OnClick(R.id.btHdBchCreate)
     void onAddBchHD() {}
-
-    @OnClick(R.id.btCoinapultCreate)
-    void onAddCoinapultAccount() {
-        Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
-    }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
         @Override
@@ -186,7 +191,7 @@ public class AddAccountActivity extends Activity {
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new EtheriumAccountConfig()).get(0);
+            return _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig()).get(0);
         }
 
         @Override

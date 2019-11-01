@@ -77,7 +77,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 itemList.addAll(accountsGroup.accountsList)
             }
         }
-        if (!itemList.isEmpty() && !totalAdded) {
+        if (itemList.isNotEmpty() && !totalAdded) {
             itemList.add(TotalViewModel(getSpendableBalance(itemList)))
         }
 

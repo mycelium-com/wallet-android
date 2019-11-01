@@ -211,11 +211,11 @@ public class SendInitializationActivity extends Activity {
       } else {
          Intent intent;
          if (_rawPr != null) {
-            intent = SendMainActivity.getIntent(this, _account.getId(), _rawPr, false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), _rawPr, false);
          } else if (_uri != null) {
-            intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), _uri, false);
          } else {
-            intent = SendMainActivity.getIntent(this, _account.getId(), false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), false);
          }
          intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
          this.startActivity(intent);

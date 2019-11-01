@@ -103,11 +103,11 @@
     <string name="export_to_clipboard_warning">Varning: Att exportera privat kontoinformation till urklipp, exponerar det för alla andra applikationer på din enhet.\n\nNotera: Det är inte nog med att lagra din privata information i urklipp, du måste även klistra in det på en säker plats.\n\nVill du fortsätta?</string>
     <string name="found_clipboard_private_key_title">Privat nyckel hittad i urklipp</string>
     <string name="exchange_source_not_available">Växlingskurs inte tillgänglig för %1$s</string>
-    <string name="my_own_address_warning">Notera: Du skickar till en av dina egna adresser.</string>
-    <string name="read_only_warning">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Notera: Du skickar till en av dina egna adresser.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Lägg till adress</string>
-    <string name="scan_address_book_desc">Läs in bitcoin-adress.</string>
-    <string name="clipboard_address_book_desc">Hämta bitcoin-adress från urklipp.</string>
+    <string name="scan_address_book_desc">Läs in adress.</string>
+    <string name="clipboard_address_book_desc">Hämta adress från urklipp.</string>
     <string name="get_private_key">Hämta privat nyckel från:</string>
     <string name="cold_storage">Kallförvaring</string>
     <string name="cold_storage_title">Spendera från kallförvaring</string>
@@ -600,8 +600,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

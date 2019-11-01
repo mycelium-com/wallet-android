@@ -56,6 +56,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -71,6 +72,7 @@ import com.mycelium.wallet.activity.main.BalanceMasterFragment;
 import com.mycelium.wallet.activity.main.RecommendationsFragment;
 import com.mycelium.wallet.activity.main.TransactionHistoryFragment;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
+import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
@@ -81,14 +83,14 @@ import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
+import com.mycelium.wallet.external.mediaflow.NewsConstants;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.manager.State;
 import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
 import java.util.Date;
@@ -101,12 +103,14 @@ import java.util.UUID;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
-    private static final int TAB_ID_ACCOUNTS = 0;
-    private static final int TAB_ID_BALANCE = 1;
-    private static final int TAB_ID_HISTORY = 2;
+    private static final int TAB_ID_NEWS = 0;
+    private static final int TAB_ID_ACCOUNTS = 1;
+    private static final int TAB_ID_BALANCE = 2;
+    private static final int TAB_ID_HISTORY = 3;
 
     private static final int REQUEST_SETTING_CHANGED = 5;
     public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
@@ -119,9 +123,10 @@ public class ModernMain extends AppCompatActivity {
 
     ViewPager mViewPager;
     TabsAdapter mTabsAdapter;
-    ActionBar.Tab mBalanceTab;
-    ActionBar.Tab mAccountsTab;
-    ActionBar.Tab mRecommendationsTab;
+    TabLayout.Tab mBalanceTab;
+    TabLayout.Tab mNewsTab;
+    TabLayout.Tab mAccountsTab;
+    TabLayout.Tab mRecommendationsTab;
     private MenuItem refreshItem;
     private Toaster _toaster;
     private volatile long _lastSync = 0;
@@ -135,35 +140,47 @@ public class ModernMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         _mbwManager = MbwManager.getInstance(this);
         WalletApplication.applyLanguageChange(getBaseContext(), _mbwManager.getLanguage());
-        mViewPager = new ViewPager(this);
-        mViewPager.setId(R.id.pager);
-        setContentView(mViewPager);
+        setContentView(R.layout.modern_main);
+        TabLayout tabLayout = findViewById(R.id.pager_tabs);
+        mViewPager = findViewById(R.id.pager);
+        tabLayout.setupWithViewPager(mViewPager);
         ActionBar bar = getSupportActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayShowHomeEnabled(true);
         bar.setIcon(R.drawable.action_bar_logo);
 
         getWindow().setBackgroundDrawableResource(R.drawable.background_main);
 
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(5);
         mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-        mAccountsTab = bar.newTab();
-        mTabsAdapter.addTab(mAccountsTab.setText(getString(R.string.tab_accounts)), AccountsFragment.class, null);
-        mBalanceTab = bar.newTab();
-        mTabsAdapter.addTab(mBalanceTab.setText(getString(R.string.tab_balance)), BalanceMasterFragment.class, null);
-        mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
-        mRecommendationsTab = bar.newTab();
-        mTabsAdapter.addTab(mRecommendationsTab.setText(getString(R.string.tab_partners)),
+        mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
+        mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
+        mAccountsTab = tabLayout.newTab().setText(getString(R.string.tab_accounts));
+        mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null);
+        mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
+        mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null);
+        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
+        mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
+        mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null);
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
         addressBookConfig.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, false);
-        mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
+        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig);
         addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
-        bar.selectTab(mBalanceTab);
+        if (Objects.equals(getIntent().getAction(), "media_flow")) {
+            mNewsTab.select();
+            mViewPager.setCurrentItem(TAB_ID_NEWS);
+            if (getIntent().hasExtra(NewsConstants.NEWS)) {
+                Intent intent = new Intent(this, NewsActivity.class);
+                intent.putExtras(getIntent().getExtras());
+                startActivity(intent);
+            }
+        } else {
+            mViewPager.setCurrentItem(TAB_ID_BALANCE);
+        }
         _toaster = new Toaster(this);
 
         ChangeLog cl = new DarkThemeChangeLog(this);
@@ -215,9 +232,9 @@ public class ModernMain extends AppCompatActivity {
 
     private void createPlaceHolderAccounts(Set<Integer> gapIndex) {
         final BitcoinHDModule module = (BitcoinHDModule) _mbwManager.getWalletManager(false).getModuleById(BitcoinHDModule.ID);
-        for (Integer index: gapIndex) {
+        for (Integer index : gapIndex) {
             final UUID newAccount = module.createArchivedGapFiller(AesKeyCipher.defaultKeyCipher(), index);
-            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index+1));
+            _mbwManager.getMetadataStorage().storeAccountLabel(newAccount, "Gap Account " + (index + 1));
         }
     }
 
@@ -322,15 +339,14 @@ public class ModernMain extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        ActionBar bar = getSupportActionBar();
-        if (bar.getSelectedTab() == mBalanceTab) {
+        if (mBalanceTab.isSelected()) {
             // this is not finishing on Android 6 LG G4, so the pin on startup is not
             // requested.
             // commented out code above doesn't do the trick, neither.
             _mbwManager.setStartUpPinUnlocked(false);
             super.onBackPressed();
         } else {
-            bar.selectTab(mBalanceTab);
+            mBalanceTab.select();
         }
     }
 
@@ -532,10 +548,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
-
-        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
-            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
-        }
     }
 
     @Subscribe

@@ -106,20 +106,18 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
@@ -563,12 +561,12 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
         if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-                && !isBch && !(account instanceof HDAccountExternalSignature)) {
+                && !isBch && !(account instanceof HDAccountExternalSignature) && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_sign);
         }
 
@@ -576,12 +574,8 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
+        if (account.isActive() && !isBch && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
-        }
-
-        if (account instanceof CoinapultAccount) {
-            menus.add(R.menu.record_options_menu_set_coinapult_mail);
         }
 
         if (!(account instanceof Bip44BCHAccount)
@@ -669,12 +663,6 @@ public class AccountsFragment extends Fragment {
                     case R.id.miRescan:
                         rescan();
                         return true;
-                    case R.id.miSetMail:
-                        setCoinapultMail();
-                        return true;
-                    case R.id.miVerifyMail:
-                        verifyCoinapultMail();
-                        return true;
                     default:
                         return false;
                 }
@@ -695,135 +683,6 @@ public class AccountsFragment extends Fragment {
         // starting for some reason, and this would clear the focus and force
         // an update.
         accountListAdapter.setFocusedAccountId(account.getId());
-    }
-
-    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
-    private void setCoinapultMail() {
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-        b.setTitle(getString(R.string.coinapult_mail_question));
-        View diaView = requireActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
-        final EditText mailField = diaView.findViewById(R.id.mail);
-        mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-        if (!email.isEmpty()) {
-            mailField.setText(email);
-        }
-        b.setView(diaView);
-        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String mailText = mailField.getText().toString();
-                if (Utils.isValidEmailAddress(mailText)) {
-                    if (!mailText.isEmpty()) {
-                        _progress.setCancelable(false);
-                        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        _progress.setMessage(getString(R.string.coinapult_setting_email));
-                        _progress.show();
-                        _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
-                        new SetCoinapultMailAsyncTask(mailText).execute();
-                    }
-                    dialog.dismiss();
-                } else {
-                    new Toaster(AccountsFragment.this).toast("Email address not valid", false);
-                }
-            }
-        });
-        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = b.create();
-        dialog.show();
-    }
-
-    private void verifyCoinapultMail() {
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-        b.setTitle(getString(R.string.coinapult_mail_verification));
-        final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-        View diaView = requireActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
-        final EditText verificationTextField = diaView.findViewById(R.id.mailVerification);
-
-        // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
-        String clipboardString = Utils.getClipboardString(getActivity());
-        if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")) {
-            verificationTextField.setText(clipboardString);
-        }
-
-        b.setView(diaView);
-        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String verification = verificationTextField.getText().toString();
-                _progress.setCancelable(false);
-                _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                _progress.setMessage(getString(R.string.coinapult_verifying_email));
-                _progress.show();
-                new VerifyCoinapultMailAsyncTask(verification, email).execute();
-                dialog.dismiss();
-            }
-        });
-        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = b.create();
-        dialog.show();
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-        private String mail;
-
-        public SetCoinapultMailAsyncTask(@NonNull String mail) {
-            this.mail = mail;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            _progress.dismiss();
-            if (success) {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_please_verify);
-            } else {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_failed);
-            }
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class VerifyCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-        private String link;
-        private String email;
-
-        public VerifyCoinapultMailAsyncTask(String link, String email) {
-            this.link = link;
-            this.email = email;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            _progress.dismiss();
-            if (success) {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_success);
-            } else {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_error);
-            }
-        }
     }
 
     private void verifySingleKeyBackup() {
@@ -1022,15 +881,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        if (account instanceof CoinapultAccount) {
-            runPinProtected(new Runnable() {
-                @Override
-                public void run() {
-                    archive(account);
-                }
-            });
-            return;
-        } else if (account instanceof HDAccount) {
+        if (account instanceof HDAccount) {
             HDAccount hdAccount = (HDAccount) account;
             if (!hdAccount.hasHadActivity() && hdAccount.isDerivedFromInternalMasterseed()) {
                 // this hdAccount is unused, we don't allow archiving it

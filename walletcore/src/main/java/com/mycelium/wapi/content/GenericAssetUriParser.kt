@@ -6,6 +6,7 @@ import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
+import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
@@ -13,6 +14,9 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 import java.math.BigDecimal
 import java.net.URI
 import java.net.URLDecoder
@@ -56,7 +60,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
     }
 
-    fun splitQuery(query: String?): Map<String, String> {
+    private fun splitQuery(query: String?): Map<String, String> {
         query ?: return emptyMap()
         val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         return pairs.map {
@@ -77,6 +81,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
                 is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
+                is EthMain, is EthTest -> EthUri(address, amount, label, paymentUri)
                 else -> null
             }
         }

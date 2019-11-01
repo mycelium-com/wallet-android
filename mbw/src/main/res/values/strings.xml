@@ -40,6 +40,7 @@
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
+    <string name="tx_build_error">Unknown error while building transaction.</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
     <string name="unable_to_build_tx">Unable to build transaction</string>
@@ -145,11 +146,11 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
-    <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
-    <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
-    <string name="scan_address_book_desc">Scan Bitcoin address.</string>
-    <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
+    <string name="scan_address_book_desc">Scan address.</string>
+    <string name="clipboard_address_book_desc">Get address from clipboard.</string>
     <string name="max">Max</string>
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>
@@ -710,7 +711,7 @@
     <string name="ledger_enter_pin">Enter Ledger Wallet PIN</string>
     <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Confirm output address using your Security Card</string>
-    <string name="ledger_please_wait">Please wait ...</string>
+    <string name="ledger_please_wait">Please wait …</string>
     <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
     <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
     <string name="ledger_check_unplugged_aid">Invalid AID, please recheck</string>
@@ -818,6 +819,7 @@
     <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
+    <string name="bumping_not_necessary">Bumping not necessary</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
     <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
@@ -828,35 +830,6 @@
     <string name="block_explorer_summary_2">Allows you to find any transaction\nin the blockchain</string>
     <string name="lt_warning_wrong_account_type">Local Trader does not work with the selected account type, please select another account.</string>
     <string name="lt_account_not_allowed">The selected account type does not work with local trader. You need to select another account to perform this trade.</string>
-
-    <string name="coinapult_sending_via_coinapult">Sending Bitcoins via Coinapult</string>
-    <string name="coinapult_account_notes">A Coinapult account allows you to store value in various Fiat currencies and spend instantly to any bitcoin address.\nWhile you use your private keys to access it, they are under control by Coinapult, unlike your funds on normal HD accounts.</string>
-    <string name="coinapult_mail_hint">Enter mail address</string>
-    <string name="coinapult_mail_description">If you provide your email address, you can file a support ticket with Coinapult by sending an email to support@coinapult.com from the email you specify.</string>
-    <string name="coinapult_threshold_warning">Warning: Coinapult accounts cannot complete conversion transactions that are less than %1$s of value.</string>
-    <string name="coinapult_amount_too_small">Amount too low, minimum withdrawal is %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Set email address</string>
-    <string name="coinapult_set_mail_failed">Setting the email address failed, please check for correct spelling and make sure your device has a working internet connection.</string>
-    <string name="coinapult_setting_email">Sending email address to Coinapult…</string>
-    <string name="coinapult_set_mail_please_verify">Your email address was set, you will receive an email with a confirmation link. Please copy that link and choose \'verify email\' from the account settings, to paste the link and verify the email address is correct.</string>
-    <string name="coinapult_verify_mail_menu_title">Verify email address</string>
-    <string name="coinapult_mail_verification">Verify your coinapult email address</string>
-    <string name="coinapult_mail_verification_description">Please paste the verification link from your coinapult email into the text field below.</string>
-    <string name="coinapult_mail_verification_hint">paste complete verification link</string>
-    <string name="coinapult_verifying_email">Sending verification link to coinapult…</string>
-    <string name="coinapult_verify_mail_success">Your coinapult email address was successfully verified.</string>
-    <string name="coinapult_verify_mail_error">An error occurred verifying your email address. Please make sure you copy the complete and correct verification link.</string>
-    <string name="coinapult_unable_to_create_account">Unable to create coinapult account</string>
-    <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
-    <string name="coinapult_add_locks_account">Add Coinapult Locks Account</string>
-    <string name="coinapult_tos_link">Open Coinapult Terms and Conditions</string>
-    <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
-    <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
-    <string name="coinapult_create_account">Creating Coinapult account…</string>
-    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
-    <string name="coinapult_currency_account">%1$s Account</string>
-    <string name="coinapult_gone">Disabled! Tap to learn more!</string>
-    <string name="coinapult_gone_details">Coinapult is currently out of service and not responding to Mycelium requests. According to Coinapult Locks Services Agreement and in order to reduce financial risks for our users, Coinapult functionality has been disabled.\n\nAll questions related to Coinapult accounts should be addressed to Coinapult support since it is a third-party service and Mycelium has no control over Coinapult accounts.</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>
@@ -1093,7 +1066,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
-    <string name="changelly_loading_currencies">Loading currencies...</string>
+    <string name="changelly_loading_currencies">Loading currencies…</string>
     <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
     <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
@@ -1124,7 +1097,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
-    <string name="wallet_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
+    <string name="wallet_backup_missing">No backup - no coins! In order not to lose your coins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
     <string name="backup">BACKUP</string>
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
@@ -1243,6 +1216,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="bullet">&#8226;</string>
+    <string name="select_flows">Select flows</string>
+    <string name="view_more">View more</string>
+    <string name="settings_show_news_all_notification">Show Media Flow notifications</string>
+    <string name="media_flow">Media Flow</string>
+    <string name="select_all">Show all</string>
+    <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
     <string name="change_address_type">Transaction change address type</string>
@@ -1288,6 +1268,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="account_upgraded">Account %d just received SegWit support</string>
     <string name="hardware_account_create">Creating new hardware wallet account</string>
     <string name="please_wait_hardware">Please wait</string>
+    <string name="share_news">Share News</string>
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
@@ -1300,6 +1281,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="asia">Asia</string>
     <string name="united_states">United States</string>
     <string name="australia">Australia/New Zealand</string>
+    <string name="share">Share</string>
+    <string name="explorer_topics">Explorer topics</string>
+    <string name="search_topics_and_articles">Search topics and articles</string>
+    <string name="other_news">Other news</string>
+    <string name="discover">Discover</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
@@ -1311,6 +1297,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <plurals name="new_accounts_created">
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
+    </plurals>
+    <plurals name="media_flow_new_topic">
+        <item quantity="one">one new topic</item>
+        <item quantity="other">%d new topics</item>
     </plurals>
     <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
     <string name="account_gap">Account Gap</string>
@@ -1327,4 +1317,14 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
     <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
     <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
+    <string name="media_flow_notification_title" >"Mycelium Wallet / Mediaflow"</string>
+    <string name="sepa_buy_sell_title">SEPA</string>
+    <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
+    <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
+    <string name="settings_media_flow_notification_category">Media Flow</string>
+    <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
+    <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
+    <string name="retry">RETRY</string>
+    <string name="single_eth_account">You can only have one Ethereum account.</string>
 </resources>

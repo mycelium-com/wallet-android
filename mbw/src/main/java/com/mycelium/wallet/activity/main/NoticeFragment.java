@@ -64,6 +64,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.concurrent.TimeUnit;
@@ -157,7 +158,7 @@ public class NoticeFragment extends Fragment {
 
       // First check if we have HD accounts with funds, but have no master seed backup
       if (meta.getMasterSeedBackupState() != MetadataStorage.BackupState.VERIFIED) {
-         if (account instanceof HDAccount) {
+         if (account instanceof HDAccount || account instanceof EthAccount) {
             /*
               We have an HD account and no master seed backup, tell the user to act
               We shouldn't check balance, in security reason user should create backup
@@ -258,7 +259,7 @@ public class NoticeFragment extends Fragment {
       }
 
       // delay is still remaining, provide option to abort
-      String remaining = Utils.formatBlockcountAsApproxDuration(getActivity(), resetPinRemainingBlocksCount.or(1));
+      String remaining = Utils.formatBlockcountAsApproxDuration(_mbwManager, resetPinRemainingBlocksCount.or(1));
       new AlertDialog.Builder(getActivity())
               .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
               .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))

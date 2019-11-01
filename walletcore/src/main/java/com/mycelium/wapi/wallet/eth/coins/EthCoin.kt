@@ -5,7 +5,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.Families
 import com.mycelium.wapi.wallet.eth.EthAddress
 
-abstract class EthCoin: CryptoCurrency() {
+abstract class EthCoin : CryptoCurrency() {
     init {
         family = Families.ETHEREUM
         unitExponent = 18

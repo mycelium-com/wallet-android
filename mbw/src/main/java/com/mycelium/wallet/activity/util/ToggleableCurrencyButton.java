@@ -43,6 +43,7 @@ import android.widget.LinearLayout;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wapi.model.ExchangeRate;
@@ -133,6 +134,12 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
             result.add(asset);
          }
       }
+
+      // also add BTC if not only fiat is of interest
+      if (!getFiatOnly()) {
+         result.add(Utils.getBtcCoinType());
+      }
+
       return result;
    }
 

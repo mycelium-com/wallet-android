@@ -102,11 +102,11 @@
     <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
     <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
     <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
-    <string name="my_own_address_warning">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</string>
-    <string name="read_only_warning">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Shto adres</string>
-    <string name="scan_address_book_desc">Skano Bitcoin adres.</string>
-    <string name="clipboard_address_book_desc">Merr Bitcoin adres nga memorja.</string>
+    <string name="scan_address_book_desc">Skano adres.</string>
+    <string name="clipboard_address_book_desc">Merr adres nga memorja.</string>
     <string name="get_private_key">Merr çelësat privat nga:</string>
     <string name="cold_storage_title">Shpenzimi Cold Storage</string>
     <string name="cold_storage_desc">Jeni duke shpenzuar nga një çelës privat në cold storage. Kjo mund të jetë një kopje rezervë e një çelësi privat e gjeneruar nga një Bitcoin ATM. Keto formate mbështeten:\nÇelës privat, Master Seed, xPriv çelës\n\nPosa transaksioni është transmetuar çdo gjurmë e tij do të fshihet nga memorja interne.</string>
@@ -586,11 +586,6 @@
     <string name="label_cold_storage_external_signing">Firmos me:</string>
     <string name="spending_unconfirmed_title">Duke shpenzuar fonde të pakonfirmuara</string>
     <string name="spending_unconfirmed_description">Transaksioni juaj përdor fonde të cilat akoma nuk janë përfshirë në asnjë bitcoin bllok. Nëse pët ndonjë arsye transaksioni që ju dergoj këto fonde dështon apo qëndron i pakonfirumar, gjithashtu edhe transaksioni juaj do të dështoj apo qëndroj i pakonfirmuar.</string>
-    <string name="coinapult_mail_verification_description">Ju lutem vendosni linkun e verifikimit nga Coinapult email në fushën më poshtë.</string>
-    <string name="coinapult_mail_verification_hint">vendosni komplet linkun e verifikimit</string>
-    <string name="coinapult_tos_link">Hapë Termat dhe Kushtet të Coinapult</string>
-    <string name="coinapult_tos_question">Për të krijuar një Coinapult Llogari ju duhet t\'i pranoni Termat dhe Kushtet</string>
-    <string name="coinapult_mail_question">Doni të jepni email adresën tuaj?</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -604,8 +599,6 @@
     <string name="copy">Kopjo</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

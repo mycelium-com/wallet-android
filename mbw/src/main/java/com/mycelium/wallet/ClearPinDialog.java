@@ -66,7 +66,7 @@ public class ClearPinDialog extends PinDialog {
             // reset procedure was started, but the target blockheight isn't reached
             btnForgotPin.setText(String.format(
                   context.getString(R.string.pin_forgotten_reset_wait_button_text),
-                  Utils.formatBlockcountAsApproxDuration(this.getContext(), resetPinRemainingBlocksCount.get()))
+                  Utils.formatBlockcountAsApproxDuration(mbwManager, resetPinRemainingBlocksCount.get()))
             );
 
             btnForgotPin.setEnabled(false);
@@ -102,7 +102,7 @@ public class ClearPinDialog extends PinDialog {
                   .setMessage(context.getString(
                               R.string.pin_forgotten_reset_pin_dialog_content,
                               Utils.formatBlockcountAsApproxDuration(
-                                    ClearPinDialog.this.getContext(),
+                                    mbwManager,
                                     Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN)
                         )
                   )
