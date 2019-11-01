@@ -37,7 +37,6 @@ package com.mycelium.wallet
 import com.google.api.client.util.Lists
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.coinapult.Currency
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
@@ -95,7 +94,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
     }
 
     fun getCurrentCurrencyIncludingDenomination(coinType: GenericAssetInfo): String {
-        return if (currentCurrencyMap[coinType] is FiatType || currentCurrencyMap[coinType] is Currency) {
+        return if (currentCurrencyMap[coinType] is FiatType) {
             currentCurrencyMap[coinType]!!.symbol
         } else {
             denomination.getUnicodeString(currentCurrencyMap[coinType]!!.symbol)

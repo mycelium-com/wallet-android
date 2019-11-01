@@ -134,12 +134,6 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
             result.add(asset);
          }
       }
-
-      // also add BTC if not only fiat is of interest
-      if (!getFiatOnly()) {
-         result.add(Utils.getBtcCoinType());
-      }
-
       return result;
    }
 

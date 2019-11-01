@@ -178,7 +178,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getFiatValue(): String? {
         val fiat = mbwManager.exchangeRateManager.get(model.amount.value,
-                mbwManager.currencySwitcher.currentFiatCurrency)
+                mbwManager.currencySwitcher.getCurrentFiatCurrency(model.account.coinType))
         return fiat?.toStringWithUnit()
     }
 

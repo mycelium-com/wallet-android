@@ -135,7 +135,7 @@ abstract class SendCoinsModel(
     private var feeEstimation = mbwManager.getFeeProvider(account.coinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
-    private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.fiatCurrency)
+    private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
     private val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val amountUpdatePublisher: PublishSubject<Unit> = PublishSubject.create()
     private val receiverChanged: PublishSubject<Unit> = PublishSubject.create()
@@ -166,7 +166,7 @@ abstract class SendCoinsModel(
         alternativeAmountFormatted.value = ""
         feeWarning.value = ""
         heapWarning.value = ""
-        alternativeAmount.value = Value.zeroValue(mbwManager.fiatCurrency)
+        alternativeAmount.value = Value.zeroValue(mbwManager.getFiatCurrency(account.coinType))
         amount.value = intent.getSerializableExtra(SendCoinsActivity.AMOUNT) as Value?
                 ?: Value.zeroValue(account.coinType)
         showStaleWarning.value = feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME
@@ -308,7 +308,7 @@ abstract class SendCoinsModel(
 
     fun updateAlternativeAmount(enteredAmount: Value?) {
         val exchangeTo = if (account.coinType == enteredAmount?.type) {
-            mbwManager.fiatCurrency
+            mbwManager.getFiatCurrency(account.coinType)
         } else {
             account.coinType
         }
