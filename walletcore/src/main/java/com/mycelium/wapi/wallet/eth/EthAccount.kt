@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -9,7 +10,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -21,8 +22,13 @@ import java.util.*
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
+                 private val backing: EthAccountBacking,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
+
+    init {
+        EtherscanIoFetcher.fetchTransactions(receivingAddress.addressString, backing, coinType)
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -77,6 +83,9 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
+        backing.putTransaction(-1, System.currentTimeMillis() / 1000, HexUtils.toHex(tx.txHash),
+                tx.rawTransaction.data, receivingAddress.addressString, tx.toAddress.toString(),
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb, 0)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -99,11 +108,11 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
+            backing.getTransactionSummary(HexUtils.toHex(transactionId), receivingAddress.addressString)
 
-    override fun getTransactionSummaries(offset: Int, limit: Int) = emptyList<GenericTransactionSummary>()
+    override fun getTransactionSummaries(offset: Int, limit: Int) =
+            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
 
     override fun getTransactionsSince(receivingSince: Long) = emptyList<GenericTransactionSummary>()
 
@@ -170,7 +179,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = credentials?.ecKeyPair?.toUUID() ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
+    override fun getId() = credentials?.ecKeyPair?.toUUID()
+            ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun isSynchronizing() = false
 

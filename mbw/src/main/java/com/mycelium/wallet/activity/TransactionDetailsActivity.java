@@ -46,7 +46,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -55,7 +54,6 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -239,7 +237,7 @@ public class TransactionDetailsActivity extends Activity {
             ll.addView(getValue(item.getValue(), address));
             AddressLabel adrLabel = new AddressLabel(this);
             adrLabel.setColuMode(coluMode);
-            adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
+            adrLabel.setAddress(item.getAddress());
             ll.addView(adrLabel);
         }
         ll.setPadding(10, 10, 10, 10);

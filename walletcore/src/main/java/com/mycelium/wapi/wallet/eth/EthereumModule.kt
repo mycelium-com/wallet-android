@@ -1,9 +1,10 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthTest
-import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.GenericBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
@@ -20,6 +21,7 @@ import java.util.*
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
+        private val walletDB: WalletDB,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -50,14 +52,15 @@ class EthereumModule(
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        return when (config) {
+        when (config) {
             is EthereumMasterseedConfig -> {
                 val credentials = deriveKey()
 
                 val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
                 backing.createAccountContext(accountContext)
 
-                val ethAccount = EthAccount(accountContext, credentials)
+                val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
+                val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking)
                 accounts[ethAccount.id] = ethAccount
 
                 return ethAccount
@@ -69,7 +72,8 @@ class EthereumModule(
                 val accountContext = createAccountContext(uuid)
                 backing.createAccountContext(accountContext)
 
-                val ethAccount = EthAccount(accountContext, address = config.address)
+                val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
+                val ethAccount = EthAccount(accountContext, address = config.address, backing = ethAccountBacking)
                 accounts[ethAccount.id] = ethAccount
                 return ethAccount
             }
@@ -84,13 +88,15 @@ class EthereumModule(
             val credentials = Credentials.create(Keys.deserialize(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
-            val ethAccount = EthAccount(accountContext, credentials)
+            val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
             val accountContext = createAccountContext(uuid)
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
-            val ethAccount = EthAccount(accountContext, address = ethAddress)
+            val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
+            val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -113,7 +119,7 @@ class EthereumModule(
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        if (walletAccount is EthAccount) {
+        return if (walletAccount is EthAccount) {
             if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
                 secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
             } else {
@@ -121,9 +127,9 @@ class EthereumModule(
             }
             backing.deleteAccountContext(walletAccount.id)
 
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
