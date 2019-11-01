@@ -58,15 +58,19 @@ public class NewsSyncUtils {
             if (OPERATION_DELETE.equalsIgnoreCase(operation) && dataObject.has(ID)) {
                 delete(context, dataObject.getString(ID));
             } else {
-                Intent syncIntent = new Intent(context, NewsSyncService.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(syncIntent);
-                } else {
-                    context.startService(syncIntent);
-                }
+                startNewsSyncService(context);
             }
         } catch (JSONException e) {
             Log.e("NewsSync", "json data wrong", e);
+        }
+    }
+
+    public static void startNewsSyncService(Context context) {
+        Intent syncIntent = new Intent(context, NewsSyncService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(syncIntent);
+        } else {
+            context.startService(syncIntent);
         }
     }
 }

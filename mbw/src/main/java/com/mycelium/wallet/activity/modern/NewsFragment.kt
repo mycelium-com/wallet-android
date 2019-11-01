@@ -131,12 +131,7 @@ class NewsFragment : Fragment() {
             }
         })
         retry.setOnClickListener {
-            val syncIntent = Intent(context, NewsSyncService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireContext().startForegroundService(syncIntent)
-            } else {
-                requireContext().startService(syncIntent)
-            }
+            NewsSyncUtils.startNewsSyncService(requireContext())
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
