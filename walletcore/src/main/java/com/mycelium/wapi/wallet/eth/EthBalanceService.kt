@@ -13,10 +13,13 @@ import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
     private val web3jService = HttpService("http://ropsten-index.mycelium.com:18545")
     private val web3j: Web3j = Web3j.build(web3jService)
+    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
@@ -32,7 +35,12 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
         return try {
             val balanceRequest = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST)
             val balanceResult = balanceRequest.send()
-            val txs = getPendingTransactions()
+            val txs = try {
+                getPendingTransactions()
+            } catch (e: Exception) {
+                logger.log(Level.SEVERE, "Failed while requesting pending transactions $e")
+                emptyList<Transaction>()
+            }
             val incomingTx = txs.filter { it.to == address }
             val outgoingTx = txs.filter { it.from == address }
             val incomingSum: BigInteger = incomingTx
