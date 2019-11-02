@@ -50,7 +50,7 @@ class EthereumModule(
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
-        return when (config) {
+        when (config) {
             is EthereumMasterseedConfig -> {
                 val credentials = deriveKey()
 
@@ -121,7 +121,7 @@ class EthereumModule(
                 secureStore.deletePlaintextValue(walletAccount.id.toString().toByteArray())
             }
             backing.deleteAccountContext(walletAccount.id)
-
+            accounts.remove(walletAccount.id)
             true
         } else {
             false

@@ -103,8 +103,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Stai per inviare ad uno dei tuoi indirizzi.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Attenzione: Il portafogli non contiene la chiave privata di questo indirizzo. \nNon puoi spendere bitcoin senza possedere la chiave privata associata all\'indirizzo.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Aggiungi indirizzo alla rubrica</string>
-    <string name="scan_address_book_desc">Scandisci un indirizzo bitcoin.</string>
-    <string name="clipboard_address_book_desc">Importa indirizzo bitcoin dagli appunti.</string>
+    <string name="scan_address_book_desc">Scandisci un indirizzo.</string>
+    <string name="clipboard_address_book_desc">Importa indirizzo dagli appunti.</string>
     <string name="get_private_key">Importa la chiave privata da:</string>
     <string name="cold_storage">Cold storage</string>
     <string name="cold_storage_title">Spendi da cold storage</string>

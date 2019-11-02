@@ -106,8 +106,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Estás enviando a una de tus propias direcciones.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Añadir dirección</string>
-    <string name="scan_address_book_desc">Escanear una dirección de Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Obtener una dirección de Bitcoin desde el portapapeles.</string>
+    <string name="scan_address_book_desc">Escanear una dirección.</string>
+    <string name="clipboard_address_book_desc">Obtener una dirección desde el portapapeles.</string>
     <string name="max">Máximo</string>
     <string name="get_private_key">Obtener clave privada de:</string>
     <string name="cold_storage">Almacenamiento en Frío</string>

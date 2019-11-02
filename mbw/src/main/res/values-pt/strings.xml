@@ -107,8 +107,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Você está enviando para um de seus próprios endereços.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Adicionar Endereço</string>
-    <string name="scan_address_book_desc">Escanear endereço Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Adquirir endereço Bitcoin da área de transferência.</string>
+    <string name="scan_address_book_desc">Escanear endereço.</string>
+    <string name="clipboard_address_book_desc">Adquirir endereço da área de transferência.</string>
     <string name="max">Máx</string>
     <string name="get_private_key">Adquirir chave privada de:</string>
     <string name="cold_storage">Armazenamento Frio</string>

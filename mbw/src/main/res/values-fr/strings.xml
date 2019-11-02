@@ -105,8 +105,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Remarque : Vous envoyez vers l\'une de vos propres adresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Ajouter une adresse</string>
-    <string name="scan_address_book_desc">Numériser l\'adresse Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Obtenir l\'adresse Bitcoin depuis le presse-papier.</string>
+    <string name="scan_address_book_desc">Numériser l\'adresse.</string>
+    <string name="clipboard_address_book_desc">Obtenir l\'adresse depuis le presse-papier.</string>
     <string name="get_private_key">Obtenir la clé privée depuis :</string>
     <string name="cold_storage">Portefeuille papier</string>
     <string name="cold_storage_title">Récupération des fonds hors ligne</string>

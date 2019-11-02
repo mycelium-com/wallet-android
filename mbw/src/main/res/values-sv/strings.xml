@@ -106,8 +106,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Notera: Du skickar till en av dina egna adresser.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Varning: Din plånbok har inte den privata nyckeln för denna adress.\nDu kan inte spendera mottagna pengar så till vida du inte har den privata nyckeln någon annanstans.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Lägg till adress</string>
-    <string name="scan_address_book_desc">Läs in bitcoin-adress.</string>
-    <string name="clipboard_address_book_desc">Hämta bitcoin-adress från urklipp.</string>
+    <string name="scan_address_book_desc">Läs in adress.</string>
+    <string name="clipboard_address_book_desc">Hämta adress från urklipp.</string>
     <string name="get_private_key">Hämta privat nyckel från:</string>
     <string name="cold_storage">Kallförvaring</string>
     <string name="cold_storage_title">Spendera från kallförvaring</string>

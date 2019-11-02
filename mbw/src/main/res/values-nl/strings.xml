@@ -103,8 +103,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Opmerking: U verzendt naar een van uw eigen adressen.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Adres toevoegen</string>
-    <string name="scan_address_book_desc">Scan Bitcoin adres.</string>
-    <string name="clipboard_address_book_desc">Kopieer Bitcoin adres van klembord.</string>
+    <string name="scan_address_book_desc">Scan adres.</string>
+    <string name="clipboard_address_book_desc">Kopieer adres van klembord.</string>
     <string name="get_private_key">Kopieer private key van:</string>
     <string name="cold_storage">Koude opslag</string>
     <string name="cold_storage_title">Bitcoins uit de koude opslag uitgeven</string>

@@ -566,7 +566,7 @@ public class AccountsFragment extends Fragment {
         }
 
         if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-                && !isBch && !(account instanceof HDAccountExternalSignature)) {
+                && !isBch && !(account instanceof HDAccountExternalSignature) && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_sign);
         }
 
@@ -574,7 +574,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !isBch) {
+        if (account.isActive() && !isBch && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
         }
 
