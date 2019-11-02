@@ -298,6 +298,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private synchronized void setLatestRates(List<GetExchangeRatesResponse> latestRates) {
+        if (latestRates.isEmpty()) {
+            return;
+        }
         _latestRates = new HashMap<>();
         for (GetExchangeRatesResponse response : latestRates) {
             String fromCurrency = addSymbolDecorations(response.getFromCurrency());
