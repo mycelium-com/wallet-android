@@ -106,8 +106,8 @@
     <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
     <string name="found_clipboard_private_key_title">剪贴板中发现私钥</string>
     <string name="exchange_source_not_available">无法获得%1$s汇率</string>
-    <string name="my_own_address_warning">注意：您正在发送给您自己的一个地址</string>
-    <string name="read_only_warning">警告：您的钱包没有此地址的私钥．\n除非您在其他的地方有此地址的私钥，否则您将不能用接受的比特币进行消费．</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">注意：您正在发送给您自己的一个地址</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">警告：您的钱包没有此地址的私钥．\n除非您在其他的地方有此地址的私钥，否则您将不能用接受的比特币进行消费．</font>]]></string>
     <string name="add_to_address_book_dialog_title">添加地址</string>
     <string name="scan_address_book_desc">扫描比特币地址</string>
     <string name="clipboard_address_book_desc">从剪贴板中获得比特币地址</string>

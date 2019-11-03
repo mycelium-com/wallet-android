@@ -94,8 +94,8 @@
     <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
     <string name="found_clipboard_private_key_title">Privat nøgle fundet i udklipsholderen</string>
     <string name="exchange_source_not_available">Valutakurs ikke tilgængelig for %1$s</string>
-    <string name="my_own_address_warning">Bemærk: Du sender til en af dine egne adresser.</string>
-    <string name="read_only_warning">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Bemærk: Du sender til en af dine egne adresser.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Tilføj adresse</string>
     <string name="scan_address_book_desc">Skan Bitcoinadresse.</string>
     <string name="clipboard_address_book_desc">Hent Bitcoinadresse fra udklipsholderen.</string>

@@ -103,8 +103,8 @@
     <string name="export_to_clipboard_warning">Chú ý: Xuất private key ra bộ nhớ clipboard khiến tất cả các ứng dụng khác trong máy của bạn có thể thấy được nó.\n\nGhi chú: Copy private key của bạn vào clipboard là chưa đủ, bạn còn phải paste nó vào một nơi an toàn.\n\nBạn có muốn tiếp tục không?</string>
     <string name="found_clipboard_private_key_title">Private Key được phát hiện trong bộ nhớ clipboard</string>
     <string name="exchange_source_not_available">Tỉ giá chuyển đổi tại %1$s hiện không hoạt động</string>
-    <string name="my_own_address_warning">Bạn đang chuyển bitcoins đến một trong những địa chỉ của chính bạn.</string>
-    <string name="read_only_warning">Chú ý: Ví của bạn hiện không có private key cho địa chỉ này.\nBạn không thể gửi được bitcoin trong ví trừ khi bạn có được private key.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Bạn đang chuyển bitcoins đến một trong những địa chỉ của chính bạn.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Chú ý: Ví của bạn hiện không có private key cho địa chỉ này.\nBạn không thể gửi được bitcoin trong ví trừ khi bạn có được private key.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Thêm địa chỉ</string>
     <string name="scan_address_book_desc">Quét địa chỉ Bitcoin.</string>
     <string name="clipboard_address_book_desc">Nhập địa chỉ Bitcoin từ bộ nhớ clipboard.</string>

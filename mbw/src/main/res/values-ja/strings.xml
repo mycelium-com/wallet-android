@@ -105,8 +105,8 @@
     <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
     <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
     <string name="exchange_source_not_available">%1$s の為替レートが不明</string>
-    <string name="my_own_address_warning">メモ：送金先にご自身のアドレスが入っています。</string>
-    <string name="read_only_warning">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">メモ：送金先にご自身のアドレスが入っています。</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</font>]]></string>
     <string name="add_to_address_book_dialog_title">アドレス追加</string>
     <string name="scan_address_book_desc">ビットコイン アドレスを読み取ります。</string>
     <string name="clipboard_address_book_desc">クリップボードからアドレスを取得</string>

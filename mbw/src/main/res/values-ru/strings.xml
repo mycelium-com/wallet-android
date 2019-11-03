@@ -125,8 +125,8 @@
     <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\nВы хотите удалить его?</string>
     <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\nВы хотите удалить его?</string>
     <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
-    <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
-    <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Примечание: Вы отправляете на один из ваших собственных адресов.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добавить адрес </string>
     <string name="scan_address_book_desc">Сканировать биткойн адрес.</string>
     <string name="clipboard_address_book_desc">Получить биткойн адрес из буфера обмена.</string>

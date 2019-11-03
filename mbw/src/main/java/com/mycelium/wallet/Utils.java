@@ -263,8 +263,7 @@ public class Utils {
     * for ru locale Duration should be not in past and not in future
     * otherwise library add "через" or "назад"
     */
-   public static String formatBlockcountAsApproxDuration(final Context context, final int blocks) {
-      MbwManager mbwManager = MbwManager.getInstance(context);
+   public static String formatBlockcountAsApproxDuration(MbwManager mbwManager, final int blocks) {
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
       Date date = new Date((new Date()).getTime() + Math.max((long) blocks, 1L) * 10 * 60 * 1000);
       final Duration duration = p.approximateDuration(date);

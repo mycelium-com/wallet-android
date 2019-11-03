@@ -103,8 +103,8 @@
     <string name="export_to_clipboard_warning">Atención: Exportar la clave privada al portapapeles la expone a todas las otras aplicaciones en tu dispositivo.\n\n Nota: No es suficiente almacenar la clave privada en el portapapeles, también tienes que pegarla en algún lugar seguro.\n\n¿Deseas continuar?</string>
     <string name="found_clipboard_private_key_title">Clave privada encontrada en el portapapeles</string>
     <string name="exchange_source_not_available">Tipo de cambio actual no disponible para %1$s</string>
-    <string name="my_own_address_warning">Nota: Estás enviando a una de tus propias direcciones.</string>
-    <string name="read_only_warning">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Estás enviando a una de tus propias direcciones.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Atención: Tu monedero no dispone de la clave privada para esta dirección.\nNo puedes gastar los bitcoin recibidos a no ser que dispongas de la clave privada en algún otro lugar.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Añadir dirección</string>
     <string name="scan_address_book_desc">Escanear una dirección de Bitcoin.</string>
     <string name="clipboard_address_book_desc">Obtener una dirección de Bitcoin desde el portapapeles.</string>

@@ -102,8 +102,8 @@
     <string name="export_to_clipboard_warning">AVERTISSEMENT : Exporter la clé privée vers le presse-papier l\'expose à toutes les autres applications de votre appareil.\n\nNote : Garder votre clé privée dans le presse-papier ne suffit pas, vous devez également la coller à un endroit sûr.\n\nVoulez-vous continuer ?</string>
     <string name="found_clipboard_private_key_title">Clé privée trouvée dans le presse-papier</string>
     <string name="exchange_source_not_available">Taux de change non disponible pour %1$s</string>
-    <string name="my_own_address_warning">Remarque : Vous envoyez vers l\'une de vos propres adresses.</string>
-    <string name="read_only_warning">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Remarque : Vous envoyez vers l\'une de vos propres adresses.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">AVERTISSEMENT : Votre portefeuille n\'a pas la clé privée de cette adresse.\nVous ne pouvez pas dépenser les fonds sans avoir la clé privée.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Ajouter une adresse</string>
     <string name="scan_address_book_desc">Numériser l\'adresse Bitcoin.</string>
     <string name="clipboard_address_book_desc">Obtenir l\'adresse Bitcoin depuis le presse-papier.</string>

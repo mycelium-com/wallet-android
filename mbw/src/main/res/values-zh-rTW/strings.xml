@@ -107,8 +107,8 @@
     <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
     <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
     <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
-    <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
-    <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">注意：您正在發送給您自己的一個地址</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</font>]]></string>
     <string name="add_to_address_book_dialog_title">添加地址</string>
     <string name="scan_address_book_desc">掃描比特幣地址</string>
     <string name="clipboard_address_book_desc">從剪貼板中獲得比特幣地址</string>

@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAdapter.FeeViewHolder> {
     private List<FeeItem> mDataset;
     private int paddingWidth;
+    private FeeItemFormatter formatter;
 
     public FeeViewAdapter(int paddingWidth) {
         this.paddingWidth = paddingWidth;
@@ -34,6 +35,10 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
     public void setDataset(List<FeeItem> mDataset) {
         this.mDataset = mDataset;
         notifyDataSetChanged();
+    }
+
+    public void setFormatter(FeeItemFormatter formatter){
+        this.formatter = formatter;
     }
 
     public FeeItem getItem(int position) {
@@ -80,12 +85,13 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(ValueExtensionsKt.toStringWithUnit(item.value, Denomination.MILLI));
+                holder.categoryTextView.setText(formatter.getCategoryText(item.value));
             }
             if (item.fiatValue != null) {
-                holder.itemTextView.setText("~" + ValueExtensionsKt.toStringWithUnit(item.fiatValue));
+                holder.itemTextView.setText(formatter.getItemText(item.fiatValue));
             }
-            holder.valueTextView.setText(Math.round(item.feePerKb / 1000f) + " sat/byte");
+
+            holder.valueTextView.setText(formatter.getValueText(item.feePerKb));
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -136,5 +142,11 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
             valueTextView = v.findViewById(R.id.valueTextView);
             this.adapter = adapter;
         }
+    }
+
+    public interface FeeItemFormatter {
+        String getCategoryText(Value value);
+        String getItemText(Value value);
+        String getValueText(long value);
     }
 }

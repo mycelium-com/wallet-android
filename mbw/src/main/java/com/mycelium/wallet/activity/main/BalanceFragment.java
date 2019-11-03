@@ -64,8 +64,8 @@ import com.mycelium.wallet.activity.StringHandlerActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.pop.PopActivity;
 import com.mycelium.wallet.activity.receive.ReceiveCoinsActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SendInitializationActivity;
-import com.mycelium.wallet.activity.send.SendMainActivity;
 import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.bitid.BitIDAuthenticationActivity;
@@ -377,13 +377,13 @@ public class BalanceFragment extends Fragment {
                         break;
                     case ADDRESS:
                         GenericAddress address = getAddress(data);
-                        startActivity(SendMainActivity.getIntent(getActivity()
-                                , _mbwManager.getSelectedAccount().getId(), 0, address, false)
+                        startActivity(SendCoinsActivity.getIntent(getActivity(),
+                                _mbwManager.getSelectedAccount().getId(), 0, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
                         GenericAssetUri uri = getAssetUri(data);
-                        startActivity(SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
+                        startActivity(SendCoinsActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     }
@@ -398,7 +398,7 @@ public class BalanceFragment extends Fragment {
                                     StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         } else {
                             //its xPub, we want to send to it
-                            Intent intent = SendMainActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), hdKeyNode);
+                            Intent intent = SendCoinsActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), hdKeyNode);
                             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
                             startActivity(intent);
                         }
