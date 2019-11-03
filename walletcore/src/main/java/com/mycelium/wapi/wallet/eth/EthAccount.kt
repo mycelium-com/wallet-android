@@ -6,10 +6,9 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.genericdb.AccountContextImpl
+import io.reactivex.disposables.Disposable
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -18,10 +17,14 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
+                 private val accountListener: AccountListener?,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -51,7 +54,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+            val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
             val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
@@ -72,7 +75,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+        val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
         val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
@@ -86,7 +89,9 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString())
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType)
+
+    private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -127,11 +132,11 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(Value.valueOf(coinType, ethBalanceService.balance),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType))
-            accountContext.balance = balance
+            accountContext.balance = ethBalanceService.balance
+            accountListener?.balanceUpdated(this)
+            if (balanceDisposable.isDisposed) {
+                balanceDisposable = subscribeOnBalanceUpdates()
+            }
         }
         return succeed
     }
@@ -151,6 +156,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
+        stopSubscriptions()
     }
 
     override fun activateAccount() {
@@ -159,11 +165,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun dropCachedData() {
-        val balance = Balance(Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType))
-        accountContext.balance = balance
+        accountContext.balance = Balance.getZeroBalance(coinType)
     }
 
     override fun isVisible() = true
@@ -204,6 +206,19 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun queueTransaction(transaction: GenericTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun subscribeOnBalanceUpdates(): Disposable {
+        return ethBalanceService.balanceFlowable.subscribe({ balance ->
+            accountContext.balance = balance
+            accountListener?.balanceUpdated(this)
+        }, {
+            logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
+        })
+    }
+
+    fun stopSubscriptions() {
+        balanceDisposable.dispose()
     }
 }
 
