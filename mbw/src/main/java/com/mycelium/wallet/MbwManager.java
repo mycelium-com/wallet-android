@@ -109,14 +109,14 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
@@ -665,7 +665,7 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -711,7 +711,7 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
