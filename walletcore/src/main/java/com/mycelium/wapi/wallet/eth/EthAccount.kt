@@ -17,11 +17,14 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val accountListener: AccountListener?,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -51,7 +54,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+            val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
             val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
@@ -72,7 +75,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+        val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
         val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
@@ -206,11 +209,11 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun subscribeOnBalanceUpdates(): Disposable {
-        return ethBalanceService.balanceObservable.subscribe({ balance ->
+        return ethBalanceService.balanceFlowable.subscribe({ balance ->
             accountContext.balance = balance
             accountListener?.balanceUpdated(this)
         }, {
-            // ignore. we'll resubscribe on next synchronization
+            logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
         })
     }
 

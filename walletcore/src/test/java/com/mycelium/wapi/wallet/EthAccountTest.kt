@@ -23,15 +23,12 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.*
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.infura.InfuraHttpService
 import org.web3j.utils.Convert
 import java.util.*
 
 
 class EthAccountTest {
     private val MASTER_SEED_WORDS = "else tape female vast twist mandate lucky now license stand skull garment"
-    private val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
     private var account: EthAccount? = null
 
     @Suppress("UNCHECKED_CAST")

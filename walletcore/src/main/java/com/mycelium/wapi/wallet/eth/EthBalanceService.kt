@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import io.reactivex.Observable
+import io.reactivex.Single
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.Request
@@ -23,13 +23,12 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val balanceObservable: Observable<Balance> = Observable.create<Balance> { observer ->
+    val balanceFlowable =
         web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
-                .subscribe({
+                .flatMapSingle {
                     updateBalanceCache()
-                    observer.onNext(balance)
-                }, { observer.onError(it) })
-    }
+                    Single.just(balance)
+                }
 
     fun updateBalanceCache(): Boolean {
         return try {
@@ -43,13 +42,15 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
             }
             val incomingTx = txs.filter { it.to == address }
             val outgoingTx = txs.filter { it.from == address }
+
             val incomingSum: BigInteger = incomingTx
-                    .takeIf { it.isNotEmpty() }?.map { tx -> tx.value }?.reduce { acc, value -> acc + value }
-                    ?: BigInteger.ZERO
+                    .map(Transaction::getValue)
+                    .fold(BigInteger.ZERO, BigInteger::add)
             val outgoingSum: BigInteger = outgoingTx
-                    .takeIf { it.isNotEmpty() }?.map { tx -> tx.value + tx.gasPrice * tx.gas }?.reduce { acc, value -> acc + value }
-                    ?: BigInteger.ZERO
-            balance = Balance(Value.valueOf(coinType, balanceResult.balance) - Value.valueOf(coinType, outgoingSum),
+                    .map { tx -> tx.value + tx.gasPrice * tx.gas }
+                    .fold(BigInteger.ZERO, BigInteger::add)
+
+            balance = Balance(Value.valueOf(coinType, balanceResult.balance - outgoingSum),
                     Value.valueOf(coinType, incomingSum), Value.valueOf(coinType, outgoingSum), balance.pendingChange)
             true
         } catch (e: SocketTimeoutException) {

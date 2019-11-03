@@ -5,5 +5,6 @@
         <domain includeSubdomains="true">coloredcoins-test.mycelium.com</domain>
         <domain includeSubdomains="true">public-api.wordpress.com</domain>
         <domain includeSubdomains="true">ropsten-index.mycelium.com</domain>
+        <domain includeSubdomains="true">parity.mycelium.com</domain>
     </domain-config>
 </network-security-config>
