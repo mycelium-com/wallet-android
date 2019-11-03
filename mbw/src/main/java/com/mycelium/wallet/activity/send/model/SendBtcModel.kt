@@ -60,7 +60,7 @@ class SendBtcModel(context: Application,
                             val fee = calculateFee()
                             if (fee != size * selectedFee.value!!.value / 1000) {
                                 val value = Value.valueOf(account.coinType, fee)
-                                val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.fiatCurrency)
+                                val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {
                                     " (${fiatValue.toStringWithUnit(mbwManager.denomination)}"
                                 } else {

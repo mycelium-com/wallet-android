@@ -57,7 +57,11 @@ public interface Constants {
    String RANDOMIZE_PIN = "randomizePin";
    String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
    String PROXY_SETTING = "proxy";
-   String FIAT_CURRENCY_SETTING = "FiatCurrency";
+   String TOTAL_FIAT_CURRENCY_SETTING = "TotalFiatCurrency";
+   // last selected fiat currencies, used as alternative amount
+   String FIAT_CURRENCIES_SETTING = "FiatCurrencies";
+   // last selected currencies (could be fiat also), used as representation
+   String CURRENT_CURRENCIES_SETTING = "CurrentCurrencies";
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    String DEFAULT_CURRENCY = "USD";
    String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";

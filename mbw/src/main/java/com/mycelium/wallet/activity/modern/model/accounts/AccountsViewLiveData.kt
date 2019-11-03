@@ -67,17 +67,18 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
-                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts)))
+                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts),
+                            accounts[0].basedOnCoinType))
                 }
             }
             if (value!!.isEmpty()) {
                 publishProgress(accountsList)
             }
 
-            val archivedList = accountsToViewModel(walletManager.getArchivedAccounts())
+            val archivedList = walletManager.getArchivedAccounts()
             if (archivedList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
-                        archivedList))
+                        accountsToViewModel(archivedList), archivedList[0].basedOnCoinType))
             }
             if (accountsList == value) {
                 cancel(true)

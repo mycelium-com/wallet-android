@@ -137,7 +137,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
-        val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
+        val view = layoutInflater.inflate(R.layout.archived_accounts_title_view, parent, false)
         return ArchivedGroupTitleViewHolder(view)
     }
 
@@ -172,7 +172,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
                 val sum = getSpendableBalance(listOf(group))
-                groupHolder.tvBalance.setValue(sum)
+                groupHolder.tvBalance.coinType = group.coinType
+                groupHolder.tvBalance.setValue(sum, totalBalance = false)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
@@ -183,7 +184,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             TOTAL_BALANCE_TYPE -> {
                 val totalHolder = holder as TotalViewHolder
                 val sum = (item as TotalViewModel).balance
-                totalHolder.tcdBalance.setValue(sum)
+                totalHolder.tcdBalance.setValue(sum, totalBalance = true)
             }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")
         }
