@@ -15,10 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+
 public interface WalletAccount<A extends GenericAddress> {
-
-    FeeEstimationsGeneric getDefaultFeeEstimation();
-
     void setAllowZeroConfSpending(boolean b);
 
     GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
@@ -195,6 +194,13 @@ public interface WalletAccount<A extends GenericAddress> {
     int getSyncTotalRetrievedTransactions();
 
     FeeEstimationsGeneric getFeeEstimations();
+
+    /**
+     * Do not fetch new estimations from the web but return the last value instead. If there is no
+     * last values available, return default values.
+     */
+    @Nonnull
+    FeeEstimationsGeneric getCachedFeeEstimations();
 
     int getTypicalEstimatedTransactionSize();
 

@@ -93,7 +93,7 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
@@ -588,7 +588,7 @@ public class MbwManager {
      */
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
         // Create persisted account backing
-        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBackingWrapper(context);
+        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBacking(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
