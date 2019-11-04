@@ -13,6 +13,7 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.VISIBLE
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -146,6 +147,7 @@ class NewsActivity : AppCompatActivity() {
                     , contentText)
             content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
         }
+        news_loading.visibility = if (news.isFull) View.INVISIBLE else VISIBLE
 
         tvTitle.text = Html.fromHtml(news.title)
         news.date?.let {
