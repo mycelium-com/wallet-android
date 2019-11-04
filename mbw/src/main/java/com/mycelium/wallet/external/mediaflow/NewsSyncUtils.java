@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -57,10 +58,19 @@ public class NewsSyncUtils {
             if (OPERATION_DELETE.equalsIgnoreCase(operation) && dataObject.has(ID)) {
                 delete(context, dataObject.getString(ID));
             } else {
-                context.startService(new Intent(context, NewsSyncService.class));
+                startNewsSyncService(context);
             }
         } catch (JSONException e) {
             Log.e("NewsSync", "json data wrong", e);
+        }
+    }
+
+    public static void startNewsSyncService(Context context) {
+        Intent syncIntent = new Intent(context, NewsSyncService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(syncIntent);
+        } else {
+            context.startService(syncIntent);
         }
     }
 }

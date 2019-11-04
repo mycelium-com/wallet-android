@@ -4,6 +4,7 @@ import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -130,7 +131,7 @@ class NewsFragment : Fragment() {
             }
         })
         retry.setOnClickListener {
-            requireContext().startService(Intent(context, NewsSyncService::class.java))
+            NewsSyncUtils.startNewsSyncService(requireContext())
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
