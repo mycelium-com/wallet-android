@@ -106,8 +106,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Bạn đang chuyển bitcoins đến một trong những địa chỉ của chính bạn.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Chú ý: Ví của bạn hiện không có private key cho địa chỉ này.\nBạn không thể gửi được bitcoin trong ví trừ khi bạn có được private key.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Thêm địa chỉ</string>
-    <string name="scan_address_book_desc">Quét địa chỉ Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Nhập địa chỉ Bitcoin từ bộ nhớ clipboard.</string>
+    <string name="scan_address_book_desc">Quét địa chỉ.</string>
+    <string name="clipboard_address_book_desc">Nhập địa chỉ từ bộ nhớ clipboard.</string>
     <string name="get_private_key">Nhập private key từ:</string>
     <string name="cold_storage">Lưu Trữ Lạnh</string>
     <string name="cold_storage_title">Chi Tiêu Lưu Trữ Lạnh</string>

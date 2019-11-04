@@ -91,6 +91,7 @@ import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
@@ -109,7 +110,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -117,6 +120,7 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -124,6 +128,7 @@ import org.ocpsoft.prettytime.TimeUnit;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -999,5 +1004,23 @@ public class Utils {
          ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
       }
       return hasPermission;
+   }
+
+   @Nullable
+   public static GenericAssetInfo getTypeByName(String name) {
+      List<String> fiatSymbols = new ArrayList<>();
+
+      for (CurrencyCode currencyCode : CurrencyCode.values()) {
+         fiatSymbols.add(currencyCode.getShortString());
+      }
+      if (fiatSymbols.contains(name)) { // then it's a fiat type
+         return new FiatType(name);
+      }
+      for (CryptoCurrency coin : CoinsKt.getCOINS().values()) {
+         if (coin.getName().equals(name)) {
+            return coin;
+         }
+      }
+      return null;
    }
 }

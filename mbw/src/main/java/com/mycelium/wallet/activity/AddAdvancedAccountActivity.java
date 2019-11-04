@@ -70,6 +70,8 @@ import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -655,6 +657,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {
+      MbwManager.getEventBus().post(new AccountCreated(account));
+      MbwManager.getEventBus().post(new AccountChanged(account));
       Intent result = new Intent()
               .putExtra(AddAccountActivity.RESULT_KEY, account)
               .putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);

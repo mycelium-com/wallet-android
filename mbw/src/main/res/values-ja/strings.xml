@@ -108,7 +108,6 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">メモ：送金先にご自身のアドレスが入っています。</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</font>]]></string>
     <string name="add_to_address_book_dialog_title">アドレス追加</string>
-    <string name="scan_address_book_desc">ビットコイン アドレスを読み取ります。</string>
     <string name="clipboard_address_book_desc">クリップボードからアドレスを取得</string>
     <string name="max">最大</string>
     <string name="get_private_key">秘密鍵インポート：</string>

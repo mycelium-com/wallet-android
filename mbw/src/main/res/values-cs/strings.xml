@@ -108,8 +108,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Pozn.: Posíláte na jednu z vlastních adres.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Přidat adresu</string>
-    <string name="scan_address_book_desc">Naskenovat BTC adresu</string>
-    <string name="clipboard_address_book_desc">Získat bitcoinovou adresu ze schránky.</string>
+    <string name="scan_address_book_desc">Naskenovat adresu</string>
+    <string name="clipboard_address_book_desc">Získat adresu ze schránky.</string>
     <string name="get_private_key">Získat soukromý klíč z:</string>
     <string name="cold_storage">Cold storage</string>
     <string name="cold_storage_title">Útrata z cold storage</string>

@@ -117,7 +117,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         super.onResume()
 
         // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-        if (!mbwManager.currencySwitcher.isFiatExchangeRateAvailable(viewModel.getAccount().coinType.symbol)) {
+        if (!mbwManager.currencySwitcher.isFiatExchangeRateAvailable(viewModel.getAccount().coinType)) {
             mbwManager.exchangeRateManager.requestRefresh()
         }
 

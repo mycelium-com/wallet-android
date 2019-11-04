@@ -105,8 +105,8 @@ Schlüsseln und das Ändern des PIN-Codes verbietet
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Achtung: Sie senden Bitcoins zu einer Ihrer eigenen Adressen</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Hinweis: Ihre Wallet hat keinen privaten Schlüssel für diese Adresse. \nSie können erhaltene Bitcoins nur ausgeben, wenn Sie den privaten Schlüssel an einem anderen Ort haben.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Adresse zum Adressbuch hinzufügen</string>
-    <string name="scan_address_book_desc">Bitcoin-Adresse scannen</string>
-    <string name="clipboard_address_book_desc">Bitcoin-Adresse aus der Zwischenablage </string>
+    <string name="scan_address_book_desc">Adresse scannen</string>
+    <string name="clipboard_address_book_desc">Adresse aus der Zwischenablage </string>
     <string name="max">Maximum</string>
     <string name="get_private_key">Privaten Schlüssel importieren</string>
     <string name="cold_storage">Offline-Wallet</string>

@@ -9,8 +9,6 @@ import java.util.Objects;
 
 public class FiatType extends AbstractAsset {
 
-    private String symbol;
-
     public FiatType(String symbol) {
         this.symbol = symbol;
     }

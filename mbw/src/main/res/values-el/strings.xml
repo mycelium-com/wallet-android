@@ -108,8 +108,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Σημείωση: Πρόκειται να στείλετε σε μία δική σας διεύθυνση.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Προσοχή: Το πορτοφόλι σας δεν περιέχει το μυστικό κλειδί για τη διεύθυνση αυτή.\nΔε θα μπορείτε να ξοδέψετε τα εισερχόμενα χρήματα εκτός κι αν έχετε το μυστικό κλειδί αποθηκευμένο αλλού.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Προσθήκη Διεύθυνσης</string>
-    <string name="scan_address_book_desc">Σάρωση Διεύθυνσης Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Αντιγραφή διεύθυνσης Bitcoin από το πρόχειρο.</string>
+    <string name="scan_address_book_desc">Σάρωση Διεύθυνσης.</string>
+    <string name="clipboard_address_book_desc">Αντιγραφή διεύθυνσης από το πρόχειρο.</string>
     <string name="max">Μέγιστο</string>
     <string name="get_private_key">Πάρε το μυστικό κλειδί από:</string>
     <string name="cold_storage">Ψυχρή Αποθήκευση</string>

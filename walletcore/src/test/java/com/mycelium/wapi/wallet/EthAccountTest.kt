@@ -12,10 +12,7 @@ import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig
-import com.mycelium.wapi.wallet.eth.EthereumModule
+import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
@@ -26,15 +23,12 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.*
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.infura.InfuraHttpService
 import org.web3j.utils.Convert
 import java.util.*
 
 
 class EthAccountTest {
     private val MASTER_SEED_WORDS = "else tape female vast twist mandate lucky now license stand skull garment"
-    private val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
     private var account: EthAccount? = null
 
     @Suppress("UNCHECKED_CAST")
@@ -74,7 +68,8 @@ class EthAccountTest {
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher)
 
         val genericBacking = AccountContextsBacking(db)
-        walletManager.add(EthereumModule(store, genericBacking, fakeMetadataStorage))
+        val ethBacking = EthBacking(db, genericBacking)
+        walletManager.add(EthereumModule(store, ethBacking, db, fakeMetadataStorage, null))
 
         val uuid = walletManager.createAccounts(EthereumMasterseedConfig())[0]
         account = walletManager.getAccount(uuid) as EthAccount
@@ -88,14 +83,15 @@ class EthAccountTest {
     private fun <T> any(): T = Mockito.any<T>()
 
     @Test
-    fun onfflineSigning() {
+    fun offlineSigning() {
         val toAddress = EthAddress(account!!.coinType, "0xD7677B6e62F283E1775B05d9e875B03C27c298a9")
         val value = Value.valueOf(account!!.coinType, Convert.toWei("0.0001", Convert.Unit.ETHER).toBigInteger())
         val gasPrice = FeePerKbFee(Value.valueOf(account!!.coinType, Convert.toWei("20", Convert.Unit.GWEI).toBigInteger()))
         val tx = account!!.createTx(toAddress, value, gasPrice)
         account!!.signTx(tx, AesKeyCipher.defaultKeyCipher())
-//        val broadcastResult = account!!.broadcastTx(tx)
-//        assertTrue(broadcastResult.errorMessage, broadcastResult.resultType == BroadcastResultType.SUCCESS)
+        // Uncomment following to do actual sending
+        // val broadcastResult = account!!.broadcastTx(tx)
+        // assertTrue(broadcastResult.errorMessage, broadcastResult.resultType == BroadcastResultType.SUCCESS)
     }
 
     @Test(expected = GenericInsufficientFundsException::class)

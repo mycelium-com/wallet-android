@@ -46,8 +46,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -70,11 +70,12 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
    }
 
    @Override
-   protected void updateUi(){
+   protected void updateUi() {
       super.updateUi();
 
-      final List<GenericAssetInfo> currencies = getAvailableCurrencyList();
-      // if there is only one currency to show - don't show a triangle hinting that the user can toggle
+      final List<GenericAssetInfo> currencies = getAvailableCurrenciesList();
+      // there are more than one fiat-currency
+      // there is only one currency to show - don't show a triangle hinting that the user can toggle
       findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
 
       LinearLayout linearLayout = findViewById(R.id.llContainer);
@@ -97,7 +98,11 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
          menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-               getCurrencySwitcher().setCurrency(itemMap.get(item));
+               if (getCoinType() == null) { // then it's a total TCB
+                  getCurrencySwitcher().setCurrentTotalCurrency(itemMap.get(item));
+               } else { // else it's a currency group TCB
+                  getCurrencySwitcher().setCurrency(getCoinType(), itemMap.get(item));
+               }
                if (MbwManager.getEventBus() != null) {
                   // update UI via event bus, also inform other parts of the app about the change
                   MbwManager.getEventBus().post(new SelectedCurrencyChanged());
@@ -111,22 +116,24 @@ public class ToggleableCurrencyButton extends ToggleableCurrencyDisplay {
       setVisibility(currencies.size() == 0 ? View.INVISIBLE : View.VISIBLE);
    }
 
-   private List<GenericAssetInfo> getAvailableCurrencyList() {
+   private List<GenericAssetInfo> getAvailableCurrenciesList() {
       List<GenericAssetInfo> result = new ArrayList<>();
+      MbwManager mbwManager = MbwManager.getInstance(getContext());
 
-      // add fiat currencies for which exchange rate is available
+      if (!getFiatOnly()) {
+         result.add(getCoinType());
+      }
+
+      // add such fiat currencies for which exchange rate is available
+      GenericAssetInfo baseCurrency = getFiatOnly() ?
+              mbwManager.getSelectedAccount().getCoinType() : getCoinType();
       for (GenericAssetInfo asset : getCurrencySwitcher().getCurrencyList()) {
-         Value exchangeValue = getCurrencySwitcher().getAsFiatValue(getCurrentValue());
-         if (exchangeValue != null) {
+         ExchangeRate exchangeRate = mbwManager.getExchangeRateManager()
+                 .getExchangeRate(baseCurrency.getSymbol(), asset.getSymbol());
+         if (exchangeRate != null && exchangeRate.price != null) {
             result.add(asset);
          }
       }
-
-      // also add BTC if not only fiat is of interest
-      if (!getFiatOnly()) {
-         result.add(Utils.getBtcCoinType());
-      }
-
       return result;
    }
 

@@ -105,8 +105,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Shto adres</string>
-    <string name="scan_address_book_desc">Skano Bitcoin adres.</string>
-    <string name="clipboard_address_book_desc">Merr Bitcoin adres nga memorja.</string>
+    <string name="scan_address_book_desc">Skano adres.</string>
+    <string name="clipboard_address_book_desc">Merr adres nga memorja.</string>
     <string name="get_private_key">Merr çelësat privat nga:</string>
     <string name="cold_storage_title">Shpenzimi Cold Storage</string>
     <string name="cold_storage_desc">Jeni duke shpenzuar nga një çelës privat në cold storage. Kjo mund të jetë një kopje rezervë e një çelësi privat e gjeneruar nga një Bitcoin ATM. Keto formate mbështeten:\nÇelës privat, Master Seed, xPriv çelës\n\nPosa transaksioni është transmetuar çdo gjurmë e tij do të fshihet nga memorja interne.</string>

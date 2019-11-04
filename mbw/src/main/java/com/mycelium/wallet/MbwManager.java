@@ -59,6 +59,9 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.common.primitives.Ints;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
@@ -109,14 +112,14 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
@@ -126,11 +129,13 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
+
 import kotlin.jvm.Synchronized;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -146,6 +151,7 @@ public class MbwManager {
     private static final String PROXY_HOST = "socksProxyHost";
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
+    private static final String LOG_TBC = "tbc";
     private static volatile MbwManager _instance = null;
 
     /**
@@ -298,16 +304,28 @@ public class MbwManager {
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
         db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+        driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
         if (denomination == null) {
             denomination = Denomination.UNIT;
         }
+        StringBuilder defaultCurrencyJson = new StringBuilder("{\"")
+                .append(Utils.getBtcCoinType().getName())
+                .append("\":\"")
+                .append(Constants.DEFAULT_CURRENCY)
+                .append("\"}");
+        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
+        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
+        Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
+        Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
         _currencySwitcher = new CurrencySwitcher(
                 _exchangeRateManager,
                 fiatCurrencies,
-                new FiatType(preferences.getString(Constants.FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                currentCurrencyMap,
+                currentFiatMap,
                 denomination
         );
 
@@ -345,6 +363,31 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                         _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    private Map<GenericAssetInfo, GenericAssetInfo> getCurrentCurrenciesMap(String jsonString) {
+        Log.d(LOG_TBC, "Was read from settings: " + jsonString);
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Map<GenericAssetInfo, GenericAssetInfo> result = new HashMap<>();
+
+        Map<String, String> coinNamesMap = gson.fromJson(jsonString, type);
+        for (Map.Entry<String, String> entry : coinNamesMap.entrySet()) {
+            result.put(Utils.getTypeByName(entry.getKey()),
+                    Utils.getTypeByName(entry.getValue()));
+        }
+        return result;
+    }
+
+    private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
+        Log.d(LOG_TBC, "CurrentCurrencyMap or CurrentFiatCurrency maps contents: " + currenciesMap.toString());
+        Gson gson = new GsonBuilder().create();
+        Map<String, String> coinNamesMap = new HashMap<>();
+        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry: currenciesMap.entrySet()) {
+            coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
+        }
+        Log.d(LOG_TBC, "Json to save: " + coinNamesMap);
+        return gson.toJson(coinNamesMap);
     }
 
     private ContentResolver createContentResolver(NetworkParameters network) {
@@ -664,7 +707,7 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, getMetadataStorage()));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -710,7 +753,8 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, getMetadataStorage()));
+
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -746,8 +790,8 @@ public class MbwManager {
         return migrationProgressTracker;
     }
 
-    public GenericAssetInfo getFiatCurrency() {
-        return _currencySwitcher.getCurrentFiatCurrency();
+    public GenericAssetInfo getFiatCurrency(GenericAssetInfo coinType) {
+        return _currencySwitcher.getCurrentFiatCurrency(coinType);
     }
 
     public boolean hasFiatCurrency() {
@@ -1358,7 +1402,11 @@ public class MbwManager {
 
     @Subscribe
     public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
-        getEditor().putString(Constants.FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentFiatCurrency().getSymbol()).apply();
+        String currentCurrenciesString = getCurrentCurrenciesString(_currencySwitcher.getCurrentCurrencyMap());
+        String currentFiatString = getCurrentCurrenciesString(_currencySwitcher.getCurrentFiatCurrencyMap());
+        getEditor().putString(Constants.CURRENT_CURRENCIES_SETTING, currentCurrenciesString).apply();
+        getEditor().putString(Constants.FIAT_CURRENCIES_SETTING, currentFiatString).apply();
+        getEditor().putString(Constants.TOTAL_FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getName()).apply();
     }
 
     @Subscribe

@@ -9,7 +9,6 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
-import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -22,11 +21,15 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
+                 private val accountListener: AccountListener?,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     private var pendingTxDisposable: Disposable? = null
@@ -111,7 +114,9 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString())
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType)
+
+    private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -152,11 +157,11 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(valueOf(EthTest, ethBalanceService.balance),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType),
-                    Value.zeroValue(coinType))
-            accountContext.balance = balance
+            accountContext.balance = ethBalanceService.balance
+            accountListener?.balanceUpdated(this)
+            if (balanceDisposable.isDisposed) {
+                balanceDisposable = subscribeOnBalanceUpdates()
+            }
             renewSubscriptions()
         }
         return succeed
@@ -186,11 +191,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun dropCachedData() {
-        val balance = Balance(Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType),
-                Value.zeroValue(coinType))
-        accountContext.balance = balance
+        accountContext.balance = Balance.getZeroBalance(coinType)
     }
 
     override fun isVisible() = true
@@ -238,9 +239,19 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     fun stopSubscriptions() {
+        balanceDisposable.dispose()
         if (pendingTxDisposable?.isDisposed == false) {
             pendingTxDisposable?.dispose()
         }
+    }
+
+    private fun subscribeOnBalanceUpdates(): Disposable {
+        return ethBalanceService.balanceFlowable.subscribe({ balance ->
+            accountContext.balance = balance
+            accountListener?.balanceUpdated(this)
+        }, {
+            logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
+        })
     }
 }
 

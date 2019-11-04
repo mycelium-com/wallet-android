@@ -149,8 +149,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
-    <string name="scan_address_book_desc">Scan Bitcoin address.</string>
-    <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
+    <string name="scan_address_book_desc">Scan address.</string>
+    <string name="clipboard_address_book_desc">Get address from clipboard.</string>
     <string name="max">Max</string>
     <string name="get_private_key">Get private key from:</string>
     <string name="cold_storage">Cold Storage</string>
@@ -1097,7 +1097,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bitcoin_cash_module_short">BCH</string>
     <string name="exchange_bch_to_btc">EXCHANGE BCH TO BTC</string>
     <string name="single_address_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a backup of this address NOW and keep it in a safe place!</string>
-    <string name="wallet_backup_missing">No backup - no bitcoins! In order not to lose your bitcoins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
+    <string name="wallet_backup_missing">No backup - no coins! In order not to lose your coins when your smartphone is lost or broken please make a wallet backup NOW and keep it in a safe place!</string>
     <string name="backup">BACKUP</string>
     <string name="backup_later">Backup later</string>
     <string name="backup_now">Backup now</string>
@@ -1326,5 +1326,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
     <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
     <string name="retry">RETRY</string>
-    <string name="single_eth_account">You can only have one ETH Account.</string>
+    <string name="single_eth_account">You can only have one Ethereum account.</string>
 </resources>

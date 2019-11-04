@@ -97,8 +97,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Bemærk: Du sender til en af dine egne adresser.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Tilføj adresse</string>
-    <string name="scan_address_book_desc">Skan Bitcoinadresse.</string>
-    <string name="clipboard_address_book_desc">Hent Bitcoinadresse fra udklipsholderen.</string>
+    <string name="scan_address_book_desc">Skan adresse.</string>
+    <string name="clipboard_address_book_desc">Hent adresse fra udklipsholderen.</string>
     <string name="get_private_key">Hent privat nøgle fra:</string>
     <string name="cold_storage_title">Brug fra papirtegnebog</string>
     <string name="cold_storage_desc">Du er ved at spendere fra en privat nøgle, der tilhører en papirtegnebog. Dette kan være en privat nøgle fra en papirsikkerhedskopi eller en privat nøgle fra en Bitcoinhæveautomat. Følgende formater understøttes:\n Privat nøgle, master seed, xPriv nøgle.\n\nNår denne transaktion er sendt ville alle spor af den blive slette fra den interne hukommelse.</string>

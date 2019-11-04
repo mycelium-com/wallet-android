@@ -128,8 +128,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Примечание: Вы отправляете на один из ваших собственных адресов.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добавить адрес </string>
-    <string name="scan_address_book_desc">Сканировать биткойн адрес.</string>
-    <string name="clipboard_address_book_desc">Получить биткойн адрес из буфера обмена.</string>
+    <string name="scan_address_book_desc">Сканировать адрес.</string>
+    <string name="clipboard_address_book_desc">Получить адрес из буфера обмена.</string>
     <string name="max">Макс.</string>
     <string name="get_private_key">Получить приватный ключ:</string>
     <string name="cold_storage">\"Холодное хранилище\"</string>

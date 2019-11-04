@@ -83,8 +83,8 @@
     <string name="found_clipboard_private_key_title">Private Key ditemukan di Clipboard</string>
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: Anda mengirim ke salah satu alamat anda.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Menambahkan Alamat</string>
-    <string name="scan_address_book_desc">Memindai alamat Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Mendapatkan alamat Bitcoin dari Clipboard.</string>
+    <string name="scan_address_book_desc">Memindai alamat.</string>
+    <string name="clipboard_address_book_desc">Mendapatkan alamat dari Clipboard.</string>
     <string name="max">Maks</string>
     <string name="get_private_key">Mendapatkan private key dari:</string>
     <string name="cold_storage_title">Pengeluaran Cold Storage</string>

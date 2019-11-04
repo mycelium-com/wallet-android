@@ -50,6 +50,8 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.response.Feature;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -192,6 +194,8 @@ public class AddColuAccountActivity extends Activity {
         @Override
         protected void onPostExecute(UUID account) {
             if (account != null) {
+                MbwManager.getEventBus().post(new AccountCreated(account));
+                MbwManager.getEventBus().post(new AccountChanged(account));
                 Intent result = new Intent();
                 result.putExtra(RESULT_KEY, account);
                 setResult(RESULT_OK, result);
