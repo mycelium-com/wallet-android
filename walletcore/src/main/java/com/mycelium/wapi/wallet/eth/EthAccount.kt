@@ -35,17 +35,17 @@ class EthAccount(private val accountContext: EthAccountContext,
     private var pendingTxDisposable: Disposable? = null
 
     init {
-        EtherscanIoFetcher.fetchTransactions(receivingAddress.addressString, backing, coinType)
+        EtherscanIoFetcher.syncWithRemote(receivingAddress.addressString, backing, coinType)
         pendingTxDisposable = subscribeOnPendingIncomingTx()
     }
 
-    // as soon as we get an incoming tx event we want put the tx into the txs table
+    // save incoming tx we detected to the txs table
     private fun subscribeOnPendingIncomingTx(): Disposable {
         return web3j.pendingTransactionFlowable()
                 .subscribe({ tx ->
                     if (tx.to == receivingAddress.addressString) {
                         backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                                "", tx.from, receivingAddress.addressString,
+                                tx.raw, tx.from, receivingAddress.addressString,
                                 valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice), 0)
                     }
                 }, {})
@@ -102,8 +102,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
-        backing.putTransaction(-1, System.currentTimeMillis() / 1000, HexUtils.toHex(tx.txHash),
-                tx.rawTransaction.data, receivingAddress.addressString, tx.toAddress.toString(),
+        backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
                 tx.value, (tx.gasPrice as FeePerKbFee).feePerKb, 0)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
@@ -130,7 +130,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
-            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)

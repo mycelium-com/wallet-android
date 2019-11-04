@@ -17,7 +17,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     private val queries = walletDB.accountBackingQueries
     private val logger = Logger.getLogger(this.javaClass.name)
 
-    fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<GenericTransactionSummary>? =
+    fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<GenericTransactionSummary> =
             ethQueries.selectTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
                                                                                   currency: CryptoCurrency,
                                                                                   blockNumber: Int,
@@ -39,7 +39,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         listOf(EthAddress(currency, to)), null, 21000, fee)
             }).executeAsList()
 
-    fun getTransactionSummary(txidParameter: String, ownerAddress: String): GenericTransactionSummary =
+    fun getTransactionSummary(txidParameter: String, ownerAddress: String): GenericTransactionSummary? =
             ethQueries.selectTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
                                                                                     currency: CryptoCurrency,
                                                                                     blockNumber: Int,
@@ -56,12 +56,20 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
                         confirmations, false, listOf(input), listOf(output),
                         listOf(EthAddress(currency, to)), null, 21000, fee)
-            }).executeAsOne()
+            }).executeAsOneOrNull()
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String,
                        raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int) {
-        ethQueries.insertTransaction(txid, uuid, from, to)
         queries.insertTransaction(txid, uuid, currency, blockNumber, timestamp, raw, value, gasPrice, confirmations)
+        ethQueries.insertTransaction(txid, uuid, from, to)
+    }
+
+    fun updateTransaction(txid: String, blockNumber: Int, confirmations: Int) {
+        queries.updateTransaction(blockNumber, confirmations, uuid, txid)
+    }
+
+    fun deleteTransaction(txid: String) {
+        queries.deleteTransaction(uuid, txid)
     }
 }

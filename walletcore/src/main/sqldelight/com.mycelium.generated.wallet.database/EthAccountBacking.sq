@@ -39,6 +39,6 @@ insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress)
 VALUES (?, ?, ?, ?);
 
-insertFullObject:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress)
-VALUES ?;
+deleteTransaction:
+DELETE FROM EthAccountBacking
+WHERE uuid = (?) AND txid = (?);

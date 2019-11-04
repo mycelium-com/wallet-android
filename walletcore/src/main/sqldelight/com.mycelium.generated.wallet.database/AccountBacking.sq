@@ -27,6 +27,11 @@ insertTransaction:
 INSERT OR REPLACE INTO AccountBacking(txid, uuid, currency, blockNumber, timestamp, raw, value, fee, confirmations)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-insertFullObject:
-INSERT OR REPLACE INTO AccountBacking(txid, uuid, currency, blockNumber, timestamp, raw, value, fee, confirmations)
-VALUES ?;
+updateTransaction:
+UPDATE AccountBacking
+SET blockNumber = (?), confirmations = (?)
+WHERE uuid = (?) AND txid = (?);
+
+deleteTransaction:
+DELETE FROM AccountBacking
+WHERE uuid = (?) AND txid = (?);
