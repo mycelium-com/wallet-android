@@ -39,6 +39,7 @@ public class News implements Serializable {
     @JsonIgnore
     public boolean isRead = false;
 
+    @JsonIgnore
     public boolean isFull = true;
 
     @Override
