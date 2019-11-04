@@ -95,7 +95,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private final SQLiteStatement _getMaxSubId;
 
 
-   SqliteBtcWalletManagerBacking(Context context) {
+   public SqliteBtcWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
@@ -593,9 +593,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         byte[] key = getLastFeeKey(assetType);
          FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
                                                                          feeEstimation.getEconomy().value,
                                                                          feeEstimation.getNormal().value,
@@ -607,19 +605,24 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-          FeeEstimationSerialized feeValues;
+         byte[] key = getLastFeeKey(assetType);
+         FeeEstimationSerialized feeValues;
          try {
-             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
+            String feeValuesJson = new String(getValue(key));
+            feeValues = gson.fromJson(feeValuesJson, FeeEstimationSerialized.class);
+         } catch(Exception ignore) {
+            return null;
          }
-         catch(Exception ignore) { return null; }
 
          return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
                  Value.valueOf(assetType, feeValues.economy),
                  Value.valueOf(assetType, feeValues.normal),
                  Value.valueOf(assetType, feeValues.high),
                  feeValues.lastCheck);
+      }
+
+      private byte[] getLastFeeKey(GenericAssetInfo asset) {
+         return (asset.getName() + LAST_FEE_ESTIMATE).getBytes();
       }
 
       @Override

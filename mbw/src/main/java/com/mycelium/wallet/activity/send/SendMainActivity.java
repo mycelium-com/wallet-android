@@ -196,7 +196,10 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
     public static final String SIGNED_TRANSACTION = "signedTransaction";
     public static final String TRANSACTION_FIAT_VALUE = "transaction_fiat_value";
     public static final String FEE_ESTIMATION = "fee_estimation";
-    private static final long FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2);
+    // Alert the user of old fee estimations
+    private static final long FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(5);
+    // Don't query the fee levels more than every 15 minutes. It doesn't change that quickly.
+    private static final long FEE_STABLE_TIME = TimeUnit.MINUTES.toMillis(15);
     private boolean spendingUnconfirmed;
 
     private enum TransactionStatus {
@@ -372,9 +375,9 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         isColdStorage = getIntent().getBooleanExtra(IS_COLD_STORAGE, false);
         String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
         WalletAccount account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId);
-        this.activeAccount = checkNotNull(account, crashHint);
+        activeAccount = checkNotNull(account, crashHint);
         feeLvl = mbwManager.getMinerFee();
-        feeEstimation = this.activeAccount.getDefaultFeeEstimation();
+        feeEstimation = activeAccount.getCachedFeeEstimations();
 
         // get new fee estimation from remote
         AsyncTask feeEstimateTask = new AsyncTask<Void, Void, Void>() {
@@ -386,13 +389,15 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
             @Override
             protected Void doInBackground(Void... voids) {
-                feeEstimation = activeAccount.getFeeEstimations();
+                // last check was earlier than FEE_STABLE_TIME ago? Check again!
+                if (feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_STABLE_TIME) {
+                    feeEstimation = activeAccount.getFeeEstimations();
+                }
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void v) {
-                showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
                 updateUi();
                 if(savedInstanceState == null) {
                     feeValueList.setSelectedItem(getCurrentFeeEstimation());
@@ -402,8 +407,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }.execute();
 
         selectedFee = getCurrentFeeEstimation();
-
-        showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
 
         // Load saved state, overwriting amount and address
         if (savedInstanceState != null) {
@@ -1157,6 +1160,7 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
         }
         tvFeeWarning.setVisibility(feeWarning != null ? View.VISIBLE : View.GONE);
         tvFeeWarning.setText(feeWarning != null ? Html.fromHtml(feeWarning) : null);
+        boolean showStaleWarning = feeEstimation.getLastCheck() < System.currentTimeMillis() - FEE_EXPIRATION_TIME;
         tvStaleWarning.setVisibility(showStaleWarning ? VISIBLE : GONE);
     }
 
