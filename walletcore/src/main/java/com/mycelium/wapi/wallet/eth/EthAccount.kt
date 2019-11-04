@@ -35,8 +35,12 @@ class EthAccount(private val accountContext: EthAccountContext,
     private var pendingTxDisposable: Disposable? = null
 
     init {
-        EtherscanIoFetcher.syncWithRemote(receivingAddress.addressString, backing, coinType)
         pendingTxDisposable = subscribeOnPendingIncomingTx()
+    }
+
+    fun syncWithRemote() {
+        EtherscanIoFetcher.syncWithRemote(receivingAddress.addressString, backing, coinType)
+        accountListener?.balanceUpdated(this)
     }
 
     // save incoming tx we detected to the txs table

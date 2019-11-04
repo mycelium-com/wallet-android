@@ -108,6 +108,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -453,8 +454,9 @@ public class TransactionHistoryFragment extends Fragment {
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
-                     if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                         || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
+                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
+                             || _mbwManager.getSelectedAccount() instanceof EthAccount) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
