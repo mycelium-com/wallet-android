@@ -7,14 +7,17 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.coins.Value.Companion.max
+import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import io.reactivex.disposables.Disposable
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.infura.InfuraHttpService
+import org.web3j.protocol.http.HttpService
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
@@ -24,10 +27,25 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
+    private var pendingTxDisposable: Disposable? = null
 
     init {
         EtherscanIoFetcher.fetchTransactions(receivingAddress.addressString, backing, coinType)
+        pendingTxDisposable = subscribeOnPendingIncomingTx()
+    }
+
+    // as soon as we get an incoming tx event we want put the tx into the txs table
+    private fun subscribeOnPendingIncomingTx(): Disposable {
+        return web3j.pendingTransactionFlowable()
+                .subscribe({ tx ->
+                    if (tx.to == receivingAddress.addressString) {
+                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                                "", tx.from, receivingAddress.addressString,
+                                valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice), 0)
+                    }
+                }, {})
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -57,7 +75,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
             val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
@@ -77,8 +94,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
     }
 
-    override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("https://ropsten.infura.io/WKXR51My1g5Ea8Z5Xh3l"))
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
@@ -109,7 +125,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
-            backing.getTransactionSummary(HexUtils.toHex(transactionId), receivingAddress.addressString)
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
@@ -136,11 +152,12 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun synchronize(mode: SyncMode?): Boolean {
         val succeed = ethBalanceService.updateBalanceCache()
         if (succeed) {
-            val balance = Balance(Value.valueOf(EthTest, ethBalanceService.balance),
+            val balance = Balance(valueOf(EthTest, ethBalanceService.balance),
                     Value.zeroValue(coinType),
                     Value.zeroValue(coinType),
                     Value.zeroValue(coinType))
             accountContext.balance = balance
+            renewSubscriptions()
         }
         return succeed
     }
@@ -160,6 +177,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
+        stopSubscriptions()
     }
 
     override fun activateAccount() {
@@ -191,11 +209,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
-        if (spendable < 0) {
-            return Value.zeroValue(coinType)
-        }
-        return spendable
+        val spendable = accountBalance.spendable - valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
+        return max(spendable, Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions() = 0
@@ -214,6 +229,18 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun queueTransaction(transaction: GenericTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun renewSubscriptions() {
+        if (pendingTxDisposable?.isDisposed == true) {
+            pendingTxDisposable = subscribeOnPendingIncomingTx()
+        }
+    }
+
+    fun stopSubscriptions() {
+        if (pendingTxDisposable?.isDisposed == false) {
+            pendingTxDisposable?.dispose()
+        }
     }
 }
 

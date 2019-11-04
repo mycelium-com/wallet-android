@@ -26,7 +26,7 @@ class EtherscanIoFetcher {
                 withContext(Dispatchers.IO) {
                     val txlist = mapper.readValue(URL(urlString), EtherscanApiTxlist::class.java)
                     txlist.result.forEach { tx ->
-                        backing.putTransaction(tx.blockNumber, tx.timeStamp, tx.hash.substring(2),
+                        backing.putTransaction(tx.blockNumber, tx.timeStamp, tx.hash,
                                 "", tx.from, tx.to, Value.valueOf(coinType, tx.value),
                                 Value.valueOf(coinType, tx.gasPrice), tx.confirmations)
                     }

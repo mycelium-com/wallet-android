@@ -9,10 +9,13 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAddress
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
     private val ethQueries = walletDB.ethAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
+    private val logger = Logger.getLogger(this.javaClass.name)
 
     fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<GenericTransactionSummary>? =
             ethQueries.selectTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
@@ -25,29 +28,32 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                   from: String,
                                                                                   to: String ->
                 val input = GenericInputViewModel(EthAddress(currency, from), value, false)
+                logger.log(Level.INFO, "from: $from")
                 val output = GenericOutputViewModel(EthAddress(currency, to), value, false)
+                logger.log(Level.INFO, "to: $to")
+                logger.log(Level.INFO, "txid: $txid")
                 val transferred = if (to == ownerAddress) value else -value - fee
-                GenericTransactionSummary(currency, HexUtils.toBytes(txid),
-                        HexUtils.toBytes(txid), transferred, timestamp, blockNumber,
+                GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
+                        HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
                         confirmations, false, listOf(input), listOf(output),
                         listOf(EthAddress(currency, to)), null, 21000, fee)
             }).executeAsList()
 
-    fun getTransactionSummary(txid: String, ownerAddress: String): GenericTransactionSummary =
-            ethQueries.selectTransactionSummaryById(uuid, txid, mapper = { txid: String,
-                                                                           currency: CryptoCurrency,
-                                                                           blockNumber: Int,
-                                                                           timestamp: Long,
-                                                                           value: Value,
-                                                                           fee: Value,
-                                                                           confirmations: Int,
-                                                                           from: String,
-                                                                           to: String ->
+    fun getTransactionSummary(txidParameter: String, ownerAddress: String): GenericTransactionSummary =
+            ethQueries.selectTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
+                                                                                    currency: CryptoCurrency,
+                                                                                    blockNumber: Int,
+                                                                                    timestamp: Long,
+                                                                                    value: Value,
+                                                                                    fee: Value,
+                                                                                    confirmations: Int,
+                                                                                    from: String,
+                                                                                    to: String ->
                 val input = GenericInputViewModel(EthAddress(currency, from), value, false)
                 val output = GenericOutputViewModel(EthAddress(currency, to), value, false)
                 val transferred = if (to == ownerAddress) value else -value - fee
-                GenericTransactionSummary(currency, HexUtils.toBytes(txid),
-                        HexUtils.toBytes(txid), transferred, timestamp, blockNumber,
+                GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
+                        HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
                         confirmations, false, listOf(input), listOf(output),
                         listOf(EthAddress(currency, to)), null, 21000, fee)
             }).executeAsOne()
