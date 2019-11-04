@@ -139,8 +139,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3020003
-        versionName '3.2.0.3'
+        versionCode 3020004
+        versionName '3.2.0.4'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

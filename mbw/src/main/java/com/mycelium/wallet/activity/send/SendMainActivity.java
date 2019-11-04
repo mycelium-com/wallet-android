@@ -727,9 +727,11 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                         }
                     });
         }
-        UUID receivingAccount = mbwManager.getWalletManager(false).getAccountByAddress(receivingAddress);
-        if(receivingAccount != null) {
-            MbwManager.getEventBus().post( new AccountChanged(receivingAccount));
+        if (receivingAddress != null) {
+            UUID receivingAccount = mbwManager.getWalletManager(false).getAccountByAddress(receivingAddress);
+            if (receivingAccount != null) {
+                MbwManager.getEventBus().post(new AccountChanged(receivingAccount));
+            }
         }
     }
 
