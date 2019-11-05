@@ -110,7 +110,7 @@ public class TransactionDetailsLabel extends GenericBlockExplorerLabel {
                     null, null));
          }
       } else {
-         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBEMByCurrency(transaction.getType().getName()).getBlockExplorer());
       }
    }
 

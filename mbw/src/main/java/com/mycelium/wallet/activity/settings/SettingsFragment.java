@@ -55,12 +55,14 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
+import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.text.DecimalFormat;
@@ -90,7 +92,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private MbwManager _mbwManager;
     private LocalTraderManager _ltManager;
     private ListPreference _minerFee;
-    private ListPreference _blockExplorer;
+    private PreferenceScreen blockExplorerScreen;
     private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
@@ -216,7 +218,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // Miner Fee
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
-        _blockExplorer = (ListPreference) findPreference("block_explorer");
+        blockExplorerScreen = findPreference("block_explorer");
         // Transaction change address type
         changeAddressType = findPreference("change_type");
         //localcurrency
@@ -424,18 +426,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
-        CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
-        CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
-        _blockExplorer.setEntries(blockExplorerNames);
-        _blockExplorer.setEntryValues(blockExplorerValues);
-        _blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
-                return true;
-            }
-        });
 
+        blockExplorerScreen.setOnPreferenceClickListener(preference -> {
+            getFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                            R.anim.slide_left_in, R.anim.slide_right_out)
+                    .replace(R.id.fragment_container, BlockExplorersFragment.newInstance(blockExplorerScreen.getKey()))
+                    .addToBackStack("block_explorer")
+                    .commitAllowingStateLoss();
+            return true;
+        });
         changeAddressType.setOnPreferenceClickListener(segwitChangeAddressClickListener);
 
         _minerFee.setSummary(getMinerFeeSummary());

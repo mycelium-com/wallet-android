@@ -43,9 +43,13 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.CreditCardBuyServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
+import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MbwRegTestEnvironment extends MbwEnvironment {
    private static final String myceliumThumbprint = "9c:8e:d7:ad:6c:28:db:d4:72:6a:71:93:d6:4d:cb:e7:c7:a0:2e:bc";
@@ -87,16 +91,23 @@ public class MbwRegTestEnvironment extends MbwEnvironment {
     *
     * The first is the default block explorer if the requested one is not available
     */
-   private static final List<BlockExplorer> testnetExplorerClearEndpoints = new ArrayList<BlockExplorer>() {{
-      add(new BlockExplorer("SBT","smartbit", "https://testnet.sandbox.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
-      add(new BlockExplorer("BTL","blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
-      add(new BlockExplorer("BPY","BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
-      add(new BlockExplorer("BEX","blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
-      add(new BlockExplorer("BCY","blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
-   }};
+   private static final Map<String, List<BlockExplorer>> testnetExplorerClearEndpoints = new HashMap<String, List<BlockExplorer>>() {
+      {
+         put(BitcoinTest.get().getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("SBT", "smartbit", "https://testnet.sandbox.smartbit.com.au/address/", "https://testnet.smartbit.com.au/tx/", null, null));
+            add(new BlockExplorer("BTL", "blockTrail", "https://www.blocktrail.com/tBTC/address/", "https://www.blocktrail.com/tBTC/tx/", null, null));
+            add(new BlockExplorer("BPY", "BitPay", "https://test-insight.bitpay.com/address/", "https://test-insight.bitpay.com/tx/", null, null));
+            add(new BlockExplorer("BEX", "blockExplorer", "http://blockexplorer.com/testnet/address/", "https://blockexplorer.com/testnet/tx/", null, null));
+            add(new BlockExplorer("BCY", "blockCypher", "https://live.blockcypher.com/btc-testnet/address/", "https://live.blockcypher.com/btc-testnet/tx/", null, null));
+         }});
+         put(EthTest.INSTANCE.getName(), new ArrayList<BlockExplorer>() {{
+            add(new BlockExplorer("ETS", "etherscan.io", "https://ropsten.etherscan.io/address/", "https://ropsten.etherscan.io/tx/", null, null));
+         }});
+      }
+   };
 
-   public List<BlockExplorer> getBlockExplorerList() {
-      return new ArrayList<BlockExplorer>(testnetExplorerClearEndpoints);
+   public Map<String, List<BlockExplorer>> getBlockExplorerMap() {
+      return new HashMap<>(testnetExplorerClearEndpoints);
    }
 
    public List<BuySellServiceDescriptor> getBuySellServices(){

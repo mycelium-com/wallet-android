@@ -6,14 +6,12 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler
 import java.util.*
 
-class DenominationFragment : PreferenceFragmentCompat() {
+class BlockExplorersFragment : PreferenceFragmentCompat() {
     private var mRootKey: String? = null
     private var mOpenType: Int = 0
 
@@ -33,7 +31,7 @@ class DenominationFragment : PreferenceFragmentCompat() {
         displayPreferenceDialogHandler = DisplayPreferenceDialogHandler(preferenceScreen.context)
         setHasOptionsMenu(true)
         val actionBar = (activity as SettingsActivity).supportActionBar
-        actionBar!!.setTitle(R.string.pref_bitcoin_denomination)
+        actionBar!!.setTitle(R.string.block_explorer_title)
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
         actionBar.setDisplayShowHomeEnabled(false)
         actionBar.setDisplayHomeAsUpEnabled(true)
@@ -45,35 +43,23 @@ class DenominationFragment : PreferenceFragmentCompat() {
         for (name in cryptocurrencies) {
             val listPreference = ListPreference(preferenceScreen.context)
             listPreference.title = name
-            val denominationMap = LinkedHashMap<String, Denomination>()
-            var defaultValue = ""
-            val coinType = Utils.getTypeByName(name)!!
-            var symbol = coinType.symbol
-            symbol = if (symbol.startsWith("t")) symbol.substring(1) else symbol
-            for (value in Denomination.values()) {
-                if (value.supportedBy(symbol)) {
-                    val key = value.toString().toLowerCase() + "(" + value.getUnicodeString(symbol) + ")"
-                    denominationMap[key] = value
-                    if (value === _mbwManager!!.getDenomination(coinType)) {
-                        defaultValue = key
-                    }
-                }
-            }
-            listPreference.setDefaultValue(defaultValue)
-            listPreference.value = defaultValue
-            listPreference.entries = denominationMap.keys.toTypedArray()
-            listPreference.entryValues = denominationMap.keys.toTypedArray()
+
+            val blockExplorerManager = _mbwManager!!._blockExplorerManager.getBEMByCurrency(name)
+            listPreference.value = blockExplorerManager!!.blockExplorer.identifier
+            val blockExplorerNames = blockExplorerManager.getBlockExplorerNames(blockExplorerManager.allBlockExplorer)
+            val blockExplorerValues = blockExplorerManager.blockExplorerIds
+            listPreference.entries = blockExplorerNames
+            listPreference.entryValues = blockExplorerValues
             listPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                _mbwManager!!.setBitcoinDenomination(coinType, denominationMap[newValue.toString()])
+                _mbwManager!!.setBlockExplorer(name, blockExplorerManager.getBlockExplorerById(newValue.toString()))
                 true
             }
             listPreference.layoutResource = R.layout.preference_layout_no_icon
             listPreference.widgetLayoutResource = R.layout.preference_arrow
-            listPreference.dialogTitle = "$name denomination"
-            listPreference.key = "dnm_$name"
+            listPreference.dialogTitle = "$name block explorer"
+            listPreference.key = "bl_$name"
             prefCat.addPreference(listPreference)
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -93,8 +79,8 @@ class DenominationFragment : PreferenceFragmentCompat() {
         const val ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type"
 
         @JvmStatic
-        fun newInstance(pageId: String): DenominationFragment {
-            val fragment = DenominationFragment()
+        fun newInstance(pageId: String): BlockExplorersFragment {
+            val fragment = BlockExplorersFragment()
             val args = Bundle()
             args.putString(ARG_PREFS_ROOT, pageId)
             fragment.arguments = args

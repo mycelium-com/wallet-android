@@ -81,7 +81,7 @@ import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.*;
 import com.mycelium.view.Denomination;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import com.mycelium.wallet.activity.util.BlockExplorerManager;
+import com.mycelium.wallet.activity.util.GlobalBlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.api.AndroidAsyncApi;
@@ -219,7 +219,7 @@ public class MbwManager {
     private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
     private TorManager _torManager;
-    public final BlockExplorerManager _blockExplorerManager;
+    public final GlobalBlockExplorerManager _blockExplorerManager;
     private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
     private final Queue<LogEntry> _wapiLogs;
@@ -357,10 +357,17 @@ public class MbwManager {
         }
 
         _versionManager.initBackgroundVersionChecker();
-        _blockExplorerManager = new BlockExplorerManager(this,
-                _environment.getBlockExplorerList(),
-                preferences.getString(Constants.BLOCK_EXPLORER,
-                        _environment.getBlockExplorerList().get(0).getIdentifier()));
+
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Map<String, String> defaultBlockExplorers = new HashMap<>();
+
+        for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
+            defaultBlockExplorers.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
+        }
+        String currentBlockExplorers = preferences.getString(Constants.BLOCK_EXPLORERS, gson.toJson(defaultBlockExplorers));
+        _blockExplorerManager = new GlobalBlockExplorerManager(this,
+               _environment.getBlockExplorerMap(), gson.fromJson(currentBlockExplorers, type));
     }
 
     private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
@@ -1102,9 +1109,10 @@ public class MbwManager {
         getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).apply();
     }
 
-    public void setBlockExplorer(BlockExplorer blockExplorer) {
-        _blockExplorerManager.setBlockExplorer(blockExplorer);
-        getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
+    public void setBlockExplorer(String coinName, BlockExplorer blockExplorer) {
+        _blockExplorerManager.getBEMByCurrency(coinName).setBlockExplorer(blockExplorer);
+        Gson gson = new GsonBuilder().create();
+        getEditor().putString(Constants.BLOCK_EXPLORERS, gson.toJson(_blockExplorerManager.getCurrentBlockExplorersMap())).apply();
     }
 
     public Denomination getDenomination(GenericAssetInfo coinType) {

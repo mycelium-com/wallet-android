@@ -41,6 +41,7 @@ import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class MbwEnvironment {
    static MbwEnvironment verifyEnvironment() {
@@ -59,6 +60,6 @@ public abstract class MbwEnvironment {
    public abstract NetworkParameters getNetwork();
    public abstract ServerEndpoints getLtEndpoints();
    public abstract ServerEndpoints getWapiEndpoints();
-   public abstract List<BlockExplorer> getBlockExplorerList();
+   public abstract Map<String, List<BlockExplorer>> getBlockExplorerMap();
    public abstract List<BuySellServiceDescriptor> getBuySellServices();
 }

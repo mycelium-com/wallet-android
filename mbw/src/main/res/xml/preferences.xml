@@ -139,8 +139,7 @@
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
-        <ListPreference
-            android:dialogTitle="@string/block_explorer"
+        <PreferenceScreen
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
             android:title="@string/block_explorer_title"
