@@ -396,6 +396,10 @@ public class TransactionHistoryFragment extends Fragment {
       super.onCreateOptionsMenu(menu, inflater);
       if (adapter != null && adapter.getCount() > 0) {
          inflater.inflate(R.menu.export_history, menu);
+
+         if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
+            inflater.inflate(R.menu.record_options_menu_manual_sync, menu);
+         }
       }
    }
 
@@ -405,6 +409,9 @@ public class TransactionHistoryFragment extends Fragment {
       switch (itemId) {
          case R.id.miExportHistory:
             shareTransactionHistory();
+            return true;
+         case R.id.miManualSync:
+            syncManually();
             return true;
       }
       return super.onOptionsItemSelected(item);
@@ -733,7 +740,11 @@ public class TransactionHistoryFragment extends Fragment {
       }
    };
 
-
+   private void syncManually() {
+      if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
+         ((EthAccount) _mbwManager.getSelectedAccount()).syncWithRemote();
+      }
+   }
 
    private void shareTransactionHistory() {
       WalletAccount account = _mbwManager.getSelectedAccount();
