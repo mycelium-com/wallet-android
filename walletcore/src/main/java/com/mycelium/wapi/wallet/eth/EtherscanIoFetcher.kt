@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wapi.wallet.AccountListener
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -13,11 +14,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.math.BigInteger
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 object EtherscanIoFetcher {
 
     @JvmStatic
-    fun syncWithRemote(receivingAddress: String, backing: EthAccountBacking, coinType: CryptoCurrency) {
+    fun syncWithRemote(coinType: CryptoCurrency, receivingAddress: String, backing: EthAccountBacking, callback: () -> Unit) {
         GlobalScope.launch {
             val apiKey = "KWQPBBFJQYAT5P447MM8322R5BVY8C2MG2"
             val subDomain = if (coinType == EthMain) PRODNET_SUBDOMAIN else TESTNET_SUBDOMAIN
@@ -43,12 +45,14 @@ object EtherscanIoFetcher {
                 toDelete.forEach { id ->
                     backing.deleteTransaction(id)
                 }
+                callback()
             }
         }
     }
 
     private const val PRODNET_SUBDOMAIN = "api"
     private const val TESTNET_SUBDOMAIN = "api-ropsten"
+    private val TIME_WAIT_FOR_CONFIRMATION = TimeUnit.DAYS.toSeconds(14)
 }
 
 class EtherscanApiTxlist {

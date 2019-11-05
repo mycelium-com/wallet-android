@@ -39,8 +39,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     fun syncWithRemote() {
-        EtherscanIoFetcher.syncWithRemote(receivingAddress.addressString, backing, coinType)
-        accountListener?.balanceUpdated(this)
+        EtherscanIoFetcher.syncWithRemote(coinType, receivingAddress.addressString, backing) {
+            accountListener?.balanceUpdated(this)
+        }
     }
 
     // save incoming tx we detected to the txs table
