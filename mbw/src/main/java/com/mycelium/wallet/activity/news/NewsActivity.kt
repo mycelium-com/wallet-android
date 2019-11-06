@@ -12,8 +12,7 @@ import android.text.Html
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -65,8 +64,8 @@ class NewsActivity : AppCompatActivity() {
 
         app_bar_layout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
             val scrollDelta = abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
-            category.alpha = 1 - scrollDelta
-            toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
+            tvCategory.alpha = 1 - scrollDelta
+            toolbar_shadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
             collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title) else ""
             llRoot.clipChildren = scrollDelta == 1f
             llRoot.clipToPadding = scrollDelta == 1f
@@ -147,36 +146,32 @@ class NewsActivity : AppCompatActivity() {
                     , contentText)
             content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
         }
-        news_loading.visibility = if (news.isFull) View.INVISIBLE else VISIBLE
+        news_loading.visibility = if (news.isFull) INVISIBLE else VISIBLE
 
         tvTitle.text = Html.fromHtml(news.title)
         news.date?.let {
             tvDate.text = NewsUtils.getDateString(this, news)
         }
-        author.text = news.author?.name
+        tvAuthor.text = news.author?.name
 
         val categoryText = if (news.categories?.values?.isNotEmpty() == true) news.categories.values.elementAt(0).name else ""
-        category.text = categoryText
+        tvCategory.text = categoryText
         news.image?.let {
-            Glide.with(image)
+            Glide.with(ivImage)
                     .load(news.getFitImage(resources.displayMetrics.widthPixels))
                     .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
-                    .into(image)
+                    .into(ivImage)
         }
     }
 
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this).run {
-            registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
-        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
     }
 
     override fun onPause() {
-        LocalBroadcastManager.getInstance(this).run {
-            unregisterReceiver(updateReceiver)
-        }
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver)
         super.onPause()
     }
 

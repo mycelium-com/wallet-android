@@ -39,6 +39,10 @@ public class News implements Serializable {
     @JsonIgnore
     public boolean isRead = false;
 
+    /**
+     * if news created from push notification (notification contains not full news data, content is cutoff, no date, no author etc)
+     * or in other some way what can't deliver full news data we should mark it isFull = false
+     */
     @JsonIgnore
     public boolean isFull = true;
 
