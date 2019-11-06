@@ -98,8 +98,8 @@
     <PreferenceCategory
         android:layout="@layout/preference_category_layout"
         android:title="@string/currencies">
-        <ListPreference
-            android:dialogTitle="Bitcoin denomination"
+
+        <PreferenceScreen
             android:key="bitcoin_denomination"
             android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/pref_bitcoin_denomination_summary"

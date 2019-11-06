@@ -106,7 +106,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getDenomination()));
+      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(),
+              _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
       tvAmount.setTextColor(color);
 
       // Set alternative value
@@ -122,7 +123,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
-            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getDenomination()));
+            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue,
+                    _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
             tvFiat.setTextColor(color);
          }
       } else {

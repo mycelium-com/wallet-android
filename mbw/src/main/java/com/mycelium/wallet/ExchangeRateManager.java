@@ -144,7 +144,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private class Fetcher implements Runnable {
         public void run() {
             List<String> selectedCurrencies;
-            List<String> cryptocurrencies = MbwManager.getInstance(_applicationContext).getWalletManager(false).getCryptocurrencies();
+            List<String> cryptocurrencies = MbwManager.getInstance(_applicationContext).getWalletManager(false).getCryptocurrenciesSymbols();
 
             synchronized (_requestLock) {
                 selectedCurrencies = new ArrayList<>(_fiatCurrencies);

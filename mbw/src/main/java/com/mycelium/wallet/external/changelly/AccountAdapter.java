@@ -48,7 +48,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
     }
 
     private List<Item> items = new ArrayList<>();
-    private int paddingWidth = 0;
+    private int paddingWidth;
     private MbwManager mbwManager;
     private AccountUseType accountUseType = AccountUseType.IN;
 
@@ -122,7 +122,7 @@ public class AccountAdapter extends SelectableRecyclerView.Adapter<RecyclerView.
 
             Item item = items.get(position);
             viewHolder.categoryTextView.setText(mbwManager.getMetadataStorage().getLabelByAccount(item.account.getId()));
-            Denomination denomination = mbwManager.getDenomination();
+            Denomination denomination = mbwManager.getDenomination(item.account.getCoinType());
             viewHolder.itemTextView.setText(ValueExtensionsKt.toStringWithUnit(item.account.getAccountBalance().confirmed, denomination));
             if (item.account.getReceiveAddress() != null) {
                 viewHolder.valueTextView.setText(item.account.getReceiveAddress().toString());

@@ -91,6 +91,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
@@ -286,7 +287,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         _tcdFiatDisplay.setCoinType(account.getCoinType());
-        updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
+        updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()), account.getCoinType());
 
         TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
 
@@ -314,8 +315,8 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-    private void updateUiKnownBalance(Balance balance) {
-        CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
+    private void updateUiKnownBalance(Balance balance, GenericAssetInfo coinType) {
+        CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
         ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
         // Show alternative values
@@ -323,7 +324,7 @@ public class BalanceFragment extends Fragment {
 
         // Show/Hide Receiving
         if (balance.pendingReceiving.isPositive()) {
-            String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
+            String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination(coinType));
             String receivingText = getResources().getString(R.string.receiving, receivingString);
             TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
             tvReceiving.setText(receivingText);
@@ -336,7 +337,8 @@ public class BalanceFragment extends Fragment {
 
         // Show/Hide Sending
         if (balance.getSendingToForeignAddresses().isPositive()) {
-            String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
+            String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(),
+                    _mbwManager.getDenomination(coinType));
             String sendingText = getResources().getString(R.string.sending, sendingString);
             TextView tvSending = _root.findViewById(R.id.tvSending);
             tvSending.setText(sendingText);

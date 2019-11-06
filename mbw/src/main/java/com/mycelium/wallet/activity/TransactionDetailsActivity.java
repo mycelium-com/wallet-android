@@ -192,7 +192,7 @@ public class TransactionDetailsActivity extends Activity {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
             findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
-            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination());
+            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
             if (tx.getRawSize() > 0) {
                 final long txFeePerSat = txFeeTotal / tx.getRawSize();
                 fee += String.format("\n%d sat/byte", txFeePerSat);
@@ -259,14 +259,15 @@ public class TransactionDetailsActivity extends Activity {
         TextView tv = new TextView(this);
         tv.setLayoutParams(FPWC);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
+        tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
         tv.setTextColor(_white_color);
         tv.setTag(tag);
 
         tv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Utils.setClipboardString(ValueExtensionsKt.toString(value, _mbwManager.getDenomination()), getApplicationContext());
+                Utils.setClipboardString(ValueExtensionsKt.toString(value,
+                        _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())), getApplicationContext());
                 Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
                 return true;
             }

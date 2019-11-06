@@ -217,9 +217,13 @@ constructor(val network: NetworkParameters,
 
     fun getAssetTypes(): List<GenericAssetInfo> = accounts.values.map { it.coinType }.distinct()
 
-    fun getCryptocurrencies(): List<String> = accounts.values.map { it.coinType }.distinct()
+    fun getCryptocurrenciesSymbols(): List<String> = getAssetTypes()
             .filterNot { it is ColuMain }
             .map { it.symbol }
+
+    fun getCryptocurrenciesNames(): List<String> = getAssetTypes()
+            .filterNot { it is ColuMain }
+            .map { it.name }
 
     fun parseAddress(address: String): List<GenericAddress> = walletModules.values
                 .flatMap { it.getSupportedAssets() }

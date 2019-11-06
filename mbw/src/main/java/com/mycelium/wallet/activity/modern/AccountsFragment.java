@@ -112,6 +112,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -473,11 +474,11 @@ public class AccountsFragment extends Fragment {
     private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(accountToDelete.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
@@ -488,8 +489,8 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
+    private String getBalanceString(GenericAssetInfo coinType, Balance balance) {
+        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination(coinType));
     }
 
     /**
@@ -980,11 +981,11 @@ public class AccountsFragment extends Fragment {
     private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(account.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(account.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);

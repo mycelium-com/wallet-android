@@ -65,6 +65,7 @@ public interface Constants {
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    String DEFAULT_CURRENCY = "USD";
    String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+   String DENOMINATION_SETTING = "Denomination";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";

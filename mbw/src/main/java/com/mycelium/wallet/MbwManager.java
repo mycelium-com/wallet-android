@@ -151,7 +151,6 @@ public class MbwManager {
     private static final String PROXY_HOST = "socksProxyHost";
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
-    private static final String LOG_TBC = "tbc";
     private static volatile MbwManager _instance = null;
 
     /**
@@ -307,10 +306,7 @@ public class MbwManager {
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-        Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
-        if (denomination == null) {
-            denomination = Denomination.UNIT;
-        }
+
         StringBuilder defaultCurrencyJson = new StringBuilder("{\"")
                 .append(Utils.getBtcCoinType().getName())
                 .append("\":\"")
@@ -326,7 +322,7 @@ public class MbwManager {
                 new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
                 currentCurrencyMap,
                 currentFiatMap,
-                denomination
+                getDenominationMap(preferences)
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -356,7 +352,9 @@ public class MbwManager {
 
         migrate();
         createTempWalletManager();
-        _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+        if (_walletManager.getAssetTypes().size() != 0) {
+            _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+        }
 
         _versionManager.initBackgroundVersionChecker();
         _blockExplorerManager = new BlockExplorerManager(this,
@@ -365,8 +363,37 @@ public class MbwManager {
                         _environment.getBlockExplorerList().get(0).getIdentifier()));
     }
 
+    private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>() {}.getType();
+        String oldDenomPreference = preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, null);
+        Map<GenericAssetInfo, Denomination> resultMap = new HashMap<>();
+        if (oldDenomPreference != null) {
+            // we haven't migrated Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING yet,
+            // perform migration.
+            getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, null);
+            if (Denomination.fromString(oldDenomPreference) != null) {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.fromString(oldDenomPreference));
+            } else {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
+            }
+        } else {
+            // we're good, i.e. migration Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING
+            // had happen, so continue as usual.
+            String preferenceValue = preferences.getString(Constants.DENOMINATION_SETTING, null);
+            if (preferenceValue == null) {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
+            } else {
+                Map<String, String> preferenceMap = gson.fromJson(preferenceValue, type);
+                for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
+                    resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
+                }
+            }
+        }
+        return resultMap;
+    }
+
     private Map<GenericAssetInfo, GenericAssetInfo> getCurrentCurrenciesMap(String jsonString) {
-        Log.d(LOG_TBC, "Was read from settings: " + jsonString);
         Gson gson = new GsonBuilder().create();
         Type type = new TypeToken<Map<String, String>>(){}.getType();
         Map<GenericAssetInfo, GenericAssetInfo> result = new HashMap<>();
@@ -380,13 +407,11 @@ public class MbwManager {
     }
 
     private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
-        Log.d(LOG_TBC, "CurrentCurrencyMap or CurrentFiatCurrency maps contents: " + currenciesMap.toString());
         Gson gson = new GsonBuilder().create();
         Map<String, String> coinNamesMap = new HashMap<>();
-        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry: currenciesMap.entrySet()) {
+        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry : currenciesMap.entrySet()) {
             coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
         }
-        Log.d(LOG_TBC, "Json to save: " + coinNamesMap);
         return gson.toJson(coinNamesMap);
     }
 
@@ -1082,17 +1107,22 @@ public class MbwManager {
         getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
     }
 
-    public Denomination getDenomination() {
-        return _currencySwitcher.getDenomination();
+    public Denomination getDenomination(GenericAssetInfo coinType) {
+        return _currencySwitcher.getDenomintation(coinType);
     }
 
-    public void setBitcoinDenomination(Denomination denomination) {
-        _currencySwitcher.setDenomination(denomination);
-        getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
+    public void setBitcoinDenomination(GenericAssetInfo coinType, Denomination denomination) {
+        _currencySwitcher.setDenomintation(coinType, denomination);
+        Gson gson = new GsonBuilder().create();
+        Map<String, String> resultMap = new HashMap<>();
+        for (Map.Entry<GenericAssetInfo, Denomination> entry : _currencySwitcher.getDenominationMap().entrySet()) {
+            resultMap.put(entry.getKey().getName(), entry.getValue().toString());
+        }
+        getEditor().putString(Constants.DENOMINATION_SETTING, gson.toJson(resultMap)).apply();
     }
 
     public String getBtcValueString(long satoshis) {
-        return ValueExtensionsKt.toStringWithUnit(Utils.getBtcCoinType().value(satoshis), getDenomination());
+        return ValueExtensionsKt.toStringWithUnit(Utils.getBtcCoinType().value(satoshis), getDenomination(Utils.getBtcCoinType()));
     }
 
     public boolean isKeyManagementLocked() {
@@ -1409,7 +1439,10 @@ public class MbwManager {
     }
 
     @Subscribe
-    public void accountCreated(AccountCreated accountCreated) {
+    public void accountChanged(AccountChanged accountChanged) {
+        // AccountChanged event is posted in both cases: when account is created and when account is deleted
+        // AccountCreated only when account is created. Reacting only on AccountCreated could leave walletCurrencies list
+        // in incorrect state if no accounts of a particular type left after delete event
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
     }
 

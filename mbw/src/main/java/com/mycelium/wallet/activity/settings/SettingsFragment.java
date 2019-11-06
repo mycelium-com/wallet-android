@@ -47,7 +47,6 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.view.Denomination;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
@@ -69,8 +68,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,7 +82,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference _denomination;
+    private PreferenceScreen denominationScreen;
     private Preference _localCurrency;
     private ListPreference _exchangeSource;
     private CheckBoxPreference _ltNotificationSound;
@@ -214,8 +211,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         _mbwManager = MbwManager.getInstance(getActivity().getApplication());
         _ltManager = _mbwManager.getLocalTraderManager();
-        // Bitcoin Denomination
-        _denomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
+        // Denomination
+        denominationScreen = findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
         _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
@@ -384,25 +381,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-        final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
-        String defaultValue = "";
-        for (Denomination value : Denomination.values()) {
-            String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
-            denominationMap.put(key, value);
-            if (value == _mbwManager.getDenomination()) {
-                defaultValue = key;
-            }
-        }
-        _denomination.setDefaultValue(defaultValue);
-        _denomination.setValue(defaultValue);
-        _denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
-        _denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
-        _denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
-                return true;
-            }
+        denominationScreen.setOnPreferenceClickListener(preference -> {
+            getFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                            R.anim.slide_left_in, R.anim.slide_right_out)
+                    .replace(R.id.fragment_container, DenominationFragment.newInstance(denominationScreen.getKey()))
+                    .addToBackStack("bitcoin_denomination")
+                    .commitAllowingStateLoss();
+            return true;
         });
         _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
         _localCurrency.setTitle(localCurrencyTitle());

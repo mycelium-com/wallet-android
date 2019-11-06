@@ -177,7 +177,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    private int getMaxDecimal(GenericAssetInfo assetInfo) {
       if (!(assetInfo instanceof FiatType)) {
-         return assetInfo.getUnitExponent() - _mbwManager.getDenomination().getScale();
+         return assetInfo.getUnitExponent() - _mbwManager.getDenomination(_account.getCoinType()).getScale();
       } else {
          return assetInfo.getUnitExponent();
       }
@@ -225,7 +225,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       String amountString;
       GenericAssetInfo asset;
       if (!Value.isNullOrZero(_amount)) {
-         amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination());
+         amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination(_account.getCoinType()));
          asset = _amount.type;
       } else {
          asset = _amount != null && _amount.getCurrencySymbol() != null ? _amount.type : _account.getCoinType();
@@ -357,7 +357,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             newAmount = _amount.getValueAsBigDecimal();
          } else {
-            int toTargetUnit = _mbwManager.getDenomination().getScale();
+            int toTargetUnit = _mbwManager.getDenomination(_account.getCoinType()).getScale();
             newAmount = _amount.getValueAsBigDecimal().multiply(BigDecimal.TEN.pow(toTargetUnit));
          }
          _numberEntry.setEntry(newAmount, getMaxDecimal(_amount.type));
@@ -371,9 +371,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    }
 
    private void showMaxAmount() {
-      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount, _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()));
+      Value maxSpendable = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _maxSpendableAmount,
+              _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()));
       String maxBalanceString = getResources().getString(R.string.max_btc
-              , ValueExtensionsKt.toStringWithUnit(maxSpendable != null ? maxSpendable : Value.zeroValue(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType())), _mbwManager.getDenomination()));
+              , ValueExtensionsKt.toStringWithUnit(maxSpendable != null ? maxSpendable : Value.zeroValue(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType())),
+                      _mbwManager.getDenomination(_account.getCoinType())));
       tvMaxAmount.setText(maxBalanceString);
    }
 
@@ -416,7 +418,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             _amount = val;
          } else {
-            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
+            _amount = Value.valueOf(val.type, _mbwManager.getDenomination(_account.getCoinType()).getAmount(val.value));
          }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(0);
@@ -452,7 +454,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
             }
          }
          if(convertedAmount != null) {
-            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination()));
+            tvAlternateAmount.setText(ValueExtensionsKt.toStringWithUnit(convertedAmount, _mbwManager.getDenomination(_account.getCoinType())));
          }
       }
    }
