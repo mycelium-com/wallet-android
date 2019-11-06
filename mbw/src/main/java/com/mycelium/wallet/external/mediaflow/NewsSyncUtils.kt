@@ -101,10 +101,10 @@ object NewsSyncUtils {
                     LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
                     notifyAboutMediaFlowTopics(context, listOf(news))
                 }
-                //start sync in random time between 0 - 15 minutes
+                //start sync in random time between 10 - 30 minutes
                 WorkManager.getInstance(context)
                         .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
-                                .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(0), TimeUnit.MINUTES.toMillis(15)), TimeUnit.MILLISECONDS)
+                                .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
                                 .build())
             }
         } catch (e: JSONException) {
