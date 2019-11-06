@@ -15,8 +15,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
 import com.google.firebase.messaging.RemoteMessage
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StartupActivity
+import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
@@ -122,9 +124,7 @@ object NewsSyncUtils {
             val remoteViews = RemoteViews(context.packageName, R.layout.layout_news_notification)
             remoteViews.setTextViewText(R.id.title, Html.fromHtml(news.title))
 
-            val activityIntent = Intent(context, StartupActivity::class.java)
-            activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
-            activityIntent.putExtra(NewsConstants.NEWS, news)
+            val activityIntent = createSingleNewsIntent(context, news)
             val pIntent = PendingIntent.getActivity(context, 0, activityIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
             builder.setContent(remoteViews)
@@ -147,6 +147,14 @@ object NewsSyncUtils {
                     .setGroup(mediaFlowNotificationGroup)
             NotificationManagerCompat.from(context).notify(mediaFlowNotificationId, builder.build())
         }
+    }
+
+    private fun createSingleNewsIntent(context: Context, news: News): Intent {
+        val clazz = if (MbwManager.getInstance(context).isAppInForeground) NewsActivity::class.java else StartupActivity::class.java
+        val activityIntent = Intent(context, clazz)
+        activityIntent.action = NewsUtils.MEDIA_FLOW_ACTION
+        activityIntent.putExtra(NewsConstants.NEWS, news)
+        return activityIntent
     }
 
     private fun createNotificationMediaFlowBuilder(context: Context): NotificationCompat.Builder =
