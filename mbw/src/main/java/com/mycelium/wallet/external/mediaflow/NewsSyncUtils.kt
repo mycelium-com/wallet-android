@@ -96,6 +96,7 @@ object NewsSyncUtils {
                         isFull = false
                     }
                     NewsDatabase.saveNews(listOf(news))
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
                     notifyAboutMediaFlowTopics(context, listOf(news))
                 }
                 //start sync in random time between 0 - 15 minutes
