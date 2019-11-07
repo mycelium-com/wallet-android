@@ -19,7 +19,7 @@
     <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
-    <string name="hd_account">Add HD Account</string>
+    <string name="hd_account">Add Bitcoin HD Account</string>
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
@@ -1307,7 +1307,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="address_gaps">Address gaps: </string>
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
-    <string name="hd_eth_account">Create ETH account</string>
+    <string name="hd_eth_account">Add Ethereum account</string>
     <string name="connection_logs">Connection Logs</string>
     <string name="fio_requires_hd_account">Currently you can only link HD accounts to FIO labels. Please switch to another account.</string>
     <string name="confirm_fio_link">Do you want to register a FIO address for your HD account %1$s?</string>
