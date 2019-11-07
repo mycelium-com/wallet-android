@@ -102,7 +102,7 @@ object NewsDatabase {
                 insertOrReplaceNews.bindLong(4, it.date?.time ?: 0)
                 insertOrReplaceNews.bindString(5, it.author?.name ?: "")
                 insertOrReplaceNews.bindString(6, it.link ?: "")
-                insertOrReplaceNews.bindString(7, it.categories?.values?.first()?.name ?: "")
+                insertOrReplaceNews.bindString(7, it.categories?.values?.firstOrNull()?.name ?: "")
                 insertOrReplaceNews.bindString(8, it.image ?: "")
                 insertOrReplaceNews.bindString(9, it.excerpt ?: "")
                 insertOrReplaceNews.bindLong(10, if (it.isFull) 1 else 0)
