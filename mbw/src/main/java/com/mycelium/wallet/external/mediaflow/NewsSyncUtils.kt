@@ -24,12 +24,15 @@ import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 object NewsSyncUtils {
     private const val MEDIA_OPERATION = "operation"
     private const val OPERATION_DELETE = "delete"
+    private const val OPERATION_PUBLISH = "publish"
+    private const val OPERATION_UPDATE = "update"
     private const val WORK_NAME_PERIODIC = "mediaflow-sync-periodic"
     const val WORK_NAME_ONCE = "mediaflow-sync-once"
     private const val DATA_KEY = "data"
@@ -87,26 +90,44 @@ object NewsSyncUtils {
         try {
             val dataObject = JSONObject(data)
             val operation = dataObject.getString(MEDIA_OPERATION)
-            if (OPERATION_DELETE.equals(operation, ignoreCase = true) && dataObject.has(ID)) {
-                delete(context, dataObject.getString(ID))
-            } else {
-                if (dataObject.has(TITLE)) {
-                    val news = News().apply {
-                        id = dataObject.getInt(ID)
-                        title = dataObject.getString(TITLE)
-                        image = dataObject.getString(IMAGE)
-                        content = dataObject.getString(MSG)
-                        isFull = false
+            if (dataObject.has(ID)) {
+                when (operation.toLowerCase(Locale.ROOT)) {
+                    OPERATION_DELETE -> delete(context, dataObject.getString(ID))
+                    OPERATION_PUBLISH -> {
+                        if (dataObject.has(TITLE)) {
+                            val news = News().apply {
+                                id = dataObject.getInt(ID)
+                                title = dataObject.getString(TITLE)
+                                image = dataObject.getString(IMAGE)
+                                content = dataObject.getString(MSG)
+                                isFull = false
+                            }
+                            NewsDatabase.saveNews(listOf(news))
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
+                            notifyAboutMediaFlowTopics(context, listOf(news))
+                        }
+                        //start sync in random time between 10 - 30 minutes
+                        WorkManager.getInstance(context)
+                                .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
+                                        .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
+                                        .build())
                     }
-                    NewsDatabase.saveNews(listOf(news))
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
-                    notifyAboutMediaFlowTopics(context, listOf(news))
+                    OPERATION_UPDATE -> {
+                        val topic = NewsDatabase.getTopic(dataObject.getInt(ID))
+                        if (topic != null) {
+                            topic.isFull = false // topic need sync
+                            topic.title = dataObject.getString(TITLE)
+                            topic.image = dataObject.getString(IMAGE)
+                            NewsDatabase.saveNews(listOf(topic))
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
+                        }
+                        //start sync in random time between 10 - 30 minutes
+                        WorkManager.getInstance(context)
+                                .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
+                                        .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
+                                        .build())
+                    }
                 }
-                //start sync in random time between 10 - 30 minutes
-                WorkManager.getInstance(context)
-                        .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
-                                .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
-                                .build())
             }
         } catch (e: JSONException) {
             Log.e("NewsSync", "json data wrong", e)
