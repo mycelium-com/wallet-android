@@ -20,7 +20,7 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/image"
+                android:id="@+id/ivImage"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_margin="1dp"
@@ -62,7 +62,7 @@
             android:paddingBottom="7dp">
 
             <TextView
-                android:id="@+id/author"
+                android:id="@+id/tvAuthor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"

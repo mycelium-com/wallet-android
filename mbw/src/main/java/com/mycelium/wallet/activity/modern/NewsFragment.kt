@@ -4,7 +4,6 @@ import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
 import android.os.AsyncTask
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +14,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
@@ -131,7 +132,8 @@ class NewsFragment : Fragment() {
             }
         })
         retry.setOnClickListener {
-            NewsSyncUtils.startNewsSyncService(requireContext())
+            WorkManager.getInstance(requireContext())
+                    .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()

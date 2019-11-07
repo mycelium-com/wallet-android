@@ -27,8 +27,8 @@ object NewsDatabase {
         val helper = NewsSQLiteHelper(context)
         database = helper.writableDatabase
 
-        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt)" +
-                " VALUES (?,?,?,?,?,?,?,?,?)")
+        insertOrReplaceNews = database.compileStatement("INSERT OR REPLACE INTO $NEWS(id,title,content,date,author,short_URL,category,image,excerpt,isfull)" +
+                " VALUES (?,?,?,?,?,?,?,?,?,?)")
         readNews = database.compileStatement("UPDATE $NEWS SET read = ? WHERE id = ?")
     }
 
@@ -47,7 +47,7 @@ object NewsDatabase {
         builder.tables = NEWS
 
         val cursor = builder.query(database
-                , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt")
+                , arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt", "isfull")
                 , where.toString(), null, null, null, "date desc"
                 , if (limit != -1) "$offset,$limit" else null)
         val result = mutableListOf<News>()
@@ -64,6 +64,7 @@ object NewsDatabase {
             news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
             news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
             news.categories = mapOf<String, Category>(category to Category(category))
+            news.isFull = cursor.getInt(cursor.getColumnIndex("isfull")) != 0
             result.add(news)
         }
         cursor.close()
@@ -97,13 +98,14 @@ object NewsDatabase {
                 insertOrReplaceNews.clearBindings()
                 insertOrReplaceNews.bindLong(1, it.id.toLong())
                 insertOrReplaceNews.bindString(2, it.title)
-                insertOrReplaceNews.bindString(3, it.content)
-                insertOrReplaceNews.bindLong(4, it.date.time)
-                insertOrReplaceNews.bindString(5, it.author.name)
-                insertOrReplaceNews.bindString(6, it.link)
-                insertOrReplaceNews.bindString(7, it.categories.values.first().name)
-                insertOrReplaceNews.bindString(8, it.image)
-                insertOrReplaceNews.bindString(9, it.excerpt)
+                insertOrReplaceNews.bindString(3, it.content ?: "")
+                insertOrReplaceNews.bindLong(4, it.date?.time ?: 0)
+                insertOrReplaceNews.bindString(5, it.author?.name ?: "")
+                insertOrReplaceNews.bindString(6, it.link ?: "")
+                insertOrReplaceNews.bindString(7, it.categories?.values?.firstOrNull()?.name ?: "")
+                insertOrReplaceNews.bindString(8, it.image ?: "")
+                insertOrReplaceNews.bindString(9, it.excerpt ?: "")
+                insertOrReplaceNews.bindLong(10, if (it.isFull) 1 else 0)
                 insertOrReplaceNews.executeInsert()
 
                 result[it] = if (isExists) SqlState.UPDATED else SqlState.INSERTED
@@ -150,5 +152,31 @@ object NewsDatabase {
 
     fun delete(id: String) {
         database.delete(NEWS, "id=?", arrayOf(id))
+    }
+
+    fun getTopic(id: Int): News? {
+        val cursor = database.query(NEWS,
+                arrayOf("id", "title", "content", "date", "author", "short_URL", "image", "category", "categories", "read", "excerpt", "isfull"),
+                "id=?", arrayOf(id.toString()), null, null, null)
+        var result: News? = null
+        if (cursor.moveToFirst()) {
+            val news = News()
+            news.id = cursor.getInt(cursor.getColumnIndex("id"))
+            news.title = cursor.getString(cursor.getColumnIndex("title"))
+            news.content = cursor.getString(cursor.getColumnIndex("content"))
+            news.date = Date(cursor.getLong(cursor.getColumnIndex("date")))
+            news.author = Author(cursor.getString(cursor.getColumnIndex("author")))
+            news.image = cursor.getString(cursor.getColumnIndex("image"))
+            news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
+            val category = cursor.getString(cursor.getColumnIndex("category"))
+            news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
+            news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
+            news.categories = mapOf<String, Category>(category to Category(category))
+            news.isFull = cursor.getInt(cursor.getColumnIndex("isfull")) != 0
+            result = news
+        }
+        cursor.close()
+        return result
+
     }
 }

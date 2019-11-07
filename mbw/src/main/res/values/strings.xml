@@ -1310,8 +1310,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="united_states">United States</string>
     <string name="australia">Australia/New Zealand</string>
     <string name="share">Share</string>
-    <string name="explorer_topics">Explorer topics</string>
-    <string name="search_topics_and_articles">Search topics and articles</string>
     <string name="other_news">Other news</string>
     <string name="discover">Discover</string>
     <plurals name="account_label">
@@ -1325,10 +1323,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <plurals name="new_accounts_created">
         <item quantity="one">%d new account created</item>
         <item quantity="other">%d new accounts created</item>
-    </plurals>
-    <plurals name="media_flow_new_topic">
-        <item quantity="one">one new topic</item>
-        <item quantity="other">%d new topics</item>
     </plurals>
     <string name="check_gap_bug_spannable_string">Sorry to interrupt you… \n \nWe discovered a bug in the account logic that will make problems if you someday need to restore from your 12 word backup.\n\nFor further information see here: https://wallet.mycelium.com/info/gaps \n\nMay we try to resolve it for you? Press OK, to share one address per affected account with us.</string>
     <string name="account_gap">Account Gap</string>
@@ -1354,5 +1348,4 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
     <string name="retry">RETRY</string>
     <string name="notifications_summary">Media Flow</string>
-    <string name="synchronization">Updating…</string>
 </resources>

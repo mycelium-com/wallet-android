@@ -182,7 +182,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0 && isBackground) {
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-                mbwManager.getWapi().setAppInForeground(true);
+                mbwManager.setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
                 boolean connected = Utils.isConnected(getApplicationContext());
@@ -208,7 +208,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
                 isBackground = true;
             }
         }

@@ -12,7 +12,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.news.adapter.holder.NewsV2DoubleHolder
 import com.mycelium.wallet.external.mediaflow.model.News
-import kotlinx.android.synthetic.main.item_mediaflow_news_v2_list.view.*
+import kotlinx.android.synthetic.main.item_all_news_search.view.*
 
 
 class NewsV2ListHolder(val preferences: SharedPreferences, itemView: View) : RecyclerView.ViewHolder(itemView) {
