@@ -28,18 +28,19 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 object NewsSyncUtils {
-    private val MEDIA_OPERATION = "operation"
-    private val OPERATION_DELETE = "delete"
-    private val WORK_NAME_PERIODIC = "mediaflow-sync-periodic"
-    val WORK_NAME_ONCE = "mediaflow-sync-once"
+    private const val MEDIA_OPERATION = "operation"
+    private const val OPERATION_DELETE = "delete"
+    private const val WORK_NAME_PERIODIC = "mediaflow-sync-periodic"
+    const val WORK_NAME_ONCE = "mediaflow-sync-once"
+    private const val DATA_KEY = "data"
 
-    val ID = "id"
-    val TITLE = "title"
-    val IMAGE = "image"
-    val MSG = "message"
+    private const val ID = "id"
+    private const val TITLE = "title"
+    private const val IMAGE = "image"
+    private const val MSG = "message"
 
-    const val mediaFlowNotificationId = 34563487
-    const val mediaFlowNotificationGroup = "Media Flow"
+    private const val mediaFlowNotificationId = 34563487
+    private const val mediaFlowNotificationGroup = "Media Flow"
 
     @JvmStatic
     fun startNewsUpdateRepeating(context: Context) {
@@ -82,7 +83,7 @@ object NewsSyncUtils {
 
     @JvmStatic
     fun handle(context: Context, remoteMessage: RemoteMessage) {
-        val data = remoteMessage.data["data"]
+        val data = remoteMessage.data[DATA_KEY]
         try {
             val dataObject = JSONObject(data)
             val operation = dataObject.getString(MEDIA_OPERATION)

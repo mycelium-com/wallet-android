@@ -822,7 +822,7 @@ public class MbwManager {
     }
 
     public void setAppInForeground(boolean appInForeground) {
-        getWapi().setAppInForeground(false);
+        getWapi().setAppInForeground(appInForeground);
         this.appInForeground = appInForeground;
     }
 
