@@ -29,6 +29,11 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 object NewsSyncUtils {
+    // Start of sync time interval
+    private const val START_SYNC_TIME_INTERVAL_MINS = 10L
+    // End of sync time interval
+    private const val END_SYNC_TIME_INTERVAL_MINS = 30L
+
     private const val MEDIA_OPERATION = "operation"
     private const val OPERATION_DELETE = "delete"
     private const val OPERATION_PUBLISH = "publish"
@@ -106,11 +111,9 @@ object NewsSyncUtils {
                             LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
                             notifyAboutMediaFlowTopics(context, listOf(news))
                         }
-                        //start sync in random time between 10 - 30 minutes
-                        WorkManager.getInstance(context)
-                                .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
-                                        .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
-                                        .build())
+
+                        // Start sync in random time
+                        scheduleSyncStart(context)
                     }
                     OPERATION_UPDATE -> {
                         val topic = NewsDatabase.getTopic(dataObject.getInt(ID))
@@ -121,11 +124,9 @@ object NewsSyncUtils {
                             NewsDatabase.saveNews(listOf(topic))
                             LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
                         }
-                        //start sync in random time between 10 - 30 minutes
-                        WorkManager.getInstance(context)
-                                .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
-                                        .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(30)), TimeUnit.MILLISECONDS)
-                                        .build())
+
+                        // Start sync in random time
+                        scheduleSyncStart(context)
                     }
                 }
             }
@@ -133,6 +134,14 @@ object NewsSyncUtils {
             Log.e("NewsSync", "json data wrong", e)
         }
 
+    }
+
+    // Schedules sync start in random time between START_SYNC_TIME_INTERVAL_MINS and END_SYNC_TIME_INTERVAL_MINS
+    private fun scheduleSyncStart(context: Context) {
+        WorkManager.getInstance(context)
+                .enqueueUniqueWork(WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE, OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java)
+                        .setInitialDelay(Random.nextLong(TimeUnit.MINUTES.toMillis(START_SYNC_TIME_INTERVAL_MINS), TimeUnit.MINUTES.toMillis(END_SYNC_TIME_INTERVAL_MINS)), TimeUnit.MILLISECONDS)
+                        .build())
     }
 
     fun notifyAboutMediaFlowTopics(context: Context, newTopics: List<News>) {
