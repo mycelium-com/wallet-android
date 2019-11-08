@@ -663,17 +663,14 @@ public class TransactionHistoryFragment extends Fragment {
                   txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
                }
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
-               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                  @Override
-                  public void onClick(DialogInterface dialog, int which) {
-                     CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
-                     BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
-                     Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
-                     startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
-                     dialog.dismiss();
-                     finishActionMode();
-                  }
-               });
+               alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
+                  CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
+                  BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
+                  Intent intent = SignTransactionActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
+                  startActivityForResult(intent, SIGN_TRANSACTION_REQUEST_CODE);
+                  dialog.dismiss();
+                  finishActionMode();
+               }));
                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
             } else {
                alertDialog.dismiss();

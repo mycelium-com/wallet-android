@@ -122,10 +122,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         viewModel.updateClipboardUri()
-        if (viewModel.activityResultDialog != null) {
-            viewModel.activityResultDialog!!.show(supportFragmentManager, "ActivityResultDialog")
-            viewModel.activityResultDialog = null
-        }
+        viewModel.activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
+        viewModel.activityResultDialog = null
     }
 
     private fun chooseSpendingAccount(rawPaymentRequest: ByteArray?) {

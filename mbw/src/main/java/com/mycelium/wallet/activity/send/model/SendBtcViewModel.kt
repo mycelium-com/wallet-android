@@ -144,7 +144,7 @@ fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: Mu
             addressesList.add(AddressItem(address,
                     btcAddressLabels[1],
                     btcAddressLabels[0],
-                    SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM))
+                    SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM))
         }
 
         val displaySize = Point()

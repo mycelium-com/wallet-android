@@ -14,7 +14,7 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wapi.wallet.AddressUtils
 
 class AddressViewAdapter(private val dataSet: List<AddressItem>, private val paddingWidth: Int)
-    : SelectableRecyclerView.Adapter<AddressViewAdapter.ViewHolder>() {
+    : SelectableRecyclerView.SRVAdapter<AddressViewAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         if (viewType == VIEW_TYPE_ITEM) {
             // create a new view

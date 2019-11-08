@@ -90,9 +90,6 @@ import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wallet.event.MigrationStatusChanged;
 import com.mycelium.wallet.event.MigrationPercentChanged;
-import com.mycelium.wallet.external.mediaflow.NewsConstants;
-import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.*;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -202,7 +199,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
          }
 
          // in case the masterSeed was created but account does not exist yet (rotation problem)
-         if (_mbwManager.getWalletManager(false).getActiveAccounts().size() == 0) {
+         if (_mbwManager.getWalletManager(false).getActiveSpendingAccounts().isEmpty()) {
             new AccountCreatorHelper.CreateAccountAsyncTask(StartupActivity.this, StartupActivity.this).execute();
             return;
          }

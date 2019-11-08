@@ -1800,7 +1800,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       byteBuffer.put(nonce); // nonce
 
-      ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
+      ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(byteBuffer.array());
       return new TransactionOutput(0L, scriptOutput);
    }
 

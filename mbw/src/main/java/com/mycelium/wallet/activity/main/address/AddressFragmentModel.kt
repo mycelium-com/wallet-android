@@ -4,21 +4,21 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import android.text.Html
 import android.text.Spanned
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wapi.wallet.WalletAccount
-import com.mycelium.wapi.wallet.btc.WalletBtcAccount
-
+import asStringRes
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ReceivingAddressChanged
 import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.SyncMode
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount
+import com.mycelium.wapi.wallet.btc.WalletBtcAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.squareup.otto.Subscribe
-import asStringRes
 
 class AddressFragmentModel(
         val context: Application,
@@ -94,6 +94,10 @@ class AddressFragmentModel(
         account = mbwManager.selectedAccount
         updateLabel()
         onAddressChange()
+        mbwManager.getWalletManager(false).run {
+            startSynchronization(
+                    SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account) ?: return@run))
+        }
     }
 
     fun onAddressChange() {

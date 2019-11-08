@@ -670,10 +670,7 @@ public class MbwManager {
         walletManager.setWalletListener(new SyncEventsListener());
 
         // notify the walletManager about the current selected account
-        UUID lastSelectedAccountId = getLastSelectedAccountId();
-        if (lastSelectedAccountId != null) {
-            walletManager.setActiveAccount(lastSelectedAccountId);
-        }
+        walletManager.startSynchronization(getLastSelectedAccountId());
 
         NetworkParameters networkParameters = environment.getNetwork();
         PublicPrivateKeyStore publicPrivateKeyStore = new PublicPrivateKeyStore(secureKeyValueStore);
@@ -1232,14 +1229,15 @@ public class MbwManager {
         } else {
             throw new IllegalArgumentException("Not implemented");
         }
-        _tempWalletManager.setActiveAccount(accountId);  // this also starts a sync
+        _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
+        _tempWalletManager.startSynchronization(accountId);
         return accountId;
     }
 
     public UUID createOnTheFlyAccount(InMemoryPrivateKey privateKey) {
         UUID accountId = _tempWalletManager.createAccounts(new PrivateSingleConfig(privateKey, AesKeyCipher.defaultKeyCipher())).get(0);
         _tempWalletManager.getAccount(accountId).setAllowZeroConfSpending(true);
-        _tempWalletManager.setActiveAccount(accountId); // this also starts a sync
+        _tempWalletManager.startSynchronization(accountId);
         return accountId;
     }
 
@@ -1254,7 +1252,7 @@ public class MbwManager {
         if (uuid != null && _walletManager.hasAccount(uuid) && _walletManager.getAccount(uuid).isActive()) {
             return _walletManager.getAccount(uuid);
         } else if (uuid == null || !_walletManager.hasAccount(uuid) || _walletManager.getAccount(uuid).isArchived()) {
-            uuid = _walletManager.getAccounts().get(0).getId();
+            uuid = _walletManager.getAllActiveAccounts().get(0).getId();
             setSelectedAccount(uuid);
         }
 
@@ -1300,8 +1298,7 @@ public class MbwManager {
         getEventBus().post(new SelectedAccountChanged(uuid));
         GenericAddress receivingAddress = account.getReceiveAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
-        // notify the wallet manager that this is the active account now
-        _walletManager.setActiveAccount(account.getId());
+        _walletManager.startSynchronization(account.getId());
     }
 
     public InMemoryPrivateKey obtainPrivateKeyForAccount(WalletAccount account, String website, KeyCipher cipher) {

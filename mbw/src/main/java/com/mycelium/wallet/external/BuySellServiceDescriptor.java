@@ -1,10 +1,11 @@
 package com.mycelium.wallet.external;
 
 import android.app.Activity;
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -30,9 +31,9 @@ abstract public class BuySellServiceDescriptor {
       this.icon = icon;
    }
 
-   public Drawable getIcon(Resources resources){
-      return resources.getDrawable(icon);
-   };
+   public Drawable getIcon(Context resources){
+      return AppCompatResources.getDrawable(resources, icon);
+   }
 
    public boolean showEnableInSettings() { return true; }
 
