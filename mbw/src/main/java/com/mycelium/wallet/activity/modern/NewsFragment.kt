@@ -229,6 +229,7 @@ class NewsFragment : Fragment() {
                         tabs.addTab(tab)
                     }
                 }
+                cleanTabs(list, tabs)
                 unable_to_load.visibility = GONE
                 media_flow_loading.visibility = GONE
             } else {
@@ -303,5 +304,13 @@ class NewsFragment : Fragment() {
             }
         }
         return null
+    }
+
+    private fun cleanTabs(list: MutableList<Category>, tabLayout: TabLayout) {
+        for (i in tabLayout.tabCount - 1 downTo 0) {
+            if (!list.contains(tabLayout.getTabAt(i)?.tag)) {
+                tabLayout.removeTab(tabLayout.getTabAt(i)!!)
+            }
+        }
     }
 }
