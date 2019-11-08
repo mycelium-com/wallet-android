@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
 import android.database.sqlite.SQLiteStatement
 import android.util.Log
+import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsSQLiteHelper.NEWS
 import com.mycelium.wallet.external.mediaflow.model.Author
 import com.mycelium.wallet.external.mediaflow.model.Category
@@ -102,7 +103,7 @@ object NewsDatabase {
                 insertOrReplaceNews.bindLong(4, it.date?.time ?: 0)
                 insertOrReplaceNews.bindString(5, it.author?.name ?: "")
                 insertOrReplaceNews.bindString(6, it.link ?: "")
-                insertOrReplaceNews.bindString(7, it.categories?.values?.firstOrNull()?.name ?: "")
+                insertOrReplaceNews.bindString(7, it.categories?.values?.firstOrNull()?.name ?: NewsUtils.NEWS_CATEGORY)
                 insertOrReplaceNews.bindString(8, it.image ?: "")
                 insertOrReplaceNews.bindString(9, it.excerpt ?: "")
                 insertOrReplaceNews.bindLong(10, if (it.isFull) 1 else 0)
