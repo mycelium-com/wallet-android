@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.2.0.0" versioncode="3020000">
+        <change>New buy/sell BTC option via SEPA</change>
+        <change>FIO address presale</change>
+        <change>Media Flow — Mycelium news feed</change>
+    </release>
     <release version="3.0.0.0" versioncode="3000000">
         <change>Multi Currency Support</change>
     </release>

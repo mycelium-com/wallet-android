@@ -9,9 +9,9 @@ dependencies {
     implementation project(includePrefix +':bitlib')
     implementation project(includePrefix +':mbwlib')
 
-    implementation guavaArtifact
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    implementation "com.google.guava:guava:$rootProject.guavaVersion"
+    implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     testImplementation "junit:junit:$junitVersion"
 }

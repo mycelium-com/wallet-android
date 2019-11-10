@@ -6,7 +6,6 @@ package com.mycelium.wallet.activity.send.helper;
  */
 
 public class ExponentialLowPrioAlgorithm implements FeeItemsAlgorithm {
-    private long minValue;
     private int minPosition;
     private int maxPosition;
     private ExponentialFeeItemsAlgorithm algorithm;

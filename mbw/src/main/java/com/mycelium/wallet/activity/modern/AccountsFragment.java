@@ -34,19 +34,16 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
@@ -54,7 +51,6 @@ import androidx.appcompat.view.ActionMode.Callback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,9 +60,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.EditText;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -383,7 +377,7 @@ public class AccountsFragment extends Fragment {
                                         } else {
                                             _storage.deleteAccountMetadata(accountToDelete.getId());
                                             _toaster.toast("Deleting account.", false);
-                                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                            _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                                         }
                                     } catch (Exception e) {
                                         // make a message !
@@ -399,7 +393,7 @@ public class AccountsFragment extends Fragment {
                                     }
                                     walletManager.deleteAccount(accountToDelete.getId());
                                     _storage.deleteAccountMetadata(accountToDelete.getId());
-                                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                                     _toaster.toast(R.string.account_deleted, false);
                                 }
                             }
@@ -489,7 +483,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.confirmed, _mbwManager.getDenomination());
+        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
     }
 
     /**
@@ -782,12 +776,7 @@ public class AccountsFragment extends Fragment {
             return;
         }
         if (askForPin) {
-            runPinProtected(new Runnable() {
-                @Override
-                public void run() {
-                    EnterAddressLabelUtil.enterAccountLabel(requireActivity(), account.getId(), defaultName, _storage);
-                }
-            });
+            runPinProtected(() -> EnterAddressLabelUtil.enterAccountLabel(requireActivity(), account.getId(), defaultName, _storage));
         } else {
             EnterAddressLabelUtil.enterAccountLabel(requireActivity(), account.getId(), defaultName, _storage);
         }
@@ -802,12 +791,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                deleteAccount(account);
-            }
-        });
+        runPinProtected(() -> deleteAccount(account));
     }
 
     private void rescan() {
@@ -822,12 +806,7 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                Utils.exportSelectedAccount(getActivity());
-            }
-        });
+        runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
     }
 
     private void detachFromLocalTrader() {
@@ -857,12 +836,7 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                activate(requireFocusedAccount());
-            }
-        });
+        runPinProtected(() -> activate(requireFocusedAccount()));
     }
 
     private void activate(WalletAccount account) {
@@ -896,12 +870,7 @@ public class AccountsFragment extends Fragment {
                 return;
             }
         }
-        runPinProtected(new Runnable() {
-            @Override
-            public void run() {
-                archive(account);
-            }
-        });
+        runPinProtected(() -> archive(account));
     }
 
     /**
@@ -943,7 +912,7 @@ public class AccountsFragment extends Fragment {
                     // in case user had labeled the account, delete the stored name
                     _storage.deleteAccountMetadata(hdAccount.getId());
                     eventBus.post(new AccountChanged(hdAccount.getId()));
-                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                    _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                     //we dont want to show the context menu for the automatically selected account
                     accountListAdapter.setFocusedAccountId(null);
                     finishCurrentActionMode();
@@ -964,7 +933,7 @@ public class AccountsFragment extends Fragment {
                         if (linkedAccount != null) {
                             linkedAccount.archiveAccount();
                         }
-                        _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveAccounts().get(0).getId());
+                        _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                         eventBus.post(new AccountChanged(account.getId()));
                         if (linkedAccount != null) {
                             eventBus.post(new AccountChanged(linkedAccount.getId()));

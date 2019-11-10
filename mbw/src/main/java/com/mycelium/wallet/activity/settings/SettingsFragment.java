@@ -12,19 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceScreen;
-import androidx.preference.PreferenceViewHolder;
-import androidx.appcompat.widget.AppCompatEditText;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -39,7 +26,21 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.SearchView;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.PreferenceViewHolder;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.ledger.tbase.comm.LedgerTransportTEEProxyFactory;
@@ -77,7 +78,11 @@ import java.util.Locale;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.mycelium.wallet.MinerFee.*;
+import static com.mycelium.wallet.MinerFee.ECONOMIC;
+import static com.mycelium.wallet.MinerFee.LOWPRIO;
+import static com.mycelium.wallet.MinerFee.NORMAL;
+import static com.mycelium.wallet.MinerFee.PRIORITY;
+import static com.mycelium.wallet.MinerFee.fromString;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final int REQUEST_CODE_UNINSTALL = 1;
@@ -85,15 +90,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference _denomination;
-    private Preference _localCurrency;
-    private ListPreference _exchangeSource;
-    private CheckBoxPreference _ltNotificationSound;
-    private CheckBoxPreference _ltMilesKilometers;
-    private MbwManager _mbwManager;
-    private LocalTraderManager _ltManager;
-    private ListPreference _minerFee;
-    private ListPreference _blockExplorer;
+    private ListPreference denomination;
+    private Preference localCurrency;
+    private ListPreference exchangeSource;
+    private CheckBoxPreference ltNotificationSound;
+    private CheckBoxPreference ltMilesKilometers;
+    private MbwManager mbwManager;
+    private LocalTraderManager ltManager;
+    private ListPreference minerFee;
+    private ListPreference blockExplorer;
     private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
@@ -115,9 +120,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private PreferenceScreen pinPreferenceScreen;
     private List<Preference> pinPrefs = new ArrayList<>();
 
-    // lists to manipulate with search
-    private List<Preference> rootPreferenceList = new ArrayList<>();
-    private List<Preference> foundPrefList = new ArrayList<>();
+    private ProgressDialog pleaseWait;
+
+    private boolean isSearchViewOpen = false;
 
     private final Preference.OnPreferenceClickListener localCurrencyClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
@@ -129,7 +134,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener ltDisableLocalTraderClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _ltManager.setLocalTraderEnabled(p.isChecked());
+            ltManager.setLocalTraderEnabled(p.isChecked());
             applyLocalTraderEnablement();
             return true;
         }
@@ -137,7 +142,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener ltNotificationSoundClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _ltManager.setPlaySoundOnTradeNotification(p.isChecked());
+            ltManager.setPlaySoundOnTradeNotification(p.isChecked());
             return true;
         }
     };
@@ -145,7 +150,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener showBip44PathClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _mbwManager.getMetadataStorage().setShowBip44Path(p.isChecked());
+            mbwManager.getMetadataStorage().setShowBip44Path(p.isChecked());
             return true;
         }
     };
@@ -153,7 +158,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener ltMilesKilometersClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _ltManager.setUseMiles(p.isChecked());
+            ltManager.setUseMiles(p.isChecked());
             return true;
         }
     };
@@ -161,14 +166,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private final Preference.OnPreferenceClickListener onClickLedgerNotificationDisableTee = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
             CheckBoxPreference p = (CheckBoxPreference) preference;
-            _mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
+            mbwManager.getLedgerManager().setDisableTEE(p.isChecked());
             return true;
         }
     };
 
     private final Preference.OnPreferenceClickListener segwitChangeAddressClickListener = new Preference.OnPreferenceClickListener() {
         public boolean onPreferenceClick(Preference preference) {
-            SetSegwitChangeActivity.callMe(getActivity());
+            SetSegwitChangeActivity.callMe(requireActivity());
             return true;
         }
     };
@@ -177,7 +182,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         private EditText aidEdit;
 
         public boolean onPreferenceClick(Preference preference) {
-            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog_Small);
+            AlertDialog.Builder b = new AlertDialog.Builder(requireActivity(), R.style.MyceliumSettings_Dialog_Small);
             b.setTitle(getString(R.string.ledger_set_unplugged_aid_title));
             b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
@@ -192,7 +197,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     if (aidBinary == null) {
                         Utils.showSimpleMessageDialog(getActivity(), getString(R.string.ledger_check_unplugged_aid));
                     } else {
-                        _mbwManager.getLedgerManager().setUnpluggedAID(aid);
+                        mbwManager.getLedgerManager().setUnpluggedAID(aid);
                     }
                 }
             });
@@ -200,7 +205,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_ledger_aid, null);
             aidEdit = view.findViewById(R.id.edit_text);
             aidEdit.setInputType(InputType.TYPE_CLASS_TEXT);
-            aidEdit.setText(_mbwManager.getLedgerManager().getUnpluggedAID());
+            aidEdit.setText(mbwManager.getLedgerManager().getUnpluggedAID());
             b.setView(view);
             b.show();
             return true;
@@ -212,66 +217,60 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.preferences);
         setHasOptionsMenu(true);
 
-        _mbwManager = MbwManager.getInstance(getActivity().getApplication());
-        _ltManager = _mbwManager.getLocalTraderManager();
+        mbwManager = MbwManager.getInstance(requireActivity().getApplication());
+        ltManager = mbwManager.getLocalTraderManager();
+        displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
+        assignPreferences();
+    }
+
+    private void assignPreferences() {
         // Bitcoin Denomination
-        _denomination = (ListPreference) findPreference(Constants.SETTING_DENOMINATION);
+        denomination = findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
-        _minerFee = (ListPreference) findPreference(Constants.SETTING_MINER_FEE);
+        minerFee = findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
-        _blockExplorer = (ListPreference) findPreference("block_explorer");
+        blockExplorer = findPreference("block_explorer");
         // Transaction change address type
         changeAddressType = findPreference("change_type");
         //localcurrency
-        _localCurrency = findPreference("local_currency");
+        localCurrency = findPreference("local_currency");
         // Exchange Source
-        _exchangeSource = (ListPreference) findPreference("exchange_source");
-        language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
+        exchangeSource = findPreference("exchange_source");
+        language = findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
         // Socks Proxy
-        useTor = (CheckBoxPreference) Preconditions.checkNotNull(findPreference(Constants.SETTING_TOR));
-        showBip44Path = (CheckBoxPreference) findPreference("showBip44Path");
-        ledgerDisableTee = (CheckBoxPreference) findPreference("ledgerDisableTee");
+        useTor = findPreference(Constants.SETTING_TOR);
+        showBip44Path = findPreference("showBip44Path");
+        ledgerDisableTee = findPreference("ledgerDisableTee");
         ledgerSetUnpluggedAID = findPreference("ledgerUnpluggedAID");
         // external Services
-        localTraderDisable = (CheckBoxPreference) findPreference("ltDisable");
+        localTraderDisable = findPreference("ltDisable");
         externalPreference = findPreference("external_services");
         versionPreference = findPreference("updates");
-        _ltNotificationSound = (CheckBoxPreference) findPreference("ltNotificationSound");
-        _ltMilesKilometers = (CheckBoxPreference) findPreference("ltMilesKilometers");
-        ledger = (PreferenceCategory) findPreference("ledger");
+        ltNotificationSound = findPreference("ltNotificationSound");
+        ltMilesKilometers = findPreference("ltMilesKilometers");
+        ledger = findPreference("ledger");
         ltNotificationEmail = findPreference("ltNotificationEmail2");
-        localTraderPrefs = (PreferenceCategory) findPreference("localtraderPrefs");
-
-        displayPreferenceDialogHandler = new DisplayPreferenceDialogHandler(getActivity());
+        localTraderPrefs = findPreference("localtraderPrefs");
 
         // sub screens and sub prefs
-        backupPreferenceScreen = (PreferenceScreen) findPreference("backup");
-        createSubPreferences(backupPreferenceScreen, backupPrefs);
-        pinPreferenceScreen = (PreferenceScreen) findPreference("pincode");
-        createSubPreferences(pinPreferenceScreen, pinPrefs);
-
-
-        // adding prefs for search
-        rootPreferenceList.clear();
-        foundPrefList.clear();
-        for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); i++) {
-            rootPreferenceList.add(getPreferenceScreen().getPreference(i));
-            foundPrefList.add(getPreferenceScreen().getPreference(i));
+        backupPreferenceScreen = findPreference("backup");
+        if (backupPreferenceScreen != null) {
+            backupPrefs.clear();
+            createSubPreferences(backupPreferenceScreen, backupPrefs);
         }
-        // adding hidden prefs
-        List<PreferenceScreen> hiddenPreferencesScreenList = Arrays.asList(backupPreferenceScreen, pinPreferenceScreen);
-        for (PreferenceScreen preferenceScreen: hiddenPreferencesScreenList) {
-            for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
-                foundPrefList.add(preferenceScreen.getPreference(i));
-            }
+        pinPreferenceScreen = findPreference("pincode");
+        if (pinPreferenceScreen != null) {
+            pinPrefs.clear();
+            createSubPreferences(pinPreferenceScreen, pinPrefs);
         }
     }
 
     /**
      * Initializes sub preferences that are in preferences.xml
+     *
      * @param preferenceScreen The PreferenceScreen that hosts sub-settings
-     * @param subPrefs Array list is needed to bind the preferences in bindSubPrefs()
+     * @param subPrefs         Array list is needed to bind the preferences in bindSubPrefs()
      */
     private void createSubPreferences(PreferenceScreen preferenceScreen, List<Preference> subPrefs) {
         for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
@@ -281,8 +280,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     Preference pref = findPreference(prefCat.getPreference(j).getKey());
                     subPrefs.add(pref);
                 }
-            }
-            else {
+            } else {
                 Preference pref = findPreference(preferenceScreen.getPreference(i).getKey());
                 subPrefs.add(pref);
             }
@@ -302,28 +300,30 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     protected void onBindPreferences() {
-        language.setTitle(getLanguageSettingTitle());
-        language.setDefaultValue(Locale.getDefault().getLanguage());
-        language.setSummary(_mbwManager.getLanguage());
-        language.setValue(_mbwManager.getLanguage());
+        if (language != null) {
+            language.setTitle(getLanguageSettingTitle());
+            language.setDefaultValue(Locale.getDefault().getLanguage());
+            language.setSummary(mbwManager.getLanguage());
+            language.setValue(mbwManager.getLanguage());
 
-        ImmutableMap<String, String> languageLookup = loadLanguageLookups();
-        language.setSummary(languageLookup.get(_mbwManager.getLanguage()));
+            ImmutableMap<String, String> languageLookup = loadLanguageLookups();
+            language.setSummary(languageLookup.get(mbwManager.getLanguage()));
 
-        language.setEntries(R.array.languages_desc);
-        language.setEntryValues(R.array.languages);
-        language.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String lang = newValue.toString();
-                _mbwManager.setLanguage(lang);
-                WalletApplication.applyLanguageChange(getActivity().getBaseContext(), lang);
+            language.setEntries(R.array.languages_desc);
+            language.setEntryValues(R.array.languages);
+            language.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    String lang = newValue.toString();
+                    mbwManager.setLanguage(lang);
+                    WalletApplication.applyLanguageChange(requireActivity().getBaseContext(), lang);
 
-                restart();
+                    restart();
 
-                return true;
-            }
-        });
+                    return true;
+                }
+            });
+        }
         if (notificationPreference != null) {
             notificationPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -337,196 +337,225 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-
-        pinPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
-                                R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, PinCodeFragment.newInstance(pinPreferenceScreen.getKey()))
-                        .addToBackStack("pincode")
-                        .commitAllowingStateLoss();
-                return true;
-            }
-        });
-        pinPreferenceScreen.setSummary(_mbwManager.isPinProtected() ? "On" : "Off");
-
-        useTor.setTitle(getUseTorTitle());
-        useTor.setChecked(_mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR);
-        useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (useTor.isChecked()) {
-                    OrbotHelper obh = new OrbotHelper(getActivity());
-                    if (!obh.isOrbotInstalled()) {
-                        obh.promptToInstall(getActivity());
-                        useTor.setChecked(false);
-                    }
+        if (pinPreferenceScreen != null) {
+            pinPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, PinCodeFragment.newInstance(pinPreferenceScreen.getKey()))
+                            .addToBackStack("pincode")
+                            .commitAllowingStateLoss();
+                    return true;
                 }
-                _mbwManager.setTorMode(useTor.isChecked()
-                        ? ServerEndpointType.Types.ONLY_TOR : ServerEndpointType.Types.ONLY_HTTPS);
-                return true;
-            }
-        });
-
-        backupPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
-                                R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, BackupFragment.newInstance(backupPreferenceScreen.getKey()))
-                        .addToBackStack("backup")
-                        .commitAllowingStateLoss();
-                return true;
-            }
-        });
-        final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
-        String defaultValue = "";
-        for (Denomination value : Denomination.values()) {
-            String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
-            denominationMap.put(key, value);
-            if (value == _mbwManager.getDenomination()) {
-                defaultValue = key;
-            }
+            });
+            pinPreferenceScreen.setSummary(mbwManager.isPinProtected() ? "On" : "Off");
         }
-        _denomination.setDefaultValue(defaultValue);
-        _denomination.setValue(defaultValue);
-        _denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
-        _denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
-        _denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
-                return true;
-            }
-        });
-        _localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
-        _localCurrency.setTitle(localCurrencyTitle());
-
-        ExchangeRateManager exchangeManager = _mbwManager.getExchangeRateManager();
-        List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
-        Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
-            @Override
-            public int compare(String rate1, String rate2) {
-                return rate1.compareToIgnoreCase(rate2);
-            }
-        });
-
-        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
-        _exchangeSource.setEntries(exchangeNames);
-        if (exchangeNames.length == 0) {
-            _exchangeSource.setEnabled(false);
-        } else {
-            String currentName = exchangeManager.getCurrentExchangeSourceName();
-            if (currentName == null) {
-                currentName = "";
-            }
-            _exchangeSource.setEntries(exchangeNames);
-            _exchangeSource.setEntryValues(exchangeNames);
-            _exchangeSource.setDefaultValue(currentName);
-            _exchangeSource.setValue(currentName);
+        if (useTor != null) {
+            useTor.setTitle(getUseTorTitle());
+            useTor.setChecked(mbwManager.getTorMode() == ServerEndpointType.Types.ONLY_TOR);
+            useTor.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (useTor.isChecked()) {
+                        OrbotHelper obh = new OrbotHelper(getActivity());
+                        if (!obh.isOrbotInstalled()) {
+                            obh.promptToInstall(requireActivity());
+                            useTor.setChecked(false);
+                        }
+                    }
+                    mbwManager.setTorMode(useTor.isChecked()
+                            ? ServerEndpointType.Types.ONLY_TOR : ServerEndpointType.Types.ONLY_HTTPS);
+                    return true;
+                }
+            });
         }
-        _exchangeSource.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
-                return true;
+        if (backupPreferenceScreen != null) {
+            backupPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, BackupFragment.newInstance(backupPreferenceScreen.getKey()))
+                            .addToBackStack("backup")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
+        if (denomination != null) {
+            final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
+            String defaultValue = "";
+            for (Denomination value : Denomination.values()) {
+                String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
+                denominationMap.put(key, value);
+                if (value == mbwManager.getDenomination()) {
+                    defaultValue = key;
+                }
             }
-        });
-        _blockExplorer.setValue(_mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
-        CharSequence[] blockExplorerNames = _mbwManager._blockExplorerManager.getBlockExplorerNames(_mbwManager._blockExplorerManager.getAllBlockExplorer());
-        CharSequence[] blockExplorerValues = _mbwManager._blockExplorerManager.getBlockExplorerIds();
-        _blockExplorer.setEntries(blockExplorerNames);
-        _blockExplorer.setEntryValues(blockExplorerValues);
-        _blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setBlockExplorer(_mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
-                return true;
-            }
-        });
+            denomination.setDefaultValue(defaultValue);
+            denomination.setValue(defaultValue);
+            denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
+            denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
+            denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
+                    return true;
+                }
+            });
+        }
+        if (localCurrency != null) {
+            localCurrency.setOnPreferenceClickListener(localCurrencyClickListener);
+            localCurrency.setTitle(localCurrencyTitle());
+        }
 
-        changeAddressType.setOnPreferenceClickListener(segwitChangeAddressClickListener);
+        if (exchangeSource != null) {
+            ExchangeRateManager exchangeManager = mbwManager.getExchangeRateManager();
+            List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(mbwManager.getSelectedAccount().getCoinType().getSymbol());
+            Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
+                @Override
+                public int compare(String rate1, String rate2) {
+                    return rate1.compareToIgnoreCase(rate2);
+                }
+            });
 
-        _minerFee.setSummary(getMinerFeeSummary());
-        _minerFee.setValue(_mbwManager.getMinerFee().toString());
-        CharSequence[] minerFees = new CharSequence[]{
-                LOWPRIO.toString(),
-                ECONOMIC.toString(),
-                NORMAL.toString(),
-                PRIORITY.toString()};
-        CharSequence[] minerFeeNames = new CharSequence[]{
-                getString(R.string.miner_fee_lowprio_name),
-                getString(R.string.miner_fee_economic_name),
-                getString(R.string.miner_fee_normal_name),
-                getString(R.string.miner_fee_priority_name)};
-        _minerFee.setEntries(minerFeeNames);
-        _minerFee.setEntryValues(minerFees);
-        _minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.setMinerFee(fromString(newValue.toString()));
-                _minerFee.setSummary(getMinerFeeSummary());
-                String description = _mbwManager.getMinerFee().getMinerFeeDescription(getActivity());
-                Utils.showSimpleMessageDialog(getActivity(), description);
-                return true;
+            CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
+            exchangeSource.setEntries(exchangeNames);
+            if (exchangeNames.length == 0) {
+                exchangeSource.setEnabled(false);
+            } else {
+                String currentName = exchangeManager.getCurrentExchangeSourceName();
+                if (currentName == null) {
+                    currentName = "";
+                }
+                exchangeSource.setEntries(exchangeNames);
+                exchangeSource.setEntryValues(exchangeNames);
+                exchangeSource.setDefaultValue(currentName);
+                exchangeSource.setValue(currentName);
             }
-        });
+            exchangeSource.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
+                    return true;
+                }
+            });
+        }
+        if (blockExplorer != null) {
+            blockExplorer.setValue(mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
+            CharSequence[] blockExplorerNames = mbwManager._blockExplorerManager.getBlockExplorerNames(mbwManager._blockExplorerManager.getAllBlockExplorer());
+            CharSequence[] blockExplorerValues = mbwManager._blockExplorerManager.getBlockExplorerIds();
+            blockExplorer.setEntries(blockExplorerNames);
+            blockExplorer.setEntryValues(blockExplorerValues);
+            blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    mbwManager.setBlockExplorer(mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
+                    return true;
+                }
+            });
+        }
+
+        if (changeAddressType != null) {
+            changeAddressType.setOnPreferenceClickListener(segwitChangeAddressClickListener);
+        }
+        if (minerFee != null) {
+            minerFee.setSummary(getMinerFeeSummary());
+            minerFee.setValue(mbwManager.getMinerFee().toString());
+            CharSequence[] minerFees = new CharSequence[]{
+                    LOWPRIO.toString(),
+                    ECONOMIC.toString(),
+                    NORMAL.toString(),
+                    PRIORITY.toString()};
+            CharSequence[] minerFeeNames = new CharSequence[]{
+                    getString(R.string.miner_fee_lowprio_name),
+                    getString(R.string.miner_fee_economic_name),
+                    getString(R.string.miner_fee_normal_name),
+                    getString(R.string.miner_fee_priority_name)};
+            minerFee.setEntries(minerFeeNames);
+            minerFee.setEntryValues(minerFees);
+            minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    mbwManager.setMinerFee(fromString(newValue.toString()));
+                    minerFee.setSummary(getMinerFeeSummary());
+                    String description = mbwManager.getMinerFee().getMinerFeeDescription(requireActivity());
+                    Utils.showSimpleMessageDialog(requireContext(), description);
+                    return true;
+                }
+            });
+        }
+
 
         // Local Trader
-        localTraderDisable.setChecked(_ltManager.isLocalTraderEnabled());
-        localTraderDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
-
-
-        _ltNotificationSound.setChecked(_ltManager.getPlaySoundOnTradeNotification());
-        _ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
-
-
-        _ltMilesKilometers.setChecked(_ltManager.useMiles());
-        _ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
-        // show bip44 path
-        showBip44Path.setChecked(_mbwManager.getMetadataStorage().getShowBip44Path());
-        showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
-        boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(getActivity());
-        if (isTeeAvailable) {
-            ledgerDisableTee.setChecked(_mbwManager.getLedgerManager().getDisableTEE());
-            ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
-        } else {
-            ledger.removePreference(ledgerDisableTee);
+        if (localTraderDisable != null) {
+            localTraderDisable.setChecked(ltManager.isLocalTraderEnabled());
+            localTraderDisable.setOnPreferenceClickListener(ltDisableLocalTraderClickListener);
         }
 
-        ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
+        if (ltNotificationSound != null) {
+            ltNotificationSound.setChecked(ltManager.getPlaySoundOnTradeNotification());
+            ltNotificationSound.setOnPreferenceClickListener(ltNotificationSoundClickListener);
+        }
+
+
+        if (ltMilesKilometers != null) {
+            ltMilesKilometers.setChecked(ltManager.useMiles());
+            ltMilesKilometers.setOnPreferenceClickListener(ltMilesKilometersClickListener);
+        }
+        // show bip44 path
+        if (showBip44Path != null) {
+            showBip44Path.setChecked(mbwManager.getMetadataStorage().getShowBip44Path());
+            showBip44Path.setOnPreferenceClickListener(showBip44PathClickListener);
+        }
+        if (ledgerDisableTee != null) {
+            boolean isTeeAvailable = LedgerTransportTEEProxyFactory.isServiceAvailable(getActivity());
+            if (isTeeAvailable) {
+                ledgerDisableTee.setChecked(mbwManager.getLedgerManager().getDisableTEE());
+                ledgerDisableTee.setOnPreferenceClickListener(onClickLedgerNotificationDisableTee);
+            } else {
+                ledger.removePreference(ledgerDisableTee);
+            }
+        }
+        if (ledgerSetUnpluggedAID != null) {
+            ledgerSetUnpluggedAID.setOnPreferenceClickListener(onClickLedgerSetUnpluggedAID);
+        }
         applyLocalTraderEnablement();
 
-        externalPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
-                                R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new ExternalServiceFragment())
-                        .addToBackStack("external_services")
-                        .commitAllowingStateLoss();
-                return true;
-            }
-        });
-        versionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                getFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
-                                R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, new VersionFragment())
-                        .addToBackStack("version")
-                        .commitAllowingStateLoss();
-                return true;
-            }
-        });
+        if (externalPreference != null) {
+            externalPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, new ExternalServiceFragment())
+                            .addToBackStack("external_services")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
+        if (versionPreference != null) {
+            versionPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    requireFragmentManager()
+                            .beginTransaction()
+                            .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                    R.anim.slide_left_in, R.anim.slide_right_out)
+                            .replace(R.id.fragment_container, new VersionFragment())
+                            .addToBackStack("version")
+                            .commitAllowingStateLoss();
+                    return true;
+                }
+            });
+        }
 
         bindSubPrefs();
     }
@@ -544,7 +573,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     BackupFragment backupFragment = BackupFragment.newInstance(backupPreferenceScreen.getKey());
                     backupFragment.getArguments().putInt(BackupFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
-                    getFragmentManager()
+                    requireFragmentManager()
                             .beginTransaction()
                             .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                     R.anim.slide_left_in, R.anim.slide_right_out)
@@ -566,7 +595,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     PinCodeFragment pinFragment = PinCodeFragment.newInstance(pinPreferenceScreen.getKey());
                     pinFragment.getArguments().putInt(PinCodeFragment.ARG_FRAGMENT_OPEN_TYPE, finalI);
 
-                    getFragmentManager()
+                    requireFragmentManager()
                             .beginTransaction()
                             .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                     R.anim.slide_left_in, R.anim.slide_right_out)
@@ -587,11 +616,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) searchItem.getActionView();
 
+        isSearchViewOpen = false;
+        ((SettingsActivity) requireActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
+                isSearchViewOpen = false;
                 refreshPreferences();
                 return false;
+            }
+        });
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isSearchViewOpen = true;
+                ((SettingsActivity) requireActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -605,46 +644,67 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onQueryTextChange(String s) {
                 if (s.length() == 0) {
                     refreshPreferences();
-                }
-                else {
+                } else {
                     findSearchResult(s);
                 }
                 return true;
             }
 
+            private boolean isValid(Preference preference, String text) {
+                return (isTitleValid(preference, text) || isSummaryValid(preference, text)) && isIndependent(preference);
+            }
+
             private void findSearchResult(String s) {
-                getPreferenceScreen().removeAll();
-                List<Preference> prefs = new ArrayList<>();
-                for (Preference preferenceCat : foundPrefList) {
-                    prefs.clear();
+                refreshPreferences();
 
-                    if (preferenceCat instanceof PreferenceCategory) {
-                        PreferenceCategory preferenceCategory = (PreferenceCategory) preferenceCat;
+                // adding hidden prefs
+                List<PreferenceScreen> hiddenPreferencesScreenList = Arrays.asList(backupPreferenceScreen, pinPreferenceScreen);
+                for (PreferenceScreen preferenceScreen : hiddenPreferencesScreenList) {
+                    for (int i = 0; i < preferenceScreen.getPreferenceCount(); i++) {
+                        Preference preference = preferenceScreen.getPreference(i);
+                        if (preference.getParent() != null) {
+                            preference.getParent().removePreference(preference);
+                        }
+                        preference.setOrder(getPreferenceScreen().getPreferenceCount());
+                        getPreferenceScreen().addPreference(preference);
+                    }
+                }
 
-                        for (int i = 0; i < preferenceCategory.getPreferenceCount(); i++) {
-                            Preference preference = preferenceCategory.getPreference(i);
 
-                            if ((isTitleValid(preference, s) || isSummaryValid(preference, s))
-                                    && isIndependent(preference)) {
-                                prefs.add(preference);
+                for (int j = getPreferenceScreen().getPreferenceCount() - 1; j >= 0; j--) {
+                    Preference preference = getPreferenceScreen().getPreference(j);
+                    preference.setOrder(j);
+                    if (preference instanceof PreferenceCategory) {
+                        PreferenceCategory preferenceCategory = (PreferenceCategory) preference;
+                        for (int i = preferenceCategory.getPreferenceCount() - 1; i >= 0; i--) {
+                            Preference preferenceInner = preferenceCategory.getPreference(i);
+
+                            if (!isValid(preferenceInner, s) && !checkInDeep(preferenceInner, s)) {
+                                preferenceCategory.removePreference(preferenceInner);
                             }
                         }
-                        if(!prefs.isEmpty()) {
-                            PreferenceCategory preferenceCategory1 = new PreferenceCategory(getContext());
-                            preferenceCategory1.setLayoutResource(preferenceCategory.getLayoutResource());
-                            preferenceCategory1.setTitle(preferenceCategory.getTitle());
-                            getPreferenceScreen().addPreference(preferenceCategory1);
-                            for (Preference pref : prefs) {
-                                preferenceCategory1.addPreference(pref);
-                            }
+                        if (preferenceCategory.getPreferenceCount() == 0) {
+                            getPreferenceScreen().removePreference(preferenceCategory);
                         }
                     } else {
-                        if ((isTitleValid(preferenceCat, s) || isSummaryValid(preferenceCat, s))
-                                && isIndependent(preferenceCat)) {
-                            getPreferenceScreen().addPreference(preferenceCat);
+                        if (!isValid(preference, s) && !checkInDeep(preference, s)) {
+                            getPreferenceScreen().removePreference(preference);
                         }
                     }
                 }
+            }
+
+            private boolean checkInDeep(Preference preference, String text) {
+                if (preference instanceof PreferenceGroup) {
+                    PreferenceGroup preferenceGroup = (PreferenceGroup) preference;
+                    for (int i = 0; i < preferenceGroup.getPreferenceCount(); i++) {
+                        Preference pref = preferenceGroup.getPreference(i);
+                        if (isValid(pref, text) || checkInDeep(pref, text)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             }
 
             private boolean isTitleValid(Preference preference, String search) {
@@ -662,7 +722,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
 
         });
-        ActionBar actionBar = ((SettingsActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((SettingsActivity) requireActivity()).getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow);
@@ -672,8 +732,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if(searchView.isIconified()) {
-                getActivity().finish();
+            if (searchView.isIconified()) {
+                requireActivity().finish();
             } else {
                 searchView.setIconified(true);
             }
@@ -694,7 +754,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public boolean onPreferenceClick(Preference preference) {
                 Intent intent = new Intent(com.mycelium.modularizationtools.Constants.getSETTINGS());
                 intent.setPackage(module.getModulePackage());
-                intent.putExtra("callingPackage", getActivity().getPackageName());
+                intent.putExtra("callingPackage", requireActivity().getPackageName());
                 try {
                     startActivity(intent);
                 } catch (ActivityNotFoundException e) {
@@ -776,31 +836,34 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onResume() {
         setupLocalTraderSettings();
-        _localCurrency.setTitle(localCurrencyTitle());
-        _localCurrency.setSummary(localCurrencySummary());
+        localCurrency.setTitle(localCurrencyTitle());
+        localCurrency.setSummary(localCurrencySummary());
         MbwManager.getEventBus().register(this);
         super.onResume();
     }
-
-    private ProgressDialog pleaseWait;
 
     @Override
     public void onPause() {
         MbwManager.getEventBus().unregister(this);
         refreshPreferences();
-        if (pleaseWait != null) pleaseWait.dismiss();
+        if (pleaseWait != null) {
+            pleaseWait.dismiss();
+        }
         super.onPause();
     }
 
     private void refreshPreferences() {
+        ((SettingsActivity) requireActivity()).getSupportActionBar()
+                .setDisplayShowTitleEnabled(!isSearchViewOpen);
         getPreferenceScreen().removeAll();
-        for (Preference preference : rootPreferenceList)
-            getPreferenceScreen().addPreference(preference);
+        addPreferencesFromResource(R.xml.preferences);
+        assignPreferences();
+        onBindPreferences();
+        setupLocalTraderSettings();
     }
 
-    @SuppressWarnings("deprecation")
     private void setupLocalTraderSettings() {
-        if (!_ltManager.hasLocalTraderAccount()) {
+        if (!ltManager.hasLocalTraderAccount()) {
             if (localTraderPrefs != null) {
                 localTraderPrefs.removeAll();
                 //its important we keep this prefs, so users can still enable / disable lt without having an account
@@ -811,17 +874,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setupEmailNotificationSetting();
     }
 
-    @SuppressWarnings("deprecation")
     private void setupEmailNotificationSetting() {
         ltNotificationEmail.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(final Preference preference) {
                 LocalTraderEventSubscriber listener = new SubscribeToServerResponse();
-                _ltManager.subscribe(listener);
+                ltManager.subscribe(listener);
                 new Thread() {
                     @Override
                     public void run() {
-                        _ltManager.makeRequest(new GetTraderInfo());
+                        ltManager.makeRequest(new GetTraderInfo());
                     }
                 }.start();
                 pleaseWait = ProgressDialog.show(getActivity(), getString(R.string.fetching_info),
@@ -833,7 +895,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String getLanguageSettingTitle() {
         String displayed = getResources().getString(R.string.pref_language);
-        String english = Utils.getResourcesByLocale(getActivity(), "en")
+        String english = Utils.getResourcesByLocale(requireActivity(), "en")
                 .getString(R.string.pref_language);
         return english.equals(displayed) ? displayed : displayed + " / " + english;
     }
@@ -852,15 +914,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void restart() {
-        Intent running = getActivity().getIntent();
-        getActivity().finish();
+        Intent running = requireActivity().getIntent();
+        requireActivity().finish();
         startActivity(running);
     }
 
     private void applyLocalTraderEnablement() {
-        boolean ltEnabled = _ltManager.isLocalTraderEnabled();
-        _ltNotificationSound.setEnabled(ltEnabled);
-        _ltMilesKilometers.setEnabled(ltEnabled);
+        boolean ltEnabled = ltManager.isLocalTraderEnabled();
+        if (ltNotificationSound != null) {
+            ltNotificationSound.setEnabled(ltEnabled);
+        }
+        if (ltMilesKilometers != null) {
+            ltMilesKilometers.setEnabled(ltEnabled);
+        }
     }
 
     private String getUseTorTitle() {
@@ -872,16 +938,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private String localCurrencySummary() {
-        if (_mbwManager.hasFiatCurrency()) {
-            GenericAssetInfo currentCurrency = _mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
+        if (mbwManager.hasFiatCurrency()) {
+            GenericAssetInfo currentCurrency = mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
             String currencies = currentCurrency.getSymbol();
-            List<GenericAssetInfo> currencyList = _mbwManager.getCurrencyList();
+            List<GenericAssetInfo> currencyList = mbwManager.getCurrencyList();
             currencyList.remove(currentCurrency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop
                 currencies += ", " + currencyList.get(i).getSymbol();
             }
-            if (_mbwManager.getCurrencyList().size() > 3) {
+            if (mbwManager.getCurrencyList().size() > 3) {
                 //multiple selected, add ...
                 currencies += "...";
             }
@@ -894,7 +960,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String getMinerFeeSummary() {
         int blocks = 0;
-        switch (_mbwManager.getMinerFee()){
+        switch (mbwManager.getMinerFee()) {
             case LOWPRIO:
                 blocks = 20;
                 break;
@@ -916,20 +982,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         private Button okButton;
         private EditText emailEdit;
 
-        public SubscribeToServerResponse() {
+        SubscribeToServerResponse() {
             super(new Handler());
         }
 
         @Override
         public void onLtTraderInfoFetched(final TraderInfo info, GetTraderInfo request) {
             pleaseWait.dismiss();
-            AlertDialog.Builder b = new AlertDialog.Builder(getActivity(), R.style.MyceliumSettings_Dialog);
+            AlertDialog.Builder b = new AlertDialog.Builder(requireActivity(), R.style.MyceliumSettings_Dialog);
             b.setTitle(getString(R.string.lt_set_email_title));
             b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String email = emailEdit.getText().toString();
-                    _ltManager.makeRequest(new SetNotificationMail(email));
+                    ltManager.makeRequest(new SetNotificationMail(email));
 
                     if ((info.notificationEmail == null || !info.notificationEmail.equals(email)) && !Strings.isNullOrEmpty(email)) {
                         Utils.showSimpleMessageDialog(getActivity(), getString(R.string.lt_email_please_verify_message));
@@ -938,7 +1004,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             });
             b.setNegativeButton(R.string.cancel, null);
 
-            emailEdit = new AppCompatEditText(getActivity()) {
+            emailEdit = new AppCompatEditText(requireActivity()) {
                 @Override
                 protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
                     super.onTextChanged(text, start, lengthBefore, lengthAfter);
@@ -961,14 +1027,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             b.setView(llDialog);
             AlertDialog dialog = b.show();
             okButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            _ltManager.unsubscribe(this);
+            ltManager.unsubscribe(this);
         }
 
         @Override
         public void onLtError(int errorCode) {
             pleaseWait.dismiss();
-            new Toaster(getActivity()).toast(getString(R.string.lt_set_email_error), false);
-            _ltManager.unsubscribe(this);
+            new Toaster(requireActivity()).toast(getString(R.string.lt_set_email_error), false);
+            ltManager.unsubscribe(this);
         }
     }
 
@@ -978,17 +1044,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private class DividerDecoration extends RecyclerView.ItemDecoration {
-
         private Drawable mDivider;
         private int mDividerHeight;
         private boolean mAllowDividerAfterLastItem = true;
 
         private int iconDividerLeft;
-        private Paint paint = new Paint() {{
-            setColor(Color.parseColor("#2c2c2c"));
-        }};
+        private Paint paint;
 
         DividerDecoration() {
+            paint = new Paint();
+            paint.setColor(Color.parseColor("#2c2c2c"));
             iconDividerLeft = getResources().getDimensionPixelSize(R.dimen.pref_divider_margin);
         }
 
@@ -1040,7 +1105,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             return nextAllowed;
         }
 
-        public void setDivider(Drawable divider) {
+        void setDivider(Drawable divider) {
             if (divider != null) {
                 mDividerHeight = divider.getIntrinsicHeight();
             } else {
@@ -1050,12 +1115,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             getListView().invalidateItemDecorations();
         }
 
-        public void setDividerHeight(int dividerHeight) {
-            mDividerHeight = dividerHeight;
-            getListView().invalidateItemDecorations();
-        }
-
-        public void setAllowDividerAfterLastItem(boolean allowDividerAfterLastItem) {
+        void setAllowDividerAfterLastItem(boolean allowDividerAfterLastItem) {
             mAllowDividerAfterLastItem = allowDividerAfterLastItem;
         }
     }

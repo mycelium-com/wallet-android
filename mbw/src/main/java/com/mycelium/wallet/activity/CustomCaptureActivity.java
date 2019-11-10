@@ -9,11 +9,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 
 @SuppressLint("RestrictedApi")
 public class CustomCaptureActivity extends AppCompatActivity implements DecoratedBarcodeView.TorchListener {
@@ -74,6 +77,16 @@ public class CustomCaptureActivity extends AppCompatActivity implements Decorate
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (BuildConfig.DEBUG && keyCode == KeyEvent.KEYCODE_C) {
+            // press c while in the scanner to copy the clipboard as scan result
+            String clipboardContent = Utils.getClipboardString(this);
+            Toast.makeText(this, "Taking clipboard content as return value of scan: " + clipboardContent, Toast.LENGTH_LONG).show();
+            setResult(RESULT_OK, new Intent()
+                    .putExtra("SCAN_RESULT_FORMAT", "QR_CODE")
+                    .putExtra("SCAN_RESULT", clipboardContent));
+            finish();
+            return true;
+        }
         return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
     }
 

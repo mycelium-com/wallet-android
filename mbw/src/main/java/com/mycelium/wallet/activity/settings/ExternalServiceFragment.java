@@ -47,31 +47,25 @@ public class ExternalServiceFragment extends PreferenceFragmentCompat {
             cbService.setSummary(buySellService.settingDescription);
             cbService.setChecked(buySellService.isEnabled(mbwManager));
             cbService.setWidgetLayoutResource(R.layout.preference_switch);
-            cbService.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    buySellService.setEnabled(mbwManager, p.isChecked());
-                    return true;
-                }
+            cbService.setOnPreferenceClickListener(preference -> {
+                CheckBoxPreference p = (CheckBoxPreference) preference;
+                buySellService.setEnabled(mbwManager, p.isChecked());
+                return true;
             });
             preferenceCategory.addPreference(cbService);
         }
 
-        if (SettingsPreference.INSTANCE.getFioActive()) {
+        if (SettingsPreference.getFioActive()) {
             final CheckBoxPreference cbServiceFio = new CheckBoxPreference(requireActivity());
             cbServiceFio.setTitle(R.string.settings_fiopresale_title);
             cbServiceFio.setSummary(R.string.settings_fiopresale_summary);
-            cbServiceFio.setChecked(SettingsPreference.INSTANCE.getFioEnabled());
+            cbServiceFio.setChecked(SettingsPreference.getFioEnabled());
             cbServiceFio.setLayoutResource(R.layout.preference_layout);
             cbServiceFio.setWidgetLayoutResource(R.layout.preference_switch);
-            cbServiceFio.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    CheckBoxPreference p = (CheckBoxPreference) preference;
-                    SettingsPreference.INSTANCE.setFioEnabled(p.isChecked());
-                    return true;
-                }
+            cbServiceFio.setOnPreferenceClickListener(preference -> {
+                CheckBoxPreference p = (CheckBoxPreference) preference;
+                SettingsPreference.setFioEnabled(p.isChecked());
+                return true;
             });
             preferenceCategory.addPreference(cbServiceFio);
         }

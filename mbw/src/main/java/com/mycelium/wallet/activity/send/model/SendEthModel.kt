@@ -26,7 +26,7 @@ class SendEthModel(context: Application,
                         MinerFee.PRIORITY -> 1
                     }
                     val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks)
-                    FeeLvlItem(fee, "~$duration", SelectableRecyclerView.Adapter.VIEW_TYPE_ITEM)
+                    FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
 
     }
