@@ -54,7 +54,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
+            val web3j: Web3j = Web3j.build(InfuraHttpService("http://parity.mycelium.com:18545"))
             val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
@@ -75,7 +75,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
+        val web3j: Web3j = Web3j.build(InfuraHttpService("http://parity.mycelium.com:18545"))
         val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
@@ -172,7 +172,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = credentials?.ecKeyPair?.toUUID() ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
+    override fun getId() = credentials?.ecKeyPair?.toUUID()
+            ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun isSynchronizing() = false
 
@@ -218,7 +219,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     fun stopSubscriptions() {
-        balanceDisposable.dispose()
+        if (!balanceDisposable.isDisposed) {
+            balanceDisposable.dispose()
+        }
     }
 }
 
