@@ -187,14 +187,15 @@ public class BalanceFragment extends Fragment {
         // if we ended up with not existent source name for current cryptocurrency (CC)
         // after we have switched accounts for different CC
         // then use the first existent one for current CC
-        if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName())) {
-            exchangeRateManager.setCurrentExchangeSourceName(sources.get(0));
+        if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol()))) {
+            exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(), sources.get(0));
         }
 
         exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                exchangeRateManager.setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+                exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(),
+                        sourcesAndValues.get(item.getTitle().toString()));
                 return false;
             }
         });
@@ -302,7 +303,8 @@ public class BalanceFragment extends Fragment {
             if (value == null) {
                 // We have no price, exchange not available
                 tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
-                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                                _mbwManager.getSelectedAccount().getCoinType().getSymbol())));
             } else {
                 tvBtcRate.setText(getResources().getString(R.string.balance_rate
                         , account.getCoinType().getSymbol()
@@ -310,7 +312,8 @@ public class BalanceFragment extends Fragment {
                         , ValueExtensionsKt.toString(value)));
             }
             tvBtcRate.setVisibility(View.VISIBLE);
-            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                    _mbwManager.getSelectedAccount().getCoinType().getSymbol()));
             exchangeSourceLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -350,7 +353,8 @@ public class BalanceFragment extends Fragment {
         setFiatValue(R.id.tvSendingFiat, balance.getSendingToForeignAddresses(), true);
 
         // set exchange item
-        exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+        exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                _mbwManager.getSelectedAccount().getCoinType().getSymbol()));
     }
 
     private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {

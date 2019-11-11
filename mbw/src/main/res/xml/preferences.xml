@@ -113,7 +113,7 @@
             android:title="@string/pref_local_currency"
             android:widgetLayout="@layout/preference_arrow" />
 
-        <ListPreference
+        <PreferenceScreen
             android:icon="@drawable/ic_trending_up_24_px"
             android:key="exchange_source"
             android:layout="@layout/preference_layout"

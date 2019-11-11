@@ -55,14 +55,12 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.WalletApplication;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler;
-import com.mycelium.wallet.activity.util.BlockExplorerManager;
 import com.mycelium.wallet.activity.view.ButtonPreference;
 import com.mycelium.wallet.activity.view.TwoButtonsPreference;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.text.DecimalFormat;
@@ -86,7 +84,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private ListPreference language;
     private PreferenceScreen denominationScreen;
     private Preference _localCurrency;
-    private ListPreference _exchangeSource;
+    private PreferenceScreen exchangeSourceScreen;
     private CheckBoxPreference _ltNotificationSound;
     private CheckBoxPreference _ltMilesKilometers;
     private MbwManager _mbwManager;
@@ -224,7 +222,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         //localcurrency
         _localCurrency = findPreference("local_currency");
         // Exchange Source
-        _exchangeSource = (ListPreference) findPreference("exchange_source");
+        exchangeSourceScreen = findPreference("exchange_source");
         language = (ListPreference) findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
         // Socks Proxy
@@ -404,29 +402,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return rate1.compareToIgnoreCase(rate2);
             }
         });
-
-        CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
-        _exchangeSource.setEntries(exchangeNames);
-        if (exchangeNames.length == 0) {
-            _exchangeSource.setEnabled(false);
-        } else {
-            String currentName = exchangeManager.getCurrentExchangeSourceName();
-            if (currentName == null) {
-                currentName = "";
-            }
-            _exchangeSource.setEntries(exchangeNames);
-            _exchangeSource.setEntryValues(exchangeNames);
-            _exchangeSource.setDefaultValue(currentName);
-            _exchangeSource.setValue(currentName);
-        }
-        _exchangeSource.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
-                return true;
-            }
+        exchangeSourceScreen.setOnPreferenceClickListener(preference -> {
+            getFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                            R.anim.slide_left_in, R.anim.slide_right_out)
+                    .replace(R.id.fragment_container, ExchangeSourcesFragment.newInstance(exchangeSourceScreen.getKey()))
+                    .addToBackStack("exchange_source")
+                    .commitAllowingStateLoss();
+            return true;
         });
-
         blockExplorerScreen.setOnPreferenceClickListener(preference -> {
             getFragmentManager()
                     .beginTransaction()
