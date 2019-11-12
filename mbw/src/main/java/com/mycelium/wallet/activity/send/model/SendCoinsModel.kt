@@ -248,11 +248,11 @@ abstract class SendCoinsModel(
 
                     val walletManager = mbwManager.getWalletManager(false)
                     if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
-                        val warning = if (walletManager.hasPrivateKey(receivingAddress)) {
-                            context.getString(R.string.my_own_address_warning)
+                        val warning = context.getString(if (walletManager.hasPrivateKey(receivingAddress)) {
+                            R.string.my_own_address_warning
                         } else {
-                            context.getString(R.string.read_only_warning)
-                        }
+                            R.string.read_only_warning
+                        })
                         heapWarning.postValue(Html.fromHtml(warning))
                     }
                     Completable.complete()
@@ -369,21 +369,19 @@ abstract class SendCoinsModel(
     }
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
-        when (transactionStatus) {
+        errorText.postValue(when (transactionStatus) {
             TransactionStatus.OutputTooSmall -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
-                    errorText.postValue(context.getString(R.string.amount_too_small_short))
+                    context.getString(R.string.amount_too_small_short)
+                } else {
+                    ""
                 }
             }
-            TransactionStatus.InsufficientFunds -> {
-                errorText.postValue(context.getString(R.string.insufficient_funds))
-            }
-            TransactionStatus.BuildError -> {
-                errorText.postValue(context.getString(R.string.tx_build_error))
-            }
-            else -> errorText.postValue("")
-        }
+            TransactionStatus.InsufficientFunds -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.BuildError -> context.getString(R.string.tx_build_error)
+            else -> ""
+        })
     }
 
     private fun getRequestedAmountFormatted(): String {
