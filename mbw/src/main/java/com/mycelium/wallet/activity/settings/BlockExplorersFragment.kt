@@ -57,7 +57,6 @@ class BlockExplorersFragment : PreferenceFragmentCompat() {
             listPreference.layoutResource = R.layout.preference_layout_no_icon
             listPreference.widgetLayoutResource = R.layout.preference_arrow
             listPreference.dialogTitle = "$name block explorer"
-            listPreference.key = "bl_$name"
             prefCat.addPreference(listPreference)
         }
     }

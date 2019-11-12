@@ -49,7 +49,6 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
             val exchangeManager = _mbwManager!!.exchangeRateManager
             val exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(symbol)
             val exchangeNames = exchangeSourceNamesList.toTypedArray()
-            listPreference.entries = exchangeNames
             if (exchangeNames.isEmpty()) {
                 listPreference.isEnabled = false
             } else {
@@ -69,7 +68,6 @@ class ExchangeSourcesFragment : PreferenceFragmentCompat() {
             listPreference.layoutResource = R.layout.preference_layout_no_icon
             listPreference.widgetLayoutResource = R.layout.preference_arrow
             listPreference.dialogTitle = "$name exchange source"
-            listPreference.key = "es_$name"
             prefCat.addPreference(listPreference)
         }
     }
