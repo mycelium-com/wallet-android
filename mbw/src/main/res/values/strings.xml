@@ -110,10 +110,10 @@
     <string name="pref_local_currency_summary">Select the local fiat currency</string>
     <string name="pref_exchange_source">Exchange source</string>
     <string name="pref_exchange_source_with_value">Exchange Source (%1$s)</string>
-    <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between Bitcoin and fiat currencies</string>
+    <string name="pref_exchange_source_summary">Select the source for obtaining exchange rates between cryptocurrency and fiat currencies</string>
     <string name="pref_bitcoin_denomination">Cryptocurrency denomination</string>
     <string name="pref_bitcoin_denomination_with_denomination">Cryptocurrency denomination (%1$s)</string>
-    <string name="pref_bitcoin_denomination_summary">Set preferred Bitcoin denomination\nBTC, mBTC, or μBTC</string>
+    <string name="pref_bitcoin_denomination_summary">Set preferred cryptocurrency denomination</string>
     <string name="pref_advanced_settings">Advanced Settings</string>
     <string name="pref_socks_proxy">Socks Proxy</string>
     <string name="pref_socks_proxy_enabled">Socks Proxy (Enabled)</string>
