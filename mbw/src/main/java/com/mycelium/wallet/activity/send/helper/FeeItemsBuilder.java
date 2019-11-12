@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MinerFee;
-import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
@@ -12,6 +11,8 @@ import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mycelium.wallet.activity.send.view.SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM;
 
 /**
  * se have 4 dynamic values from server LOWPRIO, ECO, NORMAL, PRIO
@@ -97,16 +98,16 @@ public class FeeItemsBuilder {
     private void addItemsInRange(GenericAssetInfo asset, List<FeeItem> feeItems, FeeItemsAlgorithm algorithm, int txSize) {
         for (int i = algorithm.getMinPosition(); i < algorithm.getMaxPosition(); i++) {
             FeeItem currFeeItem = createFeeItem(asset, txSize, algorithm.computeValue(i));
-            FeeItem prevFeeItem = feeItems.size() > 0 ? feeItems.get(feeItems.size() - 1) : null;
-            boolean canAdd = prevFeeItem != null ? prevFeeItem.feePerKb < currFeeItem.feePerKb : true;
+            FeeItem prevFeeItem = !feeItems.isEmpty() ? feeItems.get(feeItems.size() - 1) : null;
+            boolean canAdd = prevFeeItem == null || prevFeeItem.feePerKb < currFeeItem.feePerKb;
 
             if (currFeeItem.value != null && prevFeeItem != null && prevFeeItem.value != null
                     && currFeeItem.fiatValue != null && prevFeeItem.fiatValue != null) {
-                String thisFiatFee = currFeeItem.fiatValue.toString();
+                String currFiatFee = currFeeItem.fiatValue.toString();
                 String prevFiatFee = prevFeeItem.fiatValue.toString();
 
                 // if we reached this, then we can override canAdd
-                canAdd = (float) currFeeItem.feePerKb / prevFeeItem.feePerKb >= MIN_FEE_INCREMENT && !thisFiatFee.equals(prevFiatFee);
+                canAdd = (float) currFeeItem.feePerKb / prevFeeItem.feePerKb >= MIN_FEE_INCREMENT && !currFiatFee.equals(prevFiatFee);
             }
 
             if (canAdd) {
@@ -119,6 +120,6 @@ public class FeeItemsBuilder {
     private FeeItem createFeeItem(GenericAssetInfo asset, int txSize, long feePerKb) {
         Value fee = Value.valueOf(asset, txSize * feePerKb / 1000);
         Value fiatFee = exchangeRateManager.get(fee, fiatType);
-        return new FeeItem(feePerKb, fee, fiatFee, FeeViewAdapter.VIEW_TYPE_ITEM);
+        return new FeeItem(feePerKb, fee, fiatFee, VIEW_TYPE_ITEM);
     }
 }

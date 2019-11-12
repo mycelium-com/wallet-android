@@ -134,7 +134,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     }
 
     private void addFio(List<ActionButton> actions) {
-        if (SettingsPreference.INSTANCE.getFioEnabled()) {
+        if (SettingsPreference.getFioEnabled()) {
             actions.add(new ActionButton(ACTION.FIO, getString(R.string.partner_fiopresale), R.drawable.ic_fiopresale_icon_small));
         }
     }
@@ -152,7 +152,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                 break;
             case FIO:
-                Ads.INSTANCE.openFio(requireContext());
+                Ads.openFio(requireContext());
                 break;
         }
     }

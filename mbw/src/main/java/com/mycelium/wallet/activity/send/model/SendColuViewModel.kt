@@ -11,6 +11,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wapi.api.response.Feature
 import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.colu.ColuTransaction
@@ -64,7 +65,8 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnComplete {
                     progressDialog?.dismiss()
-                    mbwManager.getWalletManager(false).startSynchronization(model.account.id)
+                    mbwManager.getWalletManager(false).startSynchronization(SyncMode.NORMAL,
+                            (model.transaction as ColuTransaction).fundingAccounts + model.account)
                     makeText(activity, R.string.transaction_sent, Toast.LENGTH_SHORT).show()
                     activity.finish()
                 }
@@ -83,6 +85,6 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
     )
 
     companion object {
-        private val TAG = "SendColuViewModel"
+        private const val TAG = "SendColuViewModel"
     }
 }

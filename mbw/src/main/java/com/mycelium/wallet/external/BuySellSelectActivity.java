@@ -110,7 +110,7 @@ public class BuySellSelectActivity extends FragmentActivity {
 
          ((TextView) v.findViewById(R.id.tvServiceName)).setText(service.title);
          ((TextView) v.findViewById(R.id.tvServiceDescription)).setText(service.description);
-         ((ImageView) v.findViewById(R.id.ivIcon)).setImageDrawable(service.getIcon(context.getResources()));
+         ((ImageView) v.findViewById(R.id.ivIcon)).setImageDrawable(service.getIcon(context));
 
          v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override

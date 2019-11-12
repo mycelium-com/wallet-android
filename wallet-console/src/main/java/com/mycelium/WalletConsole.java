@@ -13,19 +13,18 @@ import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
+import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
-import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
-import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
 import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.Reference;
-import com.mycelium.wapi.wallet.manager.WalletModule;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
@@ -170,7 +169,7 @@ class WalletConsole {
             walletManager.add(bitcoinSingleAddressModule);
 
 //             display HD account balance
-            List<WalletAccount<?>> accounts = walletManager.getActiveAccounts();
+            List<WalletAccount<?>> accounts = walletManager.getActiveSpendingAccounts();
             WalletAccount account = accounts.get(0);
             account.synchronize(SyncMode.NORMAL);
             System.out.println("HD Account balance: " + account.getAccountBalance().getSpendable().toString());

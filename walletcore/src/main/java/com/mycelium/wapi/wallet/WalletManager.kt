@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.manager.*
 import com.mycelium.wapi.wallet.providers.BtcFeeProvider
 import com.mycelium.wapi.wallet.providers.ColuFeeProvider
 import com.mycelium.wapi.wallet.providers.EthFeeProvider
-import org.jetbrains.annotations.TestOnly
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -43,9 +42,6 @@ constructor(val network: NetworkParameters,
     var walletListener: WalletListener? = null
 
     var state: State = State.OFF
-
-    @Volatile
-    private var activeAccountId: UUID? = null
 
     fun add(walletModule: WalletModule) = walletModules.put(walletModule.id, walletModule)
 
@@ -110,11 +106,6 @@ constructor(val network: NetworkParameters,
         return result.keys.toList()
     }
 
-    @TestOnly
-    fun addAccount(account: WalletAccount<*>) {
-        accounts[account.id] = account
-    }
-
     @JvmOverloads
     fun deleteAccount(id: UUID, keyCipher: KeyCipher = AesKeyCipher.defaultKeyCipher()) {
         accounts.remove(id)?.also { account ->
@@ -143,23 +134,15 @@ constructor(val network: NetworkParameters,
         Thread(Synchronizer(this, mode, accounts)).start()
     }
 
-    fun startSynchronization(acc: UUID): Boolean {
+    fun startSynchronization(acc: UUID?): Boolean {
         // Launch synchronizer thread
-        val activeAccount = getAccount(acc)
+        val activeAccount = getAccount(acc ?: return false) ?: return false
         feeEstimations.triggerRefresh()
         Thread(Synchronizer(this, SyncMode.NORMAL, listOf(activeAccount))).start()
         return isNetworkConnected
     }
 
     fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
-
-    fun setActiveAccount(accountId: UUID) {
-        activeAccountId = accountId
-        if (hasAccount(accountId)) {
-            // this account might not be synchronized - start a background sync
-            startSynchronization(SyncMode.NORMAL)
-        }
-    }
 
     /**
      * Determine whether this address is managed by an account of the wallet
@@ -204,7 +187,7 @@ constructor(val network: NetworkParameters,
      *
      * @return the active accounts managed by the wallet manager
      */
-    fun getActiveAccounts(): List<WalletAccount<*>> =
+    fun getActiveSpendingAccounts(): List<WalletAccount<*>> =
             accounts.values.filter { it.isActive && it.canSpend() }
 
     fun getAllActiveAccounts():  List<WalletAccount<*>> = accounts.values.filter { it.isActive }
@@ -240,7 +223,7 @@ constructor(val network: NetworkParameters,
      * address has been used a lot.
      */
     fun disableTransactionHistorySynchronization() {
-
+        // TODO: implement
     }
 
     /**
