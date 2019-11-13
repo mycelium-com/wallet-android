@@ -70,9 +70,6 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <receiver
-            android:name=".external.mediaflow.NewsSyncReceiver"
-            android:enabled="true" />
         <!-- Startup -->
         <activity
             android:name=".activity.StartupActivity"
@@ -261,11 +258,5 @@
         </activity>
         <activity android:name=".activity.news.NewsImageActivity"
             android:screenOrientation="landscape"/>
-
-        <service
-            android:name=".external.mediaflow.NewsSyncService"
-            android:enabled="true"
-            android:exported="false" />
-
     </application>
 </manifest>

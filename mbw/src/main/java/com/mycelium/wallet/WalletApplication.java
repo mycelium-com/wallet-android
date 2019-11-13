@@ -35,6 +35,7 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -42,15 +43,16 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.StrictMode;
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.multidex.MultiDexApplication;
+
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
-import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
@@ -96,10 +98,27 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
         PackageRemovedReceiver.register(getApplicationContext());
-        NewsDatabase.INSTANCE.initialize(this);
-        NewsSyncUtils.startNewsUpdateRepeating(this);
-
+        if(isMainProcess()) {
+            NewsDatabase.INSTANCE.initialize(this);
+            NewsSyncUtils.startNewsUpdateRepeating(this);
+        }
+        FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+    }
+
+    private boolean isMainProcess() {
+        String currentProcName = "";
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+                if (processInfo.pid == pid) {
+                    currentProcName = processInfo.processName;
+                    break;
+                }
+            }
+        }
+        return getPackageName().equals(currentProcName);
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
@@ -181,7 +200,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0 && isBackground) {
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-                mbwManager.getWapi().setAppInForeground(true);
+                mbwManager.setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
                 boolean connected = Utils.isConnected(getApplicationContext());
@@ -207,7 +226,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
                 isBackground = true;
             }
         }

@@ -92,7 +92,7 @@ import static com.mycelium.wallet.activity.util.IntentExtentionsKt.getAssetUri;
 
 
 public class AddressBookFragment extends Fragment {
-    private static final int SCAN_RESULT_CODE = 468431;
+    private static final short SCAN_RESULT_CODE = 1;
     public static final String ADDRESS_RESULT_NAME = "address_result";
     public static final String ADDRESS_RESULT_ID = "address_result_id";
     public static final String OWN = "own";

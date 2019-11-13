@@ -110,6 +110,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
+
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -141,8 +143,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
-   @Override
-   public FeeEstimationsGeneric getDefaultFeeEstimation() {
+   private FeeEstimationsGeneric getDefaultFeeEstimation() {
       return new FeeEstimationsGeneric(
               Value.valueOf(getCoinType(), 1000),
               Value.valueOf(getCoinType(), 3000),
@@ -152,9 +153,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       );
    }
 
-
-
-    @Override
+   @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
    }
@@ -1870,11 +1869,18 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          _backing.saveLastFeeEstimation(result, getCoinType());
          return result;
       } catch (WapiException ex) {
-         //receiving data from the server failed then trying to read fee estimations from the DB
-         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
-         //if a read error has occurred from the DB, then we return the predefined default fee
-         return (feeFromDb == null) ? getDefaultFeeEstimation() : feeFromDb;
+         return getCachedFeeEstimations();
       }
+   }
+
+   @Override
+   @Nonnull
+   public FeeEstimationsGeneric getCachedFeeEstimations() {
+      FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
+      //if a read error has occurred from the DB, then we return the predefined default fee
+      return feeFromDb == null
+              ? getDefaultFeeEstimation()
+              : feeFromDb;
    }
 
    public void updateSyncProgress() {

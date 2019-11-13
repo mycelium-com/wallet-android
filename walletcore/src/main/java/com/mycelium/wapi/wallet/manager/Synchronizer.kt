@@ -29,9 +29,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     val list = if (accounts.isEmpty()) {
                         walletManager.getAllActiveAccounts()
                     } else {
-                        accounts
+                        accounts.filterNotNull().filter { it.isActive }
                     }
-                    list.forEach { it!!.synchronize(syncMode) }
+                    list.forEach { it.synchronize(syncMode) }
                 }
 
             }

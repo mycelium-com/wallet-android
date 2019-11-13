@@ -5,9 +5,9 @@
     android:id="@+id/llRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#272727"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="#272727"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -31,7 +31,7 @@
 
 
             <ImageView
-                android:id="@+id/image"
+                android:id="@+id/ivImage"
                 android:layout_width="match_parent"
                 android:layout_height="272dp"
                 android:adjustViewBounds="true"
@@ -42,7 +42,7 @@
 
 
             <TextView
-                android:id="@+id/category"
+                android:id="@+id/tvCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
@@ -105,7 +105,7 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/author"
+                        android:id="@+id/tvAuthor"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -144,10 +144,18 @@
                     android:layout_height="match_parent"
                     tools:text="@tools:sample/lorem/random" />
 
+                <ProgressBar
+                    android:id="@+id/news_loading"
+                    style="@style/AccountProgressBar"
+                    android:layout_marginTop="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:indeterminate="true" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
                     android:background="@drawable/news_date_bg"
                     android:padding="16dp">
 
@@ -170,7 +178,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/moreText"
+                android:id="@+id/tvMoreText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"

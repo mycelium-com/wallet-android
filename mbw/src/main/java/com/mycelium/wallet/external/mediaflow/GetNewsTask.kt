@@ -33,3 +33,14 @@ class GetAllNewsTask(var listener: (List<News>, Long) -> Unit) : AsyncTask<Void,
         listener.invoke(result, count)
     }
 }
+
+class GetMediaFlowTopicTask(val id: Int, var listener: (News?) -> Unit)
+    : AsyncTask<Void, Void, News?>() {
+    override fun doInBackground(vararg p0: Void?): News? =
+            NewsDatabase.getTopic(id)
+
+    override fun onPostExecute(result: News?) {
+        super.onPostExecute(result)
+        listener.invoke(result)
+    }
+}
