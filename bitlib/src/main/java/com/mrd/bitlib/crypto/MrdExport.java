@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.mrd.bitlib.lambdaworks.crypto.SCrypt;
-import com.mrd.bitlib.lambdaworks.crypto.SCryptProgress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -30,11 +29,11 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 public class MrdExport {
-
    private static final byte[] MAGIC_COOKIE = new byte[]{(byte) 0xc4, (byte) 0x49, (byte) 0xdc};
    public static final int V1_VERSION = 1;
 
@@ -72,7 +71,7 @@ public class MrdExport {
    }
 
    public static class V1 {
-      public static final String PASSWORD_CHARACTER_ENCODING = "US-ASCII";
+      public static final Charset PASSWORD_CHARACTER_ENCODING = StandardCharsets.US_ASCII;
       public static final int V1_PASSPHRASE_LENGTH = 15;
 
       private static final int V1_SALT_LENGTH = 4;
@@ -125,14 +124,12 @@ public class MrdExport {
          public static EncryptionParameters generate(KdfParameters p) throws InterruptedException, OutOfMemoryError {
             try {
                // Derive AES Key using scrypt on passphrase and salt
-               byte[] aesKey = SCrypt.scrypt(p.passphrase.getBytes(PASSWORD_CHARACTER_ENCODING), p.salt, 1 << p.n, p.r,
-                     p.p, V1_CIPHER_KEY_LENGTH, p._scryptProgressTracker);
+               byte[] aesKey = SCrypt.scrypt(p.passphrase.getBytes(StandardCharsets.US_ASCII), p.salt, 1 << p.n, p.r,
+                     p.p, V1_CIPHER_KEY_LENGTH);
                return new EncryptionParameters(aesKey, p);
             } catch (InterruptedException e) {
                throw e;
             } catch (GeneralSecurityException e) {
-               throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
                throw new RuntimeException(e);
             }
          }
@@ -172,8 +169,6 @@ public class MrdExport {
          public String passphrase;
          public byte[] salt;
 
-         private SCryptProgress _scryptProgressTracker;
-
          public static KdfParameters createNewFromPassphrase(String passphrase, RandomSource rnd, ScryptParameters useScryptParameters) {
             byte[] salt = new byte[V1_SALT_LENGTH];
             rnd.nextBytes(salt);
@@ -192,15 +187,6 @@ public class MrdExport {
             }
             this.passphrase = passphrase;
             this.salt = salt;
-            _scryptProgressTracker = new SCryptProgress(1 << n, r, p);
-         }
-
-         public double getProgress() {
-            return _scryptProgressTracker.getProgress();
-         }
-
-         public void terminate() {
-            _scryptProgressTracker.terminate();
          }
       }
 
@@ -242,8 +228,6 @@ public class MrdExport {
          // 0 - reserved = 0
 
          public enum Type {UNCOMPRESSED, COMPRESSED, MASTER_SEED}
-
-         ;
 
          public int version;
          public NetworkParameters network;
@@ -411,7 +395,7 @@ public class MrdExport {
        *                                  incorrect.
        */
       public static String decryptPrivateKey(EncryptionParameters parameters, String base64EncryptedPrivateKey,
-                                             NetworkParameters network) throws DecodingException, WrongNetworkException, InvalidChecksumException {
+                                             NetworkParameters network) throws DecodingException {
 
          // Decode data
          byte[] data = base64UrlDecode(base64EncryptedPrivateKey);
@@ -472,7 +456,7 @@ public class MrdExport {
        *                                  incorrect.
        */
       public static Bip39.MasterSeed decryptMasterSeed(EncryptionParameters parameters, String base64EncryptedMasterSeed,
-                                                       NetworkParameters network) throws DecodingException, WrongNetworkException, InvalidChecksumException {
+                                                       NetworkParameters network) throws DecodingException {
 
          // Decode data
          byte[] data = base64UrlDecode(base64EncryptedMasterSeed);
@@ -536,7 +520,7 @@ public class MrdExport {
        * @param checksum   the checksum used for initializing the IV
        * @return The decrypted bytes
        */
-      private static byte[] decryptBytes(EncryptionParameters parameters, byte[] ciphertext, byte[] checksum) throws InvalidChecksumException {
+      private static byte[] decryptBytes(EncryptionParameters parameters, byte[] ciphertext, byte[] checksum) {
          // Ciphertext must be a multiple of 16 bytes
          Preconditions.checkArgument(ciphertext.length % V1_BLOCK_CIPHER_LENGTH == 0);
 
@@ -621,8 +605,7 @@ public class MrdExport {
          System.arraycopy(checksum, 0, encoded, index, checksum.length);
 
          // Base58 encode
-         String result = base64UrlEncode(encoded);
-         return result;
+         return base64UrlEncode(encoded);
       }
 
 
@@ -669,8 +652,7 @@ public class MrdExport {
          System.arraycopy(checksum, 0, encoded, index, checksum.length);
 
          // Base58 encode
-         String result = base64UrlEncode(encoded);
-         return result;
+         return base64UrlEncode(encoded);
       }
 
       private static byte[] addZeroPadding(byte[] data) {
@@ -739,15 +721,13 @@ public class MrdExport {
        * [a-z]. This lowers the entropy for each character but makes it easier
        * to enter on a mobile device.
        */
-      private static char[] ALPHABET = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+      private static final char[] ALPHABET = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
       /**
        * Concatenate the alphabet as many whole times as possible while staying
        * below 256 characters. With 26 password characters this is 9 times and
        * produces a 234 character length array.
-       *
-       * @return
        */
       private static char[] getExtendedAlphabet() {
          int repetitions = 256 / ALPHABET.length;
@@ -789,13 +769,7 @@ public class MrdExport {
        */
       public static char calculatePasswordChecksum(String password) {
          // Calculate the SHA256 has of the password
-         Sha256Hash hash;
-         try {
-            hash = HashUtils.sha256(password.getBytes(PASSWORD_CHARACTER_ENCODING));
-         } catch (UnsupportedEncodingException e) {
-            // Never happens
-            throw new RuntimeException(e);
-         }
+         Sha256Hash hash = HashUtils.sha256(password.getBytes(PASSWORD_CHARACTER_ENCODING));
          // Regard first four bytes as a positive integer
          long asInteger = BitUtils.uint32ToLong(hash.firstFourBytes(), 0);
 
@@ -809,16 +783,11 @@ public class MrdExport {
        * private key
        */
       private static byte[] calculatePrivateKeyChecksum(InMemoryPrivateKey key, NetworkParameters network) {
-         try {
-            String address = key.getPublicKey().toAddress(network, AddressType.P2PKH).toString();
-            byte[] hash = HashUtils.sha256(address.getBytes("US-ASCII")).getBytes();
-            byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
-            System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);
-            return checksum;
-         } catch (UnsupportedEncodingException e) {
-            // Never happens
-            throw new RuntimeException(e);
-         }
+         String address = key.getPublicKey().toAddress(network, AddressType.P2PKH).toString();
+         byte[] hash = HashUtils.sha256(address.getBytes(StandardCharsets.US_ASCII)).getBytes();
+         byte[] checksum = new byte[V1_CHECKSUM_LENGTH];
+         System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);
+         return checksum;
       }
 
       /**
@@ -830,7 +799,6 @@ public class MrdExport {
          System.arraycopy(hash, 0, checksum, 0, V1_CHECKSUM_LENGTH);
          return checksum;
       }
-
    }
 
    private static void xorBytes(byte[] toApply, byte[] target) {
@@ -853,5 +821,4 @@ public class MrdExport {
          throw new DecodingException();
       }
    }
-
 }
