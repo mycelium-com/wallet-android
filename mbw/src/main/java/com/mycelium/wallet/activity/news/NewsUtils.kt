@@ -10,9 +10,10 @@ import com.mycelium.wallet.external.mediaflow.model.News
 object NewsUtils {
 
     const val MEDIA_FLOW_ACTION: String = "media_flow"
+    const val NEWS_CATEGORY = "News"
 
     // Priorities will be sorted in ascending order given these values
-    private val categoryPriorities = mapOf("All" to 0, "News" to 1, "Micro OTC" to 2,
+    private val categoryPriorities = mapOf("All" to 0, NEWS_CATEGORY to 1, "Micro OTC" to 2,
             "Wallet Features" to 3, "Knowledge Center" to 4)
 
     fun getCategoryIcon(category: String) = when (category) {

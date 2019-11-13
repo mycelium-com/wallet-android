@@ -34,6 +34,7 @@ import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.roundToLong
 
+
 open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
     override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
@@ -155,11 +156,11 @@ fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: Mu
         val adapter = AddressViewAdapter(addressesList, addressFirstItemWidth)
         this.adapter = adapter
 
-        setSelectListener { adapter, position ->
-            val address = (adapter as AddressViewAdapter).getItem(position)
+        setSelectListener { rvAdapter, position ->
+            val address = (rvAdapter as AddressViewAdapter).getItem(position)
             receivingAddress.value = address.address!!
         }
-        adapter.selectedItem = 2
+        selectedItem = adapter.itemCount - 1
     }
 }
 

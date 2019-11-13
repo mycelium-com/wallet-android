@@ -90,7 +90,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private final SQLiteStatement _getMaxSubId;
 
 
-   SqliteBtcWalletManagerBacking(Context context) {
+   public SqliteBtcWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 

@@ -144,7 +144,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-
     override fun isMineAddress(address: GenericAddress?): Boolean {
         for (btcAddress in addressList) {
             if (btcAddress.value == address) {

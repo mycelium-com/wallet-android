@@ -14,6 +14,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
@@ -130,8 +132,10 @@ class NewsFragment : Fragment() {
             }
         })
         retry.setOnClickListener {
-            requireContext().startService(Intent(context, NewsSyncService::class.java))
+            WorkManager.getInstance(requireContext())
+                    .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
         }
+        media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
     }
 
@@ -225,6 +229,7 @@ class NewsFragment : Fragment() {
                         tabs.addTab(tab)
                     }
                 }
+                cleanTabs(list, tabs)
                 unable_to_load.visibility = GONE
                 media_flow_loading.visibility = GONE
             } else {
@@ -234,20 +239,20 @@ class NewsFragment : Fragment() {
                         unable_to_load.visibility = VISIBLE
                         media_flow_loading.visibility = GONE
                     }
-                    NewsConstants.MEDIA_FLOW_LOADING  -> {
+                    NewsConstants.MEDIA_FLOW_LOADING -> {
                         adapter.state = NewsAdapter.State.LOADING
                         unable_to_load.visibility = GONE
                         media_flow_loading.visibility = VISIBLE
                         media_flow_loading.postOnAnimationDelayed(object : Runnable {
                             var tick = 0;
                             override fun run() {
-                                media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait,
+                                media_flow_loading?.text = getString(R.string.loading_media_flow_feed_please_wait,
                                         when (tick++ % 3) {
                                             0 -> ".  "
                                             1 -> ".. "
                                             else -> "..."
                                         })
-                                media_flow_loading.postOnAnimationDelayed(this, 1000);
+                                media_flow_loading?.postOnAnimationDelayed(this, 1000);
                             }
                         }, 1000)
                     }
@@ -299,5 +304,13 @@ class NewsFragment : Fragment() {
             }
         }
         return null
+    }
+
+    private fun cleanTabs(list: MutableList<Category>, tabLayout: TabLayout) {
+        for (i in tabLayout.tabCount - 1 downTo 0) {
+            if (!list.contains(tabLayout.getTabAt(i)?.tag)) {
+                tabLayout.removeTab(tabLayout.getTabAt(i)!!)
+            }
+        }
     }
 }

@@ -24,19 +24,19 @@ class NewsV2BigHolder(itemView: View, val preferences: SharedPreferences) : Recy
     fun bind(news: News) {
         itemView.title.text = Html.fromHtml(news.title)
         itemView.date.text = NewsUtils.getDateString(itemView.date.context, news)
-        itemView.author.text = news.author?.name
+        itemView.tvAuthor.text = news.author?.name
 
         itemView.favoriteButton.visibility = if (news.isFavorite(preferences)) VISIBLE else GONE
 
         val requestOptions = RequestOptions()
-                .transforms(CenterCrop(), RoundedCorners(itemView.image.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
-        Glide.with(itemView.image)
-                .load(news.getFitImage(itemView.image.resources.displayMetrics.widthPixels))
-                .error(Glide.with(itemView.image)
+                .transforms(CenterCrop(), RoundedCorners(itemView.ivImage.resources.getDimensionPixelSize(R.dimen.media_flow_round_corner)))
+        Glide.with(itemView.ivImage)
+                .load(news.getFitImage(itemView.ivImage.resources.displayMetrics.widthPixels))
+                .error(Glide.with(itemView.ivImage)
                         .load(R.drawable.mediaflow_default_picture)
                         .apply(requestOptions))
                 .apply(requestOptions)
-                .into(itemView.image)
+                .into(itemView.ivImage)
         itemView.setOnClickListener {
             openClickListener?.invoke(news)
         }
