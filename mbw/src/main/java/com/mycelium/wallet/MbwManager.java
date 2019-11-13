@@ -302,8 +302,8 @@ public class MbwManager {
         }
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter());
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
@@ -704,7 +704,7 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, getMetadataStorage(), accountListener));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -750,7 +750,8 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage(), accountListener));
+
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

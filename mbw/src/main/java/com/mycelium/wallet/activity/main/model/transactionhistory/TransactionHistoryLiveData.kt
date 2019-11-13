@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
+import kotlin.math.max
 
 /**
  * This class is intended to manage transaction history for current selected account.
@@ -66,7 +67,7 @@ class TransactionHistoryLiveData(val mbwManager: MbwManager) : LiveData<Set<Gene
         }
 
         override fun doInBackground(vararg voids: Void): List<GenericTransactionSummary>  =
-                account.getTransactionSummaries(0, Math.max(20, value!!.size)) as List<GenericTransactionSummary>
+                account.getTransactionSummaries(0, max(20, value!!.size)) as List<GenericTransactionSummary>
 
         override fun onPostExecute(transactions: List<GenericTransactionSummary>) {
             if (account === mbwManager.selectedAccount) {

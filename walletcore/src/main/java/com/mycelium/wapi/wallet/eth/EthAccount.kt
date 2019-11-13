@@ -2,17 +2,21 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.coins.Value.Companion.max
+import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.infura.InfuraHttpService
+import org.web3j.protocol.http.HttpService
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
@@ -22,10 +26,35 @@ import java.util.logging.Logger
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
+                 private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
+    val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
+    private var pendingTxDisposable: Disposable? = null
+
+    init {
+        pendingTxDisposable = subscribeOnPendingIncomingTx()
+    }
+
+    fun syncWithRemote() {
+        EtherscanIoFetcher.syncWithRemote(coinType, receivingAddress.addressString, backing) {
+            accountListener?.balanceUpdated(this)
+        }
+    }
+
+    // save incoming tx we detected to the txs table
+    private fun subscribeOnPendingIncomingTx(): Disposable {
+        return web3j.pendingTransactionFlowable()
+                .subscribe({ tx ->
+                    if (tx.to == receivingAddress.addressString) {
+                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                                tx.raw, tx.from, receivingAddress.addressString,
+                                valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice), 0)
+                    }
+                }, {})
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -54,7 +83,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
             val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
@@ -74,12 +102,14 @@ class EthAccount(private val accountContext: EthAccountContext,
         request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
     }
 
-    override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        val web3j: Web3j = Web3j.build(InfuraHttpService("http://ropsten-index.mycelium.com:18545"))
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
+        backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb, 0)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -104,11 +134,11 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
 
-    override fun getTransactionSummaries(offset: Int, limit: Int) = emptyList<GenericTransactionSummary>()
+    override fun getTransactionSummaries(offset: Int, limit: Int) =
+            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
 
     override fun getTransactionsSince(receivingSince: Long) = emptyList<GenericTransactionSummary>()
 
@@ -137,6 +167,7 @@ class EthAccount(private val accountContext: EthAccountContext,
             if (balanceDisposable.isDisposed) {
                 balanceDisposable = subscribeOnBalanceUpdates()
             }
+            renewSubscriptions()
         }
         return succeed
     }
@@ -172,7 +203,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = credentials?.ecKeyPair?.toUUID() ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
+    override fun getId() = credentials?.ecKeyPair?.toUUID()
+            ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun isSynchronizing() = false
 
@@ -183,11 +215,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
-        if (spendable < 0) {
-            return Value.zeroValue(coinType)
-        }
-        return spendable
+        val spendable = accountBalance.spendable - valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
+        return max(spendable, Value.zeroValue(coinType))
     }
 
     override fun getSyncTotalRetrievedTransactions() = 0
@@ -208,6 +237,19 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    private fun renewSubscriptions() {
+        if (pendingTxDisposable?.isDisposed == true) {
+            pendingTxDisposable = subscribeOnPendingIncomingTx()
+        }
+    }
+
+    fun stopSubscriptions() {
+        balanceDisposable.dispose()
+        if (pendingTxDisposable?.isDisposed == false) {
+            pendingTxDisposable?.dispose()
+        }
+    }
+
     private fun subscribeOnBalanceUpdates(): Disposable {
         return ethBalanceService.balanceFlowable.subscribe({ balance ->
             accountContext.balance = balance
@@ -215,10 +257,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {
             logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
         })
-    }
-
-    fun stopSubscriptions() {
-        balanceDisposable.dispose()
     }
 }
 

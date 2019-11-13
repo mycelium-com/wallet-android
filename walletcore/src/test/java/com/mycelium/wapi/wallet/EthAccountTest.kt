@@ -69,7 +69,7 @@ class EthAccountTest {
 
         val genericBacking = AccountContextsBacking(db)
         val ethBacking = EthBacking(db, genericBacking)
-        walletManager.add(EthereumModule(store, ethBacking, fakeMetadataStorage, null))
+        walletManager.add(EthereumModule(store, ethBacking, db, fakeMetadataStorage, null))
 
         val uuid = walletManager.createAccounts(EthereumMasterseedConfig())[0]
         account = walletManager.getAccount(uuid) as EthAccount
