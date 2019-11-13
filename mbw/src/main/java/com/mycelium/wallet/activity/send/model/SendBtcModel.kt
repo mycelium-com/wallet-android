@@ -105,7 +105,7 @@ class SendBtcModel(context: Application,
             amount.postValue(Value.valueOf(Utils.getBtcCoinType(), outputs.totalAmount))
         } else {
             if (amount.value!!.isZero()) {
-                return TransactionStatus.MissingArguments
+                return TransactionStatus.MISSING_ARGUMENTS
             }
             // build new output list with user specified amount
             outputs = outputs.newOutputsWithTotalAmount(toSend.value)

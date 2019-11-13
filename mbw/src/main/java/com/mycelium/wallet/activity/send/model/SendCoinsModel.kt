@@ -13,6 +13,7 @@ import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
@@ -123,7 +124,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    var feeEstimation = account.defaultFeeEstimation!!
+    var feeEstimation = account.cachedFeeEstimations
     var transaction: GenericTransaction? = null
     var signedTransaction: GenericTransaction? = null
 
@@ -156,7 +157,7 @@ abstract class SendCoinsModel(
     init {
         selectedFee.value = getCurrentFeeEstimation()
         feeLvl.value = mbwManager.minerFee
-        transactionStatus.value = TransactionStatus.MissingArguments
+        transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
         receivingAddressText.value = ""
@@ -172,17 +173,19 @@ abstract class SendCoinsModel(
         showStaleWarning.value = feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME
         MbwManager.getEventBus().register(eventListener)
 
-        /**
-         * Single-shot update fee.
-         * RxJava should dispose it automagically after completing, but it's not guaranteed, so calling dispose.
-         */
-        listToDispose.add(Single.fromCallable(account::getFeeEstimations)
-                .doOnSuccess { estimation ->
-                    feeEstimation = estimation
-                    showStaleWarning.postValue(feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME)
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe())
+        if (feeEstimation.lastCheck < System.currentTimeMillis() - FEE_STABLE_TIME) {
+            /**
+             * Single-shot update fee.
+             * RxJava should dispose it automagically after completing, but it's not guaranteed, so calling dispose.
+             */
+            listToDispose.add(Single.fromCallable(account::getFeeEstimations)
+                    .doOnSuccess { estimation ->
+                        feeEstimation = estimation
+                        showStaleWarning.postValue(feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME)
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe())
+        }
 
         /**
          * This observes different events, which causes tx being rebuilt.
@@ -191,7 +194,7 @@ abstract class SendCoinsModel(
         listToDispose.add(txRebuildPublisher.toFlowable(BackpressureStrategy.LATEST)
                 .observeOn(Schedulers.computation())
                 .flatMap {
-                    transactionStatus.postValue(TransactionStatus.Building)
+                    transactionStatus.postValue(TransactionStatus.BUILDING)
                     updateTransactionStatus()
                     Flowable.just(Unit)
                 }
@@ -274,6 +277,11 @@ abstract class SendCoinsModel(
     open fun signTransaction(activity: Activity) {
         SignTransactionActivity.callMe(activity, account.id, isColdStorage, transaction,
                 SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE)
+        receivingAddress.value?.let { address ->
+            mbwManager.getWalletManager(false).getAccountByAddress(address)?.let { receivingAccount ->
+                MbwManager.getEventBus().post(AccountChanged(receivingAccount))
+            }
+        }
     }
 
     open fun loadInstance(savedInstanceState: Bundle) {
@@ -370,7 +378,7 @@ abstract class SendCoinsModel(
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
         errorText.postValue(when (transactionStatus) {
-            TransactionStatus.OutputTooSmall -> {
+            TransactionStatus.OUTPUT_TO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
                     context.getString(R.string.amount_too_small_short)
@@ -378,8 +386,8 @@ abstract class SendCoinsModel(
                     ""
                 }
             }
-            TransactionStatus.InsufficientFunds -> context.getString(R.string.insufficient_funds)
-            TransactionStatus.BuildError -> context.getString(R.string.tx_build_error)
+            TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
             else -> ""
         })
     }
@@ -387,9 +395,9 @@ abstract class SendCoinsModel(
     private fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
-        } else if (transactionStatus.value == TransactionStatus.OutputTooSmall
-                || transactionStatus.value == TransactionStatus.InsufficientFunds
-                || transactionStatus.value == TransactionStatus.InsufficientFundsForFee) {
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             getValueInAccountCurrency().toStringWithUnit(mbwManager.denomination)
         } else {
             formatValue(amount.value)
@@ -397,9 +405,9 @@ abstract class SendCoinsModel(
     }
 
     private fun getRequestedAmountAlternativeFormatted(): String {
-        return if (transactionStatus.value == TransactionStatus.OutputTooSmall
-                || transactionStatus.value == TransactionStatus.InsufficientFunds
-                || transactionStatus.value == TransactionStatus.InsufficientFundsForFee) {
+        return if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             ""
         } else {
             formatValue(alternativeAmount.value)
@@ -438,16 +446,16 @@ abstract class SendCoinsModel(
                 spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
                 TransactionStatus.OK
             } else {
-                TransactionStatus.MissingArguments
+                TransactionStatus.MISSING_ARGUMENTS
             }
         } catch (ex: GenericBuildTransactionException) {
-            return TransactionStatus.MissingArguments
+            return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: GenericOutputTooSmallException) {
-            return TransactionStatus.OutputTooSmall
+            return TransactionStatus.OUTPUT_TO_SMALL
         } catch (ex: GenericInsufficientFundsException) {
-            return TransactionStatus.InsufficientFunds
+            return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
-            return TransactionStatus.BuildError
+            return TransactionStatus.BUILD_ERROR
         }
     }
 
@@ -483,7 +491,7 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        Building, MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, BuildError, OK
+        BUILDING, MISSING_ARGUMENTS, OUTPUT_TO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
     }
 
     companion object {
@@ -491,6 +499,9 @@ abstract class SendCoinsModel(
         private const val FEE_LVL = "feeLvl"
         private const val PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId"
         private const val FEE_ESTIMATION = "fee_estimation"
-        private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2)
+        // Alert the user of old fee estimations
+        private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(5)
+        // Don't query the fee levels more than every 15 minutes. It doesn't change that quickly.
+        private val FEE_STABLE_TIME = TimeUnit.MINUTES.toMillis(15)
     }
 }
