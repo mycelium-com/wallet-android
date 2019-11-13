@@ -42,7 +42,7 @@ object EtherscanIoFetcher {
                     toAdd.forEach { tx ->
                         backing.putTransaction(tx.blockNumber, tx.timeStamp, tx.hash,
                                 "", tx.from, tx.to, Value.valueOf(coinType, tx.value),
-                                Value.valueOf(coinType, tx.gasPrice), tx.confirmations)
+                                Value.valueOf(coinType, tx.gasPrice * BigInteger.valueOf(21000)), tx.confirmations)
                     }
                     toUpdate.forEach { tx ->
                         backing.updateTransaction(tx.hash, tx.blockNumber, tx.confirmations)

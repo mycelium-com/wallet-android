@@ -52,8 +52,8 @@ class EthAccount(private val accountContext: EthAccountContext,
                 .subscribe({ tx ->
                     if (tx.to == receivingAddress.addressString) {
                         backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                                tx.raw, tx.from, receivingAddress.addressString,
-                                valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice), 0)
+                                tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
+                                valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
                     }
                 }, {})
     }
@@ -74,7 +74,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         try {
             val nonce = getNonce(receivingAddress)
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
-                    BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000),
+                    BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
                     toAddress.toString(), BigInteger.valueOf(value.value))
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
@@ -111,7 +111,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                 tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb, 0)
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toLong(), 0)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
