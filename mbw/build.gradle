@@ -70,6 +70,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.0"
+    implementation 'androidx.work:work-runtime:2.2.0'
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "de.cketti.library.changelog:ckchangelog:1.2.2"
@@ -120,6 +121,7 @@ android {
     configurations {
         all*.exclude module: 'jcip-annotations'
         all*.exclude module: 'jsr305'
+        all*.exclude group: 'com.google.guava', module: 'listenablefuture'
     }
     dexOptions {
         javaMaxHeapSize "4g"
@@ -144,8 +146,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3020001
-        versionName '3.2.0.1'
+        versionCode 3020008
+        versionName '3.2.0.8'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

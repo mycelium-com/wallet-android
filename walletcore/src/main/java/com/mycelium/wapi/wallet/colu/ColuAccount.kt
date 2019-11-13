@@ -76,7 +76,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
+    private fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         return FeeEstimationsGeneric(
                 Value.valueOf(coinType, 1000),
                 Value.valueOf(coinType, 3000),
@@ -155,7 +155,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-
     override fun isMineAddress(address: GenericAddress?): Boolean {
         for (btcAddress in addressList) {
             if (btcAddress.value == address) {
@@ -204,10 +203,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         } catch (ex: WapiException) {
             //receiving data from the server failed then trying to read fee estimations from the DB
             //if a read error has occurred from the DB, then we return the predefined default fee
-            return accountBacking.loadLastFeeEstimation(coinType) ?: defaultFeeEstimation
+            return getCachedFeeEstimations()
         }
     }
 
+    override fun getCachedFeeEstimations(): FeeEstimationsGeneric = accountBacking.loadLastFeeEstimation(coinType) ?: getDefaultFeeEstimation()
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {

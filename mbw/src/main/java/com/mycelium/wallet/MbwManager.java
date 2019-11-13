@@ -45,11 +45,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -74,7 +75,11 @@ import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.net.*;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.ServerEndpointType;
+import com.mycelium.net.ServerEndpoints;
+import com.mycelium.net.TorManager;
+import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.view.Denomination;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.activity.util.BlockExplorerManager;
@@ -83,7 +88,15 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.AccountCreated;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.EventTranslator;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -91,7 +104,7 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
@@ -99,10 +112,34 @@ import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
-import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.*;
-import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.single.*;
+import com.mycelium.wapi.wallet.AccountListener;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.CurrencySettings;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BTCSettings;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.Reference;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
+import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
@@ -112,18 +149,30 @@ import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import kotlin.jvm.Synchronized;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -208,6 +257,7 @@ public class MbwManager {
     private WalletConfiguration configuration;
 
     private Handler mainLoopHandler;
+    private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
@@ -583,7 +633,7 @@ public class MbwManager {
      */
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment) {
         // Create persisted account backing
-        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBackingWrapper(context);
+        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBacking(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -634,6 +684,7 @@ public class MbwManager {
         ColuClient coluClient = new ColuClient(networkParameters, BuildConfig.ColoredCoinsApiURLs, BuildConfig.ColuBlockExplorerApiURLs, socketFactory);
         walletManager.add(new ColuModule(networkParameters, new PublicPrivateKeyStore(coluSecureKeyValueStore)
                 , new ColuApiImpl(coluClient), _wapi, coluBacking, accountListener, getMetadataStorage(), saModule));
+
 
         walletManager.init();
 
@@ -711,6 +762,15 @@ public class MbwManager {
             migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
         }
         return migrationProgressTracker;
+    }
+
+    public boolean isAppInForeground() {
+        return appInForeground;
+    }
+
+    public void setAppInForeground(boolean appInForeground) {
+        getWapi().setAppInForeground(appInForeground);
+        this.appInForeground = appInForeground;
     }
 
     public GenericAssetInfo getFiatCurrency() {

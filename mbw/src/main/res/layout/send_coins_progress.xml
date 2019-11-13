@@ -20,7 +20,7 @@
         android:id="@+id/send_coins_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:animatedVisibility="@{viewModel.transactionStatus == TransactionStatus.Building}"
+        app:animatedVisibility="@{viewModel.transactionStatus == TransactionStatus.BUILDING}"
         android:orientation="vertical">
 
         <ProgressBar

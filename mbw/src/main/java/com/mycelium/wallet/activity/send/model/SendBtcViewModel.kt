@@ -33,6 +33,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
 import kotlin.math.roundToLong
 
+
 open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
@@ -153,11 +154,11 @@ fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: Mu
         val adapter = AddressViewAdapter(addressesList, addressFirstItemWidth)
         this.adapter = adapter
 
-        setSelectListener { adapter, position ->
-            val address = (adapter as AddressViewAdapter).getItem(position)
+        setSelectListener { rvAdapter, position ->
+            val address = (rvAdapter as AddressViewAdapter).getItem(position)
             receivingAddress.value = address.address!!
         }
-        adapter.selectedItem = 2
+        selectedItem = adapter.itemCount - 1
     }
 }
 
