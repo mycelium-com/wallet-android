@@ -185,7 +185,7 @@ public class TaskExecutionServiceController {
       _connection = new MyServiceConnection();
       _callbackHandler = callbackHandler;
       Intent intent = new Intent(activity, TaskExecutionService.class);
-      activity.bindService(intent, _connection, Context.BIND_IMPORTANT | Context.BIND_AUTO_CREATE);
+      activity.bindService(intent, _connection, Context.BIND_IMPORTANT | Context.BIND_AUTO_CREATE | Context.BIND_ADJUST_WITH_ACTIVITY);
    }
 
    public void unbind(Activity activity) {

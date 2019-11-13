@@ -158,7 +158,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
          // check if we are currently in TOR-only mode - if so, setup the PaymentRequestHandler
          // that all http(s) calls get routed over TOR
          if (mbw.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbw.getTorManager() != null){
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork()){
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork()){
                @Override
                protected OkHttpClient getHttpClient() {
                   OkHttpClient client = super.getHttpClient();
@@ -168,7 +168,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             progressMsg += getString(R.string.payment_request_over_tor);
 
          } else {
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork());
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork());
          }
          mbw.getBackgroundObjectsCache().put(paymentRequestHandlerUuid, requestHandler);
       }
