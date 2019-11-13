@@ -597,6 +597,10 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_detach);
         }
 
+        if (account instanceof EthAccount) {
+            menus.add(R.menu.record_options_menu_manual_sync);
+        }
+
         AppCompatActivity parent = (AppCompatActivity) requireActivity();
 
         Callback actionMode = new Callback() {
@@ -657,6 +661,9 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miRescan:
                         rescan();
+                        return true;
+                    case R.id.miManualSync:
+                        syncManually();
                         return true;
                     default:
                         return false;
@@ -938,6 +945,12 @@ public class AccountsFragment extends Fragment {
                 })
                 .setNegativeButton(R.string.no, null)
                 .show();
+    }
+
+    private void syncManually() {
+        if (requireFocusedAccount() instanceof EthAccount) {
+            ((EthAccount) requireFocusedAccount()).syncWithRemote();
+        }
     }
 
     @NonNull

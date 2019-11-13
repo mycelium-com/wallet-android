@@ -5,8 +5,6 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import org.web3j.abi.datatypes.Address
 import java.io.IOException
 import java.io.ObjectInputStream
-import java.lang.IllegalStateException
-import java.util.*
 
 
 class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : GenericAddress {
