@@ -53,9 +53,9 @@ class ReceiveBtcViewModel(application: Application) : ReceiveCoinsViewModel(appl
     fun getAvailableAddressTypesCount() = (account as AbstractBtcAccount).availableAddressTypes.size
 
 
-    override fun getCurrencyName() = context.getString(R.string.bitcoin_name)
+    override fun getCurrencyName(): String = context.getString(R.string.bitcoin_name)
 
-    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.denomination)
+    override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.getDenomination(account.coinType))
 
     fun showAddressTypesInfo(activity: AppCompatActivity) {
         // building message based on networking preferences

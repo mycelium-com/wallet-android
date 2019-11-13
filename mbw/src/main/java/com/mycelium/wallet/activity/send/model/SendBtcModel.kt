@@ -62,12 +62,12 @@ class SendBtcModel(context: Application,
                                 val value = Value.valueOf(account.coinType, fee)
                                 val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {
-                                    " (${fiatValue.toStringWithUnit(mbwManager.denomination)}"
+                                    " (${fiatValue.toStringWithUnit(mbwManager.getDenomination(account.coinType))}"
                                 } else {
                                     ""
                                 }
                                 feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_change_warning,
-                                        value.toStringWithUnit(mbwManager.denomination), fiat)))
+                                        value.toStringWithUnit(mbwManager.getDenomination(account.coinType)), fiat)))
                                 isFeeExtended.postValue(true)
                             } else {
                                 feeWarning.postValue("")

@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import io.reactivex.Flowable
 import io.reactivex.Single
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -17,13 +18,13 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
-    private val web3jService = HttpService("http://ropsten-index.mycelium.com:18545")
+    private val web3jService = HttpService("http://parity.mycelium.com:18545")
     private val web3j: Web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val balanceFlowable =
+    val balanceFlowable: Flowable<Balance> =
         web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
                 .flatMapSingle {
                     updateBalanceCache()

@@ -378,7 +378,7 @@ abstract class SendCoinsModel(
         } else if (transactionStatus.value == TransactionStatus.OutputTooSmall
                 || transactionStatus.value == TransactionStatus.InsufficientFunds
                 || transactionStatus.value == TransactionStatus.InsufficientFundsForFee) {
-            getValueInAccountCurrency().toStringWithUnit(mbwManager.denomination)
+            getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             formatValue(amount.value)
         }
@@ -399,7 +399,7 @@ abstract class SendCoinsModel(
             ""
         } else {
             if (value!!.type == account.coinType) {
-                value.toStringWithUnit(mbwManager.denomination)
+                value.toStringWithUnit(mbwManager.getDenomination(account.coinType))
             } else {
                 "~ ${value.toStringWithUnit()}"
             }

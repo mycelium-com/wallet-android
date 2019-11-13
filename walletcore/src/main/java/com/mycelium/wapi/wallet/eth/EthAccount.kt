@@ -23,6 +23,8 @@ import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.concurrent.thread
+
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
@@ -244,8 +246,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     fun stopSubscriptions() {
-        balanceDisposable.dispose()
-        if (pendingTxDisposable?.isDisposed == false) {
+        thread {
+            balanceDisposable.dispose()
             pendingTxDisposable?.dispose()
         }
     }

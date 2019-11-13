@@ -58,6 +58,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
@@ -133,7 +134,8 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
+            GenericAssetInfo coinType = mbwManager.getWalletManager(false).getAccount(model.accountId).getCoinType();
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination(coinType));
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 

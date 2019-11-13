@@ -38,8 +38,8 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
         model.saveInstance(outState)
     }
 
-    open fun getHint() = context.getString(R.string.amount_hint_denomination,
-            mbwManager.denomination.getUnicodeString(account.coinType.symbol))
+    open fun getHint(): String = context.getString(R.string.amount_hint_denomination,
+            mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
 
     abstract fun getFormattedValue(sum: Value): String
 
@@ -65,7 +65,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountFormatted() = Transformations.map(model.amount) {
         if (!Value.isNullOrZero(it)) {
-            it?.toStringWithUnit(mbwManager.denomination)
+            it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             ""
         }
@@ -75,7 +75,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
 
     fun getRequestedAmountAlternativeFormatted() = Transformations.map(model.alternativeAmountData) {
         if (!Value.isNullOrZero(it)) {
-            "~ " + it?.toStringWithUnit(mbwManager.denomination)
+            "~ " + it?.toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             ""
         }

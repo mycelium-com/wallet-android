@@ -665,11 +665,13 @@ public class TransactionHistoryFragment extends Fragment {
             if(unsigned != null) {
                long txFee = unsigned.calculateFee();
                Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
+               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue,
+                       _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
                Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
                        _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
+                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue,
+                          _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + ")";
                }
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {

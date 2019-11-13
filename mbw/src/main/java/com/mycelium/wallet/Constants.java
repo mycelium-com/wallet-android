@@ -65,6 +65,7 @@ public interface Constants {
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    String DEFAULT_CURRENCY = "USD";
    String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+   String DENOMINATION_SETTING = "Denomination";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
@@ -74,6 +75,7 @@ public interface Constants {
    String IGNORED_VERSIONS = "ignored_versions";
    String TOR_MODE = "tor_mode";
    String BLOCK_EXPLORER = "BlockExplorer";
+   String BLOCK_EXPLORERS = "BlockExplorers";
    String CHANGE_ADDRESS_MODE = "change_type";
 
    // Ledger preferences

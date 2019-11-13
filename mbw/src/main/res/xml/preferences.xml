@@ -103,8 +103,8 @@
         android:layout="@layout/preference_category_layout"
         android:order="4"
         android:title="@string/currencies">
-        <ListPreference
-            android:dialogTitle="Bitcoin denomination"
+
+        <PreferenceScreen
             android:key="bitcoin_denomination"
             android:layout="@layout/preference_layout_no_icon"
             android:summary="@string/pref_bitcoin_denomination_summary"
@@ -118,7 +118,7 @@
             android:title="@string/pref_local_currency"
             android:widgetLayout="@layout/preference_arrow" />
 
-        <ListPreference
+        <PreferenceScreen
             android:icon="@drawable/ic_trending_up_24_px"
             android:key="exchange_source"
             android:layout="@layout/preference_layout"
@@ -146,8 +146,7 @@
         android:order="6"
         android:layout="@layout/preference_category_layout"
         android:title="@string/transactions">
-        <ListPreference
-            android:dialogTitle="@string/block_explorer"
+        <PreferenceScreen
             android:icon="@drawable/ic_exchange_coin"
             android:key="block_explorer"
             android:title="@string/block_explorer_title"

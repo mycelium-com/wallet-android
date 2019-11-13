@@ -21,7 +21,7 @@ class EthSendTxTest {
     private val credentials1: Credentials = Credentials.create("0xBD7AAA21DE06DA4E982FF51AFAD6E6E654CA456F212A0A5D235ACF6707EF8C9F")
     // 0xD7677B6e62F283E1775B05d9e875B03C27c298a9
     private val credentials2: Credentials = Credentials.create("0x64B248B0A9D17EEC1D7F53A441E96EA9BD755C82A6AD7C95EF6F5D90EDC009F6")
-    private val web3j: Web3j = Web3j.build(HttpService("http://ropsten-index.mycelium.com:18545"))
+    private val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     private val value = Convert.toWei("0.0001", Convert.Unit.ETHER).toBigInteger()
 
     @Test

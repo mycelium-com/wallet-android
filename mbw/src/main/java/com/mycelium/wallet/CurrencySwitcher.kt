@@ -50,21 +50,42 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
                        currentTotalCurrency: GenericAssetInfo,
                        currentCurrencyMap: MutableMap<GenericAssetInfo, GenericAssetInfo?>,
                        currentFiatMap: MutableMap<GenericAssetInfo, GenericAssetInfo?>,
-                       var denomination: Denomination) {
+                       denominationMap: MutableMap<GenericAssetInfo, Denomination>) {
 
+    var denominationMap: MutableMap<GenericAssetInfo, Denomination> = mutableMapOf()
     private var fiatCurrencies: List<GenericAssetInfo>? = null
     var walletCurrencies: List<GenericAssetInfo>? = null
         set(walletAssetTypes) {
             field = walletAssetTypes
-            // fills current currencies maps with default values
-            walletAssetTypes?.filterNot { currentCurrencyMap.containsKey(it) }.orEmpty()
-                    .forEach { asset ->
-                        currentCurrencyMap[asset] = asset
-                    }
-            walletAssetTypes?.filterNot { currentFiatCurrencyMap.containsKey(it) }.orEmpty()
-                    .forEach { asset ->
-                        currentFiatCurrencyMap[asset] = FiatType(Constants.DEFAULT_CURRENCY)
-                    }
+            // sync maps with wallet current asset types
+            // if new asset type has been added then add it to maps and init with default values
+            walletAssetTypes?.forEach { asset ->
+                if (!currentCurrencyMap.containsKey(asset)) {
+                    currentCurrencyMap[asset] = asset
+                }
+                if (!currentFiatCurrencyMap.containsKey(asset)) {
+                    currentFiatCurrencyMap[asset] = FiatType(Constants.DEFAULT_CURRENCY)
+                }
+                if (!denominationMap.containsKey(asset)) {
+                    denominationMap[asset] = Denomination.UNIT
+                }
+            }
+
+            // if walletAssetTypes doesn't contain an asset anymore, remove the asset from the maps too
+            walletAssetTypes?.let {
+                currentCurrencyMap.keys.filterNot { asset -> it.contains(asset) }
+                        .forEach { asset ->
+                            currentCurrencyMap.remove(asset)
+                        }
+                currentFiatCurrencyMap.keys.filterNot { asset -> it.contains(asset) }
+                        .forEach { asset ->
+                            currentFiatCurrencyMap.remove(asset)
+                        }
+                denominationMap.keys.filterNot { asset -> it.contains(asset) }
+                        .forEach { asset ->
+                            denominationMap.remove(asset)
+                        }
+            }
         }
 
     // general fiat currency equals the last selected currency in total balance for all currency groups
@@ -83,6 +104,7 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         this.currentCurrencyMap = currentCurrencyMap
         this.currentFiatCurrencyMap = currentFiatMap
         this.currentTotalCurrency = currentTotalCurrency
+        this.denominationMap = denominationMap
     }
 
     fun getCurrentCurrency(coinType: GenericAssetInfo): GenericAssetInfo? {
@@ -93,11 +115,13 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         return currentFiatCurrencyMap[coinType]
     }
 
+    fun getDenomintation(coinType: GenericAssetInfo): Denomination? = denominationMap[coinType]
+
     fun getCurrentCurrencyIncludingDenomination(coinType: GenericAssetInfo): String {
         return if (currentCurrencyMap[coinType] is FiatType) {
             currentCurrencyMap[coinType]!!.symbol
         } else {
-            denomination.getUnicodeString(currentCurrencyMap[coinType]!!.symbol)
+            denominationMap[coinType]!!.getUnicodeString(currentCurrencyMap[coinType]!!.symbol)
         }
     }
 
@@ -106,6 +130,10 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
             currentFiatCurrencyMap[coinType] = setToCurrency
         }
         currentCurrencyMap[coinType] = setToCurrency
+    }
+
+    fun setDenomintation(coinType: GenericAssetInfo, denomination: Denomination) {
+        denominationMap[coinType] = denomination
     }
 
     fun isFiatCurrency(currency: GenericAssetInfo?): Boolean {

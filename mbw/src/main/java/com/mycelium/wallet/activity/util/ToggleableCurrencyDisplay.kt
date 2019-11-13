@@ -132,7 +132,7 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            tvDisplayValue.text = currentValue?.toString(currencySwitcher.denomination)
+            tvDisplayValue.text = currentValue?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
             val currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination(coinType!!)
             tvCurrency.text = currentCurrency
         }
@@ -144,12 +144,13 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             View.GONE
         } else {
             val value = currencySwitcher.getAsFiatValue(currentValue)
-            tvCurrency.text = if (coinType == null) { // then it's a total TCB
-                currencySwitcher.currentTotalCurrency!!.symbol
+            if (coinType == null) { // then it's a total TCB
+                tvCurrency.text = currencySwitcher.currentTotalCurrency!!.symbol
+                tvDisplayValue.text = value?.toPlainString()
             } else {
-                currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
+                tvCurrency.text = currencySwitcher.currentFiatCurrencyMap[coinType!!]!!.symbol
+                tvDisplayValue.text = value?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
             }
-            tvDisplayValue.text = value?.toString(currencySwitcher.denomination)
             View.VISIBLE
         }
     }
