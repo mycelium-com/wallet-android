@@ -65,7 +65,6 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericFee;
 import com.mycelium.wapi.wallet.GenericInputViewModel;
@@ -1781,7 +1780,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       boolean isQueuedOutgoing = _backing.isOutgoingTransaction(tx.getId());
       return new GenericTransactionSummary(getCoinType(), tx.getId().getBytes(), tx.getHash().getBytes(), Value.valueOf(getCoinType(), satoshisTransferred), tex.time, tex.height,
               confirmations, isQueuedOutgoing, inputs, outputs, destinationAddresses, riskAssessmentForUnconfirmedTx.get(tx.getId()),
-              tx.vsize(), Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent)));
+              tx.vsize(), Value.valueOf(getCoinType(), Math.abs(satoshisReceived - satoshisSent) * 1000));
    }
 
    private TransactionOutput createPopOutput(Sha256Hash txidToProve, byte[] nonce) {
