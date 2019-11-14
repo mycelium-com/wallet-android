@@ -44,6 +44,8 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -53,6 +55,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.view.Denomination;
 import com.mycelium.wallet.CurrencySwitcher;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.NumberEntry;
@@ -267,14 +270,21 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       final List<GenericAssetInfo> currencyList = getAvailableCurrencyList();
       if (currencyList.size() > 1) {
          PopupMenu currencyListMenu = new PopupMenu(this, btCurrency);
+         List<String> cryptocurrencies = _mbwManager.getWalletManager(false).getCryptocurrenciesSymbols();
          for (GenericAssetInfo asset : currencyList) {
-            currencyListMenu.getMenu().add(asset.getSymbol());
+            String itemTitle = asset.getSymbol();
+            // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
+            Denomination denomination =_mbwManager.getDenomination(_account.getCoinType());
+            if (cryptocurrencies.contains(asset.getSymbol()) && denomination != Denomination.UNIT) {
+               itemTitle += " (" + denomination.getUnicodeString(asset.getSymbol()) + ")";
+            }
+            currencyListMenu.getMenu().add(Menu.NONE, asset.hashCode(), Menu.NONE, itemTitle);
          }
          currencyListMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                for (GenericAssetInfo genericAssetInfo : currencyList) {
-                  if (menuItem.getTitle().equals(genericAssetInfo.getSymbol())) {
+                  if (menuItem.getItemId() == genericAssetInfo.hashCode()) {
                      _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), genericAssetInfo);
                      if (_amount != null) {
                         _amount = ExchangeValueKt.get(_mbwManager.getExchangeRateManager(), _amount, genericAssetInfo);
