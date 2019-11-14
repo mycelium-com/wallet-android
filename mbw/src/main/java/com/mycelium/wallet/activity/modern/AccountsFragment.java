@@ -286,7 +286,7 @@ public class AccountsFragment extends Fragment {
                     localTraderManager.unsetLocalTraderAccount();
                 }
                 if (hasPrivateData) {
-                    Long satoshis = getPotentialBalance(accountToDelete);
+                    Value potentialBalance = getPotentialBalance(accountToDelete);
                     AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
                     confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
 
@@ -314,7 +314,7 @@ public class AccountsFragment extends Fragment {
                             address = "";
                         }
                     }
-                    if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
+                    if (accountToDelete.isActive() && potentialBalance != null && potentialBalance.moreThanZero()) {
                         if (label.length() != 0) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
@@ -427,11 +427,11 @@ public class AccountsFragment extends Fragment {
                 }
             }
 
-            private Long getPotentialBalance(WalletAccount account) {
+            private Value getPotentialBalance(WalletAccount account) {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    return account.getAccountBalance().getSpendable().value;
+                    return account.getAccountBalance().getSpendable();
                 }
             }
         });

@@ -78,7 +78,7 @@ public class TradeActivityUtil {
                  .getFeeProvider(account.getCoinType())
                  .getEstimation()
                  .getNormal()
-                 .value;
+                 .getValueAsLong();
          ((WalletBtcAccount)account).createUnsignedTransaction(Collections.singletonList(receiver), estimatedFee);
       } catch (OutputTooSmallException e) {
          throw new RuntimeException(e);

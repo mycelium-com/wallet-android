@@ -25,7 +25,7 @@ fun ExchangeRateManager.get(value: Value, toCurrency: GenericAssetInfo): Value? 
     val rate = GetExchangeRate(toCurrency.symbol, fromValue.type.symbol, this).invoke()
     val rateValue = rate.rate
     return if (rateValue != null) {
-        val bigDecimal = rateValue.multiply(BigDecimal.valueOf(fromValue.value))
+        val bigDecimal = rateValue.multiply(fromValue.valueAsBigDecimal)
                 .movePointLeft(fromValue.type.unitExponent)
                 .round(MathContext.DECIMAL32)
         ExchangeValue(Value.parse(toCurrency, bigDecimal), fromValue)

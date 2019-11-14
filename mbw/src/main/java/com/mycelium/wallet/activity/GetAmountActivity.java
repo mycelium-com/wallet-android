@@ -76,6 +76,7 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -192,7 +193,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          destinationAddress = _account.getDummyAddress();
       }
 
-      _maxSpendableAmount = _account.calculateMaxSpendableAmount(_kbMinerFee, destinationAddress);
+      _maxSpendableAmount = _account.calculateMaxSpendableAmount(BigInteger.valueOf(_kbMinerFee), destinationAddress);
       showMaxAmount();
 
       // if no amount is set, create an null amount with the correct currency
@@ -416,7 +417,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             _amount = val;
          } else {
-            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.value));
+            _amount = Value.valueOf(val.type, _mbwManager.getDenomination().getAmount(val.getValueAsLong()));
          }
       }catch (NumberFormatException e){
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(0);
@@ -424,7 +425,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
       if (isSendMode) {
          // enable/disable Max button
-         btMax.setEnabled(_maxSpendableAmount.value != _amount.value);
+         btMax.setEnabled(_maxSpendableAmount.notEqualsTo(_amount));
       }
    }
 
@@ -487,7 +488,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          protected AmountValidation doInBackground(Void... voids) {
             if(value == null) {
                return AmountValidation.ExchangeRateNotAvailable;
-            }else if (value.value == 0) {
+            }else if (value.equalZero()) {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
@@ -546,7 +547,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                }
                if (result == AmountValidation.NotEnoughFunds) {
                   // We do not have enough funds
-                  if (amount.value == 0 || _account.getAccountBalance().getSpendable().value < amount.value) {
+                  if (amount.equalZero() || _account.getAccountBalance().getSpendable().lessThan(amount)) {
                      // We do not have enough funds for sending the requested amount
                      String msg = getResources().getString(R.string.insufficient_funds);
                      Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();

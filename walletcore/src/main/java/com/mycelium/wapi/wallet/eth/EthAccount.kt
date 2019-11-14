@@ -43,8 +43,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         try {
             val nonce = getNonce(receivingAddress)
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
-                    BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(21000),
-                    toAddress.toString(), BigInteger.valueOf(value.value))
+                    gasPrice.feePerKb.value, BigInteger.valueOf(21000),
+                    toAddress.toString(), value.value)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
@@ -182,9 +182,9 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
-        if (spendable < 0) {
+    override fun calculateMaxSpendableAmount(gasPrice: BigInteger, ign: EthAddress?): Value {
+        val spendable = accountBalance.spendable - Value.valueOf(coinType, gasPrice * typicalEstimatedTransactionSize.toBigInteger())
+        if (spendable.isNegative()) {
             return Value.zeroValue(coinType)
         }
         return spendable

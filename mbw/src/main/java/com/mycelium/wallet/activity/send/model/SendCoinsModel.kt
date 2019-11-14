@@ -196,7 +196,7 @@ abstract class SendCoinsModel(
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
                     feeDataset.postValue(updateFeeDataset())
-                    if (selectedFee.value!!.value == 0L) {
+                    if (selectedFee.value!!.equalZero()) {
                         feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_is_zero)))
                     }
                     Completable.complete()
@@ -449,7 +449,7 @@ abstract class SendCoinsModel(
     }
 
     private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
-            (feeItems[0].feePerKb <= fee.value && fee.value <= feeItems[feeItems.size - 1].feePerKb)
+            (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
 
     private fun getCurrentFeeEstimation() = when (feeLvl.value) {
         MinerFee.LOWPRIO -> Value.valueOf(account.coinType, feeEstimation.low.value)
