@@ -72,11 +72,6 @@ import java.util.Locale;
 import info.guardianproject.onionkit.ui.OrbotHelper;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.mycelium.wallet.MinerFee.ECONOMIC;
-import static com.mycelium.wallet.MinerFee.LOWPRIO;
-import static com.mycelium.wallet.MinerFee.NORMAL;
-import static com.mycelium.wallet.MinerFee.PRIORITY;
-import static com.mycelium.wallet.MinerFee.fromString;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final int REQUEST_CODE_UNINSTALL = 1;
@@ -91,7 +86,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private CheckBoxPreference ltMilesKilometers;
     private MbwManager mbwManager;
     private LocalTraderManager ltManager;
-    private ListPreference minerFee;
+    private PreferenceScreen minerFeeScreen;
     private PreferenceScreen blockExplorerScreen;
     private Preference changeAddressType;
     private Preference notificationPreference;
@@ -221,7 +216,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         // Denomination
         denominationScreen = findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
-        minerFee = findPreference(Constants.SETTING_MINER_FEE);
+        minerFeeScreen = findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
         blockExplorerScreen = findPreference("block_explorer");
         // Transaction change address type
@@ -426,33 +421,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (changeAddressType != null) {
             changeAddressType.setOnPreferenceClickListener(segwitChangeAddressClickListener);
         }
-        if (minerFee != null) {
-            minerFee.setSummary(getMinerFeeSummary());
-            minerFee.setValue(mbwManager.getMinerFee().toString());
-            CharSequence[] minerFees = new CharSequence[]{
-                    LOWPRIO.toString(),
-                    ECONOMIC.toString(),
-                    NORMAL.toString(),
-                    PRIORITY.toString()};
-            CharSequence[] minerFeeNames = new CharSequence[]{
-                    getString(R.string.miner_fee_lowprio_name),
-                    getString(R.string.miner_fee_economic_name),
-                    getString(R.string.miner_fee_normal_name),
-                    getString(R.string.miner_fee_priority_name)};
-            minerFee.setEntries(minerFeeNames);
-            minerFee.setEntryValues(minerFees);
-            minerFee.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mbwManager.setMinerFee(fromString(newValue.toString()));
-                    minerFee.setSummary(getMinerFeeSummary());
-                    String description = mbwManager.getMinerFee().getMinerFeeDescription(requireActivity());
-                    Utils.showSimpleMessageDialog(requireContext(), description);
-                    return true;
-                }
+        if (minerFeeScreen != null) {
+            minerFeeScreen.setOnPreferenceClickListener(preference -> {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
+                        .replace(R.id.fragment_container, MinerFeeFragment.newInstance(minerFeeScreen.getKey()))
+                        .addToBackStack("miner_fee")
+                        .commitAllowingStateLoss();
+                return true;
             });
         }
-
 
         // Local Trader
         if (localTraderDisable != null) {
@@ -919,26 +899,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             //nothing selected
             return getResources().getString(R.string.pref_no_fiat_selected);
         }
-    }
-
-    private String getMinerFeeSummary() {
-        int blocks = 0;
-        switch (mbwManager.getMinerFee()) {
-            case LOWPRIO:
-                blocks = 20;
-                break;
-            case ECONOMIC:
-                blocks = 10;
-                break;
-            case NORMAL:
-                blocks = 3;
-                break;
-            case PRIORITY:
-                blocks = 1;
-                break;
-        }
-        return getResources().getString(R.string.pref_miner_fee_block_summary,
-                Integer.toString(blocks));
     }
 
     private class SubscribeToServerResponse extends LocalTraderEventSubscriber {

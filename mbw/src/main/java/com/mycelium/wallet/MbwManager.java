@@ -253,7 +253,7 @@ public class MbwManager {
 
     private static final AddressType defaultAddressType = AddressType.P2SH_P2WPKH;
     private ChangeAddressMode changeAddressMode;
-    private MinerFee _minerFee;
+    private Map<String, MinerFee> _minerFee;
     private boolean _keyManagementLocked;
     private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
     private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
@@ -327,7 +327,7 @@ public class MbwManager {
         );
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
-        _minerFee = MinerFee.fromString(preferences.getString(Constants.MINER_FEE_SETTING, MinerFee.NORMAL.toString()));
+        _minerFee = getMinerFeeMap(preferences);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
         changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
@@ -420,6 +420,30 @@ public class MbwManager {
         String currentBlockExplorers = preferences.getString(Constants.BLOCK_EXPLORERS, gson.toJson(defaultBlockExplorers));
         _blockExplorerManager = new GlobalBlockExplorerManager(this,
                _environment.getBlockExplorerMap(), gson.fromJson(currentBlockExplorers, type));
+    }
+
+    private Map<String, MinerFee>  getMinerFeeMap(SharedPreferences preferences) {
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Map<String, MinerFee> result = new HashMap<>();
+        Map<String, String> minerFeeFromPreferences;
+        try {
+            minerFeeFromPreferences = gson.fromJson(preferences.getString(Constants.MINER_FEE_SETTING, null), type);
+            if (minerFeeFromPreferences == null) {
+                result.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
+            } else {
+                for (Map.Entry<String, String> entry : minerFeeFromPreferences.entrySet()) {
+                    result.put(entry.getKey(), MinerFee.fromString(entry.getValue()));
+                }
+            }
+        } catch (Exception e) {
+            // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
+            // could cause crash. in that case we'll try to migrate, i.e.
+            // we'll clear the preference and init the map with default values
+            getEditor().putString(Constants.MINER_FEE_SETTING, null);
+            result.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
+        }
+        return result;
     }
 
     private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
@@ -1159,13 +1183,14 @@ public class MbwManager {
         }
     }
 
-    public MinerFee getMinerFee() {
-        return _minerFee;
+    public MinerFee getMinerFee(String coinName) {
+        return _minerFee.get(coinName);
     }
 
-    public void setMinerFee(MinerFee minerFee) {
-        _minerFee = minerFee;
-        getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).apply();
+    public void setMinerFee(String coinName, MinerFee minerFee) {
+        _minerFee.put(coinName, minerFee);
+        Gson gson = new GsonBuilder().create();
+        getEditor().putString(Constants.MINER_FEE_SETTING, gson.toJson(_minerFee)).apply();
     }
 
     public void setBlockExplorer(String coinName, BlockExplorer blockExplorer) {
@@ -1511,6 +1536,13 @@ public class MbwManager {
         // AccountCreated only when account is created. Reacting only on AccountCreated could leave walletCurrencies list
         // in incorrect state if no accounts of a particular type left after delete event
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+        for (GenericAssetInfo asset : _walletManager.getAssetTypes()) {
+            if (!_minerFee.containsKey(asset.getName())) {
+                _minerFee.put(asset.getName(), MinerFee.NORMAL);
+                Gson gson = new GsonBuilder().create();
+                getEditor().putString(Constants.MINER_FEE_SETTING, gson.toJson(_minerFee)).apply();
+            }
+        }
     }
 
     public boolean getPinRequiredOnStartup() {

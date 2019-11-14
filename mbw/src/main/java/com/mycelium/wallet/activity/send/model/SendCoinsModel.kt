@@ -156,7 +156,7 @@ abstract class SendCoinsModel(
 
     init {
         selectedFee.value = getCurrentFeeEstimation()
-        feeLvl.value = mbwManager.minerFee
+        feeLvl.value = mbwManager.getMinerFee(account.coinType.name)
         transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
