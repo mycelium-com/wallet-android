@@ -41,22 +41,19 @@ public class PartnerInfo extends RecommendationInfo {
     private final String info;
     private final String uri;
     private final int icon;
+    private final String iconUrl;
     private final int smallIcon;
     private final Runnable action;
 
     public PartnerInfo(String name, String description, String disclaimer, int icon, Runnable action) {
-        this(name, description, disclaimer, null, icon, 0, action);
+        this(name, description, disclaimer, null, icon, 0, null, action);
     }
 
-    public PartnerInfo(String name, String description, String disclaimer, String uri, int icon) {
-        this(name, description, disclaimer, uri, icon, 0);
+    public PartnerInfo(String name, String description, String disclaimer, String uri, String iconUrl) {
+        this(name, description, disclaimer, uri, 0, 0, iconUrl, null);
     }
 
-    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon) {
-        this(name, description, info, uri, icon, smallIcon, null);
-    }
-
-    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon, Runnable action) {
+    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon, String iconUrl, Runnable action) {
         super(PARTNER_TYPE);
         this.name = name;
         this.description = description;
@@ -64,6 +61,7 @@ public class PartnerInfo extends RecommendationInfo {
         this.uri = uri;
         this.icon = icon;
         this.smallIcon = smallIcon;
+        this.iconUrl = iconUrl;
         this.action = action;
     }
 
@@ -81,6 +79,10 @@ public class PartnerInfo extends RecommendationInfo {
 
     public final String getUri() {
         return uri;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
     }
 
     public final int getIcon() {
