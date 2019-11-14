@@ -12,7 +12,6 @@ import com.mycelium.wapi.wallet.coins.Value
 import org.web3j.utils.Convert
 import java.math.RoundingMode
 import java.util.regex.Pattern
-import kotlin.math.roundToLong
 
 open class SendEthViewModel(context: Application) : SendCoinsViewModel(context) {
     override val uriPattern = Pattern.compile("0x[a-zA-Z0-9]+")

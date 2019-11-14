@@ -1,11 +1,24 @@
 package com.mycelium.view
 
+import kotlin.math.pow
 
-enum class Denomination(val scale: Int, val asciiString: String, val unicodeString: String) {
-    UNIT(0, "", ""),
-    MILLI(3, "m", "m"),
-    MICRO(6, "u", "\u00B5"),
-    BITS(6, "bits", "bits");
+
+enum class Denomination(val scale: Int, private val asciiString: String, private val unicodeString: String,
+                        private vararg val supportedBy: String) {
+    UNIT(0, "", "", "BTC", "ETH"),
+    MILLI(3, "m", "m", "BTC"),
+    MICRO(6, "u", "\u00B5", "BTC"),
+    BITS(6, "bits", "bits", "BTC"),
+    FINNEY(3, "finney", "finney", "ETH"),
+    SZABO(6, "szabo", "szabo", "ETH"),
+    GWEI(9, "gwei", "gwei", "ETH"),
+    MWEI(12, "mwei", "mwei", "ETH"),
+    KWEI(15, "kwei", "kwei", "ETH"),
+    WEI(18, "wei", "wei", "ETH"),
+    KETHER(-3, "kether", "kether", "ETH"),
+    METHER(-6, "mether", "mether", "ETH"),
+    GETHER(-9, "gether", "gether", "ETH"),
+    TETHER(-12, "tether", "tether", "ETH");
 
     fun getUnicodeString(symbol: String): String =
             when (this) {
@@ -22,7 +35,11 @@ enum class Denomination(val scale: Int, val asciiString: String, val unicodeStri
             }
 
     fun getAmount(value: Long): Long {
-        return value / Math.pow(10.0, scale.toDouble()).toLong()
+        return value / 10.0.pow(scale.toDouble()).toLong()
+    }
+
+    fun supportedBy(coinType: String): Boolean {
+        return this.supportedBy.contains(coinType)
     }
 
     companion object {
@@ -36,6 +53,16 @@ enum class Denomination(val scale: Int, val asciiString: String, val unicodeStri
                 "ubtc" //back compatibility
                     , "micro" -> MICRO
                 "bits" -> BITS
+                "finney" -> FINNEY
+                "szabo" -> SZABO
+                "gwei" -> GWEI
+                "mwei" -> MWEI
+                "kwei" -> KWEI
+                "wei" -> WEI
+                "kether" -> KETHER
+                "mether" -> METHER
+                "gether" -> GETHER
+                "tether" -> TETHER
                 else -> null
             }
         }

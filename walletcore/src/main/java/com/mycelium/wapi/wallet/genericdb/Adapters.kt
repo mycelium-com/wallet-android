@@ -2,7 +2,9 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.mycelium.generated.wallet.database.AccountBacking
 import com.mycelium.generated.wallet.database.AccountContext
+import com.mycelium.generated.wallet.database.EthAccountBacking
 import com.mycelium.generated.wallet.database.EthContext
 import com.mycelium.generated.wallet.database.FeeEstimation
 import com.mycelium.wapi.wallet.coins.*
@@ -96,9 +98,13 @@ object Adapters {
     }
 }
 
+val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
+        Adapters.valueAdapter, Adapters.valueAdapter)
+
+val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter)
+
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)
-
 val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter)
 
 val feeEstimatorAdapter = FeeEstimation.Adapter(Adapters.assetAdapter,

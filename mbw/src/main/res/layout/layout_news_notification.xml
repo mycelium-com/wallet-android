@@ -20,7 +20,7 @@
         android:src="@drawable/ic_launcher" />
 
     <TextView
-        android:id="@+id/category"
+        android:id="@+id/tvCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
@@ -37,7 +37,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/category"
+        android:layout_below="@id/tvCategory"
         android:fontFamily="sans-serif"
         android:lineSpacingExtra="6sp"
         android:textColor="@color/black"

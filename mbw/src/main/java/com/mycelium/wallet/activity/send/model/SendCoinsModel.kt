@@ -13,6 +13,7 @@ import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SignTransactionActivity
 import com.mycelium.wallet.activity.send.helper.FeeItemsBuilder
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
@@ -156,7 +157,7 @@ abstract class SendCoinsModel(
     init {
         selectedFee.value = getCurrentFeeEstimation()
         feeLvl.value = mbwManager.minerFee
-        transactionStatus.value = TransactionStatus.MissingArguments
+        transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
         receivingAddressText.value = ""
@@ -179,7 +180,7 @@ abstract class SendCoinsModel(
         listToDispose.add(txRebuildPublisher.toFlowable(BackpressureStrategy.LATEST)
                 .observeOn(Schedulers.computation())
                 .flatMap {
-                    transactionStatus.postValue(TransactionStatus.Building)
+                    transactionStatus.postValue(TransactionStatus.BUILDING)
                     updateTransactionStatus()
                     Flowable.just(Unit)
                 }
@@ -236,11 +237,11 @@ abstract class SendCoinsModel(
 
                     val walletManager = mbwManager.getWalletManager(false)
                     if (receivingAddress != null && walletManager.isMyAddress(receivingAddress)) {
-                        val warning = if (walletManager.hasPrivateKey(receivingAddress)) {
-                            context.getString(R.string.my_own_address_warning)
+                        val warning = context.getString(if (walletManager.hasPrivateKey(receivingAddress)) {
+                            R.string.my_own_address_warning
                         } else {
-                            context.getString(R.string.read_only_warning)
-                        }
+                            R.string.read_only_warning
+                        })
                         heapWarning.postValue(Html.fromHtml(warning))
                     }
                     Completable.complete()
@@ -262,6 +263,11 @@ abstract class SendCoinsModel(
     open fun signTransaction(activity: Activity) {
         SignTransactionActivity.callMe(activity, account.id, isColdStorage, transaction,
                 SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE)
+        receivingAddress.value?.let { address ->
+            mbwManager.getWalletManager(false).getAccountByAddress(address)?.let { receivingAccount ->
+                MbwManager.getEventBus().post(AccountChanged(receivingAccount))
+            }
+        }
     }
 
     open fun loadInstance(savedInstanceState: Bundle) {
@@ -355,39 +361,37 @@ abstract class SendCoinsModel(
     }
 
     protected open fun updateErrorMessage(transactionStatus: TransactionStatus) {
-        when (transactionStatus) {
-            TransactionStatus.OutputTooSmall -> {
+        errorText.postValue(when (transactionStatus) {
+            TransactionStatus.OUTPUT_TO_SMALL -> {
                 // Amount too small
                 if (!Value.isNullOrZero(amount.value)) {
-                    errorText.postValue(context.getString(R.string.amount_too_small_short))
+                    context.getString(R.string.amount_too_small_short)
+                } else {
+                    ""
                 }
             }
-            TransactionStatus.InsufficientFunds -> {
-                errorText.postValue(context.getString(R.string.insufficient_funds))
-            }
-            TransactionStatus.BuildError -> {
-                errorText.postValue(context.getString(R.string.tx_build_error))
-            }
-            else -> errorText.postValue("")
-        }
+            TransactionStatus.INSUFFICIENT_FUNDS -> context.getString(R.string.insufficient_funds)
+            TransactionStatus.BUILD_ERROR -> context.getString(R.string.tx_build_error)
+            else -> ""
+        })
     }
 
     private fun getRequestedAmountFormatted(): String {
         return if (Value.isNullOrZero(amount.value)) {
             ""
-        } else if (transactionStatus.value == TransactionStatus.OutputTooSmall
-                || transactionStatus.value == TransactionStatus.InsufficientFunds
-                || transactionStatus.value == TransactionStatus.InsufficientFundsForFee) {
-            getValueInAccountCurrency().toStringWithUnit(mbwManager.denomination)
+        } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
+            getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             formatValue(amount.value)
         }
     }
 
     private fun getRequestedAmountAlternativeFormatted(): String {
-        return if (transactionStatus.value == TransactionStatus.OutputTooSmall
-                || transactionStatus.value == TransactionStatus.InsufficientFunds
-                || transactionStatus.value == TransactionStatus.InsufficientFundsForFee) {
+        return if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
+                || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
             ""
         } else {
             formatValue(alternativeAmount.value)
@@ -399,7 +403,7 @@ abstract class SendCoinsModel(
             ""
         } else {
             if (value!!.type == account.coinType) {
-                value.toStringWithUnit(mbwManager.denomination)
+                value.toStringWithUnit(mbwManager.getDenomination(account.coinType))
             } else {
                 "~ ${value.toStringWithUnit()}"
             }
@@ -426,16 +430,16 @@ abstract class SendCoinsModel(
                 spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
                 TransactionStatus.OK
             } else {
-                TransactionStatus.MissingArguments
+                TransactionStatus.MISSING_ARGUMENTS
             }
         } catch (ex: GenericBuildTransactionException) {
-            return TransactionStatus.MissingArguments
+            return TransactionStatus.MISSING_ARGUMENTS
         } catch (ex: GenericOutputTooSmallException) {
-            return TransactionStatus.OutputTooSmall
+            return TransactionStatus.OUTPUT_TO_SMALL
         } catch (ex: GenericInsufficientFundsException) {
-            return TransactionStatus.InsufficientFunds
+            return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
-            return TransactionStatus.BuildError
+            return TransactionStatus.BUILD_ERROR
         }
     }
 
@@ -471,13 +475,14 @@ abstract class SendCoinsModel(
     }
 
     enum class TransactionStatus {
-        Building, MissingArguments, OutputTooSmall, InsufficientFunds, InsufficientFundsForFee, BuildError, OK
+        BUILDING, MISSING_ARGUMENTS, OUTPUT_TO_SMALL, INSUFFICIENT_FUNDS, INSUFFICIENT_FUNDS_FOR_FEE, BUILD_ERROR, OK
     }
 
     companion object {
         private const val SELECTED_FEE = "selectedFee"
         private const val FEE_LVL = "feeLvl"
         private const val PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId"
-        private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(2)
+        // Alert the user of old fee estimations
+        private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(5)
     }
 }

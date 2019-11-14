@@ -43,6 +43,9 @@ import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.mycelium.wallet.exchange.CoinmarketcapApi;
 import com.mycelium.wallet.exchange.GetExchangeRate;
 import com.mycelium.wallet.exchange.model.CoinmarketcapRate;
@@ -58,6 +61,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -111,7 +115,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private volatile Fetcher _fetcher;
     private final Object _requestLock = new Object();
     private final List<Observer> _subscribers;
-    private String _currentExchangeSourceName;
+    private Map<String, String> _currentExchangeSourceName = new HashMap<>();
 
     private float rateRmcBtc;
     private float rateBchBtc;
@@ -124,7 +128,20 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _applicationContext = applicationContext;
         _api = api;
         _latestRatesTime = 0;
-        _currentExchangeSourceName = getPreferences().getString("currentRateName", DEFAULT_EXCHANGE);
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+
+        try {
+            _currentExchangeSourceName = gson.fromJson(getPreferences().getString("currentRateName", DEFAULT_EXCHANGE), type);
+        } catch (Exception e) {
+            // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
+            // could cause crash in that case we'll try to migrate, i.e.
+            // we we'll clear the preference and init the map with default values
+            // 1.
+            getEditor().putString("currentRateName", null);
+            // 2.
+            _currentExchangeSourceName.put(Utils.getBtcCoinType().getSymbol(), DEFAULT_EXCHANGE);
+        }
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
         this.storage = storage;
@@ -144,7 +161,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     private class Fetcher implements Runnable {
         public void run() {
             List<String> selectedCurrencies;
-            List<String> cryptocurrencies = MbwManager.getInstance(_applicationContext).getWalletManager(false).getCryptocurrencies();
+            List<String> cryptocurrencies = MbwManager.getInstance(_applicationContext).getWalletManager(false).getCryptocurrenciesSymbols();
 
             synchronized (_requestLock) {
                 selectedCurrencies = new ArrayList<>(_fiatCurrencies);
@@ -225,7 +242,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private List<GetExchangeRatesResponse> localValues(List<String> cryptocurrencies, List<String> selectedCurrencies,
-                                                         Map<String, String> savedExchangeRates) {
+                                                       Map<String, String> savedExchangeRates) {
         List<GetExchangeRatesResponse> responses = new ArrayList<>(selectedCurrencies.size());
 
         for (String currency : selectedCurrencies) {
@@ -310,27 +327,27 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             } else {
                 _latestRates.put(fromCurrency, new HashMap<>(Collections.singletonMap(toCurrency, response)));
             }
-            for(ExchangeRate rate : response.getExchangeRates()) {
+            for (ExchangeRate rate : response.getExchangeRates()) {
                 storage.storeExchangeRate(fromCurrency, rate.currency, rate.name, String.valueOf(rate.price));
+            }
+            if (_currentExchangeSourceName.get(fromCurrency) == null) {
+                // This only happens the first time the wallet picks up exchange rates.
+                // We will default to the first exchange
+                if (getExchangeSourceNames(fromCurrency) != null && getExchangeSourceNames(fromCurrency).size() > 0) {
+                    _currentExchangeSourceName.put(fromCurrency, getExchangeSourceNames(fromCurrency).get(0));
+                }
             }
         }
         _latestRatesTime = System.currentTimeMillis();
 
-        if (_currentExchangeSourceName == null) {
-            // This only happens the first time the wallet picks up exchange rates.
-            // We will default to the first exchange
-            if (latestRates.size() > 0 && latestRates.get(0).getExchangeRates().length > 0) {
-                _currentExchangeSourceName = latestRates.get(0).getExchangeRates()[0].name;
-            }
-        }
     }
 
     /**
      * Get the name of the current exchange rate. May be null the first time the
      * app is running
      */
-    public String getCurrentExchangeSourceName() {
-        return _currentExchangeSourceName;
+    public String getCurrentExchangeSourceName(String coinSymbol) {
+        return _currentExchangeSourceName.get(coinSymbol);
     }
 
     /**
@@ -353,9 +370,10 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         return result;
     }
 
-    public void setCurrentExchangeSourceName(String name) {
-        _currentExchangeSourceName = name;
-        getEditor().putString("currentRateName", _currentExchangeSourceName).apply();
+    public void setCurrentExchangeSourceName(String coinSymbol, String name) {
+        _currentExchangeSourceName.put(coinSymbol, name);
+        Gson gson = new GsonBuilder().create();
+        getEditor().putString("currentRateName", gson.toJson(_currentExchangeSourceName)).apply();
         notifyExchangeSourceChanged();
     }
 
@@ -401,7 +419,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
                     return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
                 }
                 //everything is fine, return the rate
-                return getOtherExchangeRate(injectCurrency, r);
+                return getOtherExchangeRate(source, injectCurrency, r);
             }
         }
         if (exchangeSource != null) {
@@ -413,16 +431,16 @@ public class ExchangeRateManager implements ExchangeRateProvider {
 
     @Override
     public ExchangeRate getExchangeRate(String source, String destination) {
-        return getExchangeRate(source, destination, _currentExchangeSourceName);
+        return getExchangeRate(source, destination, _currentExchangeSourceName.get(source));
     }
 
-    private ExchangeRate getOtherExchangeRate(String injectCurrency, ExchangeRate r) {
+    private ExchangeRate getOtherExchangeRate(String coinSymbol, String injectCurrency, ExchangeRate r) {
         double rate = r.price;
         if ("RMC".equals(injectCurrency)) {
             if (rateRmcBtc != 0) {
                 rate = 1 / rateRmcBtc;
             } else {
-                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "RMC");
+                return ExchangeRate.missingRate(_currentExchangeSourceName.get(coinSymbol), System.currentTimeMillis(), "RMC");
             }
         }
         if ("MSS".equals(injectCurrency)) {
@@ -432,7 +450,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             if (rateBchBtc != 0) {
                 rate = 1 / rateBchBtc;
             } else {
-                return ExchangeRate.missingRate(_currentExchangeSourceName, System.currentTimeMillis(), "BCH");
+                return ExchangeRate.missingRate(_currentExchangeSourceName.get(coinSymbol), System.currentTimeMillis(), "BCH");
             }
         }
         return new ExchangeRate(r.name, r.time, rate, injectCurrency);

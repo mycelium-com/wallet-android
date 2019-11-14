@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.PopBuilder;
@@ -45,7 +44,6 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -54,7 +52,6 @@ import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
-import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -142,7 +139,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
-    @Override
+   @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
    }

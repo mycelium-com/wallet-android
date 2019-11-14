@@ -94,7 +94,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                   intent: Intent) {
 
         amountHint = context.getString(R.string.amount_hint_denomination,
-                mbwManager.denomination.getUnicodeString(account.coinType.symbol))
+                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }

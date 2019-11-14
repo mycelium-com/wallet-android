@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -16,8 +15,9 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-public interface WalletAccount<A extends GenericAddress> {
+import javax.annotation.Nonnull;
 
+public interface WalletAccount<A extends GenericAddress> {
     void setAllowZeroConfSpending(boolean b);
 
     GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)

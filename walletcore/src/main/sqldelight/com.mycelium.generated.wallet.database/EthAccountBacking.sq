@@ -1,0 +1,44 @@
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.EthAddress;
+import java.math.BigInteger;
+import java.util.UUID;
+
+-- Creates table for transactions
+
+CREATE TABLE IF NOT EXISTS EthAccountBacking (
+    txid TEXT NOT NULL,
+    uuid TEXT AS UUID,
+    fromAddress TEXT NOT NULL,
+    toAddress TEXT NOT NULL,
+    PRIMARY KEY (txid, uuid),
+    FOREIGN KEY (txid, uuid)
+            REFERENCES AccountBacking (txid, uuid)
+            ON DELETE CASCADE
+);
+
+
+selectTransactionSummaries:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (?) ORDER BY b.blockNumber DESC
+        LIMIT (?) OFFSET (?);
+
+selectTransactionSummaryById:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
+    b.confirmations, eb.fromAddress, eb.toAddress
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (?) AND eb.txid = (?);
+
+insertTransaction:
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress)
+VALUES (?, ?, ?, ?);
+
+deleteTransaction:
+DELETE FROM EthAccountBacking
+WHERE uuid = (?) AND txid = (?);

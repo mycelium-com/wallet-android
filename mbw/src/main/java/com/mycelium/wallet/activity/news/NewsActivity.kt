@@ -1,39 +1,59 @@
 package com.mycelium.wallet.activity.news
 
 import android.annotation.TargetApi
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.res.Resources
 import android.graphics.Color
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.view.View.*
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.AppBarLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.NewsFragment
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.external.mediaflow.GetMediaFlowTopicTask
+import com.mycelium.wallet.external.mediaflow.MediaFlowSyncWorker
 import com.mycelium.wallet.external.mediaflow.NewsConstants
+import com.mycelium.wallet.external.mediaflow.NewsSyncUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
+import kotlin.math.abs
 
 
 class NewsActivity : AppCompatActivity() {
     lateinit var news: News
     private lateinit var preference: SharedPreferences
+
+    private val updateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == NewsConstants.MEDIA_FLOW_UPDATE_ACTION) {
+                GetMediaFlowTopicTask(news.id) {
+                    it?.let {
+                        news = it
+                        updateUI()
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,33 +63,23 @@ class NewsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         app_bar_layout.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val scrollDelta = Math.abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
-            category.alpha = 1 - scrollDelta
-            toolbar_shadow.visibility = if (scrollDelta == 1f) View.VISIBLE else View.GONE
+            val scrollDelta = abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
+            tvCategory.alpha = 1 - scrollDelta
+            toolbar_shadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
             collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title) else ""
             llRoot.clipChildren = scrollDelta == 1f
             llRoot.clipToPadding = scrollDelta == 1f
         })
         news = intent.getSerializableExtra(NewsConstants.NEWS) as News
+        if (!news.isFull) {
+            WorkManager.getInstance(this)
+                    .enqueueUniqueWork(NewsSyncUtils.WORK_NAME_ONCE, ExistingWorkPolicy.REPLACE,
+                            OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
+        }
         NewsDatabase.markRead(news)
         content.setBackgroundColor(Color.TRANSPARENT)
         preference = getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
-        val parsedContent = NewsUtils.parseNews(news.content)
-        val contentText = parsedContent.news
-                .replace("width=\".*?\"", "width=\"100%\"")
-                .replace("width: .*?px", "width: 100%")
-                .replace("height=\".*?\"", "")
-        content.settings.defaultFontSize = 14
-
-        val html = getString(R.string.media_flow_html_template
-                , resources.toWebViewPx(12f).toString()
-                , resources.toWebViewPx(24f).toString()
-                , resources.toWebViewPx(16f).toString()
-                , resources.toWebViewPx(2f).toString()
-                , resources.toWebViewPx(8f).toString()
-                , contentText)
-        content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
-
+        updateUI()
         content.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
@@ -106,17 +116,6 @@ class NewsActivity : AppCompatActivity() {
             layoutParams.width = scrollView.measuredWidth * scrollY / scrollHeight
             scrollBar.layoutParams = layoutParams
         })
-
-        tvTitle.text = Html.fromHtml(news.title)
-        tvDate.text = NewsUtils.getDateString(this, news)
-        author.text = news.author?.name
-
-        val categoryText = if (news.categories.values.isNotEmpty()) news.categories.values.elementAt(0).name else ""
-        category.text = categoryText
-        Glide.with(image)
-                .load(news.getFitImage(resources.displayMetrics.widthPixels))
-                .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
-                .into(image)
         shareBtn2.setOnClickListener {
             share()
         }
@@ -127,6 +126,53 @@ class NewsActivity : AppCompatActivity() {
             startActivity(Intent(this, NewsActivity::class.java)
                     .putExtra(NewsConstants.NEWS, it))
         }
+    }
+
+    fun updateUI() {
+        news.content?.let { topicContent ->
+            val parsedContent = NewsUtils.parseNews(topicContent)
+            val contentText = parsedContent.news
+                    .replace("width=\".*?\"", "width=\"100%\"")
+                    .replace("width: .*?px", "width: 100%")
+                    .replace("height=\".*?\"", "")
+            content.settings.defaultFontSize = 14
+
+            val html = getString(R.string.media_flow_html_template
+                    , resources.toWebViewPx(12f).toString()
+                    , resources.toWebViewPx(24f).toString()
+                    , resources.toWebViewPx(16f).toString()
+                    , resources.toWebViewPx(2f).toString()
+                    , resources.toWebViewPx(8f).toString()
+                    , contentText)
+            content.loadDataWithBaseURL("https://blog.mycelium.com", html, "text/html", "UTF-8", null)
+        }
+        news_loading.visibility = if (news.isFull) INVISIBLE else VISIBLE
+
+        tvTitle.text = Html.fromHtml(news.title)
+        news.date?.let {
+            tvDate.text = NewsUtils.getDateString(this, news)
+        }
+        tvAuthor.text = news.author?.name
+
+        val categoryText = if (news.categories?.values?.isNotEmpty() == true) news.categories.values.elementAt(0).name else ""
+        tvCategory.text = categoryText
+        news.image?.let {
+            Glide.with(ivImage)
+                    .load(news.getFitImage(resources.displayMetrics.widthPixels))
+                    .apply(RequestOptions().centerCrop().error(R.drawable.mediaflow_default_picture))
+                    .into(ivImage)
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
+    }
+
+    override fun onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver)
+        super.onPause()
     }
 
     private fun share() {

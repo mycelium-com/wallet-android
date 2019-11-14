@@ -48,9 +48,7 @@ import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.lt.api.model.TraderInfo;
 import com.mycelium.modularizationtools.model.Module;
 import com.mycelium.net.ServerEndpointType;
-import com.mycelium.view.Denomination;
 import com.mycelium.wallet.Constants;
-import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -68,10 +66,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -90,15 +84,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SearchView searchView;
 
     private ListPreference language;
-    private ListPreference denomination;
+    private PreferenceScreen denominationScreen;
     private Preference localCurrency;
-    private ListPreference exchangeSource;
+    private PreferenceScreen exchangeSourceScreen;
     private CheckBoxPreference ltNotificationSound;
     private CheckBoxPreference ltMilesKilometers;
     private MbwManager mbwManager;
     private LocalTraderManager ltManager;
     private ListPreference minerFee;
-    private ListPreference blockExplorer;
+    private PreferenceScreen blockExplorerScreen;
     private Preference changeAddressType;
     private Preference notificationPreference;
     private CheckBoxPreference useTor;
@@ -224,18 +218,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void assignPreferences() {
-        // Bitcoin Denomination
-        denomination = findPreference(Constants.SETTING_DENOMINATION);
+        // Denomination
+        denominationScreen = findPreference(Constants.SETTING_DENOMINATION);
         // Miner Fee
         minerFee = findPreference(Constants.SETTING_MINER_FEE);
         //Block Explorer
-        blockExplorer = findPreference("block_explorer");
+        blockExplorerScreen = findPreference("block_explorer");
         // Transaction change address type
         changeAddressType = findPreference("change_type");
         //localcurrency
         localCurrency = findPreference("local_currency");
         // Exchange Source
-        exchangeSource = findPreference("exchange_source");
+        exchangeSourceScreen = findPreference("exchange_source");
         language = findPreference(Constants.LANGUAGE_SETTING);
         notificationPreference = findPreference("notifications");
         // Socks Proxy
@@ -387,26 +381,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             });
         }
-        if (denomination != null) {
-            final HashMap<String, Denomination> denominationMap = new LinkedHashMap<>();
-            String defaultValue = "";
-            for (Denomination value : Denomination.values()) {
-                String key = value.toString().toLowerCase() + "(" + value.getUnicodeString("BTC") + ")";
-                denominationMap.put(key, value);
-                if (value == mbwManager.getDenomination()) {
-                    defaultValue = key;
-                }
-            }
-            denomination.setDefaultValue(defaultValue);
-            denomination.setValue(defaultValue);
-            denomination.setEntries(denominationMap.keySet().toArray(new String[0]));
-            denomination.setEntryValues(denominationMap.keySet().toArray(new String[0]));
-            denomination.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mbwManager.setBitcoinDenomination(denominationMap.get(newValue.toString()));
-                    return true;
-                }
+        if (denominationScreen != null) {
+            denominationScreen.setOnPreferenceClickListener(preference -> {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
+                        .replace(R.id.fragment_container, DenominationFragment.newInstance(denominationScreen.getKey()))
+                        .addToBackStack("bitcoin_denomination")
+                        .commitAllowingStateLoss();
+                return true;
             });
         }
         if (localCurrency != null) {
@@ -414,49 +398,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             localCurrency.setTitle(localCurrencyTitle());
         }
 
-        if (exchangeSource != null) {
-            ExchangeRateManager exchangeManager = mbwManager.getExchangeRateManager();
-            List<String> exchangeSourceNamesList = exchangeManager.getExchangeSourceNames(mbwManager.getSelectedAccount().getCoinType().getSymbol());
-            Collections.sort(exchangeSourceNamesList, new Comparator<String>() {
-                @Override
-                public int compare(String rate1, String rate2) {
-                    return rate1.compareToIgnoreCase(rate2);
-                }
-            });
-
-            CharSequence[] exchangeNames = exchangeSourceNamesList.toArray(new String[0]);
-            exchangeSource.setEntries(exchangeNames);
-            if (exchangeNames.length == 0) {
-                exchangeSource.setEnabled(false);
-            } else {
-                String currentName = exchangeManager.getCurrentExchangeSourceName();
-                if (currentName == null) {
-                    currentName = "";
-                }
-                exchangeSource.setEntries(exchangeNames);
-                exchangeSource.setEntryValues(exchangeNames);
-                exchangeSource.setDefaultValue(currentName);
-                exchangeSource.setValue(currentName);
-            }
-            exchangeSource.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(newValue.toString());
-                    return true;
-                }
+        if (exchangeSourceScreen != null) {
+            exchangeSourceScreen.setOnPreferenceClickListener(preference -> {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
+                        .replace(R.id.fragment_container, ExchangeSourcesFragment.newInstance(exchangeSourceScreen.getKey()))
+                        .addToBackStack("exchange_source")
+                        .commitAllowingStateLoss();
+                return true;
             });
         }
-        if (blockExplorer != null) {
-            blockExplorer.setValue(mbwManager._blockExplorerManager.getBlockExplorer().getIdentifier());
-            CharSequence[] blockExplorerNames = mbwManager._blockExplorerManager.getBlockExplorerNames(mbwManager._blockExplorerManager.getAllBlockExplorer());
-            CharSequence[] blockExplorerValues = mbwManager._blockExplorerManager.getBlockExplorerIds();
-            blockExplorer.setEntries(blockExplorerNames);
-            blockExplorer.setEntryValues(blockExplorerValues);
-            blockExplorer.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mbwManager.setBlockExplorer(mbwManager._blockExplorerManager.getBlockExplorerById(newValue.toString()));
-                    return true;
-                }
+        if (blockExplorerScreen != null) {
+            blockExplorerScreen.setOnPreferenceClickListener(preference -> {
+                getFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
+                        .replace(R.id.fragment_container, BlockExplorersFragment.newInstance(blockExplorerScreen.getKey()))
+                        .addToBackStack("block_explorer")
+                        .commitAllowingStateLoss();
+                return true;
             });
         }
 

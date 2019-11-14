@@ -216,8 +216,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         val displaySize = Point()
         windowManager.defaultDisplay.getSize(displaySize)
         val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
-        val feeLvlViewAdapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
-        feeLvlList.adapter = feeLvlViewAdapter
+        feeLvlList.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
         feeLvlList.setSelectListener { adapter, position ->
             val item = (adapter as FeeLvlViewAdapter).getItem(position)
             viewModel.getFeeLvl().value = item.minerFee

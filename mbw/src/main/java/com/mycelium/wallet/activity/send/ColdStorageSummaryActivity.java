@@ -135,7 +135,8 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
+      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
+              _mbwManager.getDenomination(_account.getCoinType())));
 
       Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType());
 
@@ -153,7 +154,8 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Show/Hide Receiving
       if (balance.pendingReceiving.moreThanZero()) {
-         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving,
+                 _mbwManager.getDenomination(_account.getCoinType()));
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -164,7 +166,8 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Show/Hide Sending
       if (balance.getSendingToForeignAddresses().moreThanZero()) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(),
+                 _mbwManager.getDenomination(_account.getCoinType()));
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);

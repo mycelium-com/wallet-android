@@ -45,11 +45,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
-import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -78,16 +80,28 @@ import com.mrd.bitlib.util.HashUtils;
 import com.mycelium.WapiLogger;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
-import com.mycelium.net.*;
+import com.mycelium.net.HttpEndpoint;
+import com.mycelium.net.ServerEndpointType;
+import com.mycelium.net.ServerEndpoints;
+import com.mycelium.net.TorManager;
+import com.mycelium.net.TorManagerOrbot;
 import com.mycelium.view.Denomination;
 import com.mycelium.wallet.activity.util.BlockExplorer;
-import com.mycelium.wallet.activity.util.BlockExplorerManager;
+import com.mycelium.wallet.activity.util.GlobalBlockExplorerManager;
 import com.mycelium.wallet.activity.util.Pin;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.api.AndroidAsyncApi;
 import com.mycelium.wallet.bitid.ExternalService;
 import com.mycelium.wallet.colu.SqliteColuManagerBacking;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.BalanceChanged;
+import com.mycelium.wallet.event.EventTranslator;
+import com.mycelium.wallet.event.ReceivingAddressChanged;
+import com.mycelium.wallet.event.SelectedAccountChanged;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncStarted;
+import com.mycelium.wallet.event.SyncStopped;
+import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.extsig.common.ExternalSignatureDeviceManager;
 import com.mycelium.wallet.extsig.keepkey.KeepKeyManager;
 import com.mycelium.wallet.extsig.ledger.LedgerManager;
@@ -95,7 +109,7 @@ import com.mycelium.wallet.extsig.trezor.TrezorManager;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.persistence.TradeSessionDb;
-import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBackingWrapper;
+import com.mycelium.wallet.wapi.SqliteBtcWalletManagerBacking;
 import com.mycelium.wapi.api.WapiClientElectrumX;
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint;
 import com.mycelium.wapi.content.ContentResolver;
@@ -104,10 +118,34 @@ import com.mycelium.wapi.content.colu.mss.MSSUriParser;
 import com.mycelium.wapi.content.colu.mt.MTUriParser;
 import com.mycelium.wapi.content.colu.rmc.RMCUriParser;
 import com.mycelium.wapi.content.eth.EthUriParser;
-import com.mycelium.wapi.wallet.*;
-import com.mycelium.wapi.wallet.btc.*;
-import com.mycelium.wapi.wallet.btc.bip44.*;
-import com.mycelium.wapi.wallet.btc.single.*;
+import com.mycelium.wapi.wallet.AccountListener;
+import com.mycelium.wapi.wallet.AesKeyCipher;
+import com.mycelium.wapi.wallet.CurrencySettings;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
+import com.mycelium.wapi.wallet.KeyCipher;
+import com.mycelium.wapi.wallet.SecureKeyValueStore;
+import com.mycelium.wapi.wallet.SyncMode;
+import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
+import com.mycelium.wapi.wallet.btc.BTCSettings;
+import com.mycelium.wapi.wallet.btc.BtcAddress;
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.Reference;
+import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
+import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
+import com.mycelium.wapi.wallet.btc.single.AddressSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
+import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
+import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
@@ -132,17 +170,30 @@ import com.squareup.sqldelight.db.SqlDriver;
 
 import kotlin.jvm.Synchronized;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -151,7 +202,6 @@ public class MbwManager {
     private static final String PROXY_HOST = "socksProxyHost";
     private static final String PROXY_PORT = "socksProxyPort";
     private static final String SELECTED_ACCOUNT = "selectedAccount";
-    private static final String LOG_TBC = "tbc";
     private static volatile MbwManager _instance = null;
 
     /**
@@ -220,7 +270,7 @@ public class MbwManager {
     private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
     private TorManager _torManager;
-    public final BlockExplorerManager _blockExplorerManager;
+    public final GlobalBlockExplorerManager _blockExplorerManager;
     private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
     private final Queue<LogEntry> _wapiLogs;
@@ -229,6 +279,7 @@ public class MbwManager {
     private WalletConfiguration configuration;
 
     private Handler mainLoopHandler;
+    private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
@@ -302,15 +353,12 @@ public class MbwManager {
         }
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountContextAdapter(), AdaptersKt.getEthContextAdapter(),
-                AdaptersKt.getFeeEstimatorAdapter());
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-        Denomination denomination = Denomination.fromString(preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, Denomination.UNIT.toString()));
-        if (denomination == null) {
-            denomination = Denomination.UNIT;
-        }
+
         StringBuilder defaultCurrencyJson = new StringBuilder("{\"")
                 .append(Utils.getBtcCoinType().getName())
                 .append("\":\"")
@@ -326,7 +374,7 @@ public class MbwManager {
                 new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
                 currentCurrencyMap,
                 currentFiatMap,
-                denomination
+                getDenominationMap(preferences)
         );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
@@ -356,17 +404,55 @@ public class MbwManager {
 
         migrate();
         createTempWalletManager();
-        _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+        if (_walletManager.getAssetTypes().size() != 0) {
+            _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
+        }
 
         _versionManager.initBackgroundVersionChecker();
-        _blockExplorerManager = new BlockExplorerManager(this,
-                _environment.getBlockExplorerList(),
-                preferences.getString(Constants.BLOCK_EXPLORER,
-                        _environment.getBlockExplorerList().get(0).getIdentifier()));
+
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>(){}.getType();
+        Map<String, String> defaultBlockExplorers = new HashMap<>();
+
+        for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
+            defaultBlockExplorers.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
+        }
+        String currentBlockExplorers = preferences.getString(Constants.BLOCK_EXPLORERS, gson.toJson(defaultBlockExplorers));
+        _blockExplorerManager = new GlobalBlockExplorerManager(this,
+               _environment.getBlockExplorerMap(), gson.fromJson(currentBlockExplorers, type));
+    }
+
+    private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
+        Gson gson = new GsonBuilder().create();
+        Type type = new TypeToken<Map<String, String>>() {}.getType();
+        String oldDenomPreference = preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, null);
+        Map<GenericAssetInfo, Denomination> resultMap = new HashMap<>();
+        if (oldDenomPreference != null) {
+            // we haven't migrated Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING yet,
+            // perform migration.
+            getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, null);
+            if (Denomination.fromString(oldDenomPreference) != null) {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.fromString(oldDenomPreference));
+            } else {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
+            }
+        } else {
+            // we're good, i.e. migration Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING
+            // had happen, so continue as usual.
+            String preferenceValue = preferences.getString(Constants.DENOMINATION_SETTING, null);
+            if (preferenceValue == null) {
+                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
+            } else {
+                Map<String, String> preferenceMap = gson.fromJson(preferenceValue, type);
+                for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
+                    resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
+                }
+            }
+        }
+        return resultMap;
     }
 
     private Map<GenericAssetInfo, GenericAssetInfo> getCurrentCurrenciesMap(String jsonString) {
-        Log.d(LOG_TBC, "Was read from settings: " + jsonString);
         Gson gson = new GsonBuilder().create();
         Type type = new TypeToken<Map<String, String>>(){}.getType();
         Map<GenericAssetInfo, GenericAssetInfo> result = new HashMap<>();
@@ -380,13 +466,11 @@ public class MbwManager {
     }
 
     private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
-        Log.d(LOG_TBC, "CurrentCurrencyMap or CurrentFiatCurrency maps contents: " + currenciesMap.toString());
         Gson gson = new GsonBuilder().create();
         Map<String, String> coinNamesMap = new HashMap<>();
-        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry: currenciesMap.entrySet()) {
+        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry : currenciesMap.entrySet()) {
             coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
         }
-        Log.d(LOG_TBC, "Json to save: " + coinNamesMap);
         return gson.toJson(coinNamesMap);
     }
 
@@ -648,7 +732,7 @@ public class MbwManager {
     private WalletManager createWalletManager(final Context context, final MbwEnvironment environment,
                                               final WalletDB walletDB) {
         // Create persisted account backing
-        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBackingWrapper(context);
+        BtcWalletManagerBacking backing = new SqliteBtcWalletManagerBacking(context);
 
         // Create persisted secure storage instance
         SecureKeyValueStore secureKeyValueStore = new SecureKeyValueStore(backing,
@@ -704,7 +788,7 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, getMetadataStorage(), accountListener));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -750,7 +834,8 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, getMetadataStorage(), accountListener));
+
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -788,6 +873,15 @@ public class MbwManager {
 
     public GenericAssetInfo getFiatCurrency(GenericAssetInfo coinType) {
         return _currencySwitcher.getCurrentFiatCurrency(coinType);
+    }
+
+    public boolean isAppInForeground() {
+        return appInForeground;
+    }
+
+    public void setAppInForeground(boolean appInForeground) {
+        getWapi().setAppInForeground(appInForeground);
+        this.appInForeground = appInForeground;
     }
 
     public boolean hasFiatCurrency() {
@@ -1074,22 +1168,28 @@ public class MbwManager {
         getEditor().putString(Constants.MINER_FEE_SETTING, _minerFee.toString()).apply();
     }
 
-    public void setBlockExplorer(BlockExplorer blockExplorer) {
-        _blockExplorerManager.setBlockExplorer(blockExplorer);
-        getEditor().putString(Constants.BLOCK_EXPLORER, blockExplorer.getIdentifier()).apply();
+    public void setBlockExplorer(String coinName, BlockExplorer blockExplorer) {
+        _blockExplorerManager.getBEMByCurrency(coinName).setBlockExplorer(blockExplorer);
+        Gson gson = new GsonBuilder().create();
+        getEditor().putString(Constants.BLOCK_EXPLORERS, gson.toJson(_blockExplorerManager.getCurrentBlockExplorersMap())).apply();
     }
 
-    public Denomination getDenomination() {
-        return _currencySwitcher.getDenomination();
+    public Denomination getDenomination(GenericAssetInfo coinType) {
+        return _currencySwitcher.getDenomintation(coinType);
     }
 
-    public void setBitcoinDenomination(Denomination denomination) {
-        _currencySwitcher.setDenomination(denomination);
-        getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, denomination.toString()).apply();
+    public void setBitcoinDenomination(GenericAssetInfo coinType, Denomination denomination) {
+        _currencySwitcher.setDenomintation(coinType, denomination);
+        Gson gson = new GsonBuilder().create();
+        Map<String, String> resultMap = new HashMap<>();
+        for (Map.Entry<GenericAssetInfo, Denomination> entry : _currencySwitcher.getDenominationMap().entrySet()) {
+            resultMap.put(entry.getKey().getName(), entry.getValue().toString());
+        }
+        getEditor().putString(Constants.DENOMINATION_SETTING, gson.toJson(resultMap)).apply();
     }
 
     public String getBtcValueString(long satoshis) {
-        return ValueExtensionsKt.toStringWithUnit(Utils.getBtcCoinType().value(satoshis), getDenomination());
+        return ValueExtensionsKt.toStringWithUnit(Utils.getBtcCoinType().value(satoshis), getDenomination(Utils.getBtcCoinType()));
     }
 
     public boolean isKeyManagementLocked() {
@@ -1406,7 +1506,10 @@ public class MbwManager {
     }
 
     @Subscribe
-    public void accountCreated(AccountCreated accountCreated) {
+    public void accountChanged(AccountChanged accountChanged) {
+        // AccountChanged event is posted in both cases: when account is created and when account is deleted
+        // AccountCreated only when account is created. Reacting only on AccountCreated could leave walletCurrencies list
+        // in incorrect state if no accounts of a particular type left after delete event
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
     }
 
