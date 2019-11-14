@@ -1,10 +1,12 @@
 package com.mycelium.wallet.external.partner.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
+
+import com.google.gson.annotations.SerializedName
 
 
-data class Partner(@JsonProperty("title") val title: String,
-                   @JsonProperty("description") val description: String,
-                   @JsonProperty("imageUrl") val imageUrl: String,
-                   @JsonProperty("info") val info: String,
-                   @JsonProperty("link") val link: String)
+data class Partner(@SerializedName("title") val title: String,
+                   @SerializedName("description") val description: String,
+                   @SerializedName("imageUrl") val imageUrl: String,
+                   @SerializedName("info") val info: String?,
+                   @SerializedName("link") val link: String?,
+                   @SerializedName("action") val action: String?)

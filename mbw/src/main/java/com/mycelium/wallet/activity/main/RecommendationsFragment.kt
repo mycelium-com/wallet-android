@@ -75,15 +75,13 @@ class RecommendationsFragment : Fragment() {
         SettingsPreference.getPartners()?.forEach {
             dataList.add(getPartnerInfo(it))
         }
-        if (SettingsPreference.fioEnabled) {
-            dataList.add(getPartnerInfo(R.string.partner_fiopresale, R.string.partner_fiopresale_short, R.string.partner_fiopresale_info, R.drawable.ic_fiopresale_icon_small,
-                    Runnable { Ads.openFio(requireContext()) }))
-        }
         dataList.add(RecommendationFooter())
         val adapter = RecommendationAdapter(dataList)
         adapter.setClickListener(object : RecommendationAdapter.ClickListener {
             override fun onClick(bean: PartnerInfo) {
-                if (bean.info != null && bean.info.isNotEmpty()) {
+                if (bean.action != null) {
+                    bean.action?.run()
+                } else if (bean.info != null && bean.info.isNotEmpty()) {
                     alertDialog = AlertDialog.Builder(activity)
                             .setMessage(bean.info)
                             .setTitle(warning_partner)
@@ -135,7 +133,8 @@ class RecommendationsFragment : Fragment() {
     }
 
     private fun getPartnerInfo(partner: Partner): PartnerInfo =
-            PartnerInfo(partner.title, partner.description, partner.info, partner.link, partner.imageUrl)
+            PartnerInfo(partner.title, partner.description, partner.info, partner.link,
+                    partner.imageUrl, if (partner.action?.isNotEmpty() == true) Runnable { Ads.doAction(partner.action, requireContext()) } else null)
 
     private fun getPartnerInfo(name: Int, description: Int, disclaimer: Int, icon: Int, action: Runnable): PartnerInfo {
         return PartnerInfo(getString(name), getString(description), getString(disclaimer), icon, action)

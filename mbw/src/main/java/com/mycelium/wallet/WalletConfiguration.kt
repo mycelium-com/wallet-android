@@ -32,7 +32,7 @@ interface  MyceliumNodesApi {
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerDateInfo>?,
-                            @SerializedName("partners") val partners: Map<String, PartnersLocalized>?)
+                            @SerializedName("Business") val partners: Map<String, PartnersLocalized>?)
 
 data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
 

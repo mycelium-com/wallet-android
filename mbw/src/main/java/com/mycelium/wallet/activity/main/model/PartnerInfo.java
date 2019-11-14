@@ -49,8 +49,8 @@ public class PartnerInfo extends RecommendationInfo {
         this(name, description, disclaimer, null, icon, 0, null, action);
     }
 
-    public PartnerInfo(String name, String description, String disclaimer, String uri, String iconUrl) {
-        this(name, description, disclaimer, uri, 0, 0, iconUrl, null);
+    public PartnerInfo(String name, String description, String disclaimer, String uri, String iconUrl, Runnable action) {
+        this(name, description, disclaimer, uri, 0, 0, iconUrl, action);
     }
 
     public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon, String iconUrl, Runnable action) {
@@ -91,5 +91,9 @@ public class PartnerInfo extends RecommendationInfo {
 
     public int getSmallIcon() {
         return smallIcon;
+    }
+
+    public Runnable getAction() {
+        return action;
     }
 }
