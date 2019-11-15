@@ -186,7 +186,7 @@ public interface WalletAccount<A extends GenericAddress> {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(BigInteger minerFeePerKilobyte, A destinationAddress);
+    Value calculateMaxSpendableAmount(Value minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization

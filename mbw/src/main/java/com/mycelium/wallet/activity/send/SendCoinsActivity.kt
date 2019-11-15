@@ -245,7 +245,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     fun onClickAmount() {
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
-                viewModel.getAmount().value, viewModel.getSelectedFee().value!!.valueAsLong, account.coinType,
+                viewModel.getAmount().value, viewModel.getSelectedFee().value,
                 viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
     }
 

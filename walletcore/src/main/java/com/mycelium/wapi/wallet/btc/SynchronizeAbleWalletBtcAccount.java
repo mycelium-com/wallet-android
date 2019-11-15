@@ -140,7 +140,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract NetworkParameters getNetwork();
 
    @Override
-   public abstract Value calculateMaxSpendableAmount(BigInteger minerFeeToUse, BtcAddress destinationAddress);
+   public abstract Value calculateMaxSpendableAmount(Value minerFeeToUse, BtcAddress destinationAddress);
 
    @Override
    public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)

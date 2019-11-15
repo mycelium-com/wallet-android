@@ -74,6 +74,8 @@ open class Value(
 
     operator fun minus(value: BigInteger): Value = Value(this.type, this.value - value)
 
+    operator fun times(factor: Long): Value = Value(this.type, this.value.times(factor.toBigInteger()))
+
     operator fun times(factor: BigInteger): Value = Value(this.type, this.value.times(factor))
 
     operator fun div(divisor: BigInteger): Value = Value(this.type, this.value / divisor)

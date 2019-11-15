@@ -64,11 +64,11 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
-        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb.value
+        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb
         // check whether account has enough funds
         if (value > calculateMaxSpendableAmount(gasPriceLong, null)) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
-                    " ether with gas price " + Convert.fromWei(gasPriceLong.toBigDecimal(), Convert.Unit.GWEI) + " gwei"))
+                    " ether with gas price " + Convert.fromWei(gasPriceLong.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
 
         try {
@@ -216,8 +216,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun calculateMaxSpendableAmount(gasPrice: BigInteger, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - valueOf(coinType, gasPrice * typicalEstimatedTransactionSize.toBigInteger())
+    override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?): Value {
+        val spendable = accountBalance.spendable - gasPrice * typicalEstimatedTransactionSize.toLong()
         return max(spendable, Value.zeroValue(coinType))
     }
 

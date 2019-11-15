@@ -1115,12 +1115,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(BigInteger minerFeePerKbToUse, BtcAddress destinationAddress) {
+   public synchronized Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
       checkNotArchived();
-      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.longValue()));
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.getValueAsLong()));
       long satoshis = 0;
 
       // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -1133,7 +1133,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
-              .setMinerFeePerKb(minerFeePerKbToUse.longValue());
+              .setMinerFeePerKb(minerFeePerKbToUse.getValueAsLong());
       addOutputToEstimation(destAddress, estimatorBuilder);
       FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
@@ -1164,7 +1164,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Try to create an unsigned transaction
       try {
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
-                 new PublicKeyRing(), _network, minerFeePerKbToUse.longValue());
+                 new PublicKeyRing(), _network, minerFeePerKbToUse.getValueAsLong());
          // We have enough to pay the fees, return the amount as the maximum
          return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
