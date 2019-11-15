@@ -323,8 +323,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    @OnClick(R.id.tvHowIsItCalculated)
    void howIsItCalculatedClick() {
+      int res = _account.getCoinType().equals(Utils.getBtcCoinType()) ?
+              R.string.how_is_it_calculated_text_utxo_based :
+              R.string.how_is_it_calculated_text_other;
       new AlertDialog.Builder(this)
-              .setMessage(getString(R.string.how_is_it_calculated_text))
+              .setMessage(getString(res))
               .setPositiveButton(R.string.button_ok, null)
               .create()
               .show();
