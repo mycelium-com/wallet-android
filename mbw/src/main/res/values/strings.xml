@@ -993,10 +993,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="rmc_activate">RMC activate</string>
     <string name="save">Save</string>
     <string name="warning_partner">Partner information</string>
-
-    <string name="partner_header_title">New to crypto?</string>
-    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">
