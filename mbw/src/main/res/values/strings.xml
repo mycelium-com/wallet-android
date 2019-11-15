@@ -993,30 +993,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="rmc_activate">RMC activate</string>
     <string name="save">Save</string>
     <string name="warning_partner">Partner information</string>
-
-    <string name="partner_header_title">New to crypto?</string>
-    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="partner_ledger">Ledger</string>
-    <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
-    <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="partner_ledger_info" />
-
-    <string name="partner_trezor">Trezor</string>
-    <string name="partner_trezor_short">The original hardware wallet.</string>
-    <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="partner_trezor_info" />
-
-    <string name="partner_purse">Purse</string>
-    <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="partner_purse_info" />
-
-    <string name="partner_safervpn">SaferVPN</string>
-    <string name="partner_safervpn_short">Secure your Internet connection</string>
-    <string name="partner_safervpn_url">https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313</string>
-    <string name="partner_safervpn_info" />
-
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">

@@ -39,7 +39,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -53,6 +52,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
@@ -93,7 +93,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         super.onCreate();
         CommunicationManager.init(this);
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        applyLanguageChange(getBaseContext(), getLanguage());
+        applyLanguageChange(getBaseContext(), SettingsPreference.getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
@@ -124,11 +124,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver, connectivityChangeFilter);
-    }
-
-    private String getLanguage() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
-        return sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
