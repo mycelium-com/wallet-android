@@ -217,6 +217,9 @@ class NewsFragment : Fragment() {
             return
         }
         GetCategoriesTask {
+            if(!isAdded) {
+                return@GetCategoriesTask
+            }
             if (it.isNotEmpty()) {
                 val list = mutableListOf(Category("All"))
                 list.addAll(it)
