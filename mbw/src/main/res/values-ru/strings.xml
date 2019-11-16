@@ -802,11 +802,6 @@
     <string name="rmc_account">Аккаунт:</string>
     <string name="share_x_address">Поделиться %s адресом</string>
     <string name="save">Сохранить</string>
-    <string name="partner_header_title">Вы новичок в криптовалютах?</string>
-    <string name="partner_trezor">Trezor</string>
-    <string name="partner_purse_short">Получите скидку 15% на Amazon.com платя биткоинами через Purse.io</string>
-    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="partner_safervpn">SaferVPN</string>
     <string name="your_privacy_out_priority">Ваша конфиденциальность является нашим главным приоритетом</string>
     <string name="colu_before_sending_make_sure">Перед отправкой ваших цифровых активов убедитесь, что отправляете их на адрес для работы с цифровыми активами, а не на случайный биткоин-адрес. Нажмите <font color="#4583de">сюда</font> чтобы ознакомиться с процедурой восстановления ваших цифровых активов.</string>
     <string name="what_is_it">Что это?</string>
