@@ -43,10 +43,10 @@ object Adapters {
             val childNodes = rootNode.get("Balance") as ArrayNode
             val asset = rootNode.get("Asset").asText()
 
-            val confirmed = Value.valueOf(COINS.getValue(asset), childNodes[0].asLong())
-            val pendingReceiving = Value.valueOf(COINS.getValue(asset), childNodes[1].asLong())
-            val pendingSending = Value.valueOf(COINS.getValue(asset), childNodes[2].asLong())
-            val pendingChange = Value.valueOf(COINS.getValue(asset), childNodes[3].asLong())
+            val confirmed = Value.valueOf(COINS.getValue(asset), childNodes[0].bigIntegerValue())
+            val pendingReceiving = Value.valueOf(COINS.getValue(asset), childNodes[1].bigIntegerValue())
+            val pendingSending = Value.valueOf(COINS.getValue(asset), childNodes[2].bigIntegerValue())
+            val pendingChange = Value.valueOf(COINS.getValue(asset), childNodes[3].bigIntegerValue())
 
             return Balance(confirmed, pendingReceiving, pendingSending, pendingChange)
         }
