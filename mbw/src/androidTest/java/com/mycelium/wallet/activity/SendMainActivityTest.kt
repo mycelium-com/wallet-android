@@ -2,16 +2,16 @@ package com.mycelium.wallet.activity
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
-import android.support.test.rule.ActivityTestRule
 import com.mycelium.wallet.activity.send.SendMainActivity
 import org.junit.Before
 import org.junit.Rule
 import android.content.Intent
 import android.app.Instrumentation.ActivityResult
-import android.support.test.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.rule.ActivityTestRule
 import com.mycelium.wallet.activity.StringHandlerActivity.RESULT_PRIVATE_KEY
 import com.mycelium.wallet.content.ResultType
-import android.support.test.InstrumentationRegistry.getInstrumentation
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
@@ -34,7 +34,7 @@ class SendMainActivityTest {
     private val wifPrivkey = "926KDciwGhDW4Qda45QwRGeEvEVBoAWkMaizdoetUf7Lb2gtcC8"
     private val wifCompressedPrivkey = "cTDZUcUF7pvk7FWZtcHnUPZBRXvp7PhjzWsUN1ehxZVV8TkeA846"
     // SendMainActivity requires existing account on create
-    private val accountId = MbwManager.getInstance(InstrumentationRegistry.getTargetContext()).getWalletManager(false).getAccountIds()[0]
+    private val accountId = MbwManager.getInstance(InstrumentationRegistry.getInstrumentation().targetContext).getWalletManager(false).getAccountIds()[0]
 
     @Before
     fun setUp() {

@@ -2,9 +2,10 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
 import android.view.View;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.test.espresso.IdlingResource;
 
 import java.lang.ref.WeakReference;
