@@ -217,7 +217,8 @@ class NewsFragment : Fragment() {
             return
         }
         GetCategoriesTask {
-            if(!isAdded) {
+            //fix possible crash when page was hidden and task the "get categories" returns the result(in this case views are null) 
+            if(!isAdded) { 
                 return@GetCategoriesTask
             }
             if (it.isNotEmpty()) {
