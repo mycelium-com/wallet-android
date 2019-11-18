@@ -1,15 +1,10 @@
 package com.mycelium.wapi.wallet.coins
 
-import com.google.common.math.LongMath
-
+import com.google.common.base.Preconditions.checkArgument
 import java.io.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
-
-import com.google.common.base.Preconditions.checkArgument
-import kotlin.math.absoluteValue
-import kotlin.math.sign
 
 open class Value(
         /**
