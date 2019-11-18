@@ -141,7 +141,7 @@ class BCHExchangeReceiptBuilder {
         canvas.save()
         canvas.scale(1f / magnifier, 1f / magnifier)
         paint.textSize = originalTextSize * magnifier
-        canvas.drawText(text, x * magnifier, y * magnifier, paint)
+        canvas.drawText(text ?: "", x * magnifier, y * magnifier, paint)
         canvas.restore()
         paint.textSize = originalTextSize
     }

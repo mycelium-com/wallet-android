@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath androidBuildArtifact
+        classpath "com.android.tools.build:gradle:$gradleVersion"
     }
 }
 
@@ -17,9 +17,9 @@ repositories {
 }
 
 dependencies {
-    implementation "com.android.support:support-v4:$androidSupportVersion"
+    implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
     implementation project(includePrefix + ':libs:nordpol')
-    implementation guavaArtifact
+    implementation "com.google.guava:guava:$rootProject.guavaVersion"
 }
 
 android {
@@ -39,8 +39,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 28
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
     }
 
     lintOptions {

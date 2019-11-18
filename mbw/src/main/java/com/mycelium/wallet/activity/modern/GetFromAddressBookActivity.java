@@ -35,11 +35,10 @@
 package com.mycelium.wallet.activity.modern;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.tabs.TabLayout;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
@@ -52,43 +51,40 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       MbwManager _mbwManager = MbwManager.getInstance(this);
-      mViewPager = new ViewPager(this);
-      mViewPager.setId(R.id.pager);
-
-      setContentView(mViewPager);
-
-      ActionBar bar = getSupportActionBar();
-      bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+      setContentView(R.layout.activity_get_from_addressbook);
+      mViewPager = findViewById(R.id.pager);
+      TabLayout tabLayout = findViewById(R.id.pager_tabs);
+      tabLayout.setupWithViewPager(mViewPager);
 
       mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
 
-      Tab myAddressesTab = bar.newTab();
-      mTabsAdapter.addTab(myAddressesTab.setText(getResources().getString(R.string.my_accounts)), AddressBookFragment.class,
+      TabLayout.Tab myAddressesTab = tabLayout.newTab().setText(getResources().getString(R.string.my_accounts));
+      mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class,
               addressBookBundle(true, false));
-      Tab contactsTab = bar.newTab();
-      mTabsAdapter.addTab(contactsTab.setText(getResources().getString(R.string.sending_addresses)), AddressBookFragment.class,
+      TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.sending_addresses));
+      mTabsAdapter.addTab(contactsTab, AddressBookFragment.class,
               addressBookBundle(false, true));
 
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {
-         bar.selectTab(contactsTab);
+         contactsTab.select();
       } else {
-         bar.selectTab(myAddressesTab);
+         myAddressesTab.select();
       }
    }
 
    /**
     * Method for creating address book configuration which used in SendMainActivity
     * @param own need for definition necessary configuration - print addresses from our wallet or not
-    * @param isSending need for definition necessary configuration - print only addresses available for sending or all addresses
+    * @param availableForSending need for definition necessary configuration - print only addresses available for sending or all addresses
     * @return Bundle for address book
     */
-   private Bundle addressBookBundle(boolean own, boolean isSending) {
+   private Bundle addressBookBundle(boolean own, boolean availableForSending) {
       final Bundle ownBundle = new Bundle();
       ownBundle.putBoolean(AddressBookFragment.OWN, own);
       ownBundle.putBoolean(AddressBookFragment.SELECT_ONLY, true);
-      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, isSending);
+      ownBundle.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, availableForSending);
       return ownBundle;
    }
 }

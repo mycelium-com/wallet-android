@@ -41,7 +41,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -222,7 +222,7 @@ public class PopActivity extends Activity {
       if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
-      return transaction.getTransferred().abs().getValue();
+      return transaction.getTransferred().abs().value;
    }
 
    @Override

@@ -39,7 +39,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -128,7 +128,6 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       setContentView(R.layout.verify_payment_request_activity);
       ButterKnife.bind(this);
       mbw = MbwManager.getInstance(this);
-      mbw.getEventBus().register(this);
 
       // only popup the keyboard if the user taps the textbox
       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -159,7 +158,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
          // check if we are currently in TOR-only mode - if so, setup the PaymentRequestHandler
          // that all http(s) calls get routed over TOR
          if (mbw.getTorMode() == ServerEndpointType.Types.ONLY_TOR && mbw.getTorManager() != null){
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork()){
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork()){
                @Override
                protected OkHttpClient getHttpClient() {
                   OkHttpClient client = super.getHttpClient();
@@ -169,7 +168,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
             progressMsg += getString(R.string.payment_request_over_tor);
 
          } else {
-            requestHandler = new PaymentRequestHandler(mbw.getEventBus(), mbw.getNetwork());
+            requestHandler = new PaymentRequestHandler(MbwManager.getEventBus(), mbw.getNetwork());
          }
          mbw.getBackgroundObjectsCache().put(paymentRequestHandlerUuid, requestHandler);
       }

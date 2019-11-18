@@ -4,16 +4,15 @@ import com.google.common.collect.ImmutableMap;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Map;
 
 public class Currency extends CryptoCurrency {
-    public static final Currency USD = new Currency("USD", BigDecimal.ONE, 2);
-    public static final Currency EUR = new Currency("EUR", BigDecimal.ONE, 2);
-    public static final Currency GBP = new Currency("GBP", BigDecimal.ONE, 2);
+    private static final Currency USD = new Currency("USD", BigDecimal.ONE, 2);
+    private static final Currency EUR = new Currency("EUR", BigDecimal.ONE, 2);
+    private static final Currency GBP = new Currency("GBP", BigDecimal.ONE, 2);
     public static final Currency BTC = new Currency("BTC", BigDecimal.ZERO, 8);
     public static final Map<String, Currency> all = ImmutableMap.of(
             USD.name, USD,
@@ -50,10 +49,6 @@ public class Currency extends CryptoCurrency {
         return result;
     }
 
-    public String getMinimumConversationString() {
-        return new DecimalFormat("#0.00##").format(minimumConversationValue) + " " + name;
-    }
-
     @Override
     public String getId() {
         return null;
@@ -70,7 +65,7 @@ public class Currency extends CryptoCurrency {
     }
 
     @Override
-    public GenericAddress parseAddress(String address) throws AddressMalformedException {
+    public GenericAddress parseAddress(String address) {
         return null;
     }
 }

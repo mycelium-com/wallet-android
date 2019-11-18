@@ -26,7 +26,7 @@ class BitcoinUri(address: GenericAddress?, value: Value?, label: String?, overri
     }
 
     override fun toString(): String {
-        var result = StringBuilder("bitcoin:")
+        val result = StringBuilder("bitcoin:")
 
         // detect first parameter
         var isFirst = true
@@ -35,7 +35,7 @@ class BitcoinUri(address: GenericAddress?, value: Value?, label: String?, overri
             if (isFirst) {
                 result.append("?")
             }
-            result.append("amount=").append(value!!.getValue().toDouble() / 100000000)
+            result.append("amount=").append(value.value.toDouble() / 100000000)
             isFirst = false
         }
         label?.run {

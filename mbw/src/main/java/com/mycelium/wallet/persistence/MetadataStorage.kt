@@ -34,14 +34,13 @@
 
 package com.mycelium.wallet.persistence
 
-import android.content.Context
 import android.text.TextUtils
 
 import com.google.common.base.Optional
 import com.google.common.base.Splitter
 import com.google.common.base.Strings
 import com.mrd.bitlib.model.Address
-import com.mrd.bitlib.util.Sha256Hash
+import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.AddressUtils
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.bch.coins.BchMain
@@ -56,18 +55,20 @@ import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 import java.math.BigDecimal
 import java.util.*
 
-class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
-
-    //todo: check only available addresses (need rewrite it with GenericAddress)
-    val allAddressLabels: MutableMap<Address, String>
+object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance()) {
+    val allAddressLabels: MutableMap<GenericAddress, String>
         get() {
             val entries = getKeysAndValuesByCategory(ADDRESSLABEL_CATEGORY)
-            val addresses = HashMap<Address, String>()
+            val addresses = HashMap<GenericAddress, String>()
+            val addressesOfCointype = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
+                    .filterKeys(entries::containsKey)
+            var coinType: String
             for (e in entries.entries) {
-                val `val` = e.value
+                val value = e.value
                 val key = e.key
-                if (Address.fromString(key) != null) {
-                    addresses[Address.fromString(key)] = `val`
+                coinType = addressesOfCointype[key].toString()
+                if (AddressUtils.from(coinTypeFromString(coinType), key) != null) {
+                    addresses[AddressUtils.from(coinTypeFromString(coinType), key)] = value
                 }
             }
             return addresses
@@ -78,9 +79,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             val entries = getKeysAndValuesByCategory(ADDRESSCOINTYPE_CATEGORY)
             val addresses = ArrayList<GenericAddress>()
             for (e in entries.entries) {
-                val `val` = coinTypeFromString(e.value)
+                val value = coinTypeFromString(e.value)
                 val key = e.key
-                addresses.add(AddressUtils.from(`val`, key))
+                addresses.add(AddressUtils.from(value, key))
             }
             return addresses
         }
@@ -183,6 +184,14 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
             storeKeyCategoryValueEntry(SIMPLEX_IS_ENABLED, if (enable) "1" else "0")
         }
 
+    var sepaIsEnabled: Boolean
+        get() {
+            return getKeyCategoryValueEntry(SEPA_IS_ENABLED, "1") == "1"
+        }
+        set(enable) {
+            storeKeyCategoryValueEntry(SEPA_IS_ENABLED, if (enable) "1" else "0")
+        }
+
     var changellyIsEnabled: Boolean
         get() {
             return getKeyCategoryValueEntry(CHANGELLY_IS_ENABLED, "1") == "1"
@@ -281,9 +290,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         val address = getFirstKeyForCategoryValue(ADDRESSLABEL_CATEGORY, label)
 
         return if (address.isPresent) {
-            Optional.of<String>(address.get())
+            Optional.of(address.get())
         } else {
-            Optional.absent<String>()
+            Optional.absent()
         }
     }
 
@@ -372,9 +381,9 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
     fun getCoinapultAddress(forCurrency: String): Optional<Address> {
         val last = getKeyCategoryValueEntry(COINAPULT.of("last$forCurrency"))
         if (!last.isPresent) {
-            return Optional.absent<Address>()
+            return Optional.absent()
         }
-        return Optional.fromNullable<Address>(Address.fromString(last.get()))
+        return Optional.fromNullable(Address.fromString(last.get()))
     }
 
     fun storeColuAssetCoinSupply(assetIds: String, value: BigDecimal) {
@@ -445,26 +454,22 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         if (!uuid.isPresent || uuid.get().isEmpty()) {
             return arrayOf()
         }
-
-        val strUuids = uuid.get().split((",").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        val uuids = arrayOfNulls<UUID>(strUuids.size)
-
-        for (i in strUuids.indices) {
-            uuids[i] = UUID.fromString(strUuids[i])
-        }
-
-        return uuids
+        return uuid.get()
+                .split(",".toRegex())
+                .filter { !it.isEmpty() }
+                .map { UUID.fromString(it) }
+                .toTypedArray()
     }
 
     fun setLastFullSync(date: Long) {
-        storeKeyCategoryValueEntry(SYNC_LAST_FULLSYNC, java.lang.Long.toString(date))
+        storeKeyCategoryValueEntry(SYNC_LAST_FULLSYNC, date.toString())
     }
 
     enum class BackupState(private val _index: Int) {
         UNKNOWN(0), VERIFIED(1), IGNORED(2), NOT_VERIFIED(3);
 
         override fun toString(): String {
-            return Integer.toString(_index)
+            return _index.toString()
         }
 
         fun toInt(): Int {
@@ -489,36 +494,35 @@ class MetadataStorage(context: Context) : GenericMetadataStorage(context) {
         }
     }
 
-    companion object {
-        private val COINAPULT = MetadataCategory("coinapult_adddr")
-        private val ADDRESSLABEL_CATEGORY = MetadataCategory("addresslabel")
-        private val ADDRESSCOINTYPE_CATEGORY = MetadataCategory("addresscointype")
-        private val ACCOUNTLABEL_CATEGORY = MetadataCategory("al")
-        private val ARCHIVED = MetadataCategory("archived")
-        private val TRANSACTION_LABEL_CATEGORY = MetadataCategory("tl")
-        private val OTHER_ACCOUNT_BACKUPSTATE = MetadataCategory("single_key_bs")
-        private val PAIRED_SERVICES_CATEGORY = MetadataCategory("paired_services")
+    private val COINAPULT = MetadataCategory("coinapult_adddr")
+    private val ADDRESSLABEL_CATEGORY = MetadataCategory("addresslabel")
+    private val ADDRESSCOINTYPE_CATEGORY = MetadataCategory("addresscointype")
+    private val ACCOUNTLABEL_CATEGORY = MetadataCategory("al")
+    private val ARCHIVED = MetadataCategory("archived")
+    private val TRANSACTION_LABEL_CATEGORY = MetadataCategory("tl")
+    private val OTHER_ACCOUNT_BACKUPSTATE = MetadataCategory("single_key_bs")
+    private val PAIRED_SERVICES_CATEGORY = MetadataCategory("paired_services")
 
-        private val EXCHANGE_RATES_CATEGORY = MetadataCategory("exchange_rates")
+    private val EXCHANGE_RATES_CATEGORY = MetadataCategory("exchange_rates")
 
-        // various key value fields info for colu
-        private val COLU = MetadataCategory("colu_data")
-        // associates asset label for each assetId
-        private val COLU_ASSET_LABEL_CATEGORY = MetadataCategory("colu_asset_labels")
-        // associates all asset data for each assetId
-        private val COLU_ASSET_DATA_CATEGORY = MetadataCategory("colu_asset_data")
+    // various key value fields info for colu
+    private val COLU = MetadataCategory("colu_data")
+    // associates asset label for each assetId
+    private val COLU_ASSET_LABEL_CATEGORY = MetadataCategory("colu_asset_labels")
+    // associates all asset data for each assetId
+    private val COLU_ASSET_DATA_CATEGORY = MetadataCategory("colu_asset_data")
 
-        private val SEED_BACKUPSTATE = MetadataKeyCategory("seed", "backupstate")
-        private val PIN_RESET_BLOCKHEIGHT = MetadataKeyCategory("pin", "reset_blockheight")
-        private val PIN_BLOCKHEIGHT = MetadataKeyCategory("pin", "blockheight")
-        private val SYNC_LAST_FULLSYNC = MetadataKeyCategory("lastFull", "sync")
-        private val SHOW_BIP44_PATH = MetadataKeyCategory("ui", "show_bip44_path")
-        private val SWISH_CREDIT_CARD_IS_ENABLED = MetadataKeyCategory("swish_cc", "enable")
-        private val SIMPLEX_IS_ENABLED = MetadataKeyCategory("simplex", "enable")
-        private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
-        private val EMAIL = "email"
-        val PAIRED_SERVICE_COINAPULT = "coinapult"
-        @JvmField
-        val PAIRED_SERVICE_COLU = "colu"
-    }
+    private val SEED_BACKUPSTATE = MetadataKeyCategory("seed", "backupstate")
+    private val PIN_RESET_BLOCKHEIGHT = MetadataKeyCategory("pin", "reset_blockheight")
+    private val PIN_BLOCKHEIGHT = MetadataKeyCategory("pin", "blockheight")
+    private val SYNC_LAST_FULLSYNC = MetadataKeyCategory("lastFull", "sync")
+    private val SHOW_BIP44_PATH = MetadataKeyCategory("ui", "show_bip44_path")
+    private val SWISH_CREDIT_CARD_IS_ENABLED = MetadataKeyCategory("swish_cc", "enable")
+    private val SIMPLEX_IS_ENABLED = MetadataKeyCategory("simplex", "enable")
+    private val SEPA_IS_ENABLED = MetadataKeyCategory("sepa", "enable")
+    private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
+    private val EMAIL = "email"
+    val PAIRED_SERVICE_COINAPULT = "coinapult"
+    @JvmField
+    val PAIRED_SERVICE_COLU = "colu"
 }

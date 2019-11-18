@@ -37,7 +37,7 @@ package com.mycelium.wallet.activity.send;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -95,7 +95,6 @@ public class InstantWalletActivity extends FragmentActivity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.instant_wallet_activity);
 
-
       findViewById(R.id.btClipboard).setOnClickListener(new OnClickListener() {
          @Override
          public void onClick(View arg0) {
@@ -145,14 +144,10 @@ public class InstantWalletActivity extends FragmentActivity {
       super.onResume();
       StringHandlerActivity.ParseAbility canHandle = StringHandlerActivity.canHandle(
               HandleConfigFactory.spendFromColdStorage(),
-            Utils.getClipboardString(this),
-            MbwManager.getInstance(this).getNetwork());
-
-      if (canHandle == StringHandlerActivity.ParseAbility.NO) {
-         findViewById(R.id.btClipboard).setEnabled(false);
-      } else {
-         findViewById(R.id.btClipboard).setEnabled(true);
-      }
+              Utils.getClipboardString(this),
+              MbwManager.getInstance(this).getNetwork());
+      boolean fromClipboardEnabled = canHandle != StringHandlerActivity.ParseAbility.NO;
+      findViewById(R.id.btClipboard).setEnabled(fromClipboardEnabled);
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
@@ -179,7 +174,7 @@ public class InstantWalletActivity extends FragmentActivity {
                   HdKeyNode hdKeyNode = getHdKeyNode(intent);
                   final WalletManager tempWalletManager = mbwManager.getWalletManager(true);
                   UUID account = tempWalletManager.createAccounts(new UnrelatedHDAccountConfig(Collections.singletonList(hdKeyNode))).get(0);
-                  tempWalletManager.setActiveAccount(account);
+                  tempWalletManager.startSynchronization(account);
                   sendWithAccount(account);
                   break;
                case SHARE:

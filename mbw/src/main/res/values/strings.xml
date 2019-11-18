@@ -710,7 +710,7 @@
     <string name="ledger_enter_pin">Enter Ledger Wallet PIN</string>
     <string name="ledger_enter_transaction_pin">Enter Ledger Wallet 2FA</string>
     <string name="ledger_enter_2fa_pin">Confirm output address using your Security Card</string>
-    <string name="ledger_please_wait">Please wait ...</string>
+    <string name="ledger_please_wait">Please wait …</string>
     <string name="ledger_unplugged_aid">Ledger Unplugged AID</string>
     <string name="ledger_set_unplugged_aid_title">Set Ledger Unplugged AID</string>
     <string name="ledger_check_unplugged_aid">Invalid AID, please recheck</string>
@@ -818,6 +818,7 @@
     <string name="warning_delete_unconfirmed_transaction">WARNING: This will only delete the transaction from the local app. This function can not undo a transaction and can not prevent it from getting confirmed. It is only useful if the network has already forgotten the transaction because it did not confirm for a long time. In that case, you can delete it to access the funds again. You will need to synchronize after doing this. If the network still knows the transaction, it will show up again right after synchronizing.\\n\\nDo you want to delete the transaction from the local cache?</string>
     <string name="rebroadcast_transaction_title">Rebroadcast transaction</string>
     <string name="bump_fee_title">Bump Mining Fee (CPFP)</string>
+    <string name="bumping_not_necessary">Bumping not necessary</string>
     <string name="description_rebroadcast_transaction">Re-submit this transaction to the server to broadcast it. This can be used if you suspect that the network has not propagated your transaction or dropped it, because it did not confirm for a long time for example. Do you want to re-broadcast this transaction?</string>
     <string name="description_bump_fee">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend %2$s to get the fee to %1$dsat/B?</string>
     <string name="description_bump_fee_placeholder">Send a transaction that increases the fee for this unconfirmed transaction.\n\nDo you want to spend… Loading…</string>
@@ -992,30 +993,6 @@ You can either add miner\'s fee from any account with bitcoins every time you ma
     <string name="rmc_activate">RMC activate</string>
     <string name="save">Save</string>
     <string name="warning_partner">Partner information</string>
-
-    <string name="partner_header_title">New to crypto?</string>
-    <string name="partner_header_text">Please find here a selection of partner businesses.</string>
-
-    <string name="partner_ledger">Ledger</string>
-    <string name="partner_ledger_short">Security solutions for cryptocurrencies</string>
-    <string name="partner_ledger_url">https://www.ledgerwallet.com/r/494d?path=/products</string>
-    <string name="partner_ledger_info" />
-
-    <string name="partner_trezor">Trezor</string>
-    <string name="partner_trezor_short">The original hardware wallet.</string>
-    <string name="partner_trezor_url">https://shop.trezor.io/?a=mycelium.com</string>
-    <string name="partner_trezor_info" />
-
-    <string name="partner_purse">Purse</string>
-    <string name="partner_purse_short">Save 15% on Amazon.com by paying with Bitcoin on Purse.io</string>
-    <string name="partner_purse_url">https://purse.io/?_a=MYCELIUM</string>
-    <string name="partner_purse_info" />
-
-    <string name="partner_safervpn">SaferVPN</string>
-    <string name="partner_safervpn_short">Secure your Internet connection</string>
-    <string name="partner_safervpn_url">https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313</string>
-    <string name="partner_safervpn_info" />
-
     <string name="tab_partners">Businesses</string>
     <string name="partner_more_info"><u>Your privacy is our top priority</u></string>
     <string name="partner_more_info_text">
@@ -1093,7 +1070,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_please_send_funds">Please send the funds to the following address:</string>
     <string name="changelly_created_at">Created at:</string>
     <string name="changelly_validity">Valid until:</string>
-    <string name="changelly_loading_currencies">Loading currencies...</string>
+    <string name="changelly_loading_currencies">Loading currencies…</string>
     <string name="changelly_copy_to_clipboard">Copy address to clipboard</string>
     <string name="changelly_tandc">Agree with <a href="https://www.changelly.com/terms-of-use">Changelly Terms of Use</a></string>
     <string name="payouts_rmc_every_time">Total hash power and payouts volume/periodicity are subject to change. Visit <font color="#4583de">rmc.one</font> to learn more.</string>
@@ -1165,9 +1142,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="d_coco_created">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
     <string name="d_coco_created_existing_found">We have found %1$s on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n%3$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
     <string name="d_coco_existing_found">We have found digital assets on your BIP32 private key.\n\nCorresponding digital assets accounts:\n%2$s\n\nNow you will be redirected to the Balance tab where you can check assets balance.</string>
-    <string name="settings_mydfs_title">Enable MYDFS token</string>
-    <string name="settings_mydfs_summary">Show MYDFS token buy option</string>
-    <string name="buy_mydfs_token">BUY MYDFS TOKEN</string>
     <string name="scaning_complete_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has been found!]]></string>
     <string name="scaning_complete_not_found"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> has not been found!]]></string>
     <string name="exchange_rate_unavailable">Exchange rate is temporarily unavailable.</string>
@@ -1211,9 +1185,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gp_required">Service is available for Google Play logged in users only.</string>
     <string name="active_bitcoin_sa_group_name">Bitcoin SA</string>
     <string name="value_conversion_error">Can\'t convert value. Please check connection to your exchange source</string>
-    <string name="settings_apex_title">Enable APEX token</string>
-    <string name="settings_apex_summary">Show APEX token buy option</string>
-    <string name="buy_apex_token">BUY APEX TOKEN</string>
     <string name="exchange_sending">SENDING\nADDRESS</string>
     <string name="exchange_receiving">RECEIVING\nADDRESS</string>
     <string name="what_is_sync">What is sync?</string>
@@ -1249,6 +1220,13 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="button_done">Done</string>
     <string name="button_cancel">Cancel</string>
     <string name="transactions_loading_from_module_error">Error loading transactions from module</string>
+    <string name="bullet">&#8226;</string>
+    <string name="select_flows">Select flows</string>
+    <string name="view_more">View more</string>
+    <string name="settings_show_news_all_notification">Show Media Flow notifications</string>
+    <string name="media_flow">Media Flow</string>
+    <string name="select_all">Show all</string>
+    <string name="myceliumwalletbugreports">MyceliumWalletBugReports</string>
     <string name="default_address_type_desc">Setup change address preferences</string>
     <string name="address_type">Address type</string>
     <string name="change_address_type">Transaction change address type</string>
@@ -1294,6 +1272,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="account_upgraded">Account %d just received SegWit support</string>
     <string name="hardware_account_create">Creating new hardware wallet account</string>
     <string name="please_wait_hardware">Please wait</string>
+    <string name="share_news">Share News</string>
     <string name="did_backup">You have made a backup already. Have you lost that backup and need a new one?</string>
     <string name="failed_transaction_removal_title">Failed transactions removal</string>
     <string name="failed_transaction_removal_message">A transaction failed to broadcast permanently. You can keep the transaction for further investigations or delete it. Do you want to delete failed transactions now?</string>
@@ -1306,6 +1285,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="asia">Asia</string>
     <string name="united_states">United States</string>
     <string name="australia">Australia/New Zealand</string>
+    <string name="share">Share</string>
+    <string name="other_news">Other news</string>
+    <string name="discover">Discover</string>
     <plurals name="account_label">
         <item quantity="one">Account label:\n%s</item>
         <item quantity="other">Accounts labels:\n%s</item>
@@ -1323,4 +1305,23 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="address_gaps">Address gaps: </string>
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
+    <string name="connection_logs">Connection Logs</string>
+    <string name="fio_requires_hd_account">Currently you can only link HD accounts to FIO labels. Please switch to another account.</string>
+    <string name="confirm_fio_link">Do you want to register a FIO address for your HD account %1$s?</string>
+    <string name="partner_fiopresale">FIO Address Presale</string>
+    <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
+    <string name="partner_fiopresale_info" />
+    <string name="partner_fiopresale_url">https://fio.sale/mycelium</string>
+    <string name="settings_fiopresale_title">Enable FIO Address Presale</string>
+    <string name="settings_fiopresale_summary">Show FIO Address Presale option</string>
+    <string name="media_flow_notification_title" >"Mycelium Wallet / Mediaflow"</string>
+    <string name="sepa_buy_sell_title">SEPA</string>
+    <string name="sepa_buy_sell_description">Buy/sell bitcoin using Single Euro Payments Area.</string>
+    <string name="sepa_buy_sell_settings_description">Show SEPA buy/sell option</string>
+    <string name="there_are_no_bookmarks_yet">There are no bookmarks yet.</string>
+    <string name="settings_media_flow_notification_category">Media Flow</string>
+    <string name="loading_media_flow_feed_please_wait">Loading Media Flow feed, please wait %s</string>
+    <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
+    <string name="retry">RETRY</string>
+    <string name="notifications_summary">Media Flow</string>
 </resources>

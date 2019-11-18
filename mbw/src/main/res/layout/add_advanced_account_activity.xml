@@ -16,16 +16,14 @@
                 android:text="@string/add_unrelated_account_title"
                 android:textSize="24sp"/>
 
-
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/add_advanced_account_warning"/>
-
 
         <TextView
                 android:layout_width="wrap_content"
@@ -40,10 +38,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="5dp"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:text="@string/scan"/>
-
 
         <TextView
                 android:layout_width="wrap_content"
@@ -58,10 +55,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="5dp"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:text="@string/clipboard"/>
-
 
         <TextView
                 android:layout_width="wrap_content"
@@ -80,8 +76,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/trezor"/>
 
                     <Button
@@ -89,10 +85,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/buy_one"/>
             </LinearLayout>
 
@@ -113,8 +109,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/keepkey"/>
 
                     <Button
@@ -122,10 +118,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/buy_one"/>
             </LinearLayout>
 
@@ -138,8 +134,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                     <Button
                         android:id="@+id/btLedger"
@@ -147,8 +142,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/ledger"/>
 
                     <Button
@@ -156,10 +151,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:layout_marginTop="5dp"
-                        android:paddingLeft="30dp"
-                        android:paddingRight="30dp"
+                        android:paddingStart="30dp"
+                        android:paddingEnd="30dp"
                         android:text="@string/buy_one"/>
             </LinearLayout>
 
@@ -184,8 +179,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="5dp"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:layout_marginBottom="@dimen/margin_medium"
                 android:text="@string/generate_new_key"/>
 
@@ -195,10 +190,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:layout_marginTop="@dimen/margin_medium"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:layout_marginBottom="30dp"
                 android:text="@string/generate_new_bch_key"/>
     </LinearLayout>
-
 </ScrollView>

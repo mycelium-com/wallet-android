@@ -35,20 +35,26 @@
 package com.mycelium.wallet;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.annotation.NonNull;
-import android.support.multidex.MultiDexApplication;
-import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.multidex.MultiDexApplication;
+
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mycelium.modularizationtools.CommunicationManager;
 import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
+import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
+import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
 import java.security.Security;
 import java.util.*;
@@ -77,7 +83,6 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         } else {
             Log.d("WalletApplication", "Inserted spongy castle provider");
         }
-        SettingsPreference.getInstance().init(this);
         INSTANCE = this;
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -88,21 +93,37 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         super.onCreate();
         CommunicationManager.init(this);
         moduleMessageReceiver = new MbwMessageReceiver(this);
-        applyLanguageChange(getBaseContext(), getLanguage());
+        applyLanguageChange(getBaseContext(), SettingsPreference.getLanguage());
         IntentFilter connectivityChangeFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         initNetworkStateHandler(connectivityChangeFilter);
         registerActivityLifecycleCallbacks(new ApplicationLifecycleHandler());
         PackageRemovedReceiver.register(getApplicationContext());
+        if(isMainProcess()) {
+            NewsDatabase.INSTANCE.initialize(this);
+            NewsSyncUtils.startNewsUpdateRepeating(this);
+        }
+        FirebaseApp.initializeApp(this);
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
+    }
+
+    private boolean isMainProcess() {
+        String currentProcName = "";
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+                if (processInfo.pid == pid) {
+                    currentProcName = processInfo.processName;
+                    break;
+                }
+            }
+        }
+        return getPackageName().equals(currentProcName);
     }
 
     private void initNetworkStateHandler(IntentFilter connectivityChangeFilter) {
         networkChangedReceiver = new NetworkChangedReceiver();
         registerReceiver(networkChangedReceiver, connectivityChangeFilter);
-    }
-
-    private String getLanguage() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
-        return sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
     }
 
     public List<ModuleVersionError> moduleVersionErrors = new ArrayList<>();
@@ -174,7 +195,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             if (numStarted == 0 && isBackground) {
                 // app returned from background
                 MbwManager mbwManager = MbwManager.getInstance(getApplicationContext());
-                mbwManager.getWapi().setAppInForeground(true);
+                mbwManager.setAppInForeground(true);
                 // as monitoring the connection state doesn't work in background, establish the
                 // right connection state here.
                 boolean connected = Utils.isConnected(getApplicationContext());
@@ -200,7 +221,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
             numStarted--;
             if (numStarted == 0) {
                 // app is going background
-                MbwManager.getInstance(getApplicationContext()).getWapi().setAppInForeground(false);
+                MbwManager.getInstance(getApplicationContext()).setAppInForeground(false);
                 isBackground = true;
             }
         }

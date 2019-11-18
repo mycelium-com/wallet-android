@@ -193,6 +193,9 @@
     </style>
     <style name="MyceliumTabBarStyle" parent="Widget.AppCompat.Light.ActionBar.TabBar">
         <item name="android:background">@drawable/action_bar_tab_bar_bg</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:clipToPadding">false</item>
     </style>
 
     <style name="MyceliumTabTextStyle" parent="Widget.AppCompat.Light.ActionBar.TabText">
@@ -207,15 +210,15 @@
     </style>
 
     <style name="MyceliumSlimButton" parent="android:style/Widget.Button">
-        <item name="android:layout_marginLeft">1dp</item>
-        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:layout_marginEnd">1dp</item>
         <item name="android:background">@drawable/btn_blue_slim</item>
         <item name="android:textColor">@color/button_text_color</item>
     </style>
 
     <style name="MyceliumSlimButtonExchangeRate" parent="android:style/Widget.Button">
-        <item name="android:layout_marginLeft">1dp</item>
-        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:layout_marginEnd">1dp</item>
         <item name="android:background">@drawable/btn_gray_slim</item>
         <item name="android:textColor">@color/button_text_color</item>
     </style>
@@ -243,7 +246,7 @@
     <style name="MyceliumPinpadButton" parent="MyceliumSlimButton">
         <item name="android:layout_width">60dp</item>
         <item name="android:layout_height">60dp</item>
-        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:layout_marginStart">1dp</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">40sp</item>
         <item name="android:layout_margin">2dp</item>
@@ -252,7 +255,7 @@
     <style name="MyceliumHexPinpadButton" parent="MyceliumSlimButton">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:layout_marginStart">1dp</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">35sp</item>
         <item name="android:layout_margin">2dp</item>
@@ -262,8 +265,8 @@
         <!--<item name="android:textSize">19sp</item>-->
         <!--<item name="android:layout_margin">0dip</item>-->
         <!--<item name="android:background">#0000FF</item>-->
-        <item name="android:layout_marginLeft">3dp</item>
-        <item name="android:layout_marginRight">3dp</item>
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@color/button_text_color</item>
@@ -336,14 +339,12 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
     <style name="MyceliumButtonModern" parent="android:style/Widget.Button">
-        <item name="android:layout_marginLeft">3dp</item>
-        <item name="android:layout_marginRight">3dp</item>
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:background">@drawable/background_action_btn</item>
-        <item name="android:textColor">@color/btn_text_color</item>
-        <item name="android:paddingLeft">@dimen/button_padding_large</item>
-        <item name="android:paddingRight">@dimen/button_padding_large</item>
+        <item name="android:textColor">@color/btn_text_color_selector</item>
         <item name="android:paddingStart">@dimen/button_padding_large</item>
         <item name="android:paddingEnd">@dimen/button_padding_large</item>
     </style>
@@ -354,7 +355,21 @@
         <item name="colorControlActivated">@color/buttonredcolor</item>
     </style>
 
-    <color name="btn_text_color">#5aa7e6</color>
+    <style name="MyceliumNews" parent="MyceliumModern">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="MediaFlowTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="MyceliumNewsSearchView">
+        <item name="android:textSize">16sp</item>
+    </style>
 
 
 
@@ -366,5 +381,4 @@
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
     </style>
-
 </resources>

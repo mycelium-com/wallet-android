@@ -36,91 +36,75 @@ package com.mycelium.wallet.activity.export;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
+
+import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.*;
 
 import com.mrd.bitlib.crypto.Bip38;
 import com.mrd.bitlib.crypto.Bip38.Bip38PrivateKey;
+import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.UserFacingException;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.service.Bip38KeyDecryptionTask;
-import com.mycelium.wallet.service.ServiceTask;
-import com.mycelium.wallet.service.ServiceTaskStatusEx;
-import com.mycelium.wallet.service.ServiceTaskStatusEx.State;
-import com.mycelium.wallet.service.TaskExecutionServiceController;
-import com.mycelium.wallet.service.TaskExecutionServiceController.TaskExecutionServiceCallback;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
-public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExecutionServiceCallback {
-
+public class DecryptBip38PrivateKeyActivity extends Activity {
    private EditText passwordEdit;
    private CheckBox checkboxShowPassword;
+   Bip38KeyDecryptionTask task;
+   private String encryptedPrivateKey;
+   private MbwManager mbwManager;
 
    public static void callMe(Activity currentActivity, String encryptedPrivateKey, int requestCode) {
-      Intent intent = new Intent(currentActivity, DecryptBip38PrivateKeyActivity.class);
-      intent.putExtra("encryptedPrivateKey", encryptedPrivateKey);
+      Intent intent = new Intent(currentActivity, DecryptBip38PrivateKeyActivity.class)
+              .putExtra("encryptedPrivateKey", encryptedPrivateKey);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
    public static void callMe(Fragment fragment, String encryptedPrivateKey, int requestCode) {
-      Intent intent = new Intent(fragment.getActivity(), DecryptBip38PrivateKeyActivity.class);
-      intent.putExtra("encryptedPrivateKey", encryptedPrivateKey);
+      Intent intent = new Intent(fragment.getActivity(), DecryptBip38PrivateKeyActivity.class)
+              .putExtra("encryptedPrivateKey", encryptedPrivateKey);
       fragment.startActivityForResult(intent, requestCode);
    }
-
-   private TaskExecutionServiceController _taskExecutionServiceController;
-   private ServiceTaskStatusEx _taskStatus;
-   private ProgressUpdater _progressUpdater;
-   private String _encryptedPrivateKey;
-   private MbwManager _mbwManager;
 
    /**
     * Called when the activity is first created.
     */
    @Override
    public void onCreate(Bundle savedInstanceState) {
-      this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.decrypt_bip38_private_key_activity);
 
-      _mbwManager = MbwManager.getInstance(this);
+      mbwManager = MbwManager.getInstance(this);
       // Get parameters
-      _encryptedPrivateKey = getIntent().getStringExtra("encryptedPrivateKey");
+      encryptedPrivateKey = getIntent().getStringExtra("encryptedPrivateKey");
 
       // Decode the BIP38 key
-      Bip38PrivateKey _bip38PrivateKey = Bip38.parseBip38PrivateKey(_encryptedPrivateKey);
-      if (_bip38PrivateKey == null) {
+      Bip38PrivateKey bip38Privatekey = Bip38.parseBip38PrivateKey(encryptedPrivateKey);
+      if (bip38Privatekey == null) {
          Toast.makeText(this, R.string.unrecognized_format, Toast.LENGTH_SHORT).show();
          finish();
          return;
       }
 
-      _progressUpdater = new ProgressUpdater();
-
-      Button btDecrypt = (Button) findViewById(R.id.btDecrypt);
+      Button btDecrypt = findViewById(R.id.btDecrypt);
       btDecrypt.setEnabled(false);
-      btDecrypt.setOnClickListener(new OnClickListener() {
+      btDecrypt.setOnClickListener(v -> startKeyStretching());
 
-         @Override
-         public void onClick(View v) {
-            startKeyStretching();
-         }
-      });
-
-      passwordEdit = (EditText) findViewById(R.id.password);
+      passwordEdit = findViewById(R.id.password);
       passwordEdit.addTextChangedListener(passwordWatcher);
 
-      checkboxShowPassword = (CheckBox) findViewById(R.id.showPassword);
-      checkboxShowPassword.setOnCheckedChangeListener(showPasswordCheckboxChanged);
+      checkboxShowPassword = findViewById(R.id.showPassword);
+      checkboxShowPassword.setOnCheckedChangeListener((compoundButton, b) -> setPasswordHideShow( checkboxShowPassword.isChecked() ));
 
       if (savedInstanceState != null) {
          String password = savedInstanceState.getString("password");
@@ -128,7 +112,6 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
             passwordEdit.setText(password);
          }
       }
-      
    }
 
    private void setPasswordHideShow(boolean show){
@@ -143,15 +126,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       passwordEdit.setSelection(passwordEdit.getText().length());
    }
 
-   CompoundButton.OnCheckedChangeListener showPasswordCheckboxChanged = new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-         setPasswordHideShow( checkboxShowPassword.isChecked() );
-      }
-   };
-
    TextWatcher passwordWatcher = new TextWatcher() {
-
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
          findViewById(R.id.btDecrypt).setEnabled(s.length() > 0);
@@ -174,61 +149,14 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
 
    @Override
    protected void onResume() {
-      _progressUpdater.start();
+      MbwManager.getEventBus().register(this);
       super.onResume();
    }
 
    @Override
    protected void onPause() {
-      _progressUpdater.stop();
+      MbwManager.getEventBus().unregister(this);
       super.onPause();
-   }
-
-   @Override
-   protected void onDestroy() {
-      if (_taskExecutionServiceController != null) {
-         _taskExecutionServiceController.terminate();
-         _taskExecutionServiceController.unbind(this);
-      }
-      super.onDestroy();
-   }
-
-   class ProgressUpdater implements Runnable {
-      Handler _handler;
-
-      ProgressUpdater() {
-         _handler = new Handler();
-      }
-
-      public void start() {
-         _handler.post(this);
-      }
-
-      public void stop() {
-         _handler.removeCallbacks(this);
-      }
-
-      /**
-       * Update the percentage of work completed for key stretching
-       */
-      @Override
-      public void run() {
-
-         if (_taskExecutionServiceController != null) {
-            // poll for status update
-            _taskExecutionServiceController.requestStatus();
-         }
-
-         if (_taskExecutionServiceController != null && _taskStatus != null) {
-            ((TextView) findViewById(R.id.tvStatus)).setText(_taskStatus.statusMessage);
-            ((TextView) findViewById(R.id.tvProgress)).setText("" + (int) (_taskStatus.progress * 100) + "%");
-         } else {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
-         }
-         // Reschedule
-         _handler.postDelayed(this, 300);
-      }
-
    }
 
    private void startKeyStretching() {
@@ -241,53 +169,95 @@ public class DecryptBip38PrivateKeyActivity extends Activity implements TaskExec
       findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.transparent));
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
-      if (_taskExecutionServiceController != null) {
-         _taskExecutionServiceController.terminate();
-         _taskExecutionServiceController.unbind(this);
-      }
-      _taskExecutionServiceController = new TaskExecutionServiceController();
-      _taskExecutionServiceController.bind(this, this);
-      Bip38KeyDecryptionTask task = new Bip38KeyDecryptionTask(_encryptedPrivateKey, password, this,
-            _mbwManager.getNetwork());
-      _taskExecutionServiceController.start(task);
+      task = new Bip38KeyDecryptionTask(encryptedPrivateKey, password, mbwManager.getNetwork());
    }
 
-   @Override
-   public void onStatusReceived(ServiceTaskStatusEx status) {
-      if (_taskExecutionServiceController == null) {
-         return;
-      }
-      _taskStatus = status;
-      if (_taskStatus != null && _taskStatus.state == State.FINISHED) {
-         _taskExecutionServiceController.requestResult();
+   @Subscribe
+   public void onResultReceived(Bip38KeyDecryptionResult decryptionResult) {
+      String key = decryptionResult.result;
+      Intent result = new Intent()
+              .putExtra("base58Key", key);
+      setResult(RESULT_OK, result);
+      finish();
+   }
+
+   @Subscribe
+   public void onErrorReceived(Bip38KeyDecryptionError decryptionError) {
+      TextView tvStatus = findViewById(R.id.tvStatus);
+      ((TextView) findViewById(R.id.tvProgress)).setText("");
+      Integer decryptionMessageId = decryptionError.message;
+      if (decryptionMessageId == R.string.import_decrypt_bip38_invalid_password) {
+         tvStatus.setText("");
+         Utils.showSimpleMessageDialog(this, R.string.import_decrypt_bip38_invalid_password);
+         passwordEdit.setEnabled(true);
+         checkboxShowPassword.setEnabled(true);
+      } else {
+         tvStatus.setText(decryptionMessageId);
+         tvStatus.setBackgroundColor(getResources().getColor(R.color.red));
       }
    }
 
-   @Override
-   public void onResultReceived(ServiceTask<?> task) {
-      _progressUpdater.stop();
+   private static class Bip38KeyDecryptionTask extends AsyncTask<Void, Void, String> {
+      private String bip38PrivateKeyString;
+      private String passphrase;
+      private NetworkParameters network;
+      @StringRes
+      private Integer statusMessageId;
 
-      try {
-         String key = ((Bip38KeyDecryptionTask) task).getResult();
-         if (key == null) {
-            ((TextView) findViewById(R.id.tvProgress)).setText("");
-            ((TextView) findViewById(R.id.tvStatus)).setText("");
-            Utils.showSimpleMessageDialog(this, R.string.import_decrypt_bip38_invalid_password);
-            passwordEdit.setEnabled(true);
-            checkboxShowPassword.setEnabled(true);
+      Bip38KeyDecryptionTask(String bip38PrivateKeyString, String passphrase, NetworkParameters network) {
+         this.bip38PrivateKeyString = bip38PrivateKeyString;
+         this.passphrase = passphrase;
+         this.network = network;
+         this.statusMessageId = R.string.import_decrypt_stretching;
+      }
 
-         } else {
-            // Success, return result
-            Intent result = new Intent();
-            result.putExtra("base58Key", key);
-            setResult(RESULT_OK, result);
-            this.finish();
+      @Override
+      protected String doInBackground(Void ... voids) {
+         // Do BIP38 decryption
+         String result;
+         try {
+            result = Bip38.decrypt(bip38PrivateKeyString, passphrase, network);
+            if (result == null) {
+               statusMessageId = R.string.import_decrypt_bip38_invalid_password;
+            }
+         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            statusMessageId = null;
+            return null;
+         } catch (OutOfMemoryError e) {
+            statusMessageId = R.string.out_of_memory_error;
+            return null;
          }
-      } catch (UserFacingException e) {
-         ((TextView) findViewById(R.id.tvStatus)).setText(R.string.out_of_memory_error);
-         findViewById(R.id.tvStatus).setBackgroundColor(getResources().getColor(R.color.red));
-         ((TextView) findViewById(R.id.tvProgress)).setText("");
-         _mbwManager.reportIgnoredException(e);
+         statusMessageId = null;
+         // The result may be null
+         return result;
+      }
+
+      @Override
+      protected void onPostExecute(String result) {
+         Bus bus = MbwManager.getEventBus();
+         if (result != null) {
+            bus.post(new Bip38KeyDecryptionResult(result));
+         } else {
+            bus.post(new Bip38KeyDecryptionError(statusMessageId));
+         }
+      }
+   }
+
+   private static class Bip38KeyDecryptionResult {
+      String result;
+
+      Bip38KeyDecryptionResult(String result) {
+         this.result = result;
+      }
+   }
+
+   private static class Bip38KeyDecryptionError {
+      @StringRes
+      Integer message;
+
+      Bip38KeyDecryptionError(int message) {
+         this.message = message;
       }
    }
 }

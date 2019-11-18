@@ -81,6 +81,7 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager.Event;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -108,6 +109,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nonnull;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -140,8 +143,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
-   @Override
-   public FeeEstimationsGeneric getDefaultFeeEstimation() {
+   private FeeEstimationsGeneric getDefaultFeeEstimation() {
       return new FeeEstimationsGeneric(
               Value.valueOf(getCoinType(), 1000),
               Value.valueOf(getCoinType(), 3000),
@@ -151,9 +153,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       );
    }
 
-
-
-    @Override
+   @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
    }
@@ -509,7 +509,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Grab and handle parent transactions
-      fetchStoreAndValidateParentOutputs(txArray,false);
+      fetchStoreAndValidateParentOutputs(txArray, this instanceof SingleAddressAccount);
 
       // Store transaction locally
       _backing.putTransactions(transactions);
@@ -1021,7 +1021,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    public NetworkParameters getNetwork() {
       return _network;
    }
-   
+
    // TODO: 07.10.17 these values are subject to change and not a solid way to detect cc outputs.
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_TESTNET = 600;
    public static final int COLU_MAX_DUST_OUTPUT_SIZE_MAINNET = 10000;
@@ -1080,11 +1080,15 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return false;
    }
 
+   protected Collection<TransactionOutputEx> getSpendableOutputs(long minerFeePerKbToUse) {
+      return getSpendableOutputs(minerFeePerKbToUse, false);
+   }
+
    /**
     * @param minerFeePerKbToUse Determines the dust level, at which including a UTXO costs more than it is worth.
     * @return all UTXOs that are spendable now, as they are neither locked coinbase outputs nor unconfirmed received coins if _allowZeroConfSpending is not set nor dust.
     */
-   protected Collection<TransactionOutputEx> getSpendableOutputs(long minerFeePerKbToUse) {
+   private Collection<TransactionOutputEx> getSpendableOutputs(long minerFeePerKbToUse, boolean skipDustCheck) {
       long satDustOutput = StandardTransactionBuilder.MAX_INPUT_SIZE * minerFeePerKbToUse / 1000;
       Collection<TransactionOutputEx> allUnspentOutputs = _backing.getAllUnspentOutputs();
 
@@ -1096,7 +1100,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          // we remove all outputs that don't cover their costs (dust)
          // coinbase outputs are not spendable and this should not be overridden
          // Unless we allow zero confirmation spending we prune all unconfirmed outputs sent from foreign addresses
-         if (output.value < satDustOutput ||
+         if (!skipDustCheck && output.value < satDustOutput ||
                      output.isCoinBase && getBlockChainHeight() - output.height < COINBASE_MIN_CONFIRMATIONS ||
                      !_allowZeroConfSpending && output.height == -1 && !isFromMe(output.outPoint.txid)) {
             it.remove();
@@ -1246,52 +1250,49 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
     */
    public UnsignedTransaction createUnsignedCPFPTransaction(Sha256Hash txid, long minerFeeToUse, long satoshisPaid) throws InsufficientFundsException, StandardTransactionBuilder.UnableToBuildTransactionException {
       checkNotArchived();
-      Set<UnspentTransactionOutput> utxos = new HashSet<>(transform(getSpendableOutputs(minerFeeToUse)));
+      List<UnspentTransactionOutput> utxos = new ArrayList<>(transform(getSpendableOutputs(minerFeeToUse, true)));
       TransactionDetails parent = getTransactionDetails(txid);
       long totalSpendableSatoshis = 0;
-      // do we have an output to spend from?
+      boolean haveOutputToBump = false;
       List<UnspentTransactionOutput> utxosToSpend = new ArrayList<>();
-      for(UnspentTransactionOutput utxo : utxos) {
-         if(utxo.outPoint.txid.equals(txid)) {
-            totalSpendableSatoshis += utxo.value;
-            utxosToSpend.add(utxo);
+      for (UnspentTransactionOutput utxo : utxos) {
+         if (utxo.outPoint.txid.equals(txid)) {
+            // moving the bumpable UTXO to the beginning for the transaction to be built:
             utxos.remove(utxo);
-            //makeText(this, "Found a UTXO", LENGTH_SHORT).show();
-            // we ideally use just one UTXO even if more than one is owers. This leaves room to add further children at the same depth to pay for parents
+            utxos.add(0, utxo);
+            haveOutputToBump = true;
             break;
          }
       }
-      if(utxosToSpend.isEmpty()) {
-         //makeText(this, "We own no UTXOs to bump the transaction!", LENGTH_LONG).show();
-         //finish();
+      if (!haveOutputToBump) {
          throw new StandardTransactionBuilder.UnableToBuildTransactionException("We have no UTXO");
       }
       Address changeAddress = getChangeAddress();
       long parentChildFeeSat;
+      FeeEstimatorBuilder builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
+      addOutputToEstimation(changeAddress, builder);
+      long childSize = builder.createFeeEstimator().estimateTransactionSize();
+      long parentChildSize = parent.rawSize + childSize;
+      parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
+      if (parentChildFeeSat < childSize * minerFeeToUse / 1000) {
+         // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
+         throw new StandardTransactionBuilder.UnableToBuildTransactionException("parent needs no boosting");
+      }
       do {
-         FeeEstimatorBuilder builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
+         UnspentTransactionOutput utxo = utxos.remove(0);
+         utxosToSpend.add(utxo);
+         totalSpendableSatoshis += utxo.value;
+         builder = new FeeEstimatorBuilder().setArrayOfInputs(utxosToSpend);
          addOutputToEstimation(changeAddress, builder);
-         long childSize = builder.createFeeEstimator().estimateTransactionSize();
-         long parentChildSize = parent.rawSize + childSize;
+         childSize = builder.createFeeEstimator().estimateTransactionSize();
+         parentChildSize = parent.rawSize + childSize;
          parentChildFeeSat = parentChildSize * minerFeeToUse / 1000 - satoshisPaid;
-         if(parentChildFeeSat < childSize * minerFeeToUse / 1000) {
-            // if child doesn't get itself to target priority, it's not needed to boost a parent to it.
-            throw new StandardTransactionBuilder.UnableToBuildTransactionException("parent needs no boosting");
-         }
          long value = totalSpendableSatoshis - parentChildFeeSat;
-         // we have to pay for fee plus one output. Zero outputs are not allowed.
-         // See https://github.com/bitcoin/bitcoin/blob/ba7220b5e82fcfbb7a4912a49e563944a428ab91/src/validation.cpp#L497
-         if(value < MINIMUM_OUTPUT_VALUE && !utxos.isEmpty()) {
-            // we can't pay the fee with the UTXOs at hand
-            UnspentTransactionOutput utxo = utxos.iterator().next();
-            utxosToSpend.add(utxo);
-            totalSpendableSatoshis += utxo.value;
-            utxos.remove(utxo);
-            continue;
+         if (value >= MINIMUM_OUTPUT_VALUE) {
+            List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
+            return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
          }
-         List<TransactionOutput> outputs = singletonList(createOutput(changeAddress, value, _network));
-          return new UnsignedTransaction(outputs, utxosToSpend, new PublicKeyRing(), _network, 0, UnsignedTransaction.NO_SEQUENCE);
-      } while(!utxos.isEmpty());
+      } while (!utxos.isEmpty());
       throw new InsufficientFundsException(0, parentChildFeeSat);
    }
 
@@ -1811,7 +1812,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       byteBuffer.put(nonce); // nonce
 
-      ScriptOutput scriptOutput = ScriptOutputStrange.fromScriptBytes(byteBuffer.array());
+      ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(byteBuffer.array());
       return new TransactionOutput(0L, scriptOutput);
    }
 
@@ -1868,11 +1869,18 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          _backing.saveLastFeeEstimation(result, getCoinType());
          return result;
       } catch (WapiException ex) {
-         //receiving data from the server failed then trying to read fee estimations from the DB
-         FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
-         //if a read error has occurred from the DB, then we return the predefined default fee
-         return (feeFromDb == null) ? getDefaultFeeEstimation() : feeFromDb;
+         return getCachedFeeEstimations();
       }
+   }
+
+   @Override
+   @Nonnull
+   public FeeEstimationsGeneric getCachedFeeEstimations() {
+      FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
+      //if a read error has occurred from the DB, then we return the predefined default fee
+      return feeFromDb == null
+              ? getDefaultFeeEstimation()
+              : feeFromDb;
    }
 
    public void updateSyncProgress() {
@@ -1940,4 +1948,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
         //no unconfirmed outputs are used as inputs, we are fine
         return false;
     }
+
+   public void updateParentOutputs(byte[] txid) throws WapiException  {
+         TransactionEx transactionEx = getTransaction(Sha256Hash.of(txid));
+         Transaction transaction = TransactionEx.toTransaction(transactionEx);
+         fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction),true);
+   }
 }

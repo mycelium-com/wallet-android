@@ -1,13 +1,15 @@
 package com.mycelium.wallet.activity.main.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.model.PartnerInfo;
 import com.mycelium.wallet.activity.main.model.RecommendationBanner;
@@ -53,7 +55,15 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             final PartnerInfo bean = (PartnerInfo) partnerInfos.get(position);
             partnerHolder.txtName.setText(bean.getName());
             partnerHolder.txtDescription.setText(bean.getDescription());
-            partnerHolder.imgIcon.setImageResource(bean.getIcon());
+            if (bean.getIcon() != 0) {
+                partnerHolder.imgIcon.setImageResource(bean.getIcon());
+            } else if (bean.getIconUrl() != null && !bean.getIconUrl().isEmpty()) {
+                Glide.with(partnerHolder.imgIcon)
+                        .load(bean.getIconUrl())
+                        .into(partnerHolder.imgIcon);
+            }else {
+                partnerHolder.imgIcon.setImageDrawable(null);
+            }
 
             partnerHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -86,6 +96,11 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     }
                 }
             });
+        } else if (getItemViewType(position) == RecommendationHeader.HEADER_TYPE) {
+            HeaderHolder headerHolder = (HeaderHolder) holder;
+            RecommendationHeader header = (RecommendationHeader) partnerInfos.get(position);
+            headerHolder.title.setText(header.getTitle());
+            headerHolder.description.setText(header.getText());
         }
     }
 
@@ -129,8 +144,13 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     class HeaderHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        TextView description;
+
         public HeaderHolder(View itemView) {
             super(itemView);
+            title = itemView.findViewById(R.id.tvPartnerHeaderTitle);
+            description = itemView.findViewById(R.id.tvPartnerHeaderText);
         }
     }
 

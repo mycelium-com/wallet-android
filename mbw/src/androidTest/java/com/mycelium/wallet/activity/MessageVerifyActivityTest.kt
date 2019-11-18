@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity
 
-import android.widget.EditText
 import androidx.test.rule.ActivityTestRule
+import android.widget.EditText
 
 import com.mycelium.wallet.R
 

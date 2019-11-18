@@ -6,6 +6,7 @@ import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.model.*
+import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
@@ -41,7 +42,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
-        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get();
+        return if (networkParameters.isProdnet) BitcoinMain.get() else BitcoinTest.get()
     }
 
     var linkedAccount: SingleAddressAccount? = null
@@ -62,8 +63,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getTx(byte: ByteArray): GenericTransaction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getTx(txid: ByteArray): GenericTransaction {
+        val txJson = accountBacking.getTx(Sha256Hash(txid))
+        val coluTx = ColuTransaction(coinType, null, null, null)
+        val bitcoinTx = Transaction.fromBytes(HexUtils.toBytes(txJson.hex))
+        coluTx.transaction = bitcoinTx
+        return coluTx
     }
 
     override fun isSyncing(): Boolean {
@@ -71,7 +76,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
+    private fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
         return FeeEstimationsGeneric(
                 Value.valueOf(coinType, 1000),
                 Value.valueOf(coinType, 3000),
@@ -150,7 +155,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-
     override fun isMineAddress(address: GenericAddress?): Boolean {
         for (btcAddress in addressList) {
             if (btcAddress.value == address) {
@@ -199,10 +203,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         } catch (ex: WapiException) {
             //receiving data from the server failed then trying to read fee estimations from the DB
             //if a read error has occurred from the DB, then we return the predefined default fee
-            return accountBacking.loadLastFeeEstimation(coinType) ?: defaultFeeEstimation
+            return getCachedFeeEstimations()
         }
     }
 
+    override fun getCachedFeeEstimations(): FeeEstimationsGeneric = accountBacking.loadLastFeeEstimation(coinType) ?: getDefaultFeeEstimation()
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {
@@ -235,24 +240,24 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             var r = Value.zeroValue(coinType)
             tx.inputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
-                    sending = sending.add(it.value)
-                    s = s.add(it.value)
+                    sending += it.value
+                    s += it.value
                 }
             }
             tx.outputs.forEach {
                 if (tx.confirmations == 0 && isMineAddress(it.address)) {
-                    receiving = receiving.add(it.value)
-                    r = r.add(it.value)
+                    receiving += it.value
+                    r += it.value
                 }
             }
-            if(s.add(r.negate()).isPositive) {
-                change = change.add(r)
-                receiving = receiving.add(r.negate())
+            if (s > r) {
+                change += r
+                receiving -= r
             }
         }
         unspent.forEach {
             if (it.height != -1) {
-                confirmed = confirmed.add(it.value)
+                confirmed += it.value
             }
         }
         return Balance(confirmed, receiving, sending, change)
@@ -315,15 +320,15 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val feePerKb = (fee as FeePerKbFee).feePerKb
         val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
         val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
-        val json = coluClient.prepareTransaction(coluTx.destination, fromAddresses, coluTx.amount, feePerKb)
+        val json = coluClient.prepareTransaction(coluTx.destination!!, fromAddresses, coluTx.amount!!, feePerKb)
         coluTx.baseTransaction = json
         return coluTx
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
         if (request is ColuTransaction) {
-            val signTransaction = signTransaction(request.baseTransaction, this)
-            request.transaction = signTransaction
+            val signedTransaction = signTransaction(request.baseTransaction, this)
+            request.transaction = signedTransaction
         } else {
             TODO("signTx not implemented for ${request.javaClass.simpleName}")
         }
@@ -369,7 +374,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         val parameters = org.bitcoinj.core.NetworkParameters.fromID(id)
         val signTx = org.bitcoinj.core.Transaction(parameters, txBytes)
 
-        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.getPrivateKeyBytes()
+        val privateKeyBytes = coluAccount.getPrivateKey(null)!!.privateKeyBytes
         val publicKeyBytes = coluAccount.getPrivateKey(null)!!.publicKey.publicKeyBytes
         val ecKey = ECKey.fromPrivateAndPrecalculatedPublic(privateKeyBytes, publicKeyBytes)
 
@@ -432,11 +437,11 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         transaction.vin.forEach { vin ->
             vin.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val _address = Address.fromString(vin.previousOutput.addresses[0])
+                val address = Address.fromString(vin.previousOutput.addresses[0])
                 input.add(GenericInputViewModel(
-                        BtcAddress(coinType, _address), value, false))
+                        BtcAddress(coinType, address), value, false))
                 if (vin.previousOutput.addresses.contains(receiveAddress.toString())) {
-                    transferred = transferred.subtract(value)
+                    transferred -= value
                 }
             }
         }
@@ -445,16 +450,16 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         transaction.vout.forEach { vout ->
             vout.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val _address = Address.fromString(vout.scriptPubKey.addresses[0])
-                var genAddress =AddressUtils.from(coinType,_address.toString())
+                val address = Address.fromString(vout.scriptPubKey.addresses[0])
+                val genAddress = AddressUtils.from(coinType,address.toString())
                 if (!isMineAddress(genAddress)) {
                     destinationAddresses.add(genAddress)
                 }
 
                 output.add(GenericOutputViewModel(
-                        BtcAddress(coinType, _address), value, false))
+                        BtcAddress(coinType, address), value, false))
                 if (vout.scriptPubKey.addresses.contains(receiveAddress.toString())) {
-                    transferred = transferred.add(value)
+                    transferred += value
                 }
             }
         }

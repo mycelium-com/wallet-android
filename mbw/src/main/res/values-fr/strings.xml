@@ -769,13 +769,12 @@
     <string name="buy_with_cc_spend_only_warning_title">Compte receveur seulement</string>
     <string name="buy_with_cc_spend_only_warning">Le compte sélectionné actuel est un compte receveur seulement.\n\nÊtes vous sure de vouloir utiliser ce compte pour acheter votre bitcoin ?</string>
     <string name="warning_partner">Informations du partenaire</string>
-    <string name="partner_header_title">Nouveau à la crypto ?</string>
-    <string name="partner_header_text">Vous trouverez ici une sélection d\'entreprises partenaires.</string>
-    <string name="partner_ledger_short">Solutions de sécurité pour les monnaies cryptographiques</string>
-    <string name="partner_trezor_short">Le portefeuille matériel original.</string>
-    <string name="partner_purse_short">Économisez 15 % sur Amazon.com en payant avec Bitcoin sur Purse.io</string>
     <string name="tab_partners">Partenariat</string>
     <string name="partner_more_info"><u>Vos informations privées sont de notre première priorité</u></string>
-    <string name="partner_more_info_text">         Mycelium est le portefeuille le plus utilisé et le plus fiable de tous les portefeuilles mobiles. <br/>         Développer, maintenir et soutenir ce produit n\'est pas sans frais. <br/>         Les ententes commerciales sont statiquement intégrées dans l’application et ne dépendent pas de n’importe quel réseau publicitaire.         Leurs présences ne peuvent pas être utilisé pour le suivi des utilisateurs qui ne les utilisent pas.         Aucun gain se fait en affichant ou non ces liens partenaires.         Les retombées se produisent uniquement lorsque les utilisateurs décide de faire un achat depuis nos sites partenaires.    </string>
+    <string name="partner_more_info_text">Mycelium est le portefeuille le plus utilisé et le plus fiable de tous les portefeuilles mobiles.<br/>         Développer, maintenir et soutenir ce produit n\'est pas sans frais. <br/>         Les ententes commerciales sont statiquement intégrées dans l’application et ne dépendent pas de n’importe quel réseau publicitaire.         Leurs présences ne peuvent pas être utilisé pour le suivi des utilisateurs qui ne les utilisent pas.         Aucun gain se fait en affichant ou non ces liens partenaires.         Les retombées se produisent uniquement lorsque les utilisateurs décide de faire un achat depuis nos sites partenaires.    </string>
     <string name="your_privacy_out_priority">Vos informations privées sont de notre priorité</string>
+    <plurals name="contains_keys">
+        <item quantity="one">Contient %1$d clé privée.</item>
+        <item quantity="other">Contient %1$d clés privées.</item>
+    </plurals>
 </resources>

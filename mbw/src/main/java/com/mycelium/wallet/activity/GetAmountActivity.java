@@ -42,8 +42,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -256,7 +256,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       } else {
          _amount = _maxSpendableAmount;
          // set the current shown currency to the amounts currency
-         _mbwManager.getCurrencySwitcher().setCurrency(_amount.getType());
+         _mbwManager.getCurrencySwitcher().setCurrency(_amount.type);
          updateUI();
          checkEntry();
       }
@@ -423,7 +423,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
       if (isSendMode) {
          // enable/disable Max button
-         btMax.setEnabled(_maxSpendableAmount.getValue() != _amount.getValue());
+         btMax.setEnabled(_maxSpendableAmount.value != _amount.value);
       }
    }
 

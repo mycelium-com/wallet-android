@@ -28,6 +28,6 @@ class LoadingProgressTracker(val context: Context) : LoadingProgressUpdater {
 
 
     override fun clearLastFullUpdateTime() {
-        MetadataStorage(context).setLastFullSync(0)
+        MetadataStorage.setLastFullSync(0)
     }
 }

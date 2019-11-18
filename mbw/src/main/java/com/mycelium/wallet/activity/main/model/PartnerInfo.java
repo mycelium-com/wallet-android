@@ -34,20 +34,26 @@
 
 package com.mycelium.wallet.activity.main.model;
 
-public class PartnerInfo extends RecommendationInfo{
+public class PartnerInfo extends RecommendationInfo {
     public static final int PARTNER_TYPE = 1;
     private final String name;
     private final String description;
     private final String info;
     private final String uri;
     private final int icon;
+    private final String iconUrl;
     private final int smallIcon;
+    private final Runnable action;
 
-    public PartnerInfo(String name, String description, String disclaimer, String uri, int icon) {
-        this(name, description, disclaimer, uri, icon, 0);
+    public PartnerInfo(String name, String description, String disclaimer, int icon, Runnable action) {
+        this(name, description, disclaimer, null, icon, 0, null, action);
     }
 
-    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon) {
+    public PartnerInfo(String name, String description, String disclaimer, String uri, String iconUrl, Runnable action) {
+        this(name, description, disclaimer, uri, 0, 0, iconUrl, action);
+    }
+
+    public PartnerInfo(String name, String description, String info, String uri, int icon, int smallIcon, String iconUrl, Runnable action) {
         super(PARTNER_TYPE);
         this.name = name;
         this.description = description;
@@ -55,6 +61,8 @@ public class PartnerInfo extends RecommendationInfo{
         this.uri = uri;
         this.icon = icon;
         this.smallIcon = smallIcon;
+        this.iconUrl = iconUrl;
+        this.action = action;
     }
 
     public final String getName() {
@@ -73,11 +81,19 @@ public class PartnerInfo extends RecommendationInfo{
         return uri;
     }
 
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
     public final int getIcon() {
         return icon;
     }
 
     public int getSmallIcon() {
         return smallIcon;
+    }
+
+    public Runnable getAction() {
+        return action;
     }
 }

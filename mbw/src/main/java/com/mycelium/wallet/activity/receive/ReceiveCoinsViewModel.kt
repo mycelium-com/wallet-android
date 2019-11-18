@@ -1,12 +1,12 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.Transformations
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Transformations
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -114,7 +114,7 @@ abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewMode
     }
 
     fun setAmount(amount: Value) {
-        if(amount.getType() == account.coinType) {
+        if(amount.type == account.coinType) {
             model.setAmount(amount)
             val value = mbwManager.exchangeRateManager.get(amount, mbwManager.fiatCurrency)
                     ?: Value.zeroValue(account.coinType)

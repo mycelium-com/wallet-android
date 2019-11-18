@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import android.os.AsyncTask
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE

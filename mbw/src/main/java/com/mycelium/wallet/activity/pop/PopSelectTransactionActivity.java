@@ -37,14 +37,14 @@ package com.mycelium.wallet.activity.pop;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.ListFragment;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -56,6 +56,7 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
@@ -94,7 +95,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
       final ActionBar actionBar = getSupportActionBar();
       actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-      viewPager = (ViewPager) findViewById(R.id.pager);
+      viewPager = findViewById(R.id.pager);
       HistoryPagerAdapter pagerAdapter = new HistoryPagerAdapter(getSupportFragmentManager());
       viewPager.setAdapter(pagerAdapter);
 
@@ -164,7 +165,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    public static class TransactionListFragment extends ListFragment {
       private PopRequest popRequest;
       private TransactionHistoryAdapter transactionHistoryAdapter;
-      private Map<Address, String> addressBook;
+      private Map<GenericAddress, String> addressBook;
       private MbwManager mbwManager;
 
       static TransactionListFragment init(PopRequest popRequest, boolean showMatching) {
@@ -208,13 +209,13 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
       @Override
       public void onResume() {
          super.onResume();
-         mbwManager.getEventBus().register(this);
+         MbwManager.getEventBus().register(this);
       }
 
       @Override
       public void onPause() {
          super.onPause();
-         mbwManager.getEventBus().unregister(this);
+         MbwManager.getEventBus().unregister(this);
       }
 
       @Subscribe
@@ -238,7 +239,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    }
 
    public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<GenericTransactionSummary> objects, Map<Address, String> addressBook) {
+      TransactionHistoryAdapter(Context context, List<GenericTransactionSummary> objects, Map<GenericAddress, String> addressBook) {
          super(context, objects, addressBook);
       }
 

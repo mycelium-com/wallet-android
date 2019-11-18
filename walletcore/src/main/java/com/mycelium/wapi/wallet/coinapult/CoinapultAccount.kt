@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.coinapult
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAccountBacking
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -22,6 +21,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
                        , val currency: Currency
                        , val listener: AccountListener?)
     : WalletAccount<BtcAddress> {
+
+
     override fun queueTransaction(transaction: GenericTransaction) {
     }
 
@@ -52,10 +53,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
 
     override fun isSyncing(): Boolean {
         return false
-    }
-
-    override fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getDummyAddress(subType: String?): BtcAddress {
@@ -161,6 +158,8 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getFeeEstimations(): FeeEstimationsGeneric {
         return FeeEstimationsGeneric(Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType), System.currentTimeMillis())
     }
+
+    override fun getCachedFeeEstimations() = getFeeEstimations()
 
     override fun getSyncTotalRetrievedTransactions(): Int = 0
 

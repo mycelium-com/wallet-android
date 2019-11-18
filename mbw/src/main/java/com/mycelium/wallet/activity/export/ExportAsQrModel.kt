@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.export
 
 import android.app.Application
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import com.mycelium.wapi.wallet.ExportableAccount
 
 class ExportAsQrModel(val context: Application,

@@ -6,7 +6,6 @@ import java.io.Serializable
 
 interface GenericAddress : Serializable {
     val coinType: CryptoCurrency
-    val id: Long
 
     // An address for the particular asset could have some subtypes.
     // For example, for BTC we have

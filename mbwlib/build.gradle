@@ -7,16 +7,16 @@ repositories {
 
 dependencies {
     implementation project(includePrefix +':bitlib')
-    implementation guavaArtifact
+    implementation "com.google.guava:guava:$rootProject.guavaVersion"
     // otto bus is deprecated in favor of rx but is cleaner with its annotations and type checking
-    implementation 'com.squareup:otto:1.3.4'
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.squareup.wire:wire-runtime:1.6.1'
+    implementation "com.squareup:otto:$ottoVersion"
+    implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
+    implementation "com.squareup.wire:wire-runtime:$wireVersion"
 
-    implementation 'com.madgag.spongycastle:core:1.58.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.58.0.0'
-    implementation 'com.madgag.spongycastle:pkix:1.54.0.0'
-    implementation 'com.madgag.spongycastle:pg:1.54.0.0'
+    implementation "com.madgag.spongycastle:core:$spongyCoreVersion"
+    implementation "com.madgag.spongycastle:prov:$spongyProvVersion"
+    implementation "com.madgag.spongycastle:pkix:$spongyPkixVersion"
+    implementation "com.madgag.spongycastle:pg:$spongyPgVersion"
 
     testImplementation "junit:junit:$junitVersion"
 }

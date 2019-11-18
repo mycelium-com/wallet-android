@@ -34,26 +34,20 @@
 
 package com.mycelium.wallet.wapi;
 
-import android.util.ArrayMap;
-
-import com.google.gson.Gson;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.mrd.bitlib.model.Address;
-import com.mrd.bitlib.model.AddressType;
-import com.mrd.bitlib.model.OutPoint;
-import com.mrd.bitlib.model.Transaction;
-import com.mrd.bitlib.model.TransactionInput;
+import com.mrd.bitlib.crypto.BipDerivationType;
+import com.mrd.bitlib.model.*;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
@@ -63,31 +57,21 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
-import com.mrd.bitlib.crypto.BipDerivationType;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
+import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
-
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.mycelium.wallet.persistence.SQLiteQueryWithBlobs.uuidToBytes;
 
@@ -111,7 +95,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private final SQLiteStatement _getMaxSubId;
 
 
-   SqliteBtcWalletManagerBacking(Context context) {
+   public SqliteBtcWalletManagerBacking(Context context) {
       OpenHelper _openHelper = new OpenHelper(context);
       _database = _openHelper.getWritableDatabase();
 
@@ -609,9 +593,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
+         byte[] key = getLastFeeKey(assetType);
          FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
                                                                          feeEstimation.getEconomy().value,
                                                                          feeEstimation.getNormal().value,
@@ -623,19 +605,24 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         Gson gson = new Gson();
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-          FeeEstimationSerialized feeValues;
+         byte[] key = getLastFeeKey(assetType);
+         FeeEstimationSerialized feeValues;
          try {
-             feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
+            String feeValuesJson = new String(getValue(key));
+            feeValues = gson.fromJson(feeValuesJson, FeeEstimationSerialized.class);
+         } catch(Exception ignore) {
+            return null;
          }
-         catch(Exception ignore) { return null; }
 
          return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
                  Value.valueOf(assetType, feeValues.economy),
                  Value.valueOf(assetType, feeValues.normal),
                  Value.valueOf(assetType, feeValues.high),
                  feeValues.lastCheck);
+      }
+
+      private byte[] getLastFeeKey(GenericAssetInfo asset) {
+         return (asset.getName() + LAST_FEE_ESTIMATE).getBytes();
       }
 
       @Override
@@ -713,27 +700,23 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       }
 
       public void putParentTransactionOuputs(List<TransactionOutputEx> outputsList) {
-         if (outputsList.isEmpty()) {
-            return;
-         }
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(outputsList.size(), " (?,?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            for (int i = 0; i < outputsList.size(); i++) {
-               int index = i * 5;
-               final TransactionOutputEx outputEx = outputsList.get(i);
-               updateStatement.bindBlob(index + 1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
-               updateStatement.bindLong(index + 2, outputEx.height);
-               updateStatement.bindLong(index + 3, outputEx.value);
-               updateStatement.bindLong(index + 4, outputEx.isCoinBase ? 1 : 0);
-               updateStatement.bindBlob(index + 5, outputEx.script);
+         if (!outputsList.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + ptxoTableName + " VALUES (?,?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (TransactionOutputEx outputEx : outputsList) {
+                  updateStatement.bindBlob(1, SQLiteQueryWithBlobs.outPointToBytes(outputEx.outPoint));
+                  updateStatement.bindLong(2, outputEx.height);
+                  updateStatement.bindLong(3, outputEx.value);
+                  updateStatement.bindLong(4, outputEx.isCoinBase ? 1 : 0);
+                  updateStatement.bindBlob(5, outputEx.script);
+                  updateStatement.executeInsert();
+               }
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
             }
-            updateStatement.executeInsert();
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
          }
       }
 
@@ -819,32 +802,27 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       @Override
       public void putTransactions(Collection<? extends TransactionEx> transactions) {
-         if (transactions.isEmpty()) {
-            return;
-         }
-         _database.beginTransaction();
-         String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES "
-                 + TextUtils.join(",", Collections.nCopies(transactions.size(), " (?,?,?,?,?) "));
-         SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
-         try {
-            int i = 0;
-            for (TransactionEx transactionEx: transactions) {
-               int index = i * 5;
-               updateStatement.bindBlob(index + 1, transactionEx.txid.getBytes());
-               updateStatement.bindBlob(index + 2, transactionEx.hash.getBytes());
-               updateStatement.bindLong(index + 3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
-               updateStatement.bindLong(index + 4, transactionEx.time);
-               updateStatement.bindBlob(index + 5, transactionEx.binary);
-               i++;
-            }
-            updateStatement.executeInsert();
+         if (!transactions.isEmpty()) {
+            String updateQuery = "INSERT OR REPLACE INTO " + txTableName + " VALUES (?,?,?,?,?)";
+            SQLiteStatement updateStatement = _database.compileStatement(updateQuery);
+            _database.beginTransaction();
+            try {
+               for (TransactionEx transactionEx: transactions) {
+                  updateStatement.bindBlob(1, transactionEx.txid.getBytes());
+                  updateStatement.bindBlob(2, transactionEx.hash.getBytes());
+                  updateStatement.bindLong(3, transactionEx.height == -1 ? Integer.MAX_VALUE : transactionEx.height);
+                  updateStatement.bindLong(4, transactionEx.time);
+                  updateStatement.bindBlob(5, transactionEx.binary);
+                  updateStatement.executeInsert();
+               }
 
-            for (TransactionEx transaction : transactions) {
-               putReferencedOutputs(transaction.binary);
+               for (TransactionEx transaction : transactions) {
+                  putReferencedOutputs(transaction.binary);
+               }
+               _database.setTransactionSuccessful();
+            } finally {
+               _database.endTransaction();
             }
-            _database.setTransactionSuccessful();
-         } finally {
-            _database.endTransaction();
          }
       }
 
@@ -1115,7 +1093,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                SQLiteQueryWithBlobs blobQuery = new SQLiteQueryWithBlobs(db);
                cursor = blobQuery.query(false, "single", new String[]{"id", "address", "addressstring", "archived", "blockheight"}, null, null,
                        null, null, null, null);
-               MetadataStorage metadataStorage = new MetadataStorage(context);
+               MetadataStorage metadataStorage = MetadataStorage.INSTANCE;
                while (cursor.moveToNext()) {
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);

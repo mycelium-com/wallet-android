@@ -8,10 +8,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/button_padding"
-            android:layout_marginRight="@dimen/button_padding"
-            android:layout_marginTop="@dimen/button_padding"
-            >
+            android:layout_marginStart="@dimen/button_padding"
+            android:layout_marginEnd="@dimen/button_padding"
+            android:layout_marginTop="@dimen/button_padding">
 
         <TextView
                 android:id="@+id/tvTitle"
@@ -23,8 +22,7 @@
 
         <View
                 android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+                android:layout_height="10dp" />
 
         <TextView
                 android:id="@+id/tvDescriptionAdditionalNotPossiblePinTooNew"
@@ -55,24 +53,20 @@
 
         <View
                 android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
+                android:layout_height="10dp" />
 
         <Button
                 android:id="@+id/btOkayImFine"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingLeft="30dp"
-                android:paddingRight="30dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
                 android:enabled="false"
                 android:text="@string/wordlist_start_with_additional_wordlist_backup" />
 
         <View
                 android:layout_width="1dp"
-                android:layout_height="10dp" >
-        </View>
-
+                android:layout_height="10dp" />
     </LinearLayout>
-
 </ScrollView>

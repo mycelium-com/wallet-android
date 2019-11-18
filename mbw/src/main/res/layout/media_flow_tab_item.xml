@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/text"
+    android:layout_width="wrap_content"
+    android:layout_height="24dp"
+    android:background="@drawable/news_tab_indicator"
+    android:gravity="center"
+    android:minWidth="64dp"
+    android:duplicateParentState="true"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:textColor="@color/news_tab_text_color"
+    android:textSize="12sp"
+    tools:text="News" />

@@ -2,13 +2,13 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.app.NotificationManager
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import android.widget.Toast
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -130,7 +130,7 @@ class ReceiveCoinsModel(
         } else {
             interesting.first().transferred.abs()
         }
-        interesting.drop(1).forEach { sum = sum!!.add(it.transferred.abs())}
+        interesting.drop(1).forEach { sum = sum!!.plus(it.transferred.abs())}
         receivingAmount.value = if (sum != null) Value.valueOf(account.coinType, sum!!.value)
         else Value.zeroValue(account.coinType)
 

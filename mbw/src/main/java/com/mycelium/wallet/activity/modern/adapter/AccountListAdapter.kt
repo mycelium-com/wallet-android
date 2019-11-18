@@ -1,12 +1,12 @@
 package com.mycelium.wallet.activity.modern.adapter
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.content.Context
-import android.support.v4.app.Fragment
-import android.support.v7.recyclerview.extensions.ListAdapter
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -77,7 +77,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 itemList.addAll(accountsGroup.accountsList)
             }
         }
-        if (!itemList.isEmpty() && !totalAdded) {
+        if (itemList.isNotEmpty() && !totalAdded) {
             itemList.add(TotalViewModel(getSpendableBalance(itemList)))
         }
 
@@ -133,8 +133,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createGroupViewHolder(parent: ViewGroup): GroupTitleViewHolder {
         val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
-        val res = GroupTitleViewHolder(view)
-        return res
+        return GroupTitleViewHolder(view)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
@@ -149,8 +148,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
     private fun createTotalBalanceViewHolder(parent: ViewGroup): TotalViewHolder {
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
-        val res = TotalViewHolder(view)
-        return res
+        return TotalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

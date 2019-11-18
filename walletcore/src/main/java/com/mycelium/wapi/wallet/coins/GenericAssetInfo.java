@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.exceptions.AddressMalformedException;
 
 import java.io.Serializable;
 
@@ -23,5 +22,5 @@ public interface GenericAssetInfo extends Serializable {
 
     boolean isMineAddress(String address);
 
-    GenericAddress parseAddress(String address) throws AddressMalformedException;
+    GenericAddress parseAddress(String address);
 }

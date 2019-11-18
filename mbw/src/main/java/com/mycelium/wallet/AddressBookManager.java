@@ -37,9 +37,8 @@ package com.mycelium.wallet;
 import java.util.UUID;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.GenericAddress;
 
 public class AddressBookManager {

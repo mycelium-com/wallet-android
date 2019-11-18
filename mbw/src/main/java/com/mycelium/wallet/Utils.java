@@ -52,10 +52,10 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.support.annotation.StringRes;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.StringRes;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -511,7 +511,7 @@ public class Utils {
       someString = someString.trim();
       if (someString.matches("[a-zA-Z0-9]*")) {
          // Raw format
-         return Optional.fromNullable(AddressUtils.from(network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), someString));
+         return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
          GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {
