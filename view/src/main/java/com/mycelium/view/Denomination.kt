@@ -1,5 +1,6 @@
 package com.mycelium.view
 
+import java.math.BigInteger
 import kotlin.math.pow
 
 
@@ -34,8 +35,8 @@ enum class Denomination(val scale: Int, private val asciiString: String, private
                 else -> asciiString
             }
 
-    fun getAmount(value: Long): Long {
-        return value / 10.0.pow(scale.toDouble()).toLong()
+    fun getAmount(value: BigInteger): BigInteger {
+        return value / 10.0.pow(scale.toDouble()).toBigDecimal().toBigInteger()
     }
 
     fun supportedBy(coinType: String): Boolean {
