@@ -62,7 +62,7 @@ class SendAssetsTest {
     }
 
     @Test
-    fun testFullSending() {
+    fun testBackupAndSendBTC() {
         Intents.init()
         val activityScenario =
                 ActivityScenario.launch(StartupActivity::class.java)
