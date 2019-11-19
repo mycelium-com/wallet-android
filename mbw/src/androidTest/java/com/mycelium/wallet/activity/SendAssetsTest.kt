@@ -47,7 +47,7 @@ class SendAssetsTest {
     val isTrasactionShouldBeCompleted = true
 
     @get:Rule
-    var mActivityTestRule = ActivityTestRule(StartupActivity::class.java, false, false)
+    var activityTestRule = ActivityTestRule(StartupActivity::class.java, false, false)
 
 
     @Before
@@ -56,14 +56,9 @@ class SendAssetsTest {
         IdlingPolicies.setIdlingResourceTimeout(20, TimeUnit.MINUTES)
     }
 
-    @Before
-    fun start() {
-        Thread.sleep(5000)
-    }
-
     @Test
     fun testBackupAndSendBTC() {
-        Intents.init()
+        init()
         val activityScenario =
                 ActivityScenario.launch(StartupActivity::class.java)
         Thread.sleep(10000)
@@ -120,7 +115,7 @@ class SendAssetsTest {
         } else {
             onView(withId(R.id.tvSending)).check(matches((isDisplayed())))
         }
-        Intents.release()
+        release()
         activityScenario.close()
     }
 
@@ -130,18 +125,14 @@ class SendAssetsTest {
         return activityIdlingResource
     }
 
-    fun waitForTime(millis: Long) {
-        IdlingRegistry.getInstance().register(ElapsedTimeIdlingResource(millis))
-    }
-
-    fun getCurrentActivity(): Activity? {
-        getInstrumentation().waitForIdleSync();
+    private fun getCurrentActivity(): Activity? {
+        getInstrumentation().waitForIdleSync()
         val activity = arrayOfNulls<Activity>(1)
         getInstrumentation().runOnMainSync {
-            val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
-            activity[0] = Iterables.getOnlyElement(activities);
-        };
-        return activity[0];
+            val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+            activity[0] = Iterables.getOnlyElement(activities)
+        }
+        return activity[0]
     }
 
     private fun childAtPosition(
