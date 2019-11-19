@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity
 
 import android.app.Activity
 import android.view.View
-import android.view.ViewGroup
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingPolicies
@@ -27,10 +26,10 @@ import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendInitializationActivity
 import com.mycelium.wallet.activity.send.SendMainActivity
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers.*
-import org.hamcrest.TypeSafeMatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -60,8 +59,9 @@ class SendAssetsTest {
         init()
         val activityScenario =
                 ActivityScenario.launch(StartupActivity::class.java)
-        Thread.sleep(10000)
-        val currentActivity = getCurrentActivity()
+
+        val currentActivity = waitForActivity<StartupActivity>()
+
         if (currentActivity is StartupActivity) {
             onView(withText(R.string.master_seed_restore_backup_button))
                     .perform(scrollTo(), click())
@@ -97,7 +97,7 @@ class SendAssetsTest {
         intended(hasComponent(ModernMain::class.java.name))
 
         if (isTrasactionShouldBeCompleted) {
-            IdlingRegistry.getInstance().register(ViewVisibilityIdlingResource(getCurrentActivity()!!,R.id.tvSending, View.GONE))
+            IdlingRegistry.getInstance().register(ViewVisibilityIdlingResource(getCurrentActivity()!!, R.id.tvSending, View.GONE))
             onView(withId(R.id.tvSending)).check(matches(not(isDisplayed())))
         } else {
             onView(withId(R.id.tvSending)).check(matches((isDisplayed())))
@@ -106,13 +106,27 @@ class SendAssetsTest {
         activityScenario.close()
     }
 
+    inline fun <reified T : Activity> waitForActivity(): Activity? {
+        var currentActivity: Activity?
+
+        runBlocking {
+            withTimeout(10000L) {
+                do {
+                    delay(300L)
+                    currentActivity = getCurrentActivity()
+                } while (currentActivity !is T)
+            }
+        }
+        return getCurrentActivity();
+    }
+
     inline fun <reified T : Activity> waitWhileAcitvity(): ActivityIdlingResource {
         val activityIdlingResource = ActivityIdlingResource(T::class.java)
         IdlingRegistry.getInstance().register(activityIdlingResource)
         return activityIdlingResource
     }
 
-    private fun getCurrentActivity(): Activity? {
+    fun getCurrentActivity(): Activity? {
         getInstrumentation().waitForIdleSync()
         val activity = arrayOfNulls<Activity>(1)
         getInstrumentation().runOnMainSync {
@@ -120,23 +134,6 @@ class SendAssetsTest {
             activity[0] = Iterables.getOnlyElement(activities)
         }
         return activity[0]
-    }
-
-    private fun childAtPosition(
-            parentMatcher: Matcher<View>, position: Int): Matcher<View> {
-
-        return object : TypeSafeMatcher<View>() {
-            override fun describeTo(description: Description) {
-                description.appendText("Child at position $position in parent ")
-                parentMatcher.describeTo(description)
-            }
-
-            public override fun matchesSafely(view: View): Boolean {
-                val parent = view.parent
-                return (parent is ViewGroup && parentMatcher.matches(parent)
-                        && view == parent.getChildAt(position))
-            }
-        }
     }
 }
 
