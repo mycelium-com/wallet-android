@@ -7,6 +7,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
+import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import kotlinx.coroutines.CoroutineStart
@@ -30,9 +31,10 @@ interface  MyceliumNodesApi {
 // MyceliumNodesResponse is intended for parsing nodes-b.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
-                            @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?)
+                            @SerializedName("partner-info") val partnerInfos: Map<String, PartnerDateInfo>?,
+                            @SerializedName("Business") val partners: Map<String, PartnersLocalized>?)
 
-data class PartnerInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
+data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
@@ -87,6 +89,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.startDate?.let {
                         prefEditor.putLong(PREFS_FIO_START_DATE, it.time)
+                    }
+                    myceliumNodesResponse?.partners?.let { map ->
+                        map.keys.forEach {
+                            prefEditor.putString("partners-$it", gson.toJson(map[it]))
+                        }
                     }
                     prefEditor.apply()
 

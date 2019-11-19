@@ -66,7 +66,7 @@ public class Bip38Test {
    @Test
    public void testVectorsFromTheBipEncrypt() throws InterruptedException {
       for(TestVector tv : ENCRYPT_DECRYPT_TVS) {
-         String encoded = encryptNoEcMultiply(tv.passphrase, tv.unencryptedWIF, null);
+         String encoded = encryptNoEcMultiply(tv.passphrase, tv.unencryptedWIF);
          assertEquals(tv.encrypted, encoded);
          assertTrue(isBip38PrivateKey(encoded));
       }
@@ -87,8 +87,8 @@ public class Bip38Test {
    }
 
    private void testDecrypt(TestVector tv) throws InterruptedException {
-      assertEquals("Without Bom", tv.unencryptedWIF, decrypt(tv.encrypted, tv.passphrase, null, productionNetwork));
-      assertEquals("With Bom", tv.unencryptedWIF, decrypt("\uFEFF" + tv.encrypted, tv.passphrase, null, productionNetwork));
+      assertEquals("Without Bom", tv.unencryptedWIF, decrypt(tv.encrypted, tv.passphrase, productionNetwork));
+      assertEquals("With Bom", tv.unencryptedWIF, decrypt("\uFEFF" + tv.encrypted, tv.passphrase, productionNetwork));
    }
 
    private static TestVector tv(String passphrase, String encrypted, String unencryptedWIF) {
