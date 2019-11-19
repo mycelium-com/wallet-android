@@ -7,7 +7,6 @@ import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents.*
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
@@ -42,9 +41,7 @@ class SendAssetsTest {
     fun resetTimeout() {
         IdlingPolicies.setMasterPolicyTimeout(20, TimeUnit.MINUTES)
         IdlingPolicies.setIdlingResourceTimeout(20, TimeUnit.MINUTES)
-
         init()
-
         activityScenario =
                 ActivityScenario.launch(ModernMain::class.java)
     }
@@ -63,7 +60,6 @@ class SendAssetsTest {
 
     @Test
     fun testSendBTCConfirmed() {
-
         sendBtc()
         IdlingRegistry.getInstance().register(ViewVisibilityIdlingResource(getCurrentActivity()!!, R.id.tvSending, View.GONE))
         onView(withId(R.id.tvSending)).check(matches(not(isDisplayed())))
