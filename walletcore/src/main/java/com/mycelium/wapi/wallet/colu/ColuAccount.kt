@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
 import java.io.IOException
+import java.math.BigInteger
 import java.util.*
 
 class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
@@ -166,7 +167,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddres: BtcAddress): Value {
         return accountBalance.spendable
     }
 

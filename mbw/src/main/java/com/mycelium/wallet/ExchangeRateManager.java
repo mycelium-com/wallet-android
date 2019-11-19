@@ -499,9 +499,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
         if (rateValue != null) {
-            BigDecimal bigDecimal = rateValue.multiply(BigDecimal.valueOf(value.value))
+            BigDecimal bigDecimal = rateValue.multiply(new BigDecimal(value.value))
                     .movePointLeft(value.type.getUnitExponent())
-                    .round(MathContext.DECIMAL32);
+                    .round(MathContext.DECIMAL128);
             return Value.parse(toCurrency, bigDecimal);
         } else {
             return null;

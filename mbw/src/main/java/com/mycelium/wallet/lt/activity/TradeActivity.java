@@ -373,7 +373,7 @@ public class TradeActivity extends Activity {
       long feeEstimation = mbwManager.getFeeProvider(acc.getCoinType())
               .getEstimation()
               .getNormal()
-              .value;
+              .getValueAsLong();
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
             ts.buyerAddress, ts.feeAddress, acc, feeEstimation);

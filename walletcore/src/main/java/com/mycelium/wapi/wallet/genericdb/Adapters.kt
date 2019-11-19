@@ -43,10 +43,10 @@ object Adapters {
             val childNodes = rootNode.get("Balance") as ArrayNode
             val asset = rootNode.get("Asset").asText()
 
-            val confirmed = Value(COINS.getValue(asset), childNodes[0].asLong())
-            val pendingReceiving = Value(COINS.getValue(asset), childNodes[1].asLong())
-            val pendingSending = Value(COINS.getValue(asset), childNodes[2].asLong())
-            val pendingChange = Value(COINS.getValue(asset), childNodes[3].asLong())
+            val confirmed = Value.valueOf(COINS.getValue(asset), childNodes[0].bigIntegerValue())
+            val pendingReceiving = Value.valueOf(COINS.getValue(asset), childNodes[1].bigIntegerValue())
+            val pendingSending = Value.valueOf(COINS.getValue(asset), childNodes[2].bigIntegerValue())
+            val pendingChange = Value.valueOf(COINS.getValue(asset), childNodes[3].bigIntegerValue())
 
             return Balance(confirmed, pendingReceiving, pendingSending, pendingChange)
         }
@@ -74,7 +74,7 @@ object Adapters {
             val rootNode = mapper.readTree(databaseValue)
             val asset = COINS.getValue(rootNode["Asset"].asText())
             val value = rootNode["Value"].asLong()
-            return Value(asset, value)
+            return Value.valueOf(asset, value)
         }
 
         override fun encode(value: Value): String {

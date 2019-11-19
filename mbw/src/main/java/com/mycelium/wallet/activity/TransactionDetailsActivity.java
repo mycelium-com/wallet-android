@@ -162,11 +162,11 @@ public class TransactionDetailsActivity extends Activity {
         final LinearLayout llInputs = findViewById(R.id.llInputs);
         llInputs.removeAllViews();
         if (tx.getInputs() != null) {
-            long sum = 0;
+            Value sum = Value.zeroValue(tx.getType());
             for (GenericOutputViewModel input : tx.getInputs()) {
-                sum += input.getValue().value;
+                sum = sum.plus(input.getValue());
             }
-            if (sum != 0) {
+            if (!sum.equalZero()) {
                 tvInputsAmount.setVisibility(View.GONE);
                 for (GenericOutputViewModel item : tx.getInputs()) {
                     llInputs.addView(getItemView(item));
@@ -185,7 +185,7 @@ public class TransactionDetailsActivity extends Activity {
         }
 
         // Set Fee
-        final long txFeeTotal = tx.getFee().value;
+        final long txFeeTotal = tx.getFee().getValueAsLong();
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);

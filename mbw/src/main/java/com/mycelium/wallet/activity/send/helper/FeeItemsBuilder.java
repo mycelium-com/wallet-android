@@ -50,22 +50,22 @@ public class FeeItemsBuilder {
         long next = 0;
         switch (minerFee) {
             case LOWPRIO:
-                current = feeEstimation.getLow().value;
-                next = feeEstimation.getEconomy().value;
+                current = feeEstimation.getLow().getValueAsLong();
+                next = feeEstimation.getEconomy().getValueAsLong();
                 break;
             case ECONOMIC:
-                current = feeEstimation.getEconomy().value;
-                previous = feeEstimation.getLow().value;
-                next = feeEstimation.getNormal().value;
+                current = feeEstimation.getEconomy().getValueAsLong();
+                previous = feeEstimation.getLow().getValueAsLong();
+                next = feeEstimation.getNormal().getValueAsLong();
                 break;
             case NORMAL:
-                current = feeEstimation.getNormal().value;
-                previous = feeEstimation.getEconomy().value;
-                next = feeEstimation.getHigh().value;
+                current = feeEstimation.getNormal().getValueAsLong();
+                previous = feeEstimation.getEconomy().getValueAsLong();
+                next = feeEstimation.getHigh().getValueAsLong();
                 break;
             case PRIORITY:
-                current = feeEstimation.getHigh().value;
-                previous = feeEstimation.getNormal().value;
+                current = feeEstimation.getHigh().getValueAsLong();
+                previous = feeEstimation.getNormal().getValueAsLong();
                 break;
         }
 
@@ -73,7 +73,7 @@ public class FeeItemsBuilder {
             min = (current + previous) / 2;
         }
 
-        long max = 3 * feeEstimation.getHigh().value / 2;
+        long max = 3 * feeEstimation.getHigh().getValueAsLong() / 2;
         if (minerFee != MinerFee.PRIORITY) {
             max = (next + current) / 2;
         }

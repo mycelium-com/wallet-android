@@ -193,7 +193,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             feeViewAdapter.setDataset(feeItems)
             val selectedFee = viewModel.getSelectedFee().value!!
             if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
-                    feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.value) {
+                    feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.valueAsLong) {
                 feeValueList.setSelectedItem(selectedFee)
             }
         })
@@ -245,7 +245,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     fun onClickAmount() {
         val account = viewModel.getAccount()
         GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
-                viewModel.getAmount().value, viewModel.getSelectedFee().value!!.value, account.coinType,
+                viewModel.getAmount().value, viewModel.getSelectedFee().value,
                 viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
     }
 

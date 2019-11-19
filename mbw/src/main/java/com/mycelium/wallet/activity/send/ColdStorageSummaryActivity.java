@@ -153,7 +153,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Receiving
-      if (balance.pendingReceiving.value > 0) {
+      if (balance.pendingReceiving.moreThanZero()) {
          String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving,
                  _mbwManager.getDenomination(_account.getCoinType()));
          String receivingText = getResources().getString(R.string.receiving, receivingString);
@@ -165,7 +165,7 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingToForeignAddresses().value > 0) {
+      if (balance.getSendingToForeignAddresses().moreThanZero()) {
          String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(),
                  _mbwManager.getDenomination(_account.getCoinType()));
          String sendingText = getResources().getString(R.string.sending, sendingString);

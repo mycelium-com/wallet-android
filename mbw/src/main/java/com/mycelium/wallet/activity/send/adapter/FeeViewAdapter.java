@@ -108,7 +108,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
                 selected = i;
                 break;
             } else if (object instanceof Value
-                    && Math.abs(((Value) object).value - feeItem.feePerKb) < Math.abs(((Value) object).value - bestNearPerKb)) {
+                    && Math.abs(((Value) object).getValueAsLong() - feeItem.feePerKb) < Math.abs(((Value) object).value.longValue() - bestNearPerKb)) {
                 bestNear = i;
                 bestNearPerKb = feeItem.feePerKb;
             }

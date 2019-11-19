@@ -660,7 +660,7 @@ public class TransactionHistoryFragment extends Fragment {
             final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
                     .getEstimation()
                     .getHigh()
-                    .value;
+                    .getValueAsLong();
             final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
             if(unsigned != null) {
                long txFee = unsigned.calculateFee();
@@ -700,10 +700,10 @@ public class TransactionHistoryFragment extends Fragment {
       GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().value;
+         txFee += i.getValue().getValueAsLong();
       }
       for(GenericOutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().value;
+         txFee -= i.getValue().getValueAsLong();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();

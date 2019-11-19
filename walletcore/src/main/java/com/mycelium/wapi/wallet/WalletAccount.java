@@ -11,6 +11,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
@@ -185,7 +186,7 @@ public interface WalletAccount<A extends GenericAddress> {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
+    Value calculateMaxSpendableAmount(Value minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization

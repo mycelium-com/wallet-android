@@ -79,6 +79,7 @@ import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -96,7 +97,6 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    public static final String IS_COLD_STORAGE = "isColdStorage";
    public static final String DESTINATION_ADDRESS = "destinationAddress";
    public static final String SEND_MODE = "sendmode";
-   public static final String BASIC_CURRENCY = "basiccurrency";
 
    @BindView(R.id.btCurrency) TextView btCurrency;
    @BindView(R.id.btPaste) Button btPaste;
@@ -116,22 +116,20 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    private MbwManager _mbwManager;
    private Value _maxSpendableAmount;
    private GenericAddress destinationAddress;
-   private long _kbMinerFee;
-   private CryptoCurrency mainCurrencyType;
-
+   private Value _kbMinerFee;
+   private GenericAssetInfo mainCurrencyType;
    /**
     * Get Amount for spending
     */
-   public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Long kbMinerFee,
-                                   CryptoCurrency currencyType, boolean isColdStorage, GenericAddress destinationAddress)
+   public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Value kbMinerFee,
+                                   boolean isColdStorage, GenericAddress destinationAddress)
    {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
               .putExtra(ENTERED_AMOUNT, amountToSend)
               .putExtra(KB_MINER_FEE, kbMinerFee)
               .putExtra(IS_COLD_STORAGE, isColdStorage)
-              .putExtra(SEND_MODE, true)
-              .putExtra(BASIC_CURRENCY, currencyType);
+              .putExtra(SEND_MODE, true);
       if (destinationAddress != null) {
          intent.putExtra(DESTINATION_ADDRESS, destinationAddress);
       }
@@ -144,8 +142,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    public static void callMeToReceive(Activity currentActivity, Value amountToReceive, int requestCode, CryptoCurrency currencyType) {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ENTERED_AMOUNT, amountToReceive)
-              .putExtra(SEND_MODE, false)
-              .putExtra(BASIC_CURRENCY, currencyType);
+              .putExtra(SEND_MODE, false);
       currentActivity.startActivityForResult(intent, requestCode);
    }
 
@@ -165,8 +162,8 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       } else {
          _account = _mbwManager.getSelectedAccount();
       }
-      mainCurrencyType = (CryptoCurrency) getIntent().getSerializableExtra(BASIC_CURRENCY);
 
+      mainCurrencyType = _account.getCoinType();
       _mbwManager.getCurrencySwitcher().setDefaultCurrency(mainCurrencyType);
       _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), mainCurrencyType);
 
@@ -188,7 +185,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    private void initSendMode() {
       // Calculate the maximum amount that can be spent where we send everything we got to another address
-      _kbMinerFee = Preconditions.checkNotNull((Long) getIntent().getSerializableExtra(KB_MINER_FEE));
+      _kbMinerFee = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra(KB_MINER_FEE));
       destinationAddress = (GenericAddress) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
 
       if (destinationAddress == null) {
@@ -431,15 +428,15 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          if (currencySwitcher.getCurrentCurrency(_account.getCoinType()) instanceof FiatType) {
             _amount = val;
          } else {
-            _amount = Value.valueOf(val.type, _mbwManager.getDenomination(_account.getCoinType()).getAmount(val.value));
+            _amount = Value.valueOf(val.type, _mbwManager.getDenomination(_account.getCoinType()).getAmount(val.getValueAsLong()));
          }
-      }catch (NumberFormatException e){
+      } catch (NumberFormatException e) {
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(0);
       }
 
       if (isSendMode) {
          // enable/disable Max button
-         btMax.setEnabled(_maxSpendableAmount.value != _amount.value);
+         btMax.setEnabled(_maxSpendableAmount.notEqualsTo(_amount));
       }
    }
 
@@ -473,8 +470,8 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    }
 
    private void checkEntry() {
-      if (isSendMode ){
-         if(Value.isNullOrZero(_amount)) {
+      if (isSendMode) {
+         if (Value.isNullOrZero(_amount)) {
             // Nothing entered
             tvAmount.setTextColor(getResources().getColor(R.color.white));
             btOk.setEnabled(false);
@@ -502,11 +499,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          protected AmountValidation doInBackground(Void... voids) {
             if(value == null) {
                return AmountValidation.ExchangeRateNotAvailable;
-            }else if (value.value == 0) {
+            }else if (value.equalZero()) {
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
-               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(Value.valueOf(_account.getCoinType(), _kbMinerFee)));
+               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(_kbMinerFee));
             } catch (GenericOutputTooSmallException e) {
                return AmountValidation.ValueTooSmall;
             } catch (GenericInsufficientFundsException e) {
@@ -561,7 +558,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                }
                if (result == AmountValidation.NotEnoughFunds) {
                   // We do not have enough funds
-                  if (amount.value == 0 || _account.getAccountBalance().getSpendable().value < amount.value) {
+                  if (amount.equalZero() || _account.getAccountBalance().getSpendable().lessThan(amount)) {
                      // We do not have enough funds for sending the requested amount
                      String msg = getResources().getString(R.string.insufficient_funds);
                      Toast.makeText(GetAmountActivity.this, msg, Toast.LENGTH_SHORT).show();

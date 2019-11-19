@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.CurrencyBasedBalance;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -139,7 +140,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public abstract NetworkParameters getNetwork();
 
    @Override
-   public abstract Value calculateMaxSpendableAmount(long minerFeeToUse, BtcAddress destinationAddress);
+   public abstract Value calculateMaxSpendableAmount(Value minerFeeToUse, BtcAddress destinationAddress);
 
    @Override
    public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)

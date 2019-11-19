@@ -222,7 +222,7 @@ public class PopActivity extends Activity {
       if (transaction.getType() != BitcoinMain.get()) {
          return 0;
       }
-      return transaction.getTransferred().abs().value;
+      return transaction.getTransferred().abs().getValueAsLong();
    }
 
    @Override

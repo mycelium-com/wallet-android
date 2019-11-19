@@ -127,7 +127,7 @@ public class PaymentRequestHandler {
       boolean hasBip70Amount = paymentRequestInformation.hasAmount();
       if (hasBip21Amount && hasBip70Amount) {
          final long totalAmount = paymentRequestInformation.getOutputs().getTotalAmount();
-         if (assetUri.getValue().value != totalAmount) {
+         if (assetUri.getValue().getValueAsLong() != totalAmount) {
             throw new PaymentRequestException(String.format("Uri amount does not match payment request amount, %d vs. %d", assetUri.getValue().value, totalAmount));
          }
       }

@@ -64,18 +64,18 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
-        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb.value
+        val gasPriceLong = (gasPrice as FeePerKbFee).feePerKb
         // check whether account has enough funds
         if (value > calculateMaxSpendableAmount(gasPriceLong, null)) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
-                    " ether with gas price " + Convert.fromWei(gasPriceLong.toBigDecimal(), Convert.Unit.GWEI) + " gwei"))
+                    " ether with gas price " + Convert.fromWei(gasPriceLong.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
 
         try {
             val nonce = getNonce(receivingAddress)
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
-                    BigInteger.valueOf(gasPrice.feePerKb.value), BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
-                    toAddress.toString(), BigInteger.valueOf(value.value))
+                    gasPrice.feePerKb.value, BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
+                    toAddress.toString(), value.value)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
@@ -111,7 +111,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                 tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toLong(), 0)
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -216,8 +216,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun calculateMaxSpendableAmount(gasPrice: Long, ign: EthAddress?): Value {
-        val spendable = accountBalance.spendable - valueOf(coinType, gasPrice * typicalEstimatedTransactionSize)
+    override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?): Value {
+        val spendable = accountBalance.spendable - gasPrice * typicalEstimatedTransactionSize.toLong()
         return max(spendable, Value.zeroValue(coinType))
     }
 

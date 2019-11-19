@@ -58,7 +58,7 @@ class SendBtcModel(context: Application,
                             feeDescription.postValue("$inCount In- / $outCount Outputs, ~$size bytes")
 
                             val fee = calculateFee()
-                            if (fee != size * selectedFee.value!!.value / 1000) {
+                            if (fee != size * selectedFee.value!!.valueAsLong / 1000) {
                                 val value = Value.valueOf(account.coinType, fee)
                                 val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {
@@ -108,11 +108,11 @@ class SendBtcModel(context: Application,
                 return TransactionStatus.MISSING_ARGUMENTS
             }
             // build new output list with user specified amount
-            outputs = outputs.newOutputsWithTotalAmount(toSend.value)
+            outputs = outputs.newOutputsWithTotalAmount(toSend.valueAsLong)
         }
 
         val btcAccount = account as AbstractBtcAccount
-        transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.value)
+        transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.valueAsLong)
         spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
         receivingAddress.postValue(null)
         transactionLabel.postValue(paymentRequestInformation.paymentDetails.memo)
