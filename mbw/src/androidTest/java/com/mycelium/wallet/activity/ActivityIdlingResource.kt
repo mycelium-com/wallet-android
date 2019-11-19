@@ -13,13 +13,13 @@ class ActivityIdlingResource(private val acivity: Class<out Activity>) : IdlingR
 
     private val activityInstance: Activity?
         get() {
-            val activity = arrayOfNulls<Activity>(1)
+            val arrayOfActivities = arrayOfNulls<Activity>(1)
             val resumedActivities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
             val iterator = resumedActivities.iterator()
             if (iterator.hasNext()) {
-                activity[0] = iterator.next()
+                arrayOfActivities[0] = iterator.next()
             }
-            return activity[0]
+            return arrayOfActivities[0]
         }
 
     override fun getName(): String {

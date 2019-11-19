@@ -128,12 +128,12 @@ class SendAssetsTest {
 
     fun getCurrentActivity(): Activity? {
         getInstrumentation().waitForIdleSync()
-        val activity = arrayOfNulls<Activity>(1)
+        val arrayOfActivities = arrayOfNulls<Activity>(1)
         getInstrumentation().runOnMainSync {
             val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-            activity[0] = Iterables.getOnlyElement(activities)
+            arrayOfActivities[0] = Iterables.getOnlyElement(activities)
         }
-        return activity[0]
+        return arrayOfActivities[0]
     }
 }
 
