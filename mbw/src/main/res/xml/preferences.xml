@@ -162,7 +162,7 @@
             android:widgetLayout="@layout/preference_arrow"
             android:title="@string/segwit_change_mode_title"/>
 
-        <ListPreference
+        <PreferenceScreen
             android:icon="@drawable/ic_mining"
             android:key="miner_fee"
             android:layout="@layout/preference_layout"
