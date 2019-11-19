@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
+import com.mycelium.wallet.activity.util.FeeFormatter;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.Collections;
@@ -23,7 +24,7 @@ import javax.annotation.Nonnull;
 public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAdapter.FeeViewHolder> {
     private List<FeeItem> mDataset;
     private int paddingWidth;
-    private FeeItemFormatter formatter;
+    private FeeFormatter formatter;
 
     public FeeViewAdapter(int paddingWidth) {
         this.paddingWidth = paddingWidth;
@@ -35,7 +36,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
         notifyDataSetChanged();
     }
 
-    public void setFormatter(FeeItemFormatter formatter){
+    public void setFormatter(FeeFormatter formatter){
         this.formatter = formatter;
     }
 
@@ -140,11 +141,5 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
             valueTextView = v.findViewById(R.id.valueTextView);
             this.adapter = adapter;
         }
-    }
-
-    public interface FeeItemFormatter {
-        String getFeeAbsValue(Value value);
-        String getAltValue(Value value);
-        String getFeePerUnit(long value);
     }
 }

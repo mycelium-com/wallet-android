@@ -50,6 +50,8 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.FeeFormatter;
+import com.mycelium.wallet.activity.util.FeeFormattingUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -190,10 +192,11 @@ public class TransactionDetailsActivity extends Activity {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
             findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
-            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
+            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + "\n";
             if (tx.getRawSize() > 0) {
-                final long txFeePerSat = txFeeTotal / tx.getRawSize();
-                fee += String.format("\n%d sat/byte", txFeePerSat);
+                final long txFeePerUnit = txFeeTotal / tx.getRawSize();
+                FeeFormatter feeFormatter = new FeeFormattingUtil().getFeeFormatter(_mbwManager.getSelectedAccount().getCoinType());
+                fee += (feeFormatter != null) ? feeFormatter.getFeePerUnit(txFeePerUnit) : txFeePerUnit;
             }
             ((TextView) findViewById(R.id.tvFee)).setText(fee);
             tvFeeAmount.setText(fee);
