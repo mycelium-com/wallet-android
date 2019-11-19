@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Rule
 import android.content.Intent
 import android.app.Instrumentation.ActivityResult
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.ActivityTestRule
 import com.mycelium.wallet.activity.StringHandlerActivity.RESULT_PRIVATE_KEY
@@ -34,7 +33,7 @@ class SendMainActivityTest {
     private val wifPrivkey = "926KDciwGhDW4Qda45QwRGeEvEVBoAWkMaizdoetUf7Lb2gtcC8"
     private val wifCompressedPrivkey = "cTDZUcUF7pvk7FWZtcHnUPZBRXvp7PhjzWsUN1ehxZVV8TkeA846"
     // SendMainActivity requires existing account on create
-    private val accountId = MbwManager.getInstance(InstrumentationRegistry.getInstrumentation().targetContext).getWalletManager(false).getAccountIds()[0]
+    private val accountId = MbwManager.getInstance(getInstrumentation().targetContext).getWalletManager(false).getAccountIds()[0]
 
     @Before
     fun setUp() {
