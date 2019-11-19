@@ -417,7 +417,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          } else {
             _amount = Value.valueOf(val.type, _mbwManager.getDenomination(_account.getCoinType()).getAmount(val.getValueAsLong()));
          }
-      }catch (NumberFormatException e){
+      } catch (NumberFormatException e) {
          _amount = _mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()).value(0);
       }
 
@@ -457,8 +457,8 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    }
 
    private void checkEntry() {
-      if (isSendMode ){
-         if(Value.isNullOrZero(_amount)) {
+      if (isSendMode) {
+         if (Value.isNullOrZero(_amount)) {
             // Nothing entered
             tvAmount.setTextColor(getResources().getColor(R.color.white));
             btOk.setEnabled(false);

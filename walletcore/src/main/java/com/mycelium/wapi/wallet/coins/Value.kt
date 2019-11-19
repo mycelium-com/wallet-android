@@ -22,7 +22,7 @@ open class Value(
         get() = type.friendlyDigits
 
     val valueAsBigDecimal: BigDecimal
-        get() = BigDecimal.valueOf(value.toLong()).movePointLeft(type.unitExponent)
+        get() = BigDecimal(value).movePointLeft(type.unitExponent)
 
     val valueAsLong: Long
         get() = value.toLong()
@@ -118,7 +118,7 @@ open class Value(
      * if necessary, but two will always be present.
      */
     fun toFriendlyString(): String =
-            BigDecimal.valueOf(value.toLong(), smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
+            BigDecimal(value, smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
 
     /**
      *
@@ -129,7 +129,7 @@ open class Value(
      *
      */
     fun toPlainString(): String =
-            BigDecimal.valueOf(value.toLong(), smallestUnitExponent()).stripTrailingZeros().toString()
+            BigDecimal(value, smallestUnitExponent()).stripTrailingZeros().toString()
 
     override fun toString(): String = toPlainString() + " " + type.symbol
 
@@ -206,7 +206,7 @@ open class Value(
         fun parse(type: GenericAssetInfo, decimal: BigDecimal): Value =
                 valueOf(type, decimal.movePointRight(type.unitExponent)
                         .setScale(0, RoundingMode.HALF_DOWN)
-                        .toBigIntegerExact().toLong())
+                        .toBigIntegerExact())
 
         @JvmStatic
         fun isNullOrZero(value: Value?): Boolean = value == null || value.isZero()
