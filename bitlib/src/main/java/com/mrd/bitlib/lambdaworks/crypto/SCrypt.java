@@ -43,8 +43,7 @@ public class SCrypt {
     *            when HMAC_SHA256 is not available.
     * @throws InterruptedException
     */
-   public static byte[] scrypt(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen,
-                                 SCryptProgress progressTracker) throws GeneralSecurityException, InterruptedException {
+   public static byte[] scrypt(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen) throws GeneralSecurityException, InterruptedException {
       if (N == 0 || (N & (N - 1)) != 0)
          throw new IllegalArgumentException("N must be > 0 and a power of 2");
 
@@ -74,17 +73,14 @@ public class SCrypt {
       PBKDF.pbkdf2(mac, salt, 1, B, p * 128 * r);
 
       for (i = 0; i < p; i++) {
-         smix(B, i * 128 * r, r, N, V, XY, progressTracker);
-         if (progressTracker != null) {
-            progressTracker.setProgressP(i+1);
-         }
+         smix(B, i * 128 * r, r, N, V, XY);
       }
       PBKDF.pbkdf2(mac, B, 1, DK, dkLen);
 
       return DK;
    }
 
-   private static void smix(byte[] B, int Bi, int r, int N, byte[][] V, byte[] XY, SCryptProgress progressTracker)
+   private static void smix(byte[] B, int Bi, int r, int N, byte[][] V, byte[] XY)
          throws InterruptedException {
       int Xi = 0;
       int Yi = 128 * r;
@@ -95,18 +91,12 @@ public class SCrypt {
       for (i = 0; i < N; i++) {
          arraycopy(XY, Xi, V[i], 0, 128 * r);
          blockmix_salsa8(XY, Xi, Yi, r);
-         if (progressTracker != null) {
-            progressTracker.setProgressN1(i);
-         }
       }
 
       for (i = 0; i < N; i++) {
          int j = integerify(XY, Xi, r) & (N - 1);
          blockxor(V[j], 0, XY, Xi, 128 * r);
          blockmix_salsa8(XY, Xi, Yi, r);
-         if (progressTracker != null) {
-            progressTracker.setProgressN2(i);
-         }
       }
 
       arraycopy(XY, Xi, B, Bi, 128 * r);
