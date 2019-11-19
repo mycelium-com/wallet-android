@@ -108,14 +108,11 @@ dependencies {
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.0-beta-3"
 
-    // Espresso dependencies
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-accessibility:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-web:3.2.0'
     androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 }

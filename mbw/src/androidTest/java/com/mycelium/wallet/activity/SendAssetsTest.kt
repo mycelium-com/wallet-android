@@ -12,31 +12,30 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.core.internal.deps.guava.collect.Iterables
 import androidx.test.espresso.intent.Intents.*
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.rule.ActivityTestRule
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendInitializationActivity
 import com.mycelium.wallet.activity.send.SendMainActivity
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.*
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
-import androidx.test.espresso.core.internal.deps.guava.collect.Iterables
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers.*
-import org.hamcrest.TypeSafeMatcher
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
