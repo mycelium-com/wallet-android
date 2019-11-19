@@ -63,23 +63,11 @@ class SendAssetsTest {
         Thread.sleep(10000)
         val currentActivity = getCurrentActivity()
         if (currentActivity is StartupActivity) {
-            val button = onView(
-                    allOf<View>(withId(android.R.id.button2), withText(R.string.master_seed_restore_backup_button),
-                            childAtPosition(
-                                    childAtPosition(
-                                            withClassName(`is`<String>("android.widget.ScrollView")),
-                                            0),
-                                    1)))
-            button.perform(scrollTo(), click())
+            onView(withText(R.string.master_seed_restore_backup_button))
+                    .perform(scrollTo(), click())
 
-            val appCompatButton = onView(
-                    allOf<View>(withId(android.R.id.button1), withText(R.string.ok),
-                            childAtPosition(
-                                    childAtPosition(
-                                            withId(R.id.buttonPanel),
-                                            0),
-                                    3)))
-            appCompatButton.perform(scrollTo(), click())
+            onView(withText(R.string.ok))
+                    .perform(scrollTo(), click())
 
             repeat(12) {
                 onView(withText("O")).perform(click())
