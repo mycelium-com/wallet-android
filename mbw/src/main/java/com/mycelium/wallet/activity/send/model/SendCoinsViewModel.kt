@@ -274,7 +274,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     if (data.getAddress().coinType == getAccount().coinType) {
                         model.receivingAddress.value = data.getAddress()
                     } else {
-                        makeText(context, "Not correct address type", LENGTH_LONG).show()
+                        makeText(context, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                     }
                 }
                 ResultType.ASSET_URI -> {
