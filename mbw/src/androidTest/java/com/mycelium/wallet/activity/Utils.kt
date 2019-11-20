@@ -13,18 +13,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
-inline fun <reified T : Activity> waitForActivity(): Activity? {
-    var currentActivity: Activity?
-
+inline fun <reified T : Activity> waitForActivity(timeout: Long = 10000L) {
     runBlocking {
-        withTimeout(10000L) {
+        withTimeout(timeout) {
             do {
                 delay(300L)
-                currentActivity = getCurrentActivity()
-            } while (currentActivity !is T)
+            } while (getCurrentActivity() !is T)
         }
     }
-    return getCurrentActivity()
 }
 
 inline fun <reified T : Activity> waitWhileAcitvity(): ActivityIdlingResource {
