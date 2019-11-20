@@ -11,15 +11,8 @@ class ActivityIdlingResource(private val activity: Class<out Activity>) : Idling
     private var resourceCallback: IdlingResource.ResourceCallback? = null
 
     private val activityInstance: Activity?
-        get() {
-            val arrayOfActivities = arrayOfNulls<Activity>(1)
-            val resumedActivities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-            val iterator = resumedActivities.iterator()
-            if (iterator.hasNext()) {
-                arrayOfActivities[0] = iterator.next()
-            }
-            return arrayOfActivities[0]
-        }
+        get() = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+                .firstOrNull()
 
     override fun getName(): String = name
 
