@@ -30,10 +30,8 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SendAssetsTest {
-
-    lateinit var activityScenario: ActivityScenario<ModernMain>
-//  val ownAddressSendTo = "2N1kbUrHmFoPWSo2uPqk2yZimGdZHzw5996"
-    val addressSendTo =  "2NEfsR6yeuF8tusetj5jhPz7LizY7frRfqu"
+    private lateinit var activityScenario: ActivityScenario<ModernMain>
+    private val addressSendTo =  "2NEfsR6yeuF8tusetj5jhPz7LizY7frRfqu"
     @get:Rule
     var activityTestRule = ActivityTestRule(ModernMain::class.java, false, false)
 
@@ -42,8 +40,7 @@ class SendAssetsTest {
         IdlingPolicies.setMasterPolicyTimeout(20, TimeUnit.MINUTES)
         IdlingPolicies.setIdlingResourceTimeout(20, TimeUnit.MINUTES)
         init()
-        activityScenario =
-                ActivityScenario.launch(ModernMain::class.java)
+        activityScenario = ActivityScenario.launch(ModernMain::class.java)
     }
 
     @After
@@ -76,11 +73,7 @@ class SendAssetsTest {
         onView(withId(R.id.btOk)).perform(click())
         onView(withId(R.id.btEnterAmount)).perform(click())
         intended(hasComponent(GetAmountActivity::class.java.name))
-        onView(withText("0")).perform(click())
-        onView(withText(".")).perform(click())
-        onView(withText("0")).perform(click())
-        onView(withText("0")).perform(click())
-        onView(withText("1")).perform(click())
+        customKeyboardType("0.001")
         onView(withId(R.id.btOk)).perform(click())
         intended(hasComponent(ManualAddressEntry::class.java.name))
         onView(withId(R.id.btSend)).perform(click())

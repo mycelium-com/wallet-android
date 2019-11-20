@@ -1,8 +1,11 @@
 package com.mycelium.wallet.activity
 
 import android.app.Activity
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.core.internal.deps.guava.collect.Iterables
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
@@ -21,7 +24,7 @@ inline fun <reified T : Activity> waitForActivity(): Activity? {
             } while (currentActivity !is T)
         }
     }
-    return getCurrentActivity();
+    return getCurrentActivity()
 }
 
 inline fun <reified T : Activity> waitWhileAcitvity(): ActivityIdlingResource {
@@ -38,4 +41,10 @@ fun getCurrentActivity(): Activity? {
         arrayOfActivities[0] = Iterables.getOnlyElement(activities)
     }
     return arrayOfActivities[0]
+}
+
+fun customKeyboardType(message: String) {
+    message.toCharArray().forEach {
+        Espresso.onView(ViewMatchers.withText(it.toString())).perform(ViewActions.click())
+    }
 }

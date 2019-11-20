@@ -10,7 +10,6 @@ import androidx.test.espresso.IdlingResource
 import java.lang.ref.WeakReference
 
 class ViewVisibilityIdlingResource(view: View, private val visibility: Int) : IdlingResource {
-
     private val viewWeakReference: WeakReference<View> = WeakReference(view)
     private val name: String
 
@@ -22,9 +21,7 @@ class ViewVisibilityIdlingResource(view: View, private val visibility: Int) : Id
         name = "View Visibility for view " + view.id + "(@" + System.identityHashCode(viewWeakReference) + ")"
     }
 
-    override fun getName(): String {
-        return name
-    }
+    override fun getName(): String = name
 
     override fun isIdleNow(): Boolean {
         val view = viewWeakReference.get()
@@ -34,7 +31,7 @@ class ViewVisibilityIdlingResource(view: View, private val visibility: Int) : Id
                 resourceCallback!!.onTransitionToIdle()
             }
         } else {
-            Handler().postDelayed({ isIdleNow }, IDLE_POLL_DELAY_MILLIS.toLong())
+            Handler().postDelayed({ isIdleNow }, IDLE_POLL_DELAY_MILLIS)
         }
 
         return isIdle
@@ -45,7 +42,6 @@ class ViewVisibilityIdlingResource(view: View, private val visibility: Int) : Id
     }
 
     companion object {
-
-        private const val IDLE_POLL_DELAY_MILLIS = 100
+        private const val IDLE_POLL_DELAY_MILLIS = 100L
     }
 }
