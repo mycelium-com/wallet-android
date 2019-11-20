@@ -201,8 +201,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
         model.clipboardUri.value = if (uriPattern.matcher(string).matches()) {
             // Raw format
-            val addresses = mbwManager.getWalletManager(false).parseAddress(string)
-            val address = addresses.find { model.account.coinType == it.coinType }
+            val address = getAccount().coinType.parseAddress(string)
             if (address != null) {
                 GenericAssetUriParser.createUriByCoinType(model.account.coinType, address, null, null, null)
             } else {
@@ -272,7 +271,11 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     throw NotImplementedError("Private key must be implemented per currency")
                 }
                 ResultType.ADDRESS -> {
-                    model.receivingAddress.value = data.getAddress()
+                    if (data.getAddress().coinType == getAccount().coinType) {
+                        model.receivingAddress.value = data.getAddress()
+                    } else {
+                        makeText(context, "Not correct address type", LENGTH_LONG).show()
+                    }
                 }
                 ResultType.ASSET_URI -> {
                     val uri = data.getAssetUri()
