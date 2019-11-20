@@ -21,7 +21,7 @@ constructor(val network: NetworkParameters,
             private var currencySettingsMap: HashMap<String, CurrencySettings>,
             @JvmField
             var accountScanManager: AccountScanManager? = null,
-            val walletDB: WalletDB) {
+            private val walletDB: WalletDB) {
     private val accounts = ConcurrentHashMap<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()

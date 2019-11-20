@@ -6,7 +6,6 @@ import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.Address
 import com.mrd.bitlib.model.NetworkParameters
-import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.AesKeyCipher

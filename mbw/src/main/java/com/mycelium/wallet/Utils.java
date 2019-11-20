@@ -128,7 +128,6 @@ import org.ocpsoft.prettytime.TimeUnit;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -1008,13 +1007,11 @@ public class Utils {
 
    @Nullable
    public static GenericAssetInfo getTypeByName(String name) {
-      List<String> fiatSymbols = new ArrayList<>();
-
       for (CurrencyCode currencyCode : CurrencyCode.values()) {
-         fiatSymbols.add(currencyCode.getShortString());
-      }
-      if (fiatSymbols.contains(name)) { // then it's a fiat type
-         return new FiatType(name);
+         if (name.equals(currencyCode.getShortString())) {
+            // then it's a fiat type
+            return new FiatType(name);
+         }
       }
       for (CryptoCurrency coin : CoinsKt.getCOINS().values()) {
          if (coin.getName().equals(name)) {
