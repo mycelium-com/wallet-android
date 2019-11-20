@@ -1,8 +1,10 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
+import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -23,18 +25,19 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
+        networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
-    private val coinType = EthTest
+    private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
     override val id = ID
 
     init {
-        assetsList.add(EthTest)
+        assetsList.add(coinType)
     }
 
     override fun getAccountById(id: UUID): WalletAccount<*>? {
