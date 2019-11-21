@@ -59,7 +59,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // TODO("not implemented")
     }
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)

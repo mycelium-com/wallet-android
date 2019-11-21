@@ -44,13 +44,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -101,15 +102,15 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Description
       if (_account.canSpend()) {
-         ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_private_key_description);
+         ((TextView) findViewById(R.id.tvDescription)).setText(getString(R.string.cs_private_key_description, _account.getCoinType().getName()));
       } else {
-         ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_address_description);
+         ((TextView) findViewById(R.id.tvDescription)).setText(getString(R.string.cs_address_description, _account.getCoinType().getName()));
       }
 
       if (!(_account instanceof AbstractBtcAccount)) {
          // Address
-         Optional<Address> receivingAddress = ((AbstractBtcAccount)_account).getReceivingAddress();
-         ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+         GenericAddress receivingAddress = _account.getReceiveAddress();
+         ((TextView) findViewById(R.id.tvAddress)).setText(AddressUtils.toMultiLineString(receivingAddress.toString()));
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
 
@@ -134,7 +135,7 @@ public class ColdStorageSummaryActivity extends Activity {
          }
       }
 
-      // BalanceSatoshis
+      // Balance
       ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
               _mbwManager.getDenomination(_account.getCoinType())));
 
