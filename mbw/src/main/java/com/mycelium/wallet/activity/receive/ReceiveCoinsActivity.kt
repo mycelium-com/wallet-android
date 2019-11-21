@@ -31,6 +31,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.receive_coins_activity_btc_addr_type.*
 import kotlinx.android.synthetic.main.receive_coins_activity_qr.*
 import asStringRes
+import com.mycelium.wapi.wallet.eth.EthAccount
 import java.util.*
 
 class ReceiveCoinsActivity : AppCompatActivity() {
@@ -49,6 +50,7 @@ class ReceiveCoinsActivity : AppCompatActivity() {
         viewModel = when (account) {
             is SingleAddressBCHAccount, is Bip44BCHAccount -> viewModelProvider.get(ReceiveBchViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(ReceiveBtcViewModel::class.java)
+            is EthAccount -> viewModelProvider.get(ReceiveEthViewModel::class.java)
             else -> viewModelProvider.get(ReceiveGenericCoinsViewModel::class.java)
         }
 
