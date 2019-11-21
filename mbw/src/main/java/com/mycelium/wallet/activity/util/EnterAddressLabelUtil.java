@@ -117,6 +117,7 @@ public class EnterAddressLabelUtil {
             // existing entry with the same name. If the name is blank the
             // entry will get deleted
             _storage.storeAddressLabel(_address.toString(), newText);
+            _storage.storeAddressCoinType(_address.toString(), _address.getCoinType().getName());
             if (_changeHandler != null) {
                 _changeHandler.OnAddressLabelChanged(_address.toString(), newText);
             }

@@ -503,7 +503,6 @@ public class TransactionHistoryFragment extends Fragment {
                            GenericAddress address = record.getDestinationAddresses().get(0);
                            EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
-                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())

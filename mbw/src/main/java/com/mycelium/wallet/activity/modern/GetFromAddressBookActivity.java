@@ -44,6 +44,8 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 
 public class GetFromAddressBookActivity extends AppCompatActivity {
+   private static final int TAB_MYADDRESSES = 0;
+   private static final int TAB_CONTACTS = 1;
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
 
@@ -68,9 +70,9 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {
-         contactsTab.select();
+         mViewPager.setCurrentItem(TAB_CONTACTS);
       } else {
-         myAddressesTab.select();
+         mViewPager.setCurrentItem(TAB_MYADDRESSES);
       }
    }
 

@@ -75,7 +75,6 @@ import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -208,13 +207,12 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiSending() {
-        List<GenericAddress> addresses = mbwManager.getMetadataStorage().getAllGenericAddress();
         Map<GenericAddress, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = mbwManager.getSelectedAccount();
-        for (GenericAddress address : addresses) {
-            if (address.getCoinType().equals(account.getCoinType())) {
-                entries.add(new Entry(address, rawEntries.get(address)));
+        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+            if (e.getKey().getCoinType().equals(account.getCoinType())) {
+                entries.add(new Entry(e.getKey(), e.getValue()));
             }
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -390,7 +388,6 @@ public class AddressBookFragment extends Fragment {
 
     private void addFromAddress(GenericAddress address) {
         EnterAddressLabelUtil.enterAddressLabel(requireContext(), mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
-        mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
     }
 
     private AddressLabelChangedHandler addressLabelChanged = (address, label) -> {
