@@ -57,7 +57,6 @@ class EthFeeFormatter : FeeFormatter {
             in 15..18 -> Convert.Unit.FINNEY
             in 18..21 -> Convert.Unit.ETHER
             in 21..24 -> Convert.Unit.METHER
-            in 24..27 -> Convert.Unit.GETHER
             else -> Convert.Unit.GETHER
         }
     }
