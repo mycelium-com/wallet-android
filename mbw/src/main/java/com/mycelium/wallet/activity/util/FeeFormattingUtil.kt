@@ -40,6 +40,25 @@ class EthFeeFormatter : FeeFormatter {
 
     override fun getAltValue(value: Value) = "~${value.toStringWithUnit()}"
 
-    override fun getFeePerUnit(value: Long) = "${Convert.fromWei(value.toBigDecimal(),
-            Convert.Unit.GWEI).setScale(6, RoundingMode.HALF_UP).stripTrailingZeros()} Gwei/gas"
+    override fun getFeePerUnit(value: Long): String {
+        val length = (Math.log10(value.toDouble()) + 1).toInt()
+        val format = getFormat(length)
+        return "${Convert.fromWei(value.toBigDecimal(), format).setScale(2, RoundingMode.HALF_UP)} " +
+                "${format.toString().capitalize()}/gas"
+    }
+
+    private fun getFormat(value: Int): Convert.Unit {
+        return when(value) {
+            in 0..3 -> Convert.Unit.WEI
+            in 3..6 -> Convert.Unit.KWEI
+            in 6..9 -> Convert.Unit.MWEI
+            in 9..12 -> Convert.Unit.GWEI
+            in 12..15 -> Convert.Unit.SZABO
+            in 15..18 -> Convert.Unit.FINNEY
+            in 18..21 -> Convert.Unit.ETHER
+            in 21..24 -> Convert.Unit.METHER
+            in 24..27 -> Convert.Unit.GETHER
+            else -> Convert.Unit.GETHER
+        }
+    }
 }
