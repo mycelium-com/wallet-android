@@ -3,8 +3,6 @@ package com.mycelium.wapi.content.eth
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.colu.ColuAssetUriParser
-import com.mycelium.wapi.wallet.colu.coins.RMCCoin
-import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import java.net.URI

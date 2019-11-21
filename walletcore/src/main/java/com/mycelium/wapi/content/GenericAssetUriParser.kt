@@ -33,7 +33,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         val params = splitQuery(uri.rawQuery)
 
         val amount: Value? = params["amount"]?.let {
-            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(8)).toLong())
+            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
         }
 
         // Label
