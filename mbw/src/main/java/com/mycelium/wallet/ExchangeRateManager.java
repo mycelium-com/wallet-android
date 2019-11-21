@@ -215,6 +215,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
+    /**
+     * the method is used to remove additional characters indicating testnet coins from currencies' symbols
+     * before making request to the server with these symbols as parameters, as server provides
+     * exchange rates only by pure symbols, i.e. BTC and not tBTC
+     */
     private String trimSymbolDecorations(String symbol) {
         if (BuildConfig.FLAVOR.equals("btctestnet")) {
             if (symbol.startsWith("t")) {

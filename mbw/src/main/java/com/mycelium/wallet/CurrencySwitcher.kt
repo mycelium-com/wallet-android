@@ -207,17 +207,11 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
         return rate?.price != null
     }
 
-
-    fun getAsFiatValue(value: Value?): Value? {
-        if (isFiatCurrency(value?.type)) {
-            return value
-        }
-        if (value == null) {
-            return null
-        }
-        return if (currentFiatCurrencyMap[value.type] == null) {
-            null
-        } else exchangeRateManager.get(value, currentFiatCurrencyMap[value.type]!!)
+    fun getAsFiatValue(value: Value?): Value? = when {
+        value == null -> null
+        isFiatCurrency(value.type) -> value
+        currentFiatCurrencyMap[value.type] == null -> null
+        else -> exchangeRateManager.get(value, currentFiatCurrencyMap[value.type]!!)
     }
 
     /**
