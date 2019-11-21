@@ -41,5 +41,5 @@ class EthFeeFormatter : FeeFormatter {
     override fun getAltValue(value: Value) = "~${value.toStringWithUnit()}"
 
     override fun getFeePerUnit(value: Long) = "${Convert.fromWei(value.toBigDecimal(),
-            Convert.Unit.GWEI).setScale(2, RoundingMode.HALF_UP)} Gwei/gas"
+            Convert.Unit.GWEI).setScale(6, RoundingMode.HALF_UP).stripTrailingZeros()} Gwei/gas"
 }
