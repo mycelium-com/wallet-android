@@ -38,7 +38,16 @@ class BtcFeeFormatter : FeeFormatter {
 class EthFeeFormatter : FeeFormatter {
     override fun getFeeAbsValue(value: Value) = value.toStringWithUnit(Denomination.MILLI)
 
-    override fun getAltValue(value: Value) = "~${value.toStringWithUnit()}"
+    override fun getAltValue(value: Value) = getFiatString(value)
+
+    private fun getFiatString(value: Value): String {
+        val toStringWithUnit = value.toStringWithUnit()
+        return if (value.isZero()) {
+            "<$toStringWithUnit"
+        }  else {
+            "~$toStringWithUnit"
+        }
+    }
 
     override fun getFeePerUnit(value: Long): String {
         val length = (Math.log10(value.toDouble()) + 1).toInt()
