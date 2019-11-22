@@ -94,6 +94,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,6 +196,11 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
     * SA watch only accounts import method.
     */
    private void returnAccount(GenericAddress address) {
+      // temporary solution: unrelated Ethereum accounts will be implemented later
+      if (address.getCoinType() instanceof EthCoin) {
+         new Toaster(this).toast("Exporting unrelated Ethereum accounts still to be implemented.", false);
+         return;
+      }
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
