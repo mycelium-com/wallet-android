@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.utils.Convert
+import java.lang.Exception
 import java.net.URL
 
 
@@ -29,24 +30,28 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
 
     override suspend fun updateFeeEstimationsAsync() {
         estimation = withContext(Dispatchers.IO) {
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            val newEstimation = mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
-                    GasStationEstimation::class.java)
-                    .run {
-                        FeeEstimationsGeneric(
-                                Value.valueOf(coinType,
-                                        Convert.toWei(safeLow.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                Value.valueOf(coinType,
-                                        Convert.toWei(average.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                Value.valueOf(coinType,
-                                        Convert.toWei(fast.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                Value.valueOf(coinType,
-                                        Convert.toWei(fastest.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                System.currentTimeMillis()
-                        )
-                    }
-            feeBacking.updateFeeEstimation(newEstimation)
-            return@withContext newEstimation
+            try {
+                val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                val newEstimation = mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
+                        GasStationEstimation::class.java)
+                        .run {
+                            FeeEstimationsGeneric(
+                                    Value.valueOf(coinType,
+                                            Convert.toWei(safeLow.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                    Value.valueOf(coinType,
+                                            Convert.toWei(average.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                    Value.valueOf(coinType,
+                                            Convert.toWei(fast.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                    Value.valueOf(coinType,
+                                            Convert.toWei(fastest.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                                    System.currentTimeMillis()
+                            )
+                        }
+                feeBacking.updateFeeEstimation(newEstimation)
+                return@withContext newEstimation
+            } catch (e: Exception) {
+                return@withContext estimation
+            }
         }
     }
 

@@ -28,8 +28,8 @@ open class BtcFeeProvider(testnet: Boolean, private val wapi: Wapi, private val 
         // we try to get fee estimation from server
         estimation = withContext(Dispatchers.IO) {
             try {
-                val response = wapi.getMinerFeeEstimations()
-                val oldStyleFeeEstimation = response.getResult().feeEstimation
+                val response = wapi.minerFeeEstimations
+                val oldStyleFeeEstimation = response.result.feeEstimation
                 val lowPriority = oldStyleFeeEstimation.getEstimation(20)
                 val normal = oldStyleFeeEstimation.getEstimation(3)
                 val economy = oldStyleFeeEstimation.getEstimation(10)
