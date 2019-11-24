@@ -15,6 +15,8 @@ import com.mycelium.wallet.MinerFee.ECONOMIC
 import com.mycelium.wallet.MinerFee.LOWPRIO
 import com.mycelium.wallet.MinerFee.NORMAL
 import com.mycelium.wallet.MinerFee.PRIORITY
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 
 class MinerFeeFragment : PreferenceFragmentCompat() {
     private var mRootKey: String? = null
@@ -50,13 +52,13 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         for (name in cryptocurrencies) {
             val listPreference = ListPreference(preferenceScreen.context)
             listPreference.title = name
-            setSummary(name, listPreference)
+            listPreference.summary = getMinerFeeSummary(name)
             listPreference.value = _mbwManager!!.getMinerFee(name).toString()
             listPreference.entries = minerFeeNames
             listPreference.entryValues = minerFees
             listPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
                 _mbwManager!!.setMinerFee(name, fromString(newValue.toString()))
-                setSummary(name, listPreference)
+                listPreference.summary = getMinerFeeSummary(name)
                 val description = _mbwManager!!.getMinerFee(name).getMinerFeeDescription(requireActivity())
                 Utils.showSimpleMessageDialog(requireContext(), description)
                 true
@@ -81,21 +83,27 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         displayPreferenceDialogHandler!!.onDisplayPreferenceDialog(preference)
     }
 
-    private fun setSummary(name: String, pref: Preference) {
-        // TODO fix usage of hardcoded values as soon as the summary for ethereum will be provided
-        if (name == Utils.getBtcCoinType().name) {
-            pref.summary = getMinerFeeSummary()
-        }
-    }
+    private fun getMinerFeeSummary(coinName: String): String {
+        val blocks =
+                when (coinName) {
+                    EthMain.name, EthTest.name ->
+                        when (_mbwManager!!.getMinerFee(coinName)) {
+                            LOWPRIO -> 120
+                            ECONOMIC -> 20
+                            NORMAL -> 8
+                            PRIORITY -> 2
+                            null -> 8
+                        }
+                    else ->
+                        when (_mbwManager!!.getMinerFee(coinName)) {
+                            LOWPRIO -> 20
+                            ECONOMIC -> 10
+                            NORMAL -> 3
+                            PRIORITY -> 1
+                            null -> 3
+                        }
+                }
 
-    private fun getMinerFeeSummary(): String {
-        val blocks = when (_mbwManager!!.getMinerFee(Utils.getBtcCoinType().name)) {
-            LOWPRIO -> 20
-            ECONOMIC -> 10
-            NORMAL -> 3
-            PRIORITY -> 1
-            null -> 3
-        }
         return resources.getString(R.string.pref_miner_fee_block_summary,
                 blocks.toString())
     }
