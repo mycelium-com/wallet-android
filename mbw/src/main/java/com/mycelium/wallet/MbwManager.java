@@ -440,7 +440,7 @@ public class MbwManager {
             // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
             // could cause crash. in that case we'll try to migrate, i.e.
             // we'll clear the preference and init the map with default values
-            getEditor().putString(Constants.MINER_FEE_SETTING, null);
+            getEditor().putString(Constants.MINER_FEE_SETTING, null).apply();
             result.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
         }
         return result;
@@ -454,7 +454,7 @@ public class MbwManager {
         if (oldDenomPreference != null) {
             // we haven't migrated Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING yet,
             // perform migration.
-            getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, null);
+            getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, null).apply();
             if (Denomination.fromString(oldDenomPreference) != null) {
                 resultMap.put(Utils.getBtcCoinType(), Denomination.fromString(oldDenomPreference));
             } else {

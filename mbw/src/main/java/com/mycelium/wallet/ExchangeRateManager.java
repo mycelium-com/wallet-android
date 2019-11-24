@@ -137,7 +137,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
             // could cause crash. in that case we'll try to migrate, i.e.
             // we'll clear the preference and init the map with default values
-            getEditor().putString("currentRateName", null);
+            getEditor().putString("currentRateName", null).apply();
             _currentExchangeSourceName.put(Utils.getBtcCoinType().getSymbol(), DEFAULT_EXCHANGE);
         }
         _subscribers = new LinkedList<>();
