@@ -71,6 +71,7 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
         }
     }
 
+    // Starts the main connection thread
     @Throws(IllegalStateException::class)
     fun start() {
         thread(start = true) {
