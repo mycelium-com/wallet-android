@@ -67,6 +67,14 @@ class WapiClientElectrumX(
         rpcClient.start()
     }
 
+    /*
+        As rpcClient.write() will return TimeoutException if SMALL_RESPONSE_TIMEOUT milliseconds are exceeded
+        and also immediately breaks the connection, we should try to ask the same request from another
+        server. It does make sense because the server could be overloaded and handle responses very slow.
+        We will repect the request in a loop until reaching a bigger timeout.
+        Methods tryUntilTimeoutExceeded and tryUntilTimeoutExceededSingle are intended to deal with the logic above
+    * */
+
     fun tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> Array<RpcResponse>):Array<RpcResponse> {
         val startTime = System.currentTimeMillis();
         while(System.currentTimeMillis() - startTime < timeoutMs) {
