@@ -128,7 +128,9 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
                 close()
                 isConnected.set(false)
                 // Sleep for some time before moving to the next endpoint
-                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                if (isConnectionThreadActive) {
+                    Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                }
                 if (curEndpointIndex + 1 == endpoints.size && connectionAttempt < 3) {
                     connectionAttempt++
                 }
