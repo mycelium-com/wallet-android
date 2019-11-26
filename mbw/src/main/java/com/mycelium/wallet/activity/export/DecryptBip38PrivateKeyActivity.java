@@ -229,7 +229,6 @@ public class DecryptBip38PrivateKeyActivity extends Activity {
             statusMessageId = R.string.out_of_memory_error;
             return null;
          }
-         statusMessageId = null;
          // The result may be null
          return result;
       }
