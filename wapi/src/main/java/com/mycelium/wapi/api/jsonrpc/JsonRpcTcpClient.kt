@@ -17,27 +17,23 @@ import javax.net.ssl.SSLSocketFactory
 import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
 import kotlin.system.measureTimeMillis
-import kotlin.jvm.functions.Function1
-
 
 
 typealias Consumer<T> = (T) -> Unit
 
 data class TcpEndpoint(val host: String, val port: Int)
 
-open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
-                            val logger: WapiLogger) {
+open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
+                            private val logger: WapiLogger) {
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
-
-    var isConnected = AtomicBoolean(false)
+    private val isConnected = AtomicBoolean(false)
 
     /* isConnectionThreadActive is used to pause main connection thread
        when the device sent a notification about no network connected and resume its execution
        when the connection is back again
     */
     @Volatile private var isConnectionThreadActive = true
-    @Volatile var lastSuccessTime = System.currentTimeMillis()
     @Volatile private var isStopped = false
     @Volatile private var socket: Socket? = null
     @Volatile private var incoming : BufferedReader? = null
@@ -143,7 +139,7 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
         }.toJson())
     }
 
-    fun renewSubscriptions() {
+    private fun renewSubscriptions() {
         logger.logInfo("Subscriptions been renewed")
         synchronized(subscriptions) {
             val toRenew = subscriptions.toMutableMap()
@@ -240,7 +236,6 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
         if (message.contains("error")) {
             logger.logError(message)
         }
-        lastSuccessTime = System.currentTimeMillis()
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(incoming!!)
