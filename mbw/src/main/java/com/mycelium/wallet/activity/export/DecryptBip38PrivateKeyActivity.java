@@ -170,6 +170,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity {
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
       task = new Bip38KeyDecryptionTask(encryptedPrivateKey, password, mbwManager.getNetwork());
+      task.execute();
    }
 
    @Subscribe
@@ -228,7 +229,6 @@ public class DecryptBip38PrivateKeyActivity extends Activity {
             statusMessageId = R.string.out_of_memory_error;
             return null;
          }
-         statusMessageId = null;
          // The result may be null
          return result;
       }
