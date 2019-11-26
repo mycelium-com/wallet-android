@@ -100,7 +100,9 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         PackageRemovedReceiver.register(getApplicationContext());
         if(isMainProcess()) {
             NewsDatabase.INSTANCE.initialize(this);
-            NewsSyncUtils.startNewsUpdateRepeating(this);
+            if(SettingsPreference.getMediaFlowEnabled()) {
+                NewsSyncUtils.startNewsUpdateRepeating(this);
+            }
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
