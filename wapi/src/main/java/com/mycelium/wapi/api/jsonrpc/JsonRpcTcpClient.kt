@@ -4,6 +4,7 @@ import com.mycelium.WapiLogger
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.lang.Thread.sleep
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
@@ -50,16 +51,9 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
     private val subscriptions = mutableMapOf<String, Subscription>()
 
-    var activeLatch = CountDownLatch(1)
-
     // Determines whether main connection thread execution should be paused or resumed
     fun setActive(isActive: Boolean) {
         isConnectionThreadActive = isActive
-        if (isActive) {
-            activeLatch.countDown()
-        } else {
-            activeLatch = CountDownLatch(1)
-        }
     }
 
     fun endpointsChanged(newEndpoints: Array<TcpEndpoint>) {
@@ -79,7 +73,9 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
             while(!isStopped) {
                 if (!isConnectionThreadActive) {
                     logger.logInfo("Waiting until the connection is active again")
-                    activeLatch.await()
+                    while (!isConnectionThreadActive) {
+                        sleep(300)
+                    }
                     logger.logInfo("The connection is active again, continue main connection thread loop")
                 }
                 val currentEndpoint = endpoints[curEndpointIndex]
@@ -129,7 +125,7 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
                 isConnected.set(false)
                 // Sleep for some time before moving to the next endpoint
                 if (isConnectionThreadActive) {
-                    Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                    sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
                 }
                 if (curEndpointIndex + 1 == endpoints.size && connectionAttempt < 3) {
                     connectionAttempt++
