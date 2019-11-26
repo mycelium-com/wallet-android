@@ -30,6 +30,11 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
 
     var isConnected = AtomicBoolean(false)
+
+    /* isConnectionThreadActive is used to pause main connection thread
+       when the device sent a notification about no network connected and resume its execution
+       when the connection is back again
+    */
     @Volatile private var isConnectionThreadActive = true
     @Volatile var lastSuccessTime = System.currentTimeMillis()
     @Volatile private var isStopped = false
@@ -47,6 +52,7 @@ open class JsonRpcTcpClient(var endpoints : Array<TcpEndpoint>,
 
     var activeLatch = CountDownLatch(1)
 
+    // Determines whether main connection thread execution should be paused or resumed
     fun setActive(isActive: Boolean) {
         isConnectionThreadActive = isActive
         if (isActive) {
