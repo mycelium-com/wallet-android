@@ -67,10 +67,11 @@ class WapiClientElectrumX(
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
+        if (!isNetworkConnected) {
+            return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
+
         try {
-            if (!isNetworkConnected) {
-                return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
-            }
             val unspent: ArrayList<TransactionOutputEx> = ArrayList()
             val requestsList = ArrayList<RpcRequestOut>()
             val requestsIndexesMap = HashMap<String, Int>()
@@ -103,10 +104,10 @@ class WapiClientElectrumX(
     }
 
     override fun queryTransactionInventory(request: QueryTransactionInventoryRequest): WapiResponse<QueryTransactionInventoryResponse> {
+        if (!isNetworkConnected) {
+            return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
+        }
         try {
-            if (!isNetworkConnected) {
-                return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
-            }
             val requestsList = ArrayList<RpcRequestOut>(request.addresses.size)
             request.addresses.forEach {
                 val addrScripthHash = it.scriptHash.toHex()
