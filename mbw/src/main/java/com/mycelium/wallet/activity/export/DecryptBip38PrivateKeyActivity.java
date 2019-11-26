@@ -170,6 +170,7 @@ public class DecryptBip38PrivateKeyActivity extends Activity {
       String password = ((EditText) findViewById(R.id.password)).getText().toString();
 
       task = new Bip38KeyDecryptionTask(encryptedPrivateKey, password, mbwManager.getNetwork());
+      task.execute();
    }
 
    @Subscribe
