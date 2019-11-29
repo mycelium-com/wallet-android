@@ -137,7 +137,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="@dimen/margin_medium"
-        android:text="@string/you_have_36_hours_to_send_funds_otherwise_the_transaction_will_be_canceled_automatically"
+        android:text="@string/you_have_36_hours_to_send_funds"
         android:alpha="0.8"
         android:textColor="@color/white"
         android:textSize="12dp" />
