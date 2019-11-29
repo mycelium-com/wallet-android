@@ -58,6 +58,9 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     @BindView(R.id.extraIdText)
     TextView extraIdText;
 
+    @BindView(R.id.transaction_id)
+    TextView transactionId;
+
     private ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
     private String currency;
@@ -77,6 +80,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
                 , Constants.decimalFormat.format(amount)));
         tvSendToAddress.setText(offer.payinAddress);
+        transactionId.setText(getString(R.string.exchange_operation_id_s, offer.id));
 
         if (offer.payinExtraId != null) {
             payInExtraId.setText(getExtraIdName(offer.currencyFrom) + ": " + offer.payinExtraId);
@@ -89,15 +93,12 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private String getExtraIdName(String coin) {
         switch (coin) {
-            case "xlm":
-            case "eos":
-                return getString(R.string.changelly_memo_id_name);
             case "xrp":
                 return getString(R.string.changelly_destination_tag);
             case "xem":
                 return getString(R.string.changelly_message_name);
             default:
-                return getString(R.string.changelly_extra_id);
+                return getString(R.string.changelly_memo_id_name);
         }
     }
 
@@ -116,6 +117,15 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         if(offer != null) {
             Utils.setClipboardString(offer.payinExtraId, this);
             toast(getExtraIdName(offer.currencyFrom) + " copied to clipboard");
+        } else {
+            toast("Something went wrong. No offer");
+        }
+    }
+    @OnClick(R.id.transaction_id)
+    void transactionId() {
+        if(offer != null) {
+            Utils.setClipboardString(offer.id, this);
+            toast("Operation id copied to clipboard");
         } else {
             toast("Something went wrong. No offer");
         }

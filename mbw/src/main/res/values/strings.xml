@@ -1325,8 +1325,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="retry">RETRY</string>
     <string name="notifications_summary">Media Flow</string>
     <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds to Changelly address. If sending funds via QR code, you need to enter the tag manually.</string>
-    <string name="changelly_memo_id_name">Memo.id</string>
+    <string name="changelly_memo_id_name">memo</string>
     <string name="changelly_destination_tag">Destination Tag</string>
     <string name="changelly_message_name">Message</string>
     <string name="changelly_extra_id">Extra Id</string>
+    <string name="you_have_36_hours_to_send_funds_otherwise_the_transaction_will_be_canceled_automatically">You have 36 hours to send funds otherwise the transaction will be canceled automatically</string>
+    <string name="exchange_operation_id_s">Exchange operation ID: %s</string>
 </resources>
