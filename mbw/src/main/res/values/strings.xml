@@ -1083,7 +1083,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="value_currency">%1$s %2$s</string>
     <string name="enter_exchange_amount">Enter exchange amount</string>
     <string name="exchange_in_order_to_complete">In order to complete exchange operation, you need to send the selected amount to the address below.</string>
-    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Send this.</string>
+    <string name="exchange_to_do_so">Step 1. Copy the address above.\nStep 2. Open your wallet where you store the currency you are exchanging.\nStep 3. Copy exchanging amount below.</string>
     <string name="exchange_after_transaction">After your transaction is confirmed, your funds will be sent to your receiving account.</string>
     <string name="exchange_altcoins_to_btc">Shift any coins to BTC</string>
     <string name="exchange_minimum_amount">Minimum exchangeable amount is %1$s %2$s.</string>
@@ -1331,4 +1331,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_extra_id">Extra Id</string>
     <string name="you_have_36_hours_to_send_funds">You have 36 hours to send funds otherwise the transaction will be canceled automatically.</string>
     <string name="exchange_operation_id_s">Exchange operation ID: %s</string>
+    <string name="exchange_to_do_so_memo">Step 4. Copy the memo below and paste into your wallet.</string>
+    <string name="exchange_to_do_so_end">Step 5. Send this.</string>
 </resources>

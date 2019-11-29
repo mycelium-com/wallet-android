@@ -71,7 +71,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
-        setTitle(getString(R.string.exchange_altcoins_to_btc));
+        getSupportActionBar().hide();
         ButterKnife.bind(this);
         createOffer();
     }
