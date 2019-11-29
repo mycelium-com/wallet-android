@@ -1324,4 +1324,9 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="we_were_unable_to_load_media_flow_feed">We were unable to retrieve the feed.\nPlease check your internet connection and try again.</string>
     <string name="retry">RETRY</string>
     <string name="notifications_summary">Media Flow</string>
+    <string name="changelly_indicate_extra">Please don’t forget to indicate the %s before sending funds to Changelly address. If sending funds via QR code, you need to enter the tag manually.</string>
+    <string name="changelly_memo_id_name">Memo.id</string>
+    <string name="changelly_destination_tag">Destination Tag</string>
+    <string name="changelly_message_name">Message</string>
+    <string name="changelly_extra_id">Extra Id</string>
 </resources>

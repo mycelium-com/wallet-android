@@ -72,6 +72,42 @@
         android:textSize="18sp"
         android:textStyle="normal" />
 
+    <LinearLayout
+        android:id="@+id/extra_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/extraIdText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/margin_medium"
+            tools:text="@string/changelly_indicate_extra"
+            android:textColor="@color/white"
+            android:textSize="@dimen/exchange_offer_text_size" />
+
+        <TextView
+            android:id="@+id/payInExtraId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="11sp"
+            android:paddingStart="12dp"
+            android:paddingEnd="@dimen/margin_medium"
+            android:paddingTop="@dimen/margin_small"
+            android:paddingBottom="@dimen/margin_small"
+            android:background="@drawable/background_sell_order_card"
+            tools:text="48388349348"
+            android:textColor="@color/white"
+            android:drawableEnd="@drawable/ic_content_copy_white_selector"
+            android:drawablePadding="12dp"
+            android:textSize="18sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
