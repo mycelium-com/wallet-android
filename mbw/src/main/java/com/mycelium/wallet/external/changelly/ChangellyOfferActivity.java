@@ -93,9 +93,9 @@ public class ChangellyOfferActivity extends AppCompatActivity {
 
     private String getExtraIdName(String coin) {
         switch (coin) {
-            case "xrp":
+            case Constants.XRP:
                 return getString(R.string.changelly_destination_tag);
-            case "xem":
+            case Constants.XEM:
                 return getString(R.string.changelly_message_name);
             default:
                 return getString(R.string.changelly_memo_id_name);

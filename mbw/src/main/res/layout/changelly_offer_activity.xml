@@ -73,6 +73,7 @@
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="11sp"
         android:paddingStart="12dp"
+        android:textAllCaps="true"
         android:paddingEnd="@dimen/margin_medium"
         android:paddingTop="@dimen/margin_small"
         android:paddingBottom="@dimen/margin_small"
@@ -95,7 +96,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginBottom="@dimen/margin_medium"
             android:text="@string/exchange_to_do_so_memo"
             android:textColor="@color/white"
