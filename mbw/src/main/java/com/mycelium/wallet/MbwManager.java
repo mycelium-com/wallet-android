@@ -478,9 +478,12 @@ public class MbwManager {
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
-        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+        WapiClientElectrumX wapiClientElectrumX =  new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
                 tcpEndpoints.toArray(new TcpEndpoint[0]),
                 retainingWapiLogger, version);
+
+        wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
+        return wapiClientElectrumX;
     }
 
     private void initTor() {

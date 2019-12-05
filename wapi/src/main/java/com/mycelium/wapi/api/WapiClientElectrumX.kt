@@ -19,9 +19,6 @@ import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -39,6 +36,7 @@ class WapiClientElectrumX(
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
+    private var isInForeground = true
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
         bestChainHeight = if (rpcResponse.hasResult) {
@@ -50,12 +48,17 @@ class WapiClientElectrumX(
     private var rpcClient = JsonRpcTcpClient(endpoints, logger)
 
     override fun setAppInForeground(isInForeground: Boolean) {
-        rpcClient.setActive(isInForeground)
+        this.isInForeground = isInForeground
+        updateClient()
+    }
+
+    private fun updateClient() {
+        rpcClient.setActive(isInForeground && isNetworkConnected)
     }
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {
         this.isNetworkConnected = isNetworkConnected
-        rpcClient.setActive(isNetworkConnected)
+        updateClient()
     }
 
     override fun serverListChanged(newEndpoints: Array<TcpEndpoint>) {
@@ -75,9 +78,9 @@ class WapiClientElectrumX(
         Methods tryUntilTimeoutExceeded and tryUntilTimeoutExceededSingle are intended to deal with the logic above
     * */
 
-    fun tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> Array<RpcResponse>):Array<RpcResponse> {
+    fun tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> Array<RpcResponse>): Array<RpcResponse> {
         val startTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() - startTime < timeoutMs) {
+        while (System.currentTimeMillis() - startTime < timeoutMs) {
             try {
                 return func()
             } catch (ex: TimeoutException) {
@@ -88,7 +91,7 @@ class WapiClientElectrumX(
 
     fun tryUntilTimeoutExceededSingle(timeoutMs: Long, func: () -> RpcResponse): RpcResponse {
         val startTime = System.currentTimeMillis();
-        while(System.currentTimeMillis() - startTime < timeoutMs) {
+        while (System.currentTimeMillis() - startTime < timeoutMs) {
             try {
                 return func()
             } catch (ex: TimeoutException) {
@@ -122,7 +125,7 @@ class WapiClientElectrumX(
                 outputs!!.forEach {
                     val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[response.id.toString()]!!],
                             it.value, requestAddressesList[0].network).script
-                    unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), if (it.height > 0) it.height else -1 ,
+                    unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), if (it.height > 0) it.height else -1,
                             it.value, script.scriptBytes,
                             script.isCoinBase))
                 }
@@ -149,7 +152,7 @@ class WapiClientElectrumX(
             val outputs = transactionHistoryArray.filter { it.hasResult }.flatMap {
                 it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable()
             }
-            val isPartialResult = transactionHistoryArray.any { it.hasError && it.error!!.code == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE}
+            val isPartialResult = transactionHistoryArray.any { it.hasError && it.error!!.code == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE }
             val txIds = outputs.map { Sha256Hash.fromString(it.tx_hash) }
             if (isPartialResult) {
                 return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_RESPONSE_TOO_LARGE, null)
