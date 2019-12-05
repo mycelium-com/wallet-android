@@ -86,7 +86,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
+    private val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
         override fun setValue(value: Value?) {
             if (value != this.value) {
                 super.setValue(value ?: Value.zeroValue(account.coinType))
@@ -155,8 +155,8 @@ abstract class SendCoinsModel(
     }
 
     init {
-        selectedFee.value = getCurrentFeeEstimation()
         feeLvl.value = mbwManager.getMinerFee(account.coinType.name)
+        selectedFee.value = Value.valueOf(account.coinType, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
         transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
@@ -349,7 +349,7 @@ abstract class SendCoinsModel(
         }
     }
 
-    fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
+    private fun estimateTxSize() = transaction?.estimatedTransactionSize ?: account.typicalEstimatedTransactionSize
 
     /**
      * Recalculate the transaction based on the current choices.
@@ -444,24 +444,20 @@ abstract class SendCoinsModel(
     }
 
     private fun updateFeeDataset(): List<FeeItem> {
-        val feeItemList = feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
-                feeEstimation, feeLvl.value, estimateTxSize())
+        val feeItemList = getFeeItemList()
         if (!isInRange(feeItemList, selectedFee.value!!)) {
-            selectedFee.postValue(getCurrentFeeEstimation())
+            selectedFee.postValue(Value.valueOf(account.coinType, feeItemList[feeItemList.size / 2].feePerKb))
         }
         return feeItemList
     }
 
+    private fun getFeeItemList(): List<FeeItem> {
+        return feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
+                feeEstimation, feeLvl.value, estimateTxSize())
+    }
+
     private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
             (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
-
-    private fun getCurrentFeeEstimation() = when (feeLvl.value) {
-        MinerFee.LOWPRIO -> Value.valueOf(account.coinType, feeEstimation.low.value)
-        MinerFee.ECONOMIC -> Value.valueOf(account.coinType, feeEstimation.economy.value)
-        MinerFee.NORMAL -> Value.valueOf(account.coinType, feeEstimation.normal.value)
-        MinerFee.PRIORITY -> Value.valueOf(account.coinType, feeEstimation.high.value)
-        else -> Value.valueOf(account.coinType, feeEstimation.normal.value)
-    }
 
     private fun getAddressLabel(address: GenericAddress): String {
         val accountId = mbwManager.getAccountId(address, account.coinType).orNull()
