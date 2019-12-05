@@ -50,6 +50,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.BtcFeeFormatter;
 import com.mycelium.wallet.activity.util.FeeFormatter;
 import com.mycelium.wallet.activity.util.FeeFormattingUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
@@ -196,7 +197,15 @@ public class TransactionDetailsActivity extends Activity {
             if (tx.getRawSize() > 0) {
                 final long txFeePerUnit = txFeeTotal / tx.getRawSize();
                 FeeFormatter feeFormatter = new FeeFormattingUtil().getFeeFormatter(_mbwManager.getSelectedAccount().getCoinType());
-                fee += (feeFormatter != null) ? feeFormatter.getFeePerUnit(txFeePerUnit) : txFeePerUnit;
+                if (feeFormatter != null) {
+                    if (feeFormatter instanceof BtcFeeFormatter) {
+                        fee += ((BtcFeeFormatter) feeFormatter).getFeePerUnitInBytes(txFeePerUnit);
+                    } else {
+                        fee += feeFormatter.getFeePerUnit(txFeePerUnit);
+                    }
+                } else {
+                    fee += txFeePerUnit;
+                }
             }
             ((TextView) findViewById(R.id.tvFee)).setText(fee);
             tvFeeAmount.setText(fee);

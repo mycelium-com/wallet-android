@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import org.web3j.utils.Convert
 import java.math.RoundingMode
+import kotlin.math.log10
 import kotlin.math.roundToLong
 
 class FeeFormattingUtil {
@@ -33,6 +34,8 @@ class BtcFeeFormatter : FeeFormatter {
     override fun getAltValue(value: Value) = "~${value.toStringWithUnit()}"
 
     override fun getFeePerUnit(value: Long) = "${(value / 1000f).roundToLong()} sat/byte"
+
+    fun getFeePerUnitInBytes(value: Long) = "$value sat/byte"
 }
 
 class EthFeeFormatter : FeeFormatter {
@@ -45,7 +48,7 @@ class EthFeeFormatter : FeeFormatter {
     }
 
     override fun getFeePerUnit(value: Long): String {
-        val length = (Math.log10(value.toDouble()) + 1).toInt()
+        val length = (log10(value.toDouble()) + 1).toInt()
         val format = getFormat(length)
         return "${Convert.fromWei(value.toBigDecimal(), format).setScale(2, RoundingMode.HALF_UP)} " +
                 "${format.toString().capitalize()}/gas"
