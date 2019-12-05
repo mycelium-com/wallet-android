@@ -11,16 +11,14 @@ import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
 
 public interface WalletAccount<A extends GenericAddress> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
+    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
             throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
     void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
@@ -65,8 +63,6 @@ public interface WalletAccount<A extends GenericAddress> {
      * @param receivingSince only include tx younger than this
      */
     List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
-
-    List<GenericTransaction> getTransactions(int offset, int limit);
 
     List<GenericOutputViewModel> getUnspentOutputViewModels();
 

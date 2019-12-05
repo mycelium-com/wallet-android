@@ -90,7 +90,6 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1683,20 +1682,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
       return history;
    }
-
-    @Override
-    public List<GenericTransaction> getTransactions(int offset, int limit) {
-        checkNotArchived();
-        List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-        List<GenericTransaction> history = new ArrayList<>();
-        for (TransactionEx tex: list) {
-            GenericTransaction tx = getTx(tex.txid.getBytes());
-            if(tx != null) {
-                history.add(tx);
-            }
-        }
-        return history;
-    }
 
     public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing

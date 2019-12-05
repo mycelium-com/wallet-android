@@ -27,14 +27,13 @@ import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bitcoinj.script.ScriptBuilder
 import java.io.IOException
-import java.math.BigInteger
 import java.util.*
 
 class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
                   , private val type: CryptoCurrency
                   , val networkParameters: NetworkParameters
-                  , val coluClient: ColuApi
-                  , val accountBacking: ColuAccountBacking
+                  , private val coluClient: ColuApi
+                  , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
                   , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
@@ -53,10 +52,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             result.add(it)
         }
         return result
-    }
-
-    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
-        return ArrayList()
     }
 
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {

@@ -144,8 +144,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getTransactionsSince(receivingSince: Long) = emptyList<GenericTransactionSummary>()
 
-    override fun getTransactions(offset: Int, limit: Int) = emptyList<GenericTransaction>()
-
     override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

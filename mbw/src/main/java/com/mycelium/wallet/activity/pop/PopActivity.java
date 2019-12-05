@@ -61,7 +61,6 @@ import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.model.TransactionDetails;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -149,18 +148,6 @@ public class PopActivity extends Activity {
    private void setText(int viewId, String value) {
       TextView textView = findViewById(viewId);
       textView.setText(value);
-   }
-
-   private long getFee(TransactionDetails tx) {
-      return sum(tx.inputs) - sum(tx.outputs);
-   }
-
-   private long sum(TransactionDetails.Item[] items) {
-      long sum = 0;
-      for (TransactionDetails.Item item : items) {
-         sum += item.value;
-      }
-      return sum;
    }
 
    private void updateUi(GenericTransactionSummary transaction) {
