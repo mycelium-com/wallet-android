@@ -23,14 +23,14 @@ import com.squareup.otto.Subscribe
 class AddressFragmentModel(
         val context: Application,
         var account: WalletAccount<*>,
-        val showBip44Path: Boolean
+        private val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<GenericAddress> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
-    val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    private val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
     var isCompressedKey: Boolean = true
     val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
@@ -50,12 +50,7 @@ class AddressFragmentModel(
     }
 
     private fun updateLabel() {
-        val metaLabel = mbwManager.metadataStorage.getLabelByAccount(account.id)
-        val label = if (metaLabel.isEmpty()) {
-            account.label
-        } else {
-            metaLabel
-        }
+        val label = mbwManager.metadataStorage.getLabelByAccount(account.id)
         val acc = account
         isCompressedKey = !(acc is SingleAddressAccount && acc.publicKey?.isCompressed == false)
         // Deprecated but not resolvable until we stop supporting API <24
