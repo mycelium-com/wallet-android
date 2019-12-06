@@ -122,7 +122,11 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        PeriodicWorkRequest update = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class, PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
+//      it will be launched with default period time MIN_PERIODIC_INTERVAL_MILLIS and flex time MIN_PERIODIC_FLEX_MILLIS
+//      since it is mandatory settings
+        PeriodicWorkRequest update = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS,
+                PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS)
                 .setConstraints(constraints)
                 .build();
 
