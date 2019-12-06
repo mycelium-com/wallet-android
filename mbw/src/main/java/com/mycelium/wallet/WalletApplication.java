@@ -49,6 +49,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 import androidx.work.Constraints;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -114,6 +115,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     private void startUpdater() {
+
+        WorkManager workManager = WorkManager.getInstance(this);
         Constraints constraints = new Constraints.Builder()
                 .build();
 
