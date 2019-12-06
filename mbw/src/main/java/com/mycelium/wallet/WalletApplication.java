@@ -48,6 +48,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -115,19 +117,16 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     }
 
     private void startUpdater() {
-
         WorkManager workManager = WorkManager.getInstance(this);
         Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
 
-        PeriodicWorkRequest save = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class, Constants.UPDATE_TIME_MINS, TimeUnit.MINUTES)
+        PeriodicWorkRequest update = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class, PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
                 .setConstraints(constraints)
-                .addTag(TAG_OUTPUT)
                 .build();
 
-        continuation = continuation.then(save);
-
-        continuation.enqueue();
+        workManager.enqueueUniquePeriodicWork(UpdateConfigWorker.class.getName(), ExistingPeriodicWorkPolicy.REPLACE, update);
     }
 
     private boolean isMainProcess() {
