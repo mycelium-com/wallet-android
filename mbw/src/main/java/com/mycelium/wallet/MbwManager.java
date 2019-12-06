@@ -280,7 +280,7 @@ public class MbwManager {
         // Preferences
         SharedPreferences preferences = getPreferences();
 
-        configuration = new WalletConfiguration(preferences, getNetwork());
+        updateConfig();
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
         mainLoopHandler.post(new Runnable() {
@@ -387,6 +387,10 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                         _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    public void updateConfig() {
+        configuration = new WalletConfiguration(getPreferences(), getNetwork());
     }
 
     private ContentResolver createContentResolver(NetworkParameters network) {

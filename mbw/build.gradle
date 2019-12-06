@@ -70,7 +70,8 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.0"
-    implementation 'androidx.work:work-runtime:2.2.0'
+    implementation "androidx.work:work-runtime:$work"
+    implementation "androidx.work:work-runtime-ktx:$work"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "de.cketti.library.changelog:ckchangelog:1.2.2"

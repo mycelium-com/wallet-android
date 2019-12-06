@@ -47,6 +47,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
+import androidx.work.Constraints;
+import androidx.work.PeriodicWorkRequest;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -57,7 +59,10 @@ import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -104,6 +109,22 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+
+        startUpdater();
+    }
+
+    private void startUpdater() {
+        Constraints constraints = new Constraints.Builder()
+                .build();
+
+        PeriodicWorkRequest save = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class, Constants.UPDATE_TIME_MINS, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .addTag(TAG_OUTPUT)
+                .build();
+
+        continuation = continuation.then(save);
+
+        continuation.enqueue();
     }
 
     private boolean isMainProcess() {
