@@ -58,18 +58,17 @@ class EthereumModule(
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
+        val result: WalletAccount<*>
+        val baseLabel: String
         when (config) {
             is EthereumMasterseedConfig -> {
                 val credentials = deriveKey()
 
                 val accountContext = createAccountContext(credentials.ecKeyPair.toUUID())
                 backing.createAccountContext(accountContext)
-
+                baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener)
-                accounts[ethAccount.id] = ethAccount
-
-                return ethAccount
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -77,16 +76,18 @@ class EthereumModule(
                         config.address.addressString.toByteArray())
                 val accountContext = createAccountContext(uuid)
                 backing.createAccountContext(accountContext)
-
+                baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                val ethAccount = EthAccount(accountContext, address = config.address, backing = ethAccountBacking, accountListener = accountListener)
-                accounts[ethAccount.id] = ethAccount
-                return ethAccount
+                result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking, accountListener = accountListener)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
             }
         }
+        accounts[result.id] = result
+        result.label = createLabel(baseLabel)
+        storeLabel(result.id, result.label)
+        return result
     }
 
     private fun ethAccountFromUUID(uuid: UUID): EthAccount {
