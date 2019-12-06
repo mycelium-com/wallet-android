@@ -121,4 +121,5 @@ public interface Constants {
    String SETTING_TOR = "useTor";
    String SETTING_DENOMINATION = "bitcoin_denomination";
    String SETTING_MINER_FEE = "miner_fee";
+   long CONFIG_UPDATE_PERIOD_MINS = 20;
 }

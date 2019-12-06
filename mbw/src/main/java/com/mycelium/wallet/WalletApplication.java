@@ -113,24 +113,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 
-        startUpdater();
-    }
-
-    private void startUpdater() {
-        WorkManager workManager = WorkManager.getInstance(this);
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-//      it will be launched with default period time MIN_PERIODIC_INTERVAL_MILLIS and flex time MIN_PERIODIC_FLEX_MILLIS
-//      since it is mandatory settings
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(UpdateConfigWorker.class,
-                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS,
-                PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS)
-                .setConstraints(constraints)
-                .build();
-
-        workManager.enqueueUniquePeriodicWork(UpdateConfigWorker.class.getName(), ExistingPeriodicWorkPolicy.REPLACE, workRequest);
+        UpdateConfigWorkerKt.start(this);
     }
 
     private boolean isMainProcess() {
