@@ -30,15 +30,11 @@ open class BtcFeeProvider(testnet: Boolean, private val wapi: Wapi, private val 
             try {
                 val response = wapi.minerFeeEstimations
                 val oldStyleFeeEstimation = response.result.feeEstimation
-                val lowPriority = oldStyleFeeEstimation.getEstimation(20)
-                val normal = oldStyleFeeEstimation.getEstimation(3)
-                val economy = oldStyleFeeEstimation.getEstimation(10)
-                val high = oldStyleFeeEstimation.getEstimation(1)
-                val newEstimation = FeeEstimationsGeneric(
-                        Value.valueOf(coinType, lowPriority!!.longValue),
-                        Value.valueOf(coinType, economy!!.longValue),
-                        Value.valueOf(coinType, normal!!.longValue),
-                        Value.valueOf(coinType, high!!.longValue),
+                fun convert(blocks: Int): Value {
+                    val estimate = oldStyleFeeEstimation.getEstimation(blocks)
+                    return Value.valueOf(coinType, estimate.longValue)
+                }
+                val newEstimation = FeeEstimationsGeneric(convert(20), convert(10), convert(3), convert(1),
                         System.currentTimeMillis()
                 )
                 //if all ok we return requested new fee estimation
@@ -48,6 +44,5 @@ open class BtcFeeProvider(testnet: Boolean, private val wapi: Wapi, private val 
                 return@withContext estimation
             }
         }
-
     }
 }

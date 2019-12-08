@@ -39,9 +39,8 @@ class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
      * @throws InvalidKeyCipher if the cipher is invalid
      */
     @Throws(InvalidKeyCipher::class)
-    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed {
-        return getMasterSeed(secureKeyValueStore, cipher)
-    }
+    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed =
+            getMasterSeed(secureKeyValueStore, cipher)
 
     /**
      * Determine whether the wallet manager has a master seed configured

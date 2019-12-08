@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.web3j.utils.Convert
-import java.lang.Exception
 import java.net.URL
 
 
@@ -27,7 +26,6 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
                     Value.valueOf(coinType, 100000000000),
                     0)
 
-
     override suspend fun updateFeeEstimationsAsync() {
         estimation = withContext(Dispatchers.IO) {
             try {
@@ -35,15 +33,9 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
                 val newEstimation = mapper.readValue(URL("https://ethgasstation.info/json/ethgasAPI.json").readText(),
                         GasStationEstimation::class.java)
                         .run {
-                            FeeEstimationsGeneric(
-                                    Value.valueOf(coinType,
-                                            Convert.toWei(safeLow.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                    Value.valueOf(coinType,
-                                            Convert.toWei(average.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                    Value.valueOf(coinType,
-                                            Convert.toWei(fast.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
-                                    Value.valueOf(coinType,
-                                            Convert.toWei(fastest.toBigDecimal(), Convert.Unit.GWEI).toBigInteger()),
+                            fun convert(value: Double) = Value.valueOf(coinType,
+                                    Convert.toWei(value.toBigDecimal(), Convert.Unit.GWEI).toBigInteger())
+                            FeeEstimationsGeneric(convert(safeLow), convert(average), convert(fast), convert(fastest),
                                     System.currentTimeMillis()
                             )
                         }
@@ -58,10 +50,10 @@ class EthFeeProvider(testnet: Boolean, private val feeBacking: FeeEstimationsBac
     /**
      * Gas station estimates are provided in GWEI*10
      */
-    class GasStationEstimation {
-        var fast: Double = 0.0
-            get() = field / 10
+    private class GasStationEstimation {
         var fastest: Double = 0.0
+            get() = field / 10
+        var fast: Double = 0.0
             get() = field / 10
         var average: Double = 0.0
             get() = field / 10
