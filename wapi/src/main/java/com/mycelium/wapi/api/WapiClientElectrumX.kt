@@ -74,27 +74,17 @@ class WapiClientElectrumX(
         As rpcClient.write() will return TimeoutException if SMALL_RESPONSE_TIMEOUT milliseconds are exceeded
         and also immediately breaks the connection, we should try to ask the same request from another
         server. It does make sense because the server could be overloaded and handle responses very slow.
-        We will repect the request in a loop until reaching a bigger timeout.
+        We will repeat the request in a loop until reaching a bigger timeout.
         Methods tryUntilTimeoutExceeded and tryUntilTimeoutExceededSingle are intended to deal with the logic above
-    * */
+    */
 
-    fun tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> Array<RpcResponse>): Array<RpcResponse> {
+    private fun <T> tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> T): T {
         val startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < timeoutMs) {
             try {
                 return func()
             } catch (ex: TimeoutException) {
-            }
-        }
-        throw TimeoutException()
-    }
-
-    fun tryUntilTimeoutExceededSingle(timeoutMs: Long, func: () -> RpcResponse): RpcResponse {
-        val startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            try {
-                return func()
-            } catch (ex: TimeoutException) {
+                // ignore
             }
         }
         throw TimeoutException()
@@ -114,7 +104,9 @@ class WapiClientElectrumX(
                 val addrScriptHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrScriptHash)))
             }
-            val unspentsArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT, { rpcClient.write(requestsList).responses })
+            val unspentsArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
+                rpcClient.write(requestsList).responses
+            }
 
             //Fill temporary indexes map in order to find right address
             requestsList.forEachIndexed { index, req ->
@@ -147,7 +139,9 @@ class WapiClientElectrumX(
                 val addrScripthHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrScripthHash)))
             }
-            val transactionHistoryArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT, { rpcClient.write(requestsList).responses })
+            val transactionHistoryArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
+                rpcClient.write(requestsList).responses
+            }
 
             val outputs = transactionHistoryArray.filter { it.hasResult }.flatMap {
                 it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable()
@@ -192,7 +186,9 @@ class WapiClientElectrumX(
         }
         try {
             val txHex = HexUtils.toHex(request.rawTransaction)
-            val response = tryUntilTimeoutExceededSingle(MAX_RESPONSE_TIMEOUT, { rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex)) })
+            val response = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
+                rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex))
+            }
 
             // TODO return back to a single RpcResponse object instead of list
             //  as we don't use several TCP clients anymore
@@ -307,11 +303,13 @@ class WapiClientElectrumX(
                             "verbose" to true))
         }.toList().chunked(GET_TRANSACTION_BATCH_LIMIT)
 
-        var resultList = ArrayList<TransactionX>()
+        val resultList = ArrayList<TransactionX>()
 
         for (batch in requestsList) {
-            var responses = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT, { rpcClient.write(batch).responses })
-            var txs = responses.mapNotNull {
+            val responses = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
+                rpcClient.write(batch).responses
+            }
+            val txs = responses.mapNotNull {
                 if (it.hasError) {
                     logger.logError("Transactions retrieval  failed: ${it.error}")
                     null
@@ -339,7 +337,9 @@ class WapiClientElectrumX(
                 requestsList.add(RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks)))
             }
 
-            val estimatesArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT, { rpcClient.write(requestsList).responses })
+            val estimatesArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
+                rpcClient.write(requestsList).responses
+            }
             val requestIdToBlocks = requestsList.map {
                 it.id to (it.params as RpcListParams<*>).value[0] as Int
             }.toMap()
@@ -359,6 +359,7 @@ class WapiClientElectrumX(
         }
     }
 
+    @Suppress("unused")
     fun serverFeatures(): ServerFeatures {
         val response = rpcClient.write(FEATURES_METHOD, RpcParams.listParams())
         return response.getResult(ServerFeatures::class.java)!!

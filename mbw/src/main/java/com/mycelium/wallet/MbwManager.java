@@ -181,6 +181,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -214,6 +215,7 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
 
+    @Nonnull
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
             if(BuildConfig.DEBUG) {

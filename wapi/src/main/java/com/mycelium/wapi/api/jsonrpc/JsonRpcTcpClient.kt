@@ -34,7 +34,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
        when the connection is back again
     */
     @Volatile private var isConnectionThreadActive = true
-    @Volatile private var isStopped = false
     @Volatile private var socket: Socket? = null
     @Volatile private var incoming : BufferedReader? = null
     @Volatile private var outgoing : BufferedOutputStream? = null
@@ -65,8 +64,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     @Throws(IllegalStateException::class)
     fun start() {
         thread(start = true) {
-            isConnectionThreadActive = true
-            while(!isStopped) {
+            while(true) {
                 if (!isConnectionThreadActive) {
                     logger.logInfo("Waiting until the connection is active again")
                     while (!isConnectionThreadActive) {
