@@ -18,10 +18,12 @@ fun start(context: Context) {
     workManager.enqueueUniquePeriodicWork(WORK_NAME_PERIODIC, ExistingPeriodicWorkPolicy.REPLACE, workRequest);
 }
 
-class UpdateConfigWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+class UpdateConfigWorker(val context: Context, params: WorkerParameters) : Worker(context, params) {
     override fun doWork(): Result {
         return try {
-            MbwManager.getInstance(applicationContext).updateConfig()
+            if (MbwManager.getInstance(context).isAppInForeground) {
+                MbwManager.getInstance(applicationContext).updateConfig()
+            }
             Result.success()
         } catch (throwable: Throwable) {
             Result.failure()
