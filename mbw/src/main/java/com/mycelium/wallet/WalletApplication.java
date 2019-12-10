@@ -107,7 +107,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 
-        UpdateConfigWorkerKt.start(this);
+        UpdateConfigWorker.start(this);
     }
 
     private boolean isMainProcess() {
@@ -181,6 +181,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
+        UpdateConfigWorker.end(this);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
