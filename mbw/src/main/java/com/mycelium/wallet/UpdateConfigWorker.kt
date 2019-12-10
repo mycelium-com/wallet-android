@@ -37,8 +37,7 @@ class UpdateConfigWorker(val context: Context, params: WorkerParameters) : Worke
 
         @JvmStatic
         fun end(context: Context) {
-            val workManager = WorkManager.getInstance(context)
-            workManager.cancelAllWork()
+            WorkManager.getInstance(context).cancelUniqueWork(WORK_NAME_PERIODIC)
         }
     }
 }
