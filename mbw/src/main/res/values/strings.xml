@@ -1330,7 +1330,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_turn_it_off">No, turn it off</string>
     <string name="turn_off">Turn off</string>
     <string name="you_abount_turn_off_mf">You are about to turn off Media Flow</string>
-    <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news and special offers.
-You could always turn it on by going Settings -> Mycelium services.
-If you only want to disable notifications, please go to Settings -> Personalization -> Notifications instead.</string>
+    <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news and special offers.\n\nYou could always turn it on by going Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications instead.</string>
 </resources>
