@@ -8,16 +8,12 @@ private const val WORK_NAME_PERIODIC = "configupdate-periodic"
 
 class UpdateConfigWorker(val context: Context, params: WorkerParameters) : Worker(context, params) {
     override fun doWork(): Result {
-        return try {
-            MbwManager.getInstance(context).run {
-                if (isAppInForeground) {
-                    updateConfig()
-                }
+        MbwManager.getInstance(context).run {
+            if (isAppInForeground) {
+                updateConfig()
             }
-            Result.success()
-        } catch (throwable: Throwable) {
-            Result.failure()
         }
+        return Result.success()
     }
 
     companion object {
