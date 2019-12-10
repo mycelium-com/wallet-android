@@ -9,17 +9,12 @@ class FeeEstimationsBacking(walletDB: WalletDB) {
     private val queries = walletDB.feeEstimationsQueries
 
     fun getEstimationForCurrency(currency: GenericAssetInfo): FeeEstimationsGeneric? {
-        val estimation = queries.selectByCurrency(currency)
-                .executeAsOneOrNull()
-        return if (estimation != null) {
-            FeeEstimationsGeneric(estimation.low, estimation.economy, estimation.normal, estimation.high, estimation.lastCheck)
-        } else {
-            null
-        }
+        val estimation = queries.selectByCurrency(currency).executeAsOneOrNull()
+                ?: return null
+        return FeeEstimationsGeneric(estimation.low, estimation.economy, estimation.normal, estimation.high, estimation.lastCheck)
     }
 
     fun updateFeeEstimation(estimation: FeeEstimation) {
         queries.insertFullObject(estimation)
     }
-
 }

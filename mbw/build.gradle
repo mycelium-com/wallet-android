@@ -110,6 +110,7 @@ dependencies {
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
+    implementation 'org.web3j:core:4.2.0-android'
 
     implementation "com.squareup.sqldelight:android-driver:1.1.4"
 
