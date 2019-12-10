@@ -6,7 +6,7 @@ import java.util.UUID;
 -- Creates table for generic account context storage
 
 CREATE TABLE IF NOT EXISTS EthContext(
-    uuid TEXT AS UUID PRIMARY KEY,
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
     nonce TEXT AS BigInteger NOT NULL,
     FOREIGN KEY (uuid)
         REFERENCES AccountContext (uuid)
