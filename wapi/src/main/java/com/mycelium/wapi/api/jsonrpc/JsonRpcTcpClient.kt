@@ -56,7 +56,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
             this.endpoints = newEndpoints
             curEndpointIndex = 0
             // Close current connection
-            isConnected.set(false)
+            synchronized(this) {
+                isConnected.set(false)
+            }
         }
     }
 
