@@ -1331,7 +1331,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="changelly_extra_id">Extra Id</string>
     <string name="you_have_36_hours_to_send_funds">You have 36 hours to send funds otherwise the transaction will be canceled automatically.</string>
     <string name="exchange_operation_id_s">Exchange operation ID: %s</string>
-    <string name="exchange_to_do_so_memo">Step 4. Copy and past the memo below.</string>
+    <string name="exchange_to_do_so_memo">Step 4. Copy and paste the memo below.</string>
     <string name="exchange_to_do_so_end">Step 5. Send funds.</string>
     <string name="summary_media_flow">Show Media Flow</string>
     <string name="are_you_interested_in_media_flow">Are you interested in Media Flow?</string>
