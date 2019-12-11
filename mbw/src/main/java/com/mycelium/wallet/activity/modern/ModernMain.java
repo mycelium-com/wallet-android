@@ -75,6 +75,7 @@ import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 import com.mycelium.wallet.activity.news.NewsActivity;
 import com.mycelium.wallet.activity.send.InstantWalletActivity;
 import com.mycelium.wallet.activity.settings.SettingsActivity;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.event.FeatureWarningsAvailable;
 import com.mycelium.wallet.event.MalformedOutgoingTransactionsFound;
 import com.mycelium.wallet.event.NewWalletVersionAvailable;
@@ -154,8 +155,10 @@ public class ModernMain extends AppCompatActivity {
 
         mViewPager.setOffscreenPageLimit(5);
         mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-        mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
-        mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
+        if(SettingsPreference.getMediaFlowEnabled()) {
+            mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
+            mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
+        }
         mAccountsTab = tabLayout.newTab().setText(getString(R.string.tab_accounts));
         mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null);
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
@@ -171,7 +174,8 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
                 addressBookConfig);
         addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
-        if (Objects.equals(getIntent().getAction(), "media_flow")) {
+        if (SettingsPreference.getMediaFlowEnabled() &&
+                Objects.equals(getIntent().getAction(), "media_flow")) {
             mNewsTab.select();
             mViewPager.setCurrentItem(TAB_ID_NEWS);
             if (getIntent().hasExtra(NewsConstants.NEWS)) {

@@ -97,6 +97,10 @@ class NewsFragment : Fragment() {
             val tab = getTab(it, tabs)
             tab?.select()
         }
+        adapter.turnOffListener = {
+            requireActivity().finish()
+            startActivity(Intent(requireContext(), ModernMain::class.java))
+        }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }

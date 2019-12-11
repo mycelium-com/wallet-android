@@ -4,6 +4,7 @@ import com.mycelium.WapiLogger
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.lang.Thread.sleep
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
@@ -17,23 +18,26 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.timerTask
 import kotlin.system.measureTimeMillis
 
+
 typealias Consumer<T> = (T) -> Unit
 
 data class TcpEndpoint(val host: String, val port: Int)
 
-open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
-                            val logger: WapiLogger) {
+open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
+                            private val logger: WapiLogger) {
     private var curEndpointIndex = (Math.random() * endpoints.size).toInt()
     private val ssf = SSLSocketFactory.getDefault() as SSLSocketFactory
+    private val isConnected = AtomicBoolean(false)
 
-    var isConnected = AtomicBoolean(false)
-    @Volatile var lastSuccessTime = System.currentTimeMillis()
-    @Volatile private var isStopped = false
+    /* isConnectionThreadActive is used to pause main connection thread
+       when the device sent a notification about no network connected and resume its execution
+       when the connection is back again
+    */
+    @Volatile private var isConnectionThreadActive = true
     @Volatile private var socket: Socket? = null
     @Volatile private var incoming : BufferedReader? = null
     @Volatile private var outgoing : BufferedOutputStream? = null
     private val nextRequestId = AtomicInteger(0)
-    private val isStarted = AtomicBoolean(false)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
     @Volatile private var currentResponceTimeout = SMALL_RESPONSE_TIMEOUT
@@ -42,13 +46,34 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
     private val callbacks = mutableMapOf<String, Consumer<AbstractResponse>>()
     private val subscriptions = mutableMapOf<String, Subscription>()
 
+    // Determines whether main connection thread execution should be paused or resumed
+    fun setActive(isActive: Boolean) {
+        isConnectionThreadActive = isActive
+    }
+
+    fun endpointsChanged(newEndpoints: Array<TcpEndpoint>) {
+        if (!this.endpoints.contentEquals(newEndpoints)) {
+            this.endpoints = newEndpoints
+            curEndpointIndex = 0
+            // Close current connection
+            synchronized(this) {
+                isConnected.set(false)
+            }
+        }
+    }
+
+    // Starts the main connection thread
     @Throws(IllegalStateException::class)
     fun start() {
-        if (isStarted.getAndSet(true)) {
-            throw IllegalStateException("RPC client could not be started twice.")
-        }
         thread(start = true) {
-            while(!isStopped) {
+            while(true) {
+                if (!isConnectionThreadActive) {
+                    logger.logInfo("Waiting until the connection is active again")
+                    while (!isConnectionThreadActive) {
+                        sleep(300)
+                    }
+                    logger.logInfo("The connection is active again, continue main connection thread loop")
+                }
                 val currentEndpoint = endpoints[curEndpointIndex]
                 try {
                     synchronized(this) {
@@ -80,7 +105,7 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
 
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
-                    while (isConnected.get()) {
+                    while (isConnected.get() && isConnectionThreadActive) {
                         val msgStart = CharArray(200)
                         incoming!!.mark(200)
                         if(incoming!!.read(msgStart) > 0) {
@@ -91,10 +116,13 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                 } catch (exception: Exception) {
                     logger.logError("Socket creation or receiving failed: ${exception.message} - ${currentEndpoint.host}:${currentEndpoint.port}")
                 }
+                logger.logInfo("Connection to ${currentEndpoint.host}:${currentEndpoint.port} closed")
                 close()
                 isConnected.set(false)
                 // Sleep for some time before moving to the next endpoint
-                Thread.sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                if (isConnectionThreadActive) {
+                    sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                }
                 if (curEndpointIndex + 1 == endpoints.size && connectionAttempt < 3) {
                     connectionAttempt++
                 }
@@ -105,28 +133,13 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         }
     }
 
-    fun getSubscriptions(): Map<String, Subscription> = subscriptions
-
-    /**
-     * Must be called to correctly stop all the threads.
-     */
-    fun stop() {
-        isConnected.set(false)
-        try {
-            socket?.close()
-        } catch (e: Exception) {
-            // we have nothing to do with this
-        }
-        isStopped = true
-    }
-
     fun notify(methodName: String, params: RpcParams) {
         internalWrite(RpcRequestOut(methodName, params).apply {
             id = nextRequestId.getAndIncrement().toString()
         }.toJson())
     }
 
-    fun renewSubscriptions() {
+    private fun renewSubscriptions() {
         logger.logInfo("Subscriptions been renewed")
         synchronized(subscriptions) {
             val toRenew = subscriptions.toMutableMap()
@@ -223,7 +236,6 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
         if (message.contains("error")) {
             logger.logError(message)
         }
-        lastSuccessTime = System.currentTimeMillis()
         val isBatched = message[0] == '['
         if (isBatched) {
             val response = BatchedRpcResponse.fromJson(incoming!!)
@@ -265,7 +277,6 @@ open class JsonRpcTcpClient(private val endpoints : Array<TcpEndpoint>,
                 outgoing!!.write(bytes)
                 outgoing!!.flush()
             } catch (ex : Exception) {
-                ex.printStackTrace()
             }
         }
     }
