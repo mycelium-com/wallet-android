@@ -30,9 +30,10 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
+                 web3jService: HttpService,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    private val web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
-    val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     private var pendingTxDisposable: Disposable? = null
 
@@ -127,7 +128,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jService)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 

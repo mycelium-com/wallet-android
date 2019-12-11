@@ -17,8 +17,7 @@ import java.net.UnknownHostException
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
-    private val web3jService = HttpService("http://parity.mycelium.com:18545")
+class EthBalanceService(val address: String, val coinType: CryptoCurrency, private val web3jService: HttpService) {
     private val web3j: Web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)

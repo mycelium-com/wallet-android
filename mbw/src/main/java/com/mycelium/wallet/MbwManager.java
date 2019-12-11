@@ -168,6 +168,8 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
+import org.web3j.protocol.http.HttpService;
+
 import kotlin.jvm.Synchronized;
 
 import java.io.IOException;
@@ -811,8 +813,8 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, networkParameters, getMetadataStorage(), accountListener));
+        HttpService web3jService = new HttpService(BuildConfig.EthServer);
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, web3jService, networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -857,9 +859,10 @@ public class MbwManager {
                 , null, null, accountEventManager));
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
                 _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
-        GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
 
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, networkParameters, getMetadataStorage(), accountListener));
+        GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
+        HttpService web3jService = new HttpService(BuildConfig.EthServer);
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, web3jService, networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
