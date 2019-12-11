@@ -35,9 +35,29 @@
 
 
     <Button
+        android:id="@+id/noButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@null"
+        android:paddingStart="16dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/no_turn_it_off"
+        android:textColor="@color/btn_text_color_selector"
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/yesButton"
+        app:layout_constraintTop_toBottomOf="@id/question" />
+
+
+    <Button
         android:id="@+id/yesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:background="@drawable/news_tab_indicator"
         android:paddingStart="16dp"
@@ -48,26 +68,8 @@
         android:textColor="@color/btn_text_color_selector"
         android:textSize="12sp"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/noButton"
-        app:layout_constraintTop_toBottomOf="@id/question" />
-
-    <Button
-        android:id="@+id/noButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/news_tab_indicator"
-        android:paddingStart="16dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="4dp"
-        android:text="@string/no_turn_it_off"
-        android:textColor="@color/btn_text_color_selector"
-        android:textSize="12sp"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintLeft_toRightOf="@id/yesButton"
+        app:layout_constraintLeft_toRightOf="@id/noButton"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/question" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

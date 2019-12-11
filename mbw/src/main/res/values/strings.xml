@@ -1325,10 +1325,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="retry">RETRY</string>
     <string name="notifications_summary">Media Flow</string>
     <string name="summary_media_flow">Show Media Flow</string>
-    <string name="are_you_interested_in_media_flow">Are you interested in Media Flow?</string>
-    <string name="yes_keep_it">Yes, keep it</string>
-    <string name="no_turn_it_off">No, turn it off</string>
-    <string name="turn_off">Turn off</string>
-    <string name="you_abount_turn_off_mf">You are about to turn off Media Flow</string>
-    <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news and special offers.\n\nYou could always turn it on by going Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications instead.</string>
+    <string name="are_you_interested_in_media_flow">Don\'t find it useful? Turn Media Flow off</string>
+    <string name="yes_keep_it">Keep it so far</string>
+    <string name="no_turn_it_off">Turn it off</string>
+    <string name="turn_off">Turn it off</string>
+    <string name="you_about_turn_off_mf">You are about to turn Media Flow off</string>
+    <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news, the wallet features reviews, Micro OTC special offers and more.\n\nYou can always turn it on in Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications.</string>
 </resources>

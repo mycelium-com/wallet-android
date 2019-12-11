@@ -38,9 +38,10 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
 import android.text.Html;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.model.Address;
@@ -167,14 +168,12 @@ public class RecordRowBuilder {
     private View.OnClickListener whatIsSyncHandler = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            AlertDialog dialog = new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog)
+            new AlertDialog.Builder(view.getContext(), R.style.MyceliumModern_Dialog_BlueButtons)
                     .setTitle(resources.getString(R.string.what_is_sync))
                     .setMessage(resources.getString(R.string.what_is_sync_description))
                     .setPositiveButton(R.string.button_ok, null)
-                    .create();
-
-            dialog.show();
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.mycelium_midblue));
+                    .create()
+                    .show();
         }
     };
 

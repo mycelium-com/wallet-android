@@ -275,7 +275,7 @@ class NewsFragment : Fragment() {
                 pageData.filter { news -> news.isFavorite(preference) }
             } else {
                 pageData
-            }
+            }.filter { news -> news.id != currentNews?.id }
             if (offset == 0) {
                 adapter.setData(list)
             } else {
