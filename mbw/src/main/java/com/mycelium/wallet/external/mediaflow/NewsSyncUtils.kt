@@ -20,6 +20,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StartupActivity
 import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
 import org.json.JSONException
@@ -109,7 +110,9 @@ object NewsSyncUtils {
                             }
                             NewsDatabase.saveNews(listOf(news))
                             LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
-                            notifyAboutMediaFlowTopics(context, listOf(news))
+                            if (SettingsPreference.mediaFLowNotificationEnabled) {
+                                notifyAboutMediaFlowTopics(context, listOf(news))
+                            }
                         }
 
                         // Start sync in random time
