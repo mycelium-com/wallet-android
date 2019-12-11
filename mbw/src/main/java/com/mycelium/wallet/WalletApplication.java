@@ -57,7 +57,9 @@ import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -106,6 +108,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+
+        UpdateConfigWorker.start(this);
     }
 
     private boolean isMainProcess() {
@@ -179,6 +183,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
+        UpdateConfigWorker.end(this);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
