@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.receive
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Transformations
 import android.content.Intent
@@ -16,10 +17,11 @@ import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
-abstract class ReceiveCoinsViewModel(val context: Application) : AndroidViewModel(context) {
-    protected val mbwManager = MbwManager.getInstance(context)!!
+abstract class ReceiveCoinsViewModel(application: Application) : AndroidViewModel(application) {
+    protected val mbwManager = MbwManager.getInstance(application)
     protected lateinit var model: ReceiveCoinsModel
     protected lateinit var account: WalletAccount<*>
+    protected val context: Context = application
     var hasPrivateKey: Boolean = false
 
     open fun init(account: WalletAccount<*>, hasPrivateKey: Boolean, showIncomingUtxo: Boolean = false) {
