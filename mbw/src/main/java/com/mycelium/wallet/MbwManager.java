@@ -192,6 +192,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -224,6 +225,7 @@ public class MbwManager {
     private Timer _addressWatchTimer;
     private final WalletDB db;
 
+    @Nonnull
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
             if(BuildConfig.DEBUG) {
@@ -588,9 +590,12 @@ public class MbwManager {
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
-        return new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+        WapiClientElectrumX wapiClientElectrumX =  new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
                 tcpEndpoints.toArray(new TcpEndpoint[0]),
                 retainingWapiLogger, version);
+
+        wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
+        return wapiClientElectrumX;
     }
 
     private void initTor() {
