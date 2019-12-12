@@ -97,7 +97,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverListChangedListener?.serverListChanged(getElectrumEndpoints())
+                    serverListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
                 }
             } catch (_: Exception) {}
         }

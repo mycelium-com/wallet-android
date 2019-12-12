@@ -1,7 +1,7 @@
 package com.mycelium.wallet.activity.settings
 
 import android.app.Activity
-import androidx.test.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import android.view.View
 import com.mycelium.wallet.R
@@ -19,7 +19,7 @@ import org.junit.Assert.assertEquals
 class SetSegwitChangeActivityTest {
     @Rule @JvmField
     val setSegwitChangeRule = ActivityTestRule(SetSegwitChangeActivity::class.java)
-    private val sharedPrefs = InstrumentationRegistry.getTargetContext().getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE)
+    private val sharedPrefs = InstrumentationRegistry.getInstrumentation().context.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE)
     private var sut: SetSegwitChangeActivity? = null
     private var radioGroup: RadioGroup? = null
 
@@ -35,8 +35,7 @@ class SetSegwitChangeActivityTest {
             sut!!.runOnUiThread {
                 val changeMode = it.toString()
                 (radioGroup!!.findViewWithTag<View>(changeMode) as? RadioButton)!!.performClick()
-                val changeModeInPrefs =  sharedPrefs.getString(Constants.CHANGE_ADDRESS_MODE,
-                        null)
+                val changeModeInPrefs =  sharedPrefs.getString(Constants.CHANGE_ADDRESS_MODE, null)
                 assertEquals(changeMode, changeModeInPrefs)
             }
         }
