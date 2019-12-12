@@ -41,12 +41,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         pendingTxDisposable = subscribeOnPendingIncomingTx()
     }
 
-    fun syncWithRemote() {
-        EtherscanIoFetcher.syncWithRemote(coinType, receivingAddress.addressString, backing) {
-            accountListener?.balanceUpdated(this)
-        }
-    }
-
     // save incoming tx we detected to the txs table
     private fun subscribeOnPendingIncomingTx(): Disposable {
         return web3j.pendingTransactionFlowable()
