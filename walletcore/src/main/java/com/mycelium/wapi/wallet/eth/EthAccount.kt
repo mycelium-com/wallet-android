@@ -35,23 +35,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     private val web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    private var pendingTxDisposable: Disposable? = null
-
-    init {
-        pendingTxDisposable = subscribeOnPendingIncomingTx()
-    }
-
-    // save incoming tx we detected to the txs table
-    private fun subscribeOnPendingIncomingTx(): Disposable {
-        return web3j.pendingTransactionFlowable()
-                .subscribe({ tx ->
-                    if (tx.to == receivingAddress.addressString) {
-                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                                tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                                valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
-                    }
-                }, {})
-    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -126,6 +109,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
+    private var incomingTxDisposable: Disposable = subscribeOnIncomingTx()
+
     override fun getAccountBalance() = accountContext.balance
 
     override fun isMineAddress(address: GenericAddress?) =
@@ -165,9 +150,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (succeed) {
             accountContext.balance = ethBalanceService.balance
             accountListener?.balanceUpdated(this)
-            if (balanceDisposable.isDisposed) {
-                balanceDisposable = subscribeOnBalanceUpdates()
-            }
             renewSubscriptions()
         }
         return succeed
@@ -238,19 +220,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun renewSubscriptions() {
-        if (pendingTxDisposable?.isDisposed == true) {
-            pendingTxDisposable = subscribeOnPendingIncomingTx()
-        }
-    }
-
-    fun stopSubscriptions() {
-        thread {
-            balanceDisposable.dispose()
-            pendingTxDisposable?.dispose()
-        }
-    }
-
     private fun subscribeOnBalanceUpdates(): Disposable {
         return ethBalanceService.balanceFlowable.subscribe({ balance ->
             accountContext.balance = balance
@@ -258,6 +227,30 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {
             logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
         })
+    }
+
+    private fun subscribeOnIncomingTx(): Disposable {
+        return ethBalanceService.incomingTxFlowable.subscribe({ tx ->
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
+        }, {})
+    }
+
+    private fun renewSubscriptions() {
+        if (balanceDisposable.isDisposed) {
+            balanceDisposable = subscribeOnBalanceUpdates()
+        }
+        if (incomingTxDisposable.isDisposed) {
+            incomingTxDisposable = subscribeOnIncomingTx()
+        }
+    }
+
+    fun stopSubscriptions() {
+        thread {
+            balanceDisposable.dispose()
+            incomingTxDisposable.dispose()
+        }
     }
 }
 
