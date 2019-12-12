@@ -127,14 +127,14 @@ class NewsAdapter(val preferences: SharedPreferences)
                     updateData()
                 }
                 holder.itemView.noButton.setOnClickListener {
-                    AlertDialog.Builder(holder.itemView.context)
-                            .setTitle(R.string.you_abount_turn_off_mf)
+                    AlertDialog.Builder(holder.itemView.context, R.style.MyceliumModern_Dialog_BlueButtons)
+                            .setTitle(R.string.you_about_turn_off_mf)
                             .setMessage(R.string.you_about_turn_off_mf_text)
-                            .setPositiveButton(R.string.turn_off) { _, p ->
+                            .setNegativeButton(R.string.turn_off) { _, p ->
                                 SettingsPreference.mediaFlowEnabled = false
                                 turnOffListener?.invoke()
                             }
-                            .setNegativeButton(R.string.button_cancel, null)
+                            .setPositiveButton(R.string.button_cancel, null)
                             .create()
                             .show()
                 }

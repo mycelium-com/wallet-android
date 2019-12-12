@@ -140,6 +140,10 @@
         <item name="android:backgroundDimAmount">0.9</item>
     </style>
 
+    <style name="MyceliumModern.Dialog.BlueButtons">
+        <item name="android:buttonStyle">@style/MyceliumButton.Blue</item>
+    </style>
+
     <style name="MyceliumModern.Dialog.Transparent" >
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -270,6 +274,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/btn_blue</item>
         <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+    <style name="MyceliumButton.Blue">
+        <item name="android:textColor">@color/button_blue_text_color</item>
     </style>
 
     <style name="MyceliumText" parent="android:TextAppearance">
