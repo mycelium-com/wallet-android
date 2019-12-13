@@ -23,11 +23,11 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val incomingTxFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address }
-    val outgoingTxFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.from == address }
+    val incomingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.from == address }
 
     val balanceFlowable: Flowable<Balance> =
-            incomingTxFlowable.mergeWith(outgoingTxFlowable)
+            incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
                 .flatMapSingle {
                     updateBalanceCache()
                     Single.just(balance)

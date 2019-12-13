@@ -43,16 +43,6 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsOneOrNull()
 
-    /**
-     * @return list of pairs (txid, timestamp)
-     */
-    fun getUnconfirmedTxid(): List<Pair<String, Long>> {
-        return queries.selectUnconfirmedTxid(uuid, mapper = { txid: String,
-                                                              timestamp: Long ->
-            Pair(txid, timestamp)
-        }).executeAsList()
-    }
-
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int) {
         queries.insertTransaction(txid, uuid, currency, blockNumber, timestamp, raw, value, gasPrice, confirmations)
