@@ -43,6 +43,16 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsOneOrNull()
 
+    /**
+     * @return list of pairs (txid, timestamp)
+     */
+    fun getUnconfirmedTxid(): List<Pair<String, Long>> {
+        return queries.selectUnconfirmedTxid(uuid, mapper = { txid: String,
+                                                              timestamp: Long ->
+            Pair(txid, timestamp)
+        }).executeAsList()
+    }
+
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int) {
         queries.insertTransaction(txid, uuid, currency, blockNumber, timestamp, raw, value, gasPrice, confirmations)
@@ -70,7 +80,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
         val outputs = if (to.isEmpty()) listOf()
-            else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
+        else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
         val transferred = if (to == ownerAddress) value else -value - fee
         return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),

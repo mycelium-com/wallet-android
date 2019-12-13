@@ -23,6 +23,11 @@ SELECT *
 FROM AccountBacking
 WHERE uuid = (?) AND txid = (?);
 
+selectUnconfirmedTxid:
+SELECT txid, timestamp
+FROM AccountBacking
+WHERE uuid = (?) AND confirmations = 0;
+
 insertTransaction:
 INSERT OR REPLACE INTO AccountBacking(txid, uuid, currency, blockNumber, timestamp, raw, value, fee, confirmations)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);

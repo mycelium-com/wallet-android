@@ -21,6 +21,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
@@ -150,6 +151,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (succeed) {
             accountContext.balance = ethBalanceService.balance
             accountListener?.balanceUpdated(this)
+            synchronizeUnconfirmedTransactions()
             renewSubscriptions()
         }
         return succeed
@@ -218,6 +220,29 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun queueTransaction(transaction: GenericTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun synchronizeUnconfirmedTransactions() {
+        val unconfirmedIds = backing.getUnconfirmedTxid()
+        unconfirmedIds.forEach {
+            val (txid, timestamp) = it
+            val remoteTx = web3j.ethGetTransactionByHash(txid).send()
+            if (!remoteTx.hasError()) {
+                if (remoteTx.result != null) {
+                    if (remoteTx.result.transactionIndexRaw != null) {
+                        // transactionIndex is not null when transaction is confirmed
+                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
+                        backing.updateTransaction(txid, remoteTx.result.blockNumber.toInt(), 1)
+                    }
+                } else {
+                    // no such transaction on remote, remove local transaction but only if it is older 5 minutes
+                    // to prevent local data removal if server still didn't process just sent tx
+                    if (System.currentTimeMillis() - timestamp >= TimeUnit.MINUTES.toMillis(5)) {
+                        backing.deleteTransaction(txid)
+                    }
+                }
+            }
+        }
     }
 
     private fun subscribeOnBalanceUpdates(): Disposable {
