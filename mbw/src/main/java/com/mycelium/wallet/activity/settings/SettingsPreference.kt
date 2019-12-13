@@ -14,6 +14,7 @@ import java.util.*
 
 object SettingsPreference {
     private val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
+    private val MEDIA_FLOW_ENABLE = "media_flow_enable"
     private val FIO_ENABLE = "fio_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
@@ -52,12 +53,11 @@ object SettingsPreference {
         get() = sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE, true)
         set(value) = sharedPreferences.edit().putBoolean(NEWS_NOTIFICATION_ENABLE, value).apply()
 
-    fun setMediaFlowCategoryNotificationEnabled(category: Category, enable: Boolean) {
-        sharedPreferences.edit().putBoolean(NEWS_NOTIFICATION_ENABLE + category.name, enable).apply()
-    }
+    @JvmStatic
+    var mediaFlowEnabled
+        get() = sharedPreferences.getBoolean(MEDIA_FLOW_ENABLE, true)
+        set(value) = sharedPreferences.edit().putBoolean(MEDIA_FLOW_ENABLE, value).apply()
 
-    fun getMediaFlowCategoryNotificationEnabled(category: Category) =
-            sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE + category.name, true)
 
     fun getPartnersHeaderTitle(): String? = getPartnersLocalized()?.title
 

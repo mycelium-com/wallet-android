@@ -2,12 +2,14 @@ package com.mycelium.wallet.external.changelly;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -28,6 +30,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC;
 import static com.mycelium.wallet.external.changelly.Constants.decimalFormat;
 
@@ -45,6 +49,18 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     @BindView(R.id.tvSendToAddress)
     TextView tvSendToAddress;
 
+    @BindView(R.id.extra_layout)
+    View extraLayout;
+
+    @BindView(R.id.payInExtraId)
+    TextView payInExtraId;
+
+    @BindView(R.id.extraIdText)
+    TextView extraIdText;
+
+    @BindView(R.id.transaction_id)
+    TextView transactionId;
+
     private ChangellyTransactionOffer offer;
     private ProgressDialog progressDialog;
     private String currency;
@@ -55,7 +71,7 @@ public class ChangellyOfferActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.changelly_offer_activity);
-        setTitle(getString(R.string.exchange_altcoins_to_btc));
+        getSupportActionBar().hide();
         ButterKnife.bind(this);
         createOffer();
     }
@@ -64,6 +80,26 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         tvFromAmount.setText(getString(R.string.value_currency, offer.currencyFrom
                 , Constants.decimalFormat.format(amount)));
         tvSendToAddress.setText(offer.payinAddress);
+        transactionId.setText(getString(R.string.exchange_operation_id_s, offer.id));
+
+        if (offer.payinExtraId != null) {
+            payInExtraId.setText(getExtraIdName(offer.currencyFrom) + ": " + offer.payinExtraId);
+            extraIdText.setText(getString(R.string.changelly_indicate_extra, getExtraIdName(offer.currencyFrom)));
+            extraLayout.setVisibility(VISIBLE);
+        } else {
+            extraLayout.setVisibility(GONE);
+        }
+    }
+
+    private String getExtraIdName(String coin) {
+        switch (coin) {
+            case Constants.XRP:
+                return getString(R.string.changelly_destination_tag);
+            case Constants.XEM:
+                return getString(R.string.changelly_message_name);
+            default:
+                return getString(R.string.changelly_memo_id_name);
+        }
     }
 
     @OnClick(R.id.tvSendToAddress)
@@ -71,6 +107,25 @@ public class ChangellyOfferActivity extends AppCompatActivity {
         if(offer != null) {
             Utils.setClipboardString(offer.payinAddress, this);
             toast("Address copied to clipboard");
+        } else {
+            toast("Something went wrong. No offer");
+        }
+    }
+
+    @OnClick(R.id.payInExtraId)
+    void clickExtraId() {
+        if(offer != null) {
+            Utils.setClipboardString(offer.payinExtraId, this);
+            toast(getExtraIdName(offer.currencyFrom) + " copied to clipboard");
+        } else {
+            toast("Something went wrong. No offer");
+        }
+    }
+    @OnClick(R.id.transaction_id)
+    void transactionId() {
+        if(offer != null) {
+            Utils.setClipboardString(offer.id, this);
+            toast("Operation id copied to clipboard");
         } else {
             toast("Something went wrong. No offer");
         }

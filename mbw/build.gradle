@@ -75,7 +75,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.0"
-    implementation 'androidx.work:work-runtime:2.2.0'
+    implementation "androidx.work:work-runtime:$workManagerVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "de.cketti.library.changelog:ckchangelog:1.2.2"
@@ -162,8 +162,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3020015
-        versionName '3.2.0.15'
+        versionCode 3020017
+        versionName '3.2.0.17'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
