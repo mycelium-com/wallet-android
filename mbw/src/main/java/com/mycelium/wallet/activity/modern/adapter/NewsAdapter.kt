@@ -6,14 +6,17 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.news.NewsUtils
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
+import kotlinx.android.synthetic.main.item_mediaflow_turn_off.view.*
 
 
 class NewsAdapter(val preferences: SharedPreferences)
@@ -29,6 +32,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     var openClickListener: ((news: News) -> Unit)? = null
     var categoryClickListener: ((category: Category) -> Unit)? = null
+    var turnOffListener: (() -> Unit)? = null
     var state = State.DEFAULT
     var isFavorite = false
 
@@ -51,6 +55,9 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     private fun updateData() {
         val data = mutableListOf<Entry>()
+        if (!preferences.getBoolean(PREF_KEEP_MF, false)) {
+            data.add(Entry(TYPE_TURN_OFF))
+        }
         when {
             dataMap.isEmpty() -> {
                 when (state) {
@@ -100,6 +107,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
+        TYPE_TURN_OFF -> NewsTurnOff(layoutInflater.inflate(R.layout.item_mediaflow_turn_off, parent, false))
         TYPE_SPACE -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
         TYPE_NEWS_CATEGORY -> NewsCategoryBtnHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_category_btn, parent, false))
         TYPE_NEWS_BIG -> NewsV2BigHolder(layoutInflater.inflate(R.layout.item_mediaflow_news_v2_big, parent, false), preferences)
@@ -113,6 +121,24 @@ class NewsAdapter(val preferences: SharedPreferences)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (item.type) {
+            TYPE_TURN_OFF -> {
+                holder.itemView.yesButton.setOnClickListener {
+                    preferences.edit().putBoolean(PREF_KEEP_MF, true).apply()
+                    updateData()
+                }
+                holder.itemView.noButton.setOnClickListener {
+                    AlertDialog.Builder(holder.itemView.context, R.style.MyceliumModern_Dialog_BlueButtons)
+                            .setTitle(R.string.you_about_turn_off_mf)
+                            .setMessage(R.string.you_about_turn_off_mf_text)
+                            .setNegativeButton(R.string.turn_off) { _, p ->
+                                SettingsPreference.mediaFlowEnabled = false
+                                turnOffListener?.invoke()
+                            }
+                            .setPositiveButton(R.string.button_cancel, null)
+                            .create()
+                            .show()
+                }
+            }
             TYPE_NEWS_LOADING -> {
                 (holder.itemView as LinearLayout).startLayoutAnimation()
             }
@@ -167,6 +193,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     companion object {
         const val PREF_FAVORITE = "favorite"
+        const val PREF_KEEP_MF = "keep_media_flow"
 
         const val TYPE_SPACE = 0
         const val TYPE_NEWS_LOADING = 1
@@ -178,6 +205,9 @@ class NewsAdapter(val preferences: SharedPreferences)
         const val TYPE_NEWS_ITEM_LOADING = 5
         const val TYPE_NEWS_NO_BOOKMARKS = 6
         const val TYPE_NEWS_EMPTY = 7
+
+        const val TYPE_TURN_OFF = 8
+
 
         val ALL = Category("All")
     }

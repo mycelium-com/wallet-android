@@ -59,7 +59,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Provider;
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -116,10 +118,14 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         PackageRemovedReceiver.register(getApplicationContext());
         if(isMainProcess()) {
             NewsDatabase.INSTANCE.initialize(this);
-            NewsSyncUtils.startNewsUpdateRepeating(this);
+            if(SettingsPreference.getMediaFlowEnabled()) {
+                NewsSyncUtils.startNewsUpdateRepeating(this);
+            }
         }
         FirebaseApp.initializeApp(this);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
+
+        UpdateConfigWorker.start(this);
     }
 
     private boolean isMainProcess() {
@@ -193,6 +199,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
     public void onTerminate() {
         super.onTerminate();
         unregisterReceiver(networkChangedReceiver);
+        UpdateConfigWorker.end(this);
     }
 
     private class ApplicationLifecycleHandler implements ActivityLifecycleCallbacks {
