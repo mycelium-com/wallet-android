@@ -3,6 +3,7 @@ package com.mycelium.wallet
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.mycelium.wallet.event.SyncFailed
 
 class NetworkChangedReceiver : BroadcastReceiver() {
     // We receive this event on wallet start, but this would start heavy init, which we don't want to.
@@ -15,6 +16,9 @@ class NetworkChangedReceiver : BroadcastReceiver() {
         if (intent.action == "android.net.conn.CONNECTIVITY_CHANGE") {
             val mbwManager = MbwManager.getInstance(context)
             val connected = Utils.isConnected(context)
+            if (!connected){
+                MbwManager.getEventBus().post(SyncFailed())
+            }
             mbwManager.getWalletManager(false).isNetworkConnected = connected
             mbwManager.wapi.setNetworkConnected(connected)
         }
