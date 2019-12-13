@@ -18,4 +18,7 @@ public class Constants {
     public static final String FROM_AMOUNT = "from_amount";
     public static final String TO_AMOUNT = "to_amount";
     public static final String ABOUT = "≈ ";
+
+    public static final String XRP = "xrp";
+    public static final String XEM = "xem";
 }

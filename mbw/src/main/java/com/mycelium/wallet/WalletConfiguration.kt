@@ -52,11 +52,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     val gson = GsonBuilder().create()
 
-    init {
-        updateConfig()
-    }
-
-    // Makes a request to S3 storage to retrieve nodes-b.json and parses it to extract electrum servers list
+    // Makes a request to S3 storage to retrieve nodes.json and parses it to extract electrum servers list
     fun updateConfig() {
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {

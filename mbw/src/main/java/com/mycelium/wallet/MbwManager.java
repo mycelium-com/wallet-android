@@ -207,7 +207,7 @@ public class MbwManager {
     @Nonnull
     public static synchronized MbwManager getInstance(Context context) {
         if (_instance == null) {
-            if(BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 StrictMode.ThreadPolicy threadPolicy = StrictMode.allowThreadDiskReads();
                 _instance = new MbwManager(context.getApplicationContext());
                 StrictMode.setThreadPolicy(threadPolicy);
@@ -264,14 +264,14 @@ public class MbwManager {
 
     private MbwManager(Context evilContext) {
         Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
-        _wapiLogs  = Queues.synchronizedQueue(unsafeWapiLogs);
+        _wapiLogs = Queues.synchronizedQueue(unsafeWapiLogs);
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
         _environment = MbwEnvironment.verifyEnvironment();
 
         // Preferences
         SharedPreferences preferences = getPreferences();
 
-        configuration = new WalletConfiguration(preferences, getNetwork());
+        updateConfig();
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
         mainLoopHandler.post(new Runnable() {
@@ -378,6 +378,14 @@ public class MbwManager {
                 _environment.getBlockExplorerList(),
                 preferences.getString(Constants.BLOCK_EXPLORER,
                         _environment.getBlockExplorerList().get(0).getIdentifier()));
+    }
+
+    public void updateConfig() {
+        if (configuration == null) {
+            configuration = new WalletConfiguration(getPreferences(), getNetwork());
+        }
+
+        configuration.updateConfig();
     }
 
     private ContentResolver createContentResolver(NetworkParameters network) {
@@ -516,9 +524,9 @@ public class MbwManager {
         this.changeAddressMode = changeAddressMode;
         BTCSettings currencySettings = (BTCSettings) _walletManager.getCurrencySettings(BitcoinHDModule.ID);
         if (currencySettings != null) {
-           currencySettings.setChangeAddressMode(changeAddressMode);
-           _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
-           getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
+            currencySettings.setChangeAddressMode(changeAddressMode);
+            _walletManager.setCurrencySettings(BitcoinHDModule.ID, currencySettings);
+            getEditor().putString(Constants.CHANGE_ADDRESS_MODE, changeAddressMode.toString()).apply();
         }
     }
 
@@ -528,16 +536,16 @@ public class MbwManager {
      */
     private void migrate() {
         int fromVersion = getPreferences().getInt("upToDateVersion", 0);
-        if(fromVersion < 20021) {
+        if (fromVersion < 20021) {
             migrateOldKeys();
         }
-        if(fromVersion < 2120029) {
+        if (fromVersion < 2120029) {
             // set default address type to P2PKH for uncompressed SA accounts
-            for(UUID accountId : _walletManager.getAccountIds()) {
+            for (UUID accountId : _walletManager.getAccountIds()) {
                 WalletAccount account = _walletManager.getAccount(accountId);
                 if (account instanceof SingleAddressAccount) {
                     PublicKey pubKey = ((SingleAddressAccount) account).getPublicKey();
-                    if(pubKey != null && !pubKey.isCompressed()) {
+                    if (pubKey != null && !pubKey.isCompressed()) {
                         ((SingleAddressAccount) account).setDefaultAddressType(AddressType.P2PKH);
                     }
                 }
@@ -669,7 +677,7 @@ public class MbwManager {
 
         SecureKeyValueStore coluSecureKeyValueStore = new SecureKeyValueStore(coluBacking, new AndroidRandomSource());
 
-        SSLSocketFactory socketFactory = new DelegatingSSLSocketFactory((SSLSocketFactory)SSLSocketFactory.getDefault() ) {
+        SSLSocketFactory socketFactory = new DelegatingSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault()) {
             @Override
             protected SSLSocket configureSocket(SSLSocket socket) throws IOException {
                 TrafficStats.tagSocket(socket);
@@ -699,9 +707,11 @@ public class MbwManager {
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
         private WalletManager walletManager;
+
         AccountEventManager(WalletManager walletManager) {
             this.walletManager = walletManager;
         }
+
         @Override
         public void onEvent(UUID accountId, WalletManager.Event event) {
             _eventTranslator.onAccountEvent(walletManager, accountId, event);
@@ -765,7 +775,7 @@ public class MbwManager {
     @Synchronized
     private LoadingProgressTracker getMigrationProgressTracker() {
         if (migrationProgressTracker == null) {
-            migrationProgressTracker =  new LoadingProgressTracker(_applicationContext);
+            migrationProgressTracker = new LoadingProgressTracker(_applicationContext);
         }
         return migrationProgressTracker;
     }
@@ -972,7 +982,7 @@ public class MbwManager {
             pinDialog.setOnPinValid(new PinDialog.OnPinEntered() {
                 @Override
                 public void pinEntered(final PinDialog pinDialog, Pin pin) {
-                    if(failedPinCount > 0) {
+                    if (failedPinCount > 0) {
                         long millis = (long) (Math.pow(1.2, failedPinCount) * 10);
                         try {
                             Thread.sleep(millis);
@@ -1028,7 +1038,7 @@ public class MbwManager {
                     }
                 }
             });
-            if(!activity.isFinishing()) {
+            if (!activity.isFinishing()) {
                 pinDialog.show();
             }
         } else {
@@ -1149,7 +1159,7 @@ public class MbwManager {
 
     public void reportIgnoredException(String message, Throwable e) {
         if (_httpErrorCollector != null) {
-            if(null != message && message.length() > 0) {
+            if (null != message && message.length() > 0) {
                 message += "\n";
             } else {
                 message = "";
@@ -1439,7 +1449,7 @@ public class MbwManager {
     }
 
     private void pinOkForOneS() {
-        if(pinOkTimeoutHandle != null) {
+        if (pinOkTimeoutHandle != null) {
             pinOkTimeoutHandle.cancel(true);
         }
         lastPinAgeOkay.set(true);

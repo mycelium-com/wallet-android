@@ -17,6 +17,9 @@ import java.util.*
 class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
     override fun doWork(): Result {
+        if(!SettingsPreference.mediaFlowEnabled) {
+            return Result.success()
+        }
         val preference = context.getSharedPreferences(NewsConstants.NEWS_PREF, Context.MODE_PRIVATE)!!
         val lastUpdateTime = preference.getString(NewsConstants.UPDATE_TIME, null)
         val updateTime = SimpleDateFormat("yyyy-MM-dd", Locale.UK).format(Date())
