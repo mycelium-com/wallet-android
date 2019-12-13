@@ -158,7 +158,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun getBlockChainHeight(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return accountContext.blockHeight
     }
 
     override fun canSpend() = credentials != null

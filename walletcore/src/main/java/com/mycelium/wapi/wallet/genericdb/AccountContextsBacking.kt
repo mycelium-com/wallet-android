@@ -18,7 +18,7 @@ open class AccountContextsBacking(walletDB: WalletDB) : GenericBacking<AccountCo
     }
 
     override fun updateAccountContext(context: AccountContext) {
-        queries.update(context.accountName, context.balance, context.archived, context.uuid)
+        queries.update(context.accountName, context.balance, context.archived, context.blockHeight, context.uuid)
     }
 
     override fun deleteAccountContext(uuid: UUID) {

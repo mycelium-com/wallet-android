@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS AccountContext (
     currency TEXT AS CryptoCurrency NOT NULL,
     accountName TEXT NOT NULL,
     balance TEXT AS Balance NOT NULL,
-    archived INTEGER AS Boolean DEFAULT 0 NOT NULL
+    archived INTEGER AS Boolean DEFAULT 0 NOT NULL,
+    blockHeight INTEGER AS Int DEFAULT 0 NOT NULL
 );
 
 selectAll:
@@ -22,16 +23,16 @@ FROM AccountContext
 WHERE uuid = (?);
 
 insert:
-INSERT INTO AccountContext(uuid, currency, accountName, balance, archived)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO AccountContext(uuid, currency, accountName, balance, archived, blockHeight)
+VALUES (?, ?, ?, ?, ?, ?);
 
 insertFullObject:
-INSERT INTO AccountContext(uuid, currency, accountName, balance, archived)
+INSERT INTO AccountContext(uuid, currency, accountName, balance, archived, blockHeight)
 VALUES ?;
 
 update:
 UPDATE AccountContext
-SET accountName = (?), balance = (?), archived = (?)
+SET accountName = (?), balance = (?), archived = (?), blockHeight = (?)
 WHERE uuid = (?);
 
 delete:

@@ -13,9 +13,10 @@ class EthAccountContext(override val uuid: UUID,
                         balance: Balance,
                         listener: (EthAccountContext) -> Unit,
                         archived: Boolean = false,
+                        blockHeight: Int = 0,
                         nonce: BigInteger = BigInteger.ZERO) :
         EthContext by EthContext.Impl(uuid, nonce),
-        AccountContextImpl<EthAccountContext>(uuid, currency, accountName, balance, listener, archived) {
+        AccountContextImpl<EthAccountContext>(uuid, currency, accountName, balance, listener, archived, blockHeight) {
     override var nonce = nonce
         set(value) {
             field = value
