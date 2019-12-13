@@ -97,6 +97,10 @@ class NewsFragment : Fragment() {
             val tab = getTab(it, tabs)
             tab?.select()
         }
+        adapter.turnOffListener = {
+            requireActivity().finish()
+            startActivity(Intent(requireContext(), ModernMain::class.java))
+        }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -271,7 +275,7 @@ class NewsFragment : Fragment() {
                 pageData.filter { news -> news.isFavorite(preference) }
             } else {
                 pageData
-            }
+            }.filter { news -> news.id != currentNews?.id }
             if (offset == 0) {
                 adapter.setData(list)
             } else {

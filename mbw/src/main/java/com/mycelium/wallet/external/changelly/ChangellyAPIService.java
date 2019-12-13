@@ -36,6 +36,7 @@ public interface ChangellyAPIService {
         public double amountTo;
         public String payinAddress;
         public String payoutAddress;
+        public String payoutExtraId;
         public String createdAt;
     }
 

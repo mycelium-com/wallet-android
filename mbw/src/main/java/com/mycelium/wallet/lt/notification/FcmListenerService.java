@@ -39,7 +39,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
+
 import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
@@ -49,6 +49,7 @@ import com.mycelium.lt.api.LtApi;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.PinProtectedActivity;
+import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
@@ -71,7 +72,8 @@ public class FcmListenerService extends FirebaseMessagingService {
       Log.d(TAG, "Message data: " + data);
 
       // Check if message contains a data payload.
-        if (MEDIA_TOPIC.equalsIgnoreCase(remoteMessage.getFrom())) {
+        if (MEDIA_TOPIC.equalsIgnoreCase(remoteMessage.getFrom())
+                && SettingsPreference.getMediaFlowEnabled()) {
             NewsSyncUtils.handle(this, remoteMessage);
         } else if (data.size() > 0 && key != null) {
          Log.d(TAG, "Message data payload: " + remoteMessage.getData());
