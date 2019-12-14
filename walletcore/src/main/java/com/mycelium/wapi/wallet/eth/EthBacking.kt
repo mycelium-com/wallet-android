@@ -18,9 +18,10 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: GenericBac
                        accountName: String,
                        archived: Boolean,
                        balance: Balance,
+                       blockHeight: Int,
                        nonce: BigInteger ->
                 EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        archived, nonce)
+                        archived, blockHeight, nonce)
             })
             .executeAsList()
 
@@ -30,9 +31,10 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: GenericBac
                        accountName: String,
                        archived: Boolean,
                        balance: Balance,
+                       blockHeight: Int,
                        nonce: BigInteger ->
                 EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
-                        archived, nonce)
+                        archived, blockHeight, nonce)
             })
             .executeAsOneOrNull()
 

@@ -18,6 +18,7 @@ import org.web3j.crypto.Bip32ECKeyPair
 import org.web3j.crypto.Bip32ECKeyPair.HARDENED_BIT
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
+import org.web3j.protocol.http.HttpService
 import java.util.*
 
 
@@ -25,6 +26,7 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
+        private val web3jService: HttpService,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
@@ -68,7 +70,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener)
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jService)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -78,7 +80,8 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking, accountListener = accountListener)
+                result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
+                        accountListener = accountListener, web3jService = web3jService)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -96,14 +99,15 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
             val accountContext = createAccountContext(uuid)
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking, accountListener = accountListener)
+            val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
+                    accountListener = accountListener, web3jService = web3jService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -150,6 +154,7 @@ class EthereumModule(
                     accountContextInDB.balance,
                     backing::updateAccountContext,
                     accountContextInDB.archived,
+                    accountContextInDB.blockHeight,
                     accountContextInDB.nonce)
         } else {
             EthAccountContext(

@@ -17,15 +17,17 @@ import java.net.UnknownHostException
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class EthBalanceService(val address: String, val coinType: CryptoCurrency) {
-    private val web3jService = HttpService("http://parity.mycelium.com:18545")
+class EthBalanceService(val address: String, val coinType: CryptoCurrency, private val web3jService: HttpService) {
     private val web3j: Web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
+    val incomingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.from == address }
+
     val balanceFlowable: Flowable<Balance> =
-        web3j.pendingTransactionFlowable().filter { tx -> tx.to == address || tx.from == address }
+            incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
                 .flatMapSingle {
                     updateBalanceCache()
                     Single.just(balance)

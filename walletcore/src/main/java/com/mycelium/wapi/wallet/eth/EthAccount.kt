@@ -21,6 +21,7 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
@@ -30,33 +31,11 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
+                 web3jService: HttpService,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
+    private val web3j = Web3j.build(web3jService)
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
-    val web3j: Web3j = Web3j.build(HttpService("http://parity.mycelium.com:18545"))
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    private var pendingTxDisposable: Disposable? = null
-
-    init {
-        pendingTxDisposable = subscribeOnPendingIncomingTx()
-    }
-
-    fun syncWithRemote() {
-        EtherscanIoFetcher.syncWithRemote(coinType, receivingAddress.addressString, backing) {
-            accountListener?.balanceUpdated(this)
-        }
-    }
-
-    // save incoming tx we detected to the txs table
-    private fun subscribeOnPendingIncomingTx(): Disposable {
-        return web3j.pendingTransactionFlowable()
-                .subscribe({ tx ->
-                    if (tx.to == receivingAddress.addressString) {
-                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                                tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                                valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
-                    }
-                }, {})
-    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -127,9 +106,11 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jService)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
+
+    private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -166,20 +147,26 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        val succeed = ethBalanceService.updateBalanceCache()
-        if (succeed) {
-            accountContext.balance = ethBalanceService.balance
-            accountListener?.balanceUpdated(this)
-            if (balanceDisposable.isDisposed) {
-                balanceDisposable = subscribeOnBalanceUpdates()
-            }
-            renewSubscriptions()
+        if (!ethBalanceService.updateBalanceCache()) {
+            return false
         }
-        return succeed
+        accountContext.balance = ethBalanceService.balance
+        accountListener?.balanceUpdated(this)
+
+        if (!syncBlockHeight()) {
+            return false
+        }
+
+        if (!syncTransactions()) {
+            return false
+        }
+
+        renewSubscriptions()
+        return true
     }
 
     override fun getBlockChainHeight(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return accountContext.blockHeight
     }
 
     override fun canSpend() = credentials != null
@@ -243,17 +230,59 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun renewSubscriptions() {
-        if (pendingTxDisposable?.isDisposed == true) {
-            pendingTxDisposable = subscribeOnPendingIncomingTx()
+    private fun syncBlockHeight(): Boolean {
+        try {
+            val latestBlock = web3j.ethBlockNumber().send()
+            if (latestBlock.hasError()) {
+                return false
+            }
+            accountContext.blockHeight = latestBlock.blockNumber.toInt()
+            return true
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
+            return false
         }
     }
 
-    fun stopSubscriptions() {
-        thread {
-            balanceDisposable.dispose()
-            pendingTxDisposable?.dispose()
+    /**
+     * during this sync we update transactions confirmations number
+     * and check for local transactions that have been created more than 5 minutes ago
+     * but are missing on the server and remove them from local db
+     * assuming the transactions haven't been propagated (transaction queueing for eth not supported yet)
+     */
+    private fun syncTransactions(): Boolean {
+        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
+                receivingAddress.addressString)
+        localTransactions.forEach {
+            try {
+                val remoteTx = web3j.ethGetTransactionByHash("0x" + it.idHex).send()
+                if (!remoteTx.hasError()) {
+                    if (remoteTx.result != null) {
+                        // blockNumber is not null when transaction is confirmed
+                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
+                        if (remoteTx.result.blockNumberRaw != null) {
+                            // "it.height == -1" indicates that this is a newly created transaction
+                            // and we haven't received any information about it's confirmation from the server yet
+                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
+                            else accountContext.blockHeight - remoteTx.result.blockNumber.toInt()
+                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
+                        }
+                    } else {
+                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
+                        // to prevent local data removal if server still didn't process just sent tx
+                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
+                            backing.deleteTransaction("0x" + it.idHex)
+                        }
+                    }
+                } else {
+                    return false
+                }
+            } catch (e: Exception) {
+                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
+                return false
+            }
         }
+        return true
     }
 
     private fun subscribeOnBalanceUpdates(): Disposable {
@@ -263,6 +292,30 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {
             logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
         })
+    }
+
+    private fun subscribeOnIncomingTx(): Disposable {
+        return ethBalanceService.incomingTxsFlowable.subscribe({ tx ->
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
+        }, {})
+    }
+
+    private fun renewSubscriptions() {
+        if (balanceDisposable.isDisposed) {
+            balanceDisposable = subscribeOnBalanceUpdates()
+        }
+        if (incomingTxsDisposable.isDisposed) {
+            incomingTxsDisposable = subscribeOnIncomingTx()
+        }
+    }
+
+    fun stopSubscriptions() {
+        thread {
+            balanceDisposable.dispose()
+            incomingTxsDisposable.dispose()
+        }
     }
 }
 
