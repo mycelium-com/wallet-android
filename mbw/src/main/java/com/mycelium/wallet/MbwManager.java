@@ -834,6 +834,13 @@ public class MbwManager {
         return walletManager;
     }
 
+    @Nonnull
+    public List<String> getCryptocurrenciesSorted() {
+        List<String> cryptocurrencies = getWalletManager(false).getCryptocurrenciesNames();
+        Collections.sort(cryptocurrencies, String::compareToIgnoreCase);
+        return cryptocurrencies;
+    }
+
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
         private WalletManager walletManager;
 
