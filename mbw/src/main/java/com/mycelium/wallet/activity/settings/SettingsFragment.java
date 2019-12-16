@@ -382,7 +382,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, DenominationFragment.newInstance(denominationScreen.getKey()))
+                        .replace(R.id.fragment_container, new DenominationFragment(denominationScreen.getKey()))
                         .addToBackStack("bitcoin_denomination")
                         .commitAllowingStateLoss();
                 return true;
@@ -399,7 +399,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, ExchangeSourcesFragment.newInstance(exchangeSourceScreen.getKey()))
+                        .replace(R.id.fragment_container, new ExchangeSourcesFragment(exchangeSourceScreen.getKey()))
                         .addToBackStack("exchange_source")
                         .commitAllowingStateLoss();
                 return true;
@@ -411,7 +411,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, BlockExplorersFragment.newInstance(blockExplorerScreen.getKey()))
+                        .replace(R.id.fragment_container, new BlockExplorersFragment(blockExplorerScreen.getKey()))
                         .addToBackStack("block_explorer")
                         .commitAllowingStateLoss();
                 return true;
@@ -427,7 +427,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         .beginTransaction()
                         .setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,
                                 R.anim.slide_left_in, R.anim.slide_right_out)
-                        .replace(R.id.fragment_container, MinerFeeFragment.newInstance(minerFeeScreen.getKey()))
+                        .replace(R.id.fragment_container, new MinerFeeFragment(minerFeeScreen.getKey()))
                         .addToBackStack("miner_fee")
                         .commitAllowingStateLoss();
                 return true;
