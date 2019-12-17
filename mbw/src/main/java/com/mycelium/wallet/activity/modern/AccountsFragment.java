@@ -113,7 +113,6 @@ import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
