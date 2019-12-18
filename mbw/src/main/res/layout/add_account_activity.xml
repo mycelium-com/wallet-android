@@ -68,24 +68,13 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
-        <Button
-                android:id="@+id/btHdBchCreate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:text="@string/hd_account_bch"
-                android:layout_marginTop="@dimen/margin_medium"
-                android:layout_marginBottom="@dimen/margin_medium"/>
-
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-            android:layout_marginTop="16dp"
+                android:layout_marginTop="16dp"
                 android:text="@string/colu_account_notes"
                 android:id="@+id/textView2"
                 android:layout_marginBottom="20dp" />
