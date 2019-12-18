@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.fio
 
 import com.mrd.bitlib.crypto.Bip39
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.crypto.PublicKey
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.wallet.AesKeyCipher
@@ -17,12 +18,9 @@ import org.mockito.Mockito
 class FioKeyManagerTest {
     val masterSeedWords = "valley alien library bread worry brother bundle hammer loyal barely dune brave".split(" ")
     val fioAddress = "FIO5kJKNHwctcfUM5XZyiWSqSTM5HTzznJP9F3ZdbhaQAHEVq575o"
-    val privKey: InMemoryPrivateKey
     val sut: FioKeyManager
 
     init {
-        val base58PrivKey = "5Kbb37EAqQgZ9vWUHoPiC2uXYhyGSFNbL6oiDp24Ea1ADxV1qnu"
-        privKey = InMemoryPrivateKey.fromBase58String(base58PrivKey, NetworkParameters.productionNetwork).get()
         val backing = InMemoryBtcWalletManagerBacking()
         val fakeRandomSource = Mockito.mock<RandomSource>(RandomSource::class.java)
         val store = SecureKeyValueStore(backing, fakeRandomSource)
@@ -34,15 +32,8 @@ class FioKeyManagerTest {
     }
 
     @Test
-    fun getFioPublicKey() {
-        val actualPublicKey = sut.getFioPublicKey()
-        val expectPublicKey = privKey.publicKey
-        Assert.assertEquals(expectPublicKey, actualPublicKey)
-    }
-
-    @Test
     fun formatPubKey() {
-        val actualPublicKey = sut.getFioPublicKey()
+        val actualPublicKey = sut.getFioPublicKey(0)
         Assert.assertEquals(fioAddress, sut.formatPubKey(actualPublicKey))
     }
 }
