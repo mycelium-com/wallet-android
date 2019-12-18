@@ -4,6 +4,7 @@ import com.mrd.bitlib.bitcoinj.Base58
 import com.mrd.bitlib.crypto.BipDerivationType
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.crypto.PublicKey
+import com.mrd.bitlib.crypto.digest.RIPEMD160Digest
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mycelium.wapi.wallet.AesKeyCipher
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
@@ -23,7 +24,11 @@ class FioKeyManager(private val masterSeedManager: MasterSeedManager) {
     fun getFioPublicKey(accountIndex: Int) = getFioPrivateKey(accountIndex).publicKey
 
     fun formatPubKey(publicKey: PublicKey): String {
-        var hash = Ripemd160.getHash(publicKey.publicKeyBytes).slice(IntRange(0,3))
-        return "FIO" + Base58.encode(publicKey.publicKeyBytes + hash)
+        val out = ByteArray(20)
+        val ripeMD160 = RIPEMD160Digest()
+        ripeMD160.update(publicKey.publicKeyBytes, 0, publicKey.publicKeyBytes.size)
+        ripeMD160.doFinal(out, 0)
+        var slicedHash = out.slice(IntRange(0,3))
+        return "FIO" + Base58.encode(publicKey.publicKeyBytes + slicedHash)
     }
 }
