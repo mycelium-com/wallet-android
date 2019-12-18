@@ -313,8 +313,12 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     fun stopSubscriptions() {
         thread {
-            balanceDisposable.dispose()
-            incomingTxsDisposable.dispose()
+            if (!balanceDisposable.isDisposed) {
+                balanceDisposable.dispose()
+            }
+            if (!incomingTxsDisposable.isDisposed) {
+                incomingTxsDisposable.dispose()
+            }
         }
     }
 }
