@@ -3,11 +3,11 @@ package com.mycelium.wallet
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.mycelium.wallet.event.SyncFailed
 
 class NetworkChangedReceiver : BroadcastReceiver() {
     // We receive this event on wallet start, but this would start heavy init, which we don't want to.
     var wasInited: Boolean = false
+
     override fun onReceive(context: Context, intent: Intent) {
         if (!wasInited) {
             wasInited = true
