@@ -452,15 +452,11 @@ public class ModernMain extends AppCompatActivity {
                     syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                     counter++;
                 }
-
-                boolean started = _mbwManager.getWalletManager(false).startSynchronization(syncMode);
-                if (!started) {
-                    MbwManager.getEventBus().post(new SyncFailed());
+                if (startSynchronization(syncMode)){
+                    showRefresh(); // without this call sometime user not see click feedback
                 }
-
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
-                showRefresh(); // without this call sometime user not see click feedback
                 return true;
             case R.id.miHelp:
                 openMyceliumHelp();
@@ -471,7 +467,7 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
-                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+                startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
                 break;
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
@@ -480,6 +476,13 @@ public class ModernMain extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean startSynchronization(SyncMode syncMode) {
+        boolean started = _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+        if (!started) {
+            MbwManager.getEventBus().post(new SyncFailed());
+        }
+        return started;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
