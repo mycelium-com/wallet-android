@@ -106,7 +106,6 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
@@ -318,11 +317,11 @@ public class AccountsFragment extends Fragment {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                    address, ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
+                                    address, getBalanceString(accountToDelete.getAccountBalance()));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
+                                    getBalanceString(accountToDelete.getAccountBalance()));
                         }
                     } else {
                         if (label.length() != 0) {
@@ -415,14 +414,6 @@ public class AccountsFragment extends Fragment {
                     finishCurrentActionMode();
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
                     _toaster.toast(R.string.account_deleted, false);
-                }
-            }
-
-            private Value getBalance(WalletAccount account) {
-                if (account.isArchived()) {
-                    return null;
-                } else {
-                    return account.getAccountBalance().confirmed;
                 }
             }
 
