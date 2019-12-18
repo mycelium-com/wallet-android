@@ -1304,8 +1304,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // might change right when we make a copy
       BalanceSatoshis b = _cachedBalance;
       return b != null ? new BalanceSatoshis(b.confirmed, b.pendingReceiving, b.pendingSending, b.pendingChange, b.updateTime,
-              b.blockHeight, isSynchronizing(), b.allowsZeroConfSpending)
-              : new BalanceSatoshis(0, 0, 0, 0, 0, 0, isSynchronizing(), false);
+              b.blockHeight, isSyncing(), b.allowsZeroConfSpending)
+              : new BalanceSatoshis(0, 0, 0, 0, 0, 0, isSyncing(), false);
    }
 
    @Override
@@ -1549,8 +1549,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    // local cache for received risk assessments for unconfirmed transactions - does not get persisted in the db
    protected HashMap<Sha256Hash, ConfirmationRiskProfileLocal> riskAssessmentForUnconfirmedTx = new HashMap<>();
-
-   public abstract boolean isSynchronizing();
 
    public class PublicKeyRing implements IPublicKeyRing {
       @Override

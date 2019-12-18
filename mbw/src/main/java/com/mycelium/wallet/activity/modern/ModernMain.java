@@ -453,7 +453,10 @@ public class ModernMain extends AppCompatActivity {
                     counter++;
                 }
 
-                _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+                boolean started = _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+                if (!started) {
+                    MbwManager.getEventBus().post(new SyncFailed());
+                }
 
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
@@ -504,9 +507,13 @@ public class ModernMain extends AppCompatActivity {
             if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
                 showRefresh();
             } else {
-                refreshItem.setActionView(null);
+                hideRefresh();
             }
         }
+    }
+
+    private void hideRefresh() {
+        refreshItem.setActionView(null);
     }
 
     private void showRefresh() {
@@ -542,6 +549,7 @@ public class ModernMain extends AppCompatActivity {
 
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
+        hideRefresh();
         _toaster.toastConnectionError();
     }
 

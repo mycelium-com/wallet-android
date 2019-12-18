@@ -94,8 +94,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     val uuid: UUID = CoinapultUtils.getGuidForAsset(currency, accountKey.publicKey.publicKeyBytes)
     protected var cachedBalance = Balance(Value.zeroValue(coinType), Value.zeroValue(coinType)
             , Value.zeroValue(coinType), Value.zeroValue(coinType))
-    @Volatile
-    protected var _isSynchronizing: Boolean = false
 
     var address: GenericAddress? = context.address
 
@@ -141,8 +139,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun dropCachedData() {
     }
 
-    override fun isSynchronizing(): Boolean = _isSynchronizing
-
     override fun getCoinType(): CryptoCurrency = currency
 
     override fun getBlockChainHeight(): Int = 0
@@ -179,9 +175,6 @@ class CoinapultAccount(val context: CoinapultAccountContext, val accountKey: InM
     override fun getAccountBalance(): Balance = cachedBalance
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        _isSynchronizing = true
-        // Coinapult is currently disabled
-        _isSynchronizing = false
         return true
     }
 

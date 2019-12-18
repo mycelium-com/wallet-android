@@ -202,7 +202,7 @@ public class SendInitializationActivity extends Activity {
       if (isFinishing()) {
          return;
       }
-      if (_account.isSynchronizing()) {
+      if (_account.isSyncing()) {
          // wait till its finished syncing
          return;
       }

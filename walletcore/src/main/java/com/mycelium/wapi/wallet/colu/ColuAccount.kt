@@ -106,9 +106,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     protected var uuid: UUID
     var coluLabel: String? = null
 
-    @Volatile
-    protected var _isSynchronizing: Boolean = false
-
     protected var cachedBalance: Balance
     private val addressList: Map<AddressType, BtcAddress>
 
@@ -307,8 +304,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun isVisible() = true
 
     override fun isDerivedFromInternalMasterseed(): Boolean = false
-
-    override fun isSynchronizing() = _isSynchronizing
 
     override fun broadcastOutgoingTransactions(): Boolean = true
 
