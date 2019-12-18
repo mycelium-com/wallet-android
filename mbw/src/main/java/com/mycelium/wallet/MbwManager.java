@@ -331,7 +331,6 @@ public class MbwManager {
         );
         _pinRequiredOnStartup = preferences.getBoolean(Constants.PIN_SETTING_REQUIRED_ON_STARTUP, false);
         randomizePinPad = preferences.getBoolean(Constants.RANDOMIZE_PIN, false);
-        _minerFee = getMinerFeeMap(preferences);
         _keyManagementLocked = preferences.getBoolean(Constants.KEY_MANAGEMENT_LOCKED_SETTING, false);
         changeAddressMode = ChangeAddressMode.valueOf(preferences.getString(Constants.CHANGE_ADDRESS_MODE,
                 ChangeAddressMode.PRIVACY.name()));
@@ -361,25 +360,6 @@ public class MbwManager {
                 AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
-        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-
-        StringBuilder defaultCurrencyJson = new StringBuilder("{\"")
-                .append(Utils.getBtcCoinType().getName())
-                .append("\":\"")
-                .append(Constants.DEFAULT_CURRENCY)
-                .append("\"}");
-        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
-        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, defaultCurrencyJson.toString());
-        Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
-        Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
-        _currencySwitcher = new CurrencySwitcher(
-                _exchangeRateManager,
-                fiatCurrencies,
-                new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
-                currentCurrencyMap,
-                currentFiatMap,
-                getDenominationMap(preferences)
-        );
 
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
         ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
@@ -397,16 +377,17 @@ public class MbwManager {
         _walletManager = createWalletManager(_applicationContext, _environment, db);
         contentResolver = createContentResolver(getNetwork());
 
+        migrate();
+        _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
         _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
-
         _walletManager.addObserver(_eventTranslator);
 
+        _minerFee = getMinerFeeMap(preferences);
+        _currencySwitcher = createCurrencySwitcher(preferences, fiatCurrencies);
         // set the currency-list after we added all extra accounts, they may provide
         // additional needed fiat currencies
         setCurrencyList(fiatCurrencies);
-
-        migrate();
         createTempWalletManager();
         if (_walletManager.getAssetTypes().size() != 0) {
             _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
@@ -414,67 +395,67 @@ public class MbwManager {
 
         _versionManager.initBackgroundVersionChecker();
 
-        Gson gson = new GsonBuilder().create();
-        Type type = new TypeToken<Map<String, String>>(){}.getType();
-        Map<String, String> defaultBlockExplorers = new HashMap<>();
-
-        for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
-            defaultBlockExplorers.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
-        }
-        String currentBlockExplorers = preferences.getString(Constants.BLOCK_EXPLORERS, gson.toJson(defaultBlockExplorers));
-        _blockExplorerManager = new GlobalBlockExplorerManager(this,
-               _environment.getBlockExplorerMap(), gson.fromJson(currentBlockExplorers, type));
+        _blockExplorerManager = getBlockExplorerManager(preferences);
     }
 
-    private Map<String, MinerFee>  getMinerFeeMap(SharedPreferences preferences) {
+    private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {
+        String defaultCurrencyJson = "{\"" + Utils.getBtcCoinType().getName() + "\":\"" + Constants.DEFAULT_CURRENCY + "\"}";
+        String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, defaultCurrencyJson);
+        String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, defaultCurrencyJson);
+        Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
+        Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
+        return new CurrencySwitcher(
+                _exchangeRateManager,
+                fiatCurrencies,
+                new FiatType(preferences.getString(Constants.TOTAL_FIAT_CURRENCY_SETTING, Constants.DEFAULT_CURRENCY)),
+                currentCurrencyMap,
+                currentFiatMap,
+                getDenominationMap(preferences)
+        );
+    }
+
+    private GlobalBlockExplorerManager getBlockExplorerManager(SharedPreferences preferences) {
         Gson gson = new GsonBuilder().create();
-        Type type = new TypeToken<Map<String, String>>(){}.getType();
-        Map<String, MinerFee> result = new HashMap<>();
-        Map<String, String> minerFeeFromPreferences;
-        try {
-            minerFeeFromPreferences = gson.fromJson(preferences.getString(Constants.MINER_FEE_SETTING, null), type);
-            if (minerFeeFromPreferences == null) {
-                result.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
-            } else {
-                for (Map.Entry<String, String> entry : minerFeeFromPreferences.entrySet()) {
-                    result.put(entry.getKey(), MinerFee.fromString(entry.getValue()));
-                }
+        Map<String, String> resultMap = new HashMap<>();
+
+        String preferenceValue = preferences.getString(Constants.BLOCK_EXPLORERS, null);
+        if (preferenceValue == null) {
+            for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
+                resultMap.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
             }
-        } catch (Exception e) {
-            // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
-            // could cause crash. in that case we'll try to migrate, i.e.
-            // we'll clear the preference and init the map with default values
-            getEditor().putString(Constants.MINER_FEE_SETTING, null).apply();
-            result.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
+        } else {
+            resultMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {}.getType());
         }
-        return result;
+        return new GlobalBlockExplorerManager(this, _environment.getBlockExplorerMap(), resultMap);
+    }
+
+    private Map<String, MinerFee> getMinerFeeMap(SharedPreferences preferences) {
+        Gson gson = new GsonBuilder().create();
+        Map<String, MinerFee> resultMap = new HashMap<>();
+
+        String preferenceValue = preferences.getString(Constants.MINER_FEE_SETTING, null);
+        if (preferenceValue == null) {
+            resultMap.put(Utils.getBtcCoinType().getName(), MinerFee.NORMAL);
+        } else {
+            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
+            for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
+                resultMap.put(entry.getKey(), MinerFee.fromString(entry.getValue()));
+            }
+        }
+        return resultMap;
     }
 
     private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
         Gson gson = new GsonBuilder().create();
-        Type type = new TypeToken<Map<String, String>>() {}.getType();
-        String oldDenomPreference = preferences.getString(Constants.BITCOIN_DENOMINATION_SETTING, null);
         Map<GenericAssetInfo, Denomination> resultMap = new HashMap<>();
-        if (oldDenomPreference != null) {
-            // we haven't migrated Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING yet,
-            // perform migration.
-            getEditor().putString(Constants.BITCOIN_DENOMINATION_SETTING, null).apply();
-            if (Denomination.fromString(oldDenomPreference) != null) {
-                resultMap.put(Utils.getBtcCoinType(), Denomination.fromString(oldDenomPreference));
-            } else {
-                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
-            }
+
+        String preferenceValue = preferences.getString(Constants.DENOMINATION_SETTING, null);
+        if (preferenceValue == null) {
+            resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
         } else {
-            // we're good, i.e. migration Constants.BITCOIN_DENOMINATION_SETTING -> Constants.DENOMINATION_SETTING
-            // had happen, so continue as usual.
-            String preferenceValue = preferences.getString(Constants.DENOMINATION_SETTING, null);
-            if (preferenceValue == null) {
-                resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
-            } else {
-                Map<String, String> preferenceMap = gson.fromJson(preferenceValue, type);
-                for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
-                    resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
-                }
+            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
+            for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
+                resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
             }
         }
         return resultMap;
@@ -487,8 +468,7 @@ public class MbwManager {
 
         Map<String, String> coinNamesMap = gson.fromJson(jsonString, type);
         for (Map.Entry<String, String> entry : coinNamesMap.entrySet()) {
-            result.put(Utils.getTypeByName(entry.getKey()),
-                    Utils.getTypeByName(entry.getValue()));
+            result.put(Utils.getTypeByName(entry.getKey()), Utils.getTypeByName(entry.getValue()));
         }
         return result;
     }
@@ -496,6 +476,7 @@ public class MbwManager {
     private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
         Gson gson = new GsonBuilder().create();
         Map<String, String> coinNamesMap = new HashMap<>();
+
         for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry : currenciesMap.entrySet()) {
             coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
         }
@@ -620,8 +601,8 @@ public class MbwManager {
         _torManager.setStateListener(new TorManager.TorState() {
             @Override
             public void onStateChange(String status, final int percentage) {
-                Log.i("Tor init", status + ", " + String.valueOf(percentage));
-                retainLog(Level.INFO, "Tor: " + status + ", " + String.valueOf(percentage));
+                Log.i("Tor init", status + ", " + percentage);
+                retainLog(Level.INFO, "Tor: " + status + ", " + percentage);
                 _torHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -674,7 +655,56 @@ public class MbwManager {
                 }
             }
         }
-        getPreferences().edit().putInt("upToDateVersion", 2120029).apply();
+        if (fromVersion < 3030000) {
+            migratePreferences();
+        }
+        getPreferences().edit().putInt("upToDateVersion", 3030000).apply();
+    }
+
+    /**
+     * put previously single values into map-like values where key is a coin type
+     * i.e. "mbtc" -> {"Bitcoin": "mbtc"}
+     */
+    private void migratePreferences() {
+        Gson gson = new GsonBuilder().create();
+
+        // Miner fee
+        String oldFee = getPreferences().getString(Constants.MINER_FEE_SETTING, null);
+        if (oldFee != null) {
+            Map<String, MinerFee> newFee = new HashMap<>();
+            newFee.put(Utils.getBtcCoinType().getName(), MinerFee.fromString(oldFee));
+            getEditor().putString(Constants.MINER_FEE_SETTING, gson.toJson(newFee)).commit();
+        }
+
+        // Block explorer
+        String oldExplorer = getPreferences().getString("BlockExplorer", null);
+        if (oldExplorer != null) {
+            Map<String, String> newExplorer = new HashMap<>();
+            for (Map.Entry<String, List<BlockExplorer>> entry : _environment.getBlockExplorerMap().entrySet()) {
+                newExplorer.put(entry.getKey(), entry.getValue().get(0).getIdentifier());
+            }
+            newExplorer.put(Utils.getBtcCoinType().getName(), oldExplorer);
+            getEditor().remove("BlockExplorer") // don't use old name anymore
+                    .putString(Constants.BLOCK_EXPLORERS, gson.toJson(newExplorer)).commit();
+        }
+
+        // Denomination
+        String oldDenomination = getPreferences().getString("BitcoinDenomination", null);
+        if (oldDenomination != null) {
+            Map<String, Denomination> newDenomination = new HashMap<>();
+            newDenomination.put(Utils.getBtcCoinType().getName(), Denomination.fromString(oldDenomination));
+            getEditor().remove("BitcoinDenomination") // don't use old name anymore
+                    .putString(Constants.DENOMINATION_SETTING, gson.toJson(newDenomination)).commit();
+        }
+
+        // Exchange rates source (different preference file)
+        SharedPreferences exchangeSourcePref = _applicationContext.getSharedPreferences(Constants.EXCHANGE_DATA, Activity.MODE_PRIVATE);
+        String oldSource = exchangeSourcePref.getString(Constants.EXCHANGE_RATE_SETTING, null);
+        if (oldSource != null) {
+            Map<String, String> newSource = new HashMap<>();
+            newSource.put(Utils.getBtcCoinType().getSymbol(), oldSource);
+            exchangeSourcePref.edit().putString(Constants.EXCHANGE_RATE_SETTING, gson.toJson(newSource)).apply();
+        }
     }
 
     private void migrateOldKeys() {
@@ -1550,9 +1580,9 @@ public class MbwManager {
     public void onSelectedCurrencyChanged(SelectedCurrencyChanged event) {
         String currentCurrenciesString = getCurrentCurrenciesString(_currencySwitcher.getCurrentCurrencyMap());
         String currentFiatString = getCurrentCurrenciesString(_currencySwitcher.getCurrentFiatCurrencyMap());
-        getEditor().putString(Constants.CURRENT_CURRENCIES_SETTING, currentCurrenciesString).apply();
-        getEditor().putString(Constants.FIAT_CURRENCIES_SETTING, currentFiatString).apply();
-        getEditor().putString(Constants.TOTAL_FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getName()).apply();
+        getEditor().putString(Constants.CURRENT_CURRENCIES_SETTING, currentCurrenciesString)
+                .putString(Constants.FIAT_CURRENCIES_SETTING, currentFiatString)
+                .putString(Constants.TOTAL_FIAT_CURRENCY_SETTING, _currencySwitcher.getCurrentTotalCurrency().getName()).apply();
     }
 
     @Subscribe

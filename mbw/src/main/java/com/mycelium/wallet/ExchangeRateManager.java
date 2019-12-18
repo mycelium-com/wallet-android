@@ -61,7 +61,6 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -87,13 +86,11 @@ import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 public class ExchangeRateManager implements ExchangeRateProvider {
     private static final long MAX_RATE_AGE_MS = TimeUnit.MINUTES.toMillis(5);
     private static final long MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5);
-    private static final String EXCHANGE_DATA = "wapi_exchange_rates";
     public static final String BTC = "BTC";
 
     private static final Pattern EXCHANGE_RATE_PATTERN;
     private static final String CHANGELLY_MARKET = "Changelly";
     private static final String RMC_MARKET = "Coinmarketcap";
-    private static final String DEFAULT_EXCHANGE = "Bitstamp";
 
     static {
         String regexKeyExchangeRate = "(.*)_(.*)_(.*)";
@@ -129,16 +126,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         _api = api;
         _latestRatesTime = 0;
         Gson gson = new GsonBuilder().create();
-        Type type = new TypeToken<Map<String, String>>(){}.getType();
-
-        try {
-            _currentExchangeSourceName = gson.fromJson(getPreferences().getString("currentRateName", DEFAULT_EXCHANGE), type);
-        } catch (Exception e) {
-            // previously we had a single value, so trying to read with TypeToken<Map<String, String>>
-            // could cause crash. in that case we'll try to migrate, i.e.
-            // we'll clear the preference and init the map with default values
-            getEditor().putString("currentRateName", null).apply();
-            _currentExchangeSourceName.put(Utils.getBtcCoinType().getSymbol(), DEFAULT_EXCHANGE);
+        String preferenceValue = getPreferences().getString(Constants.EXCHANGE_RATE_SETTING, null);
+        if (preferenceValue == null) {
+            _currentExchangeSourceName.put(Utils.getBtcCoinType().getSymbol(), Constants.DEFAULT_EXCHANGE);
+        } else {
+            _currentExchangeSourceName = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
         }
         _subscribers = new LinkedList<>();
         _latestRates = new HashMap<>();
@@ -376,7 +368,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     public void setCurrentExchangeSourceName(String coinSymbol, String name) {
         _currentExchangeSourceName.put(coinSymbol, name);
         Gson gson = new GsonBuilder().create();
-        getEditor().putString("currentRateName", gson.toJson(_currentExchangeSourceName)).apply();
+        getEditor().putString(Constants.EXCHANGE_RATE_SETTING, gson.toJson(_currentExchangeSourceName)).apply();
         notifyExchangeSourceChanged();
     }
 
@@ -460,11 +452,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     private SharedPreferences.Editor getEditor() {
-        return _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE).edit();
+        return getPreferences().edit();
     }
 
     private SharedPreferences getPreferences() {
-        return _applicationContext.getSharedPreferences(EXCHANGE_DATA, Activity.MODE_PRIVATE);
+        return _applicationContext.getSharedPreferences(Constants.EXCHANGE_DATA, Activity.MODE_PRIVATE);
     }
 
     // set for which fiat currencies we should get fx rates for
