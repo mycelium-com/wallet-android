@@ -82,6 +82,7 @@ import com.mycelium.wallet.event.ExchangeSourceChanged;
 import com.mycelium.wallet.event.ExtraAccountsChanged;
 import com.mycelium.wallet.event.ReceivingAddressChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncFailed;
 import com.mycelium.wallet.event.SyncProgressUpdated;
 import com.mycelium.wallet.event.SyncStarted;
 import com.mycelium.wallet.event.SyncStopped;
@@ -320,11 +321,11 @@ public class AccountsFragment extends Fragment {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                    address, ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
+                                    address, getBalanceString(accountToDelete.getAccountBalance()));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    ValueExtensionsKt.toStringWithUnit(getBalance(accountToDelete)));
+                                    getBalanceString(accountToDelete.getAccountBalance()));
                         }
                     } else {
                         if (label.length() != 0) {
@@ -1025,6 +1026,11 @@ public class AccountsFragment extends Fragment {
 
     @Subscribe
     public void balanceChanged(BalanceChanged event) {
+        update();
+    }
+
+    @Subscribe
+    public void syncFailed(SyncFailed event) {
         update();
     }
 

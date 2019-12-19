@@ -7,6 +7,7 @@ import android.content.Intent
 class NetworkChangedReceiver : BroadcastReceiver() {
     // We receive this event on wallet start, but this would start heavy init, which we don't want to.
     var wasInited: Boolean = false
+
     override fun onReceive(context: Context, intent: Intent) {
         if (!wasInited) {
             wasInited = true
