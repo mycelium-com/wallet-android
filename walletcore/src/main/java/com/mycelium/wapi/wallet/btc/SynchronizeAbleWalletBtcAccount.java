@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import kotlin.jvm.Volatile;
+
 public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccount {
    private static final ImmutableMap<SyncMode.Mode, Integer> MIN_SYNC_INTERVAL = ImmutableMap.of(
          SyncMode.Mode.FAST_SYNC, 1000,
@@ -28,6 +30,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    private final HashMap<SyncMode.Mode, Date> _lastSync = new HashMap<>(SyncMode.Mode.values().length);
 
+   @Volatile
    private boolean isSyncing;
 
    /**

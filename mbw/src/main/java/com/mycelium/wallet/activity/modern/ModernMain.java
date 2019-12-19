@@ -101,6 +101,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -154,7 +155,7 @@ public class ModernMain extends AppCompatActivity {
 
         mViewPager.setOffscreenPageLimit(5);
         mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-        if(SettingsPreference.getMediaFlowEnabled()) {
+        if (SettingsPreference.getMediaFlowEnabled()) {
             mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
             mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
         }
@@ -452,10 +453,13 @@ public class ModernMain extends AppCompatActivity {
                     counter++;
                 }
 
-                _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+                if (!startSynchronization(syncMode)) {
+                    mViewPager.postDelayed(this::setRefreshAnimation, TimeUnit.SECONDS.toMillis(1));
+                }
 
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+
                 showRefresh(); // without this call sometime user not see click feedback
                 return true;
             case R.id.miHelp:
@@ -467,7 +471,7 @@ public class ModernMain extends AppCompatActivity {
                 break;
             case R.id.miRescanTransactions:
                 _mbwManager.getSelectedAccount().dropCachedData();
-                _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+                startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
                 break;
             case R.id.miVerifyMessage:
                 startActivity(new Intent(this, MessageVerifyActivity.class));
@@ -476,6 +480,13 @@ public class ModernMain extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private boolean startSynchronization(SyncMode syncMode) {
+        boolean started = _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+        if (!started) {
+            MbwManager.getEventBus().post(new SyncFailed());
+        }
+        return started;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -503,9 +514,13 @@ public class ModernMain extends AppCompatActivity {
             if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
                 showRefresh();
             } else {
-                refreshItem.setActionView(null);
+                hideRefresh();
             }
         }
+    }
+
+    private void hideRefresh() {
+        refreshItem.setActionView(null);
     }
 
     private void showRefresh() {
@@ -541,6 +556,7 @@ public class ModernMain extends AppCompatActivity {
 
     @Subscribe
     public void synchronizationFailed(SyncFailed event) {
+        hideRefresh();
         _toaster.toastConnectionError();
     }
 

@@ -58,7 +58,6 @@ import java.util.UUID;
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
    private List<Address> _addressList;
-   private volatile boolean _isSynchronizing;
    private PublicPrivateKeyStore _keyStore;
    private PublicKey publicKey;
    private SingleAddressBtcAccountBacking _backing;
@@ -169,7 +168,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    @Override
    public synchronized boolean doSynchronization(SyncMode mode) {
       checkNotArchived();
-      _isSynchronizing = true;
       syncTotalRetrievedTransactions = 0;
       try {
          if (synchronizeUnspentOutputs(_addressList) == -1) {
@@ -194,7 +192,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          _context.persistIfNecessary(_backing);
          return true;
       } finally {
-         _isSynchronizing = false;
          syncTotalRetrievedTransactions = 0;
       }
    }
@@ -451,11 +448,6 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
          sb.append(" Spendable Outputs: ").append(getSpendableOutputs(0).size());
       }
       return sb.toString();
-   }
-
-   @Override
-   public boolean isSynchronizing() {
-      return _isSynchronizing;
    }
 
    public void forgetPrivateKey(KeyCipher cipher) throws InvalidKeyCipher {
