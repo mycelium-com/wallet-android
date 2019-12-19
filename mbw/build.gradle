@@ -33,9 +33,8 @@ kapt {
 
 dependencies {
     testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "androidx.test:rules:1.3.0-alpha02"
+    androidTestImplementation 'androidx.test:rules:1.3.0-alpha02'
 
-    implementation project(includePrefix + ':coinapult')
     implementation project(includePrefix + ':walletmodel')
     implementation project(includePrefix + ':wapi')
     implementation project(includePrefix + ':walletcore')
@@ -57,6 +56,7 @@ dependencies {
 
     // ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:2.1.0"
 
     //not upgrading. This will be replaced with firebase
     implementation "com.google.android.gms:play-services-base:10.2.1"
@@ -77,7 +77,6 @@ dependencies {
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
     implementation "com.jakewharton:butterknife:10.1.0"
     kapt "com.jakewharton:butterknife-compiler:10.1.0"
-    implementation "io.reactivex:rxandroid:1.2.1"
     implementation "com.squareup.okhttp3:logging-interceptor:3.8.1"
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "androidx.multidex:multidex:2.0.1"
@@ -85,6 +84,12 @@ dependencies {
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
 
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    // Because RxAndroid releases are few and far between, it is recommended you also
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
+    // (see https://github.com/ReactiveX/RxJava/releases for latest 2.x.x version)
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
+    implementation 'io.reactivex:rxkotlin:2.0.0-RC1'
     implementation "com.journeyapps:zxing-android-embedded:3.6.0"
 
     implementation project(includePrefix + ":wallet-android-modularization-tools:modularization-lib")

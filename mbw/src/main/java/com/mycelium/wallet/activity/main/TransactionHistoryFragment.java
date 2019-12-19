@@ -81,7 +81,7 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -236,7 +236,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
 
             _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), "CPFP");
 
@@ -448,7 +448,7 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   //We need implementations of GenericTransactionSummary for using something like
-                  //hasDetails|canCoinapult|canCancel
+                  //hasDetails|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
@@ -463,12 +463,12 @@ public class TransactionHistoryFragment extends Fragment {
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getConfirmations() == 0));// and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0));
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);

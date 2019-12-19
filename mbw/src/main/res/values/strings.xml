@@ -40,6 +40,7 @@
     <string name="qr_code">QR Code</string>
     <string name="my_addresses">My Addresses</string>
     <string name="insufficient_funds">Insufficient funds</string>
+    <string name="tx_build_error">Unknown error while building transaction.</string>
     <string name="insufficient_funds_for_fee">Insufficient funds to pay fee</string>
     <string name="amount_too_small">The amount you are sending is too small</string>
     <string name="unable_to_build_tx">Unable to build transaction</string>
@@ -145,8 +146,8 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
-    <string name="my_own_address_warning">Note: You are sending to one of your own addresses.</string>
-    <string name="read_only_warning">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
     <string name="scan_address_book_desc">Scan Bitcoin address.</string>
     <string name="clipboard_address_book_desc">Get Bitcoin address from clipboard.</string>
@@ -829,35 +830,6 @@
     <string name="block_explorer_summary_2">Allows you to find any transaction\nin the blockchain</string>
     <string name="lt_warning_wrong_account_type">Local Trader does not work with the selected account type, please select another account.</string>
     <string name="lt_account_not_allowed">The selected account type does not work with local trader. You need to select another account to perform this trade.</string>
-
-    <string name="coinapult_sending_via_coinapult">Sending Bitcoins via Coinapult</string>
-    <string name="coinapult_account_notes">A Coinapult account allows you to store value in various Fiat currencies and spend instantly to any bitcoin address.\nWhile you use your private keys to access it, they are under control by Coinapult, unlike your funds on normal HD accounts.</string>
-    <string name="coinapult_mail_hint">Enter mail address</string>
-    <string name="coinapult_mail_description">If you provide your email address, you can file a support ticket with Coinapult by sending an email to support@coinapult.com from the email you specify.</string>
-    <string name="coinapult_threshold_warning">Warning: Coinapult accounts cannot complete conversion transactions that are less than %1$s of value.</string>
-    <string name="coinapult_amount_too_small">Amount too low, minimum withdrawal is %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Set email address</string>
-    <string name="coinapult_set_mail_failed">Setting the email address failed, please check for correct spelling and make sure your device has a working internet connection.</string>
-    <string name="coinapult_setting_email">Sending email address to Coinapult…</string>
-    <string name="coinapult_set_mail_please_verify">Your email address was set, you will receive an email with a confirmation link. Please copy that link and choose \'verify email\' from the account settings, to paste the link and verify the email address is correct.</string>
-    <string name="coinapult_verify_mail_menu_title">Verify email address</string>
-    <string name="coinapult_mail_verification">Verify your coinapult email address</string>
-    <string name="coinapult_mail_verification_description">Please paste the verification link from your coinapult email into the text field below.</string>
-    <string name="coinapult_mail_verification_hint">paste complete verification link</string>
-    <string name="coinapult_verifying_email">Sending verification link to coinapult…</string>
-    <string name="coinapult_verify_mail_success">Your coinapult email address was successfully verified.</string>
-    <string name="coinapult_verify_mail_error">An error occurred verifying your email address. Please make sure you copy the complete and correct verification link.</string>
-    <string name="coinapult_unable_to_create_account">Unable to create coinapult account</string>
-    <string name="coinapult_failed_to_broadcast">Failed to broadcast coinapult transaction</string>
-    <string name="coinapult_add_locks_account">Add Coinapult Locks Account</string>
-    <string name="coinapult_tos_link">Open Coinapult Terms and Conditions</string>
-    <string name="coinapult_tos_question">To create a Coinapult Account you must agree to their Terms and Conditions</string>
-    <string name="coinapult_mail_question">Do you want to provide your mail address?</string>
-    <string name="coinapult_create_account">Creating Coinapult account…</string>
-    <string name="coinapult_backup_info">Your Coinapult account access-key gets derived from your masterseed. If you have a valid backup, the access to your coinapult account is also included.</string>
-    <string name="coinapult_currency_account">%1$s Account</string>
-    <string name="coinapult_gone">Disabled! Tap to learn more!</string>
-    <string name="coinapult_gone_details">Coinapult is currently out of service and not responding to Mycelium requests. According to Coinapult Locks Services Agreement and in order to reduce financial risks for our users, Coinapult functionality has been disabled.\n\nAll questions related to Coinapult accounts should be addressed to Coinapult support since it is a third-party service and Mycelium has no control over Coinapult accounts.</string>
     <string name="colu_mass_account_notes">Add a Critical Mass Network account</string>
     <string name="colu_add_mass_account">Add Mass Account</string>
     <string name="colu_account_notes">Store digital assets in Mycelium.</string>

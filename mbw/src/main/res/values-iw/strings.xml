@@ -98,8 +98,8 @@
     <string name="export_to_clipboard_warning">אזהרה: ייצוא המפתח הפרטי ללוח (clipboard) חושף אותו לכל שאר היישומים שבמכשירך.\n\nהערה: אין זה מספיק לשמור את המפתח הפרטי בלוח, עליך גם להדביקו במקום בטוח.\n\nהאם ברצונך להמשיך?</string>
     <string name="found_clipboard_private_key_title">מפתח פרטי נמצא בלוח (clipboard)</string>
     <string name="exchange_source_not_available">לא קיים שער המרה עבור %1$s</string>
-    <string name="my_own_address_warning">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</string>
-    <string name="read_only_warning">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">הערה: הינך שולח/ת לאחד מכתובותיך שלך.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">אזהרה: הארנק שלך אינו מחזיק במפתח הפרטי עבור כתובת זו.\nאינך יכול/ה להשתמש במטבעות שיתקבלו אלא אם ברשותך המפתח הפרטי במקום אחר.</font>]]></string>
     <string name="add_to_address_book_dialog_title">הוספת כתובת</string>
     <string name="scan_address_book_desc">סריקת כתובת ביטקוין.</string>
     <string name="clipboard_address_book_desc">קבל כתובת ביטקוין מהלוח (clipboard).</string>
@@ -227,8 +227,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

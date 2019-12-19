@@ -82,8 +82,8 @@
     <string name="export_to_clipboard_warning">Upozornenie: Exportovanie Privátneho Kľúča do Schránky ho vystavuje všetkým ostatným aplikáciam na Vašom Zariadení.\n\nPoznámka: Nie je bezpečné skladovať Váš Privátny Kľúč v Schránke, musíte ho prilepiť na bezpečné miesto.\n\nChcete pokračovať?</string>
     <string name="found_clipboard_private_key_title">Nájdený Privátny Kľúč v Schránke</string>
     <string name="exchange_source_not_available">Výmenný kurz nie je dostupný pre %1$s</string>
-    <string name="my_own_address_warning">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</string>
-    <string name="read_only_warning">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Poznámka: Posielate si na jednu z Vaších vlastných Adries.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Upozornenie: Vaša peňaženka nemá Privátny Kľúč pre túto Adresu.\nNedokážete používať mince naň prijaté dokiaľ nemáte Privátny Kľuč niekde.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Pridať Adresu</string>
     <string name="scan_address_book_desc">Skenovať Bitcoinovú Adresu.</string>
     <string name="clipboard_address_book_desc">Použi Bitcoinovú Adresu zo Schránky.</string>
@@ -218,8 +218,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

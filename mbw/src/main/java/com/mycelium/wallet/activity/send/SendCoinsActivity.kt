@@ -1,0 +1,398 @@
+package com.mycelium.wallet.activity.send
+
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.graphics.Point
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.BindingAdapter
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import com.google.common.base.Strings
+import com.mrd.bitlib.crypto.HdKeyNode
+import com.mrd.bitlib.util.HexUtils
+import com.mycelium.wallet.Constants
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.GetAmountActivity
+import com.mycelium.wallet.activity.ScanActivity
+import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
+import com.mycelium.wallet.activity.send.adapter.FeeLvlViewAdapter
+import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
+import com.mycelium.wallet.activity.send.event.BroadcastResultListener
+import com.mycelium.wallet.activity.send.model.SendBtcViewModel
+import com.mycelium.wallet.activity.send.model.SendCoinsViewModel
+import com.mycelium.wallet.activity.send.model.SendColuViewModel
+import com.mycelium.wallet.activity.util.AnimationUtils
+import com.mycelium.wallet.content.HandleConfigFactory
+import com.mycelium.wallet.databinding.SendCoinsActivityBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
+import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.WithCallback
+import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.wallet.BroadcastResult
+import com.mycelium.wapi.wallet.BroadcastResultType
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.btc.bip44.HDAccount
+import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.colu.ColuAccount
+import kotlinx.android.synthetic.main.send_coins_activity.*
+import kotlinx.android.synthetic.main.send_coins_fee_selector.*
+import java.util.*
+
+class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
+    private lateinit var viewModel: SendCoinsViewModel
+    private lateinit var mbwManager: MbwManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mbwManager = MbwManager.getInstance(application)
+        val accountId = checkNotNull(intent.getSerializableExtra(ACCOUNT) as UUID)
+        val rawPaymentRequest = intent.getByteArrayExtra(RAW_PAYMENT_REQUEST)
+        val crashHint = TextUtils.join(", ", intent.extras!!.keySet()) + " (account id was " + accountId + ")"
+        val isColdStorage = intent.getBooleanExtra(IS_COLD_STORAGE, false)
+        val account = mbwManager.getWalletManager(isColdStorage).getAccount(accountId)
+                ?: throw IllegalStateException(crashHint)
+
+        val viewModelProvider = ViewModelProviders.of(this)
+
+        viewModel = when (account) {
+            is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
+            is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
+            else -> throw NotImplementedError()
+        }
+        if (!viewModel.isInitialized()) {
+            viewModel.init(account, intent)
+        }
+
+        if (savedInstanceState != null) {
+            viewModel.loadInstance(savedInstanceState)
+        }
+        //if we do not have a stored receiving address, and got a keynode, we need to figure out the address
+        if (viewModel.getReceivingAddress().value == null) {
+            val hdKey = intent.getSerializableExtra(HD_KEY) as HdKeyNode?
+            if (hdKey != null) {
+                viewModel.setReceivingAddressFromKeynode(hdKey, this)
+            }
+        }
+
+        if (!account.canSpend()) {
+            chooseSpendingAccount(rawPaymentRequest)
+            return
+        }
+
+        // lets see if we got a raw Payment request (probably by downloading a file with MIME application/bitcoin-paymentrequest)
+        if (rawPaymentRequest != null && viewModel.hasPaymentRequestHandler()) {
+            viewModel.verifyPaymentRequest(rawPaymentRequest, this)
+        }
+
+        // lets check whether we got a payment request uri and need to fetch payment data
+        val genericUri = viewModel.getGenericUri().value
+        if (genericUri is WithCallback && !Strings.isNullOrEmpty((genericUri as WithCallback).callbackURL)
+                && !viewModel.hasPaymentRequestHandler()) {
+            viewModel.verifyPaymentRequest(genericUri, this)
+        }
+
+        initDatabinding(account)
+
+        initFeeView()
+        initFeeLvlView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
+        if (!mbwManager.currencySwitcher.isFiatExchangeRateAvailable) {
+            mbwManager.exchangeRateManager.requestRefresh()
+        }
+
+        viewModel.updateClipboardUri()
+        viewModel.activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
+        viewModel.activityResultDialog = null
+    }
+
+    private fun chooseSpendingAccount(rawPaymentRequest: ByteArray?) {
+        //we need the user to pick a spending account - the activity will then init sendmain correctly
+        val uri: GenericAssetUri = intent.getSerializableExtra(ASSET_URI) as GenericAssetUri?
+                ?: BitcoinUri.from(viewModel.getReceivingAddress().value, viewModel.getAmount().value,
+                        viewModel.getTransactionLabel().value, null)
+
+        if (rawPaymentRequest != null) {
+            GetSpendingRecordActivity.callMeWithResult(this, rawPaymentRequest, REQUEST_PICK_ACCOUNT)
+        } else {
+            GetSpendingRecordActivity.callMeWithResult(this, uri, REQUEST_PICK_ACCOUNT)
+        }
+        //no matter whether the user did successfully send or tapped back - we do not want to stay here with a wrong account selected
+        finish()
+        return
+    }
+
+    override fun onPause() {
+        mbwManager.versionManager.closeDialog()
+        super.onPause()
+    }
+
+    private fun initDatabinding(account: WalletAccount<*>) {
+        //Data binding, should be called after everything else
+        val sendCoinsActivityBinding = when (account) {
+            is ColuAccount -> {
+                DataBindingUtil.setContentView<SendCoinsActivityColuBinding>(this,
+                        R.layout.send_coins_activity_colu)
+                        .also {
+                            it.viewModel = viewModel
+                            it.activity = this
+                        }
+            }
+            is HDAccount, is SingleAddressAccount -> {
+                DataBindingUtil.setContentView<SendCoinsActivityBtcBinding>(this, R.layout.send_coins_activity_btc)
+                        .also {
+                            it.viewModel = viewModel as SendBtcViewModel
+                            it.activity = this
+                        }
+            }
+            else -> getDefaultBinding()
+        }
+        sendCoinsActivityBinding.lifecycleOwner = this
+    }
+
+    private fun getDefaultBinding(): SendCoinsActivityBinding =
+            DataBindingUtil.setContentView<SendCoinsActivityBinding>(this, R.layout.send_coins_activity)
+                    .also {
+                        it.viewModel = viewModel
+                        it.activity = this
+                    }
+
+    private fun initFeeView() {
+        feeValueList.setHasFixedSize(true)
+
+        val displaySize = Point()
+        windowManager.defaultDisplay.getSize(displaySize)
+        val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
+
+        val feeViewAdapter = FeeViewAdapter(feeFirstItemWidth)
+        feeViewAdapter.setFormatter(viewModel.getFeeFormatter())
+
+        feeValueList.adapter = feeViewAdapter
+        feeViewAdapter.setDataset(viewModel.getFeeDataset().value)
+        viewModel.getFeeDataset().observe(this, Observer { feeItems ->
+            feeViewAdapter.setDataset(feeItems)
+            val selectedFee = viewModel.getSelectedFee().value!!
+            if (feeViewAdapter.selectedItem >= feeViewAdapter.itemCount ||
+                    feeViewAdapter.getItem(feeViewAdapter.selectedItem).feePerKb != selectedFee.value) {
+                feeValueList.setSelectedItem(selectedFee)
+            }
+        })
+
+        feeValueList.setSelectListener { adapter, position ->
+            val item = (adapter as FeeViewAdapter).getItem(position)
+            viewModel.getSelectedFee().value = Value.valueOf(item.value.type, item.feePerKb)
+
+            if (viewModel.isSendScrollDefault() && root.maxScrollAmount - root.scaleY > 0) {
+                root.smoothScrollBy(0, root.maxScrollAmount)
+                viewModel.setSendScrollDefault(false)
+            }
+        }
+    }
+
+    private fun initFeeLvlView() {
+        feeLvlList.setHasFixedSize(true)
+        val feeLvlItems = viewModel.getFeeLvlItems()
+
+        val displaySize = Point()
+        windowManager.defaultDisplay.getSize(displaySize)
+        val feeFirstItemWidth = (displaySize.x - resources.getDimensionPixelSize(R.dimen.item_dob_width)) / 2
+        feeLvlList.adapter = FeeLvlViewAdapter(feeLvlItems, feeFirstItemWidth)
+        feeLvlList.setSelectListener { adapter, position ->
+            val item = (adapter as FeeLvlViewAdapter).getItem(position)
+            viewModel.getFeeLvl().value = item.minerFee
+            feeValueList.setSelectedItem(viewModel.getSelectedFee().value)
+        }
+        feeLvlList.setSelectedItem(viewModel.getFeeLvl().value)
+    }
+
+    fun onClickUnconfirmedWarning() {
+        AlertDialog.Builder(this)
+                .setTitle(getString(R.string.spending_unconfirmed_title))
+                .setMessage(getString(R.string.spending_unconfirmed_description))
+                .setPositiveButton(android.R.string.ok, null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
+    }
+
+    fun onColuTipClick() {
+        AlertDialog.Builder(this)
+                .setMessage(R.string.tips_rmc_check_address)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
+
+    fun onClickAmount() {
+        val account = viewModel.getAccount()
+        GetAmountActivity.callMeToSend(this, GET_AMOUNT_RESULT_CODE, account.id,
+                viewModel.getAmount().value, viewModel.getSelectedFee().value!!.value, account.coinType,
+                viewModel.isColdStorage(), viewModel.getReceivingAddress().value)
+    }
+
+    fun onClickScan() {
+        val config = HandleConfigFactory.returnKeyOrAddressOrUriOrKeynode()
+        ScanActivity.callMe(this, SCAN_RESULT_CODE, config)
+    }
+
+    fun onClickAddressBook() {
+        val intent = Intent(this, GetFromAddressBookActivity::class.java)
+        startActivityForResult(intent, ADDRESS_BOOK_RESULT_CODE)
+    }
+
+    fun onClickManualEntry() {
+        val intent = Intent(this, ManualAddressEntry::class.java)
+                .putExtra(ACCOUNT, viewModel.getAccount().id)
+                .putExtra(IS_COLD_STORAGE, viewModel.isColdStorage())
+        startActivityForResult(intent, MANUAL_ENTRY_RESULT_CODE)
+    }
+
+    fun onClickSend() {
+        viewModel.sendTransaction(this)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.saveInstance(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun broadcastResult(broadcastResult: BroadcastResult) {
+        val result = Intent()
+        if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+            val signedTransaction = viewModel.getSignedTransaction()!!
+            viewModel.getTransactionLabel().value?.run {
+                mbwManager.metadataStorage.storeTransactionLabel(HexUtils.toHex(signedTransaction.id), this)
+            }
+            val hash = HexUtils.toHex(signedTransaction.id)
+            val fiat = viewModel.getFiatValue()
+            fiat?.run {
+                getSharedPreferences(TRANSACTION_FIAT_VALUE, Context.MODE_PRIVATE).edit().putString(hash, fiat).apply()
+            }
+            result.putExtra(Constants.TRANSACTION_FIAT_VALUE_KEY, fiat)
+                    .putExtra(Constants.TRANSACTION_ID_INTENT_KEY, hash)
+        }
+        val resultType = if (broadcastResult.resultType == BroadcastResultType.SUCCESS) {
+            Activity.RESULT_OK
+        } else {
+            Activity.RESULT_CANCELED
+        }
+        setResult(resultType, result)
+        finish()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        viewModel.processReceivedResults(requestCode, resultCode, data, this)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    companion object {
+        const val GET_AMOUNT_RESULT_CODE = 1
+        const val SCAN_RESULT_CODE = 2
+        const val ADDRESS_BOOK_RESULT_CODE = 3
+        const val MANUAL_ENTRY_RESULT_CODE = 4
+        const val REQUEST_PICK_ACCOUNT = 5
+        const val SIGN_TRANSACTION_REQUEST_CODE = 6
+        const val REQUEST_PAYMENT_HANDLER = 8
+        const val RAW_PAYMENT_REQUEST = "rawPaymentRequest"
+
+        internal const val ACCOUNT = "account"
+        internal const val IS_COLD_STORAGE = "isColdStorage"
+        internal const val AMOUNT = "amount"
+        internal const val RECEIVING_ADDRESS = "receivingAddress"
+        internal const val HD_KEY = "hdKey"
+        internal const val TRANSACTION_LABEL = "transactionLabel"
+        internal const val ASSET_URI = "assetUri"
+        const val SIGNED_TRANSACTION = "signedTransaction"
+        const val TRANSACTION_FIAT_VALUE = "transaction_fiat_value"
+
+        @JvmStatic
+        fun getIntent(currentActivity: Activity, account: UUID, isColdStorage: Boolean): Intent {
+            return Intent(currentActivity, SendCoinsActivity::class.java)
+                    .putExtra(ACCOUNT, account)
+                    .putExtra(IS_COLD_STORAGE, isColdStorage)
+        }
+
+        @JvmStatic
+        fun getIntent(currentActivity: Activity, account: UUID,
+                      amountToSend: Long, receivingAddress: GenericAddress, isColdStorage: Boolean): Intent {
+            return getIntent(currentActivity, account, isColdStorage)
+                    .putExtra(AMOUNT, Value.valueOf(
+                            Utils.getBtcCoinType(),
+                            amountToSend))
+                    .putExtra(RECEIVING_ADDRESS, receivingAddress)
+        }
+
+        @JvmStatic
+        fun getIntent(currentActivity: Activity, account: UUID, rawPaymentRequest: ByteArray,
+                      isColdStorage: Boolean): Intent {
+            return getIntent(currentActivity, account, isColdStorage)
+                    .putExtra(RAW_PAYMENT_REQUEST, rawPaymentRequest)
+        }
+
+        @JvmStatic
+        fun getIntent(currentActivity: Activity, account: UUID, uri: GenericAssetUri, isColdStorage: Boolean): Intent {
+            return getIntent(currentActivity, account, isColdStorage)
+                    .putExtra(AMOUNT, uri.value)
+                    .putExtra(RECEIVING_ADDRESS, uri.address)
+                    .putExtra(TRANSACTION_LABEL, uri.label)
+                    .putExtra(ASSET_URI, uri)
+        }
+
+        @JvmStatic
+        fun getIntent(currentActivity: Activity, account: UUID, hdKey: HdKeyNode): Intent {
+            return getIntent(currentActivity, account, false)
+                    .putExtra(HD_KEY, hdKey)
+        }
+    }
+}
+
+@BindingAdapter("errorAnimatedText")
+fun setVisibilityAnimated(target: TextView, error: CharSequence) {
+    val newVisibility = if (error.isNotEmpty()) View.VISIBLE else View.GONE
+    if (target.visibility == newVisibility) {
+        target.text = error
+        return
+    }
+    if (error.isNotEmpty()) {
+        target.text = error
+        target.visibility = newVisibility
+        AnimationUtils.expand(target, null)
+    } else {
+        AnimationUtils.collapse(target) {
+            target.visibility = newVisibility
+            target.text = error
+        }
+    }
+}
+
+@BindingAdapter("animatedVisibility")
+fun setVisibilityAnimated(target: View, visible: Boolean) {
+    val newVisibility = if (visible) View.VISIBLE else View.GONE
+    if (target.visibility == newVisibility) {
+        return
+    }
+    if (visible) {
+        target.visibility = newVisibility
+        AnimationUtils.expand(target, null)
+    } else {
+        AnimationUtils.collapse(target) {
+            target.visibility = newVisibility
+        }
+    }
+}

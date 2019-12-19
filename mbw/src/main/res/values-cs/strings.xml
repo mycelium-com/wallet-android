@@ -105,8 +105,8 @@
     <string name="export_to_clipboard_warning">Varování: Exportování soukromých dat účtu do schránky je odhaluje všem aplikacím ve vašem zařízení.\n\nPozn.: Nestačí uložit soukromá data do schránky, také je musíte někam bezpečně vložit.\n\nChcete pokračovat?</string>
     <string name="found_clipboard_private_key_title">Ve schránce byl nalezen soukromý klíč</string>
     <string name="exchange_source_not_available">Směnný kurz není pro %1$s dostupný</string>
-    <string name="my_own_address_warning">Pozn.: Posíláte na jednu z vlastních adres.</string>
-    <string name="read_only_warning">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Pozn.: Posíláte na jednu z vlastních adres.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Přidat adresu</string>
     <string name="scan_address_book_desc">Naskenovat BTC adresu</string>
     <string name="clipboard_address_book_desc">Získat bitcoinovou adresu ze schránky.</string>
@@ -678,32 +678,6 @@
     <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>
     <string name="lt_warning_wrong_account_type">Místní obchodník nefunguje s vybraným typem účtu, zvolte prosím jiný účet.</string>
     <string name="lt_account_not_allowed">Vybraný typ účtu nefunguje s Místním obchodníkem. Pro provedení tohoto obchodu musíte zvolit jiný účet.</string>
-    <string name="coinapult_sending_via_coinapult">Odesílám Bitcoiny přes Coinapult</string>
-    <string name="coinapult_account_notes">Účet Coinapult vám umožňuje držet peníze v někoika měnách a okamžitě utrácet na jakoukoli BTC adresu.\nSoukromé klíče používáte k přístupu, jsou však pod kontrolou Coinapultu, na rozdíl od normálních HD účtů.</string>
-    <string name="coinapult_mail_hint">Zadejte mailovou adresu</string>
-    <string name="coinapult_mail_description">Zadáte-li svou mailovou adresu, můžete podat lístek podpory Coinapultu posláním mailu na support@coinapult.com z uvedené adresy.</string>
-    <string name="coinapult_threshold_warning">Varování: Účty Coinapult nemohou dokončit převod transakcí, které jsou menší než %1$s hodnoty.</string>
-    <string name="coinapult_amount_too_small">Příliš nízká částka, min. výběr je %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Nastavit mailovou adresu</string>
-    <string name="coinapult_set_mail_failed">Nastavení mailové adresy selhalo, zkontrolujte, že jste ji zadali správně, a ujistěte se, že je vaše zařízení připojeno k internetu.</string>
-    <string name="coinapult_setting_email">Odesílám mailovou adresu Coinapultu&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Mailová adresa byla nastavena, obdržíte zprávu s odkazem pro potvrzení. Odkaz si zkopírujte, v nastavení účtu zvolte „Ověřit mail“, vložte odkaz a zkontrolujte, že je mailová adresa správně.</string>
-    <string name="coinapult_verify_mail_menu_title">Ověření mailové adresy</string>
-    <string name="coinapult_mail_verification">Ověřte vaši Coinapult mailovou adresu</string>
-    <string name="coinapult_mail_verification_description">Vložte prosím ověřovací odkaz z Coinapult mailu do políčka níže.</string>
-    <string name="coinapult_mail_verification_hint">vložte celý ověřovací odkaz</string>
-    <string name="coinapult_verifying_email">Odesílám ověřovací odkaz na Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Váš Coinapult mail byl úspěšně ověřen.</string>
-    <string name="coinapult_verify_mail_error">Při ověřování vaší mailové adresy se vyskytla chyba. Ujistěte se, že jste zkopírovali celý a správný ověřovací odkaz.</string>
-    <string name="coinapult_unable_to_create_account">Nelze vytvořit účet Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Odesílání transakce na Coinapult selhalo</string>
-    <string name="coinapult_add_locks_account">Přidat účet Coinapult Locks</string>
-    <string name="coinapult_tos_link">Otevřít smluvní podmínky Coinapult</string>
-    <string name="coinapult_tos_question">Pro vytvoření účtu Coinapult musíte souhlasit s jejich obchodními podmínkami</string>
-    <string name="coinapult_mail_question">Chcete poskytnout svou mailovou adresu?</string>
-    <string name="coinapult_create_account">Vytvářím účet Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">Přístupový klíč k vašemu účtu Coinapult je odvozený z vašeho master seedu. Pokud máte platnou zálohu, je zahrnutý také přístup k vašemu účtu Coinapult.</string>
-    <string name="coinapult_currency_account">Účet %1$s</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -750,12 +724,10 @@
     <string name="credit_card_buy_description">Koupit bitcoiny kreditní kartou</string>
     <string name="credit_card_buy_setting_description">Koupit bitcoiny kreditní kartou</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
     <string name="error_details">Podrobnosti chyby</string>
     <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
     <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">Povolit %1$s</string>
     <!-- Simplex start -->
     <!-- Simplex end -->

@@ -11,7 +11,6 @@ import org.junit.Assert.assertEquals
 import java.security.SecureRandom
 
 class BitIdKeyDerivationTest {
-
     private class MyRandomSource : RandomSource {
         internal var rand: SecureRandom = SecureRandom(byteArrayOf(42))
 
@@ -20,9 +19,7 @@ class BitIdKeyDerivationTest {
         }
     }
 
-
     @Test
-    @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdDefaultAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, "")
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
@@ -35,11 +32,10 @@ class BitIdKeyDerivationTest {
         val address = pub.toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH)
 
         assertEquals(PUBKEY_DEFAULT, pub.toString())
-        assertEquals(ADDRESS_DEFAULT, address!!.toString())
+        assertEquals(ADDRESS_DEFAULT, address.toString())
     }
 
     @Test
-    @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdOtherAccount() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST, PWD)
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
@@ -52,11 +48,10 @@ class BitIdKeyDerivationTest {
         val address = pub.toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH)
 
         assertEquals(PUBKEY_OTHER, pub.toString())
-        assertEquals(ADDRESS_OTHER, address!!.toString())
+        assertEquals(ADDRESS_OTHER, address.toString())
     }
 
     @Test
-    @Throws(KeyCipher.InvalidKeyCipher::class)
     fun bitIdBipTestVector() {
         val seed = Bip39.generateSeedFromWordList(WORD_LIST_BITID, "")
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
@@ -68,7 +63,7 @@ class BitIdKeyDerivationTest {
         val pub = priv.publicKey
         val address = pub.toAddress(NetworkParameters.productionNetwork, AddressType.P2PKH)
 
-        assertEquals(ADDRESS_BITID, address!!.toString())
+        assertEquals(ADDRESS_BITID, address.toString())
     }
 
     companion object {

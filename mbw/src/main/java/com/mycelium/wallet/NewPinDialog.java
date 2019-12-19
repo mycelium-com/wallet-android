@@ -67,7 +67,8 @@ public class NewPinDialog extends PinDialog {
       if (cbResettablePin.isChecked()) {
          txtInfo.setText(context.getString(
                R.string.pin_resettable_pin_info,
-               Utils.formatBlockcountAsApproxDuration(this.getContext(), Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN)
+               Utils.formatBlockcountAsApproxDuration(MbwManager.getInstance(context),
+                       Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN)
          ));
       } else {
          txtInfo.setText(context.getString(R.string.pin_unresettable_pin_info));
