@@ -741,8 +741,8 @@
     <string name="both">Both</string>
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
-    <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD accounts and Ethereum account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD accounts and Ethereum account with it.</string>
-    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD accounts and Ethereum account are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
+    <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Accounts and Ethereum Account with it.</string>
+    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD Accounts and Ethereum Account are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>
 
