@@ -112,17 +112,16 @@ constructor(val network: NetworkParameters,
     fun getActiveAccountsFrom(accounts: List<WalletAccount<*>>) = accounts.filter { it.isActive }
 
     @JvmOverloads
-    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) {
-        if (!isNetworkConnected) {
-            return
+    fun startSynchronization(mode: SyncMode = SyncMode.NORMAL_FORCED, accounts: List<WalletAccount<*>> = listOf()) : Boolean {
+        if (isNetworkConnected) {
+            Thread(Synchronizer(this, mode, accounts)).start()
         }
-        Thread(Synchronizer(this, mode, accounts)).start()
+        return isNetworkConnected
     }
 
     fun startSynchronization(acc: UUID?): Boolean {
         val activeAccount = getAccount(acc ?: return false) ?: return false
-        startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
-        return isNetworkConnected
+        return startSynchronization(SyncMode.NORMAL, listOf(activeAccount))
     }
 
     fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()

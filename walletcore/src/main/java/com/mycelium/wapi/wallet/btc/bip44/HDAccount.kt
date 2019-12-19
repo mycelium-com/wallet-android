@@ -38,8 +38,6 @@ open class HDAccount(
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
-    @Volatile
-    private var isSynchronizing = false
 
     // public method that needs no synchronization
     val accountIndex: Int
@@ -165,8 +163,6 @@ open class HDAccount(
         return derivePaths.any { context.getLastExternalIndexWithActivity(it) != -1 }
     }
 
-    override fun isSynchronizing() = isSynchronizing
-
     /**
      * Ensure that all addresses in the look ahead window have been created
      */
@@ -269,7 +265,6 @@ open class HDAccount(
     public override fun doSynchronization(proposedMode: SyncMode): Boolean {
         var mode = proposedMode
         checkNotArchived()
-        isSynchronizing = true
         syncTotalRetrievedTransactions = 0
         _logger.logInfo("Starting sync: $mode")
         if (needsDiscovery()) {
@@ -286,7 +281,6 @@ open class HDAccount(
             // Update unspent outputs
             return updateUnspentOutputs(mode)
         } finally {
-            isSynchronizing = false
             syncTotalRetrievedTransactions = 0
         }
     }
