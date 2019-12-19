@@ -169,11 +169,6 @@ public interface WalletAccount<A extends GenericAddress> {
      */
     UUID getId();
 
-    /**
-     * Returns true, if this account is currently in process of synchronization.
-     */
-    boolean isSynchronizing();
-
     boolean broadcastOutgoingTransactions();
 
     void removeAllQueuedTransactions();

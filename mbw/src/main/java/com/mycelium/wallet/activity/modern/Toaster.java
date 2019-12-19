@@ -37,8 +37,9 @@ package com.mycelium.wallet.activity.modern;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.fragment.app.Fragment;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -50,17 +51,16 @@ import com.mycelium.wallet.Utils;
 public class Toaster {
 
     private final Context context;
-    private Activity _activity;
-    private Fragment _fragment;
-    private Toast _toast;
+    private Activity activity;
+    private Fragment fragment;
 
     public Toaster(Activity activity) {
-        _activity = activity;
+        this.activity = activity;
         context = activity.getApplicationContext();
     }
 
     public Toaster(Fragment fragment) {
-        _fragment = fragment;
+        this.fragment = fragment;
         context = fragment.getContext();
     }
 
@@ -71,32 +71,25 @@ public class Toaster {
             message = context.getResources().getString(resourceId);
         } catch (Resources.NotFoundException e) {
             return;
-            //todo insert uncaught error handler
         }
         toast(message, shortDuration);
     }
 
     public void toast(String message, boolean shortDuration) {
-        if (_toast == null) {
-            if (_fragment != null) {
-                if (!_fragment.isAdded()) {
-                    return;
-                }
-                _toast = Toast.makeText(_fragment.getActivity(), "", Toast.LENGTH_SHORT);
-            } else {
-                _toast = Toast.makeText(_activity, "", Toast.LENGTH_SHORT);
-            }
+        if (fragment != null && !fragment.isAdded()) {            
+            return;            
         }
-        _toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);
-        _toast.setText(message);
-        _toast.show();
+        Activity currentActivity = fragment != null ? fragment.getActivity() : activity;
+        Toast toast = Toast.makeText(currentActivity, message, Toast.LENGTH_SHORT);
+        toast.setDuration(shortDuration ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG);        
+        toast.show();
     }
 
     public void toastConnectionError() {
         if (Utils.isConnected(context)) {
             toast(R.string.no_server_connection, false);
         } else {
-            toast( R.string.no_network_connection, true);
+            toast(R.string.no_network_connection, true);
         }
     }
 }
