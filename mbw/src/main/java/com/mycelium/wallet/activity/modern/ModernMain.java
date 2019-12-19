@@ -102,6 +102,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import de.cketti.library.changelog.ChangeLog;
 import info.guardianproject.onionkit.ui.OrbotHelper;
@@ -155,7 +156,7 @@ public class ModernMain extends AppCompatActivity {
 
         mViewPager.setOffscreenPageLimit(5);
         mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
-        if(SettingsPreference.getMediaFlowEnabled()) {
+        if (SettingsPreference.getMediaFlowEnabled()) {
             mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
             mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
         }
@@ -452,11 +453,15 @@ public class ModernMain extends AppCompatActivity {
                     syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                     counter++;
                 }
-                if (startSynchronization(syncMode)){
-                    showRefresh(); // without this call sometime user not see click feedback
+
+                if (!startSynchronization(syncMode)) {
+                    mViewPager.postDelayed(this::setRefreshAnimation, TimeUnit.SECONDS.toMillis(1));
                 }
+
                 // also fetch a new exchange rate, if necessary
                 _mbwManager.getExchangeRateManager().requestOptionalRefresh();
+
+                showRefresh(); // without this call sometime user not see click feedback
                 return true;
             case R.id.miHelp:
                 openMyceliumHelp();
