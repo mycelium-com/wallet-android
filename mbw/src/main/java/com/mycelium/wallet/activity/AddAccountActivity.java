@@ -80,9 +80,6 @@ public class AddAccountActivity extends Activity {
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
 
-    @BindView(R.id.btHdBchCreate)
-    View hdBchCreate;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -102,7 +99,6 @@ public class AddAccountActivity extends Activity {
         final View coluCreate = findViewById(R.id.btColuCreate);
         coluCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
-        hdBchCreate.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.btEthCreate)
@@ -119,9 +115,6 @@ public class AddAccountActivity extends Activity {
 
         new ETHCreationAsyncTask().execute();
     }
-
-    @OnClick(R.id.btHdBchCreate)
-    void onAddBchHD() {}
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
         @Override
