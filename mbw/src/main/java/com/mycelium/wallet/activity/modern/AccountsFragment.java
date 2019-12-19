@@ -321,11 +321,11 @@ public class AccountsFragment extends Fragment {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                    address, getBalanceString(accountToDelete.getAccountBalance()));
+                                    address, getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    getBalanceString(accountToDelete.getAccountBalance()));
+                                    getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         }
                     } else {
                         if (label.length() != 0) {

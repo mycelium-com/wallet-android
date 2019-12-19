@@ -212,8 +212,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun getId() = credentials?.ecKeyPair?.toUUID()
             ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
-    override fun isSynchronizing() = false
-
     override fun broadcastOutgoingTransactions() = true
 
     override fun removeAllQueuedTransactions() {
