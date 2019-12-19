@@ -15,6 +15,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import java.util.*
 
@@ -125,8 +126,9 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount) {
                 // When doing cold storage spending we do not offer to queue the transaction
+                // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
                     returnResult(broadcastResult)
                 }

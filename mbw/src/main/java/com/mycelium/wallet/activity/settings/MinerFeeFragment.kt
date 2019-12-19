@@ -18,57 +18,51 @@ import com.mycelium.wallet.MinerFee.PRIORITY
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
-class MinerFeeFragment : PreferenceFragmentCompat() {
-    private var mRootKey: String? = null
-    private var mOpenType: Int = 0
+class MinerFeeFragment(pageId: String) : PreferenceFragmentCompat() {
+    init {
+        arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
+    }
 
-    private var _mbwManager: MbwManager? = null
     private var displayPreferenceDialogHandler: DisplayPreferenceDialogHandler? = null
 
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        if (arguments != null) {
-            mOpenType = arguments!!.getInt(ARG_FRAGMENT_OPEN_TYPE, -1)
-            mRootKey = arguments!!.getString(ARG_PREFS_ROOT)
-        }
+        setPreferencesFromResource(R.xml.preferences, arguments?.getString(ARG_PREFS_ROOT))
 
-        setPreferencesFromResource(R.xml.preferences, mRootKey)
-
-        _mbwManager = MbwManager.getInstance(activity!!.application)
+        val mbwManager = MbwManager.getInstance(activity!!.application)
         displayPreferenceDialogHandler = DisplayPreferenceDialogHandler(preferenceScreen.context)
         setHasOptionsMenu(true)
-        val actionBar = (activity as SettingsActivity).supportActionBar
-        actionBar!!.setTitle(R.string.pref_miner_fee_title)
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
-        actionBar.setDisplayShowHomeEnabled(false)
-        actionBar.setDisplayHomeAsUpEnabled(true)
+        (activity as SettingsActivity).supportActionBar!!.apply {
+            setTitle(R.string.pref_miner_fee_title)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setDisplayShowHomeEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+        }
 
         val prefCat = PreferenceCategory(preferenceScreen.context)
         preferenceScreen.addPreference(prefCat)
         val minerFees = arrayOf<CharSequence>(LOWPRIO.toString(), ECONOMIC.toString(), NORMAL.toString(), PRIORITY.toString())
         val minerFeeNames = arrayOf<CharSequence>(getString(R.string.miner_fee_lowprio_name), getString(R.string.miner_fee_economic_name), getString(R.string.miner_fee_normal_name), getString(R.string.miner_fee_priority_name))
-        val cryptocurrencies = _mbwManager!!.getWalletManager(false).getCryptocurrenciesNames().toMutableList()
-        cryptocurrencies.sortWith(Comparator { c1, c2 -> c1.compareTo(c2, ignoreCase = true) })
+        val cryptocurrencies = mbwManager.cryptocurrenciesSorted
         for (name in cryptocurrencies) {
-            val listPreference = ListPreference(preferenceScreen.context)
-            listPreference.title = name
-            listPreference.summary = getMinerFeeSummary(name)
-            listPreference.value = _mbwManager!!.getMinerFee(name).toString()
-            listPreference.entries = minerFeeNames
-            listPreference.entryValues = minerFees
-            listPreference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                _mbwManager!!.setMinerFee(name, fromString(newValue.toString()))
-                listPreference.summary = getMinerFeeSummary(name)
-                val description = _mbwManager!!.getMinerFee(name).getMinerFeeDescription(requireActivity())
-                Utils.showSimpleMessageDialog(requireContext(), description)
-                true
+            val listPreference = ListPreference(preferenceScreen.context).apply {
+                title = name
+                summary = getMinerFeeSummary(name)
+                value = mbwManager.getMinerFee(name).toString()
+                entries = minerFeeNames
+                entryValues = minerFees
+                onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                    mbwManager.setMinerFee(name, fromString(newValue.toString()))
+                    summary = getMinerFeeSummary(name)
+                    val description = mbwManager.getMinerFee(name).getMinerFeeDescription(requireActivity())
+                    Utils.showSimpleMessageDialog(requireContext(), description)
+                    true
+                }
+                layoutResource = R.layout.preference_layout_no_icon
+                widgetLayoutResource = R.layout.preference_arrow
+                dialogTitle = "$name miner fee"
             }
-            listPreference.layoutResource = R.layout.preference_layout_no_icon
-            listPreference.widgetLayoutResource = R.layout.preference_arrow
-            listPreference.dialogTitle = "$name miner fee"
             prefCat.addPreference(listPreference)
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -84,10 +78,11 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
     }
 
     private fun getMinerFeeSummary(coinName: String): String {
+        val mbwManager = MbwManager.getInstance(requireContext())
         val blocks =
                 when (coinName) {
                     EthMain.name, EthTest.name ->
-                        when (_mbwManager!!.getMinerFee(coinName)) {
+                        when (mbwManager.getMinerFee(coinName)) {
                             LOWPRIO -> 120
                             ECONOMIC -> 20
                             NORMAL -> 8
@@ -95,7 +90,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
                             null -> 8
                         }
                     else ->
-                        when (_mbwManager!!.getMinerFee(coinName)) {
+                        when (mbwManager.getMinerFee(coinName)) {
                             LOWPRIO -> 20
                             ECONOMIC -> 10
                             NORMAL -> 3
@@ -110,15 +105,5 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
 
     companion object {
         private const val ARG_PREFS_ROOT = "preference_root_key"
-        const val ARG_FRAGMENT_OPEN_TYPE = "fragment_open_type"
-
-        @JvmStatic
-        fun newInstance(pageId: String): MinerFeeFragment {
-            val fragment = MinerFeeFragment()
-            val args = Bundle()
-            args.putString(ARG_PREFS_ROOT, pageId)
-            fragment.arguments = args
-            return fragment
-        }
     }
 }

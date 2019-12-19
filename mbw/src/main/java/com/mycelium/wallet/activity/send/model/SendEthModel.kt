@@ -8,10 +8,10 @@ import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 
-class SendEthModel(context: Application,
+class SendEthModel(application: Application,
                    account: WalletAccount<*>,
                    intent: Intent)
-    : SendCoinsModel(context, account, intent) {
+    : SendCoinsModel(application, account, intent) {
     override fun handlePaymentRequest(toSend: Value): TransactionStatus {
         throw IllegalStateException("Ethereum does not support payment requests")
     }
@@ -28,6 +28,5 @@ class SendEthModel(context: Application,
                     val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks)
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
-
     }
 }

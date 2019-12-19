@@ -70,7 +70,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
         val outputs = if (to.isEmpty()) listOf()
-            else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
+        else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
         val transferred = if (to == ownerAddress) value else -value - fee
         return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
