@@ -381,9 +381,6 @@ public class ExchangeRateManager implements ExchangeRateProvider {
      * the currently chosen exchange source is not available.
      */
     public ExchangeRate getExchangeRate(String source, String destination, String exchangeSource) {
-        if (source.equals(destination)) {
-            source = MbwManager.getInstance(_applicationContext).getSelectedAccount().getCoinType().getSymbol();
-        }
         Map<String, GetExchangeRatesResponse> latestRatesForSourceCurrency = _latestRates.get(source);
 
         // TODO need some refactoring for this
