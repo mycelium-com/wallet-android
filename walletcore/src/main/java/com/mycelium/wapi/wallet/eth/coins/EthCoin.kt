@@ -19,4 +19,8 @@ abstract class EthCoin : CryptoCurrency() {
             null
         }
     }
+
+    companion object {
+        @JvmStatic val BLOCK_TIME_IN_SECONDS = 15
+    }
 }

@@ -9,6 +9,7 @@ import android.widget.Toast.makeText
 import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.Address
+import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -129,7 +130,7 @@ class SendBtcModel(context: Application,
                         MinerFee.NORMAL -> 3
                         MinerFee.PRIORITY -> 1
                     }
-                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks)
+                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, BTC_BLOCK_TIME_IN_SECONDS)
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
     }
