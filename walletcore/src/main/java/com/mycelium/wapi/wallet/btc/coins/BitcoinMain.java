@@ -4,7 +4,6 @@ import com.mrd.bitlib.model.Address;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.SoftDustPolicy;
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency;
 
 public class BitcoinMain extends BitcoinBasedCryptoCurrency {

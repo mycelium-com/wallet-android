@@ -7,6 +7,7 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 
 class SendEthModel(application: Application,
                    account: WalletAccount<*>,
@@ -20,12 +21,12 @@ class SendEthModel(application: Application,
         return MinerFee.values()
                 .map { fee ->
                     val blocks = when (fee) {
-                        MinerFee.LOWPRIO -> 20
-                        MinerFee.ECONOMIC -> 10
-                        MinerFee.NORMAL -> 3
-                        MinerFee.PRIORITY -> 1
+                        MinerFee.LOWPRIO -> 120
+                        MinerFee.ECONOMIC -> 20
+                        MinerFee.NORMAL -> 8
+                        MinerFee.PRIORITY -> 2
                     }
-                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks)
+                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, EthCoin.BLOCK_TIME_IN_SECONDS)
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
     }

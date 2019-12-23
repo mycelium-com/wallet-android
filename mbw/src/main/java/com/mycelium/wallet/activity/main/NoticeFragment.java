@@ -74,6 +74,8 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
+import static com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS;
+
 public class NoticeFragment extends Fragment {
    public static final String LATER_CLICK_TIME = "later_click_time";
    public static final String NOTICE = "notice";
@@ -259,7 +261,7 @@ public class NoticeFragment extends Fragment {
       }
 
       // delay is still remaining, provide option to abort
-      String remaining = Utils.formatBlockcountAsApproxDuration(_mbwManager, resetPinRemainingBlocksCount.or(1));
+      String remaining = Utils.formatBlockcountAsApproxDuration(_mbwManager, resetPinRemainingBlocksCount.or(1), BTC_BLOCK_TIME_IN_SECONDS);
       new AlertDialog.Builder(getActivity())
               .setMessage(String.format(getActivity().getString(R.string.pin_forgotten_abort_pin_reset), remaining))
               .setTitle(this.getActivity().getString(R.string.pin_forgotten_reset_pin_dialog_title))
