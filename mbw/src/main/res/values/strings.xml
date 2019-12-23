@@ -19,7 +19,7 @@
     <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
-    <string name="hd_account">Add Bitcoin HD Bitcoin Account</string>
+    <string name="hd_account">Add Bitcoin HD Account</string>
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
@@ -1091,7 +1091,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_accounts_not_found"><![CDATA[We have not found any Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br>We are continuously monitoring your BTC accounts and will inform you if Bitcoin <font color="#f08c18">Cash</font> is found.]]></string>
     <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\nBitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
-    <string name="hd_account_bch">Add Bitcoin Cash HD Bitcoin Account</string>
+    <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
     <string name="generate_new_bch_key">Generate BCH SA Account</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
