@@ -8,18 +8,18 @@
     <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_account_desc">Mycelium supports Bitcoin HD Accounts, Bitcoin Single Address Accounts and Ethereum Account. All created Bitcoin HD Accounts and Ethereum Account are based on the same Master Seed.</string>
+    <string name="add_account_desc">Mycelium supports Bitcoin HD Bitcoin Accounts, Bitcoin Single Address Accounts and Ethereum Account. All created Bitcoin HD Bitcoin Accounts and Ethereum Account are based on the same Master Seed.</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
-    <string name="scan_desc">Scan Bitcoin address, private key or HD-Account.</string>
+    <string name="scan_desc">Scan Bitcoin address, private key or HD Bitcoin-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
-    <string name="use_acc_first">You can only have one unused HD Account.</string>
+    <string name="use_acc_first">You can only have one unused HD Bitcoin Account.</string>
     <string name="clipboard_desc">Import Bitcoin address or private key from clipboard.</string>
     <string name="wordlist_des">Create Master Seed from Word List</string>
     <string name="scan">Scan</string>
     <string name="advanced">Advanced</string>
     <string name="clipboard">Clipboard</string>
     <string name="enter_wordlist">Enter Word List</string>
-    <string name="hd_account">Add Bitcoin HD Account</string>
+    <string name="hd_account">Add Bitcoin HD Bitcoin Account</string>
     <string name="close">Close</string>
     <string name="sending">Sending %1$s</string>
     <string name="receiving">Receiving %1$s</string>
@@ -137,7 +137,7 @@
     <string name="delete">Delete</string>
     <string name="payment_request">Payment Request</string>
     <string name="export_account_data_warning">You are about to export sensitive data of the selected account.\n\nAnyone who gains access to these keys can either take possession of the bitcoin it controls or gain information that might subvert your privacy.\n\nDo you want to continue?</string>
-    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
+    <string name="backup_all_warning">You should backup the master seed of your wallet.\nA backup of your master seed allows you to restore your funds stored on your HD Bitcoin accounts if your device is lost or damaged.\n\nDo you want to do this now?</string>
     <string name="backup_legacy_warning">Make a Backup of your Private Key!\n\nIt will take you 2 minutes but can save millions! Having a proper backup is a cornerstone when managing your digital assets or Bitcoin funds.\n\nDO NOT USE Mycelium without creating and verifying backup of all your accounts - if you lose your smartphone and have no backup your bitcoins and digital assets will be  lost forever.\n\nDo you want to proceed?</string>
     <string name="export_to_clipboard_warning">Warning: Exporting the private account data to your clipboard exposes it to all other apps on your device.\n\nNote: It is not enough to store your private data on the clipboard, you also have to paste it somewhere safe.\n\nDo you want to continue?</string>
     <string name="found_clipboard_private_key_title">Private Key Found on Clipboard</string>
@@ -159,7 +159,7 @@
     <string name="keep_account_address">Only delete the private key and keep as a read-only account</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
-    <string name="active_hd_accounts_name">Bitcoin HD</string>
+    <string name="active_hd_accounts_name">Bitcoin HD Bitcoin</string>
     <string name="eth_accounts_name">Ethereum</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
@@ -506,7 +506,7 @@
     <string name="mycelium_com">mycelium.com</string>
     <string name="google_play">Google Play</string>
     <string name="sign_message">Sign Message</string>
-    <string name="cant_sign_message">You cannot sign a message with an HD account</string>
+    <string name="cant_sign_message">You cannot sign a message with an HD Bitcoin account</string>
     <string name="enter_message_hint">Please enter the message that you want to sign here</string>
     <string name="copy_signature">Copy Signature to Clipboard</string>
     <string name="share_signature">Share Text + Signature</string>
@@ -540,10 +540,10 @@
     <!-- BitID end -->
 
     <string name="selected_archived_warning">You cannot work on archived accounts.</string>
-    <string name="selected_hd_info">You are now working on this HD account.</string>
+    <string name="selected_hd_info">You are now working on this HD Bitcoin account.</string>
     <string name="selected_single_info">You are now working on this single address account.</string>
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
-    <string name="hd_account_creation_started">Creating new HD Account…</string>
+    <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
@@ -588,7 +588,7 @@
     <string name="title_wrong_password">Wrong password, please try again</string>
     <string name="decryption_password_hint">YOU RPA SSW ORD ABC D</string>
     <string name="testnet_label_startup">TESTNET</string>
-    <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD account</string>
+    <string name="dont_allow_archiving_unused_notification">You cannot archive an unused HD Bitcoin account</string>
     <string name="newly_generated_coins_from_coinbase">Newly generated coins</string>
     <string name="button_continue">Continue</string>
     <string name="butto_show_release_notes">Show Details</string>
@@ -600,7 +600,7 @@
     <string name="pref_legacy_backup_verify_summary">Verify an existing legacy backup</string>
     <string name="error_no_browser">Cannot navigate to website, no browser found on phone</string>
     <string name="transaction_label_title">Transaction Label</string>
-    <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
+    <string name="no_spending_records">You do not have any account able to spend.\n\nIn order to spend, you need an account with a private key in it. There are currently no active HD Bitcoin accounts or single address accounts with private keys. Please either activate or import an account holding a private key in order to spend.</string>
     <string name="select_key_for_signing">Select Key for Signing</string>
     <string name="playstore_link_label">Playstore Link</string>
     <string name="direct_apk_link_label">Direct\ndownload</string>
@@ -663,7 +663,7 @@
     <string name="ext_sig_passphrase_description">Enter optional passphrase</string>
     <string name="ext_sig_show_passphrase">Show passphrase</string>
     <string name="trezor">Trezor</string>
-    <string name="trezor_import_account">Import a Trezor-HD-Account</string>
+    <string name="trezor_import_account">Import a Trezor-HD Bitcoin-Account</string>
     <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Import Account</string>
     <string name="ext_sig_select_account_to_import">Select account to import</string>
@@ -689,14 +689,14 @@
     <string name="keepkey">KeepKey</string>
     <string name="keepkey_name">KeepKey:</string>
     <string name="keepkey_new_firmware_description">A new KeepKey firmware is available.\nPlease use KeepKey Chrome Extension on a PC to update your KeepKey.</string>
-    <string name="keepkey_import_account">Import a KeepKey-HD-Account</string>
+    <string name="keepkey_import_account">Import a KeepKey-HD Bitcoin-Account</string>
 
     <string name="ledger_initial_status">Please connect or tap and hold your Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet okay - scanning Accounts</string>
     <string name="ledger_cold_storage_header">Ledger Wallet</string>
     <string name="connect_your_ledger_info">Ledger Nano only works if your phone supports USB-OTG (on-the-go).\n\nTo connect Ledger Nano you need a USB-OTG-adapter or cable. Plug Ledger Nano on the client-side and connect the host-side with your phone.</string>
     <string name="select_ledger_account_to_spend_from">Select account to spend from</string>
-    <string name="ledger_import_account">Import a Ledger HD-Account</string>
+    <string name="ledger_import_account">Import a Ledger HD Bitcoin-Account</string>
     <string name="ledger_import_account_caption">Import Account</string>
     <string name="ledger_select_account_to_import">Select account to import</string>
     <string name="ledger_amount">Amount:</string>
@@ -741,8 +741,8 @@
     <string name="both">Both</string>
     <string name="button_changelog">Changelog</string>
     <string name="hint_type_to_filter">start typing to filter list</string>
-    <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Accounts and Ethereum Account with it.</string>
-    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD Accounts and Ethereum Account are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
+    <string name="info_add_account_keep_backup_secure">Info: All Bitcoin HD Bitcoin Accounts and Ethereum Account are derived from your Master Seed - if you keep your 12-Words-Backup secure, you can restore all your Bitcoin HD Bitcoin Accounts and Ethereum Account with it.</string>
+    <string name="warning_add_account_no_backup">Warning: You have not a confirmed backup of your Master Seed. All your Bitcoin HD Bitcoin Accounts and Ethereum Account are derived from it. They are only secure and recoverable, if you have a valid and safe Backup.</string>
     <string name="transaction_to_address_prefix">To: %s</string>
     <string name="tor_state_init">Tor init</string>
 
@@ -1067,7 +1067,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="press_exchange_button_below_to_confirm">Press Exchange button below to confirm</string>
     <string name="confirmation">Exchange confirmation</string>
     <string name="no_connected_modules">No connected modules</string>
-    <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD]]></string>
+    <string name="bitcoin_cash_hd"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> HD Bitcoin]]></string>
     <string name="bitcoin_cash_sa"><![CDATA[Bitcoin <font color="#f08c18">Cash</font> SA]]></string>
     <string name="bitcoin_cash_module"><![CDATA[Mycelium Bitcoin <font color="#f08c18">Cash</font> Module]]></string>
     <string name="bitcoin_cash_module_short">BCH</string>
@@ -1091,7 +1091,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bch_accounts_not_found"><![CDATA[We have not found any Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br>We are continuously monitoring your BTC accounts and will inform you if Bitcoin <font color="#f08c18">Cash</font> is found.]]></string>
     <string name="bch_accounts_found"><![CDATA[We have found %1$s Bitcoin <font color="#f08c18">Cash</font> on your BTC accounts.<br><br>%2$d corresponding Bitcoin <font color="#f08c18">Cash</font> account(s) created.\nBitcoin <font color="#f08c18">Cash</font>  balance can be checked on the Accounts tab.<br><br>Now you can go to the Balance tab of your Bitcoin <font color="#f08c18">Cash</font> account(s) and instantly exchange it to BTC.]]></string>
     <string name="bitcoin_cash"><![CDATA[Bitcoin <font color="#f08c18">Cash</font>]]></string>
-    <string name="hd_account_bch">Add Bitcoin Cash HD Account</string>
+    <string name="hd_account_bch">Add Bitcoin Cash HD Bitcoin Account</string>
     <string name="generate_new_bch_key">Generate BCH SA Account</string>
     <string name="bch_you_can_transaction_on_explorer"><![CDATA[You can check your transactions on <font color="#4583de">https://www.blocktrail.com/%s</font>]]></string>
     <string name="bch_technology_preview"><![CDATA[Bitcoin Cash functionality is a technology preview of Mycelium Modular Architecture. You can only instantly exchange your Bitcoin <font color="#f08c18">Cash</font> to BTC right in Mycelium so far. Fully functional Bitcoin <font color="#f08c18">Cash</font> module will be available soon. Special thanks to all our contributors and beta testers!]]></string>
@@ -1229,8 +1229,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="starting_application">Starting application</string>
     <string name="migrating_accounts">Migrating accounts</string>
     <string name="loading_accounts">Loading accounts</string>
-    <string name="migrating_n_of_m_hd">Migrating HD accounts: %1$s of %2$s</string>
-    <string name="loading_n_of_m_hd">Loading HD accounts: %1$s of %2$s</string>
+    <string name="migrating_n_of_m_hd">Migrating HD Bitcoin accounts: %1$s of %2$s</string>
+    <string name="loading_n_of_m_hd">Loading HD Bitcoin accounts: %1$s of %2$s</string>
     <string name="migrating_n_of_m_sa">Migrating SA accounts: %1$s of %2$s</string>
     <string name="loading_n_of_m_sa">Loading SA accounts: %1$s of %2$s</string>
     <string name="mixed_mode_explanation"><![CDATA[Unfortunately %1$s firmware does not support Mycelium mixed-spending mode.<br><br>Usually when you sign transaction on your hardware device it shows you just one output - destination address. In case of mixed-spending mode you will have to sign two outputs: one destination address and the other - change address.<br><br>You are still in control of the process and hardware wallet will show that the change goes to your account.<br><br>For more information please check this <a href=\"https://github.com/mycelium-com/wallet-android/issues/483\">Github issue</a>]]></string>
@@ -1280,8 +1280,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gaps_button_ignore">Ignore</string>
     <string name="hd_eth_account">Add Ethereum Account</string>
     <string name="connection_logs">Connection Logs</string>
-    <string name="fio_requires_hd_account">Currently you can only link HD accounts to FIO labels. Please switch to another account.</string>
-    <string name="confirm_fio_link">Do you want to register a FIO address for your HD account %1$s?</string>
+    <string name="fio_requires_hd_account">Currently you can only link HD Bitcoin accounts to FIO labels. Please switch to another account.</string>
+    <string name="confirm_fio_link">Do you want to register a FIO address for your HD Bitcoin account %1$s?</string>
     <string name="partner_fiopresale">FIO Address Presale</string>
     <string name="partner_fiopresale_short">Your key to a better blockchain experience</string>
     <string name="partner_fiopresale_info" />
