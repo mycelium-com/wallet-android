@@ -8,7 +8,7 @@
     <string name="scan">Scanează</string>
     <string name="advanced">Avansat</string>
     <string name="enter_wordlist">Introdu Lista de Cuvinte</string>
-    <string name="hd_account">Adauga un Cont HD (ierahic determinist)</string>
+    <string name="hd_account">Adauga un Cont HD Bitcoin (ierahic determinist)</string>
     <string name="close">Închide</string>
     <string name="sending">Se trimite %1$s</string>
     <string name="receiving">Se primeşte %1$s</string>

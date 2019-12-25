@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">添加无关帐户</string>
     <string name="import_seed_title">导入主种子</string>
     <string name="import_words_title">输入单词列表</string>
-    <string name="add_account_desc">Mycelium支持HD帐户和单一地址帐户。所有HD帐户都创建于同一主种子。第一次您创建HD帐户时，需要对您的主种子进行配置。</string>
+    <string name="add_account_desc">Mycelium支持HD Bitcoin帐户和单一地址帐户。所有HD Bitcoin帐户都创建于同一主种子。第一次您创建HD Bitcoin帐户时，需要对您的主种子进行配置。</string>
     <string name="add_single_acc_info">若要基于私钥或只读的地址添加单一地址帐户，请单击下面的高级按钮。</string>
     <string name="scan_desc">扫描比特币地址、 私钥或高清帐户。</string>
     <string name="scan_seed">从Mycelium备份中扫描主种子</string>
-    <string name="use_acc_first">你只能有一个未使用的HD帐户。</string>
+    <string name="use_acc_first">你只能有一个未使用的HD Bitcoin帐户。</string>
     <string name="clipboard_desc">导入剪贴板的比特币地址或私匙</string>
     <string name="wordlist_des">从单词列表创建主种子</string>
     <string name="scan">扫描</string>
     <string name="advanced">高级设置</string>
     <string name="clipboard">剪贴板</string>
     <string name="enter_wordlist">输入单词列表</string>
-    <string name="hd_account">添加HD帐户</string>
+    <string name="hd_account">添加HD Bitcoin帐户</string>
     <string name="close">退出</string>
     <string name="sending">正在汇款 %1$s</string>
     <string name="receiving">正在收款 %1$s</string>
@@ -102,7 +102,7 @@
     <string name="delete">删除</string>
     <string name="payment_request">付款请求</string>
     <string name="export_account_data_warning">您将要导出所选账户的敏感数据. \n\n 如果他人获得了这些秘钥的访问权限，他就可以盗取这些秘钥锁所控制的比特币，并且获得您的隐私信息.\n\n　请问你想要继续吗？</string>
-    <string name="backup_all_warning">您应该备份您钱包的主种子。 \n　如果您的设备丢失或损坏了，此备份允许您恢复存储在您的HD帐户上的资金.\n\n　您想要现进行备份吗？</string>
+    <string name="backup_all_warning">您应该备份您钱包的主种子。 \n　如果您的设备丢失或损坏了，此备份允许您恢复存储在您的HD Bitcoin帐户上的资金.\n\n　您想要现进行备份吗？</string>
     <string name="export_to_clipboard_warning">警告：将导出密钥到剪贴板将公开给您的手机\n\n注意：您必须粘贴它到安全的地方\n\n您要继续吗</string>
     <string name="found_clipboard_private_key_title">剪贴板中发现私钥</string>
     <string name="exchange_source_not_available">无法获得%1$s汇率</string>
@@ -406,7 +406,7 @@
     <string name="ignore_update">我将稍后更新</string>
     <string name="get_from">从获取</string>
     <string name="sign_message">信息签名</string>
-    <string name="cant_sign_message">您不能用HD帐户对消息进行签名。</string>
+    <string name="cant_sign_message">您不能用HD Bitcoin帐户对消息进行签名。</string>
     <string name="enter_message_hint">请输入您想要在这里签名的信息</string>
     <string name="copy_signature">将签名复制到剪贴板</string>
     <string name="share_signature">分享文字 + 签名</string>
@@ -439,7 +439,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">您不能对存档账户工作进行操作。</string>
     <string name="transaction_not_broadcasted_info">无法播报</string>
-    <string name="hd_account_creation_started">正在创建新的HD帐户...</string>
+    <string name="hd_account_creation_started">正在创建新的HD Bitcoin帐户...</string>
     <string name="preparing_wallet_on_first_startup_info">正在准备钱包...</string>
     <string name="importing_master_seed_from_wordlist">正在计算主种子...</string>
     <string name="importing_wordlist_enter_next_word">输入单词数 %1$s / %2$s</string>
@@ -482,7 +482,7 @@
     <string name="verify_wordlist_success_pin_already_set">您的单词列表备份已经成功通过验证。将备份存储到一个安全的地方，您的资金将需要于它 ！</string>
     <string name="note_down_password_title">写下你的密码</string>
     <string name="title_wrong_password">错了密码，请再试一次</string>
-    <string name="dont_allow_archiving_unused_notification">您不能存档未使用的HD帐户</string>
+    <string name="dont_allow_archiving_unused_notification">您不能存档未使用的HD Bitcoin帐户</string>
     <string name="newly_generated_coins_from_coinbase">新生成的硬币</string>
     <string name="button_continue">继续…</string>
     <string name="butto_show_release_notes">显示详细信息</string>
@@ -493,7 +493,7 @@
     <string name="pref_legacy_backup_verify_summary">验证现有的旧版本备份</string>
     <string name="error_no_browser">无法导航到网站，在手机上没有找到浏览器</string>
     <string name="transaction_label_title">交易标签</string>
-    <string name="no_spending_records">您没有任何可以用于支付的帐户。\n\n 如果想要支付的话，您需要一个含私匙的帐户。目前没有已激活含私匙的HD帐户或单个地址帐户。请激活或导入含私钥的帐户用于支付。</string>
+    <string name="no_spending_records">您没有任何可以用于支付的帐户。\n\n 如果想要支付的话，您需要一个含私匙的帐户。目前没有已激活含私匙的HD Bitcoin帐户或单个地址帐户。请激活或导入含私钥的帐户用于支付。</string>
     <string name="select_key_for_signing">选择签名密钥</string>
     <string name="playstore_link_label">Playstore 链接</string>
     <string name="direct_apk_link_label">直接\n下载</string>
@@ -547,7 +547,7 @@
     <string name="select_ext_sig_account_to_spend_from">选择消费帐户</string>
     <string name="ext_sig_passphrase_description">输入可选密码</string>
     <string name="ext_sig_show_passphrase">显示密码</string>
-    <string name="trezor_import_account">导入 Trezor HD帐户</string>
+    <string name="trezor_import_account">导入 Trezor HD Bitcoin帐户</string>
     <string name="ext_sig_import_account_caption">导入帐户</string>
     <string name="ext_sig_select_account_to_import">选择导入帐户</string>
     <string name="ext_sig_verify_transaction_on_device">验证并确认\n您的设备上的交易</string>
@@ -567,13 +567,13 @@
     <string name="keepkey_cold_storage_header">KeepKey 冷存储</string>
     <string name="keepkey_name">KeepKey</string>
     <string name="keepkey_new_firmware_description">发现新的 KeepKey 固件。 \n 请在PC上使用Chrome浏览器的KeepKey扩展包来更新你的 KeepKey。</string>
-    <string name="keepkey_import_account">导入 KeepKey HD帐户</string>
+    <string name="keepkey_import_account">导入 KeepKey HD Bitcoin帐户</string>
     <string name="ledger_initial_status">请连接或点击并按住你的Ledger钱包</string>
     <string name="ledger_scanning_status">Ledger钱包准备完毕－正在扫描账户</string>
     <string name="ledger_cold_storage_header">Ledger钱包</string>
     <string name="connect_your_ledger_info">只有在您的手机支持 USB-OTG标准的前提下，Ledger Nano才能够使用。\n\n为了连接 Ledger Nano，你需要一个USB-OTG 适配器或电缆。请用Ledger Nano客户端 USB 电缆把它连接到您的电话上。</string>
     <string name="select_ledger_account_to_spend_from">选择消费帐户</string>
-    <string name="ledger_import_account">导入Ledger HD账户</string>
+    <string name="ledger_import_account">导入Ledger HD Bitcoin账户</string>
     <string name="ledger_import_account_caption">导入帐户</string>
     <string name="ledger_select_account_to_import">选择导入帐户</string>
     <string name="ledger_amount">数额：</string>
@@ -608,8 +608,8 @@
     <string name="both">两个 全部</string>
     <string name="button_changelog">更新日志</string>
     <string name="hint_type_to_filter">开始输入筛选器列表</string>
-    <string name="info_add_account_keep_backup_secure">信息 ︰ 所有HD帐户都是基于您的主种子．如果您能够保持你十二单词备份安全，那么您可以还原所有相对应的HD帐户。</string>
-    <string name="warning_add_account_no_backup">警告 ︰ 你没有已确认的主种子备份。您的所有HD帐户都是基于它产生得。只有在您有一份安全有效备份的前提下, 它们才能够保证安全并且可恢复。</string>
+    <string name="info_add_account_keep_backup_secure">信息 ︰ 所有HD Bitcoin帐户都是基于您的主种子．如果您能够保持你十二单词备份安全，那么您可以还原所有相对应的HD Bitcoin帐户。</string>
+    <string name="warning_add_account_no_backup">警告 ︰ 你没有已确认的主种子备份。您的所有HD Bitcoin帐户都是基于它产生得。只有在您有一份安全有效备份的前提下, 它们才能够保证安全并且可恢复。</string>
     <string name="transaction_to_address_prefix">发送给：%s</string>
     <string name="tor_state_init">Tor初始化</string>
     <!-- from libNetCipher -->

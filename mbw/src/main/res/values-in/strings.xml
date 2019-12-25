@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Tambahkan Akun yang Tidak Bersangkutan</string>
     <string name="import_seed_title">Impor Master Seed</string>
     <string name="import_words_title">Masukkan Daftar Kata</string>
-    <string name="add_account_desc">Mycelium mendukung Akun HD dan satu alamat akun. Semua akun HD yang telah dibuat berdasarkan dari Master Seed yang sama.</string>
+    <string name="add_account_desc">Mycelium mendukung Akun HD Bitcoin dan satu alamat akun. Semua akun HD Bitcoin yang telah dibuat berdasarkan dari Master Seed yang sama.</string>
     <string name="add_single_acc_info">Untuk menambakan satu alamat akun berdasarkan private key atau read-only address, klik tombol Advance di bawah ini.</string>
-    <string name="scan_desc">Memindai alamat Bitcoin, private key atau akun HD.</string>
+    <string name="scan_desc">Memindai alamat Bitcoin, private key atau akun HD Bitcoin.</string>
     <string name="scan_seed">Memindai Master Seed dari Backup Mycelium</string>
-    <string name="use_acc_first">Anda hanya dapat mempunyai satu akun HD yang belum digunakan.</string>
+    <string name="use_acc_first">Anda hanya dapat mempunyai satu akun HD Bitcoin yang belum digunakan.</string>
     <string name="clipboard_desc">Mengimpor alamat Bitcoin atau private key dari clipboard.</string>
     <string name="wordlist_des">Membuat Master Seed dari Daftar Kata</string>
     <string name="scan">Memindai</string>
     <string name="advanced">Opsi Lanjutan</string>
     <string name="clipboard">Papan Klip</string>
     <string name="enter_wordlist">Masukkan Daftar Kata</string>
-    <string name="hd_account">Menambahkan akun HD</string>
+    <string name="hd_account">Menambahkan akun HD Bitcoin</string>
     <string name="close">Tutup</string>
     <string name="sending">Mengirim %1$s</string>
     <string name="receiving">Menerima %1$s</string>
@@ -247,7 +247,7 @@
     <string name="sign_bitid">Masuk</string>
     <string name="bitid_sslproblem">Masalah SSL</string>
     <!-- BitID end -->
-    <string name="hd_account_creation_started">Membuat akun HD baru&#8230;</string>
+    <string name="hd_account_creation_started">Membuat akun HD Bitcoin baru&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Mempersiapkan wallet&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Menghitung Master Seed&#8230;</string>
     <string name="showing_word_number">Kata %1$s:</string>

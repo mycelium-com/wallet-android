@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">Adicionar Conta Não-relacionada</string>
     <string name="import_seed_title">Importar Semente Mestre</string>
     <string name="import_words_title">Inserir Lista de Palavras</string>
-    <string name="add_account_desc">Mycelium suporta Contas HD e Contas de Endereço Único. Todas Contas HD criadas são baseadas na mesma Semente Mestre.</string>
+    <string name="add_account_desc">Mycelium suporta Contas HD Bitcoin e Contas de Endereço Único. Todas Contas HD Bitcoin criadas são baseadas na mesma Semente Mestre.</string>
     <string name="add_single_acc_info">Para adicionar uma conta de Endereço Único baseada em uma chave privada ou em um endereço somente-leitura, por favor clique no botão Avançado abaixo.</string>
-    <string name="scan_desc">Escanear endereço Bitcoin, chave privada ou Conta-HD.</string>
+    <string name="scan_desc">Escanear endereço Bitcoin, chave privada ou Conta-HD Bitcoin.</string>
     <string name="scan_seed">Escanear a Semente Mestre de um Backup Mycelium</string>
-    <string name="use_acc_first">Você só pode ter uma Conta HD não-utilizada.</string>
+    <string name="use_acc_first">Você só pode ter uma Conta HD Bitcoin não-utilizada.</string>
     <string name="clipboard_desc">Importar da área de transferência endereço Bitcoin ou chave privada.</string>
     <string name="wordlist_des">Criar Semente Mestre a partir de Lista de Palavras</string>
     <string name="scan">Escanear</string>
     <string name="advanced">Avançado</string>
     <string name="clipboard">Área de transferência</string>
     <string name="enter_wordlist">Inserir Lista de Palavras</string>
-    <string name="hd_account">Adicionar Conta HD</string>
+    <string name="hd_account">Adicionar Conta HD Bitcoin</string>
     <string name="close">Fechar</string>
     <string name="sending">Enviando %1$s</string>
     <string name="receiving">Recebendo %1$s</string>
@@ -100,7 +100,7 @@
     <string name="delete">Deletar</string>
     <string name="payment_request">Solicitação de Pagamento</string>
     <string name="export_account_data_warning">Você está prestes a exportar dados sensíveis da conta selecionada.\n\nQualquer um que obtiver acesso a essas chaves poderá tomar posse dos bitcoins ou obter informações que podem comprometer sua privacidade.\n\nVocê quer continuar?</string>
-    <string name="backup_all_warning">Você deveria fazer um backup da semente mestre de sua carteira.\nUma backup da semente mestre permite que você restaure os fundos armazenado nas suas contas HD caso o seu dispositivo seja perdido ou parar de funcionar.\n\nVocê quer fazer isso agora?</string>
+    <string name="backup_all_warning">Você deveria fazer um backup da semente mestre de sua carteira.\nUma backup da semente mestre permite que você restaure os fundos armazenado nas suas contas HD Bitcoin caso o seu dispositivo seja perdido ou parar de funcionar.\n\nVocê quer fazer isso agora?</string>
     <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
     <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
     <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
@@ -401,7 +401,7 @@
     <string name="ignore_update">Atualizar mais tarde</string>
     <string name="get_from">Baixar de</string>
     <string name="sign_message">Assinar Mensagem</string>
-    <string name="cant_sign_message">Você não pode assinar uma mensagem com uma Conta HD</string>
+    <string name="cant_sign_message">Você não pode assinar uma mensagem com uma Conta HD Bitcoin</string>
     <string name="enter_message_hint">Por favor insira a mensagem que você quer assinar</string>
     <string name="copy_signature">Copiar Assinatura para a Área de Transferência</string>
     <string name="share_signature">Compartilhar Texto + Assinatura</string>
@@ -434,7 +434,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">Você não pode trabalhar com contas arquivadas.</string>
     <string name="transaction_not_broadcasted_info">Não foi possível transmitir</string>
-    <string name="hd_account_creation_started">Criando nova Conta HD&#8230;</string>
+    <string name="hd_account_creation_started">Criando nova Conta HD Bitcoin&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Preparando carteira&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Calculando Semente Mestre&#8230;</string>
     <string name="importing_wordlist_enter_next_word">digite a palavra %1$s de %2$s</string>
@@ -477,7 +477,7 @@
     <string name="verify_wordlist_success_pin_already_set">Seu backup de lista de palavras foi verificado com sucesso. Armazene o backup em um lugar seguro, seus fundos dependem dele!</string>
     <string name="note_down_password_title">Anote a sua senha</string>
     <string name="title_wrong_password">Senha incorreta, tente novamente</string>
-    <string name="dont_allow_archiving_unused_notification">Você não pode arquivar uma Conta HD não-utilizada</string>
+    <string name="dont_allow_archiving_unused_notification">Você não pode arquivar uma Conta HD Bitcoin não-utilizada</string>
     <string name="newly_generated_coins_from_coinbase">Moedas recém-geradas</string>
     <string name="button_continue">Continuar</string>
     <string name="butto_show_release_notes">Mostrar Detalhes</string>
@@ -535,7 +535,7 @@
     <string name="trezor_cold_storage_header">Armazenamento Frio em Trezor</string>
     <string name="select_ext_sig_account_to_spend_from">Selecionar uma conta para gastar</string>
     <string name="ext_sig_show_passphrase">Mostrar frase secreta</string>
-    <string name="trezor_import_account">Importar uma Conta-Trezor-HD</string>
+    <string name="trezor_import_account">Importar uma Conta-Trezor-HD Bitcoin</string>
     <string name="ext_sig_import_account_caption">Importar Conta</string>
     <string name="ext_sig_select_account_to_import">Selecione uma conta para ser importada</string>
     <string name="ext_sig_verify_transaction_on_device">Verifique e confirme a\ntransação no seu dispositivo</string>
@@ -552,13 +552,13 @@
     <string name="ext_sig_unnamed">(sem nome)</string>
     <string name="keepkey_cold_storage_header">Armazenamento Frio da KeepKey</string>
     <string name="keepkey_new_firmware_description">Um novo firmware da KeepKey está disponível. \nPor favor use a extensão do Chrome da KeepKey em um PC para atualizá-lo.</string>
-    <string name="keepkey_import_account">Importar uma conta-HD da KeepKey</string>
+    <string name="keepkey_import_account">Importar uma conta-HD Bitcoin da KeepKey</string>
     <string name="ledger_initial_status">Por favor conecte ou encoste e segure a sua carteira Ledger</string>
     <string name="ledger_scanning_status">Carteira Ledger ok - escaneando Contas</string>
     <string name="ledger_cold_storage_header">Carteira Ledger</string>
     <string name="connect_your_ledger_info">A Ledger Nano funciona apenas em telefones com suporte a USB-OTG (on-the-go).\n\nPara conectar a Ledger Nano você precisa de um cabo ou adaptador USB-OTG. Ligue a Ledger Nano no lado do cliente e conecte o lado do host no seu telefone.</string>
     <string name="select_ledger_account_to_spend_from">Selecionar conta para gastar</string>
-    <string name="ledger_import_account">Importar uma Conta-HD Ledger</string>
+    <string name="ledger_import_account">Importar uma Conta-HD Bitcoin Ledger</string>
     <string name="ledger_import_account_caption">Importar Conta</string>
     <string name="ledger_select_account_to_import">Selecione uma conta para ser importada</string>
     <string name="ledger_amount">Quantia:</string>
@@ -591,8 +591,8 @@
     <string name="use_external_tor">Usar tor externo (Orbot)</string>
     <string name="both">Ambos</string>
     <string name="hint_type_to_filter">digite para filtrar a lista</string>
-    <string name="info_add_account_keep_backup_secure">Informação: Todas as Contas HD são derivadas da sua Semente Mestre - se você mantiver seu backup de 12 palavras seguro, você poderá restaurar todas suas contas HD com ele.</string>
-    <string name="warning_add_account_no_backup">Aviso: Você não tem um backup confirmado da sua Semente Mestre. Todas as suas contas HD são derivadas dela. Elas só estão seguras e recuperáveis, se você tiver um backup válido e seguro.</string>
+    <string name="info_add_account_keep_backup_secure">Informação: Todas as Contas HD Bitcoin são derivadas da sua Semente Mestre - se você mantiver seu backup de 12 palavras seguro, você poderá restaurar todas suas contas HD Bitcoin com ele.</string>
+    <string name="warning_add_account_no_backup">Aviso: Você não tem um backup confirmado da sua Semente Mestre. Todas as suas contas HD Bitcoin são derivadas dela. Elas só estão seguras e recuperáveis, se você tiver um backup válido e seguro.</string>
     <string name="transaction_to_address_prefix">Para: %s</string>
     <!-- from libNetCipher -->
     <string name="install_orbot_">Instalar o Orbot?</string>

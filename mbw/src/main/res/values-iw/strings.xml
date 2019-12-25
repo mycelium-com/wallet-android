@@ -6,10 +6,10 @@
     <string name="add_unrelated_account_title">הוסף חשבון לא-קשור</string>
     <string name="import_seed_title">ייבוא מפתח Seed</string>
     <string name="import_words_title">הזן את רשימת המילים</string>
-    <string name="add_account_desc">מייסליום תומך חשבונות HD וחשבונות כתובת אחת. כל חשבונות HD שנוצר מבוססים על בסיס באותו Seed.</string>
+    <string name="add_account_desc">מייסליום תומך חשבונות HD Bitcoin וחשבונות כתובת אחת. כל חשבונות HD Bitcoin שנוצר מבוססים על בסיס באותו Seed.</string>
     <string name="add_single_acc_info">כדי להוסיף חשבון כתובת בודד בהתבסס על פרטי מפתח או כתובת לקריאה בלבד, לחץ על לחצן מתקדם.</string>
-    <string name="scan_desc">סרוק ביטקוין כתובת, מפתח פרטי או חשבון HD.</string>
-    <string name="use_acc_first">יכול להיות רק חשבון אחד HD שאינו בשימוש.</string>
+    <string name="scan_desc">סרוק ביטקוין כתובת, מפתח פרטי או חשבון HD Bitcoin.</string>
+    <string name="use_acc_first">יכול להיות רק חשבון אחד HD Bitcoin שאינו בשימוש.</string>
     <string name="clipboard_desc">ייבא כתובת או מפתח מהעתק הדבק.</string>
     <string name="wordlist_des">ליצור Master Seed מתוך רשימת מילים</string>
     <string name="scan">סרוק</string>
