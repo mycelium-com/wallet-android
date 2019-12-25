@@ -43,11 +43,6 @@ import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -60,6 +55,12 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.common.base.Strings;
 import com.mrd.bitlib.FeeEstimator;
@@ -100,7 +101,11 @@ import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
-import com.mycelium.wallet.event.*;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.ExchangeRatesRefreshed;
+import com.mycelium.wallet.event.SelectedCurrencyChanged;
+import com.mycelium.wallet.event.SyncFailed;
+import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
 import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.api.response.Feature;
@@ -1173,7 +1178,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             mbwManager.getExchangeRateManager().requestRefresh();
         }
 
-        btClipboard.setEnabled(getUriFromClipboard() != null);
         pbSend.setVisibility(GONE);
 
         updateTransactionStatusAndUi();
@@ -1182,6 +1186,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
         }
+        // start from android 10 application can't access to clipboard in background state
+        btClipboard.post(() -> btClipboard.setEnabled(getUriFromClipboard() != null));
     }
 
     @Override
