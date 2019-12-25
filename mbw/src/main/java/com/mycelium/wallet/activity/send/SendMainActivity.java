@@ -1173,7 +1173,6 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             mbwManager.getExchangeRateManager().requestRefresh();
         }
 
-        btClipboard.setEnabled(getUriFromClipboard() != null);
         pbSend.setVisibility(GONE);
 
         updateTransactionStatusAndUi();
@@ -1182,6 +1181,8 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
             activityResultDialog.show(getSupportFragmentManager(), "ActivityResultDialog");
             activityResultDialog = null;
         }
+        // start from android 10 application can't access to clipboard in background state
+        btClipboard.post(() -> btClipboard.setEnabled(getUriFromClipboard() != null));
     }
 
     @Override
