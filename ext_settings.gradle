@@ -26,10 +26,6 @@ ext {
     httpClientJacksonVersion = '1.19.0'
     jacksonAnnotationsVersion = '2.9.5'
     jacksonDatabindVersion = '2.9.9'
-    spongyCoreVersion = '1.58.0.0'
-    spongyProvVersion = '1.58.0.0'
-    spongyPkixVersion = '1.54.0.0'
-    spongyPgVersion = '1.54.0.0'
 
     projectRootDir = project.rootDir.getPath()
     commonDebugKeystore = project.file('debug.keystore')
