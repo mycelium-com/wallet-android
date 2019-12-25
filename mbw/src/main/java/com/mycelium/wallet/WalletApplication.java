@@ -57,7 +57,6 @@ import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,9 +87,9 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
         int loadedBouncy = Security.insertProviderAt(new BouncyCastleProvider(), 1);
         if(loadedBouncy == -1) {
-            Log.e("WalletApplication", "Failed to insert spongy castle provider");
+            Log.e("WalletApplication", "Failed to insert security provider");
         } else {
-            Log.d("WalletApplication", "Inserted spongy castle provider");
+            Log.d("WalletApplication", "Inserted security provider");
         }
         INSTANCE = this;
         if (BuildConfig.DEBUG) {

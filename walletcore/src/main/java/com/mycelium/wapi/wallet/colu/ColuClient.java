@@ -7,7 +7,8 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.json.*;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocketFactory;
