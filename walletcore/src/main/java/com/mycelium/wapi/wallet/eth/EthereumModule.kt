@@ -1,6 +1,9 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
@@ -14,8 +17,6 @@ import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
-import org.web3j.crypto.Bip32ECKeyPair
-import org.web3j.crypto.Bip32ECKeyPair.HARDENED_BIT
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
 import org.web3j.protocol.http.HttpService
@@ -115,18 +116,15 @@ class EthereumModule(
 
     private fun deriveKey(): Credentials {
         val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
+        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
+        val path = "m/44'/60'/0'/0/0"
 
-        val masterKeypair = Bip32ECKeyPair.generateKeyPair(seed.bip32Seed)
+        val privKey = HexUtils.toHex(rootNode.createChildNode(HdKeyPath.valueOf(path)).privateKey.privateKeyBytes)
+        val credentials = Credentials.create(privKey)
 
-        // m/44'/60'/0'/0
-        val path = intArrayOf(44 or HARDENED_BIT, 60 or HARDENED_BIT, 0 or HARDENED_BIT, 0, 0)
-        val bip44Keypair = Bip32ECKeyPair.deriveKeyPair(masterKeypair, path)
-        val credentials = Credentials.create(bip44Keypair)
-
-        secureStore.encryptAndStoreValue(bip44Keypair.toUUID().toString().toByteArray(),
-                Keys.serialize(bip44Keypair), AesKeyCipher.defaultKeyCipher())
-
-        return credentials
+        secureStore.encryptAndStoreValue(credentials.ecKeyPair.toUUID().toString().toByteArray(),
+                Keys.serialize(credentials.ecKeyPair), AesKeyCipher.defaultKeyCipher())
+        return Credentials.create(privKey)
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
