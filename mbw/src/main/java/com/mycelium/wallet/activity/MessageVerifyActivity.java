@@ -13,7 +13,6 @@ import com.mrd.bitlib.crypto.SignedMessage;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mrd.bitlib.util.X509Utils;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 
@@ -26,6 +25,7 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 
 import static butterknife.OnTextChanged.Callback.AFTER_TEXT_CHANGED;
+import com.mrd.bitlib.util.X509Utils;
 
 public class MessageVerifyActivity extends Activity {
 
