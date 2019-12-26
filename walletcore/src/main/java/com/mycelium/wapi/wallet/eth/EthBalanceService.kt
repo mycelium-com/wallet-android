@@ -54,7 +54,7 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
                     .fold(BigInteger.ZERO, BigInteger::add)
 
             balance = Balance(Value.valueOf(coinType, balanceResult.balance - outgoingSum),
-                    Value.valueOf(coinType, incomingSum), Value.valueOf(coinType, outgoingSum), balance.pendingChange)
+                    Value.valueOf(coinType, incomingSum), Value.valueOf(coinType, outgoingSum), Value.zeroValue(coinType))
             true
         } catch (e: SocketTimeoutException) {
             false

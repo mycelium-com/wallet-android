@@ -196,7 +196,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun isDerivedFromInternalMasterseed() = true
 
-    override fun getId() = credentials?.ecKeyPair?.toUUID()
+    override fun getId(): UUID = credentials?.ecKeyPair?.toUUID()
             ?: UUID.nameUUIDFromBytes(receivingAddress.getBytes())
 
     override fun broadcastOutgoingTransactions() = true
