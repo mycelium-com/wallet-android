@@ -59,8 +59,7 @@ public class MessageVerifyActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        String clipboard = Utils.getClipboardString(this);
-        pasteView.setEnabled(!clipboard.isEmpty());
+        pasteView.post(() -> pasteView.setEnabled(!Utils.getClipboardString(this).isEmpty()));
     }
 
     @OnClick(R.id.btPaste)
