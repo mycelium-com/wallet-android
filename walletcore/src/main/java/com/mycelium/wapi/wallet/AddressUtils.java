@@ -26,8 +26,7 @@ public class AddressUtils {
                 return null;
             }
         } else if (currencyType instanceof EthCoin) {
-            EthAddress addr = new EthAddress(currencyType, address);
-            return addr;
+            return new EthAddress(currencyType, address);
         } else {
             return null;
         }
@@ -36,13 +35,7 @@ public class AddressUtils {
     //Use only for bitcoin address
     public static GenericAddress fromAddress(Address address) {
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
-        GenericAddress res = new BtcAddress(currency, address);
-        return res;
-    }
-
-    // Use only for bitcoin address
-    public static boolean addressValidation(GenericAddress address) {
-        return Address.fromString(address.toString()) != null;
+        return new BtcAddress(currency, address);
     }
 
     public static String toMultiLineString(String address) {
