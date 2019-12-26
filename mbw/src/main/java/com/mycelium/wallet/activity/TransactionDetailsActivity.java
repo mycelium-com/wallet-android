@@ -46,16 +46,17 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.AddressLabel;
+import com.mycelium.wallet.activity.util.BtcFeeFormatter;
+import com.mycelium.wallet.activity.util.FeeFormatter;
+import com.mycelium.wallet.activity.util.FeeFormattingUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -164,11 +165,11 @@ public class TransactionDetailsActivity extends Activity {
         final LinearLayout llInputs = findViewById(R.id.llInputs);
         llInputs.removeAllViews();
         if (tx.getInputs() != null) {
-            long sum = 0;
+            Value sum = Value.zeroValue(tx.getType());
             for (GenericOutputViewModel input : tx.getInputs()) {
-                sum += input.getValue().value;
+                sum = sum.plus(input.getValue());
             }
-            if (sum != 0) {
+            if (!sum.equalZero()) {
                 tvInputsAmount.setVisibility(View.GONE);
                 for (GenericOutputViewModel item : tx.getInputs()) {
                     llInputs.addView(getItemView(item));
@@ -187,15 +188,24 @@ public class TransactionDetailsActivity extends Activity {
         }
 
         // Set Fee
-        final long txFeeTotal = tx.getFee().value;
+        final long txFeeTotal = tx.getFee().getValueAsLong();
         if (txFeeTotal > 0) {
             String fee;
             findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
             findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
-            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination());
+            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + "\n";
             if (tx.getRawSize() > 0) {
-                final long txFeePerSat = txFeeTotal / tx.getRawSize();
-                fee += String.format("\n%d sat/byte", txFeePerSat);
+                final long txFeePerUnit = txFeeTotal / tx.getRawSize();
+                FeeFormatter feeFormatter = new FeeFormattingUtil().getFeeFormatter(_mbwManager.getSelectedAccount().getCoinType());
+                if (feeFormatter != null) {
+                    if (feeFormatter instanceof BtcFeeFormatter) {
+                        fee += ((BtcFeeFormatter) feeFormatter).getFeePerUnitInBytes(txFeePerUnit);
+                    } else {
+                        fee += feeFormatter.getFeePerUnit(txFeePerUnit);
+                    }
+                } else {
+                    fee += txFeePerUnit;
+                }
             }
             ((TextView) findViewById(R.id.tvFee)).setText(fee);
             tvFeeAmount.setText(fee);
@@ -239,7 +249,7 @@ public class TransactionDetailsActivity extends Activity {
             ll.addView(getValue(item.getValue(), address));
             AddressLabel adrLabel = new AddressLabel(this);
             adrLabel.setColuMode(coluMode);
-            adrLabel.setAddress(AddressUtils.fromAddress(Address.fromString(item.getAddress().toString())));
+            adrLabel.setAddress(item.getAddress());
             ll.addView(adrLabel);
         }
         ll.setPadding(10, 10, 10, 10);
@@ -259,14 +269,15 @@ public class TransactionDetailsActivity extends Activity {
         TextView tv = new TextView(this);
         tv.setLayoutParams(FPWC);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
+        tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
         tv.setTextColor(_white_color);
         tv.setTag(tag);
 
         tv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Utils.setClipboardString(ValueExtensionsKt.toString(value, _mbwManager.getDenomination()), getApplicationContext());
+                Utils.setClipboardString(ValueExtensionsKt.toString(value,
+                        _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())), getApplicationContext());
                 Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
                 return true;
             }

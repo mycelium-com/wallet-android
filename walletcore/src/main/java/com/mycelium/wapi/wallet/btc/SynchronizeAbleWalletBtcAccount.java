@@ -33,6 +33,8 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    @Volatile
    private boolean isSyncing;
 
+   private String accountLabel;
+
    /**
     * Checks if the account needs to be synchronized, according to the provided SyncMode
     *
@@ -78,7 +80,7 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
    public boolean synchronize(SyncMode mode){
       if (needsSynchronization(mode)){
          isSyncing = true;
-         boolean synced = doSynchronization(mode);
+         boolean synced =  doSynchronization(mode);
          isSyncing = false;
          // if sync went well, remember current time for this sync mode
          if (synced){
@@ -128,18 +130,19 @@ public abstract class SynchronizeAbleWalletBtcAccount implements WalletBtcAccoun
 
    @Override
    public String getLabel() {
-      return null;
+      return accountLabel;
    }
 
    @Override
    public void setLabel(String label) {
+      accountLabel = label;
    }
 
    @Override
    public abstract NetworkParameters getNetwork();
 
    @Override
-   public abstract Value calculateMaxSpendableAmount(long minerFeeToUse, BtcAddress destinationAddress);
+   public abstract Value calculateMaxSpendableAmount(Value minerFeeToUse, BtcAddress destinationAddress);
 
    @Override
    public abstract UnsignedTransaction createUnsignedTransaction(List<BtcReceiver> receivers, long minerFeeToUse)

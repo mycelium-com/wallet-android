@@ -169,7 +169,8 @@ public class LtAndroidUtils {
             // and no preference: default to account default or first
             indexToSelect = 0;
             MbwManager mbwManager = MbwManager.getInstance(activity.getApplication());
-            String currentRateName = mbwManager.getExchangeRateManager().getCurrentExchangeSourceName();
+            String currentRateName = mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                    mbwManager.getSelectedAccount().getCoinType().getSymbol());
             if(currentRateName != null) {
                for (int i = 0; i < priceFormulas.size(); i++) {
                   PriceFormula formula = priceFormulas.get(i);

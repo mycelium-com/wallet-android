@@ -198,6 +198,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
 
    @Override
    public List<AddressType> getAvailableAddressTypes() {
+      if (publicKey != null && !publicKey.isCompressed()) {
+         return Collections.singletonList(AddressType.P2PKH);
+      }
       return new ArrayList<>(_context.getAddresses().keySet());
    }
 

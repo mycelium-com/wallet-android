@@ -9,7 +9,6 @@ import com.mrd.bitlib.model.*
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.BtcAddress
@@ -33,8 +32,8 @@ import java.util.*
 class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPrivateKey?
                   , private val type: CryptoCurrency
                   , val networkParameters: NetworkParameters
-                  , val coluClient: ColuApi
-                  , val accountBacking: ColuAccountBacking
+                  , private val coluClient: ColuApi
+                  , private val accountBacking: ColuAccountBacking
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
                   , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
@@ -55,10 +54,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return result
     }
 
-    override fun getTransactions(offset: Int, limit: Int): MutableList<GenericTransaction> {
-        return ArrayList()
-    }
-
     override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
         return false
     }
@@ -74,16 +69,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     override fun isSyncing(): Boolean {
         //TODO: implement later
         return false
-    }
-
-    private fun getDefaultFeeEstimation(): FeeEstimationsGeneric {
-        return FeeEstimationsGeneric(
-                Value.valueOf(coinType, 1000),
-                Value.valueOf(coinType, 3000),
-                Value.valueOf(coinType, 6000),
-                Value.valueOf(coinType, 8000),
-                0
-        )
     }
 
     override fun getDummyAddress(subType: String): BtcAddress {
@@ -174,37 +159,9 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getBlockChainHeight(): Int = context.blockHeight
 
-    override fun calculateMaxSpendableAmount(minerFeeToUse: Long, destinationAddres: BtcAddress): Value {
+    override fun calculateMaxSpendableAmount(minerFeeToUse: Value, destinationAddres: BtcAddress): Value {
         return accountBalance.spendable
     }
-
-    override fun getFeeEstimations(): FeeEstimationsGeneric {
-        // we try to get fee estimation from server
-        try {
-            val response = wapi.minerFeeEstimations
-            val oldStyleFeeEstimation = response.result.feeEstimation
-            val lowPriority = oldStyleFeeEstimation.getEstimation(20)
-            val normal = oldStyleFeeEstimation.getEstimation(3)
-            val economy = oldStyleFeeEstimation.getEstimation(10)
-            val high = oldStyleFeeEstimation.getEstimation(1)
-            val result = FeeEstimationsGeneric(
-                    Value.valueOf(coinType, lowPriority!!.longValue),
-                    Value.valueOf(coinType, economy!!.longValue),
-                    Value.valueOf(coinType, normal!!.longValue),
-                    Value.valueOf(coinType, high!!.longValue),
-                    System.currentTimeMillis()
-            )
-            //if all ok we return requested new fee estimation
-            accountBacking.saveLastFeeEstimation(result, coinType)
-            return result
-        } catch (ex: WapiException) {
-            //receiving data from the server failed then trying to read fee estimations from the DB
-            //if a read error has occurred from the DB, then we return the predefined default fee
-            return getCachedFeeEstimations()
-        }
-    }
-
-    override fun getCachedFeeEstimations(): FeeEstimationsGeneric = accountBacking.loadLastFeeEstimation(coinType) ?: getDefaultFeeEstimation()
 
     @Synchronized
     override fun synchronize(mode: SyncMode?): Boolean {

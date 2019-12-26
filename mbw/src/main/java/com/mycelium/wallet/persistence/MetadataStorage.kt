@@ -49,6 +49,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -245,6 +247,8 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "Mass Token Test" -> MASSCoinTest
             "RMC" -> RMCCoin
             "RMC Test" -> RMCCoinTest
+            "Ethereum" -> EthMain
+            "Ethereum test" -> EthTest
             else -> null
         }
     }
@@ -253,7 +257,7 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "")
     }
 
-    fun deleteAddressMetadata(address: Address) {
+    fun deleteAddressMetadata(address: GenericAddress) {
         // delete everything related to this address from metadata
         deleteAllByKey(address.toString())
     }
@@ -453,10 +457,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
 
     // various key value fields info for colu
     private val COLU = MetadataCategory("colu_data")
-    // associates asset label for each assetId
-    private val COLU_ASSET_LABEL_CATEGORY = MetadataCategory("colu_asset_labels")
-    // associates all asset data for each assetId
-    private val COLU_ASSET_DATA_CATEGORY = MetadataCategory("colu_asset_data")
 
     private val SEED_BACKUPSTATE = MetadataKeyCategory("seed", "backupstate")
     private val PIN_RESET_BLOCKHEIGHT = MetadataKeyCategory("pin", "reset_blockheight")

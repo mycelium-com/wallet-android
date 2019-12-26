@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.wallet.coins.Balance;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
@@ -15,12 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
 
 public interface WalletAccount<A extends GenericAddress> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress addres, Value amount, GenericFee fee)
+    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
             throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
     void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;
@@ -65,8 +63,6 @@ public interface WalletAccount<A extends GenericAddress> {
      * @param receivingSince only include tx younger than this
      */
     List<GenericTransactionSummary> getTransactionsSince(long receivingSince);
-
-    List<GenericTransaction> getTransactions(int offset, int limit);
 
     List<GenericOutputViewModel> getUnspentOutputViewModels();
 
@@ -181,21 +177,12 @@ public interface WalletAccount<A extends GenericAddress> {
      * Determine the maximum spendable amount you can send in a transaction
      * Destination address can be null
      */
-    Value calculateMaxSpendableAmount(long minerFeePerKilobyte, A destinationAddress);
+    Value calculateMaxSpendableAmount(Value minerFeePerKilobyte, A destinationAddress);
 
     /**
      * Returns the number of retrieved transactions during synchronization
      */
     int getSyncTotalRetrievedTransactions();
-
-    FeeEstimationsGeneric getFeeEstimations();
-
-    /**
-     * Do not fetch new estimations from the web but return the last value instead. If there is no
-     * last values available, return default values.
-     */
-    @Nonnull
-    FeeEstimationsGeneric getCachedFeeEstimations();
 
     int getTypicalEstimatedTransactionSize();
 

@@ -49,13 +49,13 @@ public class ColuAssetUriTest {
     @Test
     public void parseIntAmount() {
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=123", RMCCoin.INSTANCE, productionNetwork,
-                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 12300000000L), null));
+                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 1230000L), null));
     }
 
     @Test
     public void parseFloatAmount() {
         testParse("rmc:1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN?amount=123.456", RMCCoin.INSTANCE, productionNetwork,
-                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 12345600000L), null));
+                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN"), Value.valueOf(RMCCoin.INSTANCE, 1234560L), null));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ColuAssetUriTest {
         String label = "HelloWorld";
         String address = "1A3fouaDJA4RRLnQmFxQRh98gr8cFGvwdN";
         testParse("rmc:" + address + "?amount=123.456&label=" + label, RMCCoin.INSTANCE, productionNetwork,
-                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, address), Value.valueOf(RMCCoin.INSTANCE, 12345600000L), label));
+                new RMCUri(AddressUtils.from(RMCCoin.INSTANCE, address), Value.valueOf(RMCCoin.INSTANCE, 1234560L), label));
     }
 
     @Test

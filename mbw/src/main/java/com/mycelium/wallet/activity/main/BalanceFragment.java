@@ -91,6 +91,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
@@ -155,7 +156,8 @@ public class BalanceFragment extends Fragment {
         });
 
         ExchangeRateManager exchangeRateManager = _mbwManager.getExchangeRateManager();
-        final List<String> sources = exchangeRateManager.getExchangeSourceNames();
+        WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+        final List<String> sources = exchangeRateManager.getExchangeSourceNames(selectedAccount.getCoinType().getSymbol());
         final Map<String, String> sourcesAndValues = new HashMap<>(); // Needed for popup menu
 
         Collections.sort(sources, new Comparator<String>() {
@@ -167,11 +169,13 @@ public class BalanceFragment extends Fragment {
 
         for (int i = 0; i < sources.size(); i++) {
             String source = sources.get(i);
-            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(_mbwManager.getFiatCurrency().getSymbol(), source);
+            ExchangeRate exchangeRate = exchangeRateManager.getExchangeRate(selectedAccount.getCoinType().getSymbol(),
+                    _mbwManager.getFiatCurrency(selectedAccount.getCoinType()).getSymbol(), source);
             String price = exchangeRate == null || exchangeRate.price == null ? "not available"
-                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() + " " + _mbwManager.getFiatCurrency().getSymbol();
+                    : new BigDecimal(exchangeRate.price).setScale(2, BigDecimal.ROUND_DOWN).toPlainString() +
+                    " " + _mbwManager.getFiatCurrency(selectedAccount.getCoinType()).getSymbol();
             String item;
-            if (_mbwManager.getSelectedAccount() instanceof ColuAccount) {
+            if (selectedAccount instanceof ColuAccount) {
                 item = COINMARKETCAP + "/" + source;
             } else {
                 item = source + " (" + price + ")";
@@ -180,10 +184,18 @@ public class BalanceFragment extends Fragment {
             exchangeMenu.getMenu().add(item);
         }
 
+        // if we ended up with not existent source name for current cryptocurrency (CC)
+        // after we have switched accounts for different CC
+        // then use the first existent one for current CC
+        if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol()))) {
+            exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(), sources.get(0));
+        }
+
         exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                _mbwManager.getExchangeRateManager().setCurrentExchangeSourceName(sourcesAndValues.get(item.getTitle().toString()));
+                exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(),
+                        sourcesAndValues.get(item.getTitle().toString()));
                 return false;
             }
         });
@@ -205,7 +217,7 @@ public class BalanceFragment extends Fragment {
     @Override
     public void onStart() {
         MbwManager.getEventBus().register(this);
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         if (_exchangeRatePrice == null) {
             _mbwManager.getExchangeRateManager().requestRefresh();
         }
@@ -227,7 +239,7 @@ public class BalanceFragment extends Fragment {
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
         if (account.canSpend()) {
-            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().value == 0) {
+            if (account instanceof ColuAccount && ((ColuAccount) account).getAccountBalance().getSpendable().equalZero()) {
                 new AlertDialog.Builder(getActivity())
                         .setMessage(getString(R.string.rmc_send_warning, account.getCoinType().getName()))
                         .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
@@ -275,7 +287,8 @@ public class BalanceFragment extends Fragment {
             return;
         }
         WalletAccount account = Preconditions.checkNotNull(_mbwManager.getSelectedAccount());
-        updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()));
+        _tcdFiatDisplay.setCoinType(account.getCoinType());
+        updateUiKnownBalance(Preconditions.checkNotNull(account.getAccountBalance()), account.getCoinType());
 
         TextView tvBtcRate = _root.findViewById(R.id.tvBtcRate);
 
@@ -285,34 +298,36 @@ public class BalanceFragment extends Fragment {
             tvBtcRate.setVisibility(View.INVISIBLE);
             exchangeSourceLayout.setVisibility(View.GONE);
         } else {
-            Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(), _mbwManager.getFiatCurrency());
+            Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(),
+                    _mbwManager.getFiatCurrency(account.getCoinType()));
             if (value == null) {
                 // We have no price, exchange not available
                 tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
-                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName()));
+                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                                _mbwManager.getSelectedAccount().getCoinType().getSymbol())));
             } else {
                 tvBtcRate.setText(getResources().getString(R.string.balance_rate
                         , account.getCoinType().getSymbol()
-                        , _mbwManager.getFiatCurrency().getSymbol()
+                        , _mbwManager.getFiatCurrency(account.getCoinType()).getSymbol()
                         , ValueExtensionsKt.toString(value)));
             }
             tvBtcRate.setVisibility(View.VISIBLE);
-            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                    _mbwManager.getSelectedAccount().getCoinType().getSymbol()));
             exchangeSourceLayout.setVisibility(View.VISIBLE);
         }
     }
 
-    private void updateUiKnownBalance(Balance balance) {
-        CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
+    private void updateUiKnownBalance(Balance balance, GenericAssetInfo coinType) {
+        CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
         ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
         // Show alternative values
-        _tcdFiatDisplay.setFiatOnly(true);
         _tcdFiatDisplay.setValue(balance.getSpendable());
 
         // Show/Hide Receiving
         if (balance.pendingReceiving.isPositive()) {
-            String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
+            String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination(coinType));
             String receivingText = getResources().getString(R.string.receiving, receivingString);
             TextView tvReceiving = _root.findViewById(R.id.tvReceiving);
             tvReceiving.setText(receivingText);
@@ -325,7 +340,8 @@ public class BalanceFragment extends Fragment {
 
         // Show/Hide Sending
         if (balance.getSendingToForeignAddresses().isPositive()) {
-            String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
+            String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(),
+                    _mbwManager.getDenomination(coinType));
             String sendingText = getResources().getString(R.string.sending, sendingString);
             TextView tvSending = _root.findViewById(R.id.tvSending);
             tvSending.setText(sendingText);
@@ -337,7 +353,8 @@ public class BalanceFragment extends Fragment {
         setFiatValue(R.id.tvSendingFiat, balance.getSendingToForeignAddresses(), true);
 
         // set exchange item
-        exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName());
+        exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
+                _mbwManager.getSelectedAccount().getCoinType().getSymbol()));
     }
 
     private void setFiatValue(int textViewResourceId, Value value, boolean hideOnZeroBalance) {
@@ -348,7 +365,8 @@ public class BalanceFragment extends Fragment {
         } else {
             try {
                 tv.setVisibility(View.VISIBLE);
-                Value converted = _mbwManager.getExchangeRateManager().get(value,  _mbwManager.getFiatCurrency());
+                Value converted = _mbwManager.getExchangeRateManager().get(value,
+                        _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                 tv.setText(ValueExtensionsKt.toStringWithUnit(converted));
             } catch (IllegalArgumentException ex) {
                 // something failed while calculating the bitcoin amount
@@ -435,20 +453,20 @@ public class BalanceFragment extends Fragment {
 
     @Subscribe
     public void exchangeRatesRefreshed(ExchangeRatesRefreshed event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
         updateExchangeSourceMenu();
     }
 
     @Subscribe
     public void exchangeSourceChanged(ExchangeSourceChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
     }
 
     @Subscribe
     public void selectedCurrencyChanged(SelectedCurrencyChanged event) {
-        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+        _exchangeRatePrice = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_mbwManager.getSelectedAccount().getCoinType());
         updateUi();
         updateExchangeSourceMenu();
     }

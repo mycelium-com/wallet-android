@@ -52,15 +52,22 @@ public interface Constants {
     * Settings and their default values
     */
    String SETTINGS_NAME = "settings";
+   String EXCHANGE_DATA = "wapi_exchange_rates";
    String PIN_SETTING = "PIN";
    String PIN_SETTING_RESETTABLE = "PinResettable";
    String RANDOMIZE_PIN = "randomizePin";
    String PIN_SETTING_REQUIRED_ON_STARTUP = "PinOnStartup";
    String PROXY_SETTING = "proxy";
-   String FIAT_CURRENCY_SETTING = "FiatCurrency";
+   String TOTAL_FIAT_CURRENCY_SETTING = "TotalFiatCurrency";
+   // last selected fiat currencies, used as alternative amount
+   String FIAT_CURRENCIES_SETTING = "FiatCurrencies";
+   // last selected currencies (could be fiat also), used as representation
+   String CURRENT_CURRENCIES_SETTING = "CurrentCurrencies";
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    String DEFAULT_CURRENCY = "USD";
-   String BITCOIN_DENOMINATION_SETTING = "BitcoinDenomination";
+   String DEFAULT_EXCHANGE = "Bitstamp";
+   String DENOMINATION_SETTING = "Denomination";
+   String EXCHANGE_RATE_SETTING = "currentRateName";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";
    String KEY_MANAGEMENT_LOCKED_SETTING = "KeyManagementLocked";
    String MYCELIUM_WALLET_HELP_URL = "http://www.mycelium.com/wallet/help_20.html";
@@ -69,7 +76,7 @@ public interface Constants {
    String LANGUAGE_SETTING = "user_language";
    String IGNORED_VERSIONS = "ignored_versions";
    String TOR_MODE = "tor_mode";
-   String BLOCK_EXPLORER = "BlockExplorer";
+   String BLOCK_EXPLORERS = "BlockExplorers";
    String CHANGE_ADDRESS_MODE = "change_type";
 
    // Ledger preferences
@@ -122,4 +129,5 @@ public interface Constants {
    String SETTING_DENOMINATION = "bitcoin_denomination";
    String SETTING_MINER_FEE = "miner_fee";
    long CONFIG_UPDATE_PERIOD_MINS = 20;
+   int BTC_BLOCK_TIME_IN_SECONDS = 600;
 }

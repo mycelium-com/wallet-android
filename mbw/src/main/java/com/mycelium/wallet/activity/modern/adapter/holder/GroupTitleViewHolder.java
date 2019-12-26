@@ -6,13 +6,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyDisplay;
+import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
 
 
 public class GroupTitleViewHolder extends RecyclerView.ViewHolder {
     public TextView tvTitle;
     public TextView tvAccountsCount;
-    public ToggleableCurrencyDisplay tvBalance;
+    public ToggleableCurrencyButton tvBalance;
     public ImageView expandIcon;
 
     public GroupTitleViewHolder(View itemView) {

@@ -370,10 +370,13 @@ public class TradeActivity extends Activity {
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       checkNotNull(ts.buyerAddress);
       WalletAccount acc = mbwManager.getSelectedAccount();
-
+      long feeEstimation = mbwManager.getFeeProvider(acc.getCoinType())
+              .getEstimation()
+              .getNormal()
+              .getValueAsLong();
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
+            ts.buyerAddress, ts.feeAddress, acc, feeEstimation);
       CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
       BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
       Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);

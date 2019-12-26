@@ -23,7 +23,6 @@ import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.activity.send.ManualAddressEntry
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.VerifyPaymentRequestActivity
-import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.util.*
 import com.mycelium.wallet.content.ResultType
 import com.mycelium.wallet.event.SyncFailed
@@ -50,7 +49,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
     protected lateinit var model: SendCoinsModel
     protected var progressDialog: ProgressDialog? = null
 
-    private val uriPattern = Pattern.compile("[a-zA-Z0-9]+")
+    abstract val uriPattern: Pattern
     private var receivingAcc: UUID? = null
     private var xpubSyncing: Boolean = false
 
@@ -94,7 +93,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                   intent: Intent) {
 
         amountHint = context.getString(R.string.amount_hint_denomination,
-                mbwManager.denomination.getUnicodeString(account.coinType.symbol))
+                mbwManager.getDenomination(account.coinType).getUnicodeString(account.coinType.symbol))
         if (::model.isInitialized) {
             throw IllegalStateException("This method should be called only once.")
         }
@@ -104,7 +103,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     abstract fun sendTransaction(activity: Activity)
 
-    abstract fun getFeeFormatter(): FeeViewAdapter.FeeItemFormatter
+    abstract fun getFeeFormatter(): FeeFormatter
 
     fun getSelectedFee() = model.selectedFee
 
@@ -178,7 +177,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getFiatValue(): String? {
         val fiat = mbwManager.exchangeRateManager.get(model.amount.value,
-                mbwManager.currencySwitcher.currentFiatCurrency)
+                mbwManager.currencySwitcher.getCurrentFiatCurrency(model.account.coinType))
         return fiat?.toStringWithUnit()
     }
 
@@ -202,8 +201,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
         model.clipboardUri.value = if (uriPattern.matcher(string).matches()) {
             // Raw format
-            val addresses = mbwManager.getWalletManager(false).parseAddress(string)
-            val address = addresses.find { model.account.coinType == it.coinType }
+            val address = getAccount().coinType.parseAddress(string)
             if (address != null) {
                 GenericAssetUriParser.createUriByCoinType(model.account.coinType, address, null, null, null)
             } else {
@@ -273,7 +271,11 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     throw NotImplementedError("Private key must be implemented per currency")
                 }
                 ResultType.ADDRESS -> {
-                    model.receivingAddress.value = data.getAddress()
+                    if (data.getAddress().coinType == getAccount().coinType) {
+                        model.receivingAddress.value = data.getAddress()
+                    } else {
+                        makeText(context, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
+                    }
                 }
                 ResultType.ASSET_URI -> {
                     val uri = data.getAssetUri()

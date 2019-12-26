@@ -91,6 +91,7 @@ import com.mycelium.wallet.activity.export.BackupToPdfActivity;
 import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.api.lib.CurrencyCode;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
@@ -109,7 +110,9 @@ import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
+import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -117,10 +120,13 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import org.ocpsoft.prettytime.Duration;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.ocpsoft.prettytime.TimeUnit;
+import org.ocpsoft.prettytime.units.Minute;
+import org.ocpsoft.prettytime.units.Second;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -263,45 +269,69 @@ public class Utils {
     * for ru locale Duration should be not in past and not in future
     * otherwise library add "через" or "назад"
     */
-   public static String formatBlockcountAsApproxDuration(MbwManager mbwManager, final int blocks) {
+   public static String formatBlockcountAsApproxDuration(MbwManager mbwManager, final int blocks, final int blockTimeInSeconds) {
       PrettyTime p = new PrettyTime(mbwManager.getLocale());
-      Date date = new Date((new Date()).getTime() + Math.max((long) blocks, 1L) * 10 * 60 * 1000);
-      final Duration duration = p.approximateDuration(date);
-      if (mbwManager.getLocale().getLanguage().equals("ru")) {
-         Duration duration1 = new Duration(){
-            @Override
-            public long getQuantity() {
-               return duration.getQuantity();
-            }
-
-            @Override
-            public long getQuantityRounded(int tolerance) {
-               return duration.getQuantityRounded(tolerance);
-            }
-
-            @Override
-            public TimeUnit getUnit() {
-               return duration.getUnit();
-            }
-
-            @Override
-            public long getDelta() {
-               return duration.getDelta();
-            }
-
-            @Override
-            public boolean isInPast() {
-               return false;
-            }
-
-            @Override
-            public boolean isInFuture() {
-               return false;
-            }
-         };
-         return p.getFormat(duration1.getUnit()).decorate(duration1, p.formatDuration(duration1));
-      } else {
+      long confirmationTime = Math.max((long) blocks, 1L) * blockTimeInSeconds * 1000;
+      Date ref = new Date();
+      Date then = new Date(ref.getTime() + confirmationTime);
+      long absoluteDifference = Math.abs(then.getTime() - ref.getTime());
+      Duration duration = p.approximateDuration(then);
+      // for time differences less than 5 minutes (300000 millisecs) PrettyTime lib functionality
+      // is not satisfactory for our purposes, so we are using custom duration otherwise
+      if (absoluteDifference > 300000 && !mbwManager.getLocale().getLanguage().equals("ru")) {
          return p.formatDuration(duration);
+      }
+      Duration customDuration = new Duration() {
+         @Override
+         public long getQuantity() {
+            if (absoluteDifference <= 300000) {
+               return absoluteDifference / getUnit().getMillisPerUnit();
+            }
+            return duration.getQuantity();
+         }
+
+         @Override
+         public long getQuantityRounded(int tolerance) {
+            if (absoluteDifference <= 300000) {
+               return getQuantity();
+            }
+            return duration.getQuantityRounded(tolerance);
+         }
+
+         @Override
+         public TimeUnit getUnit() {
+            if (absoluteDifference <= 300000) {
+               if (absoluteDifference > 60000) {
+                  return p.getUnit(Minute.class);
+               } else {
+                  return p.getUnit(Second.class);
+               }
+            }
+            return duration.getUnit();
+         }
+
+         @Override
+         public long getDelta() {
+            if (absoluteDifference <= 300000) {
+               return 0;
+            }
+            return duration.getDelta();
+         }
+
+         @Override
+         public boolean isInPast() {
+            return false;
+         }
+
+         @Override
+         public boolean isInFuture() {
+            return false;
+         }
+      };
+      if (mbwManager.getLocale().getLanguage().equals("ru")) {
+         return p.getFormat(customDuration.getUnit()).decorate(customDuration, p.formatDuration(customDuration));
+      } else {
+         return p.formatDuration(customDuration);
       }
    }
 
@@ -999,5 +1029,21 @@ public class Utils {
          ActivityCompat.requestPermissions(activity, new String[]{permission}, requestCode);
       }
       return hasPermission;
+   }
+
+   @Nullable
+   public static GenericAssetInfo getTypeByName(String name) {
+      for (CurrencyCode currencyCode : CurrencyCode.values()) {
+         if (name.equals(currencyCode.getShortString())) {
+            // then it's a fiat type
+            return new FiatType(name);
+         }
+      }
+      for (CryptoCurrency coin : CoinsKt.getCOINS().values()) {
+         if (coin.getName().equals(name)) {
+            return coin;
+         }
+      }
+      return null;
    }
 }

@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.PopBuilder;
@@ -45,7 +44,6 @@ import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -54,7 +52,6 @@ import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
-import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -68,7 +65,6 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericFee;
 import com.mycelium.wapi.wallet.GenericInputViewModel;
@@ -110,8 +106,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
-
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -143,16 +137,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
    }
 
-   private FeeEstimationsGeneric getDefaultFeeEstimation() {
-      return new FeeEstimationsGeneric(
-              Value.valueOf(getCoinType(), 1000),
-              Value.valueOf(getCoinType(), 3000),
-              Value.valueOf(getCoinType(), 6000),
-              Value.valueOf(getCoinType(), 8000),
-              0
-      );
-   }
-
    @Override
    public void setAllowZeroConfSpending(boolean allowZeroConfSpending) {
       _allowZeroConfSpending = allowZeroConfSpending;
@@ -164,9 +148,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
       ArrayList<BtcReceiver> receivers = new ArrayList<>();
-      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().value));
+      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().getValueAsLong()));
       try {
-         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().value));
+         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().getValueAsLong()));
          return btcTransaction;
       } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
          throw new GenericOutputTooSmallException(ex);
@@ -1129,12 +1113,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
+   public synchronized Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
       checkNotArchived();
-      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.getValueAsLong()));
       long satoshis = 0;
 
       // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -1147,7 +1131,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
-              .setMinerFeePerKb(minerFeePerKbToUse);
+              .setMinerFeePerKb(minerFeePerKbToUse.getValueAsLong());
       addOutputToEstimation(destAddress, estimatorBuilder);
       FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
@@ -1178,7 +1162,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Try to create an unsigned transaction
       try {
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
-                 new PublicKeyRing(), _network, minerFeePerKbToUse);
+                 new PublicKeyRing(), _network, minerFeePerKbToUse.getValueAsLong());
          // We have enough to pay the fees, return the amount as the maximum
          return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
@@ -1697,20 +1681,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-    @Override
-    public List<GenericTransaction> getTransactions(int offset, int limit) {
-        checkNotArchived();
-        List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-        List<GenericTransaction> history = new ArrayList<>();
-        for (TransactionEx tex: list) {
-            GenericTransaction tx = getTx(tex.txid.getBytes());
-            if(tx != null) {
-                history.add(tx);
-            }
-        }
-        return history;
-    }
-
     public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
@@ -1844,41 +1814,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    public int getSyncTotalRetrievedTransactions() {
       return syncTotalRetrievedTransactions;
-   }
-
-   @Override
-   public FeeEstimationsGeneric getFeeEstimations() {
-      // we try to get fee estimation from server
-      try {
-         WapiResponse<MinerFeeEstimationResponse> response = _wapi.getMinerFeeEstimations();
-         FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
-         Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
-         Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
-         Bitcoins economy = oldStyleFeeEstimation.getEstimation(10);
-         Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
-         FeeEstimationsGeneric result = new FeeEstimationsGeneric(
-                 Value.valueOf(getCoinType(), lowPriority.getLongValue()),
-                 Value.valueOf(getCoinType(), economy.getLongValue()),
-                 Value.valueOf(getCoinType(), normal.getLongValue()),
-                 Value.valueOf(getCoinType(), high.getLongValue()),
-                 System.currentTimeMillis()
-         );
-         //if all ok we return requested new fee estimation
-         _backing.saveLastFeeEstimation(result, getCoinType());
-         return result;
-      } catch (WapiException ex) {
-         return getCachedFeeEstimations();
-      }
-   }
-
-   @Override
-   @Nonnull
-   public FeeEstimationsGeneric getCachedFeeEstimations() {
-      FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
-      //if a read error has occurred from the DB, then we return the predefined default fee
-      return feeFromDb == null
-              ? getDefaultFeeEstimation()
-              : feeFromDb;
    }
 
    public void updateSyncProgress() {

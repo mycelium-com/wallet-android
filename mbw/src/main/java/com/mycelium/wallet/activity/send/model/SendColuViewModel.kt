@@ -85,6 +85,6 @@ class SendColuViewModel(context: Application) : SendBtcViewModel(context) {
     )
 
     companion object {
-        private val TAG = "SendColuViewModel"
+        private const val TAG = "SendColuViewModel"
     }
 }

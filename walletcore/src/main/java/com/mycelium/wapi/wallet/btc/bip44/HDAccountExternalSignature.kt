@@ -6,9 +6,12 @@ import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.Transaction
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.ExportableAccount
+import com.mycelium.wapi.wallet.KeyCipher
+import com.mycelium.wapi.wallet.LoadingProgressTracker
+import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking
-import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.Reference
 
 class HDAccountExternalSignature(

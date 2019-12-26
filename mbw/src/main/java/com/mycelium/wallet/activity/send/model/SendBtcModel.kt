@@ -9,6 +9,7 @@ import android.widget.Toast.makeText
 import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.FeeEstimatorBuilder
 import com.mrd.bitlib.model.Address
+import com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS
 import com.mycelium.wallet.MinerFee
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -58,16 +59,16 @@ class SendBtcModel(context: Application,
                             feeDescription.postValue("$inCount In- / $outCount Outputs, ~$size bytes")
 
                             val fee = calculateFee()
-                            if (fee != size * selectedFee.value!!.value / 1000) {
+                            if (fee != size * selectedFee.value!!.valueAsLong / 1000) {
                                 val value = Value.valueOf(account.coinType, fee)
-                                val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.fiatCurrency)
+                                val fiatValue = mbwManager.exchangeRateManager.get(value, mbwManager.getFiatCurrency(account.coinType))
                                 val fiat = if (fiatValue != null) {
-                                    " (${fiatValue.toStringWithUnit(mbwManager.denomination)}"
+                                    " (${fiatValue.toStringWithUnit(mbwManager.getDenomination(account.coinType))}"
                                 } else {
                                     ""
                                 }
                                 feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_change_warning,
-                                        value.toStringWithUnit(mbwManager.denomination), fiat)))
+                                        value.toStringWithUnit(mbwManager.getDenomination(account.coinType)), fiat)))
                                 isFeeExtended.postValue(true)
                             } else {
                                 feeWarning.postValue("")
@@ -108,11 +109,11 @@ class SendBtcModel(context: Application,
                 return TransactionStatus.MISSING_ARGUMENTS
             }
             // build new output list with user specified amount
-            outputs = outputs.newOutputsWithTotalAmount(toSend.value)
+            outputs = outputs.newOutputsWithTotalAmount(toSend.valueAsLong)
         }
 
         val btcAccount = account as AbstractBtcAccount
-        transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.value)
+        transaction = btcAccount.createTxFromOutputList(outputs, FeePerKbFee(selectedFee.value!!).feePerKb.valueAsLong)
         spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
         receivingAddress.postValue(null)
         transactionLabel.postValue(paymentRequestInformation.paymentDetails.memo)
@@ -129,7 +130,7 @@ class SendBtcModel(context: Application,
                         MinerFee.NORMAL -> 3
                         MinerFee.PRIORITY -> 1
                     }
-                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks)
+                    val duration = Utils.formatBlockcountAsApproxDuration(mbwManager, blocks, BTC_BLOCK_TIME_IN_SECONDS)
                     FeeLvlItem(fee, "~$duration", SelectableRecyclerView.SRVAdapter.VIEW_TYPE_ITEM)
                 }
     }

@@ -40,9 +40,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
-
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Optional;
@@ -65,13 +65,10 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -103,9 +100,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
    private final NetworkParameters networkParameters;
-
-   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
-
 
    public SqliteColuManagerBacking(Context context, NetworkParameters networkParameters) {
       this.networkParameters = networkParameters;
@@ -456,36 +450,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          _db.execSQL("DELETE FROM " + txTableName);
          _db.execSQL("DELETE FROM " + outTxTableName);
          _db.execSQL("DELETE FROM " + txRefersParentTxTableName);
-      }
-
-      @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                 feeEstimation.getEconomy().value,
-                 feeEstimation.getNormal().value,
-                 feeEstimation.getHigh().value,
-                 feeEstimation.getLastCheck());
-         byte[] value = gson.toJson(feeValues).getBytes();
-         setValue(key, value);
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-         FeeEstimationSerialized feeValues;
-         try {
-            feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
-         } catch (Exception ignore) {
-            return null;
-         }
-
-         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                 Value.valueOf(assetType, feeValues.economy),
-                 Value.valueOf(assetType, feeValues.normal),
-                 Value.valueOf(assetType, feeValues.high),
-                 feeValues.lastCheck);
       }
 
       @Override

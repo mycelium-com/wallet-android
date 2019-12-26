@@ -5,17 +5,17 @@
     <string name="add_unrelated_account_title">Niet-verbonden Account toevoegen</string>
     <string name="import_seed_title">Importeer Master Seed</string>
     <string name="import_words_title">Voer woordenlijst in</string>
-    <string name="add_account_desc">Mycelium ondersteunt HD en één adres rekeningen. Alle HD-Accounts zijn gemaakt op basis van de dezelfde Master Seed. De eerste keer dat u er een zal aanmaken, zal uw Master Seed worden geconfigureerd.</string>
+    <string name="add_account_desc">Mycelium ondersteunt HD Bitcoin en één adres rekeningen. Alle HD Bitcoin-Accounts zijn gemaakt op basis van de dezelfde Master Seed. De eerste keer dat u er een zal aanmaken, zal uw Master Seed worden geconfigureerd.</string>
     <string name="add_single_acc_info">Om een Eén Adres Account op basis van een privé sleutel of een alleen-lezen adres toe te voegen, klikt u op de \'Geavanceerd\' knop hieronder.</string>
-    <string name="scan_desc">Scan Bitcoinadres, private key of HD-Account.</string>
+    <string name="scan_desc">Scan Bitcoinadres, private key of HD Bitcoin-Account.</string>
     <string name="scan_seed">Scan de Master Seed van de Mycelium back-up</string>
-    <string name="use_acc_first">U kunt slechts één ongebruikt HD-Account hebben.</string>
+    <string name="use_acc_first">U kunt slechts één ongebruikt HD Bitcoin-Account hebben.</string>
     <string name="clipboard_desc">Importeer een Bitcoin adres of private key vanaf het klembord.</string>
     <string name="wordlist_des">Master Seed van woordenlijst maken</string>
     <string name="advanced">Geadvanceerd</string>
     <string name="clipboard">Klembord</string>
     <string name="enter_wordlist">Voer woordenlijst in</string>
-    <string name="hd_account">HD-Account toevoegen</string>
+    <string name="hd_account">HD Bitcoin-Account toevoegen</string>
     <string name="close">Sluiten</string>
     <string name="sending">Bezig met verzenden %1$s</string>
     <string name="receiving">Bezig met ontvangen %1$s</string>
@@ -103,8 +103,8 @@
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Opmerking: U verzendt naar een van uw eigen adressen.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Waarschuwing: Uw portemonnee beschikt niet over de private key voor dit adres \nU kunt ontvangen munten niet uitgeven tenzij u elders beschikt over de private key van dit Bitcoin adres.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Adres toevoegen</string>
-    <string name="scan_address_book_desc">Scan Bitcoin adres.</string>
-    <string name="clipboard_address_book_desc">Kopieer Bitcoin adres van klembord.</string>
+    <string name="scan_address_book_desc">Scan adres.</string>
+    <string name="clipboard_address_book_desc">Kopieer adres van klembord.</string>
     <string name="get_private_key">Kopieer private key van:</string>
     <string name="cold_storage">Koude opslag</string>
     <string name="cold_storage_title">Bitcoins uit de koude opslag uitgeven</string>
@@ -384,7 +384,7 @@
     <string name="ignore_update">Ik zal dit later bijwerken</string>
     <string name="get_from">Ophalen van</string>
     <string name="sign_message">Bericht ondertekenen</string>
-    <string name="cant_sign_message">U kunt geen bericht ondertekenen met een HD-account</string>
+    <string name="cant_sign_message">U kunt geen bericht ondertekenen met een HD Bitcoin-account</string>
     <string name="enter_message_hint">Voer hier het bericht in dat u wilt ondertekenen</string>
     <string name="copy_signature">Handtekening naar Klembord kopiëren</string>
     <string name="share_signature">Deel tekst + handtekening</string>
@@ -416,7 +416,7 @@
     <string name="invalid_bitid_uri">Ongeldige BitID URI</string>
     <!-- BitID end -->
     <string name="selected_archived_warning">U kan niet werken op gearchiveerde rekeningen.</string>
-    <string name="hd_account_creation_started">Bezig me creëren van nieuw HD-Account&#8230;</string>
+    <string name="hd_account_creation_started">Bezig me creëren van nieuw HD Bitcoin-Account&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Portemonnee wordt voorbereid&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Berekening van Master Seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">Voer woord nummer %1$s van %2$s in</string>
@@ -459,7 +459,7 @@
     <string name="verify_wordlist_success_pin_already_set">Uw woordenlijst back-up is met succes geverifieerd. Bewaar de back-up op een veilige plaats om te voorkomen dat u tegoeden kwijt zal raken!</string>
     <string name="note_down_password_title">Noteer uw wachtwoord</string>
     <string name="title_wrong_password">Verkeerd wachtwoord, probeer het a.u.b. opnieuw</string>
-    <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD-account niet archiveren</string>
+    <string name="dont_allow_archiving_unused_notification">U kunt een ongebruikt HD Bitcoin-account niet archiveren</string>
     <string name="newly_generated_coins_from_coinbase">Nieuw gegenereerde coins</string>
     <string name="button_continue">Doorgaan</string>
     <string name="butto_show_release_notes">Details tonen</string>
@@ -470,7 +470,7 @@
     <string name="pref_legacy_backup_verify_summary">Een bestaande oudere back-up verifiëren</string>
     <string name="error_no_browser">Kan niet navigeren naar website, geen browser gevonden op telefoon</string>
     <string name="transaction_label_title">Transactie label</string>
-    <string name="no_spending_records">U heeft geen account waarmee u kunt betalen.\n\nOm te kunnen betalen, heeft u een account nodig met een private key. Er zijn momenteel geen HD Accounts of Eén Adres Accounts met een private key. Activeer of importeer een account met een private key om te kunnen betalen.</string>
+    <string name="no_spending_records">U heeft geen account waarmee u kunt betalen.\n\nOm te kunnen betalen, heeft u een account nodig met een private key. Er zijn momenteel geen HD Bitcoin Accounts of Eén Adres Accounts met een private key. Activeer of importeer een account met een private key om te kunnen betalen.</string>
     <string name="select_key_for_signing">Selecteer sleutel voor het ondertekenen</string>
     <string name="direct_apk_link_label">Directe\ndownload</string>
     <string name="hide_unused_account_menu">Account verwijderen</string>
@@ -497,7 +497,7 @@
     <string name="shuffle">Opnieuw</string>
     <string name="account_balance_sending_amount">(verzending van %s)</string>
     <string name="trezor_cold_storage_header">Trezor Koude Opslag</string>
-    <string name="trezor_import_account">Importeer een Trezor-HD-account</string>
+    <string name="trezor_import_account">Importeer een Trezor-HD Bitcoin-account</string>
     <string name="ledger_next_unused_account_button">Volgende ongebruikte account importeren&#8230;</string>
     <string name="ledger_enter_pin">Ledger Wallet PIN invoeren</string>
     <string name="ledger_disable_tee_preference">TEE-ondersteuning uitschakelen</string>

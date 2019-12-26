@@ -134,15 +134,15 @@ public interface Wapi {
    WapiResponse<CheckTransactionsResponse> checkTransactions(CheckTransactionsRequest request);
 
    /**
-    * Query exchange rates
+    * Get exchange rates
     * <p/>
-    * Query the exchange rates for available exchanges converted to a specific fiat currency
+    * Get the exchange rates for available exchanges converted to a specific fiat currency
     * Example HTTP POST:
     * curl  -k -X POST -H "Content-Type: application/json"
     *       -d '{"version":1,"currency":"USD"}'
     *       https://144.76.165.115/wapitestnet/wapi/queryExchangeRates
     */
-   WapiResponse<QueryExchangeRatesResponse> queryExchangeRates(QueryExchangeRatesRequest request);
+   WapiResponse<GetExchangeRatesResponse> getExchangeRates(GetExchangeRatesRequest request);
 
    /**
     * Check if the wapi-service is running

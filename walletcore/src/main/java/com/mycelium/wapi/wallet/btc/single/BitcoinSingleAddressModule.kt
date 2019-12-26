@@ -36,7 +36,7 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
     }
 
     private val accounts = mutableMapOf<UUID, SingleAddressAccount>()
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun setCurrencySettings(currencySettings: CurrencySettings) {
         this.settings = currencySettings as BTCSettings
@@ -107,7 +107,8 @@ class BitcoinSingleAddressModule(internal val backing: BtcWalletManagerBacking<S
             if (configLabel.isNotEmpty()) {
                 result.label = storeLabel(result.id, configLabel)
             } else {
-                result.label = createLabel(baseLabel, result.id)
+                result.label = createLabel(baseLabel)
+                storeLabel(result.id, result.label)
             }
         } else {
             throw IllegalStateException("Account can't be created")

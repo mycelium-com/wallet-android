@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
+import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -58,6 +59,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             val accountsList: MutableList<AccountsGroupModel> = mutableListOf()
 
             listOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
+                    R.string.eth_accounts_name to walletManager.getEthAccounts(),
                     R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts(),
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
@@ -65,17 +67,18 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
-                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts)))
+                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts),
+                            accounts[0].basedOnCoinType))
                 }
             }
             if (value!!.isEmpty()) {
                 publishProgress(accountsList)
             }
 
-            val archivedList = accountsToViewModel(walletManager.getArchivedAccounts())
+            val archivedList = walletManager.getArchivedAccounts()
             if (archivedList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
-                        archivedList))
+                        accountsToViewModel(archivedList), archivedList[0].basedOnCoinType))
             }
             if (accountsList == value) {
                 cancel(true)

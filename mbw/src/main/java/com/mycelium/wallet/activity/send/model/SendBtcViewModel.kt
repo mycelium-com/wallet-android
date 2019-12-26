@@ -11,16 +11,14 @@ import android.widget.Toast.makeText
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.MutableLiveData
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.StringHandlerActivity
 import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.adapter.AddressViewAdapter
-import com.mycelium.wallet.activity.send.adapter.FeeViewAdapter
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
+import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.getAssetUri
 import com.mycelium.wallet.activity.util.getPrivateKey
-import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.content.ResultType
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.AddressUtils
@@ -29,12 +27,12 @@ import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
-import com.mycelium.wapi.wallet.coins.Value
 import java.util.*
-import kotlin.math.roundToLong
+import java.util.regex.Pattern
 
 
 open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) {
+    override val uriPattern =  Pattern.compile("[a-zA-Z0-9]+")!!
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)
@@ -56,13 +54,7 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
 
     fun isFeeExtended() = (model as SendBtcModel).isFeeExtended
 
-    override fun getFeeFormatter() = object : FeeViewAdapter.FeeItemFormatter {
-        override fun getCategoryText(value: Value) = value.toStringWithUnit(Denomination.MILLI)
-
-        override fun getItemText(value: Value) = "~${value.toStringWithUnit()}"
-
-        override fun getValueText(value: Long) = "${(value / 1000f).roundToLong()} sat/byte"
-    }
+    override fun getFeeFormatter() = BtcFeeFormatter()
 
     override fun processReceivedResults(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity) {
         if (requestCode == SendCoinsActivity.SCAN_RESULT_CODE) {

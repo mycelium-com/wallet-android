@@ -9,11 +9,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mycelium.view.Denomination;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wallet.activity.util.FeeFormatter;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.util.Collections;
@@ -25,7 +24,7 @@ import javax.annotation.Nonnull;
 public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAdapter.FeeViewHolder> {
     private List<FeeItem> mDataset;
     private int paddingWidth;
-    private FeeItemFormatter formatter;
+    private FeeFormatter formatter;
 
     public FeeViewAdapter(int paddingWidth) {
         this.paddingWidth = paddingWidth;
@@ -37,7 +36,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
         notifyDataSetChanged();
     }
 
-    public void setFormatter(FeeItemFormatter formatter){
+    public void setFormatter(FeeFormatter formatter){
         this.formatter = formatter;
     }
 
@@ -85,13 +84,13 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
             // - replace the contents of the view with that element
             FeeItem item = mDataset.get(position);
             if (item.value != null) {
-                holder.categoryTextView.setText(formatter.getCategoryText(item.value));
+                holder.categoryTextView.setText(formatter.getFeeAbsValue(item.value));
             }
             if (item.fiatValue != null) {
-                holder.itemTextView.setText(formatter.getItemText(item.fiatValue));
+                holder.itemTextView.setText(formatter.getAltValue(item.fiatValue));
             }
 
-            holder.valueTextView.setText(formatter.getValueText(item.feePerKb));
+            holder.valueTextView.setText(formatter.getFeePerUnit(item.feePerKb));
         } else {
             RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
             layoutParams.width = paddingWidth;
@@ -110,7 +109,7 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
                 selected = i;
                 break;
             } else if (object instanceof Value
-                    && Math.abs(((Value) object).value - feeItem.feePerKb) < Math.abs(((Value) object).value - bestNearPerKb)) {
+                    && Math.abs(((Value) object).getValueAsLong() - feeItem.feePerKb) < Math.abs(((Value) object).value.longValue() - bestNearPerKb)) {
                 bestNear = i;
                 bestNearPerKb = feeItem.feePerKb;
             }
@@ -142,11 +141,5 @@ public class FeeViewAdapter extends SelectableRecyclerView.SRVAdapter<FeeViewAda
             valueTextView = v.findViewById(R.id.valueTextView);
             this.adapter = adapter;
         }
-    }
-
-    public interface FeeItemFormatter {
-        String getCategoryText(Value value);
-        String getItemText(Value value);
-        String getValueText(long value);
     }
 }

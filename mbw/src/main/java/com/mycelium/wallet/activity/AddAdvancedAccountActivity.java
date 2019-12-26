@@ -70,6 +70,8 @@ import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -92,6 +94,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -193,6 +196,11 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
     * SA watch only accounts import method.
     */
    private void returnAccount(GenericAddress address) {
+      // temporary solution: unrelated Ethereum accounts will be implemented later
+      if (address.getCoinType() instanceof EthCoin) {
+         new Toaster(this).toast("Exporting unrelated Ethereum accounts still to be implemented.", false);
+         return;
+      }
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
@@ -655,6 +663,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {
+      MbwManager.getEventBus().post(new AccountCreated(account));
+      MbwManager.getEventBus().post(new AccountChanged(account));
       Intent result = new Intent()
               .putExtra(AddAccountActivity.RESULT_KEY, account)
               .putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);

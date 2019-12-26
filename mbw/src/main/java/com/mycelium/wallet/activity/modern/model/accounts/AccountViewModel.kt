@@ -36,6 +36,9 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
 
     init {
         val receivingAddress = account.receiveAddress
+        if (label.isBlank()) {
+            label = account.label ?: ""
+        }
         displayAddress = if (receivingAddress != null) {
             if (label.isEmpty()) {
                 // Display address in it's full glory, chopping it into three

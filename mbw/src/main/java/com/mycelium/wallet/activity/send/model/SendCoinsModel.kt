@@ -28,7 +28,6 @@ import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -87,10 +86,10 @@ abstract class SendCoinsModel(
         }
     }
 
-    val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
-        override fun setValue(value: Value) {
+    private val alternativeAmount: MutableLiveData<Value> = object : MutableLiveData<Value>() {
+        override fun setValue(value: Value?) {
             if (value != this.value) {
-                super.setValue(value)
+                super.setValue(value ?: Value.zeroValue(account.coinType))
                 alternativeAmountFormatted.postValue(getRequestedAmountAlternativeFormatted())
             }
         }
@@ -124,7 +123,6 @@ abstract class SendCoinsModel(
         }
     }
 
-    var feeEstimation = account.cachedFeeEstimations
     var transaction: GenericTransaction? = null
     var signedTransaction: GenericTransaction? = null
 
@@ -135,8 +133,10 @@ abstract class SendCoinsModel(
     var sendScrollDefault = true
 
     protected val mbwManager = MbwManager.getInstance(context)!!
+    private var feeEstimation = mbwManager.getFeeProvider(account.coinType).estimation
+
     var paymentRequestHandlerUUID: String? = null
-    private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.fiatCurrency)
+    private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
     private val txRebuildPublisher: PublishSubject<Unit> = PublishSubject.create()
     private val amountUpdatePublisher: PublishSubject<Unit> = PublishSubject.create()
     private val receiverChanged: PublishSubject<Unit> = PublishSubject.create()
@@ -155,8 +155,8 @@ abstract class SendCoinsModel(
     }
 
     init {
-        selectedFee.value = getCurrentFeeEstimation()
-        feeLvl.value = mbwManager.minerFee
+        feeLvl.value = mbwManager.getMinerFee(account.coinType.name)
+        selectedFee.value = Value.valueOf(account.coinType, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
         transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
@@ -167,25 +167,11 @@ abstract class SendCoinsModel(
         alternativeAmountFormatted.value = ""
         feeWarning.value = ""
         heapWarning.value = ""
-        alternativeAmount.value = Value.zeroValue(mbwManager.fiatCurrency)
+        alternativeAmount.value = Value.zeroValue(mbwManager.getFiatCurrency(account.coinType))
         amount.value = intent.getSerializableExtra(SendCoinsActivity.AMOUNT) as Value?
                 ?: Value.zeroValue(account.coinType)
         showStaleWarning.value = feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME
         MbwManager.getEventBus().register(eventListener)
-
-        if (feeEstimation.lastCheck < System.currentTimeMillis() - FEE_STABLE_TIME) {
-            /**
-             * Single-shot update fee.
-             * RxJava should dispose it automagically after completing, but it's not guaranteed, so calling dispose.
-             */
-            listToDispose.add(Single.fromCallable(account::getFeeEstimations)
-                    .doOnSuccess { estimation ->
-                        feeEstimation = estimation
-                        showStaleWarning.postValue(feeEstimation.lastCheck < System.currentTimeMillis() - FEE_EXPIRATION_TIME)
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe())
-        }
 
         /**
          * This observes different events, which causes tx being rebuilt.
@@ -211,7 +197,7 @@ abstract class SendCoinsModel(
                 .observeOn(Schedulers.computation())
                 .switchMapCompletable {
                     feeDataset.postValue(updateFeeDataset())
-                    if (selectedFee.value!!.value == 0L) {
+                    if (selectedFee.value!!.equalZero()) {
                         feeWarning.postValue(Html.fromHtml(context.getString(R.string.fee_is_zero)))
                     }
                     Completable.complete()
@@ -288,7 +274,6 @@ abstract class SendCoinsModel(
         with(savedInstanceState) {
             selectedFee.value = getSerializable(SELECTED_FEE) as Value
             feeLvl.value = getSerializable(FEE_LVL) as MinerFee
-            feeEstimation = getSerializable(FEE_ESTIMATION) as FeeEstimationsGeneric
             // get the payment request handler from the BackgroundObject cache - if the application
             // has restarted since it was cached, the user gets queried again
             paymentRequestHandlerUUID = getString(PAYMENT_REQUEST_HANDLER_ID)
@@ -310,7 +295,6 @@ abstract class SendCoinsModel(
             putSerializable(SELECTED_FEE, selectedFee.value)
             putSerializable(FEE_LVL, feeLvl.value)
             putString(PAYMENT_REQUEST_HANDLER_ID, paymentRequestHandlerUUID)
-            putSerializable(FEE_ESTIMATION, feeEstimation)
 
             putSerializable(SendCoinsActivity.AMOUNT, amount.value)
             putSerializable(SendCoinsActivity.RECEIVING_ADDRESS, receivingAddress.value)
@@ -330,7 +314,7 @@ abstract class SendCoinsModel(
 
     fun updateAlternativeAmount(enteredAmount: Value?) {
         val exchangeTo = if (account.coinType == enteredAmount?.type) {
-            mbwManager.fiatCurrency
+            mbwManager.getFiatCurrency(account.coinType)
         } else {
             account.coinType
         }
@@ -398,7 +382,7 @@ abstract class SendCoinsModel(
         } else if (transactionStatus.value == TransactionStatus.OUTPUT_TO_SMALL
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS
                 || transactionStatus.value == TransactionStatus.INSUFFICIENT_FUNDS_FOR_FEE) {
-            getValueInAccountCurrency().toStringWithUnit(mbwManager.denomination)
+            getValueInAccountCurrency().toStringWithUnit(mbwManager.getDenomination(account.coinType))
         } else {
             formatValue(amount.value)
         }
@@ -419,7 +403,7 @@ abstract class SendCoinsModel(
             ""
         } else {
             if (value!!.type == account.coinType) {
-                value.toStringWithUnit(mbwManager.denomination)
+                value.toStringWithUnit(mbwManager.getDenomination(account.coinType))
             } else {
                 "~ ${value.toStringWithUnit()}"
             }
@@ -460,24 +444,20 @@ abstract class SendCoinsModel(
     }
 
     private fun updateFeeDataset(): List<FeeItem> {
-        val feeItemList = feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
-                feeEstimation, feeLvl.value, estimateTxSize())
+        val feeItemList = getFeeItemList()
         if (!isInRange(feeItemList, selectedFee.value!!)) {
-            selectedFee.postValue(getCurrentFeeEstimation())
+            selectedFee.postValue(Value.valueOf(account.coinType, feeItemList[feeItemList.size / 2].feePerKb))
         }
         return feeItemList
     }
 
-    private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
-            (feeItems[0].feePerKb <= fee.value && fee.value <= feeItems[feeItems.size - 1].feePerKb)
-
-    private fun getCurrentFeeEstimation() = when (feeLvl.value) {
-        MinerFee.LOWPRIO -> Value.valueOf(account.coinType, feeEstimation.low.value)
-        MinerFee.ECONOMIC -> Value.valueOf(account.coinType, feeEstimation.economy.value)
-        MinerFee.NORMAL -> Value.valueOf(account.coinType, feeEstimation.normal.value)
-        MinerFee.PRIORITY -> Value.valueOf(account.coinType, feeEstimation.high.value)
-        else -> Value.valueOf(account.coinType, feeEstimation.normal.value)
+    private fun getFeeItemList(): List<FeeItem> {
+        return feeItemsBuilder.getFeeItemList(account.basedOnCoinType,
+                feeEstimation, feeLvl.value, estimateTxSize())
     }
+
+    private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
+            (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
 
     private fun getAddressLabel(address: GenericAddress): String {
         val accountId = mbwManager.getAccountId(address, account.coinType).orNull()
@@ -498,10 +478,7 @@ abstract class SendCoinsModel(
         private const val SELECTED_FEE = "selectedFee"
         private const val FEE_LVL = "feeLvl"
         private const val PAYMENT_REQUEST_HANDLER_ID = "paymentRequestHandlerId"
-        private const val FEE_ESTIMATION = "fee_estimation"
         // Alert the user of old fee estimations
         private val FEE_EXPIRATION_TIME = TimeUnit.HOURS.toMillis(5)
-        // Don't query the fee levels more than every 15 minutes. It doesn't change that quickly.
-        private val FEE_STABLE_TIME = TimeUnit.MINUTES.toMillis(15)
     }
 }

@@ -42,6 +42,8 @@ import android.widget.Button;
 import com.google.common.base.Optional;
 import com.mycelium.wallet.activity.util.Pin;
 
+import static com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS;
+
 
 public class ClearPinDialog extends PinDialog {
    public ClearPinDialog(final Context context, boolean hidden) {
@@ -66,7 +68,7 @@ public class ClearPinDialog extends PinDialog {
             // reset procedure was started, but the target blockheight isn't reached
             btnForgotPin.setText(String.format(
                   context.getString(R.string.pin_forgotten_reset_wait_button_text),
-                  Utils.formatBlockcountAsApproxDuration(mbwManager, resetPinRemainingBlocksCount.get()))
+                  Utils.formatBlockcountAsApproxDuration(mbwManager, resetPinRemainingBlocksCount.get(), BTC_BLOCK_TIME_IN_SECONDS))
             );
 
             btnForgotPin.setEnabled(false);
@@ -103,7 +105,7 @@ public class ClearPinDialog extends PinDialog {
                               R.string.pin_forgotten_reset_pin_dialog_content,
                               Utils.formatBlockcountAsApproxDuration(
                                     mbwManager,
-                                    Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN)
+                                    Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN, BTC_BLOCK_TIME_IN_SECONDS)
                         )
                   )
                   .setTitle(context.getString(R.string.pin_forgotten_reset_pin_dialog_title))

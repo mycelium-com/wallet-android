@@ -107,10 +107,13 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
@@ -285,7 +288,7 @@ public class AccountsFragment extends Fragment {
                     localTraderManager.unsetLocalTraderAccount();
                 }
                 if (hasPrivateData) {
-                    Long satoshis = getPotentialBalance(accountToDelete);
+                    Value potentialBalance = getPotentialBalance(accountToDelete);
                     AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
                     confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
 
@@ -313,16 +316,16 @@ public class AccountsFragment extends Fragment {
                             address = "";
                         }
                     }
-                    if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
+                    if (accountToDelete.isActive() && potentialBalance != null && potentialBalance.moreThanZero()) {
                         if (label.length() != 0) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                    address, getBalanceString(accountToDelete.getAccountBalance()));
+                                    address, getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    getBalanceString(accountToDelete.getAccountBalance()));
+                                    getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         }
                     } else {
                         if (label.length() != 0) {
@@ -418,11 +421,19 @@ public class AccountsFragment extends Fragment {
                 }
             }
 
-            private Long getPotentialBalance(WalletAccount account) {
+            private Value getBalance(WalletAccount account) {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    return account.getAccountBalance().getSpendable().value;
+                    return account.getAccountBalance().confirmed;
+                }
+            }
+
+            private Value getPotentialBalance(WalletAccount account) {
+                if (account.isArchived()) {
+                    return null;
+                } else {
+                    return account.getAccountBalance().getSpendable();
                 }
             }
         });
@@ -458,11 +469,11 @@ public class AccountsFragment extends Fragment {
     private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(accountToDelete.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
@@ -473,8 +484,8 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
+    private String getBalanceString(GenericAssetInfo coinType, Balance balance) {
+        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
     }
 
     /**
@@ -546,12 +557,12 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
         if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-                && !isBch && !(account instanceof HDAccountExternalSignature)) {
+                && !isBch && !(account instanceof HDAccountExternalSignature) && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_sign);
         }
 
@@ -559,7 +570,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !isBch) {
+        if (account.isActive() && !isBch && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
         }
 
@@ -940,11 +951,11 @@ public class AccountsFragment extends Fragment {
     private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(account.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(account.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);

@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Shto llogari të palidhur</string>
     <string name="import_seed_title">Importo Master Seed</string>
     <string name="import_words_title">Shëno listën e fjalëve</string>
-    <string name="add_account_desc">Mycelium mbështet HD llogaritë dhe llogaritë me Adresa të Vetme. Të gjitha HD llogaritë janë të bazuara nga Master seed.</string>
+    <string name="add_account_desc">Mycelium mbështet HD Bitcoin llogaritë dhe llogaritë me Adresa të Vetme. Të gjitha HD Bitcoin llogaritë janë të bazuara nga Master seed.</string>
     <string name="add_single_acc_info">Për të shtuar një llogari me Adresë të Vetme të bazuar në një çelës privat apo adresë vetëm për lexim, ju lutem klikoni butonin Avancuar më poshtë.</string>
-    <string name="scan_desc">Skano Bitcoin adresën, çelësin privat ose HD llogarinë.</string>
+    <string name="scan_desc">Skano Bitcoin adresën, çelësin privat ose HD Bitcoin llogarinë.</string>
     <string name="scan_seed">Skano Master Seed nga Mucelium kopja rezervë</string>
-    <string name="use_acc_first">Ju mund të keni vetëm një HD llogari të pashfrytëzuar.</string>
+    <string name="use_acc_first">Ju mund të keni vetëm një HD Bitcoin llogari të pashfrytëzuar.</string>
     <string name="clipboard_desc">Importo Bitcoin adresë apo çelës privat nga memorja.</string>
     <string name="wordlist_des">Krijo Master Seed nga Lista e fjalëve</string>
     <string name="scan">Skano</string>
     <string name="advanced">E avancuar</string>
     <string name="clipboard">Memorje</string>
     <string name="enter_wordlist">Shëno listën e fjalëve</string>
-    <string name="hd_account">Shto HD llogari</string>
+    <string name="hd_account">Shto HD Bitcoin llogari</string>
     <string name="close">Mbylle</string>
     <string name="sending">Duke dërguar %1$s</string>
     <string name="receiving">Duke pranuar %1$s</string>
@@ -98,15 +98,15 @@
     <string name="delete">Fshij</string>
     <string name="payment_request">Kërkesa për pages</string>
     <string name="export_account_data_warning">Jeni duke eksportuar të dhëna sensitive të llogarisë.\n\nÇdokush që ka çasje tek këta çelësa mund të marrë kontrollin e bitcoin-ave apo të merrë informata dhe të ju cënoj privatësin.\n\nDoni të vazhdoni?</string>
-    <string name="backup_all_warning">Duhet të krijoni një kopje rezervë të master seed të kuletës suaj.\nNjë kopje rezervë e master seed ju lejon juve të riktheni fondet që janë ne HD llogaritë e juaja nëse pajisja juaj humbet apo dëmtohet.\n\nDoni ta bëni këtë tash?</string>
+    <string name="backup_all_warning">Duhet të krijoni një kopje rezervë të master seed të kuletës suaj.\nNjë kopje rezervë e master seed ju lejon juve të riktheni fondet që janë ne HD Bitcoin llogaritë e juaja nëse pajisja juaj humbet apo dëmtohet.\n\nDoni ta bëni këtë tash?</string>
     <string name="export_to_clipboard_warning">Paralajmërim: Eksportimi i të dhënave të llogaris suaj në memorje ekspozon këto të dhëna tek të gjithë aplikacionet tjera në pajisjen tuaj.\n\nNjoftim: Mjafton të ruani të dhënat private në memorje por gjithashtu duhet të ngjisni sigurtë atë.\n\nDoni të vazhdoni?</string>
     <string name="found_clipboard_private_key_title">Është gjetur çelës privat në memorje</string>
     <string name="exchange_source_not_available">Kursi i këmbimit nuk është në dispozicion për %1$s</string>
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Njoftim: Jeni duke dërguar monedha në një nga adresat e juaja.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Paralajmerim: Kuleta juaj nuk ka çelësin privat për këtë adresë.\nNuk mund të shpenzoni monedhat që keni pranuar, përveç nëse e keni çelësin privat diku tjetër.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Shto adres</string>
-    <string name="scan_address_book_desc">Skano Bitcoin adres.</string>
-    <string name="clipboard_address_book_desc">Merr Bitcoin adres nga memorja.</string>
+    <string name="scan_address_book_desc">Skano adres.</string>
+    <string name="clipboard_address_book_desc">Merr adres nga memorja.</string>
     <string name="get_private_key">Merr çelësat privat nga:</string>
     <string name="cold_storage_title">Shpenzimi Cold Storage</string>
     <string name="cold_storage_desc">Jeni duke shpenzuar nga një çelës privat në cold storage. Kjo mund të jetë një kopje rezervë e një çelësi privat e gjeneruar nga një Bitcoin ATM. Keto formate mbështeten:\nÇelës privat, Master Seed, xPriv çelës\n\nPosa transaksioni është transmetuar çdo gjurmë e tij do të fshihet nga memorja interne.</string>
@@ -388,7 +388,7 @@
     <string name="update_check">Kontrollo për  përditësim</string>
     <string name="get_from">Merr nga</string>
     <string name="sign_message">Firmos mesazh</string>
-    <string name="cant_sign_message">Nuk mund të firmosni një mesazh me një HD llogari</string>
+    <string name="cant_sign_message">Nuk mund të firmosni një mesazh me një HD Bitcoin llogari</string>
     <string name="enter_message_hint">Ju lutem shënoni mesazhin që doni të firmosni këtu</string>
     <string name="copy_signature">Kopjo firmën në memorje</string>
     <string name="share_signature">Ndaje tekstin + firmën</string>
@@ -420,7 +420,7 @@
     <string name="invalid_bitid_uri">BitID URI jovalid</string>
     <!-- BitID end -->
     <string name="selected_archived_warning">Nuk mund të punoni me llogaritë e arkivuara.</string>
-    <string name="hd_account_creation_started">Duke krijuar HD llogari të re&#8230;</string>
+    <string name="hd_account_creation_started">Duke krijuar HD Bitcoin llogari të re&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Duke pregaditur kuletën&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Duke kalkuluar Master Seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">shëno numrin e fjalës %1$s e %2$s</string>
@@ -461,7 +461,7 @@
     <string name="verify_wordlist_success_pin_already_set">Kopja rezervë e listës së fjalëve është verifikuar me sukses. Ruaj kopjen rezervë në një vend të sigurt, fondet e juaja varen nga kjo!</string>
     <string name="note_down_password_title">Shruani diku fjalëkalimin tuaj</string>
     <string name="title_wrong_password">Fjalëkalim i gabuar, ju lutem provoni prapë</string>
-    <string name="dont_allow_archiving_unused_notification">Nuk mund të arkivoni një HD llogari të pashfrytëzuar</string>
+    <string name="dont_allow_archiving_unused_notification">Nuk mund të arkivoni një HD Bitcoin llogari të pashfrytëzuar</string>
     <string name="newly_generated_coins_from_coinbase">Monedha sapo të gjeneruara</string>
     <string name="button_continue">Vazhdo</string>
     <string name="butto_show_release_notes">Trego detajet</string>
@@ -472,7 +472,7 @@
     <string name="pref_legacy_backup_verify_summary">Verifiko kopjen rezervë të trashëguar ekzistuese</string>
     <string name="error_no_browser">Nuk mund të hapë uebfaqen, asnjë shfletues nuk është gjetur në telefonin tuaj</string>
     <string name="transaction_label_title">Etiketimi i transaksionit</string>
-    <string name="no_spending_records">Nuk keni asnjë llogari për të spenzuar.\n\nNë mënyrë që të shpenzoni ju duhet një llogari me çelës privat në të. Nuk keni asnjë HD llogari aktive ose adresë të vetme me çelësa privat. Ju lutem ose aktivizoni ose importoni një llogari me çelës privat në mënyrë që të shpenzoni.</string>
+    <string name="no_spending_records">Nuk keni asnjë llogari për të spenzuar.\n\nNë mënyrë që të shpenzoni ju duhet një llogari me çelës privat në të. Nuk keni asnjë HD Bitcoin llogari aktive ose adresë të vetme me çelësa privat. Ju lutem ose aktivizoni ose importoni një llogari me çelës privat në mënyrë që të shpenzoni.</string>
     <string name="select_key_for_signing">Zgjedhni një çelës për të firmosur</string>
     <string name="playstore_link_label">Lidhja Playstore</string>
     <string name="direct_apk_link_label">Shkarko\ndirekt</string>
@@ -515,13 +515,13 @@
     <string name="account_number">Llogaria %d</string>
     <string name="account_found">%s është gjetur</string>
     <string name="account_balance_sending_amount">(duke dërguar %s)</string>
-    <string name="trezor_import_account">Importo një Trezor-HD-llogari</string>
+    <string name="trezor_import_account">Importo një Trezor-HD Bitcoin-llogari</string>
     <string name="trezor_new_firmware_description">Një Trezor firmware është në dispozicion.\nJu lutem përdor MyTrezor.com në një PC për të përditësuar Trezor-in tuaj.</string>
     <string name="ledger_initial_status">Ju lutem konektoni Legder Wallet-in tuaj</string>
     <string name="ledger_scanning_status">Ledger Wallet në rregull - duke skanuar Llogaritë</string>
     <string name="connect_your_ledger_info">Ledger Nano punon vetëm atëherë nëse telefoni juaj mbështet USB-OTG (on-the-go).\n\nPër të konektuar Ledger Nano ju duhet të keni një USB-OTG adapter apo kabull. Lidheni Legder Nano në pjesën e klientit dhe pjesën tjetër në telefon.</string>
     <string name="select_ledger_account_to_spend_from">Zgjedhni llogarin për të shpenzuar</string>
-    <string name="ledger_import_account">Importo një Legder HD-Llogari</string>
+    <string name="ledger_import_account">Importo një Legder HD Bitcoin-Llogari</string>
     <string name="ledger_import_account_caption">Importo Llogari</string>
     <string name="ledger_select_account_to_import">Zgjedh llogarin për të importuar</string>
     <string name="ledger_amount">Shuma:</string>
@@ -548,8 +548,8 @@
     <string name="both">Të dyjat</string>
     <string name="button_changelog">Lista e ndryshimeve</string>
     <string name="hint_type_to_filter">Filloni të shkruani të filtroni listën</string>
-    <string name="info_add_account_keep_backup_secure">Info: të gjitha HD llogarit derivohen nga \"Master Seed\" - nëse e mbani një kopje rezervë të 12 fjalëve të sigurt, atëherë mund t\'i riktheni të gjitha HD llogarit me të.</string>
-    <string name="warning_add_account_no_backup">Paralajmërim: Nuk keni konfirmuar kopjen rezervë te Master Seed. Të gjitha HD llogaritë e juaja derivohen nga Master Seed. Jeni të sigurtë dhe vetëm atëherë kur kopja rezervë është e sigurtë dhe e rikthyeshme, nëse keni një kopje rezervë të sigurtë dhe valide.</string>
+    <string name="info_add_account_keep_backup_secure">Info: të gjitha HD Bitcoin llogarit derivohen nga \"Master Seed\" - nëse e mbani një kopje rezervë të 12 fjalëve të sigurt, atëherë mund t\'i riktheni të gjitha HD Bitcoin llogarit me të.</string>
+    <string name="warning_add_account_no_backup">Paralajmërim: Nuk keni konfirmuar kopjen rezervë te Master Seed. Të gjitha HD Bitcoin llogaritë e juaja derivohen nga Master Seed. Jeni të sigurtë dhe vetëm atëherë kur kopja rezervë është e sigurtë dhe e rikthyeshme, nëse keni një kopje rezervë të sigurtë dhe valide.</string>
     <string name="transaction_to_address_prefix">Te: %s</string>
     <!-- from libNetCipher -->
     <string name="install_orbot_">Instalo Orbot?</string>

@@ -39,14 +39,8 @@ class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
      * @throws InvalidKeyCipher if the cipher is invalid
      */
     @Throws(InvalidKeyCipher::class)
-    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed {
-        val binaryMasterSeed = secureKeyValueStore.getDecryptedValue(MASTER_SEED_ID, cipher)
-        val masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false)
-        if (!masterSeed.isPresent) {
-            throw RuntimeException()
-        }
-        return masterSeed.get()
-    }
+    fun getMasterSeed(cipher: KeyCipher): Bip39.MasterSeed =
+            getMasterSeed(secureKeyValueStore, cipher)
 
     /**
      * Determine whether the wallet manager has a master seed configured
@@ -72,5 +66,22 @@ class MasterSeedManager(private val secureKeyValueStore: SecureKeyValueStore) {
 
     companion object {
         val MASTER_SEED_ID = HexUtils.toBytes("D64CA2B680D8C8909A367F28EB47F990")
+
+        /**
+         * Get the master seed in plain text
+         *
+         * @param cipher the cipher used to decrypt the master seed
+         * @return the master seed in plain text
+         * @throws InvalidKeyCipher if the cipher is invalid
+         */
+        @Throws(InvalidKeyCipher::class)
+        fun getMasterSeed(secureKeyValueStore: SecureKeyValueStore, cipher: KeyCipher): Bip39.MasterSeed {
+            val binaryMasterSeed = secureKeyValueStore.getDecryptedValue(MASTER_SEED_ID, cipher)
+            val masterSeed = Bip39.MasterSeed.fromBytes(binaryMasterSeed, false)
+            if (!masterSeed.isPresent) {
+                throw RuntimeException()
+            }
+            return masterSeed.get()
+        }
     }
 }

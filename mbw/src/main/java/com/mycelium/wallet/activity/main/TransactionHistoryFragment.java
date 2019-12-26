@@ -108,6 +108,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -453,8 +454,9 @@ public class TransactionHistoryFragment extends Fragment {
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
-                     if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                         || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
+                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
+                             || _mbwManager.getSelectedAccount() instanceof EthAccount) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -494,7 +496,6 @@ public class TransactionHistoryFragment extends Fragment {
                            GenericAddress address = record.getDestinationAddresses().get(0);
                            EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
-                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())
@@ -648,15 +649,21 @@ public class TransactionHistoryFragment extends Fragment {
       protected void onPostExecute(Boolean isResultOk) {
          super.onPostExecute(isResultOk);
          if (isResultOk) {
-            final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
+            final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
+                    .getEstimation()
+                    .getHigh()
+                    .getValueAsLong();
             final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
             if(unsigned != null) {
                long txFee = unsigned.calculateFee();
                Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
-               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
+               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue,
+                       _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
+               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
+                       _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
+                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue,
+                          _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + ")";
                }
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
@@ -685,10 +692,10 @@ public class TransactionHistoryFragment extends Fragment {
       GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().value;
+         txFee += i.getValue().getValueAsLong();
       }
       for(GenericOutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().value;
+         txFee -= i.getValue().getValueAsLong();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
@@ -723,8 +730,6 @@ public class TransactionHistoryFragment extends Fragment {
          MbwManager.getEventBus().post(new TransactionLabelChanged());
       }
    };
-
-
 
    private void shareTransactionHistory() {
       WalletAccount account = _mbwManager.getSelectedAccount();

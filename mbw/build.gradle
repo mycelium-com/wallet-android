@@ -55,8 +55,13 @@ dependencies {
     implementation "com.squareup.retrofit:retrofit:1.9.0"
 
     // ViewModel and LiveData
-    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0-rc01"
+
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
 
     //not upgrading. This will be replaced with firebase
     implementation "com.google.android.gms:play-services-base:10.2.1"
@@ -100,11 +105,13 @@ dependencies {
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "com.madgag.spongycastle:core:$spongyCoreVersion"
-    implementation "com.madgag.spongycastle:prov:$spongyProvVersion"
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
+    implementation 'org.web3j:core:4.2.0-android'
+
+    implementation "com.squareup.sqldelight:android-driver:1.1.4"
 
     implementation("com.github.bumptech.glide:glide:4.7.1") {
         exclude group: "com.android.support"
@@ -239,6 +246,7 @@ android {
                 WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
+                EthServer = '"http://parity.mycelium.com:8545"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch",
                                debug  : "com.mycelium.module.spvbch.debug"]
@@ -267,6 +275,7 @@ android {
                 WapiServers='"[{\\\'cert-sha1\':\\\'E5:70:76:B2:67:3A:89:44:7A:48:14:81:DF:BD:A0:58:C8:82:72:4F\\\',\\\'url\\\':\\\'https://mws31.mycelium.com/wapitestnet\\\'},' +
                         '{\\\'cert-sha1\\\':\\\'ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB\\\',\\\'url\\\':\\\'https://mws30.mycelium.com/wapitestnet\\\'}, ' +
                         '{\\\'cert-sha1\\\':\\\'75:3E:8A:87:FA:95:9F:C6:1A:DB:2A:09:43:CE:52:74:27:B1:80:4B\\\',\\\'url\\\':\\\'https://ti4v3ipng2pqutby.onion/wapitestnet\\\'}]"'
+                EthServer = '"http://parity.mycelium.com:18545"'
 
                 appIdSpvBch = [release: "com.mycelium.module.spvbch.testnet",
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
@@ -289,6 +298,7 @@ android {
         variant.buildConfigField "String[]", "ColuBlockExplorerApiURLs", "${flavor.ext.ColuBlockExplorerApiURLs}"
         variant.buildConfigField "String", "RMCChangeAddress", "\"${flavor.ext.RMCChangeAddress}\""
         variant.buildConfigField "String[]", "ElectrumServers", "${flavor.ext.ElectrumServers}"
+        variant.buildConfigField "String", "EthServer", "${flavor.ext.EthServer}"
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""

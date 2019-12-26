@@ -23,14 +23,14 @@ import com.squareup.otto.Subscribe
 class AddressFragmentModel(
         val context: Application,
         var account: WalletAccount<*>,
-        val showBip44Path: Boolean
+        private val showBip44Path: Boolean
 ) {
     private var mbwManager: MbwManager = MbwManager.getInstance(context)
     val accountLabel: MutableLiveData<Spanned> = MutableLiveData()
     val accountAddress: MutableLiveData<GenericAddress> = MutableLiveData()
     val addressPath: MutableLiveData<String> = MutableLiveData()
     val type: MutableLiveData<AddressType> = MutableLiveData()
-    val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
+    private val bip32Path: MutableLiveData<HdKeyPath> = MutableLiveData()
     var isCompressedKey: Boolean = true
     val accountAddressType: MutableLiveData<String> = MutableLiveData()
 
