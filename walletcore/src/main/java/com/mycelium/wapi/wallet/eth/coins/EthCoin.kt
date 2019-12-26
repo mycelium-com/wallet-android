@@ -4,6 +4,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.families.Families
 import com.mycelium.wapi.wallet.eth.EthAddress
+import org.web3j.crypto.WalletUtils
 
 abstract class EthCoin : CryptoCurrency() {
     init {
@@ -13,9 +14,9 @@ abstract class EthCoin : CryptoCurrency() {
     }
 
     override fun parseAddress(addressString: String): GenericAddress? {
-        return try {
+        return if (WalletUtils.isValidAddress(addressString)) {
             EthAddress(this, addressString)
-        } catch (e: Exception) {
+        } else {
             null
         }
     }
