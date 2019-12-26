@@ -856,8 +856,8 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        HttpService web3jService = new HttpService(BuildConfig.EthServer);
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, web3jService, networkParameters, getMetadataStorage(), accountListener));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+                configuration.getEthHttpServices().get(0), networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
