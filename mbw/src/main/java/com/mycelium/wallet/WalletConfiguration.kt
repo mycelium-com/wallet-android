@@ -92,7 +92,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-                            .putStringSet(PREFS_ETH_SERVERS, ethServers)
+                    ethServers?.let {
+                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServers)
+                    }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
