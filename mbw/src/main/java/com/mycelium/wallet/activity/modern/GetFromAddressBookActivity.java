@@ -44,8 +44,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.adapter.TabsAdapter;
 
 public class GetFromAddressBookActivity extends AppCompatActivity {
-   private static final int TAB_MYADDRESSES = 0;
-   private static final int TAB_CONTACTS = 1;
+   private static final String TAB_MY_ADDRESSES = "tab_my_addresses";
+   private static final String TAB_CONTACTS = "tab_contacts";
+
    ViewPager mViewPager;
    TabsAdapter mTabsAdapter;
 
@@ -62,17 +63,19 @@ public class GetFromAddressBookActivity extends AppCompatActivity {
 
       TabLayout.Tab myAddressesTab = tabLayout.newTab().setText(getResources().getString(R.string.my_accounts));
       mTabsAdapter.addTab(myAddressesTab, AddressBookFragment.class,
-              addressBookBundle(true, false));
+              addressBookBundle(true, false), TAB_MY_ADDRESSES);
       TabLayout.Tab contactsTab = tabLayout.newTab().setText(getResources().getString(R.string.sending_addresses));
       mTabsAdapter.addTab(contactsTab, AddressBookFragment.class,
-              addressBookBundle(false, true));
+              addressBookBundle(false, true), TAB_CONTACTS);
 
       int countContactsEntries = _mbwManager.getMetadataStorage().getAllAddressLabels().size();
 
       if (countContactsEntries > 0) {
-         mViewPager.setCurrentItem(TAB_CONTACTS);
+         contactsTab.select();
+         mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_CONTACTS));
       } else {
-         mViewPager.setCurrentItem(TAB_MYADDRESSES);
+         myAddressesTab.select();
+         mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_MY_ADDRESSES));
       }
    }
 
