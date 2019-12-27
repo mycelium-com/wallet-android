@@ -44,9 +44,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.tabs.TabLayout;
@@ -62,11 +60,13 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
       private final Class<?> clss;
       private final Bundle args;
       private final CharSequence title;
+      private final String tag;
 
-      TabInfo(Class<?> _class, Bundle _args, CharSequence title) {
+      TabInfo(Class<?> _class, Bundle _args, CharSequence title, String tag) {
          clss = _class;
          args = _args;
          this.title = title;
+         this.tag = tag;
       }
    }
 
@@ -78,8 +78,8 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
       pager.addOnPageChangeListener(this);
    }
 
-   public void addTab(TabLayout.Tab tab, Class<?> clss, Bundle args) {
-      TabInfo info = new TabInfo(clss, args, tab.getText());
+   public void addTab(TabLayout.Tab tab, Class<?> clss, Bundle args, String tabTag) {
+      TabInfo info = new TabInfo(clss, args, tab.getText(), tabTag);
       tab.setTag(info);
       mTabs.add(info);
       notifyDataSetChanged();
@@ -118,5 +118,19 @@ public class TabsAdapter extends FragmentPagerAdapter implements ViewPager.OnPag
    @Override
    public CharSequence getPageTitle(int position) {
       return mTabs.get(position).title;
+   }
+
+   public String getPageTag(int position) {
+      return mTabs.get(position).tag;
+   }
+
+   public int indexOf(String tabTag) {
+      for (int i = 0; i < mTabs.size(); i++) {
+         TabInfo mTab = mTabs.get(i);
+         if (tabTag.equals(mTab.tag)) {
+            return i;
+         }
+      }
+      return -1;
    }
 }
