@@ -59,11 +59,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             val accountsList: MutableList<AccountsGroupModel> = mutableListOf()
 
             listOf(R.string.active_hd_accounts_name to walletManager.getBTCBip44Accounts(),
-                    R.string.eth_accounts_name to walletManager.getEthAccounts(),
                     R.string.active_bitcoin_sa_group_name to walletManager.getBTCSingleAddressAccounts(),
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
-                    R.string.digital_assets to getColuAccounts(walletManager)
+                    R.string.digital_assets to getColuAccounts(walletManager),
+                    R.string.eth_accounts_name to walletManager.getEthAccounts()
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
