@@ -1239,6 +1239,9 @@ public class MbwManager {
     }
 
     public MinerFee getMinerFee(String coinName) {
+        if (_minerFee.get(coinName) == null) {
+            _minerFee.put(coinName, MinerFee.NORMAL);
+        }
         return _minerFee.get(coinName);
     }
 
