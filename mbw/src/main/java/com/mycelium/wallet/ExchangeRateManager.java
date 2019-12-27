@@ -327,9 +327,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             }
             if (_currentExchangeSourceName.get(fromCurrency) == null) {
                 // This only happens the first time the wallet picks up exchange rates.
-                // We will default to the first exchange
                 if (getExchangeSourceNames(fromCurrency) != null && getExchangeSourceNames(fromCurrency).size() > 0) {
-                    _currentExchangeSourceName.put(fromCurrency, getExchangeSourceNames(fromCurrency).get(0));
+                    _currentExchangeSourceName.put(fromCurrency, Constants.DEFAULT_EXCHANGE);
                 }
             }
         }
