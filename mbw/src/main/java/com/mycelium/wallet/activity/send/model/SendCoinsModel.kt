@@ -132,8 +132,8 @@ abstract class SendCoinsModel(
 
     var sendScrollDefault = true
 
-    protected val mbwManager = MbwManager.getInstance(context)!!
-    private var feeEstimation = mbwManager.getFeeProvider(account.coinType).estimation
+    protected val mbwManager = MbwManager.getInstance(context)
+    private var feeEstimation = mbwManager.getFeeProvider(account.basedOnCoinType).estimation
 
     var paymentRequestHandlerUUID: String? = null
     private val feeItemsBuilder = FeeItemsBuilder(mbwManager.exchangeRateManager, mbwManager.getFiatCurrency(account.coinType))
@@ -155,8 +155,8 @@ abstract class SendCoinsModel(
     }
 
     init {
-        feeLvl.value = mbwManager.getMinerFee(account.coinType.name)
-        selectedFee.value = Value.valueOf(account.coinType, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
+        feeLvl.value = mbwManager.getMinerFee(account.basedOnCoinType.name)
+        selectedFee.value = Value.valueOf(account.basedOnCoinType, getFeeItemList()[getFeeItemList().size / 2].feePerKb)
         transactionStatus.value = TransactionStatus.MISSING_ARGUMENTS
         spendingUnconfirmed.value = false
         errorText.value = ""
@@ -422,15 +422,19 @@ abstract class SendCoinsModel(
         val toSend = amount.value!!
 
         try {
-            return if (paymentRequestHandler.value?.hasValidPaymentRequest() == true) {
-                handlePaymentRequest(toSend)
-            } else if (receivingAddress.value != null) {
-                // createTx potentially takes long, if server interaction is involved
-                transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!))
-                spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
-                TransactionStatus.OK
-            } else {
-                TransactionStatus.MISSING_ARGUMENTS
+            return when {
+                paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
+                    handlePaymentRequest(toSend)
+                }
+                receivingAddress.value != null -> {
+                    // createTx potentially takes long, if server interaction is involved
+                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!))
+                    spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
+                    TransactionStatus.OK
+                }
+                else -> {
+                    TransactionStatus.MISSING_ARGUMENTS
+                }
             }
         } catch (ex: GenericBuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
@@ -446,7 +450,7 @@ abstract class SendCoinsModel(
     private fun updateFeeDataset(): List<FeeItem> {
         val feeItemList = getFeeItemList()
         if (!isInRange(feeItemList, selectedFee.value!!)) {
-            selectedFee.postValue(Value.valueOf(account.coinType, feeItemList[feeItemList.size / 2].feePerKb))
+            selectedFee.postValue(Value.valueOf(account.basedOnCoinType, feeItemList[feeItemList.size / 2].feePerKb))
         }
         return feeItemList
     }
