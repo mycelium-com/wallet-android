@@ -4,11 +4,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.activity.util.ToggleableCurrencyButton;
+import com.mycelium.wallet.activity.util.TotalToggleableCurrencyButton;
 
 
 public class TotalViewHolder extends RecyclerView.ViewHolder {
-    public ToggleableCurrencyButton tcdBalance;
+    public TotalToggleableCurrencyButton tcdBalance;
 
     public TotalViewHolder(View itemView) {
         super(itemView);
