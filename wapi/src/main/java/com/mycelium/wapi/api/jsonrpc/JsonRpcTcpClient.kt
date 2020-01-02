@@ -102,12 +102,13 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                         incoming = BufferedReader(InputStreamReader(getInputStream()))
                         outgoing = BufferedOutputStream(getOutputStream())
                     }
+                    isConnected.set(true)
+                    logger.logInfo("Connected to ${currentEndpoint.host}:${currentEndpoint.port}")
+
                     resendRemainingRequests()
                     notify("server.version", RpcParams.mapParams(
                             "client_name" to "wapi",
                             "protocol_version" to "1.4"))
-                    logger.logInfo("Connected to ${currentEndpoint.host}:${currentEndpoint.port}")
-                    isConnected.set(true)
 
                     // Schedule periodic ping requests execution
                     pingTimer = Timer().apply {
@@ -155,7 +156,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
     fun notify(methodName: String, params: RpcParams) {
         val requestId = nextRequestId.getAndIncrement().toString()
-        internalWrite(requestId, RpcRequestOut(methodName, params).apply {
+        internalWrite(RpcRequestOut(methodName, params).apply {
             id = requestId
         }.toJson())
     }
@@ -187,7 +188,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
             callbacks[id.toString()] = subscription.callback
             subscriptions[subscription.methodName] = subscription
         }.toJson()
-        internalWrite(requestId, request)
+        internalWrite(request)
     }
 
     /**
@@ -212,7 +213,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
 
         val batchedRequest = '[' + requests.joinToString { it.toJson() } + ']'
-        if (!internalWrite(compoundId, batchedRequest)) {
+        if (!internalWrite(batchedRequest)) {
+            callbacks.remove(compoundId)
             throw RpcResponseException("Write error")
         }
 
@@ -252,7 +254,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
         val requestJson = request.toJson()
         val requestId = request.id.toString()
-        if (!internalWrite(requestId, requestJson)) {
+        if (!internalWrite(requestJson)) {
+            callbacks.remove(requestId)
             throw RpcResponseException("Write error")
         }
 
@@ -330,7 +333,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
         val requestJson = request.toJson()
         val requestId = request.id.toString()
-        if (!internalWrite(requestId, requestJson)) {
+        if (!internalWrite(requestJson)) {
+            callbacks.remove(requestId)
             return
         }
 
@@ -345,7 +349,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
 
     @Synchronized
-    private fun internalWrite(requestId: String, msg: String): Boolean {
+    private fun internalWrite(msg: String): Boolean {
         var result = true
 
         if (!isConnected.get())
@@ -358,7 +362,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         } catch (ex: Exception) {
             result = false
             closeConnection()
-            callbacks.remove(requestId)
         }
         return result
     }
