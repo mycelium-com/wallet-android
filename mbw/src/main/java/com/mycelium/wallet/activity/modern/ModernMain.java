@@ -521,7 +521,9 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void hideRefresh() {
-        refreshItem.setActionView(null);
+        if (refreshItem != null) {
+            refreshItem.setActionView(null);
+        }
     }
 
     private void showRefresh() {
