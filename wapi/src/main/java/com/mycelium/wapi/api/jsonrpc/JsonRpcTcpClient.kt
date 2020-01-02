@@ -139,10 +139,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                 }
                 logger.logInfo("Connection to ${currentEndpoint.host}:${currentEndpoint.port} closed")
 
-                //Close connection if it is still open
-                if (isConnected.get()) {
-                    closeConnection()
-                }
+                //Close connection if it is still opened
+                closeConnection()
 
                 // Sleep for some time before moving to the next endpoint
                 if (isConnectionThreadActive) {
@@ -286,8 +284,10 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     }
 
     private fun closeConnection() {
-        isConnected.set(false)
-        socket?.close()
+        if (isConnected.get()) {
+            isConnected.set(false)
+            socket?.close()
+        }
     }
 
     private fun messageReceived(message: String) {
