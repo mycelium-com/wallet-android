@@ -872,14 +872,19 @@ public class AccountsFragment extends Fragment {
      * Account is protected if after removal no masterseed accounts would stay active, so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        // If the account is not derived from master seed, we can remove it
-        if (!toRemove.isDerivedFromInternalMasterseed()) {
+        // accounts not derived from master seed and ethereum account are not protected
+        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
-
-        // If we have more than one master-seed derived account, we can remove it
-        return accountsList.size() <= 1;
+        int cnt = 0;
+        for (WalletAccount account : accountsList) {
+            if (account.getClass().equals(toRemove.getClass())) {
+                cnt++;
+            }
+        }
+        // If we have more than one master-seed derived account of the same type as toRemove, we can remove it
+        return cnt <= 1;
     }
 
     private void hideSelected() {
