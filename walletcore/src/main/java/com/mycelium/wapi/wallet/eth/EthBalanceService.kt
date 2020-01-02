@@ -43,8 +43,9 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
                 logger.log(Level.SEVERE, "Failed while requesting pending transactions $e")
                 emptyList<Transaction>()
             }
-            val incomingTx = txs.filter { it.to == address }
-            val outgoingTx = txs.filter { it.from == address }
+            val incomingTx = txs.filter { it.from != address && it.to == address }
+            val outgoingTx = txs.filter { it.from == address && it.to != address }
+            val toSelfTx = txs.filter { it.from == address && it.to == address }
 
             val incomingSum: BigInteger = incomingTx
                     .map(Transaction::getValue)
@@ -52,9 +53,12 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
             val outgoingSum: BigInteger = outgoingTx
                     .map { tx -> tx.value + tx.gasPrice * tx.gas }
                     .fold(BigInteger.ZERO, BigInteger::add)
+            val toSelfTxSum: BigInteger = toSelfTx
+                    .map { tx -> tx.gasPrice * tx.gas }
+                    .fold(BigInteger.ZERO, BigInteger::add)
 
-            balance = Balance(Value.valueOf(coinType, balanceResult.balance - outgoingSum),
-                    Value.valueOf(coinType, incomingSum), Value.valueOf(coinType, outgoingSum), Value.zeroValue(coinType))
+            balance = Balance(Value.valueOf(coinType, balanceResult.balance - outgoingSum - toSelfTxSum),
+                    Value.valueOf(coinType, incomingSum), Value.valueOf(coinType, outgoingSum + toSelfTxSum), Value.zeroValue(coinType))
             true
         } catch (e: SocketTimeoutException) {
             false
@@ -70,11 +74,12 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
                 "parity_allTransactions",
                 emptyList(),
                 web3jService,
-                ParityAllTransactionsResponse::class.java).send()
-        if (request.hasError()) {
-            throw Exception("${request.error.code}: ${request.error.message}")
+                ParityAllTransactionsResponse::class.java)
+        val response = request.send()
+        if (response.hasError()) {
+            throw Exception("${response.error.code}: ${response.error.message}")
         } else {
-            return request.transactions
+            return response.transactions
         }
     }
 }

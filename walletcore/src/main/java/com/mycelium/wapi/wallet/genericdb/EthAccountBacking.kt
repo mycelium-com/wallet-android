@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAddress
+import java.lang.IllegalStateException
 import java.util.*
 
 class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
@@ -72,7 +73,16 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val outputs = if (to.isEmpty()) listOf()
         else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
-        val transferred = if (to == ownerAddress) value else -value - fee
+        val transferred: Value = if ((from == ownerAddress) && (to != ownerAddress)) {
+            -value - fee
+        } else if ((from != ownerAddress) && (to == ownerAddress)) {
+            value
+        } else if ((from == ownerAddress) && (to == ownerAddress)) {
+            -fee // sent to ourselves
+        } else {
+            // transaction doesn't relate to us in any way. should not happen
+            throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
+        }
         return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
                 confirmations, false, inputs, outputs,
