@@ -10,6 +10,7 @@ import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.external.mediaflow.database.NewsSQLiteHelper.NEWS
 import com.mycelium.wallet.external.mediaflow.model.Author
 import com.mycelium.wallet.external.mediaflow.model.Category
+import com.mycelium.wallet.external.mediaflow.model.Content
 import com.mycelium.wallet.external.mediaflow.model.News
 import java.util.*
 
@@ -55,16 +56,16 @@ object NewsDatabase {
         while (cursor.moveToNext()) {
             val news = News()
             news.id = cursor.getInt(cursor.getColumnIndex("id"))
-            news.title = cursor.getString(cursor.getColumnIndex("title"))
-            news.content = cursor.getString(cursor.getColumnIndex("content"))
+            news.title = Content(cursor.getString(cursor.getColumnIndex("title")))
+            news.content = Content(cursor.getString(cursor.getColumnIndex("content")))
             news.date = Date(cursor.getLong(cursor.getColumnIndex("date")))
             news.author = Author(cursor.getString(cursor.getColumnIndex("author")))
             news.image = cursor.getString(cursor.getColumnIndex("image"))
             news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
             val category = cursor.getString(cursor.getColumnIndex("category"))
             news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
-            news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
-            news.categories = mapOf<String, Category>(category to Category(category))
+            news.excerpt = Content(cursor.getString(cursor.getColumnIndex("excerpt")))
+            news.categories = listOf(Category(category))
             news.isFull = cursor.getInt(cursor.getColumnIndex("isfull")) != 0
             result.add(news)
         }
@@ -98,14 +99,14 @@ object NewsDatabase {
 
                 insertOrReplaceNews.clearBindings()
                 insertOrReplaceNews.bindLong(1, it.id.toLong())
-                insertOrReplaceNews.bindString(2, it.title)
-                insertOrReplaceNews.bindString(3, it.content ?: "")
+                insertOrReplaceNews.bindString(2, it.title.rendered)
+                insertOrReplaceNews.bindString(3, it.content.rendered ?: "")
                 insertOrReplaceNews.bindLong(4, it.date?.time ?: 0)
                 insertOrReplaceNews.bindString(5, it.author?.name ?: "")
                 insertOrReplaceNews.bindString(6, it.link ?: "")
-                insertOrReplaceNews.bindString(7, it.categories?.values?.firstOrNull()?.name ?: NewsUtils.NEWS_CATEGORY)
+                insertOrReplaceNews.bindString(7, it.categories?.firstOrNull()?.name ?: NewsUtils.NEWS_CATEGORY)
                 insertOrReplaceNews.bindString(8, it.image ?: "")
-                insertOrReplaceNews.bindString(9, it.excerpt ?: "")
+                insertOrReplaceNews.bindString(9, it.excerpt.rendered ?: "")
                 insertOrReplaceNews.bindLong(10, if (it.isFull) 1 else 0)
                 insertOrReplaceNews.executeInsert()
 
@@ -163,16 +164,16 @@ object NewsDatabase {
         if (cursor.moveToFirst()) {
             val news = News()
             news.id = cursor.getInt(cursor.getColumnIndex("id"))
-            news.title = cursor.getString(cursor.getColumnIndex("title"))
-            news.content = cursor.getString(cursor.getColumnIndex("content"))
+            news.title = Content(cursor.getString(cursor.getColumnIndex("title")))
+            news.content = Content(cursor.getString(cursor.getColumnIndex("content")))
             news.date = Date(cursor.getLong(cursor.getColumnIndex("date")))
             news.author = Author(cursor.getString(cursor.getColumnIndex("author")))
             news.image = cursor.getString(cursor.getColumnIndex("image"))
             news.link = cursor.getString(cursor.getColumnIndex("short_URL"))
             val category = cursor.getString(cursor.getColumnIndex("category"))
             news.isRead = cursor.getInt(cursor.getColumnIndex("read")) != 0
-            news.excerpt = cursor.getString(cursor.getColumnIndex("excerpt"))
-            news.categories = mapOf<String, Category>(category to Category(category))
+            news.excerpt = Content(cursor.getString(cursor.getColumnIndex("excerpt")))
+            news.categories = listOf(Category(category))
             news.isFull = cursor.getInt(cursor.getColumnIndex("isfull")) != 0
             result = news
         }

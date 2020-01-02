@@ -43,7 +43,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     fun addData(data: List<News>) {
         data.forEach { news ->
-            val set = dataMap.getOrElse(news.categories.values.first()) {
+            val set = dataMap.getOrElse(news.categories.first()) {
                 mutableSetOf()
             }
             set.remove(news) // allow potentially changed news to be updated
@@ -186,8 +186,8 @@ class NewsAdapter(val preferences: SharedPreferences)
 
         override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean =
                 oldItem.type == newItem.type
-                        && oldItem.news?.title == newItem.news?.title
-                        && oldItem.news?.content == newItem.news?.content
+                        && oldItem.news?.title?.rendered == newItem.news?.title?.rendered
+                        && oldItem.news?.content?.rendered == newItem.news?.content?.rendered
                         && oldItem.favorite == newItem.favorite
     }
 
@@ -215,6 +215,6 @@ class NewsAdapter(val preferences: SharedPreferences)
 
 fun News.isFavorite(preferences: SharedPreferences) = preferences.getBoolean(NewsAdapter.PREF_FAVORITE + id, false)
 
-fun News.getCategory(): Category = if (this.categories.values.isNotEmpty()) this.categories.values.first() else Category("Uncategorized")
+fun News.getCategory(): Category = if (this.categories.isNotEmpty()) this.categories.first() else Category("Uncategorized")
 
 
