@@ -28,8 +28,6 @@ data class TcpEndpoint(val host: String, val port: Int)
     - Has a separate thread for maintaining connectivity and processing messages
     - Able to handle network state change using setActive()
     - Allows making write() calls from any thread
-    - Closes a connection when write() method still has not received response in given timeout.
-      Typically, write() method should receive the timeouts large enough to handle correctly even huge requests.
     - Ping messages are sent continuously in a separate thread each 5 seconds. If there is no response
       to ping message received, we consider it as a server slowdown and close the connection
     - After a new connection is established, those requests who has not been processed by previous connection
@@ -146,6 +144,11 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                     closeConnection()
                 }
 
+                // Sleep for some time before moving to the next endpoint
+                if (isConnectionThreadActive) {
+                    sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
+                }
+
                 curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
                 pingTimer?.cancel()
             }
@@ -219,9 +222,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         awaitingLatches[compoundId] = latch
 
         if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-            logger.logInfo("Couldn't get reply for $timeout milliseconds. Forcing connection to be closed")
-            // Force socket close. It will cause reconnect to another server
-            closeConnection()
+            logger.logInfo("Couldn't get reply for $timeout milliseconds.")
             // No need to keep request data anymore as we're done with it
             removeCurrentRequestData(compoundId)
 
@@ -230,6 +231,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
 
         awaitingLatches.remove(compoundId)
+
+        // The case with response as NULL typically happens when wait() method is forced to stop
+        // by calling latch.await() manually inside setActive(), not using callback
         if (response == null) {
             throw RpcResponseException("Request was cancelled")
         }
@@ -258,9 +262,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         awaitingLatches[requestId] = latch
 
         if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-            logger.logInfo("Couldn't get reply on $methodName for $timeout milliseconds. Forcing connection to be closed")
-            // Force socket close. It will cause reconnect to another server
-            closeConnection()
+            logger.logInfo("Couldn't get reply on $methodName for $timeout milliseconds.")
             // No need to keep request data anymore as we're done with it
             removeCurrentRequestData(requestId)
             awaitingLatches.remove(requestId)
@@ -268,6 +270,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
 
         awaitingLatches.remove(requestId)
+
+        // The case with response as NULL typically happens when wait() method is forced to stop
+        // by calling latch.await() manually inside setActive(), not using callback
         if (response == null) {
             throw RpcResponseException("Request was cancelled")
         }
@@ -359,6 +364,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     }
 
     companion object {
+        private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(1)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
         private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(5)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(20)
