@@ -8,6 +8,7 @@ import com.mycelium.wallet.activity.send.model.FeeItem;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import static com.mycelium.wallet.activity.send.view.SelectableRecyclerView.SRVA
  */
 public class FeeItemsBuilder {
     private static final int MIN_NON_ZERO_FEE_PER_KB = 1000;
+    private static final long MIN_NON_ZERO_GAS_PER_KB = 100000000000L; // 0.1 Gwei * 1000
     private static final float MIN_FEE_INCREMENT = 1.025f; // fee(n+1) > fee(n) * MIN_FEE_INCREMENT
 
     private ExchangeRateManager exchangeRateManager;
@@ -44,7 +46,7 @@ public class FeeItemsBuilder {
     }
 
     public List<FeeItem> getFeeItemList(GenericAssetInfo asset, FeeEstimationsGeneric feeEstimation, MinerFee minerFee, int txSize) {
-        long min = MIN_NON_ZERO_FEE_PER_KB;
+        long min = asset instanceof EthCoin ? MIN_NON_ZERO_GAS_PER_KB : MIN_NON_ZERO_FEE_PER_KB;
         long current = 0;
         long previous = 0;
         long next = 0;
