@@ -68,7 +68,7 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
             result = fetchAllPages { nextPage ->
                 var totalPageCount = 1
                 Pair(if (after != null && after.isNotEmpty()) {
-                    NewsFactory.service.updatedPosts(after, nextPage)
+                    NewsFactory.service.updatedPosts("${after}T00:00:00", nextPage)
                 } else {
                     NewsFactory.service.posts(nextPage)
                 }.execute().apply {
