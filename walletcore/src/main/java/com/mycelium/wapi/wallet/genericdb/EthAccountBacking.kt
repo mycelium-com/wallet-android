@@ -30,6 +30,23 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsList()
 
+    /**
+     * @param timestampParameter time in seconds
+     */
+    fun getTransactionSummariesSince(timestampParameter: Long, ownerAddress: String): List<GenericTransactionSummary> =
+            ethQueries.selectTransactionSummariesSince(uuid, timestampParameter, mapper = { txid: String,
+                                                                                            currency: CryptoCurrency,
+                                                                                            blockNumber: Int,
+                                                                                            timestamp: Long,
+                                                                                            value: Value,
+                                                                                            fee: Value,
+                                                                                            confirmations: Int,
+                                                                                            from: String,
+                                                                                            to: String ->
+                createAndReturnGenericTransactionSummary(ownerAddress, txid, currency, blockNumber,
+                        timestamp, value, fee, confirmations, from, to)
+            }).executeAsList()
+
     fun getTransactionSummary(txidParameter: String, ownerAddress: String): GenericTransactionSummary? =
             ethQueries.selectTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
                                                                                     currency: CryptoCurrency,

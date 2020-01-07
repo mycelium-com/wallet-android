@@ -27,6 +27,17 @@ FROM EthAccountBacking AS eb
         WHERE eb.uuid = (:uuid) ORDER BY b.blockNumber DESC
         LIMIT (:limit) OFFSET (:offset);
 
+
+-- Selects transactions since time in seconds
+
+selectTransactionSummariesSince:
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (:uuid) AND b.timestamp > (:timestamp);
+
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
     b.confirmations, eb.fromAddress, eb.toAddress
