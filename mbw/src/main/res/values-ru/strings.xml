@@ -5,7 +5,7 @@
     <string name="add_unrelated_account_title">Добавить несвязанный аккаунт</string>
     <string name="import_seed_title">Импортировть мастер-ключ Seed</string>
     <string name="import_words_title">Введите список слов</string>
-    <string name="add_account_desc">Mycelium поддерживает HD Bitcoin аккаунты и аккаунты с одним адресом. Все HD Bitcoin аккаунты создаются на основе одного мастер-ключа Seed.</string>
+    <string name="add_account_desc">Mycelium поддерживает HD Bitcoin аккаунты, Bitcoin аккаунты с одним адресом и Etherium аккаунты. Все HD Bitcoin аккаунты создаются на основе одного мастер-ключа Seed.</string>
     <string name="add_single_acc_info">Чтобы добавить аккаунт на основе отдельного закрытого ключа (Single Address account) или аккаунт только для мониторинга (без закрытого ключа), пожалуйста, нажмите кнопку Дополнительно.</string>
     <string name="scan_desc">Сканировать Биткойн адрес, закрытый ключ или HD Bitcoin-аккаунт.</string>
     <string name="scan_seed">Сканировать Master Seed  из резервной копии Mycelium</string>
