@@ -5,7 +5,7 @@
     <string name="add_unrelated_account_title">Добавить несвязанный аккаунт</string>
     <string name="import_seed_title">Импортировть мастер-ключ Seed</string>
     <string name="import_words_title">Введите список слов</string>
-    <string name="add_account_desc">Mycelium поддерживает HD Bitcoin аккаунты и аккаунты с одним адресом. Все HD Bitcoin аккаунты создаются на основе одного мастер-ключа Seed.</string>
+    <string name="add_account_desc">Mycelium поддерживает HD Bitcoin аккаунты, Bitcoin аккаунты с одним адресом и Ethereum аккаунт. Все HD Bitcoin аккаунты и Ethereum аккаунт создаются на основе одного мастер-ключа Seed.</string>
     <string name="add_single_acc_info">Чтобы добавить аккаунт на основе отдельного закрытого ключа (Single Address account) или аккаунт только для мониторинга (без закрытого ключа), пожалуйста, нажмите кнопку Дополнительно.</string>
     <string name="scan_desc">Сканировать Биткойн адрес, закрытый ключ или HD Bitcoin-аккаунт.</string>
     <string name="scan_seed">Сканировать Master Seed  из резервной копии Mycelium</string>
@@ -13,7 +13,7 @@
     <string name="clipboard_desc">Импортировать биткойн адрес или приватный ключ из буфера обмена данными (clipboard).</string>
     <string name="wordlist_des">Создание Master Seed из списка слов</string>
     <string name="scan">Сканировать</string>
-    <string name="advanced">Продвинутый уровень</string>
+    <string name="advanced">Дополнительно</string>
     <string name="clipboard">Буфер обмена</string>
     <string name="enter_wordlist">Введите список слов</string>
     <string name="hd_account">Добавить HD Bitcoin аккаунт</string>
@@ -633,8 +633,8 @@
     <string name="both">Оба способа</string>
     <string name="button_changelog">История изменений</string>
     <string name="hint_type_to_filter">Начните ввод для фильтрации списка</string>
-    <string name="info_add_account_keep_backup_secure">Информация: Все HD Bitcoin аккаунты являются производными от вашего мастер-ключа Seed - если вы храните вашу резервную копию из 12 слов в безопасном месте (лучше на бумаге в сейфе), вы можете легко восстановить все ваши HD Bitcoin аккаунты в случае потери/поломки смартфона.</string>
-    <string name="warning_add_account_no_backup">Предупреждение: У вас не подтверждена/верифицирована Резервная Копия вашего мастер-ключа Seed. Все HD Bitcoin аккаунты являются производными от него. Они безопасны и восстанавливаемы, если у вас есть верифицированная и безопасно хранящаяся Резервная Копия.</string>
+    <string name="info_add_account_keep_backup_secure">Информация: Все HD Bitcoin аккаунты и Ethereum аккаунт являются производными от вашего мастер-ключа Seed - если вы храните вашу резервную копию из 12 слов в безопасном месте (лучше на бумаге в сейфе), вы можете легко восстановить все ваши HD Bitcoin аккаунты и Ethereum аккаунт в случае потери/поломки смартфона.</string>
+    <string name="warning_add_account_no_backup">Предупреждение: У вас не подтверждена/верифицирована Резервная Копия вашего мастер-ключа Seed. Все HD Bitcoin аккаунты и Ethereum аккаунт являются производными от него. Они безопасны и восстанавливаемы, если у вас есть верифицированная и безопасно хранящаяся Резервная Копия.</string>
     <string name="transaction_to_address_prefix">Кому: %s</string>
     <string name="tor_state_init">Инициализация Tor</string>
     <!-- from libNetCipher -->
