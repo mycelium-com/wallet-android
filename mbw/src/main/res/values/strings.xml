@@ -8,7 +8,7 @@
     <string name="add_unrelated_account_title">Add Unrelated Account</string>
     <string name="import_seed_title">Import Master Seed</string>
     <string name="import_words_title">Enter Word List</string>
-    <string name="add_account_desc">Mycelium supports Bitcoin HD Accounts, Bitcoin Single Address Accounts and Ethereum Accounts. All created Bitcoin HD Accounts and Ethereum Account are based on the same Master Seed.</string>
+    <string name="add_account_desc">Mycelium supports Bitcoin HD Accounts, Bitcoin Single Address Accounts and Ethereum Account. All created Bitcoin HD Accounts and Ethereum Account are based on the same Master Seed.</string>
     <string name="add_single_acc_info">In order to add a Single Address Account based on a private key or a read-only address, please click the Advanced button below.</string>
     <string name="scan_desc">Scan Bitcoin address, private key or HD Bitcoin-Account.</string>
     <string name="scan_seed">Scan Master Seed from Mycelium Backup</string>
