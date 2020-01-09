@@ -3,12 +3,17 @@ package com.mycelium.wallet.external;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.api.client.util.Lists;
 import com.google.common.base.Preconditions;
@@ -18,6 +23,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.ModernMain;
 import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import java.util.List;
 
@@ -54,9 +60,9 @@ public class BuySellSelectActivity extends FragmentActivity {
          }
       }
 
-      if (onlyOneEnabled != null){
-         if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount) {
-            onlyOneEnabled.launchService(this, mbwManager, ((WalletBtcAccount) (mbwManager.getSelectedAccount())).getReceivingAddress());
+      if (onlyOneEnabled != null) {
+         if (mbwManager.getSelectedAccount() instanceof WalletBtcAccount || mbwManager.getSelectedAccount() instanceof EthAccount) {
+            onlyOneEnabled.launchService(this, mbwManager, mbwManager.getSelectedAccount().getReceiveAddress());
          } else {
             Toast.makeText(getApplicationContext(), R.string.buy_sell_select_activity_warning, Toast.LENGTH_SHORT).show();
          }
@@ -109,14 +115,14 @@ public class BuySellSelectActivity extends FragmentActivity {
          final BuySellServiceDescriptor service = Preconditions.checkNotNull(getItem(position));
 
          ((TextView) v.findViewById(R.id.tvServiceName)).setText(service.title);
-         ((TextView) v.findViewById(R.id.tvServiceDescription)).setText(service.description);
+         ((TextView) v.findViewById(R.id.tvServiceDescription)).setText(service.getDescription(mbwManager, mbwManager.getSelectedAccount().getReceiveAddress()));
          ((ImageView) v.findViewById(R.id.ivIcon)).setImageDrawable(service.getIcon(context));
 
          v.findViewById(R.id.llServiceRow).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount) {
-                  service.launchService(BuySellSelectActivity.this, mbwManager, ((WalletBtcAccount) (mbwManager.getSelectedAccount())).getReceivingAddress());
+               if(mbwManager.getSelectedAccount() instanceof WalletBtcAccount || mbwManager.getSelectedAccount() instanceof EthAccount) {
+                  service.launchService(BuySellSelectActivity.this, mbwManager, mbwManager.getSelectedAccount().getReceiveAddress());
                } else {
                   Toast.makeText(context, R.string.buy_sell_select_activity_warning, Toast.LENGTH_SHORT).show();
                }

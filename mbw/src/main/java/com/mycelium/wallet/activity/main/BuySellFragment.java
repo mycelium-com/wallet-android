@@ -65,6 +65,7 @@ import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -77,7 +78,8 @@ import butterknife.ButterKnife;
 
 public class BuySellFragment extends Fragment implements ButtonClickListener {
     public enum ACTION {
-        BCH, ALT_COIN, BTC, FIO
+        BCH, ALT_COIN, BTC, FIO,
+        ETH
     }
 
     private MbwManager mbwManager;
@@ -109,23 +111,28 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
 
     private void recreateActions() {
         List<ActionButton> actions = new ArrayList<>();
-        boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
-            @Override
-            public boolean apply(@Nullable BuySellServiceDescriptor input) {
-                return input.isEnabled(mbwManager);
-            }
-        });
-        int scrollTo = 1;
-        if (mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
-                mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
-
-            actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
+        int scrollTo = 0;
+        if(mbwManager.getSelectedAccount() instanceof EthAccount) {
+            actions.add(new ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)));
         } else {
-            actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
-            if (showButton) {
-                actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
+            boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
+                @Override
+                public boolean apply(@Nullable BuySellServiceDescriptor input) {
+                    return input.isEnabled(mbwManager);
+                }
+            });
+            scrollTo = 1;
+            if (mbwManager.getSelectedAccount() instanceof Bip44BCHAccount ||
+                    mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount) {
+
+                actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
+            } else {
+                actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
+                if (showButton) {
+                    actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
+                }
+                addFio(actions);
             }
-            addFio(actions);
         }
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
@@ -148,6 +155,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case ALT_COIN:
                 startExchange(new Intent(getActivity(), ChangellyActivity.class));
                 break;
+            case ETH:
             case BTC:
                 startActivity(new Intent(getActivity(), BuySellSelectActivity.class));
                 break;
