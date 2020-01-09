@@ -16,12 +16,14 @@ import com.mycelium.wapi.wallet.ExportableAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.fio.FioKeyManager
 import kotlinx.android.synthetic.main.export_as_qr_activity_qr.*
+import kotlinx.android.synthetic.main.export_as_qr_activity_share.*
 
 class ExportFioKeyActivity : AppCompatActivity() {
     private lateinit var viewModel: ExportAsQrViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         val mbwManager = MbwManager.getInstance(this)
         val fioKeyManager = FioKeyManager(mbwManager.masterSeedManager)
         val publicKey = fioKeyManager.getFioPublicKey((mbwManager.selectedAccount as HDAccount).accountIndex)
@@ -42,6 +44,7 @@ class ExportFioKeyActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         subscribeQR()
         tvWarning.visibility = GONE
+        btShare.text = getString(R.string.share_fio_public_key)
     }
 
     // sets key as qr and as textView

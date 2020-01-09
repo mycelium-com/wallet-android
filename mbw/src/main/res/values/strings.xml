@@ -1321,4 +1321,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="buy_ethereum">BUY ETH</string>
     <string name="sepa_eth_buy_sell_description">Buy ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
+    <string name="share_fio_public_key">Share FIO public key</string>
 </resources>

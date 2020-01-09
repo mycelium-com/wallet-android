@@ -850,4 +850,7 @@
         <item quantity="other">Содержит %1$d приватных ключей.</item>
     </plurals>
     <string name="buy_ethereum">Купить ETH</string>
+    <string name="export_fio">Экспортировать публичный ключ FIO</string>
+    <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
+    <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
 </resources>
