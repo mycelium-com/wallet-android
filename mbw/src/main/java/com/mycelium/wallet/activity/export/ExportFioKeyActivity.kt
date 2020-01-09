@@ -1,6 +1,7 @@
 package com.mycelium.wallet.activity.export
 
 import android.os.Bundle
+import android.view.View.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -40,6 +41,7 @@ class ExportFioKeyActivity : AppCompatActivity() {
         }
         binding.lifecycleOwner = this
         subscribeQR()
+        tvWarning.visibility = GONE
     }
 
     // sets key as qr and as textView
