@@ -114,6 +114,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         int scrollTo = 0;
         if(mbwManager.getSelectedAccount() instanceof EthAccount) {
             actions.add(new ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)));
+            actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
         } else {
             boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
                 @Override
