@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.ServerEndpointType
+import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -31,11 +33,15 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jService: HttpService,
+                 web3jServices: List<HttpService>,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val web3j = Web3j.build(web3jService)
+    private val DEFAULT_BLOCK_TIME = 15.toLong()
+    private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
+        setAllowedEndpointTypes(ServerEndpointType.ALL)
+    }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
+    val client: Web3j get() = Web3j.build(endpoints.currentEndpoint)
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -70,7 +76,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val ethGetTransactionCount = web3j.ethGetTransactionCount(address.toString(),
+            val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
 
@@ -90,7 +96,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val ethSendTransaction = web3j.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
+        val ethSendTransaction = client.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
@@ -106,11 +112,13 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jService)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, endpoints)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
     private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
+
+    private var healthDisposable: Disposable = subscribeOnHealthTx()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -231,7 +239,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun syncBlockHeight(): Boolean {
         try {
-            val latestBlock = web3j.ethBlockNumber().send()
+            val latestBlock = client.ethBlockNumber().send()
             if (latestBlock.hasError()) {
                 return false
             }
@@ -254,7 +262,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 receivingAddress.addressString)
         localTransactions.forEach {
             try {
-                val remoteTx = web3j.ethGetTransactionByHash("0x" + it.idHex).send()
+                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
                 if (!remoteTx.hasError()) {
                     if (remoteTx.result != null) {
                         // blockNumber is not null when transaction is confirmed
@@ -301,12 +309,29 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {})
     }
 
+    private fun subscribeOnHealthTx(): Disposable {
+        return client.ethBlockNumber().flowable().toObservable()
+                .filter { !isSyncing }
+                .delay(DEFAULT_BLOCK_TIME,TimeUnit.SECONDS)
+                .repeat()
+                .subscribe({ tx ->
+            if (tx.blockNumber.toLong() <= blockChainHeight){
+                endpoints.switchToNextEndpoint()
+            }
+        }, {
+            endpoints.switchToNextEndpoint()
+        })
+    }
+
     private fun renewSubscriptions() {
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
         if (incomingTxsDisposable.isDisposed) {
             incomingTxsDisposable = subscribeOnIncomingTx()
+        }
+        if (healthDisposable.isDisposed) {
+            healthDisposable = subscribeOnHealthTx()
         }
     }
 
@@ -317,6 +342,9 @@ class EthAccount(private val accountContext: EthAccountContext,
             }
             if (!incomingTxsDisposable.isDisposed) {
                 incomingTxsDisposable.dispose()
+            }
+            if (!healthDisposable.isDisposed) {
+                healthDisposable.dispose()
             }
         }
     }
