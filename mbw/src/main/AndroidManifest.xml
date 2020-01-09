@@ -257,5 +257,6 @@
         </activity>
         <activity android:name=".activity.news.NewsImageActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".activity.export.ExportFioKeyActivity"></activity>
     </application>
 </manifest>

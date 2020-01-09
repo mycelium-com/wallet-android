@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.mycelium.wallet.activity.export.ExportFioKeyActivity">
+
+    <data>
+        <import type="androidx.lifecycle.AndroidViewModel" />
+        <import type="androidx.appcompat.app.AppCompatActivity" />
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="androidx.appcompat.app.AppCompatActivity" />
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.export.viewmodel.ExportFioAsQrViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/llRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="0dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/export_fio_public_key_title"
+                android:layout_marginTop="16dp"
+                android:textSize="21sp"
+                android:textColor="@color/white" />
+
+            <include
+                layout="@layout/export_as_qr_activity_qr"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_activity_data"
+                bind:viewModel="@{viewModel}" />
+
+            <include
+                layout="@layout/export_as_qr_activity_share"
+                bind:activity="@{activity}"
+                bind:viewModel="@{viewModel}" />
+        </LinearLayout>
+    </ScrollView>
+</layout>
