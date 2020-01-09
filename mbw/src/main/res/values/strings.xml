@@ -1316,7 +1316,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="you_about_turn_off_mf">You are about to turn Media Flow off</string>
     <string name="you_about_turn_off_mf_text">Media Flow is a great source of industry news, the wallet features reviews, Micro OTC special offers and more.\n\nYou can always turn it on in Settings -> Mycelium services.\n\nIf you only want to disable notifications, please go to Settings -> Personalization -> Notifications.</string>
     <string name="not_correct_address_type">Not correct address type</string>
-    <string name="buy_ethereum">BUY ETHEREUM</string>
+    <string name="buy_ethereum">BUY ETH</string>
     <string name="sepa_eth_buy_sell_description">Buy ethereum using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ethereum safely and easily using you credit card.</string>
 </resources>

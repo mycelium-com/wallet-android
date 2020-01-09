@@ -849,5 +849,5 @@
         <item quantity="many">Содержит %1$d приватных ключей.</item>
         <item quantity="other">Содержит %1$d приватных ключей.</item>
     </plurals>
-    <string name="buy_ethereum">КУПИТЬ ETHEREUM</string>
+    <string name="buy_ethereum">Купить ETH</string>
 </resources>
