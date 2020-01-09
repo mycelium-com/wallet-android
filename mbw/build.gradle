@@ -286,7 +286,7 @@ android {
                 safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
-                sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true&crypto=eth"
+                sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
             }
             logger.info("Signing config is ", signingConfig)
         }
