@@ -369,7 +369,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     companion object {
         private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(1)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
-        private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(5)
+        private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(10)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(20)
     }
 }
