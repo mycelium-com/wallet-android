@@ -312,7 +312,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     private fun subscribeOnHealthTx(): Disposable {
         return client.blockFlowable(false)
                 .subscribe({ tx ->
-                    if (System.currentTimeMillis() - tx.block.timestamp.toLong()>= TimeUnit.MINUTES.toMillis(5)) {
+                    if (System.currentTimeMillis() - tx.block.timestamp.toLong() * 1000 >= TimeUnit.MINUTES.toMillis(5)) {
                         endpoints.switchToNextEndpoint()
                     }
                 }, {
