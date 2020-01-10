@@ -66,6 +66,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
+    private ETHCreationAsyncTask ethCreationAsyncTask;
+
     public static void callMe(Fragment fragment, int requestCode) {
         Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
         fragment.startActivityForResult(intent, requestCode);
@@ -114,7 +116,10 @@ public class AddAccountActivity extends Activity {
             return;
         }
 
-        new ETHCreationAsyncTask().execute();
+        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+            ethCreationAsyncTask = new ETHCreationAsyncTask();
+            ethCreationAsyncTask.execute();
+        }
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -186,15 +191,13 @@ public class AddAccountActivity extends Activity {
         @Override
         protected UUID doInBackground(Void... params) {
             List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig());
-            return !accounts.isEmpty() ? accounts.get(0) : null;
+            return accounts.get(0);
         }
 
         @Override
         protected void onPostExecute(UUID account) {
-            if (account != null) {
-                MbwManager.getEventBus().post(new AccountCreated(account));
-                MbwManager.getEventBus().post(new AccountChanged(account));
-            }
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
         }
     }
 
