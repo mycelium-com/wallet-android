@@ -310,7 +310,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun subscribeOnHealthTx(): Disposable {
-        return client.ethBlockNumber().flowable().toObservable()
+        return client.ethBlockNumber().flowable()
+                .retry()
                 .filter { !isSyncing }
                 .delay(DEFAULT_BLOCK_TIME,TimeUnit.SECONDS)
                 .repeat()
