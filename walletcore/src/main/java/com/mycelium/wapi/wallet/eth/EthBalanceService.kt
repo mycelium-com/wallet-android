@@ -25,8 +25,8 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
 
     val client: Web3j get() = Web3j.build(endpoints.currentEndpoint)
     
-    val incomingTxsFlowable: Flowable<Transaction> = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
-    val outgoingTxsFlowable: Flowable<Transaction> = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
+    val incomingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
 
     val balanceFlowable: Flowable<Balance> =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
