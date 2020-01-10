@@ -311,17 +311,18 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun subscribeOnHealthTx(): Disposable {
         return client.ethBlockNumber().flowable()
-                .retry()
                 .filter { !isSyncing }
-                .delay(DEFAULT_BLOCK_TIME,TimeUnit.SECONDS)
+                .delay(DEFAULT_BLOCK_TIME, TimeUnit.SECONDS)
                 .repeat()
                 .subscribe({ tx ->
-            if (tx.blockNumber.toLong() > blockChainHeight) {
-                endpoints.switchToNextEndpoint()
-            }
-        }, {
-            endpoints.switchToNextEndpoint()
-        })
+                    if (tx.blockNumber.toLong() > blockChainHeight) {
+                        endpoints.switchToNextEndpoint()
+                    }
+                }, {
+                    logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
+                    logger.log(Level.SEVERE, "Switching to next endpoint...")
+                    endpoints.switchToNextEndpoint()
+                })
     }
 
     private fun renewSubscriptions() {
