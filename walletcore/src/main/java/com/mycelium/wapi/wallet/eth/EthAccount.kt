@@ -315,7 +315,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 .delay(DEFAULT_BLOCK_TIME,TimeUnit.SECONDS)
                 .repeat()
                 .subscribe({ tx ->
-            if (tx.blockNumber.toLong() <= blockChainHeight){
+            if (tx.blockNumber.toLong() > blockChainHeight) {
                 endpoints.switchToNextEndpoint()
             }
         }, {
