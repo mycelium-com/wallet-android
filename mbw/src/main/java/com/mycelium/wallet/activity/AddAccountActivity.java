@@ -40,9 +40,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
@@ -58,9 +59,9 @@ import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -184,13 +185,16 @@ public class AddAccountActivity extends Activity {
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         @Override
         protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig()).get(0);
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig());
+            return !accounts.isEmpty() ? accounts.get(0) : null;
         }
 
         @Override
         protected void onPostExecute(UUID account) {
-            MbwManager.getEventBus().post(new AccountCreated(account));
-            MbwManager.getEventBus().post(new AccountChanged(account));
+            if (account != null) {
+                MbwManager.getEventBus().post(new AccountCreated(account));
+                MbwManager.getEventBus().post(new AccountChanged(account));
+            }
         }
     }
 
