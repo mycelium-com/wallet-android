@@ -5,11 +5,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.Toast;
 
-import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wapi.wallet.GenericAddress;
 
 public class CreditCardBuyServiceDescription extends BuySellServiceDescriptor {
 
@@ -18,8 +17,7 @@ public class CreditCardBuyServiceDescription extends BuySellServiceDescriptor {
    }
 
    @Override
-   public void launchService(final Activity activity, MbwManager mbwManager, final Optional<Address> activeReceivingAddress) {
-
+   public void launchService(final Activity activity, MbwManager mbwManager, final GenericAddress activeReceivingAddress) {
       // check if the current account is spend-able. if not, warn the user, but allow it if he wants to
       if (!mbwManager.getSelectedAccount().canSpend()) {
          new AlertDialog.Builder(activity)
@@ -39,10 +37,10 @@ public class CreditCardBuyServiceDescription extends BuySellServiceDescriptor {
       }
    }
 
-   private void launchWebservice(final Activity activity, Optional<Address> activeReceivingAddress) {
+   private void launchWebservice(final Activity activity, GenericAddress activeReceivingAddress) {
       String uri = "https://swish.to/BTC/myceliumwallet";
-      if (activeReceivingAddress.isPresent()) {
-         uri += "?btcaddress=" + activeReceivingAddress.get().toString();
+      if (activeReceivingAddress != null) {
+         uri += "?btcaddress=" + activeReceivingAddress.toString();
       }
       final String finalUri = uri;
       Utils.showOptionalMessage(activity, R.string.buy_with_cc_tos, new Runnable() {
