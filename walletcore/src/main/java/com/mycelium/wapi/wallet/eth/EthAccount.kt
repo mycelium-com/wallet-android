@@ -314,11 +314,13 @@ class EthAccount(private val accountContext: EthAccountContext,
                 .subscribe({ tx ->
                     if (System.currentTimeMillis() - tx.block.timestamp.toLong() * 1000 >= TimeUnit.MINUTES.toMillis(5)) {
                         endpoints.switchToNextEndpoint()
+                        renewSubscriptions()
                     }
                 }, {
                     logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
                     logger.log(Level.SEVERE, "Switching to next endpoint...")
                     endpoints.switchToNextEndpoint()
+                    renewSubscriptions()
                 })
     }
 
@@ -329,7 +331,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (incomingTxsDisposable.isDisposed) {
             incomingTxsDisposable = subscribeOnIncomingTx()
         }
-        if (healthDisposable.isDisposed) {
+        if (healthDisposable == null || healthDisposable.isDisposed) {
             healthDisposable = subscribeOnHealthTx()
         }
     }
