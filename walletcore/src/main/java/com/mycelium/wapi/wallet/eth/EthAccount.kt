@@ -153,9 +153,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-
-        selectEndpoint()
-
+        if (!selectEndpoint()) {
+            return false
+        }
         if (!ethBalanceService.updateBalanceCache()) {
             return false
         }
@@ -174,12 +174,12 @@ class EthAccount(private val accountContext: EthAccountContext,
         return true
     }
 
-    private fun selectEndpoint() {
-        while (true) {
+    private fun selectEndpoint(): Boolean {
+        for (x in 0 until (endpoints.size - 1)) {
             val ethUtils = EthSyncChecker(client)
             try {
                 if (ethUtils.isSynced) {
-                    break
+                    return true
                 }
                 endpoints.switchToNextEndpoint()
             } catch (ex: Exception) {
@@ -188,6 +188,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 endpoints.switchToNextEndpoint()
             }
         }
+        return false
     }
 
     override fun getBlockChainHeight(): Int {
