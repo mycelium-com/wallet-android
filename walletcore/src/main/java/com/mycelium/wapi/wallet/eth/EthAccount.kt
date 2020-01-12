@@ -175,7 +175,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun selectEndpoint(): Boolean {
-        for (x in 0 until (endpoints.size - 1)) {
+        for (x in 0 until endpoints.size) {
             val ethUtils = EthSyncChecker(client)
             try {
                 if (ethUtils.isSynced) {
