@@ -35,7 +35,6 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val accountListener: AccountListener?,
                  web3jServices: List<HttpService>,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val DEFAULT_BLOCK_TIME = 15.toLong()
     private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
