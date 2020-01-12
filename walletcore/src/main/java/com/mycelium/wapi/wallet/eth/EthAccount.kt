@@ -118,8 +118,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
 
-    private var healthDisposable: Disposable = subscribeOnHealthTx()
-
     override fun getAccountBalance() = accountContext.balance
 
     override fun isMineAddress(address: GenericAddress?) =
@@ -156,6 +154,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+
+        selectEndpoint()
+
         if (!ethBalanceService.updateBalanceCache()) {
             return false
         }
@@ -172,6 +173,22 @@ class EthAccount(private val accountContext: EthAccountContext,
 
         renewSubscriptions()
         return true
+    }
+
+    private fun selectEndpoint() {
+        while (true) {
+            val ethUtils = EthSyncChecker(client)
+            try {
+                if (ethUtils.isSynced) {
+                    break
+                }
+                endpoints.switchToNextEndpoint()
+            } catch (ex: Exception) {
+                logger.log(Level.SEVERE, "Error synchronizing ETH, $ex")
+                logger.log(Level.SEVERE, "Switching to next endpoint...")
+                endpoints.switchToNextEndpoint()
+            }
+        }
     }
 
     override fun getBlockChainHeight(): Int {
@@ -309,30 +326,12 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {})
     }
 
-    private fun subscribeOnHealthTx(): Disposable {
-        return client.blockFlowable(false)
-                .subscribe({ tx ->
-                    if (System.currentTimeMillis() - tx.block.timestamp.toLong() * 1000 >= TimeUnit.MINUTES.toMillis(5)) {
-                        endpoints.switchToNextEndpoint()
-                        renewSubscriptions()
-                    }
-                }, {
-                    logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
-                    logger.log(Level.SEVERE, "Switching to next endpoint...")
-                    endpoints.switchToNextEndpoint()
-                    renewSubscriptions()
-                })
-    }
-
     private fun renewSubscriptions() {
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
         if (incomingTxsDisposable.isDisposed) {
             incomingTxsDisposable = subscribeOnIncomingTx()
-        }
-        if (healthDisposable == null || healthDisposable.isDisposed) {
-            healthDisposable = subscribeOnHealthTx()
         }
     }
 
@@ -343,9 +342,6 @@ class EthAccount(private val accountContext: EthAccountContext,
             }
             if (!incomingTxsDisposable.isDisposed) {
                 incomingTxsDisposable.dispose()
-            }
-            if (!healthDisposable.isDisposed) {
-                healthDisposable.dispose()
             }
         }
     }
