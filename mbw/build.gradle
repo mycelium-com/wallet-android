@@ -111,7 +111,7 @@ dependencies {
     }
     implementation 'org.web3j:core:4.2.0-android'
 
-    implementation "com.squareup.sqldelight:android-driver:1.1.4"
+    implementation "com.squareup.sqldelight:android-driver:1.2.1"
 
     implementation("com.github.bumptech.glide:glide:4.7.1") {
         exclude group: "com.android.support"
@@ -161,8 +161,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3030002
-        versionName '3.3.0.2'
+        versionCode 3030005
+        versionName '3.3.0.5'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion
@@ -254,6 +254,8 @@ android {
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
                 safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
+                safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
+                sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -283,6 +285,8 @@ android {
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
                 safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
+                safelloEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
+                sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -304,6 +308,8 @@ android {
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
         variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
         variant.buildConfigField "String", "SEPA", "\"${flavor.ext.sepa}\""
+        variant.buildConfigField "String", "SAFELLO_ETH", "\"${flavor.ext.safelloEth}\""
+        variant.buildConfigField "String", "SEPA_ETH", "\"${flavor.ext.sepaEth}\""
     }
 
     testOptions {

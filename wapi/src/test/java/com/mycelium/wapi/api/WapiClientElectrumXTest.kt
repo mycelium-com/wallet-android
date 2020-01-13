@@ -1,6 +1,7 @@
 package com.mycelium.wapi.api
 
 import com.mycelium.WapiLogger
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.jsonrpc.RpcResponse
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
@@ -20,7 +21,7 @@ class WapiClientElectrumXTest {
     @Before
     fun setup() {
         val tcpEndpoints = arrayOf(TcpEndpoint("localhost", 30000))
-        val wapiEndpoints = mock(ServerEndpoints::class.java)
+        val wapiEndpoints: ServerEndpoints<HttpEndpoint> = mock(ServerEndpoints::class.java) as ServerEndpoints<HttpEndpoint>
         sut = WapiClientElectrumX(wapiEndpoints, tcpEndpoints, logger, version)
     }
 

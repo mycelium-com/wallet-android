@@ -70,6 +70,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -584,6 +585,10 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
+        if(account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
+            menus.add(R.menu.record_fio_pub_key_export);
+        }
+
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
                 && getActiveMasterseedHDAccounts(walletManager).size() > 1 && !isBch) {
             final HDAccount HDAccount = (HDAccount) account;
@@ -640,6 +645,9 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miExport:
                         exportSelectedPrivateKey();
+                        return true;
+                    case R.id.miExportFioPubKey:
+                        exportFioKey();
                         return true;
                     case R.id.miSignMessage:
                         signMessage();
@@ -802,6 +810,10 @@ public class AccountsFragment extends Fragment {
             return;
         }
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
+    }
+
+    private void exportFioKey() {
+        startActivity(new Intent(requireContext(), ExportFioKeyActivity.class));
     }
 
     private void detachFromLocalTrader() {
