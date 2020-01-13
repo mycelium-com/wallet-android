@@ -26,10 +26,10 @@ class EthBalanceService(val address: String,
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val incomingTxsFlowable = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
-    val outgoingTxsFlowable = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
+    val incomingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
 
-    val balanceFlowable: Flowable<Balance> =
+    val balanceFlowable get() =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
                 .flatMapSingle {
                     updateBalanceCache()
