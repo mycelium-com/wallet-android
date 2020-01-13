@@ -175,10 +175,14 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun selectEndpoint(): Boolean {
+        val currentEndpointIndex = endpoints.currentEndpointIndex
         for (x in 0 until endpoints.size) {
             val ethUtils = EthSyncChecker(client)
             try {
                 if (ethUtils.isSynced) {
+                    if (currentEndpointIndex != endpoints.currentEndpointIndex) {
+                        renewSubscriptions()
+                    }
                     return true
                 }
                 endpoints.switchToNextEndpoint()
