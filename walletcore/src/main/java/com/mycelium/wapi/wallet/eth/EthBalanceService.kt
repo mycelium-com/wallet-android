@@ -18,15 +18,16 @@ import java.net.UnknownHostException
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class EthBalanceService(val address: String, val coinType: CryptoCurrency, private val endpoints: ServerEndpoints<HttpService>) {
+class EthBalanceService(val address: String,
+                        val coinType: CryptoCurrency,
+                        var client: Web3j,
+                        var endpoints: ServerEndpoints<HttpService>) {
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val client: Web3j get() = Web3j.build(endpoints.currentEndpoint)
-    
-    val incomingTxsFlowable: Flowable<Transaction> = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
-    val outgoingTxsFlowable: Flowable<Transaction> = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
+    val incomingTxsFlowable = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
 
     val balanceFlowable: Flowable<Balance> =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)

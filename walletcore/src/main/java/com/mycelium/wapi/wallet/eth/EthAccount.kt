@@ -35,13 +35,13 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val accountListener: AccountListener?,
                  web3jServices: List<HttpService>,
                  address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val DEFAULT_BLOCK_TIME = 15.toLong()
     private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    val client: Web3j get() = Web3j.build(endpoints.currentEndpoint)
+    var client: Web3j = buildCurrentEndpoint()
+    private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -112,13 +112,11 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, endpoints)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, endpoints)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
     private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
-
-    private var healthDisposable: Disposable = subscribeOnHealthTx()
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -156,6 +154,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        if (!selectEndpoint()) {
+            return false
+        }
         if (!ethBalanceService.updateBalanceCache()) {
             return false
         }
@@ -172,6 +173,27 @@ class EthAccount(private val accountContext: EthAccountContext,
 
         renewSubscriptions()
         return true
+    }
+
+    private fun selectEndpoint(): Boolean {
+        val currentEndpointIndex = endpoints.currentEndpointIndex
+        for (x in 0 until endpoints.size) {
+            val ethUtils = EthSyncChecker(client)
+            try {
+                if (ethUtils.isSynced) {
+                    if (currentEndpointIndex != endpoints.currentEndpointIndex) {
+                        renewSubscriptions()
+                    }
+                    return true
+                }
+            } catch (ex: Exception) {
+                logger.log(Level.SEVERE, "Error synchronizing ETH, $ex")
+                logger.log(Level.SEVERE, "Switching to next endpoint...")
+            }
+            endpoints.switchToNextEndpoint()
+            client = buildCurrentEndpoint()
+        }
+        return false
     }
 
     override fun getBlockChainHeight(): Int {
@@ -309,29 +331,14 @@ class EthAccount(private val accountContext: EthAccountContext,
         }, {})
     }
 
-    private fun subscribeOnHealthTx(): Disposable {
-        return client.ethBlockNumber().flowable().toObservable()
-                .filter { !isSyncing }
-                .delay(DEFAULT_BLOCK_TIME,TimeUnit.SECONDS)
-                .repeat()
-                .subscribe({ tx ->
-            if (tx.blockNumber.toLong() <= blockChainHeight){
-                endpoints.switchToNextEndpoint()
-            }
-        }, {
-            endpoints.switchToNextEndpoint()
-        })
-    }
-
     private fun renewSubscriptions() {
+        ethBalanceService.client = client
+
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
         if (incomingTxsDisposable.isDisposed) {
             incomingTxsDisposable = subscribeOnIncomingTx()
-        }
-        if (healthDisposable.isDisposed) {
-            healthDisposable = subscribeOnHealthTx()
         }
     }
 
@@ -342,9 +349,6 @@ class EthAccount(private val accountContext: EthAccountContext,
             }
             if (!incomingTxsDisposable.isDisposed) {
                 incomingTxsDisposable.dispose()
-            }
-            if (!healthDisposable.isDisposed) {
-                healthDisposable.dispose()
             }
         }
     }

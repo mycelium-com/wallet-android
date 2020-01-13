@@ -82,6 +82,10 @@ public class ServerEndpoints<T> {
       currentEndpoint = tmpCurrentEndpoint;
    }
 
+   public int getSize() {
+      return endpoints.size();
+   }
+
    public void setAllowedEndpointTypes(ServerEndpointType types){
       allowedEndpointTypes = types;
       switchToNextEndpoint();
