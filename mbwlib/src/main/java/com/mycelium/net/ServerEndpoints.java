@@ -40,28 +40,26 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ServerEndpoints {
+public class ServerEndpoints<T> {
 
-   final private ArrayList<HttpEndpoint> endpoints;
+   final private ArrayList<T> endpoints;
    private int currentEndpoint;
    private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
 
 
-   public ServerEndpoints(HttpEndpoint endpoints[]) {
+   public ServerEndpoints(T[] endpoints) {
       this.endpoints = Lists.newArrayList(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
-      // ensure correct kind of endpoint
-      switchToNextEndpoint();
    }
 
-   public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
+   public ServerEndpoints(T endpoints[], int initialEndpoint) {
       this.endpoints = Lists.newArrayList(endpoints);
 
       Preconditions.checkElementIndex(initialEndpoint, endpoints.length);
       currentEndpoint = initialEndpoint;
    }
 
-   public HttpEndpoint getCurrentEndpoint(){
+   public T getCurrentEndpoint() {
       return endpoints.get(currentEndpoint);
    }
 
@@ -70,27 +68,31 @@ public class ServerEndpoints {
    }
 
    public synchronized void switchToNextEndpoint(){
-      HttpEndpoint selectedEndpoint;
-      int cnt=0;
+      T selectedEndpoint;
+      int cnt = 0;
       int tmpCurrentEndpoint = currentEndpoint;
-      do{
+      do {
          tmpCurrentEndpoint = (tmpCurrentEndpoint + 1) % endpoints.size();
          selectedEndpoint = endpoints.get(tmpCurrentEndpoint);
          cnt++;
-         if (cnt>endpoints.size()){
+         if (cnt > endpoints.size()) {
             throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
          }
-      }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
+      } while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
       currentEndpoint = tmpCurrentEndpoint;
    }
 
+   public int getSize() {
+      return endpoints.size();
+   }
+
    public void setAllowedEndpointTypes(ServerEndpointType types){
-      allowedEndpointTypes=types;
+      allowedEndpointTypes = types;
       switchToNextEndpoint();
    }
 
    public void setTorManager(TorManager torManager){
-      for (HttpEndpoint e : endpoints){
+      for (T e : endpoints){
          if (e instanceof TorHttpsEndpoint){
             ((TorHttpsEndpoint) e).setTorManager(torManager);
          }

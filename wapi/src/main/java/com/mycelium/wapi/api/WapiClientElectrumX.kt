@@ -9,6 +9,7 @@ import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.exception.RpcResponseException
 import com.mycelium.wapi.api.jsonrpc.*
@@ -28,7 +29,7 @@ import kotlin.collections.ArrayList
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(
-        serverEndpoints: ServerEndpoints,
+        serverEndpoints: ServerEndpoints<HttpEndpoint>,
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)

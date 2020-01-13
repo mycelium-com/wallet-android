@@ -1,5 +1,6 @@
 package com.mycelium.wapi.wallet.eth
 
+import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
@@ -17,14 +18,15 @@ import java.net.UnknownHostException
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class EthBalanceService(val address: String, val coinType: CryptoCurrency, private val web3jService: HttpService) {
-    private val web3j: Web3j = Web3j.build(web3jService)
+class EthBalanceService(val address: String, val coinType: CryptoCurrency, private val endpoints: ServerEndpoints<HttpService>) {
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val incomingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.to == address }
-    val outgoingTxsFlowable: Flowable<Transaction> = web3j.pendingTransactionFlowable().filter { tx -> tx.from == address }
+    val client: Web3j get() = Web3j.build(endpoints.currentEndpoint)
+    
+    val incomingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    val outgoingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
 
     val balanceFlowable: Flowable<Balance> =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
@@ -35,7 +37,7 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
 
     fun updateBalanceCache(): Boolean {
         return try {
-            val balanceRequest = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST)
+            val balanceRequest = client.ethGetBalance(address, DefaultBlockParameterName.LATEST)
             val balanceResult = balanceRequest.send()
             val txs = try {
                 getPendingTransactions()
@@ -73,7 +75,7 @@ class EthBalanceService(val address: String, val coinType: CryptoCurrency, priva
         val request = Request<Any, ParityAllTransactionsResponse>(
                 "parity_allTransactions",
                 emptyList(),
-                web3jService,
+                endpoints.currentEndpoint,
                 ParityAllTransactionsResponse::class.java)
         val response = request.send()
         if (response.hasError()) {
