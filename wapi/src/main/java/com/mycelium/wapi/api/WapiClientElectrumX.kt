@@ -21,7 +21,6 @@ import com.mycelium.wapi.api.response.*
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.model.TransactionStatus
 import kotlinx.coroutines.CancellationException
-import sun.net.www.http.HttpClient
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
