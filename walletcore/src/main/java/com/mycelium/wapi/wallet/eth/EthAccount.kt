@@ -182,7 +182,9 @@ class EthAccount(private val accountContext: EthAccountContext,
             try {
                 if (ethUtils.isSynced) {
                     if (currentEndpointIndex != endpoints.currentEndpointIndex) {
-                        renewSubscriptions()
+                        ethBalanceService.client = client
+                        balanceDisposable = subscribeOnBalanceUpdates()
+                        incomingTxsDisposable = subscribeOnIncomingTx()
                     }
                     return true
                 }
@@ -332,8 +334,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun renewSubscriptions() {
-        ethBalanceService.client = client
-
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
