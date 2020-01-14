@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
@@ -167,10 +168,7 @@ public class AddAccountActivity extends Activity {
             _toaster.toast(R.string.use_acc_first, false);
             return;
         }
-        _progress.setCancelable(false);
-        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        _progress.setMessage(getString(R.string.hd_account_creation_started));
-        _progress.show();
+        showProgress(R.string.hd_account_creation_started);
         new HdCreationAsyncTask().execute();
     }
 
@@ -188,6 +186,13 @@ public class AddAccountActivity extends Activity {
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.eth_account_creation_started);
+        }
+
         @Override
         protected UUID doInBackground(Void... params) {
             List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig());
@@ -196,9 +201,17 @@ public class AddAccountActivity extends Activity {
 
         @Override
         protected void onPostExecute(UUID account) {
+            _progress.dismiss();
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
         }
+    }
+
+    private void showProgress(@StringRes int res) {
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(res));
+        _progress.show();
     }
 
     @Subscribe
