@@ -190,7 +190,7 @@ public class AddAccountActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showProgress(R.string.hd_account_creation_started);
+            showProgress(R.string.eth_account_creation_started);
         }
 
         @Override
