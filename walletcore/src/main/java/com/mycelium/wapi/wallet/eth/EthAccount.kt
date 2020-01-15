@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -317,7 +318,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun subscribeOnBalanceUpdates(): Disposable {
-        return ethBalanceService.balanceFlowable.subscribe({ balance ->
+        return ethBalanceService.balanceFlowable.subscribeOn(Schedulers.io()).subscribe({ balance ->
             accountContext.balance = balance
             accountListener?.balanceUpdated(this)
         }, {
@@ -326,7 +327,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun subscribeOnIncomingTx(): Disposable {
-        return ethBalanceService.incomingTxsFlowable.subscribe({ tx ->
+        return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
                     valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
