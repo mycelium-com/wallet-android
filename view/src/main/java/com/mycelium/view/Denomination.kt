@@ -7,8 +7,8 @@ import kotlin.math.pow
 enum class Denomination(val scale: Int, private val asciiString: String, private val unicodeString: String,
                         private vararg val supportedBy: String) {
     UNIT(0, "", "", "BTC", "ETH"),
-    MILLI(3, "m", "m", "BTC"),
-    MICRO(6, "u", "\u00B5", "BTC"),
+    MILLI(3, "m", "m", "BTC", "ETH"),
+    MICRO(6, "u", "\u00B5", "BTC", "ETH"),
     BITS(6, "bits", "bits", "BTC"),
     FINNEY(3, "finney", "finney", "ETH"),
     SZABO(6, "szabo", "szabo", "ETH"),

@@ -229,11 +229,12 @@ class CurrencySwitcher(private val exchangeRateManager: ExchangeRateManager,
 
     /**
      * Converts set of Values (generally consisting of different coin types)
-     * represented by sum to the toCurrency and returns sum of converted values.
+     * represented by "sum" to the "toCurrency" and returns the sum of converted values.
      */
     fun getValue(sum: ValueSum, toCurrency: GenericAssetInfo): Value {
         val distinctTypes = sum.values.distinctBy { it.type }
 
+        // if all of the values are of the same type then just add up
         if (distinctTypes.size == 1 && distinctTypes[0] == toCurrency) {
             return sum.values.reduce { acc, value -> acc + value }
         }

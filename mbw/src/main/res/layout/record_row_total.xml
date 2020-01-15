@@ -24,7 +24,7 @@
             android:text="@string/total_balance_title">
         </TextView>
 
-        <com.mycelium.wallet.activity.util.ToggleableCurrencyButton
+        <com.mycelium.wallet.activity.util.TotalToggleableCurrencyButton
             android:id="@+id/tcdBalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

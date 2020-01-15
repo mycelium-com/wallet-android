@@ -54,6 +54,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
+import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.ExchangeRateManager;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -186,9 +187,9 @@ public class BalanceFragment extends Fragment {
 
         // if we ended up with not existent source name for current cryptocurrency (CC)
         // after we have switched accounts for different CC
-        // then use the first existent one for current CC
+        // then use the default exchange
         if (sources.size() != 0 && !sources.contains(exchangeRateManager.getCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol()))) {
-            exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(), sources.get(0));
+            exchangeRateManager.setCurrentExchangeSourceName(selectedAccount.getCoinType().getSymbol(), Constants.DEFAULT_EXCHANGE);
         }
 
         exchangeMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {

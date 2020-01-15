@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
@@ -121,7 +123,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             mbwManager.exchangeRateManager.requestRefresh()
         }
 
-        viewModel.updateClipboardUri()
+        Handler(Looper.getMainLooper()).post { viewModel.updateClipboardUri() }
         viewModel.activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
         viewModel.activityResultDialog = null
     }

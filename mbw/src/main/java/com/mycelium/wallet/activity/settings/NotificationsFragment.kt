@@ -24,12 +24,13 @@ class NotificationsFragment : PreferenceFragmentCompat() {
     }
 
     override fun onBindPreferences() {
-        newsAllPreference?.isChecked = SettingsPreference.mediaFLowNotificationEnabled
+        newsAllPreference?.isChecked = SettingsPreference.mediaFLowNotificationEnabled && SettingsPreference.mediaFlowEnabled
         newsAllPreference?.setOnPreferenceClickListener { preference ->
             val p = preference as CheckBoxPreference
             SettingsPreference.mediaFLowNotificationEnabled = p.isChecked
             true
         }
+        newsAllPreference?.isEnabled = SettingsPreference.mediaFlowEnabled
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

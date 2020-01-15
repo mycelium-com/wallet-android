@@ -65,7 +65,7 @@ public interface Constants {
    String CURRENT_CURRENCIES_SETTING = "CurrentCurrencies";
    String SELECTED_CURRENCIES = "selectedFiatCurrencies";
    String DEFAULT_CURRENCY = "USD";
-   String DEFAULT_EXCHANGE = "Bitstamp";
+   String DEFAULT_EXCHANGE = "Bitfinex";
    String DENOMINATION_SETTING = "Denomination";
    String EXCHANGE_RATE_SETTING = "currentRateName";
    String MINER_FEE_SETTING = "MinerFeeEstimationSetting";

@@ -40,7 +40,7 @@ class BtcFeeFormatter : FeeFormatter {
 
 class EthFeeFormatter : FeeFormatter {
     // value comes here in per kbyte, i.e. divided by 1000
-    override fun getFeeAbsValue(value: Value) = (value * 1000).toStringWithUnit()
+    override fun getFeeAbsValue(value: Value) = (value * 1000).toStringWithUnit(Denomination.MICRO)
 
     override fun getAltValue(value: Value) = if (value.isZero()) {
         "<" + (value + 1).toStringWithUnit()

@@ -83,10 +83,14 @@ class NewsActivity : AppCompatActivity() {
         content.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                val params = content.layoutParams
-                content.measure(0, 0)
-                params.height = content.measuredHeight
-                content.layoutParams = params
+                content.postDelayed({
+                    val params = content.layoutParams
+                    val widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
+                    val heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    content.measure(widthMeasureSpec, heightMeasureSpec)
+                    params.height = content.measuredHeight
+                    content.layoutParams = params
+                }, 500)
             }
 
             @TargetApi(Build.VERSION_CODES.N)

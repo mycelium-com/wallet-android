@@ -70,6 +70,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -584,6 +585,10 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_export);
         }
 
+        if(account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
+            menus.add(R.menu.record_fio_pub_key_export);
+        }
+
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
                 && getActiveMasterseedHDAccounts(walletManager).size() > 1 && !isBch) {
             final HDAccount HDAccount = (HDAccount) account;
@@ -640,6 +645,9 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miExport:
                         exportSelectedPrivateKey();
+                        return true;
+                    case R.id.miExportFioPubKey:
+                        exportFioKey();
                         return true;
                     case R.id.miSignMessage:
                         signMessage();
@@ -804,6 +812,10 @@ public class AccountsFragment extends Fragment {
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
     }
 
+    private void exportFioKey() {
+        startActivity(new Intent(requireContext(), ExportFioKeyActivity.class));
+    }
+
     private void detachFromLocalTrader() {
         if (!isAdded()) {
             return;
@@ -872,14 +884,19 @@ public class AccountsFragment extends Fragment {
      * Account is protected if after removal no masterseed accounts would stay active, so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        // If the account is not derived from master seed, we can remove it
-        if (!toRemove.isDerivedFromInternalMasterseed()) {
+        // accounts not derived from master seed and ethereum account are not protected
+        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
-
-        // If we have more than one master-seed derived account, we can remove it
-        return accountsList.size() <= 1;
+        int cnt = 0;
+        for (WalletAccount account : accountsList) {
+            if (account.getClass().equals(toRemove.getClass())) {
+                cnt++;
+            }
+        }
+        // If we have more than one master-seed derived account of the same type as toRemove, we can remove it
+        return cnt <= 1;
     }
 
     private void hideSelected() {

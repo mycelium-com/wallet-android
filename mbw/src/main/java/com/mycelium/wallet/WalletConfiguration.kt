@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.web3j.protocol.http.HttpService
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -31,6 +32,8 @@ interface  MyceliumNodesApi {
 // MyceliumNodesResponse is intended for parsing nodes-b.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
+                            @SerializedName("ETH-testnet") val ethTestnet: ETHNetResponse?,
+                            @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerDateInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?)
 
@@ -39,9 +42,13 @@ data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
+class ETHNetResponse(@SerializedName("servers") val ethServers: EthServerResponse)
+
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
 class ElectrumXResponse(val primary : Array<UrlResponse>)
+
+class EthServerResponse(val primary : Array<UrlResponse>)
 
 class UrlResponse(val url: String)
 
@@ -77,9 +84,17 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
+                    val ethServers = if (network.isTestnet)
+                        myceliumNodesResponse?.ethTestnet?.ethServers?.primary?.map { it.url }?.toSet()
+                    else
+                        myceliumNodesResponse?.ethMainnet?.ethServers?.primary?.map { it.url }?.toSet()
+
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
+                    ethServers?.let {
+                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServers)
+                    }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
@@ -107,6 +122,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
+    // Returns the set of etherium servers
+    val ethServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ETH_SERVERS, mutableSetOf(BuildConfig.EthServer))!!
+
+
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
@@ -128,6 +148,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         }
     }
 
+    fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
+
     private var serverListChangedListener: ServerListChangedListener? = null
 
     fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
@@ -137,6 +159,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val PREFS_ETH_SERVERS = "eth_servers"
         const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"

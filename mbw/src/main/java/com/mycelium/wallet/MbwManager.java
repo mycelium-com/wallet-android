@@ -175,6 +175,7 @@ import kotlin.jvm.Synchronized;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -856,8 +857,8 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        HttpService web3jService = new HttpService(BuildConfig.EthServer);
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB, web3jService, networkParameters, getMetadataStorage(), accountListener));
+        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.init();
 
@@ -914,7 +915,9 @@ public class MbwManager {
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         HttpService web3jService = new HttpService(BuildConfig.EthServer);
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, web3jService, networkParameters, getMetadataStorage(), accountListener));
+        ArrayList<HttpService> httpServices = new ArrayList<>();
+        httpServices.add(web3jService);
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, httpServices, networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
@@ -1239,6 +1242,9 @@ public class MbwManager {
     }
 
     public MinerFee getMinerFee(String coinName) {
+        if (_minerFee.get(coinName) == null) {
+            _minerFee.put(coinName, MinerFee.NORMAL);
+        }
         return _minerFee.get(coinName);
     }
 

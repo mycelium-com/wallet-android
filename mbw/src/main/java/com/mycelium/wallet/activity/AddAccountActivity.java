@@ -40,9 +40,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
@@ -58,13 +60,15 @@ import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
+    private ETHCreationAsyncTask ethCreationAsyncTask;
+
     public static void callMe(Fragment fragment, int requestCode) {
         Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
         fragment.startActivityForResult(intent, requestCode);
@@ -113,7 +117,10 @@ public class AddAccountActivity extends Activity {
             return;
         }
 
-        new ETHCreationAsyncTask().execute();
+        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+            ethCreationAsyncTask = new ETHCreationAsyncTask();
+            ethCreationAsyncTask.execute();
+        }
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -161,10 +168,7 @@ public class AddAccountActivity extends Activity {
             _toaster.toast(R.string.use_acc_first, false);
             return;
         }
-        _progress.setCancelable(false);
-        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        _progress.setMessage(getString(R.string.hd_account_creation_started));
-        _progress.show();
+        showProgress(R.string.hd_account_creation_started);
         new HdCreationAsyncTask().execute();
     }
 
@@ -182,16 +186,32 @@ public class AddAccountActivity extends Activity {
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.eth_account_creation_started);
+        }
+
         @Override
         protected UUID doInBackground(Void... params) {
-            return _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig()).get(0);
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig());
+            return accounts.get(0);
         }
 
         @Override
         protected void onPostExecute(UUID account) {
+            _progress.dismiss();
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
         }
+    }
+
+    private void showProgress(@StringRes int res) {
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(res));
+        _progress.show();
     }
 
     @Subscribe
