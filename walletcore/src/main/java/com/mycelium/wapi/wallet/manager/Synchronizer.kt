@@ -3,9 +3,13 @@ package com.mycelium.wapi.wallet.manager
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
+
+    private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
     companion object {
         private val lock = Any()
@@ -31,7 +35,12 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     } else {
                         accounts.filterNotNull().filter { it.isActive }
                     }
-                    list.forEach { it.synchronize(syncMode) }
+                    list.forEach {
+                        val accountLabel = if (it.label != null) it.label else ""
+                        logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
+                        val isSyncSuccessful = it.synchronize(syncMode)
+                        logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
+                    }
                 }
 
             }

@@ -39,7 +39,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
-    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
+    private val logger = Logger.getLogger(EthAccount::class.simpleName)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     var client: Web3j = buildCurrentEndpoint()
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
