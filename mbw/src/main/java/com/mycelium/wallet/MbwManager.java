@@ -920,14 +920,12 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi,
                 (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage()
                 , null, null, accountEventManager));
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
-                _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi,
+                (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        HttpService web3jService = new HttpService(BuildConfig.EthServer);
-        ArrayList<HttpService> httpServices = new ArrayList<>();
-        httpServices.add(web3jService);
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, httpServices, networkParameters, getMetadataStorage(), accountListener));
+        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

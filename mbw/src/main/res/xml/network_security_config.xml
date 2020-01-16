@@ -4,7 +4,6 @@
         <domain includeSubdomains="true">testnet.api.coloredcoins.org</domain>
         <domain includeSubdomains="true">coloredcoins-test.mycelium.com</domain>
         <domain includeSubdomains="true">public-api.wordpress.com</domain>
-        <domain includeSubdomains="true">parity.mycelium.com</domain>
         <domain includeSubdomains="true">etherscan.io</domain>
     </domain-config>
 </network-security-config>

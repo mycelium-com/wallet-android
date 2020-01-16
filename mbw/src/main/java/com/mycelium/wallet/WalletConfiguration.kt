@@ -124,9 +124,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
-    // Returns the set of etherium servers
+    // Returns the set of ethereum servers
     val ethServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ETH_SERVERS, mutableSetOf(BuildConfig.EthServer))!!
+        get() = prefs.getStringSet(PREFS_ETH_SERVERS, mutableSetOf(*BuildConfig.EthServers))!!
 
 
     // Returns the list of TcpEndpoint objects
