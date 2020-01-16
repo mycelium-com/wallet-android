@@ -150,6 +150,10 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.erc20.ERC20Config;
+import com.mycelium.wapi.wallet.erc20.ERC20Module;
+import com.mycelium.wapi.wallet.erc20.coins.ZeroX;
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
@@ -860,6 +864,8 @@ public class MbwManager {
         walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
 
+        walletManager.add(new ERC20Module(secureKeyValueStore, configuration.getEthHttpServices(), getMetadataStorage()));
+        walletManager.createAccounts(new ERC20Config(ZeroX.INSTANCE));
         walletManager.init();
 
         return walletManager;

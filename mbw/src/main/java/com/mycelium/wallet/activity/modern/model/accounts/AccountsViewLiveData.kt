@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.colu.getColuAccounts
+import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
@@ -63,7 +64,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to walletManager.getEthAccounts()
+                    R.string.eth_accounts_name to walletManager.getEthAccounts(),
+                    R.string.erc20_accounts_name to walletManager.getERC20Accounts()
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
