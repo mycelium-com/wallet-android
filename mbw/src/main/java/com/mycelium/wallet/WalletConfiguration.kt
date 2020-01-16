@@ -108,7 +108,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    for (serverListChangedListener in serverListChangedListenerList) {
+                        serverListChangedListener.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    }
                 }
             } catch (_: Exception) {}
         }
@@ -150,10 +152,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
 
-    private var serverListChangedListener: ServerListChangedListener? = null
+    private var serverListChangedListenerList: ArrayList<ServerListChangedListener> = arrayListOf()
 
-    fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
-        this.serverListChangedListener = serverListChangedListener
+    fun addServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
+        this.serverListChangedListenerList.add(serverListChangedListener)
     }
 
     companion object {
