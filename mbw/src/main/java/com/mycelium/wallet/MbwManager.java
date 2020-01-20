@@ -150,14 +150,14 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
@@ -169,6 +169,8 @@ import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
 import org.web3j.protocol.http.HttpService;
+
+import kotlin.jvm.Synchronized;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -197,8 +199,6 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import kotlin.jvm.Synchronized;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -216,18 +216,17 @@ public class MbwManager {
     private static final int BIP32_ROOT_AUTHENTICATION_INDEX = 0x80424944;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final SharedPreferences preferences;
 
     private AtomicBoolean lastPinAgeOkay = new AtomicBoolean(false);
     private ScheduledFuture<?> pinOkTimeoutHandle;
     private int failedPinCount = 0;
 
     private volatile boolean showQueuedTransactionsRemovalAlert = true;
-    private CurrencySwitcher _currencySwitcher;
+    private final CurrencySwitcher _currencySwitcher;
     private boolean startUpPinUnlocked = false;
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
-    private WalletDB db;
+    private final WalletDB db;
 
     @Nonnull
     public static synchronized MbwManager getInstance(Context context) {
@@ -244,9 +243,9 @@ public class MbwManager {
     }
 
     private static final Bus _eventBus = new Bus();
-    private ExternalSignatureDeviceManager _trezorManager;
-    private KeepKeyManager _keepkeyManager;
-    private LedgerManager _ledgerManager;
+    private final ExternalSignatureDeviceManager _trezorManager;
+    private final KeepKeyManager _keepkeyManager;
+    private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
@@ -262,21 +261,21 @@ public class MbwManager {
     private Map<String, MinerFee> _minerFee;
     private boolean _keyManagementLocked;
     private MrdExport.V1.EncryptionParameters _cachedEncryptionParameters;
-    private MrdExport.V1.ScryptParameters _deviceScryptParameters;
+    private final MrdExport.V1.ScryptParameters _deviceScryptParameters;
     private MbwEnvironment _environment;
     private HttpErrorCollector _httpErrorCollector;
     private String _language;
-    private VersionManager _versionManager;
-    private ExchangeRateManager _exchangeRateManager;
-    private WalletManager _walletManager;
+    private final VersionManager _versionManager;
+    private final ExchangeRateManager _exchangeRateManager;
+    private final WalletManager _walletManager;
     private WalletManager _tempWalletManager;
     private MasterSeedManager masterSeedManager;
     private ContentResolver contentResolver;
     private final RandomSource _randomSource;
-    private EventTranslator _eventTranslator;
+    private final EventTranslator _eventTranslator;
     private ServerEndpointType.Types _torMode;
     private TorManager _torManager;
-    public GlobalBlockExplorerManager _blockExplorerManager;
+    public final GlobalBlockExplorerManager _blockExplorerManager;
     private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
     private final Queue<LogEntry> _wapiLogs;
@@ -295,7 +294,7 @@ public class MbwManager {
         _environment = MbwEnvironment.verifyEnvironment();
 
         // Preferences
-        preferences = getPreferences();
+        SharedPreferences preferences = getPreferences();
 
         updateConfig();
 
@@ -317,7 +316,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
-        configuration.addServerListChangedListener(_wapi);
+        configuration.setServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -342,10 +341,6 @@ public class MbwManager {
         WindowManager windowManager = (WindowManager) _applicationContext.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(dm);
 
-        initManagers(preferences);
-    }
-
-    private void initManagers(SharedPreferences preferences) {
         _language = preferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().getLanguage());
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
@@ -459,8 +454,7 @@ public class MbwManager {
         if (preferenceValue == null) {
             resultMap.put(Utils.getBtcCoinType(), Denomination.UNIT);
         } else {
-            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>() {
-            }.getType());
+            Map<String, String> preferenceMap = gson.fromJson(preferenceValue, new TypeToken<Map<String, String>>(){}.getType());
             for (Map.Entry<String, String> entry : preferenceMap.entrySet()) {
                 resultMap.put(Utils.getTypeByName(entry.getKey()), Denomination.fromString(entry.getValue()));
             }
@@ -493,10 +487,6 @@ public class MbwManager {
     public void updateConfig() {
         if (configuration == null) {
             configuration = new WalletConfiguration(getPreferences(), getNetwork());
-            configuration.addServerListChangedListener(newEndpoints -> {
-                        initManagers(preferences);
-                    }
-            );
         }
 
         configuration.updateConfig();
