@@ -41,8 +41,17 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    var client: Web3j = buildCurrentEndpoint()
+    lateinit var client: Web3j
+
+    init {
+        updateClient()
+    }
+
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+
+    private fun updateClient() {
+        client = buildCurrentEndpoint()
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -194,7 +203,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 logger.log(Level.SEVERE, "Switching to next endpoint...")
             }
             endpoints.switchToNextEndpoint()
-            client = buildCurrentEndpoint()
+            updateClient()
         }
         return false
     }
@@ -366,7 +375,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         endpoints = ServerEndpoints(newEndpoints).apply {
             setAllowedEndpointTypes(ServerEndpointType.ALL)
         }
-        buildCurrentEndpoint()
+        updateClient()
         thread {
             stopSubscriptions(newThread = false)
             renewSubscriptions()
