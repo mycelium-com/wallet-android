@@ -168,14 +168,11 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import org.web3j.protocol.http.HttpService;
-
 import kotlin.jvm.Synchronized;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -283,7 +280,7 @@ public class MbwManager {
 
     private WalletConfiguration configuration;
 
-    private Handler mainLoopHandler;
+    private final Handler mainLoopHandler;
     private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
@@ -299,12 +296,8 @@ public class MbwManager {
         updateConfig();
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
-        mainLoopHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                _eventBus.register(MbwManager.this);
-            }
-        });
+        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
+        mainLoopHandler.post(() -> _eventBus.register(MbwManager.this));
 
         // init tor - if needed
         try {
@@ -380,7 +373,6 @@ public class MbwManager {
 
         migrate();
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
         _walletManager.addObserver(_eventTranslator);
 
