@@ -85,7 +85,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
-                    val ethServers = if (network.isTestnet)
+                    val ethServersFromResponse = if (network.isTestnet)
                         myceliumNodesResponse?.ethTestnet?.ethServers?.primary?.map { it.url }?.toSet()
                     else
                         myceliumNodesResponse?.ethMainnet?.ethServers?.primary?.map { it.url }?.toSet()
@@ -93,8 +93,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-                    ethServers?.let {
-                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServers)
+
+                    val oldElectrum = electrumServers
+                    val oldEth = ethServers
+                    ethServersFromResponse?.let {
+                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServersFromResponse)
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
@@ -109,9 +112,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
-                    for (serverEthListChangedListener in serverEthListChangedListeners) {
-                        serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
+                    if (oldElectrum != electrumServers){
+                        serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    }
+
+                    if (oldEth != ethServers) {
+                        for (serverEthListChangedListener in serverEthListChangedListeners) {
+                            serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
+                        }
                     }
                 }
             } catch (_: Exception) {}
