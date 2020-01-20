@@ -352,6 +352,9 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
+    //to avoid io.reactivex.exceptions.UndeliverableException (inside android.os.NetworkOnMainThreadException)
+    //we have to stop subscriptions in another thread
+    //but if we want to restart subscriptions we have to stop it synchronously before subscribe again
     fun stopSubscriptions(newThread: Boolean = true) {
         if (newThread) {
             thread {
