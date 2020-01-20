@@ -8,8 +8,9 @@ import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
-import com.mycelium.wapi.api.ServerListChangedListener
+import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -108,7 +109,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    serverEthListChangedListener?.serverListChanged(getEthHttpServices().toTypedArray())
                 }
             } catch (_: Exception) {}
         }
@@ -150,10 +152,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
 
-    private var serverListChangedListener: ServerListChangedListener? = null
+    private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
+    private var serverEthListChangedListener : ServerEthListChangedListener? = null
 
-    fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
-        this.serverListChangedListener = serverListChangedListener
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
+        this.serverElectrumListChangedListener = serverElectrumListChangedListener
+    }
+
+    fun setEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
+        this.serverEthListChangedListener = servereEthListChangedListener
     }
 
     companion object {

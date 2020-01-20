@@ -35,8 +35,8 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  web3jServices: List<HttpService>,
-                 address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
+                 address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
+    private var endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
@@ -214,7 +214,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions()
+        stopSubscriptions(newThread = true)
     }
 
     override fun activateAccount() {
@@ -343,14 +343,33 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
+    fun stopSubscriptions(newThread: Boolean = true) {
+        if (newThread) {
+            thread {
+                stopSubscriptions()
+            }
+        } else {
+            stopSubscriptions()
+        }
+    }
+
     fun stopSubscriptions() {
+        if (!balanceDisposable.isDisposed) {
+            balanceDisposable.dispose()
+        }
+        if (!incomingTxsDisposable.isDisposed) {
+            incomingTxsDisposable.dispose()
+        }
+    }
+
+    override fun serverListChanged(newEndpoints: Array<HttpService>) {
+        endpoints = ServerEndpoints(newEndpoints).apply {
+            setAllowedEndpointTypes(ServerEndpointType.ALL)
+        }
+        buildCurrentEndpoint()
         thread {
-            if (!balanceDisposable.isDisposed) {
-                balanceDisposable.dispose()
-            }
-            if (!incomingTxsDisposable.isDisposed) {
-                incomingTxsDisposable.dispose()
-            }
+            stopSubscriptions(newThread = false)
+            renewSubscriptions()
         }
     }
 }

@@ -5,6 +5,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
+import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -30,7 +31,7 @@ class EthereumModule(
         private val web3jServices: List<HttpService>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
-        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
+        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule, ServerEthListChangedListener {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -129,7 +130,7 @@ class EthereumModule(
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return if (walletAccount is EthAccount) {
-            walletAccount.stopSubscriptions()
+            walletAccount.stopSubscriptions(newThread = true)
             if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
                 secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
             } else {
@@ -167,6 +168,15 @@ class EthereumModule(
     companion object {
         const val ID: String = "Ethereum"
     }
+
+    override fun serverListChanged(newEndpoints: Array<HttpService>) {
+        getAccounts().map { it as EthAccount }
+                .forEach { it.serverListChanged(newEndpoints) }
+    }
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
+
+interface ServerEthListChangedListener {
+    fun serverListChanged(newEndpoints: Array<HttpService>)
+}

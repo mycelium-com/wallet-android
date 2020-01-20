@@ -168,14 +168,11 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import org.web3j.protocol.http.HttpService;
-
 import kotlin.jvm.Synchronized;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -316,7 +313,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
-        configuration.setServerListChangedListener(_wapi);
+        configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -857,9 +854,10 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
-
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.setEthServerListChangedListener(walletModule);
         walletManager.init();
 
         return walletManager;
@@ -914,9 +912,10 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
-
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.setEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }
