@@ -373,8 +373,6 @@ public class MbwManager {
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment, db);
         contentResolver = createContentResolver(getNetwork());
-        //should be called after all accounts are loaded only
-        updateConfig();
 
         migrate();
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
@@ -391,6 +389,9 @@ public class MbwManager {
         if (_walletManager.getAssetTypes().size() != 0) {
             _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
         }
+
+        //should be called after all accounts are loaded and managers created only
+        updateConfig();
 
         _versionManager.initBackgroundVersionChecker();
 
@@ -854,7 +855,7 @@ public class MbwManager {
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
-        configuration.setEthServerListChangedListener(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
         walletManager.init();
 
         return walletManager;
@@ -912,7 +913,7 @@ public class MbwManager {
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
-        configuration.setEthServerListChangedListener(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }
