@@ -59,7 +59,6 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 
@@ -135,8 +134,8 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            GenericAssetInfo coinType = mbwManager.getWalletManager(false).getAccount(model.accountId).getCoinType();
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination(coinType));
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
+                    mbwManager.getDenomination(model.coinType));
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
@@ -183,6 +182,7 @@ public class RecordRowBuilder {
     private ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
+        result.coinType = walletAccount.getCoinType();
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);
