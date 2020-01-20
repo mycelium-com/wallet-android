@@ -984,7 +984,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       public List<TransactionEx> getTransactionHistory(int offset, int limit) {
          List<TransactionEx> list = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
-                         + " ORDER BY height desc limit ? offset ?",
+                         + " ORDER BY height desc, time desc limit ? offset ?",
                  new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));
@@ -1002,7 +1002,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          List<TransactionEx> list = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT id, hash, height, time, binary FROM " + txTableName
                          + " WHERE time >= ?"
-                         + " ORDER BY height desc",
+                         + " ORDER BY height desc, time desc",
                  new String[]{Long.toString(since / 1000)})) {
             while (cursor.moveToNext()) {
                Sha256Hash txid = new Sha256Hash(cursor.getBlob(0));

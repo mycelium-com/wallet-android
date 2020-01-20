@@ -115,7 +115,9 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
+import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -718,6 +720,20 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
 
     @OnClick(R.id.btSend)
     void onClickSend() {
+        if (isPossibleDuplicateSending()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.possible_duplicate_warning_title))
+                    .setMessage(getString(R.string.possible_duplicate_warning_desc))
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> continueSending())
+                    .setNegativeButton(android.R.string.no, (dialog, which) -> finish())
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        } else {
+            continueSending();
+        }
+    }
+
+    private void continueSending() {
         if (isColdStorage || activeAccount instanceof HDAccountExternalSignature) {
             // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)
             signTransaction();
@@ -736,6 +752,42 @@ public class SendMainActivity extends FragmentActivity implements BroadcastResul
                 MbwManager.getEventBus().post(new AccountChanged(receivingAccount));
             }
         }
+    }
+
+    /**
+     * Checks whether the last outgoing transaction that was sent recently (within 10 minutes)
+     * has the same amount and receiving address to warn a user about possible duplicate sending.
+     */
+    private boolean isPossibleDuplicateSending() {
+        // we could have used getTransactionsSince here instead of getTransactionSummaries
+        // but for accounts with large number of transactions (>500) it would introduce quite delay
+        List<GenericTransactionSummary> summaries = activeAccount.getTransactionSummaries(0, 25);
+        if (summaries.isEmpty()) {
+            return false; // user has no transactions
+        }
+        if (summaries.get(0).getTimestamp() * 1000 < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(10)) {
+            return false; // latest transaction is too old
+        }
+        // find latest outgoing transaction
+        GenericTransactionSummary outgoingTx = null;
+        for (GenericTransactionSummary summary : summaries) {
+            if (!summary.isIncoming()) {
+                outgoingTx = summary;
+                break;
+            }
+        }
+        if (outgoingTx == null) {
+            return false; // no outgoing transactions
+        }
+        // extract sent amount from the transaction
+        Value outgoingTxAmount = Value.zeroValue(activeAccount.getCoinType());
+        for (GenericOutputViewModel output : outgoingTx.getOutputs()) {
+            if (output.getAddress().equals(receivingAddress)) {
+                outgoingTxAmount = output.getValue();
+            }
+        }
+        return outgoingTx.getDestinationAddresses().get(0).equals(receivingAddress)
+                && outgoingTxAmount.equals(amountToSend);
     }
 
     final Runnable pinProtectedSignAndSend = new Runnable() {
