@@ -1010,6 +1010,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
 1) decreasing sending amount in order to get your change back;\n
 2) increasing sending amount to a maximum;\n
 3) adjusting miner fee to fit in the network output limit.</string>
+    <string name="possible_duplicate_warning_title">Possible duplicate transaction</string>
+    <string name="possible_duplicate_warning_desc">Do you want to send the same transaction while you have the similar one in outgoing list?</string>
     <string name="verify_message">Verify Message</string>
     <string name="rate">1 %1$s ~ %2$s</string>
     <string name="share_transaction_manually">Share Transaction manually</string>
