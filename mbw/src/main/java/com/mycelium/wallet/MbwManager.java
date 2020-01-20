@@ -292,8 +292,7 @@ public class MbwManager {
 
         // Preferences
         SharedPreferences preferences = getPreferences();
-
-        updateConfig();
+        configuration = new WalletConfiguration(preferences, getNetwork());
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
         mainLoopHandler.post(new Runnable() {
@@ -374,6 +373,8 @@ public class MbwManager {
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
         _walletManager = createWalletManager(_applicationContext, _environment, db);
         contentResolver = createContentResolver(getNetwork());
+        //should be called after all accounts are loaded only
+        updateConfig();
 
         migrate();
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
@@ -482,10 +483,6 @@ public class MbwManager {
     }
 
     public void updateConfig() {
-        if (configuration == null) {
-            configuration = new WalletConfiguration(getPreferences(), getNetwork());
-        }
-
         configuration.updateConfig();
     }
 
