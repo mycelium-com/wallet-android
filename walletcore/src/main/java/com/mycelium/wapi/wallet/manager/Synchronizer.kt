@@ -3,6 +3,10 @@ package com.mycelium.wapi.wallet.manager
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
@@ -31,9 +35,8 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     } else {
                         accounts.filterNotNull().filter { it.isActive }
                     }
-                    list.forEach { it.synchronize(syncMode) }
+                    startSync(list)
                 }
-
             }
         } finally {
             walletManager.state = State.READY
@@ -41,8 +44,25 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }
     }
 
+    private fun startSync(list: List<WalletAccount<*>>) {
+        //split synchronization by coinTypes in own threads
+        runBlocking(Dispatchers.Default) {
+            list.groupBy { it.coinType }
+                    .values.flatten()
+                    .map {
+                        async { it.synchronize(syncMode) }
+                    }.map {
+                        it.await()
+                    }
+        }
+    }
+
     private fun broadcastOutgoingTransactions(): Boolean =
-            if (accounts.isEmpty()) { walletManager.getAllActiveAccounts() } else { accounts }
+            if (accounts.isEmpty()) {
+                walletManager.getAllActiveAccounts()
+            } else {
+                accounts
+            }
                     .filterNotNull()
                     .filterNot { it.isArchived }
                     .all { it.broadcastOutgoingTransactions() }
