@@ -33,7 +33,7 @@ class WapiClientElectrumX(
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
+    : WapiClient(serverEndpoints, logger, versionCode), ServerElectrumListChangedListener {
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
@@ -400,6 +400,6 @@ data class TransactionHistoryInfo(
     }
 }
 
-interface ServerListChangedListener {
+interface ServerElectrumListChangedListener {
     fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
 }

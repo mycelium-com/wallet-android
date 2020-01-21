@@ -35,14 +35,23 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  web3jServices: List<HttpService>,
-                 address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
+                 address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
+    private var endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    var client: Web3j = buildCurrentEndpoint()
+    lateinit var client: Web3j
+
+    init {
+        updateClient()
+    }
+
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+
+    private fun updateClient() {
+        client = buildCurrentEndpoint()
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -194,7 +203,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 logger.log(Level.SEVERE, "Switching to next endpoint...")
             }
             endpoints.switchToNextEndpoint()
-            client = buildCurrentEndpoint()
+            updateClient()
         }
         return false
     }
@@ -214,7 +223,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions()
+        stopSubscriptions(newThread = true)
     }
 
     override fun activateAccount() {
@@ -343,14 +352,36 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
+    //to avoid io.reactivex.exceptions.UndeliverableException (inside android.os.NetworkOnMainThreadException)
+    //we have to stop subscriptions in another thread
+    //but if we want to restart subscriptions we have to stop it synchronously before subscribe again
+    fun stopSubscriptions(newThread: Boolean = true) {
+        if (newThread) {
+            thread {
+                stopSubscriptions()
+            }
+        } else {
+            stopSubscriptions()
+        }
+    }
+
     fun stopSubscriptions() {
+        if (!balanceDisposable.isDisposed) {
+            balanceDisposable.dispose()
+        }
+        if (!incomingTxsDisposable.isDisposed) {
+            incomingTxsDisposable.dispose()
+        }
+    }
+
+    override fun serverListChanged(newEndpoints: Array<HttpService>) {
+        endpoints = ServerEndpoints(newEndpoints).apply {
+            setAllowedEndpointTypes(ServerEndpointType.ALL)
+        }
+        updateClient()
         thread {
-            if (!balanceDisposable.isDisposed) {
-                balanceDisposable.dispose()
-            }
-            if (!incomingTxsDisposable.isDisposed) {
-                incomingTxsDisposable.dispose()
-            }
+            stopSubscriptions(newThread = false)
+            renewSubscriptions()
         }
     }
 }
