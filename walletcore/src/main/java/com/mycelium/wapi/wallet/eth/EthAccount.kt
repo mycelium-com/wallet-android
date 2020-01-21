@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
+import kotlin.math.max
 
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -305,7 +306,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                            else accountContext.blockHeight - remoteTx.result.blockNumber.toInt()
+                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
