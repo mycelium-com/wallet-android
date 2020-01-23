@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Inputs -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvInputsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btInputsRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="startRemoteLoading"
+                android:text="@string/no_transaction_retry"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvInputsAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_transaction_loading"
+                android:textSize="18sp"
+                tools:text="123 Loading..." />
+
+            <LinearLayout
+                android:id="@+id/llInputs"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="4dp" />
+        </LinearLayout>
+
+    </TableRow>
+
+    <!-- Outputs -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/llOutputs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="4dp" />
+    </TableRow>
+
+    <!-- Value -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Value label"
+            android:textSize="18sp" />
+
+
+        <TextView
+            android:id="@+id/tvValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="1000 ETH" />
+    </TableRow>
+
+    <!-- Transaction Fee -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvFeeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/miner_fee_label"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvFee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="0.00001 ETH" />
+    </TableRow>
+
+    <!-- Gas Limit -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvGasLimitLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gas Limit"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvGasLimit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="21000" />
+    </TableRow>
+
+    <!-- Gas Used -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvGasUsedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gas Used"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvGasUsed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="21000 (100%)" />
+    </TableRow>
+
+
+    <!-- Gas Price -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvGasPriceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gas Price"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvGasPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="5.5 Gwei" />
+    </TableRow>
+
+
+    <!-- Nonce -->
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dip">
+
+        <TextView
+            android:id="@+id/tvNonceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Nonce"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvNonce"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="1dp"
+            android:textSize="18sp"
+            tools:text="26" />
+    </TableRow>
+</TableLayout>
