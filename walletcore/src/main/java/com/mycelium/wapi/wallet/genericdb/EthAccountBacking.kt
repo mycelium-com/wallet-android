@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.genericdb
 
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
+import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.GenericInputViewModel
 import com.mycelium.wapi.wallet.GenericOutputViewModel
 import com.mycelium.wapi.wallet.GenericTransactionSummary
@@ -9,6 +10,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.eth.EthAddress
 import java.lang.IllegalStateException
+import java.math.BigInteger
 import java.util.*
 
 class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
@@ -26,7 +28,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                   confirmations: Int,
                                                                                   from: String,
                                                                                   to: String ->
-                createAndReturnGenericTransactionSummary(ownerAddress, txid, currency, blockNumber,
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsList()
 
@@ -43,7 +45,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                             confirmations: Int,
                                                                                             from: String,
                                                                                             to: String ->
-                createAndReturnGenericTransactionSummary(ownerAddress, txid, currency, blockNumber,
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsList()
 
@@ -57,7 +59,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                                                     confirmations: Int,
                                                                                     from: String,
                                                                                     to: String ->
-                createAndReturnGenericTransactionSummary(ownerAddress, txid, currency, blockNumber,
+                createTransactionSummary(ownerAddress, txid, currency, blockNumber,
                         timestamp, value, fee, confirmations, from, to)
             }).executeAsOneOrNull()
 
@@ -75,16 +77,16 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         queries.deleteTransaction(uuid, txid)
     }
 
-    private fun createAndReturnGenericTransactionSummary(ownerAddress: String,
-                                                         txid: String,
-                                                         currency: CryptoCurrency,
-                                                         blockNumber: Int,
-                                                         timestamp: Long,
-                                                         value: Value,
-                                                         fee: Value,
-                                                         confirmations: Int,
-                                                         from: String,
-                                                         to: String): GenericTransactionSummary {
+    private fun createTransactionSummary(ownerAddress: String,
+                                         txid: String,
+                                         currency: CryptoCurrency,
+                                         blockNumber: Int,
+                                         timestamp: Long,
+                                         value: Value,
+                                         fee: Value,
+                                         confirmations: Int,
+                                         from: String,
+                                         to: String): GenericTransactionSummary {
         val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
         val outputs = if (to.isEmpty()) listOf()
@@ -100,7 +102,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             // transaction doesn't relate to us in any way. should not happen
             throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
         }
-        return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
+        val nonce = BigInteger.ONE
+        val gasLimit = BigInteger.valueOf(21000)
+        val gasUsed = gasLimit
+        return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce,
+                value, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
                 confirmations, false, inputs, outputs,
                 destAddresses, null, 21000, fee)

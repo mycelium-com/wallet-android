@@ -37,7 +37,7 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
         startRemoteLoading()
     }
 
-    fun updateUi(isAfterRemoteUpdate: Boolean, suggestRetryIfError: Boolean) {
+    private fun updateUi(isAfterRemoteUpdate: Boolean, suggestRetryIfError: Boolean) {
         btFeeRetry.visibility = View.GONE
         btInputsRetry.visibility = View.GONE
         tvFee.visibility = View.VISIBLE
@@ -86,7 +86,6 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
                     fee += txFeePerUnit
                 }
             }
-            tvFee.text = fee
             tvFee.text = fee
             tvFee.visibility = View.VISIBLE
         } else {
