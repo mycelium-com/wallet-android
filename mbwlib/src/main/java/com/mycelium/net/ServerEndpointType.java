@@ -42,20 +42,17 @@ import java.util.ArrayList;
 public class ServerEndpointType {
    private ArrayList<Class> allowedEndpoints;
 
-   public enum Types {
-      ALL ,ONLY_HTTPS, ONLY_TOR
+   public enum Types{
+      ALL, HTTPS_AND_TOR, ONLY_HTTPS, ONLY_TOR
    }
 
    public static ServerEndpointType ONLY_HTTPS = new ServerEndpointType(new Class[]{HttpsEndpoint.class});
    public static ServerEndpointType ONLY_TOR = new ServerEndpointType(new Class[]{TorHttpsEndpoint.class});
-   public static ServerEndpointType ALL = new ServerEndpointType(new Class[]{Object.class});
 
    public static ServerEndpointType fromType(Types type){
-      if (type == Types.ALL){
-         return ALL;
-      } else if (type == Types.ONLY_TOR){
+      if (type == Types.ONLY_TOR){
          return ONLY_TOR;
-      } else {
+      }else {
          return ONLY_HTTPS;
       }
    }
@@ -69,12 +66,7 @@ public class ServerEndpointType {
    }
 
    public boolean isValid(Class endpointType){
-      for (Class allowedEndpoint : allowedEndpoints) {
-         if (allowedEndpoint.isAssignableFrom(endpointType)) {
-            return true;
-         }
-      }
-      return false;
+      return allowedEndpoints.contains(endpointType);
    }
 
    @Override

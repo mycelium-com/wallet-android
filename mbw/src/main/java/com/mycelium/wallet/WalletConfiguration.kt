@@ -160,7 +160,8 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         }
     }
 
-    fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
+    //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
+    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()

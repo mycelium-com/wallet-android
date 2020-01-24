@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpointType
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
@@ -35,11 +36,9 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jServices: List<HttpService>,
+                 endpoints: List<HttpEndpoint>,
                  address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
-    private var endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
-        setAllowedEndpointTypes(ServerEndpointType.ALL)
-    }
+    private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     lateinit var client: Web3j
@@ -48,7 +47,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         updateClient()
     }
 
-    private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
 
     private fun updateClient() {
         client = buildCurrentEndpoint()
@@ -123,7 +122,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, endpoints)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, this.endpoints)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
@@ -188,7 +187,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun selectEndpoint(): Boolean {
         val currentEndpointIndex = endpoints.currentEndpointIndex
-        for (x in 0 until endpoints.size) {
+        for (x in 0 until endpoints.size()) {
             val ethUtils = EthSyncChecker(client)
             try {
                 if (ethUtils.isSynced) {
@@ -375,10 +374,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    override fun serverListChanged(newEndpoints: Array<HttpService>) {
-        endpoints = ServerEndpoints(newEndpoints).apply {
-            setAllowedEndpointTypes(ServerEndpointType.ALL)
-        }
+    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
+        endpoints = ServerEndpoints(newEndpoints)
         updateClient()
         thread {
             stopSubscriptions(newThread = false)

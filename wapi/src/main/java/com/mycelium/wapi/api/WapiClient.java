@@ -50,10 +50,10 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    private ObjectMapper _objectMapper;
    private com.mycelium.WapiLogger _logger;
 
-   private ServerEndpoints<HttpEndpoint> _serverEndpoints;
+   private ServerEndpoints _serverEndpoints;
    private String versionCode;
 
-   public WapiClient(ServerEndpoints<HttpEndpoint> serverEndpoints, WapiLogger logger, String versionCode) {
+   public WapiClient(ServerEndpoints serverEndpoints, WapiLogger logger, String versionCode) {
       _serverEndpoints = serverEndpoints;
       this.versionCode = versionCode;
 
