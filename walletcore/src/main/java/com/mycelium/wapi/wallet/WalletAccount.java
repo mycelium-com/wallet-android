@@ -56,6 +56,9 @@ public interface WalletAccount<A extends GenericAddress> {
 
     GenericTransactionSummary getTxSummary(byte[] transactionId);
 
+    /**
+     * @return transactions in reversed order (last added goes first)
+     */
     List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit);
 
     /**

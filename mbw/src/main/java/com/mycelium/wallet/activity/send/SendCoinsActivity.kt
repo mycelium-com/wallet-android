@@ -289,6 +289,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private fun isPossibleDuplicateSending(): Boolean {
         // we could have used getTransactionsSince here instead of getTransactionSummaries
         // but for accounts with large number of transactions (>500) it would introduce quite delay
+        // so we take last 25 transactions as a sort of heuristic
         val summaries: List<GenericTransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
         if (summaries.isEmpty()) {
             return false // user has no transactions

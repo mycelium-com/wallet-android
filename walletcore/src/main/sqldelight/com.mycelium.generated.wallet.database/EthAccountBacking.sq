@@ -24,7 +24,7 @@ SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
-        WHERE eb.uuid = (:uuid) ORDER BY b.blockNumber DESC
+        WHERE eb.uuid = (:uuid) ORDER BY b.blockNumber DESC, b.timestamp DESC
         LIMIT (:limit) OFFSET (:offset);
 
 
@@ -36,7 +36,8 @@ SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
-        WHERE eb.uuid = (:uuid) AND b.timestamp > (:timestamp);
+        WHERE eb.uuid = (:uuid) AND b.timestamp > (:timestamp)
+        ORDER BY b.blockNumber DESC, b.timestamp DESC;
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
