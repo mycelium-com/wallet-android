@@ -40,26 +40,28 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ServerEndpoints<T> {
+public class ServerEndpoints {
 
-   final private ArrayList<T> endpoints;
+   final private ArrayList<HttpEndpoint> endpoints;
    private int currentEndpoint;
    private ServerEndpointType allowedEndpointTypes = ServerEndpointType.ONLY_HTTPS;
 
 
-   public ServerEndpoints(T[] endpoints) {
+   public ServerEndpoints(HttpEndpoint endpoints[]) {
       this.endpoints = Lists.newArrayList(endpoints);
       currentEndpoint = new Random().nextInt(this.endpoints.size());
+      // ensure correct kind of endpoint
+      switchToNextEndpoint();
    }
 
-   public ServerEndpoints(T endpoints[], int initialEndpoint) {
+   public ServerEndpoints(HttpEndpoint endpoints[], int initialEndpoint) {
       this.endpoints = Lists.newArrayList(endpoints);
 
       Preconditions.checkElementIndex(initialEndpoint, endpoints.length);
       currentEndpoint = initialEndpoint;
    }
 
-   public T getCurrentEndpoint() {
+   public HttpEndpoint getCurrentEndpoint(){
       return endpoints.get(currentEndpoint);
    }
 
@@ -67,32 +69,32 @@ public class ServerEndpoints<T> {
       return currentEndpoint;
    }
 
-   public synchronized void switchToNextEndpoint(){
-      T selectedEndpoint;
-      int cnt = 0;
-      int tmpCurrentEndpoint = currentEndpoint;
-      do {
-         tmpCurrentEndpoint = (tmpCurrentEndpoint + 1) % endpoints.size();
-         selectedEndpoint = endpoints.get(tmpCurrentEndpoint);
-         cnt++;
-         if (cnt > endpoints.size()) {
-            throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
-         }
-      } while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
-      currentEndpoint = tmpCurrentEndpoint;
-   }
-
-   public int getSize() {
+   public int size() {
       return endpoints.size();
    }
 
+   public synchronized void switchToNextEndpoint(){
+      HttpEndpoint selectedEndpoint;
+      int cnt=0;
+      int tmpCurrentEndpoint = currentEndpoint;
+      do{
+         tmpCurrentEndpoint = (tmpCurrentEndpoint + 1) % endpoints.size();
+         selectedEndpoint = endpoints.get(tmpCurrentEndpoint);
+         cnt++;
+         if (cnt>endpoints.size()){
+            throw new RuntimeException("No valid next Endpoint found, " + allowedEndpointTypes.toString());
+         }
+      }while(!allowedEndpointTypes.isValid(selectedEndpoint.getClass()));
+      currentEndpoint = tmpCurrentEndpoint;
+   }
+
    public void setAllowedEndpointTypes(ServerEndpointType types){
-      allowedEndpointTypes = types;
+      allowedEndpointTypes=types;
       switchToNextEndpoint();
    }
 
    public void setTorManager(TorManager torManager){
-      for (T e : endpoints){
+      for (HttpEndpoint e : endpoints){
          if (e instanceof TorHttpsEndpoint){
             ((TorHttpsEndpoint) e).setTorManager(torManager);
          }
