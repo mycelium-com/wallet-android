@@ -113,7 +113,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                 tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0)
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, accountContext.nonce)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -340,7 +340,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce)
         }, {})
     }
 

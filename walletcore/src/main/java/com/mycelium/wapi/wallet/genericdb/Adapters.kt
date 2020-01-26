@@ -101,7 +101,7 @@ object Adapters {
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter)
 
-val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter)
+val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter)
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)
