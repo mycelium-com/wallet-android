@@ -344,6 +344,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun renewSubscriptions() {
+        updateClient()
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
@@ -365,7 +366,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    fun stopSubscriptions() {
+    private fun stopSubscriptions() {
+        client.shutdown()
         if (!balanceDisposable.isDisposed) {
             balanceDisposable.dispose()
         }
