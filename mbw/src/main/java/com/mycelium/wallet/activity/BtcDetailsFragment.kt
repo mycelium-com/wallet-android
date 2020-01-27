@@ -8,31 +8,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.util.*
+import com.mycelium.wallet.activity.util.AddressLabel
+import com.mycelium.wallet.activity.util.BtcFeeFormatter
+import com.mycelium.wallet.activity.util.FeeFormattingUtil
+import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.GenericOutputViewModel
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
 
 
 class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode: Boolean) : GenericDetailsFragment() {
-    var mbwManager: MbwManager? = null
-
-    private var _white_color = 0
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.transaction_details_btc, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _white_color = resources.getColor(R.color.white)
-        mbwManager = MbwManager.getInstance(requireContext())
         loadAndUpdate(false)
         startRemoteLoading()
     }
@@ -146,22 +140,7 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
         tv.layoutParams = TransactionDetailsActivity.FPWC
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
         tv.setText(R.string.newly_generated_coins_from_coinbase)
-        tv.setTextColor(_white_color)
-        return tv
-    }
-
-    private operator fun getValue(value: Value, tag: Any?): View? {
-        val tv = TextView(requireContext())
-        tv.layoutParams = TransactionDetailsActivity.FPWC
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-        tv.text = value.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType))
-        tv.setTextColor(_white_color)
-        tv.tag = tag
-        tv.setOnLongClickListener {
-            Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)), requireContext())
-            Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
-            true
-        }
+        tv.setTextColor(whiteColor)
         return tv
     }
 

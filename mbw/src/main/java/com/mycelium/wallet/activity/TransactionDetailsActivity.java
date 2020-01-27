@@ -49,7 +49,7 @@ import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
-import com.mycelium.wapi.wallet.eth.coins.EthTest;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -57,9 +57,9 @@ import java.util.Locale;
 
 public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
-    public static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
-    public static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private Boolean coluMode = false;
+    protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
+    protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
+    private boolean coluMode = false;
     private GenericTransactionSummary tx;
 
     /**
@@ -78,7 +78,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         GenericDetailsFragment detailsFragment = (GenericDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
         if (detailsFragment == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if (account.getCoinType() == EthTest.INSTANCE) {
+            if (account instanceof EthAccount) {
                 transaction.add(R.id.spec_details_fragment, new EthDetailsFragment(tx));
             } else {
                 transaction.add(R.id.spec_details_fragment, new BtcDetailsFragment(tx, coluMode));
