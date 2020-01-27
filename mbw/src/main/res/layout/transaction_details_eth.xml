@@ -13,10 +13,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvFromLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="From"
+            android:text="@string/from"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -36,10 +35,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvToLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="To"
+            android:text="@string/to"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -58,12 +56,10 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvValueLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Value"
+            android:text="@string/value"
             android:textSize="18sp" />
-
 
         <LinearLayout
             android:id="@+id/llValue"
@@ -84,7 +80,7 @@
             android:id="@+id/tvFeeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/miner_fee_title"
+            android:text="@string/miner_fee_label"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -103,10 +99,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvGasLimitLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gas Limit"
+            android:text="@string/gas_limit"
             android:textSize="18sp" />
 
         <TextView
@@ -127,10 +122,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvGasUsedLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gas Used"
+            android:text="@string/gas_used"
             android:textSize="18sp" />
 
         <TextView
@@ -152,10 +146,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvGasPriceLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gas Price"
+            android:text="@string/gas_price"
             android:textSize="18sp" />
 
         <TextView
@@ -177,10 +170,9 @@
         android:padding="5dip">
 
         <TextView
-            android:id="@+id/tvNonceLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nonce"
+            android:text="@string/nonce"
             android:textSize="18sp" />
 
         <TextView
