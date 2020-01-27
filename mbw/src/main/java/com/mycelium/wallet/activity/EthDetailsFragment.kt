@@ -32,6 +32,8 @@ class EthDetailsFragment(tx: GenericTransactionSummary) : GenericDetailsFragment
     }
 
     private fun updateUi() {
+        alignTables(specific_table)
+
         val fromAddress = AddressLabel(requireContext())
         fromAddress.address = tx.sender
         llFrom.addView(fromAddress)
@@ -40,10 +42,11 @@ class EthDetailsFragment(tx: GenericTransactionSummary) : GenericDetailsFragment
         toAddress.address = tx.receiver
         llTo.addView(toAddress)
 
-        tvValue.text = tx.value.toPlainString()
+        llValue.addView(getValue(tx.value, null))
+        llFee.addView(getValue(tx.fee!!, null))
+
         tvGasLimit.text = tx.gasLimit.toString()
         tvGasUsed.text = tx.gasUsed.toString()
-        tvFee.text = tx.fee!!.toPlainString()
         val txFeeTotal = tx.fee!!.valueAsLong
         val txFeePerUnit = txFeeTotal / tx.rawSize
         tvGasPrice.text = EthFeeFormatter().getFeePerUnit(txFeePerUnit)

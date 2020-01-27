@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:id="@+id/specific_table"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:shrinkColumns="1">
 
     <!-- From -->
 
@@ -65,14 +65,12 @@
             android:textSize="18sp" />
 
 
-        <TextView
-            android:id="@+id/tvValue"
+        <LinearLayout
+            android:id="@+id/llValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="1dp"
-            android:text="1000 ETH"
-            android:textSize="18sp" />
+            android:orientation="vertical"
+            android:paddingStart="4dp" />
     </TableRow>
 
     <!-- Transaction Fee -->
@@ -89,14 +87,12 @@
             android:text="@string/miner_fee_title"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/tvFee"
+        <LinearLayout
+            android:id="@+id/llFee"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="1dp"
-            android:textSize="18sp"
-            tools:text="0.00001 ETH" />
+            android:orientation="vertical"
+            android:paddingStart="4dp" />
     </TableRow>
 
     <!-- Gas Limit -->

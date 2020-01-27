@@ -38,6 +38,8 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
     }
 
     private fun updateUi(isAfterRemoteUpdate: Boolean, suggestRetryIfError: Boolean) {
+        alignTables(specific_table)
+
         btFeeRetry.visibility = View.GONE
         btInputsRetry.visibility = View.GONE
         tvFee.visibility = View.VISIBLE
