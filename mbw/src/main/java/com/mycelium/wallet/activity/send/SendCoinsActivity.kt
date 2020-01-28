@@ -314,7 +314,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 outgoingTxAmount = output.value
             }
         }
-        return outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value &&
+        return outgoingTx.destinationAddresses.size > 0 && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value &&
                 outgoingTxAmount == viewModel.getAmount().value
     }
 
