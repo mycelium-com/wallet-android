@@ -79,9 +79,9 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         if (detailsFragment == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount) {
-                transaction.add(R.id.spec_details_fragment, new EthDetailsFragment(tx));
+                transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
             } else {
-                transaction.add(R.id.spec_details_fragment, new BtcDetailsFragment(tx, coluMode));
+                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));
             }
             transaction.commit();
         }

@@ -30,7 +30,6 @@
                 android:id="@+id/btInputsRetry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="startRemoteLoading"
                 android:text="@string/no_transaction_retry"
                 android:visibility="gone" />
 
@@ -108,11 +107,8 @@
                 android:id="@+id/btFeeRetry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="startRemoteLoading"
                 android:text="@string/no_transaction_retry"
                 android:visibility="gone" />
         </LinearLayout>
-
     </TableRow>
-
 </TableLayout>

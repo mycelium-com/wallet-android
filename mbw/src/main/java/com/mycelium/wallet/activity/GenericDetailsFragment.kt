@@ -27,7 +27,7 @@ open class GenericDetailsFragment : Fragment() {
         whiteColor = resources.getColor(R.color.white)
     }
 
-    protected open fun alignTables(view: TableLayout) {
+    protected fun alignTables(view: TableLayout) {
         // find the widest column in first table
         val maxWidth1 = requireActivity().findViewById<TableLayout>(R.id.main_table).children.filter { it is TableRow }.map {
             val tv = (it as TableRow).getChildAt(0)
@@ -53,18 +53,18 @@ open class GenericDetailsFragment : Fragment() {
         }
     }
 
-    protected operator fun getValue(value: Value, tag: Any?): View? {
-        val tv = TextView(requireContext())
-        tv.layoutParams = TransactionDetailsActivity.FPWC
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-        tv.text = value.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType))
-        tv.setTextColor(whiteColor)
-        tv.tag = tag
-        tv.setOnLongClickListener {
-            Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)), requireContext())
-            Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
-            true
+    protected fun getValue(value: Value, tag: Any?): View? {
+        return TextView(requireContext()).apply {
+            layoutParams = TransactionDetailsActivity.FPWC
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            text = value.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType))
+            setTextColor(whiteColor)
+            this.tag = tag
+            setOnLongClickListener {
+                Utils.setClipboardString(value.toString(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)), requireContext())
+                Toast.makeText(requireContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                true
+            }
         }
-        return tv
     }
 }

@@ -11,7 +11,6 @@ import android.widget.TextView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
-import com.mycelium.wallet.activity.util.FeeFormattingUtil
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.GenericOutputViewModel
@@ -21,13 +20,21 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
 
 
-class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode: Boolean) : GenericDetailsFragment() {
+class BtcDetailsFragment : GenericDetailsFragment() {
+    private val tx: GenericTransactionSummary by lazy {
+        arguments!!.getSerializable("tx") as GenericTransactionSummary
+    }
+    private val coluMode: Boolean by lazy {
+        arguments!!.getBoolean("coluMode")
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.transaction_details_btc, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadAndUpdate(false)
+        listOf(btFeeRetry, btInputsRetry).forEach { it.setOnClickListener { startRemoteLoading() } }
         startRemoteLoading()
     }
 
@@ -65,22 +72,11 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
         // Set Fee
         val txFeeTotal = tx.fee!!.valueAsLong
         if (txFeeTotal > 0) {
-            var fee: String?
             tvFeeLabel.visibility = View.VISIBLE
             tvInputsLabel.visibility = View.VISIBLE
-            fee = tx.fee!!.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)) + "\n"
+            var fee = tx.fee!!.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)) + "\n"
             if (tx.rawSize > 0) {
-                val txFeePerUnit = txFeeTotal / tx.rawSize
-                val feeFormatter = FeeFormattingUtil().getFeeFormatter(mbwManager!!.selectedAccount.coinType)
-                if (feeFormatter != null) {
-                    fee += if (feeFormatter is BtcFeeFormatter) {
-                        feeFormatter.getFeePerUnitInBytes(txFeePerUnit)
-                    } else {
-                        feeFormatter.getFeePerUnit(txFeePerUnit)
-                    }
-                } else {
-                    fee += txFeePerUnit
-                }
+                fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx.rawSize)
             }
             tvFee.text = fee
             tvFee.visibility = View.VISIBLE
@@ -95,8 +91,7 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
                 }
             } else {
                 val length = tx.inputs.size
-                val amountLoading: String
-                amountLoading = if (length > 0) {
+                val amountLoading = if (length > 0) {
                     String.format("%s %s", length.toString(), getString(R.string.no_transaction_loading))
                 } else {
                     getString(R.string.no_transaction_loading)
@@ -117,31 +112,31 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
     }
 
     private fun getItemView(item: GenericOutputViewModel): View? { // Create vertical linear layout
-        val ll = LinearLayout(requireContext())
-        ll.orientation = LinearLayout.VERTICAL
-        ll.layoutParams = TransactionDetailsActivity.WCWC
-        if (item.isCoinbase) { // Coinbase input
-            ll.addView(getValue(item.value, null))
-            ll.addView(getCoinbaseText())
-        } else { // Add BTC value
-            val address = item.address.toString()
-            ll.addView(getValue(item.value, address))
-            val adrLabel = AddressLabel(requireContext())
-            adrLabel.setColuMode(coluMode)
-            adrLabel.address = item.address
-            ll.addView(adrLabel)
+        return LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = TransactionDetailsActivity.WCWC
+            if (item.isCoinbase) { // Coinbase input
+                addView(getValue(item.value, null))
+                addView(getCoinbaseText())
+            } else { // Add BTC value
+                val address = item.address.toString()
+                addView(getValue(item.value, address))
+                val adrLabel = AddressLabel(requireContext())
+                adrLabel.setColuMode(coluMode)
+                adrLabel.address = item.address
+                addView(adrLabel)
+            }
+            setPadding(10, 10, 10, 10)
         }
-        ll.setPadding(10, 10, 10, 10)
-        return ll
     }
 
     private fun getCoinbaseText(): View? {
-        val tv = TextView(requireContext())
-        tv.layoutParams = TransactionDetailsActivity.FPWC
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-        tv.setText(R.string.newly_generated_coins_from_coinbase)
-        tv.setTextColor(whiteColor)
-        return tv
+        return TextView(requireContext()).apply {
+            layoutParams = TransactionDetailsActivity.FPWC
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            setText(R.string.newly_generated_coins_from_coinbase)
+            setTextColor(whiteColor)
+        }
     }
 
     /**
@@ -168,6 +163,19 @@ class BtcDetailsFragment(val tx: GenericTransactionSummary, private val coluMode
             } else {
                 updateUi(isAfterRemoteUpdate = true, suggestRetryIfError = true)
             }
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(tx: GenericTransactionSummary, coluMode: Boolean): BtcDetailsFragment {
+            val f = BtcDetailsFragment()
+            val args = Bundle()
+
+            args.putSerializable("tx", tx)
+            args.putBoolean("coluMode", coluMode)
+            f.arguments = args
+            return f
         }
     }
 }
