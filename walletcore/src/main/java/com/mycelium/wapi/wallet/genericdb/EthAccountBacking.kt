@@ -68,7 +68,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int, nonce: BigInteger) {
-        queries.insertTransaction(txid, uuid, currency, blockNumber, timestamp, raw, value, gasPrice, confirmations)
+        queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
         ethQueries.insertTransaction(txid, uuid, from, to, nonce)
     }
 
@@ -110,7 +110,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val gasUsed = gasLimit
         return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce ?: BigInteger.ZERO,
                 value, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
-                HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
+                HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,
                 destAddresses, null, 21000, fee)
     }

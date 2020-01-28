@@ -273,6 +273,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void selectedAccountChanged(SelectedAccountChanged event) {
       isLoadingPossible.set(true);
       listView.setSelection(0);
+      updateWrapper(adapter);
    }
 
    @Subscribe
@@ -311,7 +312,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-   public void updateWrapper(TransactionHistoryAdapter adapter) {
+   private void updateWrapper(TransactionHistoryAdapter adapter) {
       this.adapter = adapter;
       listView.setAdapter(adapter);
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
