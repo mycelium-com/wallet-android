@@ -7,12 +7,13 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.WalletUtils
 
-abstract class ERC20Token : CryptoCurrency() {
+class ERC20Token(name: String, symbol: String, unitExponent: Int, val contractAddress: String) : CryptoCurrency() {
     init {
+        this.name = name
+        this.symbol = symbol
+        this.unitExponent = unitExponent
         family = Families.ETHEREUM
     }
-
-    abstract val contractAddress: String
 
     override fun parseAddress(addressString: String): GenericAddress? {
         return if (WalletUtils.isValidAddress(addressString)) {

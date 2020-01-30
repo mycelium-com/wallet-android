@@ -65,8 +65,18 @@
                 android:paddingStart="30dp"
                 android:paddingEnd="30dp"
                 android:text="@string/hd_eth_account"
-                android:layout_marginTop="25dp"
-                android:layout_marginBottom="@dimen/margin_medium"/>
+                android:layout_marginTop="25dp"/>
+
+        <Button
+            android:id="@+id/btErc20Create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:gravity="center"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:text="Add ERC20 Account" />
 
         <TextView
                 android:layout_width="wrap_content"

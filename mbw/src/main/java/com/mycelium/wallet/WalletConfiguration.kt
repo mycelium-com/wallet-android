@@ -1,5 +1,6 @@
 package com.mycelium.wallet
 
+import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
@@ -10,6 +11,7 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -21,6 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 interface  MyceliumNodesApi {
     @GET("/nodes-b.json")
@@ -149,6 +152,19 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
+
+    fun getSupportedERC20Tokens(): MutableMap<String, ERC20Token> {
+        val result = mutableMapOf<String, ERC20Token>()
+
+        val tempList = listOf(
+                ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
+                ERC20Token("EnjinCoin", "ENJ", 18, "0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c"))
+
+        for (token in tempList) {
+            result[token.name] = token
+        }
+        return result
+    }
 
     private var serverListChangedListener: ServerListChangedListener? = null
 

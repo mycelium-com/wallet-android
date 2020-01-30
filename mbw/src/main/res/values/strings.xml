@@ -546,6 +546,7 @@
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
+    <string name="erc20_account_creation_started">Creating new ERC20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>

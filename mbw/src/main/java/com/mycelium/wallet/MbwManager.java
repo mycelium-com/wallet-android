@@ -150,18 +150,16 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.erc20.ERC20Config;
 import com.mycelium.wapi.wallet.erc20.ERC20Module;
-import com.mycelium.wapi.wallet.erc20.coins.ZeroX;
-import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
@@ -172,14 +170,9 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import org.web3j.protocol.http.HttpService;
-
-import kotlin.jvm.Synchronized;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -202,6 +195,8 @@ import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+
+import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -508,6 +503,10 @@ public class MbwManager {
 
     public ContentResolver getContentResolver() {
         return contentResolver;
+    }
+
+    public Map<String, ERC20Token> getSupportedERC20Tokens() {
+        return configuration.getSupportedERC20Tokens();
     }
 
     private void initPerCurrencySettings() {
@@ -865,7 +864,6 @@ public class MbwManager {
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
 
         walletManager.add(new ERC20Module(secureKeyValueStore, configuration.getEthHttpServices(), getMetadataStorage()));
-        walletManager.createAccounts(new ERC20Config(ZeroX.INSTANCE));
         walletManager.init();
 
         return walletManager;

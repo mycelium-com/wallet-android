@@ -36,12 +36,16 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
@@ -53,14 +57,20 @@ import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.erc20.ERC20Config;
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
+import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.squareup.otto.Subscribe;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.ButterKnife;
@@ -83,6 +93,8 @@ public class AddAccountActivity extends Activity {
     private Toaster _toaster;
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
+    private AlertDialog.Builder builderSingle;
+    private int selectedIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +115,37 @@ public class AddAccountActivity extends Activity {
         final View coluCreate = findViewById(R.id.btColuCreate);
         coluCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
+
+        builderSingle = new AlertDialog.Builder(AddAccountActivity.this);
+        builderSingle.setIcon(R.drawable.ic_launcher);
+        builderSingle.setTitle("Select Token");
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddAccountActivity.this, android.R.layout.select_dialog_singlechoice);
+        arrayAdapter.addAll(getAvailableTokens().keySet());
+        builderSingle.setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which);
+        builderSingle.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
+        builderSingle.setPositiveButton("ok", (dialog, which) -> {
+            String strName = arrayAdapter.getItem(selectedIndex);
+            if (EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false)).size() == 0) {
+                Toast.makeText(getApplicationContext(), "Add Ethereum account first", Toast.LENGTH_LONG).show();
+            } else {
+                UUID ethAccountId = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false)).get(0).getId();
+                new ERC20CreationAsyncTask(getAvailableTokens().get(strName), ethAccountId).execute();
+            }
+        });
+    }
+
+    private Map<String, ERC20Token> getAvailableTokens() {
+        Map<String, ERC20Token> supportedTokens =_mbwManager.getSupportedERC20Tokens();
+        if (EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false)).size() == 0) {
+            return supportedTokens;
+        } else {
+            WalletAccount lastEthAccount = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false)).get(0);
+            List<String> enabledTokens = ((EthAccount) lastEthAccount).getEnabledTokens();
+            for (String tokenName : enabledTokens) {
+                supportedTokens.remove(tokenName);
+            }
+            return supportedTokens;
+        }
     }
 
     @OnClick(R.id.btEthCreate)
@@ -120,6 +163,16 @@ public class AddAccountActivity extends Activity {
         if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
             ethCreationAsyncTask = new ETHCreationAsyncTask();
             ethCreationAsyncTask.execute();
+        }
+    }
+
+    @OnClick(R.id.btErc20Create)
+    void onAddERC20() {
+        if (getAvailableTokens().isEmpty()) {
+            Context context = getApplicationContext();
+            Toast.makeText(context, "All supported tokens are already added", Toast.LENGTH_SHORT).show();
+        } else {
+            builderSingle.show();
         }
     }
 
@@ -186,7 +239,6 @@ public class AddAccountActivity extends Activity {
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -201,7 +253,34 @@ public class AddAccountActivity extends Activity {
 
         @Override
         protected void onPostExecute(UUID account) {
-            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+        }
+    }
+
+    private class ERC20CreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        ERC20Token token;
+        UUID ethAccountId;
+
+        ERC20CreationAsyncTask(ERC20Token token, UUID ethAccountId) {
+            this.token = token;
+            this.ethAccountId = ethAccountId;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.erc20_account_creation_started);
+        }
+
+        @Override
+        protected UUID doInBackground(Void... params) {
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccountId));
+            return accounts.get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
         }

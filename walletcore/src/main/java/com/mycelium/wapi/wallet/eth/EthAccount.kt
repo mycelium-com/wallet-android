@@ -43,6 +43,10 @@ class EthAccount(private val accountContext: EthAccountContext,
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     var client: Web3j = buildCurrentEndpoint()
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+    var enabledTokens: MutableList<String> = mutableListOf()
+    fun removeEnabledToken(tokenName: String) = enabledTokens.remove(tokenName)
+
+    fun addEnabledToken(tokenName: String) = enabledTokens.add(tokenName)
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
