@@ -1,35 +1,47 @@
 package com.mycelium.wapi.wallet.erc20
 
-import com.mrd.bitlib.crypto.HdKeyNode
-import com.mrd.bitlib.model.hdpath.HdKeyPath
+import com.mrd.bitlib.model.NetworkParameters
+import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.genericdb.GenericBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
-import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.Keys
 import org.web3j.protocol.http.HttpService
 import java.util.*
 
 class ERC20Module(
         private val secureStore: SecureKeyValueStore,
+        private val backing: GenericBacking<ERC20AccountContext>,
         private val web3jServices: List<HttpService>,
+        networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
-
+    private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
     override fun createAccount(config: Config): WalletAccount<*> {
         val result: WalletAccount<*>
         val baseLabel: String
         when (config) {
             is ERC20Config -> {
-                val credentials = deriveKey()
+                val credentials = Credentials.create(Keys.deserialize(
+                        secureStore.getDecryptedValue(config.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
                 val token = config.token as ERC20Token
                 baseLabel = token.name
-                result = ERC20Account(token, credentials, web3jServices)
+
+                val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
+                        config.ethAccountId.mostSignificantBits)
+                val accountContext = createAccountContext(uuid, config)
+                backing.createAccountContext(accountContext)
+                result = ERC20Account(accountContext, token, credentials, web3jServices)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -44,6 +56,7 @@ class ERC20Module(
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return if (walletAccount is ERC20Account) {
+            backing.deleteAccountContext(walletAccount.id)
             accounts.remove(walletAccount.id)
             true
         } else {
@@ -55,15 +68,48 @@ class ERC20Module(
 
     override fun getAccountById(id: UUID) = accounts[id]
 
-    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = emptyMap()
+    override fun loadAccounts(): Map<UUID, WalletAccount<*>> = backing.loadAccountContexts()
+            .associateBy({ it.uuid }, { accountFromUUID(it.uuid) })
 
-    private fun deriveKey(): Credentials {
-        val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
-        val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val path = "m/44'/60'/0'/0/0"
+    private fun createAccountContext(uuid: UUID, config: ERC20Config? = null): ERC20AccountContext {
+        val accountContextInDB = backing.loadAccountContext(uuid)
+        return if (accountContextInDB != null) {
+            ERC20AccountContext(accountContextInDB.uuid,
+                    accountContextInDB.currency,
+                    accountContextInDB.accountName,
+                    accountContextInDB.balance,
+                    backing::updateAccountContext,
+                    accountContextInDB.contractAddress,
+                    accountContextInDB.symbol,
+                    accountContextInDB.unitExponent,
+                    accountContextInDB.ethAccountId,
+                    accountContextInDB.archived,
+                    accountContextInDB.blockHeight,
+                    accountContextInDB.nonce)
+        } else {
+            val token = config!!.token
+            ERC20AccountContext(
+                    uuid,
+                    ethCoinType,
+                    token.name,
+                    Balance.getZeroBalance(ethCoinType),
+                    backing::updateAccountContext,
+                    (token as ERC20Token).contractAddress,
+                    token.symbol,
+                    token.unitExponent,
+                    config.ethAccountId)
+        }
+    }
 
-        val privKey = HexUtils.toHex(rootNode.createChildNode(HdKeyPath.valueOf(path)).privateKey.privateKeyBytes)
-        return Credentials.create(privKey)
+    private fun accountFromUUID(uuid: UUID): ERC20Account {
+        val accountContext = createAccountContext(uuid)
+        val credentials = Credentials.create(Keys.deserialize(
+                secureStore.getDecryptedValue(accountContext.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
+
+        val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
+        val account = ERC20Account(accountContext, token, credentials, web3jServices)
+        accounts[account.id] = account
+        return account
     }
 
     companion object {

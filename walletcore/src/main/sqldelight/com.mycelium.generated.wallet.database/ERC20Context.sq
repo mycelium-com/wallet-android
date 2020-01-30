@@ -1,0 +1,48 @@
+import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.CryptoCurrency;
+import java.math.BigInteger;
+import java.util.UUID;
+
+-- Creates table for generic account context storage
+
+CREATE TABLE IF NOT EXISTS Erc20Context(
+    uuid TEXT AS UUID PRIMARY KEY NOT NULL,
+    nonce TEXT AS BigInteger NOT NULL,
+    contractAddress TEXT NOT NULL,
+    unitExponent INTEGER AS Int NOT NULL,
+    symbol TEXT NOT NULL,
+    ethAccountId TEXT AS UUID NOT NULL,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);
+
+selectAllERC20Contexts:
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+FROM Erc20Context AS ec
+  INNER JOIN AccountContext AS c
+  ON ec.uuid = c.uuid;
+
+selectERC20ContextByUUID:
+SELECT ec.uuid, c.currency, c.accountName, c.archived, c.balance, c.blockHeight, ec.nonce, ec.contractAddress, ec.unitExponent, ec.symbol, ec.ethAccountId
+FROM Erc20Context AS ec
+    INNER JOIN AccountContext AS c
+    ON ec.uuid = c.uuid
+        WHERE ec.uuid = (?);
+
+insert:
+INSERT INTO Erc20Context(uuid, nonce, contractAddress, unitExponent, symbol, ethAccountId)
+VALUES (?, ?, ?, ?, ?, ?);
+
+insertFullObject:
+INSERT INTO Erc20Context(uuid, nonce, contractAddress, unitExponent, symbol, ethAccountId)
+VALUES ?;
+
+update:
+UPDATE Erc20Context
+SET nonce = (?)
+WHERE uuid = (?);
+
+delete:
+DELETE FROM Erc20Context
+WHERE uuid = (?);

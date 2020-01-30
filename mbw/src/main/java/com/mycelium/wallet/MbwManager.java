@@ -150,6 +150,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
+import com.mycelium.wapi.wallet.erc20.ERC20Backing;
 import com.mycelium.wapi.wallet.erc20.ERC20Module;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
@@ -356,7 +357,7 @@ public class MbwManager {
         }
 
         SqlDriver driver = new AndroidSqliteDriver(WalletDB.Companion.getSchema(), _applicationContext, "wallet.db");
-        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+        db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(), AdaptersKt.getErc20ContextAdapter(),
                 AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
@@ -863,7 +864,8 @@ public class MbwManager {
         walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
 
-        walletManager.add(new ERC20Module(secureKeyValueStore, configuration.getEthHttpServices(), getMetadataStorage()));
+        walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking),
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage()));
         walletManager.init();
 
         return walletManager;

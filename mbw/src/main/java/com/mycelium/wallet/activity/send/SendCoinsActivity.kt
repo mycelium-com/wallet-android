@@ -49,6 +49,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.ColuAccount
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
@@ -74,7 +75,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         viewModel = when (account) {
             is ColuAccount -> viewModelProvider.get(SendColuViewModel::class.java)
             is SingleAddressAccount, is HDAccount -> viewModelProvider.get(SendBtcViewModel::class.java)
-            is EthAccount -> viewModelProvider.get(SendEthViewModel::class.java)
+            is EthAccount, is ERC20Account -> viewModelProvider.get(SendEthViewModel::class.java)
             else -> throw NotImplementedError()
         }
         if (!viewModel.isInitialized()) {

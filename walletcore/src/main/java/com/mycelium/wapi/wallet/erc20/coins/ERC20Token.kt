@@ -9,10 +9,11 @@ import org.web3j.crypto.WalletUtils
 
 class ERC20Token(name: String, symbol: String, unitExponent: Int, val contractAddress: String) : CryptoCurrency() {
     init {
+        id = name
+        family = Families.ETHEREUM
         this.name = name
         this.symbol = symbol
         this.unitExponent = unitExponent
-        family = Families.ETHEREUM
     }
 
     override fun parseAddress(addressString: String): GenericAddress? {
