@@ -1325,5 +1325,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_eth_buy_sell_description">Buy ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
-    <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently it is limited to local outgoing transactions only and will be improved in future releases.\n\nPlease use block explorer to observe the full transaction history of your ETH account.</string>
+    <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently, it is limited to local outgoing transactions only and will be improved in future releases.\n\nPlease use block explorer to observe the full transaction history of your ETH account.</string>
 </resources>
