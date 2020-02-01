@@ -1,6 +1,5 @@
 package com.mycelium.wallet
 
-import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
@@ -158,7 +157,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         val tempList = listOf(
                 ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
-                ERC20Token("EnjinCoin", "ENJ", 18, "0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c"))
+                ERC20Token("Binance", "BIN", 18, "0xF73C72c160B69a4E9258fB684Eb64b635074c703"),
+                ERC20Token("VeChain", "VEN", 18, "0x9E56f421a7D20903928797c8ddf3318a6B461a8e"),
+                ERC20Token("Polymath", "POLY", 18, "0x95957c12a4776Ce4ab5bA683E2C827A83A351aaF"),
+                ERC20Token("MyDFS", "MyDFS", 18, "0x3578AE28E8b6f5664BbE3e855DB209E9DabDC027"),
+                ERC20Token("MassToken", "MASS", 18, "0xE9c6860069409B6257CD6B0315E73071927ADC2A"),
+                ERC20Token("Mycelium", "MT", 18, "0xA1a6b1FF4d3D23fC1DD8D70FeeB77Db561AfdC8E"))
 
         for (token in tempList) {
             result[token.name] = token
