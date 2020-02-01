@@ -2,14 +2,14 @@ package com.mycelium.wallet.activity.receive
 
 import android.app.Application
 import android.app.NotificationManager
-import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import androidx.core.app.NotificationCompat
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AccountDisplayType
@@ -19,6 +19,7 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -85,12 +86,15 @@ class ReceiveCoinsModel(
             if (accountDisplayType == AccountDisplayType.COLU_ACCOUNT) {
                 uri.append("?amount=").append(amount.value!!.valueAsBigDecimal.stripTrailingZeros().toPlainString())
             } else {
-                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType)
+                val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType) ?: amount.value
 
                 if (value != null) {
                     uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
+                }
+                if (account.coinType is ERC20Token) {
+                    uri.append("&req-asset=${(account.coinType as ERC20Token).contractAddress}")
                 }
             }
         }
