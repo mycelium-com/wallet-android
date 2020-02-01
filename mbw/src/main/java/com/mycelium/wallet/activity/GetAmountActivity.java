@@ -201,7 +201,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
       // Max Button
       tvMaxAmount.setVisibility(View.VISIBLE);
-      tvHowIsItCalculated.setVisibility(View.VISIBLE);
+      tvHowIsItCalculated.setVisibility(_account.getCoinType().equals(Utils.getBtcCoinType()) ? View.VISIBLE : View.GONE);
       btMax.setVisibility(View.VISIBLE);
    }
 

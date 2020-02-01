@@ -10,9 +10,11 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
+import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
@@ -35,6 +37,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
+        if (calculateMaxSpendableAmount(null, null).equalZero()) {
+            throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
+        }
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val gasLimit = BigInteger.valueOf(500_000)
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
