@@ -65,6 +65,8 @@ class EthAccount(private val accountContext: EthAccountContext,
         accountContext.enabledTokens = enabledTokens
     }
 
+    fun isEnabledToken(tokenName: String) = enabledTokens.contains(tokenName)
+
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
     }
