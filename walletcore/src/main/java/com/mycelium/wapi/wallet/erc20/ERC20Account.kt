@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
@@ -171,6 +172,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         }
     }
 
+    // the following two wrappers are needed because we can't store balance in db with ERC20 coin type
+    // we only can store balance in db with coinType within cryptocurrencies list
+    // (refer to com.mycelium.wapi.wallet.coins.COIN for the list)
+    // but on different activities we need balance with ERC20 coin type, therefore we need to convert
+    // coinType -> basedOnCoinType (which is ETH for ERC20 and it's in the cryptocurrencies list)
+    // all the time we going to store it in db, and basedOnCoinType -> coinType when we read from db
     private fun saveBalance(balance: Balance) {
         accountContext.balance = Balance(Value.valueOf(basedOnCoinType, balance.confirmed.value),
                 Value.valueOf(basedOnCoinType, balance.pendingReceiving.value),

@@ -95,6 +95,18 @@ object Adapters {
             return value.toString()
         }
     }
+
+    val listAdapter = object : ColumnAdapter<List<String>, String> {
+        override fun decode(databaseValue: String): List<String> {
+            val mapper = ObjectMapper()
+            val type = mapper.typeFactory.constructCollectionType(ArrayList::class.java, String::class.java)
+            return mapper.readValue(databaseValue, type)
+        }
+
+        override fun encode(value: List<String>): String {
+            return ObjectMapper().writeValueAsString(value)
+        }
+    }
 }
 
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
@@ -104,7 +116,7 @@ val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter)
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)
-val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter)
+val ethContextAdapter = EthContext.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.listAdapter)
 
 val erc20ContextAdapter = Erc20Context.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.uuidAdapter)
 

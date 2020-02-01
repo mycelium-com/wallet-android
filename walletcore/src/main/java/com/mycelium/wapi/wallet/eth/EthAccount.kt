@@ -29,7 +29,6 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
 
-
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
@@ -41,12 +40,19 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
     private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    var client: Web3j = buildCurrentEndpoint()
+    var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList() ?: mutableListOf()
+    private var client: Web3j = buildCurrentEndpoint()
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
-    var enabledTokens: MutableList<String> = mutableListOf()
-    fun removeEnabledToken(tokenName: String) = enabledTokens.remove(tokenName)
 
-    fun addEnabledToken(tokenName: String) = enabledTokens.add(tokenName)
+    fun removeEnabledToken(tokenName: String) {
+        enabledTokens.remove(tokenName)
+        accountContext.enabledTokens = enabledTokens
+    }
+
+    fun addEnabledToken(tokenName: String) {
+        enabledTokens.add(tokenName)
+        accountContext.enabledTokens = enabledTokens
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -358,6 +364,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 }
+
 
 fun ECKeyPair.toUUID(): UUID = UUID(BitUtils.uint64ToLong(publicKey.toByteArray(), 8), BitUtils.uint64ToLong(
         publicKey.toByteArray(), 16))

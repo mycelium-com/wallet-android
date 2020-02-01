@@ -281,6 +281,8 @@ public class AddAccountActivity extends Activity {
 
         @Override
         protected void onPostExecute(UUID account) {
+            EthAccount ethAccount = (EthAccount) EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false)).get(0);
+            ethAccount.addEnabledToken(token.getName());
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
         }

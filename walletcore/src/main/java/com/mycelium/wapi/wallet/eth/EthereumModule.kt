@@ -151,6 +151,7 @@ class EthereumModule(
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                     backing::updateAccountContext,
+                    accountContextInDB.enabledTokens,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
                     accountContextInDB.nonce)
