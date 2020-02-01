@@ -137,7 +137,8 @@ public class AddAccountActivity extends Activity {
 
         boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
         if (!canCreateAccount) {
-            _toaster.toast(R.string.single_eth_account, false);
+            // TODO replace with string res
+            _toaster.toast("You can only have one unused HD Ethereum Account.", false);
             return;
         }
 
@@ -182,6 +183,7 @@ public class AddAccountActivity extends Activity {
     private List<String> getEthAccountsForView(List<WalletAccount<?>> accounts) {
         List<String> result = new ArrayList<>();
         String denominatedValue;
+        Collections.sort(accounts, (a1, a2) -> Integer.compare(((EthAccount) a1).getAccountIndex(), ((EthAccount) a2).getAccountIndex()));
         for (WalletAccount account : accounts) {
             denominatedValue = ValueExtensionsKt.toStringWithUnit(account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
             result.add(account.getLabel() + " (" + denominatedValue + ")");

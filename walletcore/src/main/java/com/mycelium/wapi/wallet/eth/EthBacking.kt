@@ -20,9 +20,10 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: GenericBac
                        balance: Balance,
                        blockHeight: Int,
                        nonce: BigInteger,
-                       enabledTokens: List<String>? ->
-                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext, enabledTokens,
-                        archived, blockHeight, nonce)
+                       enabledTokens: List<String>?,
+                       accountIndex: Int ->
+                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
+                        accountIndex, enabledTokens, archived, blockHeight, nonce)
             })
             .executeAsList()
 
@@ -34,15 +35,16 @@ open class EthBacking(walletDB: WalletDB, private val generalBacking: GenericBac
                        balance: Balance,
                        blockHeight: Int,
                        nonce: BigInteger,
-                       enabledTokens: List<String>? ->
-                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext, enabledTokens,
-                        archived, blockHeight, nonce)
+                       enabledTokens: List<String>?,
+                       accountIndex: Int ->
+                EthAccountContext(uuid, currency, accountName, balance, this::updateAccountContext,
+                        accountIndex, enabledTokens, archived, blockHeight, nonce)
             })
             .executeAsOneOrNull()
 
     override fun createAccountContext(context: EthAccountContext) {
         generalBacking.createAccountContext(context)
-        ethQueries.insert(context.uuid, context.nonce, context.enabledTokens)
+        ethQueries.insert(context.uuid, context.nonce, context.enabledTokens, context.accountIndex)
     }
 
     override fun updateAccountContext(context: EthAccountContext) {

@@ -43,6 +43,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
+    val accountIndex: Int
+        get() = accountContext.accountIndex
+
     lateinit var client: Web3j
 
     init {
@@ -66,6 +69,10 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     fun isEnabledToken(tokenName: String) = enabledTokens.contains(tokenName)
+
+    fun hasHadActivity(): Boolean {
+        return accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")

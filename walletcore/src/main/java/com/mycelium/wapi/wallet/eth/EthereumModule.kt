@@ -57,7 +57,17 @@ class EthereumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig && accounts.isEmpty())
+    private fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MasterSeedManager.MASTER_SEED_ID)
+
+    /**
+     * To create an additional HD account from the master seed, the master seed must be present and
+     * all existing master seed accounts must have had transactions (no gap accounts)
+     */
+    private fun canCreateAdditionalBip44Account(): Boolean =
+            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
+                    .all { it.hasHadActivity() }
+
+    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig && canCreateAdditionalBip44Account())
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
@@ -117,7 +127,7 @@ class EthereumModule(
     private fun deriveKey(): Credentials {
         val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val path = "m/44'/60'/0'/0/0"
+        val path = "m/44'/60'/${getCurrentBip44Index() + 1}'/0/0"
 
         val privKey = HexUtils.toHex(rootNode.createChildNode(HdKeyPath.valueOf(path)).privateKey.privateKeyBytes)
         val credentials = Credentials.create(privKey)
@@ -151,6 +161,7 @@ class EthereumModule(
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                     backing::updateAccountContext,
+                    accountContextInDB.accountIndex,
                     accountContextInDB.enabledTokens,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
@@ -159,11 +170,18 @@ class EthereumModule(
             EthAccountContext(
                     uuid,
                     coinType,
-                    "Ethereum",
+                    "Ethereum ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
-                    backing::updateAccountContext)
+                    backing::updateAccountContext,
+                    getCurrentBip44Index() + 1)
         }
     }
+
+    private fun getCurrentBip44Index() = accounts.values
+            .filter { it.isDerivedFromInternalMasterseed }
+            .maxBy { it.accountIndex }
+            ?.accountIndex
+            ?: -1
 
     companion object {
         const val ID: String = "Ethereum"
