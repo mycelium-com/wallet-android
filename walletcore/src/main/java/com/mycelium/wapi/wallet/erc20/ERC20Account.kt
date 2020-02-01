@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mycelium.net.ServerEndpointType
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
@@ -13,6 +14,8 @@ import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
@@ -21,24 +24,39 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
         setAllowedEndpointTypes(ServerEndpointType.ALL)
     }
+    private val logger = Logger.getLogger(ERC20Account::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) }
     var client: Web3j = buildCurrentEndpoint()
     private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
 
     override fun setAllowZeroConfSpending(b: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // TODO("not implemented")
     }
 
-    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?): GenericTransaction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
+        val gasPrice = (fee as FeePerKbFee).feePerKb.value
+        val gasLimit = BigInteger.valueOf(500_000)
+        return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 
-    override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+        (request as Erc20Transaction).txBinary = request.toString().toByteArray()
     }
 
-    override fun broadcastTx(tx: GenericTransaction?): BroadcastResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+        val erc20Tx = (tx as Erc20Transaction)
+        try {
+            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, erc20Tx.gasPrice, erc20Tx.gasLimit)
+            val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
+            if (!result.isStatusOK) {
+                return BroadcastResult("Unable to send transaction.", BroadcastResultType.REJECTED)
+            }
+            tx.txHash = result.transactionHash.toByteArray()
+            return BroadcastResult(BroadcastResultType.SUCCESS)
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error sending ERC20 transaction: ${e.localizedMessage}")
+            return BroadcastResult("Unable to send transaction: ${e.localizedMessage}", BroadcastResultType.REJECTED)
+        }
     }
 
     override fun getReceiveAddress() = receivingAddress
@@ -63,9 +81,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getTransactionSummaries(offset: Int, limit: Int) = emptyList<GenericTransactionSummary>()
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> =
+            mutableListOf()
 
     override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -149,6 +166,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             saveBalance(Balance(Value.valueOf(coinType, result.get()), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType)))
             true
         } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error synchronizing ERC20 account: ${e.localizedMessage}")
             false
         }
     }

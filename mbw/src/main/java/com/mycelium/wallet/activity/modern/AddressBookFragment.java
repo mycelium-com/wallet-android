@@ -172,7 +172,7 @@ public class AddressBookFragment extends Fragment {
             String name = mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
             Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
             if (account.getReceiveAddress() != null &&
-                    selectedAccount.getCoinType().equals(account.getCoinType())
+                    selectedAccount.getBasedOnCoinType().equals(account.getCoinType())
             ) {
                 entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
@@ -211,7 +211,7 @@ public class AddressBookFragment extends Fragment {
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = mbwManager.getSelectedAccount();
         for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
-            if (e.getKey().getCoinType().equals(account.getCoinType())) {
+            if (e.getKey().getCoinType().equals(account.getBasedOnCoinType())) {
                 entries.add(new Entry(e.getKey(), e.getValue()));
             }
         }

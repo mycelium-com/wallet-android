@@ -159,10 +159,10 @@ public class SignTransactionActivity extends Activity {
                Intent ret = new Intent();
                ret.putExtra(SendCoinsActivity.SIGNED_TRANSACTION, signedTransaction);
                setResult(RESULT_OK, ret);
-               SignTransactionActivity.this.finish();
             } else {
                setResult(RESULT_CANCELED);
             }
+            SignTransactionActivity.this.finish();
          }
       };
       signingTask.execute();
