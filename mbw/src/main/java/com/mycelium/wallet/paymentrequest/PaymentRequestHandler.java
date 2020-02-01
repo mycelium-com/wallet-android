@@ -207,7 +207,6 @@ public class PaymentRequestHandler {
       return trustStore;
    }
 
-
    public boolean sendResponse(final Transaction signedTransaction, final Address refundAddress) {
       if (hasValidPaymentRequest() && !Strings.isNullOrEmpty(paymentRequestInformation.getPaymentDetails().payment_url)) {
          new AsyncTask<Void, Void, AsyncResultAck>() {

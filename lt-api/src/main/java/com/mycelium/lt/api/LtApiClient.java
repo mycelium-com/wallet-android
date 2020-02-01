@@ -74,7 +74,7 @@ public class LtApiClient implements LtApi {
       return ba.toByteArray();
    }
 
-   private ServerEndpoints<HttpEndpoint> _serverEndpoints;
+   private ServerEndpoints _serverEndpoints;
    private ObjectMapper _objectMapper;
    private Logger _logger;
 

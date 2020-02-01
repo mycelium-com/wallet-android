@@ -171,6 +171,8 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
+import kotlin.jvm.Synchronized;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -197,7 +199,6 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -283,7 +284,7 @@ public class MbwManager {
 
     private WalletConfiguration configuration;
 
-    private Handler mainLoopHandler;
+    private final Handler mainLoopHandler;
     private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
@@ -295,16 +296,11 @@ public class MbwManager {
 
         // Preferences
         SharedPreferences preferences = getPreferences();
-
-        updateConfig();
+        configuration = new WalletConfiguration(preferences, getNetwork());
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
-        mainLoopHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                _eventBus.register(MbwManager.this);
-            }
-        });
+        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
+        mainLoopHandler.post(() -> _eventBus.register(MbwManager.this));
 
         // init tor - if needed
         try {
@@ -316,7 +312,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
-        configuration.setServerListChangedListener(_wapi);
+        configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -380,7 +376,6 @@ public class MbwManager {
 
         migrate();
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
         _walletManager.addObserver(_eventTranslator);
 
@@ -393,6 +388,9 @@ public class MbwManager {
         if (_walletManager.getAssetTypes().size() != 0) {
             _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
         }
+
+        //should be called after all accounts are loaded and managers created only
+        updateConfig();
 
         _versionManager.initBackgroundVersionChecker();
 
@@ -485,10 +483,6 @@ public class MbwManager {
     }
 
     public void updateConfig() {
-        if (configuration == null) {
-            configuration = new WalletConfiguration(getPreferences(), getNetwork());
-        }
-
         configuration.updateConfig();
     }
 
@@ -861,8 +855,10 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking),
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage()));
@@ -920,9 +916,10 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
-
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }

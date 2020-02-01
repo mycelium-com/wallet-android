@@ -1,20 +1,18 @@
 package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
-import com.mycelium.net.ServerEndpointType
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
-import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
-import org.web3j.utils.Convert
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
@@ -23,14 +21,22 @@ import java.util.logging.Logger
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    private val credentials: Credentials? = null,
-                   web3jServices: List<HttpService>) : WalletAccount<EthAddress> {
-    private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
-        setAllowedEndpointTypes(ServerEndpointType.ALL)
-    }
+                   endpoints: List<HttpEndpoint>) : WalletAccount<EthAddress> {
+    private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(ERC20Account::javaClass.name)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) }
-    var client: Web3j = buildCurrentEndpoint()
-    private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+
+    lateinit var client: Web3j
+
+    init {
+        updateClient()
+    }
+
+    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
+
+    private fun updateClient() {
+        client = buildCurrentEndpoint()
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")

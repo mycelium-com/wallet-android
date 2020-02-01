@@ -40,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 import com.google.api.client.json.JsonFactory;
@@ -493,20 +492,14 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public List<Tx.Json> getTransactions(int offset, int limit) {
-         Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
-                            + " ORDER BY height desc limit ? offset ?",
-                    new String[]{Integer.toString(limit), Integer.toString(offset)});
+         try (Cursor cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
+                         + " ORDER BY height desc, time desc limit ? offset ?",
+                 new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
-            }
-         } finally {
-            if (cursor != null) {
-               cursor.close();
             }
          }
          return result;
@@ -540,7 +533,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          List<Tx.Json> result = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                          + " WHERE time >= ?"
-                         + " ORDER BY height desc",
+                         + " ORDER BY height desc, time desc",
                  new String[]{Long.toString(since / 1000)})) {
 
             while (cursor.moveToNext()) {
@@ -846,6 +839,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          return gson.toJson(addresses);
       }
+
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column

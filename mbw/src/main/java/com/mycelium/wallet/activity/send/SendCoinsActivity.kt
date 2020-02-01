@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.send
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
@@ -41,19 +42,18 @@ import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.wallet.BroadcastResult
-import com.mycelium.wapi.wallet.BroadcastResultType
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.WalletAccount
+import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.send_coins_activity.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     private lateinit var viewModel: SendCoinsViewModel
@@ -270,7 +270,54 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     }
 
     fun onClickSend() {
-        viewModel.sendTransaction(this)
+        if (isPossibleDuplicateSending()) {
+            AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.possible_duplicate_warning_title))
+                    .setMessage(getString(R.string.possible_duplicate_warning_desc))
+                    .setPositiveButton(android.R.string.yes) { _: DialogInterface?, _: Int -> viewModel.sendTransaction(this) }
+                    .setNegativeButton(android.R.string.no) { _: DialogInterface?, _: Int -> finish() }
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show()
+        } else {
+            viewModel.sendTransaction(this)
+        }
+    }
+
+    /**
+     * Checks whether the last outgoing transaction that was sent recently (within 10 minutes)
+     * has the same amount and receiving address to warn a user about possible duplicate sending.
+     */
+    private fun isPossibleDuplicateSending(): Boolean {
+        // we could have used getTransactionsSince here instead of getTransactionSummaries
+        // but for accounts with large number of transactions (>500) it would introduce quite delay
+        // so we take last 25 transactions as a sort of heuristic
+        val summaries: List<GenericTransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
+        if (summaries.isEmpty()) {
+            return false // user has no transactions
+        }
+        if (summaries[0].timestamp * 1000 < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(10)) {
+            return false // latest transaction is too old
+        }
+        // find latest outgoing transaction
+        var outgoingTx: GenericTransactionSummary? = null
+        for (summary in summaries) {
+            if (!summary.isIncoming) {
+                outgoingTx = summary
+                break
+            }
+        }
+        if (outgoingTx == null) {
+            return false // no outgoing transactions
+        }
+        // extract sent amount from the transaction
+        var outgoingTxAmount = zeroValue(viewModel.getAccount().coinType)
+        for (output in outgoingTx.outputs) {
+            if (output.address == viewModel.getReceivingAddress().value) {
+                outgoingTxAmount = output.value
+            }
+        }
+        return outgoingTx.destinationAddresses.size > 0 && outgoingTx.destinationAddresses[0] == viewModel.getReceivingAddress().value &&
+                outgoingTxAmount == viewModel.getAmount().value
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

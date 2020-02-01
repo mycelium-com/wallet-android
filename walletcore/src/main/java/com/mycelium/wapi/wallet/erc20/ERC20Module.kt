@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.erc20
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
@@ -15,13 +16,12 @@ import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
-import org.web3j.protocol.http.HttpService
 import java.util.*
 
 class ERC20Module(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<ERC20AccountContext>,
-        private val web3jServices: List<HttpService>,
+        private val web3jServices: List<HttpEndpoint>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
     private val accounts = mutableMapOf<UUID, ERC20Account>()

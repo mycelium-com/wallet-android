@@ -8,14 +8,14 @@ import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
-import com.mycelium.wapi.api.ServerListChangedListener
+import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.web3j.protocol.http.HttpService
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -86,7 +86,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
-                    val ethServers = if (network.isTestnet)
+                    val ethServersFromResponse = if (network.isTestnet)
                         myceliumNodesResponse?.ethTestnet?.ethServers?.primary?.map { it.url }?.toSet()
                     else
                         myceliumNodesResponse?.ethMainnet?.ethServers?.primary?.map { it.url }?.toSet()
@@ -94,8 +94,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
-                    ethServers?.let {
-                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServers)
+
+                    val oldElectrum = electrumServers
+                    val oldEth = ethServers
+                    ethServersFromResponse?.let {
+                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServersFromResponse)
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
@@ -110,7 +113,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    if (oldElectrum != electrumServers){
+                        serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    }
+
+                    if (oldEth != ethServers) {
+                        for (serverEthListChangedListener in serverEthListChangedListeners) {
+                            serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
+                        }
+                    }
                 }
             } catch (_: Exception) {}
         }
@@ -150,7 +161,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         }
     }
 
-    fun getEthHttpServices():List<HttpService> = ethServers.map { HttpService(it) }
+    //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
+    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
+
+    private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
+    private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): MutableMap<String, ERC20Token> {
         val result = mutableMapOf<String, ERC20Token>()
@@ -169,11 +184,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         }
         return result
     }
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
+        this.serverElectrumListChangedListener = serverElectrumListChangedListener
+    }
 
-    private var serverListChangedListener: ServerListChangedListener? = null
-
-    fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
-        this.serverListChangedListener = serverListChangedListener
+    fun addEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
+        this.serverEthListChangedListeners.add(servereEthListChangedListener)
     }
 
     companion object {

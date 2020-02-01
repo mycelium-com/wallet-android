@@ -120,6 +120,7 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import org.ocpsoft.prettytime.Duration;
@@ -947,7 +948,8 @@ public class Utils {
    public static boolean isAllowedForLocalTrader(WalletAccount account) {
       if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
-              || account instanceof ColuAccount) {
+              || account instanceof ColuAccount
+              || account instanceof EthAccount) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
