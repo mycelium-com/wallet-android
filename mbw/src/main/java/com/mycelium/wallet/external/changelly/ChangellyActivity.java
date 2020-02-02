@@ -147,16 +147,7 @@ public class ChangellyActivity extends AppCompatActivity {
             @Override
             public void onSelect(RecyclerView.Adapter adapter, int position) {
                 CurrencyAdapter.Item item = currencyAdapter.getItem(position);
-                if (item != null) {
-                    fromCurrency.setText(item.currency);
-                    fromValue.setText(null);
-                    minAmount = 0.0;
-                    toValue.setText("");
-
-                    // load min amount
-                    changellyAPIService.getMinAmount(item.currency, BTC)
-                            .enqueue(new GetMinCallback(item.currency));
-                }
+                selectCurrencyItem(item);
             }
         });
         List<WalletAccount<?>> toAccounts = new ArrayList<>();
@@ -191,6 +182,9 @@ public class ChangellyActivity extends AppCompatActivity {
                     }
                 }
                 currencyAdapter.setItems(itemList);
+                if (!itemList.isEmpty()) {
+                    selectCurrencyItem(itemList.get(0));
+                }
                 setLayout(ChangellyUITypes.Main);
             }
 
@@ -199,6 +193,19 @@ public class ChangellyActivity extends AppCompatActivity {
                 toast("Can't load currencies: " + t);
             }
         });
+    }
+
+    private void selectCurrencyItem(CurrencyAdapter.Item item) {
+        if (item != null) {
+            fromCurrency.setText(item.currency);
+            fromValue.setText(null);
+            minAmount = 0.0;
+            toValue.setText("");
+
+            // load min amount
+            changellyAPIService.getMinAmount(item.currency, BTC)
+                    .enqueue(new GetMinCallback(item.currency));
+        }
     }
 
     private void toast(String msg) {
@@ -333,7 +340,7 @@ public class ChangellyActivity extends AppCompatActivity {
             return false;
         }
 
-        if (minAmount == 0) {
+        if (minAmount == null || minAmount == 0) {
             btTakeOffer.setEnabled(false);
             toast("Please wait while loading minimum amount information.");
             return false;
