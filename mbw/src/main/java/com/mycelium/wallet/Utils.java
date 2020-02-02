@@ -131,8 +131,10 @@ import org.ocpsoft.prettytime.units.Second;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -800,6 +802,16 @@ public class Utils {
          }
       }
       return null;
+   }
+
+   public static List<WalletAccount> getLinkedAccounts(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      List<WalletAccount> result = new ArrayList<>();
+      for (WalletAccount walletAccount : accounts) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            result.add(walletAccount);
+         }
+      }
+      return result;
    }
 
    public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {

@@ -177,7 +177,7 @@ class EthereumModule(
         }
     }
 
-    private fun getCurrentBip44Index() = accounts.values
+    fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed }
             .maxBy { it.accountIndex }
             ?.accountIndex
@@ -194,6 +194,7 @@ class EthereumModule(
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
+fun WalletManager.getActiveMasterseedEthAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is EthAccount && it.isDerivedFromInternalMasterseed }
 
 interface ServerEthListChangedListener {
     fun serverListChanged(newEndpoints: Array<HttpEndpoint>)

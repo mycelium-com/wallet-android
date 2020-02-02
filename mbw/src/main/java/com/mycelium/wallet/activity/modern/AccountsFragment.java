@@ -114,12 +114,17 @@ import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
+import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.EthAccount;
+import com.mycelium.wapi.wallet.eth.EthereumModule;
+import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -260,8 +265,14 @@ public class AccountsFragment extends Fragment {
 
     private void deleteAccount(final WalletAccount accountToDelete) {
         checkNotNull(accountToDelete);
-        final WalletAccount linkedAccount = getLinkedAccount(accountToDelete);
-
+        final List<WalletAccount> linkedAccounts = new ArrayList<>();
+        if (accountToDelete instanceof EthAccount) {
+            linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
+        } else if (accountToDelete instanceof ERC20Account) {
+            linkedAccounts.add(getLinkedEthAccount(accountToDelete));
+        } else {
+            linkedAccounts.add(getLinkedAccount(accountToDelete));
+        }
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
         keepAddrCheckbox.setText(getString(R.string.keep_account_address));
@@ -269,7 +280,7 @@ public class AccountsFragment extends Fragment {
 
         final AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
         deleteDialog.setTitle(R.string.delete_account_title);
-        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccount)));
+        deleteDialog.setMessage(Html.fromHtml(createDeleteDialogText(accountToDelete, linkedAccounts)));
 
         // add checkbox only for SingleAddressAccounts and only if a private key is present
         final boolean hasPrivateData = (accountToDelete instanceof ExportableAccount
@@ -298,8 +309,8 @@ public class AccountsFragment extends Fragment {
                     // Set the message. There are four combinations, with and without label, with and without BTC amount.
                     String label = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
                     int labelCount = 1;
-                    if (linkedAccount != null) {
-                        label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                    if (!linkedAccounts.isEmpty()) {
+                        label += ", " + _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
                         labelCount++;
                     }
                     String message;
@@ -412,23 +423,26 @@ public class AccountsFragment extends Fragment {
                     // account has no private data - dont make a fuzz about it and just delete it
                     walletManager.deleteAccount(accountToDelete.getId());
                     _storage.deleteAccountMetadata(accountToDelete.getId());
-                    //Check if this SingleAddress account is related with ColuAccount
-                    WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
-                    if (linkedColuAccount != null) {
-                        walletManager.deleteAccount(linkedColuAccount.getId());
-                        _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                    // remove linked accounts if necessary
+                    if (accountToDelete instanceof EthAccount) {
+                        for (WalletAccount walletAccount : getLinkedERC20Accounts(accountToDelete)) {
+                            walletManager.deleteAccount(walletAccount.getId());
+                            _storage.deleteAccountMetadata(walletAccount.getId());
+                        }
+                    } else if (accountToDelete instanceof ERC20Account) {
+                        EthAccount ethAccount = getLinkedEthAccount(accountToDelete);
+                        ethAccount.removeEnabledToken(accountToDelete.getCoinType().getName());
+                    } else {
+                        //Check if this SingleAddress account is related with ColuAccount
+                        WalletAccount linkedColuAccount = Utils.getLinkedAccount(accountToDelete, walletManager.getAccounts());
+                        if (linkedColuAccount != null) {
+                            walletManager.deleteAccount(linkedColuAccount.getId());
+                            _storage.deleteAccountMetadata(linkedColuAccount.getId());
+                        }
                     }
                     finishCurrentActionMode();
                     eventBus.post(new AccountChanged(accountToDelete.getId()));
                     _toaster.toast(R.string.account_deleted, false);
-                }
-            }
-
-            private Value getBalance(WalletAccount account) {
-                if (account.isArchived()) {
-                    return null;
-                } else {
-                    return account.getAccountBalance().confirmed;
                 }
             }
 
@@ -443,24 +457,34 @@ public class AccountsFragment extends Fragment {
         deleteDialog.setNegativeButton(R.string.no, null).show();
     }
 
+    private EthAccount getLinkedEthAccount(WalletAccount accountToDelete) {
+        return (EthAccount) Utils.getLinkedAccount(accountToDelete, EthereumModuleKt.getEthAccounts(walletManager));
+    }
+
+    private List<WalletAccount> getLinkedERC20Accounts(WalletAccount accountToDelete) {
+        return Utils.getLinkedAccounts(accountToDelete, ERC20ModuleKt.getERC20Accounts(walletManager));
+    }
+
     @NonNull
-    private String createDeleteDialogText(WalletAccount accountToDelete, WalletAccount linkedAccount) {
+    private String createDeleteDialogText(WalletAccount accountToDelete, List<WalletAccount> linkedAccounts) {
         String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
         String dialogText;
 
         if (accountToDelete.isActive()) {
-            dialogText = getActiveAccountDeleteText(accountToDelete, linkedAccount, accountName);
+            dialogText = getActiveAccountDeleteText(accountToDelete, linkedAccounts, accountName);
         } else {
-            dialogText = getArchivedAccountDeleteText(linkedAccount, accountName);
+            dialogText = getArchivedAccountDeleteText(linkedAccounts, accountName);
         }
         return dialogText;
     }
 
     @NonNull
-    private String getArchivedAccountDeleteText(WalletAccount linkedAccount, String accountName) {
+    private String getArchivedAccountDeleteText(List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+        if (linkedAccounts.size() > 1) {
+            dialogText = getString(R.string.delete_archived_account_message_s, accountName);
+        } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_archived_account_message, accountName, linkedAccountName);
         } else {
             dialogText = getString(R.string.delete_archived_account_message_s, accountName);
@@ -469,15 +493,29 @@ public class AccountsFragment extends Fragment {
     }
 
     @NonNull
-    private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
+    private String getActiveAccountDeleteText(WalletAccount accountToDelete, List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(accountToDelete.getAccountBalance());
         String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
 
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+        // TODO sort linkedAccounts for visible only
+        if (linkedAccounts.size() > 1 || ((accountToDelete instanceof EthAccount) && linkedAccounts.size() > 0)) {
+            StringBuilder linkedAccountsString = new StringBuilder();
+            for (WalletAccount linkedAccount : linkedAccounts) {
+                Balance linkedBalance = linkedAccount.getAccountBalance();
+                String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
+                linkedAccountsString.append("<b>").append(linkedAccountName).append("</b>").append(" holding ")
+                        .append("<b>").append(linkedValueString).append("</b>").append(", ");
+            }
+            linkedAccountsString.deleteCharAt(linkedAccountsString.length() - 1);
+            linkedAccountsString = linkedAccountsString.replace(linkedAccountsString.length() - 1, linkedAccountsString.length(), "?");
+            dialogText = getString(R.string.delete_accounts_message, accountName, valueString,
+                    linkedAccountsString) + "\n" + getString(R.string.both_eth_and_tokens_will_deleted, accountName);
+        } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible() && !(accountToDelete instanceof ERC20Account)) {
+            Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
+            String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
                     getString(R.string.both_rmc_will_deleted, accountName, linkedAccountName);
@@ -560,7 +598,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -596,7 +634,16 @@ public class AccountsFragment extends Fragment {
             final HDAccount HDAccount = (HDAccount) account;
             BitcoinHDModule bitcoinHDModule = (BitcoinHDModule) walletManager.getModuleById(BitcoinHDModule.ID);
             if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
-                //only allow to remove unused HD acounts from the view
+                //only allow to remove unused HD accounts from the view
+                menus.add(R.menu.record_options_menu_hide_unused);
+            }
+        }
+
+        if (account.isActive() && account instanceof EthAccount && EthereumModuleKt.getActiveMasterseedEthAccounts(walletManager).size() > 1) {
+            final EthAccount ethAccount = (EthAccount) account;
+            EthereumModule ethereumModule = (EthereumModule) walletManager.getModuleById(EthereumModule.ID);
+            if (!ethAccount.hasHadActivity() && ethAccount.getAccountIndex() == ethereumModule.getCurrentBip44Index()) {
+                //only allow to remove unused HD accounts from the view
                 menus.add(R.menu.record_options_menu_hide_unused);
             }
         }
@@ -883,11 +930,12 @@ public class AccountsFragment extends Fragment {
     }
 
     /**
-     * Account is protected if after removal no masterseed accounts would stay active, so it would not be possible to select an account
+     * Account is protected if after removal no masterseed accounts of the same coin type would stay active,
+     * so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        // accounts not derived from master seed and ethereum account are not protected
-        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
+        // accounts not derived from masterseed are not protected
+        if (!toRemove.isDerivedFromInternalMasterseed()) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
@@ -897,7 +945,6 @@ public class AccountsFragment extends Fragment {
                 cnt++;
             }
         }
-        // If we have more than one master-seed derived account of the same type as toRemove, we can remove it
         return cnt <= 1;
     }
 
@@ -911,9 +958,15 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        if (account instanceof HDAccount) {
-            final HDAccount hdAccount = (HDAccount) account;
-            if (hdAccount.hasHadActivity() && hdAccount.isDerivedFromInternalMasterseed()) {
+
+        if (account instanceof HDAccount || account instanceof EthAccount) {
+            boolean hasHadActivity;
+            if (account instanceof HDAccount) {
+                hasHadActivity = ((HDAccount) account).hasHadActivity();
+            } else {
+                hasHadActivity = ((EthAccount) account).hasHadActivity();
+            }
+            if (hasHadActivity && account.isDerivedFromInternalMasterseed()) {
                 // this hdAccount is used, we don't allow hiding it
                 _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
                 return;
@@ -922,10 +975,10 @@ public class AccountsFragment extends Fragment {
             runPinProtected(new Runnable() {
                 @Override
                 public void run() {
-                    _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
+                    _mbwManager.getWalletManager(false).deleteAccount(account.getId());
                     // in case user had labeled the account, delete the stored name
-                    _storage.deleteAccountMetadata(hdAccount.getId());
-                    eventBus.post(new AccountChanged(hdAccount.getId()));
+                    _storage.deleteAccountMetadata(account.getId());
+                    eventBus.post(new AccountChanged(account.getId()));
                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                     //we dont want to show the context menu for the automatically selected account
                     accountListAdapter.setFocusedAccountId(null);

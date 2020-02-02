@@ -213,6 +213,7 @@ public class AddAccountActivity extends Activity {
     }
 
     private AlertDialog.Builder getSingleChoiceDialog(String title, ArrayAdapter<String> arrayAdapter) {
+        selectedIndex = 0;
         AlertDialog.Builder dialogBuilder;
         dialogBuilder = new AlertDialog.Builder(AddAccountActivity.this);
         dialogBuilder.setIcon(R.drawable.ic_launcher);
