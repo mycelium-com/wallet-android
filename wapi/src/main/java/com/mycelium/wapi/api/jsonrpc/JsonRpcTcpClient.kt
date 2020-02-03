@@ -198,6 +198,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
     @Throws(RpcResponseException::class)
     fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
+        if (!waitForConnected(timeout)) {
+            throw RpcResponseException("Timeout")
+        }
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
 
@@ -241,8 +244,23 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
+    fun waitForConnected(timeout: Long): Boolean {
+        var timeWatingForConnectedState = 0L
+        while (!isConnected.get()) {
+            sleep(WAITING_FOR_CONNECTED_INTERVAL)
+            timeWatingForConnectedState += WAITING_FOR_CONNECTED_INTERVAL
+            if (timeWatingForConnectedState >= timeout) {
+                return false
+            }
+        }
+        return true
+    }
+
     @Throws(RpcResponseException::class)
     fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
+        if (!waitForConnected(timeout)) {
+            throw RpcResponseException("Timeout")
+        }
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
@@ -322,6 +340,10 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
     // Send ping message. It is expected to be executed in the dedicated timer thread
     private fun sendPingMessage() {
+        if (!waitForConnected(MAX_PING_RESPONSE_TIMEOUT)) {
+            closeConnection()
+            return
+        }
         var pong: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut("server.ping", RpcMapParams(emptyMap<String, String>())).apply {
@@ -339,7 +361,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
 
         if (!latch.await(MAX_PING_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
-            logger.logInfo("Couldn't get reply on server.ping for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
+            logger.logInfo("Couldn't get reply on server.ping with id=$requestId for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
             // Force socket close. It will cause reconnect to another server
             closeConnection()
             return
@@ -371,5 +393,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
         private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(10)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(20)
+        private val WAITING_FOR_CONNECTED_INTERVAL = 300L
     }
 }
