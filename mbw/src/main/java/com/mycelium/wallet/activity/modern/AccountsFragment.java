@@ -465,6 +465,10 @@ public class AccountsFragment extends Fragment {
         return Utils.getLinkedAccounts(accountToDelete, ERC20ModuleKt.getERC20Accounts(walletManager));
     }
 
+    private List<WalletAccount> getActiveLinkedERC20Accounts(WalletAccount accountToDelete) {
+        return Utils.getLinkedAccounts(accountToDelete, ERC20ModuleKt.getActiveERC20Accounts(walletManager));
+    }
+
     @NonNull
     private String createDeleteDialogText(WalletAccount accountToDelete, List<WalletAccount> linkedAccounts) {
         String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(accountToDelete.getId());
@@ -897,9 +901,20 @@ public class AccountsFragment extends Fragment {
 
     private void activate(WalletAccount account) {
         account.activateAccount();
-        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-        if (linkedAccount != null) {
-            linkedAccount.activateAccount();
+        if (account instanceof EthAccount) {
+            for (WalletAccount walletAccount : getLinkedERC20Accounts(account)) {
+                walletAccount.activateAccount();
+            }
+        } else if (account instanceof ERC20Account) {
+            EthAccount ethAccount = getLinkedEthAccount(account);
+            if (ethAccount.isArchived()) {
+                ethAccount.activateAccount();
+            }
+        } else {
+            WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+            if (linkedAccount != null) {
+                linkedAccount.activateAccount();
+            }
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
@@ -989,21 +1004,34 @@ public class AccountsFragment extends Fragment {
     }
 
     private void archive(final WalletAccount account) {
-        final WalletAccount linkedAccount = getLinkedAccount(account);
+        final List<WalletAccount> linkedAccounts = new ArrayList<>();
+        if (account instanceof EthAccount) {
+            linkedAccounts.addAll(getActiveLinkedERC20Accounts(account));
+        } else if (!(account instanceof ERC20Account)) {
+            linkedAccounts.add(getLinkedAccount(account));
+        }
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
-                .setMessage(Html.fromHtml(createArchiveDialogText(account,linkedAccount)))
+                .setMessage(Html.fromHtml(createArchiveDialogText(account, linkedAccounts)))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface arg0, int arg1) {
                         account.archiveAccount();
-                        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
-                        if (linkedAccount != null) {
-                            linkedAccount.archiveAccount();
+                        if (account instanceof EthAccount) {
+                            for (WalletAccount walletAccount : getLinkedERC20Accounts(account)) {
+                                walletAccount.archiveAccount();
+                            }
+                        } else if (!(account instanceof ERC20Account)) {
+                            WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+                            if (linkedAccount != null) {
+                                linkedAccount.archiveAccount();
+                            }
                         }
                         _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                         eventBus.post(new AccountChanged(account.getId()));
-                        if (linkedAccount != null) {
-                            eventBus.post(new AccountChanged(linkedAccount.getId()));
+                        if (!linkedAccounts.isEmpty()) {
+                            for (WalletAccount linkedAccount : linkedAccounts) {
+                                eventBus.post(new AccountChanged(linkedAccount.getId()));
+                            }
                         }
                         updateIncludingMenus();
                         _toaster.toast(R.string.archived, false);
@@ -1014,21 +1042,34 @@ public class AccountsFragment extends Fragment {
     }
 
     @NonNull
-    private String createArchiveDialogText(WalletAccount account, WalletAccount linkedAccount) {
+    private String createArchiveDialogText(WalletAccount account, List<WalletAccount> linkedAccounts) {
         String accountName = _mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
-        return getAccountArchiveText(account, linkedAccount, accountName);
+        return getAccountArchiveText(account, linkedAccounts, accountName);
     }
 
     @NonNull
-    private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
+    private String getAccountArchiveText(WalletAccount account, List<WalletAccount> linkedAccounts, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(account.getAccountBalance());
         String valueString = getBalanceString(account.getCoinType(), balance);
 
-        if (linkedAccount != null && linkedAccount.isVisible()) {
-            Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
-            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+        // TODO sort linkedAccounts for visible only
+        if (linkedAccounts.size() > 1 || ((account instanceof EthAccount) && linkedAccounts.size() > 0)) {
+            StringBuilder linkedAccountsString = new StringBuilder();
+            for (WalletAccount linkedAccount : linkedAccounts) {
+                Balance linkedBalance = linkedAccount.getAccountBalance();
+                String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
+                String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
+                linkedAccountsString.append("<b>").append(linkedAccountName).append("</b>").append(" holding ")
+                        .append("<b>").append(linkedValueString).append("</b>").append(", ");
+            }
+            linkedAccountsString.deleteCharAt(linkedAccountsString.length() - 1);
+            linkedAccountsString = linkedAccountsString.replace(linkedAccountsString.length() - 1, linkedAccountsString.length(), "?");
+            dialogText = getString(R.string.question_archive_many_accounts, accountName, valueString, linkedAccountsString);
+        } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
+            Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();
+            String linkedValueString = getBalanceString(linkedAccounts.get(0).getCoinType(), linkedBalance);
+            String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccounts.get(0).getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);
         } else {

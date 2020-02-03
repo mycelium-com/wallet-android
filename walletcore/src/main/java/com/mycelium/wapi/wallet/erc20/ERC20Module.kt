@@ -118,3 +118,4 @@ class ERC20Module(
 }
 
 fun WalletManager.getERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible }
+fun WalletManager.getActiveERC20Accounts() = getAccounts().filter { it is ERC20Account && it.isVisible && it.isActive }
