@@ -29,11 +29,11 @@ import kotlin.collections.ArrayList
  * This is a Wapi Client that avoids calls that require BQS by talking to ElectrumX for related calls
  */
 class WapiClientElectrumX(
-        serverEndpoints: ServerEndpoints<HttpEndpoint>,
+        serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
+    : WapiClient(serverEndpoints, logger, versionCode), ServerElectrumListChangedListener {
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
@@ -400,6 +400,6 @@ data class TransactionHistoryInfo(
     }
 }
 
-interface ServerListChangedListener {
+interface ServerElectrumListChangedListener {
     fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
 }

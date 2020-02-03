@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpointType
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
@@ -28,21 +29,29 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
+import kotlin.math.max
 
 
 class EthAccount(private val accountContext: EthAccountContext,
                  private val credentials: Credentials? = null,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jServices: List<HttpService>,
-                 address: EthAddress? = null) : WalletAccount<EthAddress> {
-    private val endpoints = ServerEndpoints(web3jServices.toTypedArray()).apply {
-        setAllowedEndpointTypes(ServerEndpointType.ALL)
-    }
-    private val logger = Logger.getLogger(EthAccount::class.simpleName)
+                 endpoints: List<HttpEndpoint>,
+                 address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
+    private var endpoints = ServerEndpoints(endpoints.toTypedArray())
+    private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-    var client: Web3j = buildCurrentEndpoint()
-    private fun buildCurrentEndpoint() = Web3j.build(endpoints.currentEndpoint)
+    lateinit var client: Web3j
+
+    init {
+        updateClient()
+    }
+
+    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
+
+    private fun updateClient() {
+        client = buildCurrentEndpoint()
+    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -113,7 +122,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, endpoints)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, this.endpoints)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
@@ -178,7 +187,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun selectEndpoint(): Boolean {
         val currentEndpointIndex = endpoints.currentEndpointIndex
-        for (x in 0 until endpoints.size) {
+        for (x in 0 until endpoints.size()) {
             val ethUtils = EthSyncChecker(client)
             try {
                 if (ethUtils.isSynced) {
@@ -194,7 +203,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 logger.log(Level.SEVERE, "Switching to next endpoint...")
             }
             endpoints.switchToNextEndpoint()
-            client = buildCurrentEndpoint()
+            updateClient()
         }
         return false
     }
@@ -214,7 +223,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions()
+        stopSubscriptions(newThread = true)
     }
 
     override fun activateAccount() {
@@ -296,7 +305,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                            else accountContext.blockHeight - remoteTx.result.blockNumber.toInt()
+                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
@@ -335,6 +344,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun renewSubscriptions() {
+        updateClient()
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
@@ -343,14 +353,35 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    fun stopSubscriptions() {
+    //to avoid io.reactivex.exceptions.UndeliverableException (inside android.os.NetworkOnMainThreadException)
+    //we have to stop subscriptions in another thread
+    //but if we want to restart subscriptions we have to stop it synchronously before subscribe again
+    fun stopSubscriptions(newThread: Boolean = true) {
+        if (newThread) {
+            thread {
+                stopSubscriptions()
+            }
+        } else {
+            stopSubscriptions()
+        }
+    }
+
+    private fun stopSubscriptions() {
+        client.shutdown()
+        if (!balanceDisposable.isDisposed) {
+            balanceDisposable.dispose()
+        }
+        if (!incomingTxsDisposable.isDisposed) {
+            incomingTxsDisposable.dispose()
+        }
+    }
+
+    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
+        endpoints = ServerEndpoints(newEndpoints)
+        updateClient()
         thread {
-            if (!balanceDisposable.isDisposed) {
-                balanceDisposable.dispose()
-            }
-            if (!incomingTxsDisposable.isDisposed) {
-                incomingTxsDisposable.dispose()
-            }
+            stopSubscriptions(newThread = false)
+            renewSubscriptions()
         }
     }
 }

@@ -1010,6 +1010,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
 1) decreasing sending amount in order to get your change back;\n
 2) increasing sending amount to a maximum;\n
 3) adjusting miner fee to fit in the network output limit.</string>
+    <string name="possible_duplicate_warning_title">Possible duplicate transaction</string>
+    <string name="possible_duplicate_warning_desc">Do you want to send the same transaction while you have the similar one in outgoing list?</string>
     <string name="verify_message">Verify Message</string>
     <string name="rate">1 %1$s ~ %2$s</string>
     <string name="share_transaction_manually">Share Transaction manually</string>
@@ -1323,5 +1325,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_eth_buy_sell_description">Buy ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
-    <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently it is limited to outgoing transactions only and will be improved in the feature releases.\n\nPlease use block explorer to observer the full transaction history of your account.</string>
+    <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently, it is limited to local outgoing transactions only and will be improved in future releases.\n\nPlease use block explorer to observe the full transaction history of your ETH account.</string>
 </resources>
