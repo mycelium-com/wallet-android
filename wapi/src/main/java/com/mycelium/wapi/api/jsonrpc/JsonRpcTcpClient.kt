@@ -113,7 +113,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                     // Schedule periodic ping requests execution
                     pingTimer = Timer().apply {
                         scheduleAtFixedRate(timerTask {
-                            //sendPingMessage()
+                            sendPingMessage()
                         }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
                     }
                     if (subscriptions.isNotEmpty()) {
@@ -181,12 +181,16 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         toRenew.forEach { subscribe(it.value) }
     }
 
+    fun addSubscription(subscription: Subscription) {
+        subscriptions[subscription.methodName] = subscription
+    }
+
     fun subscribe(subscription: Subscription) {
         var requestId = nextRequestId.getAndIncrement().toString()
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = requestId
             callbacks[id.toString()] = subscription.callback
-            subscriptions[subscription.methodName] = subscription
+            addSubscription(subscription)
         }.toJson()
         internalWrite(request)
     }
