@@ -113,7 +113,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                     // Schedule periodic ping requests execution
                     pingTimer = Timer().apply {
                         scheduleAtFixedRate(timerTask {
-                            sendPingMessage()
+                            //sendPingMessage()
                         }, 0, INTERVAL_BETWEEN_PING_REQUESTS)
                     }
                     if (subscriptions.isNotEmpty()) {
