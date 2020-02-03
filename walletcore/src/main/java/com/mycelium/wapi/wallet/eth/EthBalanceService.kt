@@ -4,7 +4,6 @@ import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
-import io.reactivex.Flowable
 import io.reactivex.Single
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -26,12 +25,10 @@ class EthBalanceService(val address: String,
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    val incomingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+    private val allTxsFlowable get() = client.pendingTransactionFlowable()
             .onErrorReturn { Transaction() }
-            .filter { !it.blockHash.isNullOrEmpty() }
-    val outgoingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
-            .onErrorReturn { Transaction() }
-            .filter { !it.blockHash.isNullOrEmpty() }
+    val incomingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.to == address }
+    val outgoingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.from == address }
 
     val balanceFlowable get() =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
