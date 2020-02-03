@@ -27,7 +27,11 @@ class EthBalanceService(val address: String,
         private set
 
     val incomingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.to == address }
+            .onErrorReturn { Transaction() }
+            .filter { !it.blockHash.isNullOrEmpty() }
     val outgoingTxsFlowable get() = client.pendingTransactionFlowable().filter { tx -> tx.from == address }
+            .onErrorReturn { Transaction() }
+            .filter { !it.blockHash.isNullOrEmpty() }
 
     val balanceFlowable get() =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
