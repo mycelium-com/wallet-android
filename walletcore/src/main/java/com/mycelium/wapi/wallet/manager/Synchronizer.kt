@@ -36,7 +36,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         accounts.filterNotNull().filter { it.isActive }
                     }
                     list.forEach {
-                        val accountLabel = if (it.label != null) it.label else ""
+                        val accountLabel = it.label ?: ""
                         logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
                         val isSyncSuccessful = it.synchronize(syncMode)
                         logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
