@@ -173,9 +173,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     */
     private fun resendRemainingRequests() {
         for (msg in previousRequestsMap.values) {
-            val bytes = (msg + "\n").toByteArray()
-            outgoing!!.write(bytes)
-            outgoing!!.flush()
+            internalWrite(msg)
         }
     }
 
