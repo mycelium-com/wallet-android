@@ -2,6 +2,9 @@ package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.exception.RpcResponseException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -251,16 +254,13 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
-    private fun waitForConnected(timeout: Long): Boolean {
-        var timeWatingForConnectedState = 0L
-        while (!isConnected.get()) {
-            sleep(WAITING_FOR_CONNECTED_INTERVAL)
-            timeWatingForConnectedState += WAITING_FOR_CONNECTED_INTERVAL
-            if (timeWatingForConnectedState >= timeout) {
-                return false
+    private fun waitForConnected(timeout: Long): Boolean = runBlocking {
+        withTimeoutOrNull(timeout) {
+            while (!isConnected.get()) {
+                delay(WAITING_FOR_CONNECTED_INTERVAL)
             }
-        }
-        return true
+            true
+        } ?: false
     }
 
     @Throws(RpcResponseException::class)
