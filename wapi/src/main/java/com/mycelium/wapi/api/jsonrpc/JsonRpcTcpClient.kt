@@ -183,11 +183,12 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         toRenew.forEach { subscribe(it.value) }
     }
 
+    // Adds new a subscription to subscriptions map
     fun addSubscription(subscription: Subscription) {
         subscriptions[subscription.methodName] = subscription
     }
 
-    fun subscribe(subscription: Subscription) {
+    private fun subscribe(subscription: Subscription) {
         var requestId = nextRequestId.getAndIncrement().toString()
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = requestId
@@ -250,7 +251,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
-    fun waitForConnected(timeout: Long): Boolean {
+    private fun waitForConnected(timeout: Long): Boolean {
         var timeWatingForConnectedState = 0L
         while (!isConnected.get()) {
             sleep(WAITING_FOR_CONNECTED_INTERVAL)
