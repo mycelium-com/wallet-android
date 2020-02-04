@@ -52,6 +52,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     private val nextRequestId = AtomicInteger(0)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
+    private var previousRequestsMap = mutableMapOf<String, String>()
     // Stores requests waiting to be processed
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
     private val awaitingLatches = ConcurrentHashMap<String, CountDownLatch>()
@@ -150,6 +151,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
                 curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
                 pingTimer?.cancel()
+
+                previousRequestsMap.clear()
+                previousRequestsMap.putAll(awaitingRequestsMap)
             }
         }
     }
@@ -168,7 +172,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         until the responses for them are processed
     */
     private fun resendRemainingRequests() {
-        for (msg in awaitingRequestsMap.values) {
+        for (msg in previousRequestsMap.values) {
             val bytes = (msg + "\n").toByteArray()
             outgoing!!.write(bytes)
             outgoing!!.flush()
