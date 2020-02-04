@@ -347,7 +347,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     }
 
     // Send ping message. It is expected to be executed in the dedicated timer thread
-    @Synchronized
     private fun sendPingMessage() {
         if (!isConnected.get())
             return
