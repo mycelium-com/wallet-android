@@ -37,17 +37,17 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
         if (mOrientation == LinearLayoutManager.VERTICAL) {
-            drawVertical(canvas, parent);
+            drawVertical(canvas, parent, state);
         } else {
-            drawHorizontal(canvas, parent);
+            drawHorizontal(canvas, parent, state);
         }
     }
 
-    private void drawHorizontal(Canvas canvas, RecyclerView parent) {
+    private void drawHorizontal(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
         int dividerTop = parent.getPaddingTop() + imgPadding.top;
         int dividerBottom = parent.getHeight() - parent.getPaddingBottom() - imgPadding.bottom;
 
-        int childCount = parent.getChildCount();
+        int childCount = Math.min(state.getItemCount(), parent.getChildCount());
         for (int i = fromItem; i < childCount - 1; i++) {
             View child = parent.getChildAt(i);
 
@@ -61,11 +61,11 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    private void drawVertical(Canvas canvas, RecyclerView parent) {
+    private void drawVertical(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
         int dividerLeft = parent.getPaddingLeft();
         int dividerRight = parent.getWidth() - parent.getPaddingRight();
 
-        int childCount = parent.getChildCount();
+        int childCount = Math.min(state.getItemCount(), parent.getChildCount());
         for (int i = fromItem; i < childCount - 1; i++) {
             View child = parent.getChildAt(i);
 

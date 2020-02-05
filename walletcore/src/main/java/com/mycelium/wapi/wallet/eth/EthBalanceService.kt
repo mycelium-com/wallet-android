@@ -21,8 +21,8 @@ import java.util.logging.Logger
 class EthBalanceService(val address: String,
                         val coinType: CryptoCurrency,
                         var client: Web3j,
-                        var endpoints: ServerEndpoints<HttpService>) {
-    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
+                        var endpoints: ServerEndpoints) {
+    private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
@@ -76,7 +76,7 @@ class EthBalanceService(val address: String,
         val request = Request<Any, ParityAllTransactionsResponse>(
                 "parity_allTransactions",
                 emptyList(),
-                endpoints.currentEndpoint,
+                HttpService(endpoints.currentEndpoint.baseUrl),
                 ParityAllTransactionsResponse::class.java)
         val response = request.send()
         if (response.hasError()) {

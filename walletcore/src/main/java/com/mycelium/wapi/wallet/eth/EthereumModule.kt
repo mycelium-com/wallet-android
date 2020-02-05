@@ -5,6 +5,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -19,7 +20,6 @@ import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Keys
-import org.web3j.protocol.http.HttpService
 import java.util.*
 
 
@@ -27,10 +27,10 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
-        private val web3jServices: List<HttpService>,
+        private val endpoints: List<HttpEndpoint>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
-        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
+        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule, ServerEthListChangedListener {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -71,7 +71,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jServices)
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -82,7 +82,7 @@ class EthereumModule(
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
-                        accountListener = accountListener, web3jServices = web3jServices)
+                        accountListener = accountListener, endpoints = endpoints)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -100,7 +100,7 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jServices)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
@@ -108,7 +108,7 @@ class EthereumModule(
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
-                    accountListener = accountListener, web3jServices = web3jServices)
+                    accountListener = accountListener, endpoints = endpoints)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -129,7 +129,7 @@ class EthereumModule(
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return if (walletAccount is EthAccount) {
-            walletAccount.stopSubscriptions()
+            walletAccount.stopSubscriptions(newThread = true)
             if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
                 secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
             } else {
@@ -167,6 +167,15 @@ class EthereumModule(
     companion object {
         const val ID: String = "Ethereum"
     }
+
+    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
+        getAccounts().map { it as EthAccount }
+                .forEach { it.serverListChanged(newEndpoints) }
+    }
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
+
+interface ServerEthListChangedListener {
+    fun serverListChanged(newEndpoints: Array<HttpEndpoint>)
+}
