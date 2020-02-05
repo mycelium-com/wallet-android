@@ -63,7 +63,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int) {
-        queries.insertTransaction(txid, uuid, currency, blockNumber, timestamp, raw, value, gasPrice, confirmations)
+        queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
         ethQueries.insertTransaction(txid, uuid, from, to)
     }
 
@@ -101,8 +101,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
         }
         return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
-                HexUtils.toBytes(txid.substring(2)), transferred, timestamp, blockNumber,
-                confirmations, false, inputs, outputs,
-                destAddresses, null, 21000, fee)
+                HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
+                confirmations, false, inputs, outputs, destAddresses, null, 21000, fee)
     }
 }

@@ -168,14 +168,11 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import org.web3j.protocol.http.HttpService;
-
 import kotlin.jvm.Synchronized;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -283,7 +280,7 @@ public class MbwManager {
 
     private WalletConfiguration configuration;
 
-    private Handler mainLoopHandler;
+    private final Handler mainLoopHandler;
     private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
@@ -295,16 +292,11 @@ public class MbwManager {
 
         // Preferences
         SharedPreferences preferences = getPreferences();
-
-        updateConfig();
+        configuration = new WalletConfiguration(preferences, getNetwork());
 
         mainLoopHandler = new Handler(Looper.getMainLooper());
-        mainLoopHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                _eventBus.register(MbwManager.this);
-            }
-        });
+        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
+        mainLoopHandler.post(() -> _eventBus.register(MbwManager.this));
 
         // init tor - if needed
         try {
@@ -316,7 +308,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
-        configuration.setServerListChangedListener(_wapi);
+        configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
         _randomSource = new AndroidRandomSource();
@@ -380,7 +372,6 @@ public class MbwManager {
 
         migrate();
         _exchangeRateManager = new ExchangeRateManager(_applicationContext, _wapi, getMetadataStorage());
-        _eventTranslator = new EventTranslator(mainLoopHandler, _eventBus);
         _exchangeRateManager.subscribe(_eventTranslator);
         _walletManager.addObserver(_eventTranslator);
 
@@ -393,6 +384,9 @@ public class MbwManager {
         if (_walletManager.getAssetTypes().size() != 0) {
             _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
         }
+
+        //should be called after all accounts are loaded and managers created only
+        updateConfig();
 
         _versionManager.initBackgroundVersionChecker();
 
@@ -485,10 +479,6 @@ public class MbwManager {
     }
 
     public void updateConfig() {
-        if (configuration == null) {
-            configuration = new WalletConfiguration(getPreferences(), getNetwork());
-        }
-
         configuration.updateConfig();
     }
 
@@ -857,9 +847,10 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        walletManager.add(new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener));
-
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
         walletManager.init();
 
         return walletManager;
@@ -910,15 +901,14 @@ public class MbwManager {
         walletManager.add(new BitcoinHDModule(backing, secureKeyValueStore, networkParameters, _wapi,
                 (BTCSettings) currenciesSettingsMap.get(BitcoinHDModule.ID), getMetadataStorage()
                 , null, null, accountEventManager));
-        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters,
-                _wapi, (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
+        walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi,
+                (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
-        HttpService web3jService = new HttpService(BuildConfig.EthServer);
-        ArrayList<HttpService> httpServices = new ArrayList<>();
-        httpServices.add(web3jService);
-        walletManager.add(new EthereumModule(secureKeyValueStore, genericBacking, db, httpServices, networkParameters, getMetadataStorage(), accountListener));
-
+        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+        walletManager.add(walletModule);
+        configuration.addEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
     }

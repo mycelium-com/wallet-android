@@ -4,20 +4,20 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
-import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
-import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class ViewAccountModel{
     public UUID accountId;
+    public GenericAssetInfo coinType;
     public Class<?> accountType;
     public String displayAddress;
     public Balance balance;
@@ -36,6 +36,7 @@ public class ViewAccountModel{
 
     public ViewAccountModel(AccountViewModel viewModel, Context context) {
         accountId = viewModel.getAccountId();
+        coinType = viewModel.getCoinType();
         accountType = viewModel.getAccountType();
         if (HDPubOnlyAccount.class.isAssignableFrom(accountType) && viewModel.isActive()) {
             int numKeys = viewModel.getPrivateKeyCount();

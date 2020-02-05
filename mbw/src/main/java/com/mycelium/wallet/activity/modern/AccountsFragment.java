@@ -169,12 +169,14 @@ public class AccountsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if (rvRecords == null) {
             rvRecords = view.findViewById(R.id.rvRecords);
-            rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
             accountListAdapter = new AccountListAdapter(this, _mbwManager);
             rvRecords.setAdapter(accountListAdapter);
             rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
                     , LinearLayoutManager.VERTICAL));
             rvRecords.setHasFixedSize(true);
+            if (rvRecords.getItemAnimator() != null) {
+                rvRecords.getItemAnimator().setChangeDuration(0); //avoid item blinking
+            }
         }
         if (llLocked == null) {
             llLocked = view.findViewById(R.id.llLocked);

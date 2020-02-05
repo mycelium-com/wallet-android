@@ -2,6 +2,9 @@ package com.mycelium.wapi.api.jsonrpc
 
 import com.mycelium.WapiLogger
 import com.mycelium.wapi.api.exception.RpcResponseException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -52,6 +55,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     private val nextRequestId = AtomicInteger(0)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
+    private var previousRequestsMap = mutableMapOf<String, String>()
     // Stores requests waiting to be processed
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
     private val awaitingLatches = ConcurrentHashMap<String, CountDownLatch>()
@@ -150,6 +154,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
                 curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
                 pingTimer?.cancel()
+
+                previousRequestsMap.clear()
+                previousRequestsMap.putAll(awaitingRequestsMap)
             }
         }
     }
@@ -168,10 +175,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         until the responses for them are processed
     */
     private fun resendRemainingRequests() {
-        for (msg in awaitingRequestsMap.values) {
-            val bytes = (msg + "\n").toByteArray()
-            outgoing!!.write(bytes)
-            outgoing!!.flush()
+        for (msg in previousRequestsMap.values) {
+            internalWrite(msg)
         }
     }
 
@@ -181,12 +186,17 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         toRenew.forEach { subscribe(it.value) }
     }
 
-    fun subscribe(subscription: Subscription) {
+    // Adds new a subscription to subscriptions map
+    fun addSubscription(subscription: Subscription) {
+        subscriptions[subscription.methodName] = subscription
+    }
+
+    private fun subscribe(subscription: Subscription) {
         var requestId = nextRequestId.getAndIncrement().toString()
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = requestId
             callbacks[id.toString()] = subscription.callback
-            subscriptions[subscription.methodName] = subscription
+            addSubscription(subscription)
         }.toJson()
         internalWrite(request)
     }
@@ -198,6 +208,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
     @Throws(RpcResponseException::class)
     fun write(requests: List<RpcRequestOut>, timeout: Long): BatchedRpcResponse {
+        if (!waitForConnected(timeout)) {
+            throw RpcResponseException("Timeout")
+        }
         var response: BatchedRpcResponse? = null
         val latch = CountDownLatch(1)
 
@@ -241,8 +254,20 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         return response!!
     }
 
+    private fun waitForConnected(timeout: Long): Boolean = runBlocking {
+        withTimeoutOrNull(timeout) {
+            while (!isConnected.get()) {
+                delay(WAITING_FOR_CONNECTED_INTERVAL)
+            }
+            true
+        } ?: false
+    }
+
     @Throws(RpcResponseException::class)
     fun write(methodName: String, params: RpcParams, timeout: Long): RpcResponse {
+        if (!waitForConnected(timeout)) {
+            throw RpcResponseException("Timeout")
+        }
         var response: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut(methodName, params).apply {
@@ -322,6 +347,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
 
     // Send ping message. It is expected to be executed in the dedicated timer thread
     private fun sendPingMessage() {
+        if (!isConnected.get())
+            return
+
         var pong: RpcResponse? = null
         val latch = CountDownLatch(1)
         val request = RpcRequestOut("server.ping", RpcMapParams(emptyMap<String, String>())).apply {
@@ -339,7 +367,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
 
         if (!latch.await(MAX_PING_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
-            logger.logInfo("Couldn't get reply on server.ping for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
+            logger.logInfo("Couldn't get reply on server.ping with id=$requestId for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
             // Force socket close. It will cause reconnect to another server
             closeConnection()
             return
@@ -371,5 +399,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
         private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(10)
         private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(20)
+        private val WAITING_FOR_CONNECTED_INTERVAL = 300L
     }
 }

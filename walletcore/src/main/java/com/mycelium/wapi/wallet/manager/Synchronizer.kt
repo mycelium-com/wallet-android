@@ -3,6 +3,8 @@ package com.mycelium.wapi.wallet.manager
 import com.mycelium.wapi.wallet.SyncMode
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.async
@@ -10,6 +12,8 @@ import kotlinx.coroutines.runBlocking
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
+
+    private val logger = Logger.getLogger(Synchronizer::class.simpleName)
 
     companion object {
         private val lock = Any()
@@ -50,7 +54,12 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             list.groupBy { it.coinType }
                     .values.flatten()
                     .map {
-                        async { it.synchronize(syncMode) }
+                        async {
+                            val accountLabel = it.label ?: ""
+                            logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
+                            val isSyncSuccessful = it.synchronize(syncMode)
+                            logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
+                        }
                     }.map {
                         it.await()
                     }
