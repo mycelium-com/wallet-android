@@ -22,7 +22,7 @@ class EthBalanceService(val address: String,
                         val coinType: CryptoCurrency,
                         var client: Web3j,
                         var endpoints: ServerEndpoints) {
-    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
+    private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 

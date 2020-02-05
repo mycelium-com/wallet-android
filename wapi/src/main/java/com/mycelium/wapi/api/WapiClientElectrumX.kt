@@ -67,7 +67,7 @@ class WapiClientElectrumX(
     }
 
     init {
-        rpcClient.subscribe(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
+        rpcClient.addSubscription(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
         rpcClient.start()
     }
 
