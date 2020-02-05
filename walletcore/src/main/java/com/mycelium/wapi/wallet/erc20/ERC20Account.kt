@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
+import com.mrd.bitlib.util.HexUtils
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
@@ -10,6 +11,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.http.HttpService
@@ -21,6 +23,7 @@ import java.util.logging.Logger
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    private val credentials: Credentials? = null,
+                   private val backing: EthAccountBacking,
                    endpoints: List<HttpEndpoint>) : WalletAccount<EthAddress> {
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(ERC20Account::javaClass.name)
@@ -47,12 +50,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
         }
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val gasLimit = BigInteger.valueOf(500_000)
+        val gasLimit = BigInteger.valueOf(90_000)
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
-        (request as Erc20Transaction).txBinary = request.toString().toByteArray()
+        (request as Erc20Transaction).txBinary = ByteArray(0)
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
@@ -61,9 +64,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, erc20Tx.gasPrice, erc20Tx.gasLimit)
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
+                logger.log(Level.SEVERE, "Error sending ERC20 transaction, status not OK: ${result.status}")
                 return BroadcastResult("Unable to send transaction.", BroadcastResultType.REJECTED)
             }
-            tx.txHash = result.transactionHash.toByteArray()
+            tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
+                    "", receivingAddress!!.addressString, tx.toAddress.toString(),
+                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error sending ERC20 transaction: ${e.localizedMessage}")
@@ -87,11 +94,11 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
+            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress!!.addressString)!!
 
-    override fun getTransactionSummaries(offset: Int, limit: Int) = emptyList<GenericTransactionSummary>()
+    override fun getTransactionSummaries(offset: Int, limit: Int) =
+            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress!!.addressString)
 
     override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> =
             mutableListOf()
@@ -202,5 +209,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 Value.valueOf(coinType, balance.pendingReceiving.value),
                 Value.valueOf(coinType, balance.pendingSending.value),
                 Value.valueOf(coinType, 0))
+    }
+
+    private fun transformValueForDb(value: Value): Value {
+        return Value.valueOf(basedOnCoinType, value.value)
     }
 }

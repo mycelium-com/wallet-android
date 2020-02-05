@@ -7,11 +7,12 @@ import com.mycelium.wapi.wallet.GenericOutputViewModel
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAddress
 import java.lang.IllegalStateException
 import java.util.*
 
-class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency) {
+class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val currency: CryptoCurrency, private val token: ERC20Token? = null) {
     private val ethQueries = walletDB.ethAccountBackingQueries
     private val queries = walletDB.accountBackingQueries
     private val contractCreationAddress = EthAddress(currency, "0x0000000000000000000000000000000000000000")
@@ -85,15 +86,16 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                                          confirmations: Int,
                                                          from: String,
                                                          to: String): GenericTransactionSummary {
-        val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
+        val convertedValue = if (token != null) transformValueFromDb(token, value) else value
+        val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), convertedValue, false))
         // "to" address may be empty if we have a contract funding transaction
         val outputs = if (to.isEmpty()) listOf()
-        else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
+        else listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
         val transferred: Value = if ((from == ownerAddress) && (to != ownerAddress)) {
-            -value - fee
+            if (token != null) -convertedValue else -convertedValue - fee
         } else if ((from != ownerAddress) && (to == ownerAddress)) {
-            value
+            convertedValue
         } else if ((from == ownerAddress) && (to == ownerAddress)) {
             -fee // sent to ourselves
         } else {
@@ -103,5 +105,9 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         return GenericTransactionSummary(currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs, destAddresses, null, 21000, fee)
+    }
+
+    private fun transformValueFromDb(token: ERC20Token, value: Value): Value {
+        return Value.valueOf(token, value.value)
     }
 }

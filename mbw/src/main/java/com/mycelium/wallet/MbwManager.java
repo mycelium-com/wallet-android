@@ -860,7 +860,7 @@ public class MbwManager {
         walletManager.add(walletModule);
         configuration.addEthServerListChangedListener(walletModule);
 
-        walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking),
+        walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage()));
         walletManager.init();
 

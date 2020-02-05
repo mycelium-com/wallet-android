@@ -3,12 +3,14 @@ package com.mycelium.wapi.wallet.erc20
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import com.mycelium.wapi.wallet.genericdb.GenericBacking
 import com.mycelium.wapi.wallet.manager.Config
 import com.mycelium.wapi.wallet.manager.GenericModule
@@ -21,6 +23,7 @@ import java.util.*
 class ERC20Module(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<ERC20AccountContext>,
+        private val walletDB: WalletDB,
         private val web3jServices: List<HttpEndpoint>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
@@ -41,7 +44,8 @@ class ERC20Module(
                         config.ethAccountId.mostSignificantBits)
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext)
-                result = ERC20Account(accountContext, token, credentials, web3jServices)
+                val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
+                result = ERC20Account(accountContext, token, credentials, accountBacking, web3jServices)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -107,7 +111,8 @@ class ERC20Module(
                 secureStore.getDecryptedValue(accountContext.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
 
         val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
-        val account = ERC20Account(accountContext, token, credentials, web3jServices)
+        val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
+        val account = ERC20Account(accountContext, token, credentials, accountBacking, web3jServices)
         accounts[account.id] = account
         return account
     }
