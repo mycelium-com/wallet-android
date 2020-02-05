@@ -2,7 +2,6 @@ package com.mycelium.wallet.activity.main.model.transactionhistory
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.mrd.bitlib.model.Address
 import com.mycelium.wallet.MbwManager
 
 /**

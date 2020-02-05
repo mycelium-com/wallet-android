@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     uuid TEXT AS UUID NOT NULL,
     fromAddress TEXT NOT NULL,
     toAddress TEXT NOT NULL,
+    nonce TEXT AS BigInteger,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -20,7 +21,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -32,7 +33,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummariesSince:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -41,15 +42,15 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
-    b.confirmations, eb.fromAddress, eb.toAddress
+    b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
         WHERE eb.uuid = (?) AND eb.txid = (?);
 
 insertTransaction:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress)
-VALUES (?, ?, ?, ?);
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce)
+VALUES (?, ?, ?, ?, ?);
 
 deleteTransaction:
 DELETE FROM EthAccountBacking

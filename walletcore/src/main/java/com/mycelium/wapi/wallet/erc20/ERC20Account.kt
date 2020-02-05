@@ -70,7 +70,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
                     "", receivingAddress!!.addressString, tx.toAddress.toString(),
-                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
+                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, accountContext.nonce)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error sending ERC20 transaction: ${e.localizedMessage}")

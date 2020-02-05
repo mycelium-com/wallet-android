@@ -11,7 +11,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 
 abstract class AddressFragmentViewModel(val context: Application) : AndroidViewModel(context) {
-    protected val mbwManager = MbwManager.getInstance(context)!!
+    protected val mbwManager = MbwManager.getInstance(context)
     protected lateinit var model: AddressFragmentModel
     protected val showBip44Path: Boolean = mbwManager.metadataStorage.showBip44Path
 
