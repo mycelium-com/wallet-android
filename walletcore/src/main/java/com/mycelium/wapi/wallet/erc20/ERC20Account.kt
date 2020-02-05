@@ -14,11 +14,14 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
+import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.math.max
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
@@ -61,6 +64,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val erc20Tx = (tx as Erc20Transaction)
         try {
+            accountContext.nonce = getNonce(receivingAddress!!)
             val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, erc20Tx.gasPrice, erc20Tx.gasLimit)
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
@@ -69,8 +73,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             }
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
-                    "", receivingAddress!!.addressString, tx.toAddress.toString(),
-                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, accountContext.nonce)
+                    "", receivingAddress.addressString, tx.toAddress.toString(),
+                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    accountContext.nonce, tx.gasLimit.toLong(), result.gasUsed.toLong())
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error sending ERC20 transaction: ${e.localizedMessage}")
@@ -117,6 +122,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        if (!syncBlockHeight()) {
+            return false
+        }
+        if (!syncTransactions()) {
+            return false
+        }
         return updateBalanceCache()
     }
 
@@ -213,5 +224,68 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun transformValueForDb(value: Value): Value {
         return Value.valueOf(basedOnCoinType, value.value)
+    }
+
+    private fun syncBlockHeight(): Boolean {
+        try {
+            val latestBlock = client.ethBlockNumber().send()
+            if (latestBlock.hasError()) {
+                return false
+            }
+            accountContext.blockHeight = latestBlock.blockNumber.toInt()
+            return true
+        } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
+            return false
+        }
+    }
+
+    private fun syncTransactions(): Boolean {
+        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
+                receivingAddress!!.addressString)
+        localTransactions.forEach {
+            try {
+                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
+                if (!remoteTx.hasError()) {
+                    if (remoteTx.result != null) {
+                        // blockNumber is not null when transaction is confirmed
+                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
+                        if (remoteTx.result.blockNumberRaw != null) {
+                            // "it.height == -1" indicates that this is a newly created transaction
+                            // and we haven't received any information about it's confirmation from the server yet
+                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
+                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
+                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
+                        }
+                    } else {
+                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
+                        // to prevent local data removal if server still didn't process just sent tx
+                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
+                            backing.deleteTransaction("0x" + it.idHex)
+                        }
+                    }
+                } else {
+                    return false
+                }
+            } catch (e: Exception) {
+                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
+                return false
+            }
+        }
+        return true
+    }
+
+    @Throws(Exception::class)
+    private fun getNonce(address: EthAddress): BigInteger {
+        return try {
+            val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
+                    DefaultBlockParameterName.PENDING)
+                    .send()
+
+            accountContext.nonce = ethGetTransactionCount.transactionCount
+            accountContext.nonce
+        } catch (e: Exception) {
+            accountContext.nonce
+        }
     }
 }

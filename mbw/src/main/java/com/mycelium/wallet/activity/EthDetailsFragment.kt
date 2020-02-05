@@ -10,6 +10,8 @@ import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import kotlinx.android.synthetic.main.transaction_details_eth.*
+import java.math.BigInteger
+import kotlin.math.round
 
 class EthDetailsFragment : GenericDetailsFragment() {
     private val tx: EthTransactionSummary by lazy {
@@ -39,9 +41,9 @@ class EthDetailsFragment : GenericDetailsFragment() {
         llFee.addView(getValue(tx.fee!!, null))
 
         tvGasLimit.text = tx.gasLimit.toString()
-        tvGasUsed.text = tx.gasUsed.toString()
+        tvGasUsed.text = "${tx.gasUsed} (${round(tx.gasUsed.toDouble() / tx.gasLimit.toDouble() * 10000) / 100}%)"
         val txFeeTotal = tx.fee!!.valueAsLong
-        val txFeePerUnit = txFeeTotal / tx.rawSize
+        val txFeePerUnit = txFeeTotal / tx.gasLimit
         tvGasPrice.text = EthFeeFormatter().getFeePerUnit(txFeePerUnit)
         tvNonce.text = tx.nonce.toString()
     }
