@@ -4,7 +4,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.net.HttpEndpoint
-import com.mycelium.net.ServerEndpointType
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -307,6 +306,10 @@ class EthAccount(private val accountContext: EthAccountContext,
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
                             else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
+                            val remoteReceipt = client.ethGetTransactionReceipt(it.idHex).send()
+                            if (!remoteReceipt.hasError()) {
+                                backing.updateGasUsed(it.idHex, remoteReceipt.result.gasUsed)
+                            }
                         }
                     } else {
                         // no such transaction on remote, remove local transaction but only if it is older 5 minutes
@@ -339,7 +342,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce)
+                    valueOf(coinType, tx.gasPrice * tx.gas), 0, tx.nonce, tx.gas)
         }, {})
     }
 

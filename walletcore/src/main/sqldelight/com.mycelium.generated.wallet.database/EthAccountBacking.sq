@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     fromAddress TEXT NOT NULL,
     toAddress TEXT NOT NULL,
     nonce TEXT AS BigInteger,
+    gasLimit TEXT as BigInteger DEFAULT 21000 NOT NULL,
+    gasUsed TEXT as BigInteger DEFAULT 21000 NOT NULL,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -21,7 +23,7 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 selectTransactionSummaries:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -33,7 +35,7 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummariesSince:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
+    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -42,15 +44,20 @@ FROM EthAccountBacking AS eb
 
 selectTransactionSummaryById:
 SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
-    b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce
+    b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
         WHERE eb.uuid = (?) AND eb.txid = (?);
 
 insertTransaction:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce)
-VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasUsed)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateTransaction:
+UPDATE EthAccountBacking
+SET gasUsed = (?)
+WHERE uuid = (?) AND txid = (?);
 
 deleteTransaction:
 DELETE FROM EthAccountBacking
