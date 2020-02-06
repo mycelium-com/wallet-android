@@ -387,6 +387,21 @@ class EthAccount(private val accountContext: EthAccountContext,
             renewSubscriptions()
         }
     }
+
+    fun fetchNonce(txid: String): BigInteger? {
+        return try {
+            val tx = client.ethGetTransactionByHash(txid).send()
+            if (tx.result == null) {
+                null
+            } else {
+                val nonce = tx.result.nonce
+                backing.updateNonce(txid, nonce)
+                nonce
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
 
 fun ECKeyPair.toUUID(): UUID = UUID(BitUtils.uint64ToLong(publicKey.toByteArray(), 8), BitUtils.uint64ToLong(

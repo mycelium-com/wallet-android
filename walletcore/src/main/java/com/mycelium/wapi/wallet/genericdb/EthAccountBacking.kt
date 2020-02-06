@@ -83,7 +83,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     }
 
     fun updateGasUsed(txid: String, gasUsed: BigInteger) {
-        ethQueries.updateTransaction(gasUsed, uuid, txid)
+        ethQueries.updateGasUsed(gasUsed, uuid, txid)
+    }
+
+    fun updateNonce(txid: String, nonce: BigInteger) {
+        ethQueries.updateNonce(nonce, uuid, txid)
     }
 
     fun deleteTransaction(txid: String) {
@@ -118,7 +122,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             // transaction doesn't relate to us in any way. should not happen
             throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")
         }
-        return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce ?: BigInteger.ZERO,
+        return EthTransactionSummary(EthAddress(currency, from), EthAddress(currency, to), nonce,
                 value, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,

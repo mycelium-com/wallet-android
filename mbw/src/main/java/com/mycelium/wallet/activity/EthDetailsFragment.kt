@@ -1,5 +1,6 @@
 package com.mycelium.wallet.activity
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.wallet.EthTransactionSummary
 import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.transaction_details_eth.*
 import java.math.BigInteger
 import kotlin.math.round
@@ -47,7 +49,29 @@ class EthDetailsFragment : GenericDetailsFragment() {
         val txFeeTotal = tx.fee!!.valueAsLong
         val txFeePerUnit = BigInteger.valueOf(txFeeTotal) / tx.gasLimit
         tvGasPrice.text = EthFeeFormatter().getFeePerUnit(txFeePerUnit.toLong())
-        tvNonce.text = tx.nonce.toString()
+        tvNonce.text = if (tx.nonce == null) {
+            UpdateNonce().execute("0x" + tx.idHex)
+            "?"
+        } else {
+            tx.nonce.toString()
+        }
+    }
+
+    inner class UpdateNonce : AsyncTask<String, Void?, BigInteger?>() {
+        override fun doInBackground(vararg txid: String): BigInteger? {
+            val selectedAccount = mbwManager!!.selectedAccount
+            return if (selectedAccount is EthAccount) {
+                selectedAccount.fetchNonce(txid[0])
+            } else {
+                null
+            }
+        }
+
+        override fun onPostExecute(nonce: BigInteger?) {
+            if (nonce != null) {
+                tvNonce.text = nonce.toString()
+            }
+        }
     }
 
     companion object {

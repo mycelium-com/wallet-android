@@ -54,9 +54,14 @@ insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasUsed)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
-updateTransaction:
+updateGasUsed:
 UPDATE EthAccountBacking
 SET gasUsed = (?)
+WHERE uuid = (?) AND txid = (?);
+
+updateNonce:
+UPDATE EthAccountBacking
+SET nonce = (?)
 WHERE uuid = (?) AND txid = (?);
 
 deleteTransaction:
