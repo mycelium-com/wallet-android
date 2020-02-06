@@ -171,9 +171,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val groupHolder = holder as GroupTitleViewHolder
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
-                val sum = getSpendableBalance(listOf(group))
                 groupHolder.tvBalance.coinType = group.coinType
-                groupHolder.tvBalance.setValue(sum, totalBalance = false)
+                groupHolder.tvBalance.setValue(group.sum!!, false)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
@@ -247,7 +246,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                         newItem as AccountsGroupModel
                         oldItem as AccountsGroupModel
                         newItem.isCollapsed = pagePrefs.getBoolean(newItem.getTitle(context), true)
-                        newItem.isCollapsed == oldItem.isCollapsed && newItem.coinType == oldItem.coinType
+                        newItem.isCollapsed == oldItem.isCollapsed
+                                && newItem.coinType == oldItem.coinType
+                                && newItem.accountsList.size == oldItem.accountsList.size
+                                && newItem.sum == oldItem.sum
                     }
                     ACCOUNT_TYPE -> {
                         newItem as AccountViewModel

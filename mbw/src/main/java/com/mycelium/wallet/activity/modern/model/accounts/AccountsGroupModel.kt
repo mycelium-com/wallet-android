@@ -1,12 +1,14 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.content.Context
+import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
 /**
  * Model for the accounts group on the accounts tab.
  */
 class AccountsGroupModel(val titleId: Int, private val groupType: AccountListItem.Type,
+                         val sum: ValueSum? = null,
                          val accountsList: List<AccountViewModel>, val coinType: CryptoCurrency) : AccountListItem {
     var isCollapsed = false // Is only used to handle state between updates.
 
