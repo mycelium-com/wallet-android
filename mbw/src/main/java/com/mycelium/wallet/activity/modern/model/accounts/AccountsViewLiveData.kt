@@ -145,10 +145,5 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             }
             return sum
         }
-
-        private fun getValue(mbwManager: MbwManager, walletAccountList: List<WalletAccount<out GenericAddress>>, coinType: GenericAssetInfo): Value {
-            val toCurrency = mbwManager.currencySwitcher.currentCurrencyMap[coinType]!!
-            return mbwManager.currencySwitcher.getValue(getSpendableBalance(walletAccountList), toCurrency)
-        }
     }
 }
