@@ -343,6 +343,7 @@ public class AddAccountActivity extends Activity {
         @Override
         protected void onPostExecute(UUID account) {
             _progress.dismiss();
+            _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.IGNORED);
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
             EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
