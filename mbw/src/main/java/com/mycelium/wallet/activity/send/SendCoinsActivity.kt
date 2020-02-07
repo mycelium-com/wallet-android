@@ -77,6 +77,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is EthAccount -> viewModelProvider.get(SendEthViewModel::class.java)
             else -> throw NotImplementedError()
         }
+        viewModel.activity = this
         if (!viewModel.isInitialized()) {
             viewModel.init(account, intent)
         }
