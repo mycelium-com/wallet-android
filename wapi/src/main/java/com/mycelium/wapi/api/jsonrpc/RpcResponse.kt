@@ -9,7 +9,7 @@ open class AbstractResponse
 
 class RpcResponse : AbstractResponse() {
     companion object {
-        fun fromJson(json: BufferedReader): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
+        fun fromJson(json: String): RpcResponse = RPC.fromJson(json, RpcResponse::class.java)
     }
 
     @SerializedName(JSON_RPC_IDENTIFIER)
@@ -59,7 +59,7 @@ class BatchedRpcResponse (responsessArr: Array<RpcResponse>): AbstractResponse()
     val responses = responsessArr
 
     companion object {
-        fun fromJson(json: BufferedReader) =
+        fun fromJson(json: String) =
                 BatchedRpcResponse(RPC.fromJson(json, Array<RpcResponse>::class.java))
     }
 }

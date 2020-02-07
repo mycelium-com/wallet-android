@@ -127,16 +127,11 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
                     while (isConnected.get() && isConnectionThreadActive) {
-                        val msgStart = CharArray(200)
-                        incoming!!.mark(200)
-                        if(incoming!!.read(msgStart) > 0) {
-                            // Handle the case of empty line received having 'endline' char only
-                            if (msgStart[0] == '\n') {
-                                continue
-                            }
-                            incoming!!.reset()
-                            messageReceived(msgStart.joinToString(""))
+                        var line = incoming!!.readLine()
+                        if(line.length == 0) {
+                            continue
                         }
+                        messageReceived(line)
                     }
                 } catch (exception: Exception) {
                     // Facing with the exception here means that connection is closed for any reason
@@ -324,13 +319,13 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
         }
         val isBatched = message[0] == '['
         if (isBatched) {
-            val response = BatchedRpcResponse.fromJson(incoming!!)
+            val response = BatchedRpcResponse.fromJson(message)
             val compoundId = compoundId(response.responses.map {it.id.toString()}.toTypedArray())
 
             callbacks.remove(compoundId)?.invoke(response)
             awaitingRequestsMap.remove(compoundId)
         } else {
-            val response = RpcResponse.fromJson(incoming!!)
+            val response = RpcResponse.fromJson(message)
             val id = response.id.toString()
             if (id != NO_ID.toString()) {
                 callbacks[id]?.also { callback ->
