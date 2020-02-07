@@ -267,11 +267,15 @@ public class AccountsFragment extends Fragment {
         checkNotNull(accountToDelete);
         final List<WalletAccount> linkedAccounts = new ArrayList<>();
         if (accountToDelete instanceof EthAccount) {
-            linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
+            if (!getLinkedERC20Accounts(accountToDelete).isEmpty()) {
+                linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
+            }
         } else if (accountToDelete instanceof ERC20Account) {
             linkedAccounts.add(getLinkedEthAccount(accountToDelete));
         } else {
-            linkedAccounts.add(getLinkedAccount(accountToDelete));
+            if (getLinkedAccount(accountToDelete) != null) {
+                linkedAccounts.add(getLinkedAccount(accountToDelete));
+            }
         }
         final View checkBoxView = View.inflate(getActivity(), R.layout.delkey_checkbox, null);
         final CheckBox keepAddrCheckbox = checkBoxView.findViewById(R.id.checkbox);
@@ -1006,9 +1010,13 @@ public class AccountsFragment extends Fragment {
     private void archive(final WalletAccount account) {
         final List<WalletAccount> linkedAccounts = new ArrayList<>();
         if (account instanceof EthAccount) {
-            linkedAccounts.addAll(getActiveLinkedERC20Accounts(account));
+            if (!getActiveLinkedERC20Accounts(account).isEmpty()) {
+                linkedAccounts.addAll(getActiveLinkedERC20Accounts(account));
+            }
         } else if (!(account instanceof ERC20Account)) {
-            linkedAccounts.add(getLinkedAccount(account));
+            if (getLinkedAccount(account) != null) {
+                linkedAccounts.add(getLinkedAccount(account));
+            }
         }
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.archiving_account_title)
