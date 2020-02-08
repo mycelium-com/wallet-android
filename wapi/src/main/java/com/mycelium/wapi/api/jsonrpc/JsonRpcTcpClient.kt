@@ -127,8 +127,8 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                     // Inner loop for reading data from socket. If the connection breaks, we should
                     // exit this loop and try creating new socket in order to restore connection
                     while (isConnected.get() && isConnectionThreadActive) {
-                        var line = incoming!!.readLine()
-                        if(line.length == 0) {
+                        val line = incoming!!.readLine()
+                        if(line?.isEmpty() != false) {
                             continue
                         }
                         messageReceived(line)
@@ -187,7 +187,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     }
 
     private fun subscribe(subscription: Subscription) {
-        var requestId = nextRequestId.getAndIncrement().toString()
+        val requestId = nextRequestId.getAndIncrement().toString()
         val request = RpcRequestOut(subscription.methodName, subscription.params).apply {
             id = requestId
             callbacks[id.toString()] = subscription.callback
