@@ -74,7 +74,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
                     "", receivingAddress.addressString, tx.toAddress.toString(),
-                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * result.gasUsed), 0,
                     accountContext.nonce, tx.gasLimit, result.gasUsed)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {

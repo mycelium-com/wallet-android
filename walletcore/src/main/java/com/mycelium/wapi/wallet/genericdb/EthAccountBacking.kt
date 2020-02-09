@@ -83,8 +83,9 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         queries.updateTransaction(blockNumber, confirmations, uuid, txid)
     }
 
-    fun updateGasUsed(txid: String, gasUsed: BigInteger) {
+    fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {
         ethQueries.updateGasUsed(gasUsed, uuid, txid)
+        queries.updateFee(fee, uuid, txid)
     }
 
     fun updateNonce(txid: String, nonce: BigInteger) {

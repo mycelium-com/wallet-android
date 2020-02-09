@@ -328,7 +328,8 @@ class EthAccount(private val accountContext: EthAccountContext,
                             if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
                                 val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
                                 if (!txReceipt.hasError()) {
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed)
+                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
+                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
                                 }
                             }
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
@@ -366,7 +367,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * tx.gas), 0, tx.nonce, tx.gas)
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
         }, {})
     }
 
