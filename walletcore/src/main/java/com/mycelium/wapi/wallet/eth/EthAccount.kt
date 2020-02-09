@@ -303,13 +303,16 @@ class EthAccount(private val accountContext: EthAccountContext,
                         if (remoteTx.result.blockNumberRaw != null) {
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
-                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                            val remoteReceipt = client.ethGetTransactionReceipt(it.idHex).send()
-                            if (!remoteReceipt.hasError()) {
-                                backing.updateGasUsed(it.idHex, remoteReceipt.result.gasUsed)
+                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
+                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
+                                if (!txReceipt.hasError()) {
+                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
+                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
+                                }
                             }
+                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
+                                                else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
+                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
                         // no such transaction on remote, remove local transaction but only if it is older 5 minutes
@@ -342,7 +345,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * tx.gas), 0, tx.nonce, tx.gas)
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
         }, {})
     }
 
