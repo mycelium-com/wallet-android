@@ -34,48 +34,33 @@
 
 package com.mycelium.wallet.activity;
 
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.util.AddressLabel;
-import com.mycelium.wallet.activity.util.BtcFeeFormatter;
-import com.mycelium.wallet.activity.util.FeeFormatter;
-import com.mycelium.wallet.activity.util.FeeFormattingUtil;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
-import com.mycelium.wallet.activity.util.ValueExtensionsKt;
-import com.mycelium.wapi.api.WapiException;
-import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class TransactionDetailsActivity extends Activity {
+public class TransactionDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_TXID = "transactionID";
-    private static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
-    private static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
-    private GenericTransactionSummary tx;
-    private int _white_color;
-    private MbwManager _mbwManager;
+    protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
+    protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
     private boolean coluMode = false;
+    private GenericTransactionSummary tx;
 
     /**
      * Called when the activity is first created.
@@ -84,34 +69,26 @@ public class TransactionDetailsActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
-
-        _white_color = getResources().getColor(R.color.white);
         setContentView(R.layout.transaction_details_activity);
-        _mbwManager = MbwManager.getInstance(this.getApplication());
 
         byte[] txid = getTransactionIdFromIntent();
-
-        WalletAccount account = _mbwManager.getSelectedAccount();
+        WalletAccount account = MbwManager.getInstance(this.getApplication()).getSelectedAccount();
         tx = account.getTxSummary(txid);
-
-        loadAndUpdate(false);
-
-        startRemoteLoading(null);
+        coluMode = account instanceof ColuAccount;
+        GenericDetailsFragment detailsFragment = (GenericDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
+        if (detailsFragment == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if (account instanceof EthAccount) {
+                transaction.add(R.id.spec_details_fragment, EthDetailsFragment.newInstance(tx));
+            } else {
+                transaction.add(R.id.spec_details_fragment, BtcDetailsFragment.newInstance(tx, coluMode));
+            }
+            transaction.commit();
+        }
+        updateUi();
     }
 
-    public void startRemoteLoading(View view) {
-        new UpdateParentTask().execute();
-    }
-
-    private void loadAndUpdate(boolean isAfterRemoteUpdate) {
-        byte[] txid = getTransactionIdFromIntent();
-        tx = _mbwManager.getSelectedAccount().getTxSummary(txid);
-
-        coluMode = _mbwManager.getSelectedAccount() instanceof ColuAccount;
-        updateUi(isAfterRemoteUpdate, false);
-    }
-
-    private void updateUi(boolean isAfterRemoteUpdate, boolean suggestRetryIfError) {
+    private void updateUi() {
         // Set Hash
         TransactionDetailsLabel tvHash = findViewById(R.id.tvHash);
         tvHash.setColuMode(coluMode);
@@ -151,169 +128,6 @@ public class TransactionDetailsActivity extends Activity {
         DateFormat hourFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale);
         String timeString = hourFormat.format(date);
         ((TextView) findViewById(R.id.tvTime)).setText(timeString);
-
-        TextView tvInputsAmount = findViewById(R.id.tvInputsAmount);
-        Button btInputsRetry = findViewById(R.id.btInputsRetry);
-        Button btFeeRetry = findViewById(R.id.btFeeRetry);
-        TextView tvFeeAmount = findViewById(R.id.tvFee);
-        btFeeRetry.setVisibility(View.GONE);
-        btInputsRetry.setVisibility(View.GONE);
-        tvFeeAmount.setVisibility(View.VISIBLE);
-        tvInputsAmount.setVisibility(View.VISIBLE);
-
-        // Set Inputs
-        final LinearLayout llInputs = findViewById(R.id.llInputs);
-        llInputs.removeAllViews();
-        if (tx.getInputs() != null) {
-            Value sum = Value.zeroValue(tx.getType());
-            for (GenericOutputViewModel input : tx.getInputs()) {
-                sum = sum.plus(input.getValue());
-            }
-            if (!sum.equalZero()) {
-                tvInputsAmount.setVisibility(View.GONE);
-                for (GenericOutputViewModel item : tx.getInputs()) {
-                    llInputs.addView(getItemView(item));
-                }
-            }
-        }
-
-        // Set Outputs
-        LinearLayout outputs = findViewById(R.id.llOutputs);
-        outputs.removeAllViews();
-
-        if(tx.getOutputs() != null) {
-            for (GenericOutputViewModel item : tx.getOutputs()) {
-                outputs.addView(getItemView(item));
-            }
-        }
-
-        // Set Fee
-        final long txFeeTotal = tx.getFee().getValueAsLong();
-        if (txFeeTotal > 0) {
-            String fee;
-            findViewById(R.id.tvFeeLabel).setVisibility(View.VISIBLE);
-            findViewById(R.id.tvInputsLabel).setVisibility(View.VISIBLE);
-            fee = ValueExtensionsKt.toStringWithUnit(tx.getFee(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + "\n";
-            if (tx.getRawSize() > 0) {
-                final long txFeePerUnit = txFeeTotal / tx.getRawSize();
-                FeeFormatter feeFormatter = new FeeFormattingUtil().getFeeFormatter(_mbwManager.getSelectedAccount().getCoinType());
-                if (feeFormatter != null) {
-                    if (feeFormatter instanceof BtcFeeFormatter) {
-                        fee += ((BtcFeeFormatter) feeFormatter).getFeePerUnitInBytes(txFeePerUnit);
-                    } else {
-                        fee += feeFormatter.getFeePerUnit(txFeePerUnit);
-                    }
-                } else {
-                    fee += txFeePerUnit;
-                }
-            }
-            ((TextView) findViewById(R.id.tvFee)).setText(fee);
-            tvFeeAmount.setText(fee);
-            tvFeeAmount.setVisibility(View.VISIBLE);
-        } else {
-            tvFeeAmount.setText(isAfterRemoteUpdate ? R.string.no_transaction_details : R.string.no_transaction_loading);
-            if (isAfterRemoteUpdate) {
-                if (suggestRetryIfError) {
-                    btFeeRetry.setVisibility(View.VISIBLE);
-                    btInputsRetry.setVisibility(View.VISIBLE);
-                    tvFeeAmount.setVisibility(View.GONE);
-                    tvInputsAmount.setVisibility(View.GONE);
-                }
-            } else {
-                int length = tx.getInputs().size();
-                String amountLoading;
-                if (length > 0) {
-                    amountLoading = String.format("%s %s", String.valueOf(length), getString(R.string.no_transaction_loading));
-                } else {
-                    amountLoading = getString(R.string.no_transaction_loading);
-                }
-                if (tvInputsAmount.isAttachedToWindow()) {
-                    tvInputsAmount.setText(amountLoading);
-                }
-            }
-        }
-    }
-
-    private View getItemView(GenericOutputViewModel item) {
-        // Create vertical linear layout
-        LinearLayout ll = new LinearLayout(this);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setLayoutParams(WCWC);
-        if (item.isCoinbase()) {
-            // Coinbase input
-            ll.addView(getValue(item.getValue(), null));
-            ll.addView(getCoinbaseText());
-        } else {
-            // Add BTC value
-            String address = item.getAddress().toString();
-            ll.addView(getValue(item.getValue(), address));
-            AddressLabel adrLabel = new AddressLabel(this);
-            adrLabel.setColuMode(coluMode);
-            adrLabel.setAddress(item.getAddress());
-            ll.addView(adrLabel);
-        }
-        ll.setPadding(10, 10, 10, 10);
-        return ll;
-    }
-
-    private View getCoinbaseText() {
-        TextView tv = new TextView(this);
-        tv.setLayoutParams(FPWC);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        tv.setText(R.string.newly_generated_coins_from_coinbase);
-        tv.setTextColor(_white_color);
-        return tv;
-    }
-
-    private View getValue(final Value value, Object tag) {
-        TextView tv = new TextView(this);
-        tv.setLayoutParams(FPWC);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
-        tv.setTextColor(_white_color);
-        tv.setTag(tag);
-
-        tv.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Utils.setClipboardString(ValueExtensionsKt.toString(value,
-                        _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())), getApplicationContext());
-                Toast.makeText(getApplicationContext(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-
-        return tv;
-    }
-
-    /**
-     * Async task to perform fetching parent transactions of current transaction from server
-     */
-    private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... ignore) {
-            if (_mbwManager.getSelectedAccount() instanceof AbstractBtcAccount) {
-                byte[] txid = getTransactionIdFromIntent();
-                AbstractBtcAccount selectedAccount = (AbstractBtcAccount) _mbwManager.getSelectedAccount();
-                try {
-                    selectedAccount.updateParentOutputs(txid);
-                } catch (WapiException e) {
-                    _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean isResultOk) {
-            super.onPostExecute(isResultOk);
-            if (isResultOk) {
-                loadAndUpdate(true);
-            } else {
-                updateUi(true,true);
-            }
-        }
     }
 
     private byte[] getTransactionIdFromIntent() {

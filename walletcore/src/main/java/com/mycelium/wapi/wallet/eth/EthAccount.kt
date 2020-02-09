@@ -4,7 +4,6 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.net.HttpEndpoint
-import com.mycelium.net.ServerEndpointType
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -112,7 +111,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                 tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0)
+                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, accountContext.nonce)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -304,8 +303,15 @@ class EthAccount(private val accountContext: EthAccountContext,
                         if (remoteTx.result.blockNumberRaw != null) {
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
+                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
+                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
+                                if (!txReceipt.hasError()) {
+                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
+                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
+                                }
+                            }
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
+                                                else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
@@ -339,7 +345,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
                     tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0)
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
         }, {})
     }
 
@@ -382,6 +388,21 @@ class EthAccount(private val accountContext: EthAccountContext,
         thread {
             stopSubscriptions(newThread = false)
             renewSubscriptions()
+        }
+    }
+
+    fun fetchNonce(txid: String): BigInteger? {
+        return try {
+            val tx = client.ethGetTransactionByHash(txid).send()
+            if (tx.result == null) {
+                null
+            } else {
+                val nonce = tx.result.nonce
+                backing.updateNonce(txid, nonce)
+                nonce
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 }

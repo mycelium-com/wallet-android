@@ -98,6 +98,13 @@
     <string name="confirmed_in_block">In block #%1$d</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="value">Value</string>
+    <string name="gas_limit">Gas Limit</string>
+    <string name="gas_used">Gas Used</string>
+    <string name="gas_price">Gas Price</string>
+    <string name="nonce">Nonce</string>
     <string name="pref_category_pin">PIN Settings</string>
     <string name="randomize_pin">Randomize PIN pad</string>
     <string name="randomize_pin_text">Considerably improves security by randomizing PIN pad layout</string>
