@@ -10,12 +10,15 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.G
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.event.AccountListChanged
+import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -70,7 +73,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
-                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, accountsToViewModel(accounts),
+                    val sum = getSpendableBalance(accounts)
+                    accountsList.add(AccountsGroupModel(it.first, GROUP_TITLE_TYPE, sum, accountsToViewModel(accounts),
                             accounts[0].basedOnCoinType))
                 }
             }
@@ -81,6 +85,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             val archivedList = walletManager.getArchivedAccounts()
             if (archivedList.isNotEmpty()) {
                 accountsList.add(AccountsGroupModel(R.string.archive_name, GROUP_ARCHIVED_TITLE_TYPE,
+                        null,
                         accountsToViewModel(archivedList), archivedList[0].basedOnCoinType))
             }
             if (accountsList == value) {
@@ -124,6 +129,18 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     private fun updateList() {
         if (value != accountsList) {
             value = accountsList
+        }
+    }
+
+    companion object {
+        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out GenericAddress>>): ValueSum {
+            val sum = ValueSum()
+            for (account in walletAccountList) {
+                if (account.isActive) {
+                    sum.add(account.accountBalance.spendable)
+                }
+            }
+            return sum
         }
     }
 }

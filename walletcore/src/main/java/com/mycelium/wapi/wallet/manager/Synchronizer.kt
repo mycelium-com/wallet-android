@@ -5,6 +5,10 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
 class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                    val accounts: List<WalletAccount<*>?> = listOf()) : Runnable {
@@ -35,14 +39,8 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                     } else {
                         accounts.filterNotNull().filter { it.isActive }
                     }
-                    list.forEach {
-                        val accountLabel = it.label ?: ""
-                        logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
-                        val isSyncSuccessful = it.synchronize(syncMode)
-                        logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
-                    }
+                    startSync(list)
                 }
-
             }
         } finally {
             walletManager.state = State.READY
@@ -50,8 +48,30 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }
     }
 
+    private fun startSync(list: List<WalletAccount<*>>) {
+        //split synchronization by coinTypes in own threads
+        runBlocking(Dispatchers.Default) {
+            list.groupBy { it.coinType }
+                    .values.flatten()
+                    .map {
+                        async {
+                            val accountLabel = it.label ?: ""
+                            logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
+                            val isSyncSuccessful = it.synchronize(syncMode)
+                            logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
+                        }
+                    }.map {
+                        it.await()
+                    }
+        }
+    }
+
     private fun broadcastOutgoingTransactions(): Boolean =
-            if (accounts.isEmpty()) { walletManager.getAllActiveAccounts() } else { accounts }
+            if (accounts.isEmpty()) {
+                walletManager.getAllActiveAccounts()
+            } else {
+                accounts
+            }
                     .filterNotNull()
                     .filterNot { it.isArchived }
                     .all { it.broadcastOutgoingTransactions() }

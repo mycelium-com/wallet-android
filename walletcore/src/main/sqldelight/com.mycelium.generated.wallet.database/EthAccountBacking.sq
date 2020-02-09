@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     fromAddress TEXT NOT NULL,
     toAddress TEXT NOT NULL,
     nonce TEXT AS BigInteger,
-    gasLimit INTEGER DEFAULT 0 NOT NULL,
-    gasUsed INTEGER DEFAULT 0 NOT NULL,
+    gasLimit TEXT as BigInteger DEFAULT 21000 NOT NULL,
+    gasUsed TEXT as BigInteger DEFAULT 21000 NOT NULL,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -53,6 +53,16 @@ FROM EthAccountBacking AS eb
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasUsed)
 VALUES (?, ?, ?, ?, ?, ?, ?);
+
+updateGasUsed:
+UPDATE EthAccountBacking
+SET gasUsed = (?)
+WHERE uuid = (?) AND txid = (?);
+
+updateNonce:
+UPDATE EthAccountBacking
+SET nonce = (?)
+WHERE uuid = (?) AND txid = (?);
 
 deleteTransaction:
 DELETE FROM EthAccountBacking
