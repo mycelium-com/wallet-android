@@ -61,7 +61,7 @@ class EthDetailsFragment : GenericDetailsFragment() {
         override fun doInBackground(vararg txid: String): BigInteger? {
             val selectedAccount = mbwManager!!.selectedAccount
             return if (selectedAccount is EthAccount) {
-                selectedAccount.fetchNonce(txid[0])
+                selectedAccount.fetchTxNonce(txid[0])
             } else {
                 null
             }

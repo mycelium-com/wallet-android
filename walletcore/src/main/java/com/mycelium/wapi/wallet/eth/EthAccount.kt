@@ -50,6 +50,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     init {
         updateClient()
+        accountContext.nonce = getNonce(receivingAddress)
     }
 
     private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
@@ -104,7 +105,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
             val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
@@ -413,7 +413,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    fun fetchNonce(txid: String): BigInteger? {
+    fun fetchTxNonce(txid: String): BigInteger? {
         return try {
             val tx = client.ethGetTransactionByHash(txid).send()
             if (tx.result == null) {
