@@ -38,7 +38,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  endpoints: List<HttpEndpoint>,
                  address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
-    private val logger = Logger.getLogger(EthBalanceService::javaClass.name)
+    private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     lateinit var client: Web3j
 

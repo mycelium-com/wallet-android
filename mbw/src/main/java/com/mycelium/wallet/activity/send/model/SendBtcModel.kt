@@ -90,7 +90,7 @@ class SendBtcModel(context: Application,
             ?: true
 
     fun sendResponseToPR(): Boolean {
-        val address = Address(receivingAddress.value!!.getBytes())
+        val address = Address(mbwManager.selectedAccount.receiveAddress.getBytes())
         val transaction = (signedTransaction as BtcTransaction).tx
         return paymentRequestHandler.value!!.sendResponse(transaction, address)
     }

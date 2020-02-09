@@ -97,7 +97,7 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
                         // it only if we get a ACK from him (in paymentRequestAck)
                         sendResponseToPR()
                     } else {
-                        makeText(context, context.getString(R.string.payment_request_not_sent_expired),
+                        makeText(activity, context.getString(R.string.payment_request_not_sent_expired),
                                 Toast.LENGTH_LONG).show()
                     }
                     return
