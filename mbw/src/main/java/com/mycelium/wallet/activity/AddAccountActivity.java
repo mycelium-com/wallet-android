@@ -160,10 +160,7 @@ public class AddAccountActivity extends Activity {
                 ethCreationAsyncTask = new ETHCreationAsyncTask(callERC20CreationDialog);
                 ethCreationAsyncTask.execute();
             }
-        } else if (ethAccounts.size() == 1) {
-            showERC20TokensOptions(ethAccounts.get(0).getId());
-        } else {
-            // else ask what account select for erc20 token addition
+        } else { // else ask what account select for erc20 token addition
             showEthAccountsOptions();
         }
     }
@@ -174,8 +171,16 @@ public class AddAccountActivity extends Activity {
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         AlertDialog.Builder dialogBuilder = getSingleChoiceDialog("Select Account", arrayAdapter);
         dialogBuilder.setPositiveButton("ok", (dialog, which) -> {
-            UUID ethAccountId = accounts.get(selectedIndex).getId();
-            showERC20TokensOptions(ethAccountId);
+            if (selectedIndex == arrayAdapter.getCount() - 1) {
+                if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                    boolean callERC20CreationDialog = true;
+                    ethCreationAsyncTask = new ETHCreationAsyncTask(callERC20CreationDialog);
+                    ethCreationAsyncTask.execute();
+                }
+            } else {
+                UUID ethAccountId = accounts.get(selectedIndex).getId();
+                showERC20TokensOptions(ethAccountId);
+            }
         });
         dialogBuilder.show();
     }
@@ -188,6 +193,7 @@ public class AddAccountActivity extends Activity {
             denominatedValue = ValueExtensionsKt.toStringWithUnit(account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
             result.add(account.getLabel() + " (" + denominatedValue + ")");
         }
+        result.add("Create new account");
         return result;
     }
 
