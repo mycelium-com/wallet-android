@@ -59,7 +59,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                         val coinType = it.key
                         val accounts = it.value
                         async {
-                            logger.log(Level.INFO, "Syncing $coinType accounts")
+                            logger.log(Level.INFO, "Syncing ${coinType.symbol} accounts")
                             accounts.forEach {
                                 val accountLabel = it.label ?: ""
                                 logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id} in ${Thread.currentThread().name} thread")
