@@ -17,6 +17,8 @@ import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.http.HttpService
+import org.web3j.tx.gas.DefaultGasProvider
+import org.web3j.tx.gas.StaticGasProvider
 import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -70,7 +72,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val erc20Tx = (tx as Erc20Transaction)
         try {
             accountContext.nonce = getNonce(receivingAddress!!)
-            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, erc20Tx.gasPrice, erc20Tx.gasLimit)
+            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
                 logger.log(Level.SEVERE, "Error sending ERC20 transaction, status not OK: ${result.status}")
@@ -195,8 +197,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun updateBalanceCache(): Boolean {
         return try {
-            // gasPrice and gasLimit constants are from https://github.com/web3j/web3j/blob/5001c05f6165d24a3df95760ea8ed8343faf46c4/core/src/main/java/org/web3j/tx/gas/DefaultGasProvider.java
-            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, BigInteger.valueOf(4_100_000_000L), BigInteger.valueOf(9_000_000))
+            // https://github.com/web3j/web3j/blob/5001c05f6165d24a3df95760ea8ed8343faf46c4/core/src/main/java/org/web3j/tx/gas/DefaultGasProvider.java
+            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
             val result = erc20Contract.balanceOf(receivingAddress!!.addressString).sendAsync()
             saveBalance(Balance(Value.valueOf(coinType, result.get()), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType)))
             true
