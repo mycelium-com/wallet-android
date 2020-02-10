@@ -8,6 +8,8 @@ import com.mycelium.net.HttpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -26,7 +28,8 @@ class ERC20Module(
         private val walletDB: WalletDB,
         private val web3jServices: List<HttpEndpoint>,
         networkParameters: NetworkParameters,
-        metaDataStorage: IMetaDataStorage) : GenericModule(metaDataStorage), WalletModule {
+        metaDataStorage: IMetaDataStorage,
+        private val ethereumModule: EthereumModule) : GenericModule(metaDataStorage), WalletModule {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
     private val ethCoinType = if (networkParameters.isProdnet) EthMain else EthTest
@@ -36,16 +39,16 @@ class ERC20Module(
         when (config) {
             is ERC20Config -> {
                 val credentials = Credentials.create(Keys.deserialize(
-                        secureStore.getDecryptedValue(config.ethAccountId.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
+                        secureStore.getDecryptedValue(config.ethAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
                 val token = config.token as ERC20Token
                 baseLabel = token.name
 
                 val uuid = UUID(BitUtils.uint64ToLong(HexUtils.toBytes(token.contractAddress.substring(2)), 0),
-                        config.ethAccountId.mostSignificantBits)
+                        config.ethAccount.id.mostSignificantBits)
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-                result = ERC20Account(accountContext, token, credentials, accountBacking, web3jServices)
+                result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking, web3jServices)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -101,7 +104,7 @@ class ERC20Module(
                     (token as ERC20Token).contractAddress,
                     token.symbol,
                     token.unitExponent,
-                    config.ethAccountId)
+                    config.ethAccount.id)
         }
     }
 
@@ -112,7 +115,8 @@ class ERC20Module(
 
         val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-        val account = ERC20Account(accountContext, token, credentials, accountBacking, web3jServices)
+        val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
+        val account = ERC20Account(accountContext, token, ethAccount, credentials, accountBacking, web3jServices)
         accounts[account.id] = account
         return account
     }

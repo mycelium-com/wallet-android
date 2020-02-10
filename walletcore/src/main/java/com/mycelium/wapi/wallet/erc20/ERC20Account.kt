@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -25,6 +26,7 @@ import kotlin.math.max
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
+                   private val ethAcc: EthAccount,
                    private val credentials: Credentials? = null,
                    private val backing: EthAccountBacking,
                    endpoints: List<HttpEndpoint>) : WalletAccount<EthAddress> {
@@ -54,6 +56,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         }
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val gasLimit = BigInteger.valueOf(90_000)
+        if (ethAcc.accountBalance.spendable.value < (gasPrice * gasLimit)) {
+            throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
+        }
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 

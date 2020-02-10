@@ -212,7 +212,7 @@ public class AddAccountActivity extends Activity {
                 setResult(RESULT_CANCELED);
                 finish();
             } else {
-                new ERC20CreationAsyncTask(getAvailableTokens(ethAccountId).get(strName), ethAccountId).execute();
+                new ERC20CreationAsyncTask(getAvailableTokens(ethAccountId).get(strName), ethAccount).execute();
             }
         });
         dialogBuilder.show();
@@ -327,11 +327,11 @@ public class AddAccountActivity extends Activity {
 
     private class ERC20CreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
         ERC20Token token;
-        UUID ethAccountId;
+        EthAccount ethAccount;
 
-        ERC20CreationAsyncTask(ERC20Token token, UUID ethAccountId) {
+        ERC20CreationAsyncTask(ERC20Token token, EthAccount ethAccount) {
             this.token = token;
-            this.ethAccountId = ethAccountId;
+            this.ethAccount = ethAccount;
         }
 
         @Override
@@ -342,7 +342,7 @@ public class AddAccountActivity extends Activity {
 
         @Override
         protected UUID doInBackground(Void... params) {
-            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccountId));
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccount));
             return accounts.get(0);
         }
 
@@ -352,7 +352,6 @@ public class AddAccountActivity extends Activity {
             _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.IGNORED);
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
-            EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
             ethAccount.addEnabledToken(token.getName());
             finishOk(account);
         }

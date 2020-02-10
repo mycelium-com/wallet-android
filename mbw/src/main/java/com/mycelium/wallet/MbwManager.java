@@ -855,13 +855,13 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
-        EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
+        EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
                 configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
-        walletManager.add(walletModule);
-        configuration.addEthServerListChangedListener(walletModule);
+        walletManager.add(ethereumModule);
+        configuration.addEthServerListChangedListener(ethereumModule);
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage()));
+                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), ethereumModule));
         walletManager.init();
 
         return walletManager;
