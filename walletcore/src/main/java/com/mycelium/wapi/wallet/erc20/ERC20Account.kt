@@ -13,9 +13,12 @@ import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
+import org.web3j.protocol.core.DefaultBlockParameterNumber
 import org.web3j.protocol.http.HttpService
 import org.web3j.tx.gas.DefaultGasProvider
 import org.web3j.tx.gas.StaticGasProvider
@@ -24,6 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.concurrent.thread
 import kotlin.math.max
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
@@ -46,6 +50,22 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun updateClient() {
         client = buildCurrentEndpoint()
+    }
+
+    private var transfersDisposable: Disposable = subscribeOnTransferEvents()
+
+    private fun subscribeOnTransferEvents(): Disposable {
+        val contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
+        return contract.transferEventFlowable(DefaultBlockParameterNumber(accountContext.blockHeight.toLong()), DefaultBlockParameterName.PENDING)
+                .subscribeOn(Schedulers.io())
+                .subscribe {
+                    val txhash = it.log!!.transactionHash
+                    val tx = client.ethGetTransactionByHash(txhash).send()
+                    backing.putTransaction(-1, System.currentTimeMillis () / 1000, txhash,
+                            "", it.from!!, it.to!!, transformValueForDb(Value.valueOf(token, it.value!!)),
+                            Value.valueOf(basedOnCoinType, tx.result.gasPrice * tx.result.gas), 0,
+                            tx.result.nonce, tx.result.gas, tx.result.gas)
+                }
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -151,11 +171,15 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
+        thread {
+            transfersDisposable.dispose()
+        }
     }
 
     override fun activateAccount() {
         accountContext.archived = false
         dropCachedData()
+        transfersDisposable = subscribeOnTransferEvents()
     }
 
     override fun dropCachedData() {
@@ -229,6 +253,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 Value.valueOf(coinType, 0))
     }
 
+    /**
+     * replace coinType -> basedOnCoinType before insert into db
+     */
     private fun transformValueForDb(value: Value): Value {
         return Value.valueOf(basedOnCoinType, value.value)
     }
@@ -260,6 +287,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                         if (remoteTx.result.blockNumberRaw != null) {
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
+                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
+                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
+                                if (!txReceipt.hasError()) {
+                                    val newFee = Value.valueOf(basedOnCoinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
+                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
+                                }
+                            }
                             val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
                             else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
@@ -282,7 +316,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return true
     }
 
-    @Throws(Exception::class)
     private fun getNonce(address: EthAddress): BigInteger {
         return try {
             val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
