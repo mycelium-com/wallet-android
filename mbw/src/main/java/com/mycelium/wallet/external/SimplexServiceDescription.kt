@@ -3,13 +3,11 @@ package com.mycelium.wallet.external
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.simplex.SimplexMainActivity
@@ -47,18 +45,8 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                     .setTitle(R.string.select_you_region)
                     .setAdapter(adapter) { _, i ->
                         if (regions[adapter.getItem(i)] == true) {
-                            val intent = if (i == 0) {
-                                Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(String.format(if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
-                                            BuildConfig.SAFELLO_ETH
-                                        } else {
-                                            BuildConfig.SAFELLO
-                                        }, receivingAddress.toString())))
-                            } else {
-                                Intent(context, SimplexMainActivity::class.java)
-                                        .putExtra("walletAddress", receivingAddress.toString())
-                            }
-                            context.startActivity(intent)
+                            context.startActivity(Intent(context, SimplexMainActivity::class.java)
+                                    .putExtra("walletAddress", receivingAddress.toString()))
                         }
                     }
                     .create().show()
@@ -88,7 +76,6 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
                 super.getView(position, convertView, parent).apply {
                     isEnabled = content[getItem(position)] ?: true
-
                 }
     }
 }

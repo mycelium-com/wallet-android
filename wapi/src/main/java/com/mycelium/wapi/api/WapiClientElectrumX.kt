@@ -37,7 +37,6 @@ class WapiClientElectrumX(
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
-    private var isInForeground = true
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
         bestChainHeight = if (rpcResponse.hasResult) {
@@ -48,13 +47,8 @@ class WapiClientElectrumX(
     }
     private var rpcClient = JsonRpcTcpClient(endpoints, logger)
 
-    override fun setAppInForeground(isInForeground: Boolean) {
-        this.isInForeground = isInForeground
-        updateClient()
-    }
-
     private fun updateClient() {
-        rpcClient.setActive(isInForeground && isNetworkConnected)
+        rpcClient.setActive(isNetworkConnected)
     }
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {

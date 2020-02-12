@@ -32,6 +32,11 @@ UPDATE AccountBacking
 SET blockNumber = (?), confirmations = (?)
 WHERE uuid = (?) AND txid = (?);
 
+updateFee:
+UPDATE AccountBacking
+SET fee = (?)
+WHERE uuid = (?) AND txid = (?);
+
 deleteTransaction:
 DELETE FROM AccountBacking
 WHERE uuid = (?) AND txid = (?);

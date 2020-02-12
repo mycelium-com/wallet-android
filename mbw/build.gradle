@@ -70,6 +70,7 @@ dependencies {
     implementation "com.google.code.findbugs:annotations:$findBugsVersion"
     implementation "com.squareup:otto:$ottoVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation "androidx.core:core-ktx:1.1.0"
     implementation "androidx.legacy:legacy-support-v4:$xLegacyVersion"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
     implementation "androidx.recyclerview:recyclerview:$recyclerViewVersion"
@@ -161,8 +162,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3030015
-        versionName '3.3.0.15'
+        versionCode 3030017
+        versionName '3.3.0.17'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

@@ -42,6 +42,7 @@ import java.util.regex.Pattern
 
 abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(context) {
     var activityResultDialog: DialogFragment? = null
+    var activity: Activity? = null
     lateinit var amountHint: String
         private set
 
@@ -68,14 +69,14 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         @Subscribe
         fun syncFailed(event: SyncFailed) {
             progressDialog?.dismiss()
-            makeText(context, R.string.warning_sync_failed_reusing_first, LENGTH_LONG).show()
+            makeText(activity, R.string.warning_sync_failed_reusing_first, LENGTH_LONG).show()
         }
 
         @Subscribe
         fun paymentRequestException(ex: PaymentRequestException) {
             //todo: maybe hint the user, that the merchant might broadcast the transaction later anyhow
             // and we should move funds to a new address to circumvent it
-            Utils.showSimpleMessageDialog(context,
+            Utils.showSimpleMessageDialog(activity,
                     String.format(context.getString(R.string.payment_request_error_while_getting_ack), ex.message))
         }
 
@@ -219,7 +220,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun onClickClipboard() {
         val uri = model.clipboardUri.value ?: return
-        makeText(context, context.getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show()
+        makeText(activity, context.getString(R.string.using_address_from_clipboard), LENGTH_SHORT).show()
         model.receivingAddress.value = uri.address
         if (uri.value != null && !uri.value!!.isNegative()) {
             model.amount.value = uri.value
@@ -263,7 +264,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         if (resultCode != Activity.RESULT_OK) {
             val error = data?.getStringExtra(StringHandlerActivity.RESULT_ERROR)
             if (error != null) {
-                makeText(context, error, LENGTH_LONG).show()
+                makeText(activity, error, LENGTH_LONG).show()
             }
         } else {
             when (data?.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY) as ResultType) {
@@ -274,7 +275,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     if (data.getAddress().coinType == getAccount().coinType) {
                         model.receivingAddress.value = data.getAddress()
                     } else {
-                        makeText(context, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
+                        makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                     }
                 }
                 ResultType.ASSET_URI -> {
@@ -284,7 +285,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     if (uri.value != null && uri.value!!.isPositive()) {
                         //we set the amount to the one contained in the qr code, even if another one was entered previously
                         if (!Value.isNullOrZero(model.amount.value)) {
-                            makeText(context, R.string.amount_changed, LENGTH_LONG).show()
+                            makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
                         }
                         model.amount.value = uri.value
                     }
