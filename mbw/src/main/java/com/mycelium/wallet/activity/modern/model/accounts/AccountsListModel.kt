@@ -10,7 +10,7 @@ import com.mycelium.wallet.MbwManager
 class AccountsListModel(application: Application) : AndroidViewModel(application) {
     val accountsData : AccountsViewLiveData
     init {
-        val mbwManager = MbwManager.getInstance(application)!!
+        val mbwManager = MbwManager.getInstance(application)
         accountsData = AccountsViewLiveData(mbwManager)
     }
 }

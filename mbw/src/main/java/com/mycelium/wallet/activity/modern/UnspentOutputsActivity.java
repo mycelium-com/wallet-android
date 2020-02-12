@@ -113,7 +113,7 @@ public class UnspentOutputsActivity extends Activity {
       TextView tv = new TextView(this);
       tv.setLayoutParams(FPWC);
       tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-      tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination()));
+      tv.setText(ValueExtensionsKt.toStringWithUnit(value, _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
       tv.setTextColor(getResources().getColor(R.color.white));
       return tv;
    }

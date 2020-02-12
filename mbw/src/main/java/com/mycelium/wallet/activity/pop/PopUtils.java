@@ -49,7 +49,7 @@ class PopUtils {
       long txSatoshis;
       CryptoCurrency currency = Utils.getBtcCoinType();
       if (transaction.getType() == currency) {
-         txSatoshis = (transaction.getTransferred().abs()).value;
+         txSatoshis = (transaction.getTransferred().abs()).getValueAsLong();
       } else {
          txSatoshis = -1L;
       }

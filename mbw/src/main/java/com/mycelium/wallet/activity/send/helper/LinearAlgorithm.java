@@ -10,8 +10,8 @@ public class LinearAlgorithm implements FeeItemsAlgorithm {
     private int minPosition;
     private int maxPosition;
 
-    private float a;
-    private float b;
+    private double a;
+    private double b;
 
     public LinearAlgorithm(long min, int minPos, long max, int maxPos) {
         this.minPosition = minPos;

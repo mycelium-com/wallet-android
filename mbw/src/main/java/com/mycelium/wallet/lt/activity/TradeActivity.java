@@ -81,7 +81,7 @@ import com.mycelium.lt.api.params.TradeChangeParameters;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
@@ -370,10 +370,13 @@ public class TradeActivity extends Activity {
    private void createSignedTransaction(TradeSession ts, MbwManager mbwManager) {
       checkNotNull(ts.buyerAddress);
       WalletAccount acc = mbwManager.getSelectedAccount();
-
+      long feeEstimation = mbwManager.getFeeProvider(acc.getCoinType())
+              .getEstimation()
+              .getNormal()
+              .getValueAsLong();
       // Create unsigned transaction
       UnsignedTransaction unsigned = TradeActivityUtil.createUnsignedTransaction(ts.satoshisFromSeller, ts.satoshisForBuyer,
-            ts.buyerAddress, ts.feeAddress, acc, acc.getFeeEstimations().getNormal().value);
+            ts.buyerAddress, ts.feeAddress, acc, feeEstimation);
       CryptoCurrency cryptoCurrency = _mbwManager.getSelectedAccount().getCoinType();
       BtcTransaction unsignedTransaction = new BtcTransaction(cryptoCurrency, unsigned);
       Intent intent = SignTransactionActivity.getIntent(TradeActivity.this, _mbwManager.getSelectedAccount().getId(), false, unsignedTransaction);
@@ -868,7 +871,7 @@ public class TradeActivity extends Activity {
          }
       } else if (requestCode == SIGN_TX_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
             BtcTransaction btcTransaction = (BtcTransaction)signedTransaction;
             Transaction tx = btcTransaction.getTx();
             if (tx == null) {

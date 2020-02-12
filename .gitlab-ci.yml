@@ -18,7 +18,6 @@ build:
       - LVL/build/reports/
       - bitlib/build/reports/
       - btchip/build/reports/
-      - coinapult/build/reports/
       - lt-api/build/reports/
       - libs/zxing-android/build/reports/
       - libs/nordpol/build/reports/

@@ -125,7 +125,6 @@
                 <data android:scheme="btcpop" />
             </intent-filter>
 
-            <!-- Glidera -->
             <!-- used as a callback url from within the browser after signup -->
             <intent-filter android:label="@string/mycelium">
                 <action android:name="android.intent.action.VIEW" />
@@ -164,7 +163,8 @@
             android:stateNotNeeded="true"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden"/>
-        <activity android:name=".activity.TransactionDetailsActivity" />
+        <activity android:name=".activity.TransactionDetailsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity
             android:name=".activity.settings.SettingsActivity"
             android:label="@string/settings"
@@ -183,7 +183,8 @@
         <activity android:name=".activity.send.InstantWalletActivity" />
         <activity android:name=".activity.send.SendInitializationActivity" />
         <activity android:name=".activity.send.ColdStorageSummaryActivity" />
-        <activity android:name=".activity.send.SendMainActivity" />
+        <activity android:name=".activity.send.SendCoinsActivity"
+            android:theme="@style/MyceliumNoActionBarFullScreen"/>
         <activity android:name=".activity.send.ManualAddressEntry" />
         <activity android:name=".activity.send.SignTransactionActivity" />
         <activity android:name=".activity.receive.ReceiveCoinsActivity"
@@ -244,7 +245,6 @@
         <activity android:name=".activity.pop.PopActivity" />
         <activity android:name=".activity.pop.PopSelectTransactionActivity" />
         <activity android:name=".external.BuySellSelectActivity" />
-        <activity android:name=".activity.send.GetBtcAccountForFeeActivity" />
         <activity android:name=".activity.MessageVerifyActivity"/>
         <activity android:name=".external.changelly.bch.ExchangeActivity"
             android:theme="@style/MyceliumExchange"/>
@@ -258,5 +258,6 @@
         </activity>
         <activity android:name=".activity.news.NewsImageActivity"
             android:screenOrientation="landscape"/>
+        <activity android:name=".activity.export.ExportFioKeyActivity"></activity>
     </application>
 </manifest>

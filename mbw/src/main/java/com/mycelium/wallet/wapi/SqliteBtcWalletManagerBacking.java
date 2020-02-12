@@ -57,19 +57,15 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionEx;
 import com.mycelium.wapi.model.TransactionOutputEx;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
+import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.Bip44BtcAccountBacking;
-import com.mycelium.wapi.wallet.btc.BtcAccountBacking;
 import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AccountIndexesContext;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountContext;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -79,7 +75,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
    private static final String LOG_TAG = "SqliteBtcAccountBacking";
    private static final String TABLE_KV = "kv";
    private static final int DEFAULT_SUB_ID = 0;
-   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
    private SQLiteDatabase _database;
    private final Gson gson = new GsonBuilder().create();
    private Map<UUID, SqliteBtcAccountBacking> _backings;
@@ -546,22 +541,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
       private final SQLiteStatement _deleteTxRefersParentTx;
       private final SQLiteDatabase _db;
 
-      private class FeeEstimationSerialized implements Serializable {
-          private long low;
-          private long economy;
-          private long normal;
-          private long high;
-          private long lastCheck;
-
-          FeeEstimationSerialized(long low, long economy, long normal, long high, long lastCheck) {
-              this.low = low;
-              this.economy = economy;
-              this.normal = normal;
-              this.high = high;
-              this.lastCheck = lastCheck;
-          }
-      }
-
       private SqliteBtcAccountBacking(UUID id, SQLiteDatabase db) {
          _id = id;
          _db = db;
@@ -589,40 +568,6 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          _db.execSQL("DROP TABLE IF EXISTS " + getTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getOutgoingTxTableName(tableSuffix));
          _db.execSQL("DROP TABLE IF EXISTS " + getTxRefersPtxoTableName(tableSuffix));
-      }
-
-      @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         byte[] key = getLastFeeKey(assetType);
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                                                                         feeEstimation.getEconomy().value,
-                                                                         feeEstimation.getNormal().value,
-                                                                         feeEstimation.getHigh().value,
-                                                                         feeEstimation.getLastCheck());
-         byte[] value = gson.toJson(feeValues).getBytes();
-         setValue(key, value);
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         byte[] key = getLastFeeKey(assetType);
-         FeeEstimationSerialized feeValues;
-         try {
-            String feeValuesJson = new String(getValue(key));
-            feeValues = gson.fromJson(feeValuesJson, FeeEstimationSerialized.class);
-         } catch(Exception ignore) {
-            return null;
-         }
-
-         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                 Value.valueOf(assetType, feeValues.economy),
-                 Value.valueOf(assetType, feeValues.normal),
-                 Value.valueOf(assetType, feeValues.high),
-                 feeValues.lastCheck);
-      }
-
-      private byte[] getLastFeeKey(GenericAssetInfo asset) {
-         return (asset.getName() + LAST_FEE_ESTIMATE).getBytes();
       }
 
       @Override

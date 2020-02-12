@@ -56,7 +56,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.fragment.app.Fragment;
-
 import com.mycelium.wallet.AddressBookManager;
 import com.mycelium.wallet.AddressBookManager.Entry;
 import com.mycelium.wallet.MbwManager;
@@ -76,10 +75,6 @@ import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.event.AssetSelected;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
-import com.mycelium.wapi.wallet.btc.BtcAddress;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
-import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -177,11 +172,9 @@ public class AddressBookFragment extends Fragment {
             String name = mbwManager.getMetadataStorage().getLabelByAccount(account.getId());
             Drawable drawableForAccount = Utils.getDrawableForAccount(account, true, getResources());
             if (account.getReceiveAddress() != null &&
-                    (selectedAccount instanceof CoinapultAccount && isBtcOrCoinapult(account)
-                            || isBtcAccount(selectedAccount) && account instanceof CoinapultAccount
-                            || selectedAccount.getCoinType().equals(account.getCoinType()))
+                    selectedAccount.getCoinType().equals(account.getCoinType())
             ) {
-                    entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
+                entries.add(new AddressBookManager.IconEntry(account.getReceiveAddress(), name, drawableForAccount, account.getId()));
             }
         }
         if (entries.isEmpty()) {
@@ -193,14 +186,6 @@ public class AddressBookFragment extends Fragment {
             ListView list = (ListView) findViewById(R.id.lvForeignAddresses);
             list.setAdapter(new AddressBookAdapter(getActivity(), R.layout.address_book_my_address_row, entries));
         }
-    }
-
-    private boolean isBtcAccount(WalletAccount account) {
-        return account.getCoinType().equals(BitcoinMain.get()) || account.getCoinType().equals(BitcoinTest.get());
-    }
-
-    private boolean isBtcOrCoinapult(WalletAccount account) {
-        return account instanceof CoinapultAccount || isBtcAccount(account);
     }
 
     private void updateUiForeign() {
@@ -222,13 +207,12 @@ public class AddressBookFragment extends Fragment {
     }
 
     private void updateUiSending() {
-        List<GenericAddress> addresses = mbwManager.getMetadataStorage().getAllGenericAddress();
         Map<GenericAddress, String> rawEntries = mbwManager.getMetadataStorage().getAllAddressLabels();
         List<Entry> entries = new ArrayList<>();
         WalletAccount account = mbwManager.getSelectedAccount();
-        for (GenericAddress address : addresses) {
-            if (address.getCoinType().equals(account.getCoinType())) {
-                entries.add(new Entry(address, rawEntries.get(address)));
+        for (Map.Entry<GenericAddress, String> e : rawEntries.entrySet()) {
+            if (e.getKey().getCoinType().equals(account.getCoinType())) {
+                entries.add(new Entry(e.getKey(), e.getValue()));
             }
         }
         entries = Utils.sortAddressbookEntries(entries);
@@ -321,7 +305,7 @@ public class AddressBookFragment extends Fragment {
             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.cancel();
-                    mbwManager.getMetadataStorage().deleteAddressMetadata(((BtcAddress) mSelectedAddress).getAddress());
+                    mbwManager.getMetadataStorage().deleteAddressMetadata(mSelectedAddress);
                     finishActionMode();
                     MbwManager.getEventBus().post(new AddressBookChanged());
                 }
@@ -404,14 +388,12 @@ public class AddressBookFragment extends Fragment {
 
     private void addFromAddress(GenericAddress address) {
         EnterAddressLabelUtil.enterAddressLabel(requireContext(), mbwManager.getMetadataStorage(), address, "", addressLabelChanged);
-        mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
     }
 
     private AddressLabelChangedHandler addressLabelChanged = (address, label) -> {
         finishActionMode();
         MbwManager.getEventBus().post(new AddressBookChanged());
     };
-
     private final Runnable pinProtectedEditEntry = () ->
             EnterAddressLabelUtil.enterAddressLabel(requireActivity(), mbwManager.getMetadataStorage(),
                     mSelectedAddress, "", addressLabelChanged);

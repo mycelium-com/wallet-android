@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">Dodaj nepovezan račun</string>
     <string name="import_seed_title">Uvozi glavno seme</string>
     <string name="import_words_title">Vnesite niz besed</string>
-    <string name="add_account_desc">Mycelium podpira dve vrsti računov: HD-račune in posamične račune. Posamičen račun vsebuje samo en naslov, HD-račun pa več naslovov. Vsi HD-računi se ustvarijo iz istega glavnega semena. Glavno seme se nastavi, ko ustvarite prvi HD-račun.</string>
+    <string name="add_account_desc">Mycelium podpira dve vrsti računov: HD Bitcoin-račune in posamične račune. Posamičen račun vsebuje samo en naslov, HD Bitcoin-račun pa več naslovov. Vsi HD Bitcoin-računi se ustvarijo iz istega glavnega semena. Glavno seme se nastavi, ko ustvarite prvi HD Bitcoin-račun.</string>
     <string name="add_single_acc_info">Če želite dodati posamični račun z zasebnim ključem ali naslovom, izberite Napredno spodaj.</string>
-    <string name="scan_desc">Prečitajte bitcoin naslov, zasebni ključ ali HD-račun.</string>
+    <string name="scan_desc">Prečitajte bitcoin naslov, zasebni ključ ali HD Bitcoin-račun.</string>
     <string name="scan_seed">Prečitaj glavno seme iz rezervne kopije</string>
-    <string name="use_acc_first">Imate lahko le en neuporabljen HD-račun.</string>
+    <string name="use_acc_first">Imate lahko le en neuporabljen HD Bitcoin-račun.</string>
     <string name="clipboard_desc">Uvozi bitcoin naslov ali zasebni ključ z odložišča.</string>
     <string name="wordlist_des">Ustvari glavno seme iz niza besed</string>
     <string name="scan">Prečitaj</string>
     <string name="advanced">Napredno</string>
     <string name="clipboard">Odložišče</string>
     <string name="enter_wordlist">Vnesite niz besed</string>
-    <string name="hd_account">Dodaj HD-račun</string>
+    <string name="hd_account">Dodaj HD Bitcoin-račun</string>
     <string name="close">Zapri</string>
     <string name="sending">Pošiljam %1$s</string>
     <string name="receiving">Prejemam %1$s</string>
@@ -103,15 +103,15 @@
     <string name="delete">Izbriši</string>
     <string name="payment_request">Zahtevek za plačilo</string>
     <string name="export_account_data_warning">Izvozili boste občutljive podatke izbranega računa.\n\nVsakdo, ki dobi dostop do teh ključev, si lahko prilasti bitcoine na njih ali pridobi podatke, ki bi lahko ogrozili vašo zasebnost.\n\nŽelite nadaljevati?</string>
-    <string name="backup_all_warning">Napraviti morate rezervno kopijo glavnega semena.\nRezervna kopija glavnega semena vam omogoča obnovitev sredstev na vaših HD-računih, če se vaša naprava izgubi, poškoduje ali drugače odtuji.\n\nŽelite to storiti zdaj?</string>
+    <string name="backup_all_warning">Napraviti morate rezervno kopijo glavnega semena.\nRezervna kopija glavnega semena vam omogoča obnovitev sredstev na vaših HD Bitcoin-računih, če se vaša naprava izgubi, poškoduje ali drugače odtuji.\n\nŽelite to storiti zdaj?</string>
     <string name="export_to_clipboard_warning">Opozorilo: če zasebni ključ kopirate na odložišče, lahko do njega dostopajo vse aplikacije na vašem sistemu.\n\nPozor: Za rezervno kopiranje ni dovolj, da ključ le kopirate na odložišče; potem ga morate še prilepiti na varno mesto.\n\nŽelite nadaljevati?</string>
     <string name="found_clipboard_private_key_title">Zasebni ključ najden na odložišču</string>
     <string name="exchange_source_not_available">Menjalni tečaj za %1$s ni na voljo</string>
-    <string name="my_own_address_warning">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</string>
-    <string name="read_only_warning">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Opomba: Nakazilo pošiljate na enega od svojih naslovov.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Opozorilo: V tej denarnici ni zasebnega ključa za ta naslov.\nPrejetih novcev ne morete porabiti, razen če imate kje shranjen ustrezni zasebni ključ. </font>]]></string>
     <string name="add_to_address_book_dialog_title">Dodaj naslov</string>
-    <string name="scan_address_book_desc">Prečitaj bitcoin naslov.</string>
-    <string name="clipboard_address_book_desc">Pridobi bitcoin naslov z odložišča.</string>
+    <string name="scan_address_book_desc">Prečitaj naslov.</string>
+    <string name="clipboard_address_book_desc">Pridobi naslov z odložišča.</string>
     <string name="max">max</string>
     <string name="get_private_key">Pridobi zasebni ključ iz:</string>
     <string name="cold_storage">Hladna hramba</string>
@@ -399,7 +399,7 @@
     <string name="ignore_update">Posodobil bom kasneje</string>
     <string name="get_from">Vir posodobitve:</string>
     <string name="sign_message">Podpiši sporočilo</string>
-    <string name="cant_sign_message">S HD-računom ne morete podpisati sporočila</string>
+    <string name="cant_sign_message">S HD Bitcoin-računom ne morete podpisati sporočila</string>
     <string name="enter_message_hint">Tu vnesite sporočilo, ki ga želite podpisati</string>
     <string name="copy_signature">Kopiraj podpis na odložišče</string>
     <string name="share_signature">Deli besedilo in podpis</string>
@@ -431,7 +431,7 @@
     <string name="invalid_bitid_uri">Neveljaven URI za BitID</string>
     <!-- BitID end -->
     <string name="selected_archived_warning">Na arhiviranih računih ne morete delati.</string>
-    <string name="hd_account_creation_started">Ustvarjam nov HD-račun&#8230;</string>
+    <string name="hd_account_creation_started">Ustvarjam nov HD Bitcoin-račun&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Pripravljam denarnico&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Računam glavno seme&#8230;</string>
     <string name="importing_wordlist_enter_next_word">vnesite besedo št. %1$s od %2$s</string>
@@ -475,7 +475,7 @@
     <string name="note_down_password_title">Zapišite si geslo</string>
     <string name="title_wrong_password">Napačno geslo; prosimo, poskusite ponovno</string>
     <string name="decryption_password_hint">VNE SIT EVA ŠEG ESL O</string>
-    <string name="dont_allow_archiving_unused_notification">Nerabljenega HD-računa ne morete arhivirati</string>
+    <string name="dont_allow_archiving_unused_notification">Nerabljenega HD Bitcoin-računa ne morete arhivirati</string>
     <string name="newly_generated_coins_from_coinbase">Novonastali novci</string>
     <string name="button_continue">Naprej</string>
     <string name="butto_show_release_notes">Prikaži podrobnosti</string>
@@ -486,7 +486,7 @@
     <string name="pref_legacy_backup_verify_summary">Preveri obstoječo podedovano rezervno kopijo</string>
     <string name="error_no_browser">Prikaz spletne strani ni mogoč, na napravi ne najdem brskalnika</string>
     <string name="transaction_label_title">Oznaka nakazila</string>
-    <string name="no_spending_records">Trenutno v denarnici ni nobenega računa, s katerega bi bilo mogoče plačevanje.\n\nČe želite plačevati, potrebujete račun, ki vsebuje zasebni ključ. Trenutno ni nobenega aktivnega HD-računa ali računa s posamičnim zasebnim ključem. Prosimo, aktivirajte ali uvozite račun z zasebnim ključem, če želite plačevati.</string>
+    <string name="no_spending_records">Trenutno v denarnici ni nobenega računa, s katerega bi bilo mogoče plačevanje.\n\nČe želite plačevati, potrebujete račun, ki vsebuje zasebni ključ. Trenutno ni nobenega aktivnega HD Bitcoin-računa ali računa s posamičnim zasebnim ključem. Prosimo, aktivirajte ali uvozite račun z zasebnim ključem, če želite plačevati.</string>
     <string name="select_key_for_signing">Izberite ključ za podpis</string>
     <string name="playstore_link_label">Povezava na Play Store</string>
     <string name="direct_apk_link_label">Neposreden\nprenos</string>
@@ -532,13 +532,13 @@
     <string name="account_found">%s najden</string>
     <string name="account_balance_sending_amount">(pošiljam %s)</string>
     <string name="trezor_cold_storage_header">Trezor - hladna hramba</string>
-    <string name="trezor_import_account">Uvozi Trezorjev HD-račun</string>
+    <string name="trezor_import_account">Uvozi Trezorjev HD Bitcoin-račun</string>
     <string name="trezor_new_firmware_description">Na voljo je nova strojna programska oprema za Trezor\nProsimo, uporabite MyTrezor.com na svojem računalniku za posodobitev.</string>
     <string name="ledger_initial_status">Prosimo, povežite ali prislonite svoj Ledger</string>
     <string name="ledger_scanning_status">Ledger je OK - čitam račune</string>
     <string name="ledger_cold_storage_header">Denarnica Ledger</string>
     <string name="select_ledger_account_to_spend_from">Izberite račun za trošenje</string>
-    <string name="ledger_import_account">Uvozi Ledgerjev HD-račun</string>
+    <string name="ledger_import_account">Uvozi Ledgerjev HD Bitcoin-račun</string>
     <string name="ledger_import_account_caption">Uvozi račun</string>
     <string name="ledger_select_account_to_import">Izberite račun za uvoz</string>
     <string name="ledger_amount">Znesek:</string>
@@ -567,8 +567,8 @@
     <string name="both">Oboje</string>
     <string name="button_changelog">Zapisnik sprememb</string>
     <string name="hint_type_to_filter">filtrirajte s tipkanjem</string>
-    <string name="info_add_account_keep_backup_secure">Pomni: vsi vaši HD-računi so izpeljani iz vašega glavnega semena - če varno hranite svojo 12-besedno rezervno kopijo, lahko iz nje vedno obnovite vse svoje HD-račune.</string>
-    <string name="warning_add_account_no_backup">Opozorilo: rezervne kopije svojega glavnega semena niste potrdili. Vsi vaši HD-računi so izpeljani iz nje. Ti računi so varni in obnovljivi le, če hranite varno in preverjeno rezervno kopijo.</string>
+    <string name="info_add_account_keep_backup_secure">Pomni: vsi vaši HD Bitcoin-računi so izpeljani iz vašega glavnega semena - če varno hranite svojo 12-besedno rezervno kopijo, lahko iz nje vedno obnovite vse svoje HD Bitcoin-račune.</string>
+    <string name="warning_add_account_no_backup">Opozorilo: rezervne kopije svojega glavnega semena niste potrdili. Vsi vaši HD Bitcoin-računi so izpeljani iz nje. Ti računi so varni in obnovljivi le, če hranite varno in preverjeno rezervno kopijo.</string>
     <string name="transaction_to_address_prefix">Za: %s</string>
     <string name="tor_state_init">TOR: inicializacija</string>
     <!-- from libNetCipher -->
@@ -646,8 +646,6 @@
     <string name="pop_message_from_server">Sporočilo s strežnika:</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

@@ -8,7 +8,7 @@
     <string name="scan">Scanează</string>
     <string name="advanced">Avansat</string>
     <string name="enter_wordlist">Introdu Lista de Cuvinte</string>
-    <string name="hd_account">Adauga un Cont HD (ierahic determinist)</string>
+    <string name="hd_account">Adauga un Cont HD Bitcoin (ierahic determinist)</string>
     <string name="close">Închide</string>
     <string name="sending">Se trimite %1$s</string>
     <string name="receiving">Se primeşte %1$s</string>
@@ -85,8 +85,8 @@
     <string name="payment_request">Cerere de Plată</string>
     <string name="found_clipboard_private_key_title">Cheie privată descoperită în Clipboard</string>
     <string name="add_to_address_book_dialog_title">Adaugă adresă</string>
-    <string name="scan_address_book_desc">Scanează Adresa Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Preia adresa Bitcoin din clipboard.</string>
+    <string name="scan_address_book_desc">Scanează Adresa.</string>
+    <string name="clipboard_address_book_desc">Preia adresa din clipboard.</string>
     <string name="max">Maxim</string>
     <string name="get_private_key">Preia cheia privată din:</string>
     <string name="cold_storage">Depozitare Offline</string>
@@ -250,8 +250,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

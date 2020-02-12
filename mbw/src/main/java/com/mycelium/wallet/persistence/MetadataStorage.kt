@@ -49,6 +49,8 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.colu.coins.*
+import com.mycelium.wapi.wallet.eth.coins.EthMain
+import com.mycelium.wapi.wallet.eth.coins.EthTest
 import com.mycelium.wapi.wallet.metadata.MetadataCategory
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -128,34 +130,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             } else {
                 Optional.absent<Int>()
             }
-        }
-
-    val coinapultCurrencies: String
-        get() {
-            return getKeyCategoryValueEntry(COINAPULT.of("currencies"), "")
-        }
-
-    val coinapultLastFlush: Int
-        get() {
-            return try {
-                Integer.valueOf(getKeyCategoryValueEntry(COINAPULT.of("flush"), "0"))
-            } catch (ex: NumberFormatException) {
-                0
-            }
-
-        }
-
-    var coinapultMail: String
-        get() {
-            val mail = getKeyCategoryValueEntry(COINAPULT.of(EMAIL))
-            return if (mail.isPresent) {
-                mail.get()
-            } else {
-                ""
-            }
-        }
-        set(mail) {
-            storeKeyCategoryValueEntry(COINAPULT.of(EMAIL), mail)
         }
 
     val coluAssetIds: Iterable<String>
@@ -273,6 +247,8 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
             "Mass Token Test" -> MASSCoinTest
             "RMC" -> RMCCoin
             "RMC Test" -> RMCCoinTest
+            "Ethereum" -> EthMain
+            "Ethereum test" -> EthTest
             else -> null
         }
     }
@@ -281,7 +257,7 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         return getKeyCategoryValueEntry(ADDRESSLABEL_CATEGORY.of(address.toString()), "")
     }
 
-    fun deleteAddressMetadata(address: Address) {
+    fun deleteAddressMetadata(address: GenericAddress) {
         // delete everything related to this address from metadata
         deleteAllByKey(address.toString())
     }
@@ -362,30 +338,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         storeKeyCategoryValueEntry(ARCHIVED.of(uuid.toString()), if (archived) "1" else "0")
     }
 
-    fun storeCoinapultCurrencies(currencies: String) {
-        storeKeyCategoryValueEntry(COINAPULT.of("currencies"), currencies)
-    }
-
-    fun storeCoinapultLastFlush(marker: Int) {
-        storeKeyCategoryValueEntry(COINAPULT.of("flush"), Integer.toString(marker))
-    }
-
-    fun storeCoinapultAddress(address: Address, forCurrency: String) {
-        storeKeyCategoryValueEntry(COINAPULT.of("last$forCurrency"), address.toString())
-    }
-
-    fun deleteCoinapultAddress(forCurrency: String) {
-        deleteByKeyCategory(COINAPULT.of("last$forCurrency"))
-    }
-
-    fun getCoinapultAddress(forCurrency: String): Optional<Address> {
-        val last = getKeyCategoryValueEntry(COINAPULT.of("last$forCurrency"))
-        if (!last.isPresent) {
-            return Optional.absent()
-        }
-        return Optional.fromNullable(Address.fromString(last.get()))
-    }
-
     fun storeColuAssetCoinSupply(assetIds: String, value: BigDecimal) {
         storeKeyCategoryValueEntry(COLU.of("coinsupply$assetIds"), value.toPlainString())
     }
@@ -410,7 +362,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
     fun getColuBalance(coluAccountUuid: UUID): Optional<String> {
         return getKeyCategoryValueEntry(COLU.of("balance$coluAccountUuid"))
     }
-
 
     //Example: currency = "BTC", basecurrency = "USD", market = "Bitstamp", rateValue = "4500.2"
     fun storeExchangeRate(currency: String, baseCurrency: String, market: String, rateValue: String) {
@@ -494,7 +445,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
         }
     }
 
-    private val COINAPULT = MetadataCategory("coinapult_adddr")
     private val ADDRESSLABEL_CATEGORY = MetadataCategory("addresslabel")
     private val ADDRESSCOINTYPE_CATEGORY = MetadataCategory("addresscointype")
     private val ACCOUNTLABEL_CATEGORY = MetadataCategory("al")
@@ -507,10 +457,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
 
     // various key value fields info for colu
     private val COLU = MetadataCategory("colu_data")
-    // associates asset label for each assetId
-    private val COLU_ASSET_LABEL_CATEGORY = MetadataCategory("colu_asset_labels")
-    // associates all asset data for each assetId
-    private val COLU_ASSET_DATA_CATEGORY = MetadataCategory("colu_asset_data")
 
     private val SEED_BACKUPSTATE = MetadataKeyCategory("seed", "backupstate")
     private val PIN_RESET_BLOCKHEIGHT = MetadataKeyCategory("pin", "reset_blockheight")
@@ -522,7 +468,6 @@ object MetadataStorage : GenericMetadataStorage(WalletApplication.getInstance())
     private val SEPA_IS_ENABLED = MetadataKeyCategory("sepa", "enable")
     private val CHANGELLY_IS_ENABLED = MetadataKeyCategory("changelly", "enable")
     private val EMAIL = "email"
-    val PAIRED_SERVICE_COINAPULT = "coinapult"
     @JvmField
     val PAIRED_SERVICE_COLU = "colu"
 }

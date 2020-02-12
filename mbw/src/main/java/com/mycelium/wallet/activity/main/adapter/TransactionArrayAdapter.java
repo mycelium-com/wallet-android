@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.util.AdaptiveDateFormat;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -34,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.mycelium.wallet.activity.send.SendMainActivity.TRANSACTION_FIAT_VALUE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
@@ -66,7 +66,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
       _storage = _mbwManager.getMetadataStorage();
       _addressBook = addressBook;
       _alwaysShowAddress = alwaysShowAddress;
-      transactionFiatValuePref = context.getSharedPreferences(TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
+      transactionFiatValuePref = context.getSharedPreferences(SendCoinsActivity.TRANSACTION_FIAT_VALUE, MODE_PRIVATE);
 
       SharedPreferences sharedPreferences = context.getSharedPreferences(BCH_EXCHANGE, MODE_PRIVATE);
       exchangeTransactions = sharedPreferences.getStringSet(BCH_EXCHANGE_TRANSACTIONS, new HashSet<String>());
@@ -106,12 +106,14 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Set value
       TextView tvAmount = rowView.findViewById(R.id.tvAmount);
-      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(), _mbwManager.getDenomination()));
+      tvAmount.setText(ValueExtensionsKt.toStringWithUnit(record.getTransferred().abs(),
+              _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
       tvAmount.setTextColor(color);
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher().getCurrentFiatCurrency();
+      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher()
+              .getCurrentFiatCurrency(_mbwManager.getSelectedAccount().getCoinType());
 
       if (alternativeCurrency != null) {
          Value recordValue = record.getTransferred().abs();
@@ -121,7 +123,8 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
             tvFiat.setVisibility(View.GONE);
          } else {
             tvFiat.setVisibility(View.VISIBLE);
-            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue, _mbwManager.getDenomination()));
+            tvFiat.setText(ValueExtensionsKt.toStringWithUnit(alternativeValue,
+                    _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())));
             tvFiat.setTextColor(color);
          }
       } else {

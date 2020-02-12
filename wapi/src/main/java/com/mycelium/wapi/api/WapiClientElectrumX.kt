@@ -9,6 +9,7 @@ import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.WapiLogger
+import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.exception.RpcResponseException
 import com.mycelium.wapi.api.jsonrpc.*
@@ -32,11 +33,10 @@ class WapiClientElectrumX(
         endpoints: Array<TcpEndpoint>,
         logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
+    : WapiClient(serverEndpoints, logger, versionCode), ServerElectrumListChangedListener {
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
-    private var isInForeground = true
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
         bestChainHeight = if (rpcResponse.hasResult) {
@@ -47,13 +47,8 @@ class WapiClientElectrumX(
     }
     private var rpcClient = JsonRpcTcpClient(endpoints, logger)
 
-    override fun setAppInForeground(isInForeground: Boolean) {
-        this.isInForeground = isInForeground
-        updateClient()
-    }
-
     private fun updateClient() {
-        rpcClient.setActive(isInForeground && isNetworkConnected)
+        rpcClient.setActive(isNetworkConnected)
     }
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {
@@ -66,7 +61,7 @@ class WapiClientElectrumX(
     }
 
     init {
-        rpcClient.subscribe(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
+        rpcClient.addSubscription(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
         rpcClient.start()
     }
 
@@ -399,6 +394,6 @@ data class TransactionHistoryInfo(
     }
 }
 
-interface ServerListChangedListener {
+interface ServerElectrumListChangedListener {
     fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
 }

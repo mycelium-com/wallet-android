@@ -8,6 +8,7 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -105,7 +106,7 @@ public class GenericTransactionSummary implements Serializable {
     }
 
     public boolean isIncoming() {
-        return transferred.value >= 0;
+        return transferred.moreOrEqualThanZero();
     }
 
     public int getRawSize() {

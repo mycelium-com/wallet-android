@@ -17,8 +17,8 @@ import androidx.test.rule.ActivityTestRule
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
 import com.mycelium.wallet.activity.send.ManualAddressEntry
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.SendInitializationActivity
-import com.mycelium.wallet.activity.send.SendMainActivity
 import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
@@ -66,7 +66,7 @@ class SendAssetsTest {
         onView(withId(R.id.btSend)).perform(click())
         intended(hasComponent(SendInitializationActivity::class.java.name))
         waitWhileAcitvity<SendInitializationActivity>()
-        intended(hasComponent(SendMainActivity::class.java.name))
+        intended(hasComponent(SendCoinsActivity::class.java.name))
         onView(withId(R.id.btManualEntry)).perform(click())
         intended(hasComponent(ManualAddressEntry::class.java.name))
         onView(withId(R.id.etAddress)).perform(ViewActions.typeText(addressSendTo))

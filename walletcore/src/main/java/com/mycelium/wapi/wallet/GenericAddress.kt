@@ -13,5 +13,5 @@ interface GenericAddress : Serializable {
     // the subType is stored as string
     fun getSubType(): String
 
-    fun getBytes():ByteArray
+    fun getBytes(): ByteArray
 }

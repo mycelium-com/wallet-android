@@ -17,8 +17,8 @@ public class CurrencySumTest {
             .put("EUR", 5.0)
             .build();
 
-      public ExchangeRate getExchangeRate(String currency) {
-         return new ExchangeRate("TEST", 1000L, fx.get(currency), currency);
+      public ExchangeRate getExchangeRate(String fromCurrency, String toCurrency) {
+         return new ExchangeRate("TEST", 1000L, fx.get(toCurrency), toCurrency);
       }
    };
 
@@ -28,8 +28,8 @@ public class CurrencySumTest {
             .put("EUR", 10.0)
             .build();
 
-      public ExchangeRate getExchangeRate(String currency) {
-         return new ExchangeRate("TEST", 1000L, fx.get(currency), currency);
+      public ExchangeRate getExchangeRate(String fromCurrency, String toCurrency) {
+         return new ExchangeRate("TEST", 1000L, fx.get(toCurrency), toCurrency);
       }
    };
 

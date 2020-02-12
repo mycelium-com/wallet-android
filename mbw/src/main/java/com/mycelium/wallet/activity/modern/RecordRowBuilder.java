@@ -134,7 +134,8 @@ public class RecordRowBuilder {
         if (model.isActive) {
             Balance balance = model.balance;
             holder.tvBalance.setVisibility(View.VISIBLE);
-            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), mbwManager.getDenomination());
+            String balanceString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
+                    mbwManager.getDenomination(model.coinType));
             holder.tvBalance.setText(balanceString);
             holder.tvBalance.setTextColor(textColor);
 
@@ -181,6 +182,7 @@ public class RecordRowBuilder {
     private ViewAccountModel convert(WalletAccount walletAccount) {
         ViewAccountModel result = new ViewAccountModel();
         result.accountId = walletAccount.getId();
+        result.coinType = walletAccount.getCoinType();
 
         result.drawableForAccount = Utils.getDrawableForAccount(walletAccount, false, resources);
         result.drawableForAccountSelected = Utils.getDrawableForAccount(walletAccount, true, resources);

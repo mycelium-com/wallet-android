@@ -10,6 +10,9 @@ import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.activity.LtMainActivity;
+import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.eth.coins.EthMain;
+import com.mycelium.wapi.wallet.eth.coins.EthTest;
 
 public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
 
@@ -18,7 +21,7 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
    }
 
    @Override
-   public void launchService(Activity activity, MbwManager mbwManager, Optional<Address> activeReceivingAddress) {
+   public void launchService(Activity activity, MbwManager mbwManager, GenericAddress activeReceivingAddress) {
       if (!mbwManager.getSelectedAccount().canSpend()) {
          Toast.makeText(activity, R.string.lt_warning_watch_only_account, Toast.LENGTH_LONG).show();
          return;
@@ -42,7 +45,9 @@ public class LocalTraderServiceDescription extends BuySellServiceDescriptor {
 
    @Override
    public boolean isEnabled(MbwManager mbwManager) {
-      return mbwManager.getLocalTraderManager().isLocalTraderEnabled();
+      return mbwManager.getLocalTraderManager().isLocalTraderEnabled()
+              && mbwManager.getSelectedAccount().getCoinType() != EthMain.INSTANCE
+              && mbwManager.getSelectedAccount().getCoinType() != EthTest.INSTANCE;
    }
 
    @Override

@@ -1,6 +1,7 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
+import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 
 import java.math.BigInteger;
 
@@ -9,23 +10,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class CryptoCurrency extends AbstractAsset {
     private static final long serialVersionUID = 1L;
 
+
     protected String id;
-    protected int addressHeader;
-    protected int p2shHeader;
-    protected int dumpedPrivateKeyHeader;
-    protected int[] acceptableAddressCodes;
-    protected int spendableCoinbaseDepth;
-    protected String uriScheme;
-    protected Integer bip44Index;
     protected Integer unitExponent;
     protected Integer friendlyDigits;
     protected String addressPrefix;
-    protected Value feeValue;
-    protected Value minNonDust;
-    protected Value softDustLimit;
-    protected SoftDustPolicy softDustPolicy;
     protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
-    protected byte[] signedMessageHeader;
 
     @Override
     public String getName() {
@@ -86,7 +76,6 @@ public abstract class CryptoCurrency extends AbstractAsset {
         return "Coin{" +
                 "name='" + name + '\'' +
                 ", symbol='" + symbol + '\'' +
-                ", bip44Index=" + (bip44Index != null ?  bip44Index : "null") +
                 '}';
     }
 

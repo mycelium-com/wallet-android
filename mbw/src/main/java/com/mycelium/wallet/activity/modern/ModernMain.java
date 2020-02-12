@@ -91,7 +91,6 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
@@ -110,10 +109,12 @@ import info.guardianproject.onionkit.ui.OrbotHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ModernMain extends AppCompatActivity {
-    private static final int TAB_ID_NEWS = 0;
-    private static final int TAB_ID_ACCOUNTS = 1;
-    private static final int TAB_ID_BALANCE = 2;
-    private static final int TAB_ID_HISTORY = 3;
+    private static final String TAB_NEWS = "tab_news";
+    private static final String TAB_ACCOUNTS = "tab_accounts";
+    private static final String TAB_BALANCE = "tab_balance";
+    private static final String TAB_HISTORY = "tab_history";
+    private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
+    private static final String TAB_ADDRESS_BOOK = "tab_address_book";
 
     private static final int REQUEST_SETTING_CHANGED = 5;
     public static final int MIN_AUTOSYNC_INTERVAL = (int) Constants.MS_PR_MINUTE;
@@ -121,8 +122,6 @@ public class ModernMain extends AppCompatActivity {
     public static final String LAST_SYNC = "LAST_SYNC";
     private static final String APP_START = "APP_START";
     private MbwManager _mbwManager;
-
-    private int addressBookTabIndex;
 
     ViewPager mViewPager;
     TabsAdapter mTabsAdapter;
@@ -158,34 +157,34 @@ public class ModernMain extends AppCompatActivity {
         mTabsAdapter = new TabsAdapter(this, mViewPager, _mbwManager);
         if (SettingsPreference.getMediaFlowEnabled()) {
             mNewsTab = tabLayout.newTab().setText(getString(R.string.media_flow));
-            mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null);
+            mTabsAdapter.addTab(mNewsTab, NewsFragment.class, null, TAB_NEWS);
         }
         mAccountsTab = tabLayout.newTab().setText(getString(R.string.tab_accounts));
-        mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null);
+        mTabsAdapter.addTab(mAccountsTab, AccountsFragment.class, null, TAB_ACCOUNTS);
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
-        mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null);
-        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null);
+        mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
+        mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
-                RecommendationsFragment.class, null);
+                RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
         final Bundle addressBookConfig = new Bundle();
         addressBookConfig.putBoolean(AddressBookFragment.OWN, false);
         addressBookConfig.putBoolean(AddressBookFragment.SELECT_ONLY, false);
         addressBookConfig.putBoolean(AddressBookFragment.AVAILABLE_FOR_SENDING, false);
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_addresses)), AddressBookFragment.class,
-                addressBookConfig);
-        addressBookTabIndex = mTabsAdapter.getCount() - 1; // save address book tab id to show/hide add contact
+                addressBookConfig, TAB_ADDRESS_BOOK);
         if (SettingsPreference.getMediaFlowEnabled() &&
                 Objects.equals(getIntent().getAction(), "media_flow")) {
             mNewsTab.select();
-            mViewPager.setCurrentItem(TAB_ID_NEWS);
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_NEWS));
             if (getIntent().hasExtra(NewsConstants.NEWS)) {
                 Intent intent = new Intent(this, NewsActivity.class);
                 intent.putExtras(getIntent().getExtras());
                 startActivity(intent);
             }
         } else {
-            mViewPager.setCurrentItem(TAB_ID_BALANCE);
+            mBalanceTab.select();
+            mViewPager.setCurrentItem(mTabsAdapter.indexOf(TAB_BALANCE));
         }
         _toaster = new Toaster(this);
 
@@ -383,13 +382,12 @@ public class ModernMain extends AppCompatActivity {
     // nightmare.
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final int tabIdx = mViewPager.getCurrentItem();
-
+        String tabTag = mTabsAdapter.getPageTag(mViewPager.getCurrentItem());
         // at the moment, we allow to make backups multiple times
         checkNotNull(menu.findItem(R.id.miBackup)).setVisible(true);
 
         // Add Record menu
-        final boolean isAccountTab = tabIdx == TAB_ID_ACCOUNTS;
+        final boolean isAccountTab = TAB_ACCOUNTS.equals(tabTag);
         final boolean locked = _mbwManager.isKeyManagementLocked();
         checkNotNull(menu.findItem(R.id.miAddRecord)).setVisible(isAccountTab && !locked);
 
@@ -398,15 +396,15 @@ public class ModernMain extends AppCompatActivity {
         checkNotNull(menu.findItem(R.id.miLockKeys)).setVisible(isAccountTab && !locked && hasPin);
 
         // Refresh menu
-        final boolean isBalanceTab = tabIdx == TAB_ID_BALANCE;
-        final boolean isHistoryTab = tabIdx == TAB_ID_HISTORY;
+        final boolean isBalanceTab = TAB_BALANCE.equals(tabTag);
+        final boolean isHistoryTab = TAB_HISTORY.equals(tabTag);
         refreshItem = checkNotNull(menu.findItem(R.id.miRefresh));
         refreshItem.setVisible(isBalanceTab || isHistoryTab || isAccountTab);
         setRefreshAnimation();
 
         checkNotNull(menu.findItem(R.id.miRescanTransactions)).setVisible(isHistoryTab);
 
-        final boolean isAddressBook = tabIdx == addressBookTabIndex;
+        final boolean isAddressBook = TAB_ADDRESS_BOOK.equals(tabTag);
         checkNotNull(menu.findItem(R.id.miAddAddress)).setVisible(isAddressBook);
 
         return super.onPrepareOptionsMenu(menu);
@@ -448,7 +446,7 @@ public class ModernMain extends AppCompatActivity {
                 if (counter == 4) {
                     syncMode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED;
                     counter = 0;
-                } else if (mViewPager.getCurrentItem() == TAB_ID_ACCOUNTS) {
+                } else if (TAB_ACCOUNTS.equals(mTabsAdapter.getPageTag(mViewPager.getCurrentItem()))) {
                     // if we are in the accounts tab, sync all accounts if the users forces a sync
                     syncMode = SyncMode.NORMAL_ALL_ACCOUNTS_FORCED;
                     counter++;
@@ -571,10 +569,6 @@ public class ModernMain extends AppCompatActivity {
     @Subscribe
     public void onNewFeatureWarnings(final FeatureWarningsAvailable event) {
         _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.MAIN_SCREEN);
-
-        if (_mbwManager.getSelectedAccount() instanceof CoinapultAccount) {
-            _mbwManager.getVersionManager().showFeatureWarningIfNeeded(this, Feature.COINAPULT);
-        }
     }
 
     @Subscribe

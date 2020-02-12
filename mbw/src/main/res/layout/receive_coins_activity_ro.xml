@@ -6,6 +6,7 @@
     <data>
 
         <import type="android.view.View" />
+        <import type="android.text.Html" />
 
         <variable
             name="viewModel"
@@ -19,7 +20,6 @@
         android:layout_marginBottom="10dp"
         android:gravity="center"
         android:visibility="@{viewModel.hasPrivateKey ? View.GONE : View.VISIBLE}"
-        android:text="@string/read_only_warning"
-        android:textColor="@color/red"
+        android:text="@{Html.fromHtml(@string/read_only_warning)}"
         android:textSize="20sp" />
 </layout>

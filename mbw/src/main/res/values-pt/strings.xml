@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">Adicionar Conta Não-relacionada</string>
     <string name="import_seed_title">Importar Semente Mestre</string>
     <string name="import_words_title">Inserir Lista de Palavras</string>
-    <string name="add_account_desc">Mycelium suporta Contas HD e Contas de Endereço Único. Todas Contas HD criadas são baseadas na mesma Semente Mestre.</string>
+    <string name="add_account_desc">Mycelium suporta Contas HD Bitcoin e Contas de Endereço Único. Todas Contas HD Bitcoin criadas são baseadas na mesma Semente Mestre.</string>
     <string name="add_single_acc_info">Para adicionar uma conta de Endereço Único baseada em uma chave privada ou em um endereço somente-leitura, por favor clique no botão Avançado abaixo.</string>
-    <string name="scan_desc">Escanear endereço Bitcoin, chave privada ou Conta-HD.</string>
+    <string name="scan_desc">Escanear endereço Bitcoin, chave privada ou Conta-HD Bitcoin.</string>
     <string name="scan_seed">Escanear a Semente Mestre de um Backup Mycelium</string>
-    <string name="use_acc_first">Você só pode ter uma Conta HD não-utilizada.</string>
+    <string name="use_acc_first">Você só pode ter uma Conta HD Bitcoin não-utilizada.</string>
     <string name="clipboard_desc">Importar da área de transferência endereço Bitcoin ou chave privada.</string>
     <string name="wordlist_des">Criar Semente Mestre a partir de Lista de Palavras</string>
     <string name="scan">Escanear</string>
     <string name="advanced">Avançado</string>
     <string name="clipboard">Área de transferência</string>
     <string name="enter_wordlist">Inserir Lista de Palavras</string>
-    <string name="hd_account">Adicionar Conta HD</string>
+    <string name="hd_account">Adicionar Conta HD Bitcoin</string>
     <string name="close">Fechar</string>
     <string name="sending">Enviando %1$s</string>
     <string name="receiving">Recebendo %1$s</string>
@@ -100,15 +100,15 @@
     <string name="delete">Deletar</string>
     <string name="payment_request">Solicitação de Pagamento</string>
     <string name="export_account_data_warning">Você está prestes a exportar dados sensíveis da conta selecionada.\n\nQualquer um que obtiver acesso a essas chaves poderá tomar posse dos bitcoins ou obter informações que podem comprometer sua privacidade.\n\nVocê quer continuar?</string>
-    <string name="backup_all_warning">Você deveria fazer um backup da semente mestre de sua carteira.\nUma backup da semente mestre permite que você restaure os fundos armazenado nas suas contas HD caso o seu dispositivo seja perdido ou parar de funcionar.\n\nVocê quer fazer isso agora?</string>
+    <string name="backup_all_warning">Você deveria fazer um backup da semente mestre de sua carteira.\nUma backup da semente mestre permite que você restaure os fundos armazenado nas suas contas HD Bitcoin caso o seu dispositivo seja perdido ou parar de funcionar.\n\nVocê quer fazer isso agora?</string>
     <string name="export_to_clipboard_warning">Aviso: Exportar os dados privados da conta para a sua área de transferência os expõe para todos os outros aplicativos do seu dispositivo.\n\nNota: Não é suficiente armazenar seus dados privados na área de transferência, você também precisa colar esses dados em algum lugar seguro.\n\nVocê quer continuar?</string>
     <string name="found_clipboard_private_key_title">Chave Privada Encontrada na Área de Transferência</string>
     <string name="exchange_source_not_available">Taxa de corretagem não disponível para %1$s</string>
-    <string name="my_own_address_warning">Nota: Você está enviando para um de seus próprios endereços.</string>
-    <string name="read_only_warning">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Nota: Você está enviando para um de seus próprios endereços.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Aviso: A sua carteira não tem a chave privada para esse endereço.\nVocê não pode gastar os bitcoins recebidos, a menos que você tenha a chave privada anota em outro lugar.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Adicionar Endereço</string>
-    <string name="scan_address_book_desc">Escanear endereço Bitcoin.</string>
-    <string name="clipboard_address_book_desc">Adquirir endereço Bitcoin da área de transferência.</string>
+    <string name="scan_address_book_desc">Escanear endereço.</string>
+    <string name="clipboard_address_book_desc">Adquirir endereço da área de transferência.</string>
     <string name="max">Máx</string>
     <string name="get_private_key">Adquirir chave privada de:</string>
     <string name="cold_storage">Armazenamento Frio</string>
@@ -401,7 +401,7 @@
     <string name="ignore_update">Atualizar mais tarde</string>
     <string name="get_from">Baixar de</string>
     <string name="sign_message">Assinar Mensagem</string>
-    <string name="cant_sign_message">Você não pode assinar uma mensagem com uma Conta HD</string>
+    <string name="cant_sign_message">Você não pode assinar uma mensagem com uma Conta HD Bitcoin</string>
     <string name="enter_message_hint">Por favor insira a mensagem que você quer assinar</string>
     <string name="copy_signature">Copiar Assinatura para a Área de Transferência</string>
     <string name="share_signature">Compartilhar Texto + Assinatura</string>
@@ -434,7 +434,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">Você não pode trabalhar com contas arquivadas.</string>
     <string name="transaction_not_broadcasted_info">Não foi possível transmitir</string>
-    <string name="hd_account_creation_started">Criando nova Conta HD&#8230;</string>
+    <string name="hd_account_creation_started">Criando nova Conta HD Bitcoin&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Preparando carteira&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Calculando Semente Mestre&#8230;</string>
     <string name="importing_wordlist_enter_next_word">digite a palavra %1$s de %2$s</string>
@@ -477,7 +477,7 @@
     <string name="verify_wordlist_success_pin_already_set">Seu backup de lista de palavras foi verificado com sucesso. Armazene o backup em um lugar seguro, seus fundos dependem dele!</string>
     <string name="note_down_password_title">Anote a sua senha</string>
     <string name="title_wrong_password">Senha incorreta, tente novamente</string>
-    <string name="dont_allow_archiving_unused_notification">Você não pode arquivar uma Conta HD não-utilizada</string>
+    <string name="dont_allow_archiving_unused_notification">Você não pode arquivar uma Conta HD Bitcoin não-utilizada</string>
     <string name="newly_generated_coins_from_coinbase">Moedas recém-geradas</string>
     <string name="button_continue">Continuar</string>
     <string name="butto_show_release_notes">Mostrar Detalhes</string>
@@ -535,7 +535,7 @@
     <string name="trezor_cold_storage_header">Armazenamento Frio em Trezor</string>
     <string name="select_ext_sig_account_to_spend_from">Selecionar uma conta para gastar</string>
     <string name="ext_sig_show_passphrase">Mostrar frase secreta</string>
-    <string name="trezor_import_account">Importar uma Conta-Trezor-HD</string>
+    <string name="trezor_import_account">Importar uma Conta-Trezor-HD Bitcoin</string>
     <string name="ext_sig_import_account_caption">Importar Conta</string>
     <string name="ext_sig_select_account_to_import">Selecione uma conta para ser importada</string>
     <string name="ext_sig_verify_transaction_on_device">Verifique e confirme a\ntransação no seu dispositivo</string>
@@ -552,13 +552,13 @@
     <string name="ext_sig_unnamed">(sem nome)</string>
     <string name="keepkey_cold_storage_header">Armazenamento Frio da KeepKey</string>
     <string name="keepkey_new_firmware_description">Um novo firmware da KeepKey está disponível. \nPor favor use a extensão do Chrome da KeepKey em um PC para atualizá-lo.</string>
-    <string name="keepkey_import_account">Importar uma conta-HD da KeepKey</string>
+    <string name="keepkey_import_account">Importar uma conta-HD Bitcoin da KeepKey</string>
     <string name="ledger_initial_status">Por favor conecte ou encoste e segure a sua carteira Ledger</string>
     <string name="ledger_scanning_status">Carteira Ledger ok - escaneando Contas</string>
     <string name="ledger_cold_storage_header">Carteira Ledger</string>
     <string name="connect_your_ledger_info">A Ledger Nano funciona apenas em telefones com suporte a USB-OTG (on-the-go).\n\nPara conectar a Ledger Nano você precisa de um cabo ou adaptador USB-OTG. Ligue a Ledger Nano no lado do cliente e conecte o lado do host no seu telefone.</string>
     <string name="select_ledger_account_to_spend_from">Selecionar conta para gastar</string>
-    <string name="ledger_import_account">Importar uma Conta-HD Ledger</string>
+    <string name="ledger_import_account">Importar uma Conta-HD Bitcoin Ledger</string>
     <string name="ledger_import_account_caption">Importar Conta</string>
     <string name="ledger_select_account_to_import">Selecione uma conta para ser importada</string>
     <string name="ledger_amount">Quantia:</string>
@@ -591,8 +591,8 @@
     <string name="use_external_tor">Usar tor externo (Orbot)</string>
     <string name="both">Ambos</string>
     <string name="hint_type_to_filter">digite para filtrar a lista</string>
-    <string name="info_add_account_keep_backup_secure">Informação: Todas as Contas HD são derivadas da sua Semente Mestre - se você mantiver seu backup de 12 palavras seguro, você poderá restaurar todas suas contas HD com ele.</string>
-    <string name="warning_add_account_no_backup">Aviso: Você não tem um backup confirmado da sua Semente Mestre. Todas as suas contas HD são derivadas dela. Elas só estão seguras e recuperáveis, se você tiver um backup válido e seguro.</string>
+    <string name="info_add_account_keep_backup_secure">Informação: Todas as Contas HD Bitcoin são derivadas da sua Semente Mestre - se você mantiver seu backup de 12 palavras seguro, você poderá restaurar todas suas contas HD Bitcoin com ele.</string>
+    <string name="warning_add_account_no_backup">Aviso: Você não tem um backup confirmado da sua Semente Mestre. Todas as suas contas HD Bitcoin são derivadas dela. Elas só estão seguras e recuperáveis, se você tiver um backup válido e seguro.</string>
     <string name="transaction_to_address_prefix">Para: %s</string>
     <!-- from libNetCipher -->
     <string name="install_orbot_">Instalar o Orbot?</string>
@@ -662,32 +662,6 @@
     <string name="block_explorer_summary">Os detalhes da transação são verificados com o Explorador de Blocos %1$s</string>
     <string name="lt_warning_wrong_account_type">O Trader Local não funciona com o tipo de conta selecionado, por favor escolha outra conta.</string>
     <string name="lt_account_not_allowed">O tipo de conta selecionado não funciona com o trader local. Você precisa selecionar outra conta para realizar esse trade.</string>
-    <string name="coinapult_sending_via_coinapult">Enviando Bitcoins através da Coinapult</string>
-    <string name="coinapult_account_notes">Uma conta Coinapult permite que você armazene suas economias em várias moedas fiduciárias e faça transferências imediatamente para qualquer endereço bitcoin.\nApesar de você usar suas chaves privadas para acessar sua conta, suas chaves estarão sob controle da Coinapult, diferente do que acontece com suas contas HD normais.</string>
-    <string name="coinapult_mail_hint">Insira o endereço de e-mail</string>
-    <string name="coinapult_mail_description">Se você fornecer seu endereço de e-mail, você poderá abrir um pedido de suporte com a Coinapult enviando um e-mail para support@coinapult.com a partir do seu e-mail de cadastro.</string>
-    <string name="coinapult_threshold_warning">Aviso: As contas Coinapult não são capazes de completar transações que possuem valor menor que %1$s.</string>
-    <string name="coinapult_amount_too_small">Quantia muito baixa, a retirada mínima é de %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Definir endereço de e-mail</string>
-    <string name="coinapult_set_mail_failed">Erro ao definir endereço de e-mail. Por favor, verifique a digitação e certifique-se de que seu dispositivo está conectado à internet.</string>
-    <string name="coinapult_setting_email">Enviando endereço de e-mail para a Coinapult&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">O seu endereço de e-mail foi definido e você receberá um e-mail com um link de confirmação. Copie esse link e escolha \'verificar e-mail\' nas configurações de conta para colar o link e confirmar que o endereço está correto.</string>
-    <string name="coinapult_verify_mail_menu_title">Verificar endereço de e-mail</string>
-    <string name="coinapult_mail_verification">Verificar seu endereço de e-mail da Coinapult</string>
-    <string name="coinapult_mail_verification_description">Por favor, cole o link de verificação do seu e-mail Coinapult na caixa de texto abaixo.</string>
-    <string name="coinapult_mail_verification_hint">cole todo o link de verificação</string>
-    <string name="coinapult_verifying_email">Enviando link de verificação para a coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">O seu endereço de e-mail da coinapult foi verificado com sucesso.</string>
-    <string name="coinapult_verify_mail_error">Ocorreu um erro na verificação do seu endereço de e-mail. Por favor, certifique-se de que você copiou o link de verificação completo e corretamente.</string>
-    <string name="coinapult_unable_to_create_account">Não foi possível criar uma conta Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Erro ao transmitir transação Coinapult</string>
-    <string name="coinapult_add_locks_account">Adicionar Conta da Coinapult Locks</string>
-    <string name="coinapult_tos_link">Abrir Termos e Condições da Coinapult</string>
-    <string name="coinapult_tos_question">Para cirar uma Conta Coinapult você precisa concordar com os Termos e Condições</string>
-    <string name="coinapult_mail_question">Você quer fornecer o seu endereço de e-mail?</string>
-    <string name="coinapult_create_account">Criando conta Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">A chave de acesso para a sua conta Coinapult é derivada a partir de sua semente mestre. Se você tem um backup válido, o acesso à sua conta coinapult também está incluído nele.</string>
-    <string name="coinapult_currency_account">Conta em %1$s</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -730,10 +704,8 @@
     <string name="mycelium_terms_of_use">Termos de Uso da Mycelium</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Comprar / Vender Bitcoin</string>
     <string name="error_details">Detalhes do erro</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
     <string name="label_use_device_location">usar localização do dispositivo</string>

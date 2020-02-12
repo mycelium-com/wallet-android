@@ -6,18 +6,18 @@
     <string name="add_unrelated_account_title">添加無關帳戶</string>
     <string name="import_seed_title">導入主種子</string>
     <string name="import_words_title">輸入單詞列表</string>
-    <string name="add_account_desc">Mycelium支持HD帳戶和單一地址帳戶。所有HD帳戶都創建於同一主種子。第一次您創建HD帳戶時，需要對您的主種子進行配置。</string>
+    <string name="add_account_desc">Mycelium支持HD Bitcoin帳戶和單一地址帳戶。所有HD Bitcoin帳戶都創建於同一主種子。第一次您創建HD Bitcoin帳戶時，需要對您的主種子進行配置。</string>
     <string name="add_single_acc_info">若要基於私鑰或只讀的地址添加單一地址帳戶，請單擊下面的高級按鈕。</string>
     <string name="scan_desc">掃描比特幣地址、 私鑰或高清帳戶。</string>
     <string name="scan_seed">從Mycelium備份中掃描主種子</string>
-    <string name="use_acc_first">你只能有一個未使用的HD帳戶。</string>
+    <string name="use_acc_first">你只能有一個未使用的HD Bitcoin帳戶。</string>
     <string name="clipboard_desc">使用剪貼板的比特幣地址或私匙</string>
     <string name="wordlist_des">從單詞列表創建主種子</string>
     <string name="scan">掃描</string>
     <string name="advanced">高級設置</string>
     <string name="clipboard">剪貼板</string>
     <string name="enter_wordlist">輸入單詞列表</string>
-    <string name="hd_account">添加HD帳戶</string>
+    <string name="hd_account">添加HD Bitcoin帳戶</string>
     <string name="close">退出</string>
     <string name="sending">正在匯款 %1$s</string>
     <string name="receiving">正在收款 %1$s</string>
@@ -103,12 +103,12 @@
     <string name="delete">刪除</string>
     <string name="payment_request">付款請求</string>
     <string name="export_account_data_warning">您將要導出所選賬戶的敏感數據. \n\n 如果他人獲得了這些秘鑰的訪問權限，他就可以盜取這些秘鑰鎖所控制的比特幣，並且獲得您的隱私信息.\n\n　請問你想要繼續嗎？</string>
-    <string name="backup_all_warning">您應該備份您錢包的主種子。 \n　如果您的設備丟失或損壞了，此備份允許您恢復存儲在您的HD帳戶上的資金.\n\n　您想要現進行備份嗎？</string>
+    <string name="backup_all_warning">您應該備份您錢包的主種子。 \n　如果您的設備丟失或損壞了，此備份允許您恢復存儲在您的HD Bitcoin帳戶上的資金.\n\n　您想要現進行備份嗎？</string>
     <string name="export_to_clipboard_warning">警告：將私鑰導出到剪貼板內意味將它公開給您手機中安裝的其他應用程序． \n\n注意：在剪貼板中存儲您的私人信息不夠安全，您必須粘貼它到安全的地方\n\n您要繼續嗎？</string>
     <string name="found_clipboard_private_key_title">剪貼板中發現私鑰</string>
     <string name="exchange_source_not_available">無法獲得%1$s匯率</string>
-    <string name="my_own_address_warning">注意：您正在發送給您自己的一個地址</string>
-    <string name="read_only_warning">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">注意：您正在發送給您自己的一個地址</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">警告：您的錢包沒有此地址的私鑰． \n除非您在其他的地方有此地址的私鑰，否則您將不能用接受的比特幣進行消費．</font>]]></string>
     <string name="add_to_address_book_dialog_title">添加地址</string>
     <string name="scan_address_book_desc">掃描比特幣地址</string>
     <string name="clipboard_address_book_desc">從剪貼板中獲得比特幣地址</string>
@@ -405,7 +405,7 @@
     <string name="ignore_update">我將稍後更新</string>
     <string name="get_from">從獲取</string>
     <string name="sign_message">信息簽名</string>
-    <string name="cant_sign_message">您不能用HD帳戶對消息進行簽名。</string>
+    <string name="cant_sign_message">您不能用HD Bitcoin帳戶對消息進行簽名。</string>
     <string name="enter_message_hint">請輸入您想要在這裡簽名的信息</string>
     <string name="copy_signature">將簽名複製到剪貼板</string>
     <string name="share_signature">分享文字 + 簽名</string>
@@ -438,7 +438,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">您不能對存檔賬戶工作進行操作。</string>
     <string name="transaction_not_broadcasted_info">無法播報</string>
-    <string name="hd_account_creation_started">正在創建新的HD帳戶...</string>
+    <string name="hd_account_creation_started">正在創建新的HD Bitcoin帳戶...</string>
     <string name="preparing_wallet_on_first_startup_info">正在準備錢包...</string>
     <string name="importing_master_seed_from_wordlist">正在計算主種子...</string>
     <string name="importing_wordlist_enter_next_word">輸入單詞數 %1$s / %2$s</string>
@@ -481,7 +481,7 @@
     <string name="verify_wordlist_success_pin_already_set">您的單詞列表備份已經成功通過驗證。將備份存儲到一個安全的地方，您的資金將需要於它！</string>
     <string name="note_down_password_title">寫下您的密碼</string>
     <string name="title_wrong_password">密碼錯誤，再試一次</string>
-    <string name="dont_allow_archiving_unused_notification">您不能存檔未使用的HD帳戶</string>
+    <string name="dont_allow_archiving_unused_notification">您不能存檔未使用的HD Bitcoin帳戶</string>
     <string name="newly_generated_coins_from_coinbase">新生成的硬幣</string>
     <string name="button_continue">繼續</string>
     <string name="butto_show_release_notes">顯示詳細信息</string>
@@ -492,7 +492,7 @@
     <string name="pref_legacy_backup_verify_summary">驗證現有舊版本備份</string>
     <string name="error_no_browser">無法導航到網站，在手機上沒有找到瀏覽器</string>
     <string name="transaction_label_title">交易標籤</string>
-    <string name="no_spending_records">您没有任何可以用于支付的帐户。\n\n如果想要支付的话，您需要一个含私匙的帐户。目前没有已激活含私匙的HD帐户或单个地址帐户。请激活或导入含私钥的帐户用于支付。</string>
+    <string name="no_spending_records">您没有任何可以用于支付的帐户。\n\n如果想要支付的话，您需要一个含私匙的帐户。目前没有已激活含私匙的HD Bitcoin帐户或单个地址帐户。请激活或导入含私钥的帐户用于支付。</string>
     <string name="select_key_for_signing">選擇簽名密鑰</string>
     <string name="playstore_link_label">Playstore 鏈接</string>
     <string name="direct_apk_link_label">直接\n下載</string>
@@ -546,7 +546,7 @@
     <string name="select_ext_sig_account_to_spend_from">選擇消費帳戶</string>
     <string name="ext_sig_passphrase_description">輸入可選密碼</string>
     <string name="ext_sig_show_passphrase">顯示密碼</string>
-    <string name="trezor_import_account">導入 Trezor HD帳戶</string>
+    <string name="trezor_import_account">導入 Trezor HD Bitcoin帳戶</string>
     <string name="ext_sig_select_account_to_import">選擇要導入帳戶</string>
     <string name="ext_sig_verify_transaction_on_device">驗證並確認\n您的設備上的交易</string>
     <string name="ext_sig_amount">數量</string>
@@ -562,13 +562,13 @@
     <string name="keepkey_cold_storage_header">KeepKey 冷存储</string>
     <string name="keepkey_name">KeepKey</string>
     <string name="keepkey_new_firmware_description">發現新的 KeepKey 固件。 \n 請在PC上使用Chrome瀏覽器的KeepKey擴展包來更新你的 KeepKey。</string>
-    <string name="keepkey_import_account">導入 KeepKey HD帳戶</string>
+    <string name="keepkey_import_account">導入 KeepKey HD Bitcoin帳戶</string>
     <string name="ledger_initial_status">請連接或點擊並按住你的Ledger錢包</string>
     <string name="ledger_scanning_status">Ledger錢包準備完畢－正在掃描賬戶</string>
     <string name="ledger_cold_storage_header">Ledger錢包</string>
     <string name="connect_your_ledger_info">只有在您的手機支持 USB-OTG標準的前提下，Ledger Nano才能夠使用。\n\n為了連接 Ledger Nano，你需要一個USB-OTG 適配器或電纜。請用Ledger Nano客戶端 USB 電纜把它連接到您的電話上。</string>
     <string name="select_ledger_account_to_spend_from">選擇消費帳戶</string>
-    <string name="ledger_import_account">導入Ledger HD賬戶</string>
+    <string name="ledger_import_account">導入Ledger HD Bitcoin賬戶</string>
     <string name="ledger_import_account_caption">導入帳戶</string>
     <string name="ledger_select_account_to_import">選擇要導入帳戶</string>
     <string name="ledger_amount">數量</string>
@@ -603,8 +603,8 @@
     <string name="both">兩個全部</string>
     <string name="button_changelog">更新日誌</string>
     <string name="hint_type_to_filter">開始輸入篩選器列表</string>
-    <string name="info_add_account_keep_backup_secure">信息 ︰ 所有HD帳戶都是基於您的主種子．如果您能夠保持你十二單詞備份安全，那麼您可以還原所有相對應的HD帳戶。</string>
-    <string name="warning_add_account_no_backup">警告 ︰ 你沒有已確認的主種子備份。您的所有HD帳戶都是基於它產生得。只有在您有一份安全有效備份的前提下, 它們才能夠保證安全並且可恢復。</string>
+    <string name="info_add_account_keep_backup_secure">信息 ︰ 所有HD Bitcoin帳戶都是基於您的主種子．如果您能夠保持你十二單詞備份安全，那麼您可以還原所有相對應的HD Bitcoin帳戶。</string>
+    <string name="warning_add_account_no_backup">警告 ︰ 你沒有已確認的主種子備份。您的所有HD Bitcoin帳戶都是基於它產生得。只有在您有一份安全有效備份的前提下, 它們才能夠保證安全並且可恢復。</string>
     <string name="transaction_to_address_prefix">到 ︰ %s</string>
     <string name="tor_state_init">Tor初始化</string>
     <!-- from libNetCipher -->
@@ -676,32 +676,6 @@
     <string name="block_explorer_summary">使用%1$s區塊瀏覽器尋找交易細節</string>
     <string name="lt_warning_wrong_account_type">本地商家與所選帳戶類型不匹配，請選擇另一個帳戶。</string>
     <string name="lt_account_not_allowed">所選的賬戶類型不能與本地商家進行交易。您需要選擇要另一個帳戶來進行這種貿易。</string>
-    <string name="coinapult_sending_via_coinapult">通過 Coinapult 發送比特幣</string>
-    <string name="coinapult_account_notes">Coinapult 帳戶允許您以各種法定貨幣進行儲蓄並且立即對任何比特幣地址進行付款。 \n 當你使用你的私鑰訪問它時，它們不同於您在正常HD帳戶上的資金, 因為它們受到Coinapult的保護。</string>
-    <string name="coinapult_mail_hint">輸入電子郵箱地址</string>
-    <string name="coinapult_mail_description">如果您能夠提供您的電子郵件地址，您可以通過向 support@coinapult.com 發送一封電子郵件提交一個Coinapult 支持請求。</string>
-    <string name="coinapult_threshold_warning">警告 ︰ Coinapult 賬戶無法完成 小於%1$s 的轉換交易。</string>
-    <string name="coinapult_amount_too_small">金額太小，最低提金款為%1$s %2$s。</string>
-    <string name="coinapult_set_mail_menu_item">輸入電子郵箱地址</string>
-    <string name="coinapult_set_mail_failed">設置電子郵件地址，請檢查拼失敗寫是否正確，並且確保您的設備可以使用互聯網連接。</string>
-    <string name="coinapult_setting_email">將電子郵件地址發送到 Coinapult...</string>
-    <string name="coinapult_set_mail_please_verify">您的電子郵件地址已經被設置，您將收到一封含有確認鏈接的郵件。請複制該鏈接並在帳戶設置中選擇\'驗證電子郵件\' ，然後將該鏈接粘貼並驗證電子郵件地址正確是否正確。</string>
-    <string name="coinapult_verify_mail_menu_title">請驗證您的郵箱地址</string>
-    <string name="coinapult_mail_verification">驗證您的 coinapult 電子郵件地址</string>
-    <string name="coinapult_mail_verification_description">請將您的 coinapult 電子郵件驗證鏈接粘貼到下面的文本框中。</string>
-    <string name="coinapult_mail_verification_hint">粘貼完整的驗證連結</string>
-    <string name="coinapult_verifying_email">正在發送驗證連結到 coinapult...</string>
-    <string name="coinapult_verify_mail_success">您的 coinapult 電子郵件地址已經成功完成驗證。</string>
-    <string name="coinapult_verify_mail_error">您的電子郵件地址驗證鏈接不正確。請確保您複製完整和正確的驗證鏈接。</string>
-    <string name="coinapult_unable_to_create_account">無法創建 coinapult 帳戶</string>
-    <string name="coinapult_failed_to_broadcast">無法播報 coinapult 交易</string>
-    <string name="coinapult_add_locks_account">添加 Coinapult 鎖定帳戶</string>
-    <string name="coinapult_tos_link">打開 Coinapult 條款及條件</string>
-    <string name="coinapult_tos_question">若要創建一個 Coinapult 帳戶您必須同意其條款和條件</string>
-    <string name="coinapult_mail_question">你想要提供您的郵寄地址嗎？</string>
-    <string name="coinapult_create_account">正在創建 Coinapult 帳戶...</string>
-    <string name="coinapult_backup_info">您的 Coinapult 帳戶訪問密鑰是基於你的主種子而生成得。如果您有一份有效的備份，它也擁有對您的 Coinapult 帳戶訪問權限。</string>
-    <string name="coinapult_currency_account">%1$s 帳戶</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -746,11 +720,9 @@
     <string name="mycelium_terms_of_use">Mycelium使用條款</string>
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">買/賣比特幣</string>
     <string name="error_details">錯誤詳細資訊</string>
     <string name="warning_sync_failed_reusing_first">同步失敗 ！重用此 xpub #1地址 ！</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

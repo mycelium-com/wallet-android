@@ -7,7 +7,8 @@ import com.mrd.bitlib.model.Transaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.json.*;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocketFactory;
@@ -88,7 +89,7 @@ public class ColuClient {
         List<ColuTxDest.Json> to = new LinkedList<>();
         ColuTxDest.Json dest = new ColuTxDest.Json();
         dest.address = destAddress.toString();
-        dest.amount = nativeAmount.value;
+        dest.amount = nativeAmount.getValueAsLong();
         dest.assetId = nativeAmount.type.getId();
         to.add(dest);
 

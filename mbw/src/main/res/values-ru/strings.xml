@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Добавить несвязанный аккаунт</string>
     <string name="import_seed_title">Импортировть мастер-ключ Seed</string>
     <string name="import_words_title">Введите список слов</string>
-    <string name="add_account_desc">Mycelium поддерживает HD аккаунты и аккаунты с одним адресом. Все HD аккаунты создаются на основе одного мастер-ключа Seed.</string>
+    <string name="add_account_desc">Mycelium поддерживает HD Bitcoin аккаунты, Bitcoin аккаунты с одним адресом и Ethereum аккаунт. Все HD Bitcoin аккаунты и Ethereum аккаунт создаются на основе одного мастер-ключа Seed.</string>
     <string name="add_single_acc_info">Чтобы добавить аккаунт на основе отдельного закрытого ключа (Single Address account) или аккаунт только для мониторинга (без закрытого ключа), пожалуйста, нажмите кнопку Дополнительно.</string>
-    <string name="scan_desc">Сканировать Биткойн адрес, закрытый ключ или HD-аккаунт.</string>
+    <string name="scan_desc">Сканировать Биткойн адрес, закрытый ключ или HD Bitcoin-аккаунт.</string>
     <string name="scan_seed">Сканировать Master Seed  из резервной копии Mycelium</string>
-    <string name="use_acc_first">Вы можете иметь только один неиспользуемый HD аккаунт.</string>
+    <string name="use_acc_first">Вы можете иметь только один неиспользуемый HD Bitcoin аккаунт.</string>
     <string name="clipboard_desc">Импортировать биткойн адрес или приватный ключ из буфера обмена данными (clipboard).</string>
     <string name="wordlist_des">Создание Master Seed из списка слов</string>
     <string name="scan">Сканировать</string>
-    <string name="advanced">Продвинутый уровень</string>
+    <string name="advanced">Дополнительно</string>
     <string name="clipboard">Буфер обмена</string>
     <string name="enter_wordlist">Введите список слов</string>
-    <string name="hd_account">Добавить HD аккаунт</string>
+    <string name="hd_account">Добавить HD Bitcoin аккаунт</string>
     <string name="close">Закрыть</string>
     <string name="sending">Отправка %1$s</string>
     <string name="receiving">Получение %1$s</string>
@@ -118,23 +118,23 @@
     <string name="delete">Удалить</string>
     <string name="payment_request">Запрос на  оплату</string>
     <string name="export_account_data_warning">Вы собираетесь экспортировать конфиденциальные данные выбранного аккаунта.\n\nЕсли кто либо завладеет ими, он сможет либо потратить ваши биткойны, либо получить информацию, которая может вас скомпрометировать.\n\nВы согласны продолжить?</string>
-    <string name="backup_all_warning">Вам необходимо сделать резервную копию мастер-ключа вашего кошелька.\nОна позволяет вам восстановить все ваши средства на ваших HD аккаунтах, если ваше устройство потеряется или выйдет из строя.\n\nВы хотите это сделать сейчас?</string>
+    <string name="backup_all_warning">Вам необходимо сделать резервную копию мастер-ключа вашего кошелька.\nОна позволяет вам восстановить все ваши средства на ваших HD Bitcoin аккаунтах, если ваше устройство потеряется или выйдет из строя.\n\nВы хотите это сделать сейчас?</string>
     <string name="export_to_clipboard_warning">Предупреждение: Экспорт закрытого ключа аккаунта в буфер обмена делает его доступным для других приложений на вашем устройстве.\n\nДержать ваш закрытый ключ в буфере обмена рискованно, необходимо скопировать его куда либо в безопасное место.\n\nХотите продолжить?</string>
     <string name="found_clipboard_private_key_title">В буфере обмена обнаружен приватный ключ</string>
     <string name="found_clipboard_public_key_title">В буфере обмена обнаружен публичный ключ</string>
     <string name="found_clipboard_private_keys_message">Буфер обмена содержит приватный ключ.\nВы хотите удалить его?</string>
     <string name="found_clipboard_public_keys_message">Буфер обмена содержит публичный ключ.\nВы хотите удалить его?</string>
     <string name="exchange_source_not_available">Обменный курс %1$s недоступен</string>
-    <string name="my_own_address_warning">Примечание: Вы отправляете на один из ваших собственных адресов.</string>
-    <string name="read_only_warning">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Примечание: Вы отправляете на один из ваших собственных адресов.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Предупреждение: Ваш кошелек не имеет приватного ключа для этого адреса. \nВы не  сможете потратить  полученные на него биткойны, если у вас нет где-либо приватного ключа к  этому  адресу.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Добавить адрес </string>
-    <string name="scan_address_book_desc">Сканировать биткойн адрес.</string>
-    <string name="clipboard_address_book_desc">Получить биткойн адрес из буфера обмена.</string>
+    <string name="scan_address_book_desc">Сканировать адрес.</string>
+    <string name="clipboard_address_book_desc">Получить адрес из буфера обмена.</string>
     <string name="max">Макс.</string>
     <string name="get_private_key">Получить приватный ключ:</string>
     <string name="cold_storage">\"Холодное хранилище\"</string>
     <string name="cold_storage_title">Расходование из  \"холодного хранилища\"</string>
-    <string name="cold_storage_desc">Вы собираетесь забрать средства посредством закрытого ключа \"холодного хранилища\". Это может быть закрытый ключ с бумажного носителя или закрытый ключ с листка Биткойн банкомата. Следующие форматы поддерживаются:\nЗакрытый ключ, Мастер-ключ (seed) HD кошелька, xPriv Ключ\n\nКак только транзакция будет передана в сеть, все следы будут удалены из памяти.</string>
+    <string name="cold_storage_desc">Вы собираетесь забрать средства посредством закрытого ключа \"холодного хранилища\". Это может быть закрытый ключ с бумажного носителя или закрытый ключ с листка Биткойн банкомата. Следующие форматы поддерживаются:\nЗакрытый ключ, Мастер-ключ (seed) HD Bitcoin кошелька, xPriv Ключ\n\nКак только транзакция будет передана в сеть, все следы будут удалены из памяти.</string>
     <string name="keep_account_address">Удалить только закрытый ключ и оставить аккаунт только для просмотра</string>
     <string name="manual_entry">Ручной ввод</string>
     <string name="archive_name">Архивированные</string>
@@ -430,7 +430,7 @@
     <string name="get_from">Получить из</string>
     <string name="google_play">Google Play</string>
     <string name="sign_message">Подписать сообщение</string>
-    <string name="cant_sign_message">Вы не можете подписать сообщение посредством HD аккаунта</string>
+    <string name="cant_sign_message">Вы не можете подписать сообщение посредством HD Bitcoin аккаунта</string>
     <string name="enter_message_hint">Введите сообщение, которое хотите подписать</string>
     <string name="copy_signature">Копировать подпись в буфер обмена</string>
     <string name="share_signature">Поделиться текстом + подписью</string>
@@ -462,7 +462,7 @@
     <string name="invalid_bitid_uri">Недопустимый URI-адрес BitID</string>
     <!-- BitID end -->
     <string name="selected_archived_warning">Вы не можете работать на архивных аккаунтах.</string>
-    <string name="hd_account_creation_started">Создание нового HD аккаунта&#8230;</string>
+    <string name="hd_account_creation_started">Создание нового HD Bitcoin аккаунта&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Подготовка кошелька&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Вычисление мастер-ключа Seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">введите слово номер %1$s из %2$s</string>
@@ -494,7 +494,7 @@
     <string name="edit_account_label_title">Редактировать имя аккаунта</string>
     <string name="seed_already_configured">Не удается импортировать: Master Seed  уже сконфигурирован</string>
     <string name="backup_words_title">Резервная копия Мастер-ключа Seed</string>
-    <string name="verify_words_title">Верификация Master Seed ( это криптографический  термин,  обозначающий некий  набор случайных данных , на которых  построена  безопасность ваших  HD биткойн-адресов)</string>
+    <string name="verify_words_title">Верификация Master Seed ( это криптографический  термин,  обозначающий некий  набор случайных данных , на которых  построена  безопасность ваших  HD Bitcoin биткойн-адресов)</string>
     <string name="wordlist_backup_description">ЭТО ОЧЕНЬ ВАЖНО\n\nВы собираетесь сделать резервную копию мастер-ключа seed.\n\nПосле создания резервной копии вам необходимо установить PIN-код для защиты вашего телефона от того, к кому он может в руки на короткое время, и кто может попытаться создать повторно резервную копию и украсть ваши текущие и будущие средства.\n\nВам будет показан список слов, одно за другим. Запишите эти слова ручкой на бумаге и сохраните её в безопасном месте.</string>
     <string name="next_word_button">Следующее слово</string>
     <string name="start_with_first_word_button">Показать первое слово</string>
@@ -505,7 +505,7 @@
     <string name="verify_wordlist_success_pin_already_set">Ваша резервная копия, основанная на списке слов успешно проверена. Храните резервную копию в надежном месте, сохранность ваших средств зависит от нее!</string>
     <string name="note_down_password_title">Запишите свой пароль</string>
     <string name="title_wrong_password">Неверный пароль, пожалуйста введите еще раз</string>
-    <string name="dont_allow_archiving_unused_notification">Вы не можете поместить в архив неиспользованный HD аккаунт</string>
+    <string name="dont_allow_archiving_unused_notification">Вы не можете поместить в архив неиспользованный HD Bitcoin аккаунт</string>
     <string name="newly_generated_coins_from_coinbase">Новые созданные биткойны</string>
     <string name="button_continue">Продолжить</string>
     <string name="butto_show_release_notes">Показать детали</string>
@@ -517,7 +517,7 @@
     <string name="pref_legacy_backup_verify_summary">Проверка существующей устаревшей резервной копии</string>
     <string name="error_no_browser">Не могу отобразить веб-сайт - на вашем телефоне нет интернет-броузера</string>
     <string name="transaction_label_title">Имя транзакции</string>
-    <string name="no_spending_records">У вас нет аккаунта, с которого можно тратить.\n\nЧтобы тратить,  нужен аккаунт с приватным ключом в нем. У вас в настоящее время нет активных HD аккаунтов  и нет Single  Address аккаунтов с приватными ключами. Чтобы вы могли тратить, вам  надо либо активировать НD аккаунт, либо импортировать приватный ключ.</string>
+    <string name="no_spending_records">У вас нет аккаунта, с которого можно тратить.\n\nЧтобы тратить,  нужен аккаунт с приватным ключом в нем. У вас в настоящее время нет активных HD Bitcoin аккаунтов  и нет Single  Address аккаунтов с приватными ключами. Чтобы вы могли тратить, вам  надо либо активировать НD аккаунт, либо импортировать приватный ключ.</string>
     <string name="select_key_for_signing">Выбор ключа для подписи</string>
     <string name="playstore_link_label">ссылка на Playstore </string>
     <string name="direct_apk_link_label">Прямая\nзагрузка</string>
@@ -573,7 +573,7 @@
     <string name="ext_sig_passphrase_description">Введите опциональную фразу-пароль</string>
     <string name="ext_sig_show_passphrase">Показать пароль</string>
     <string name="trezor">Trezor</string>
-    <string name="trezor_import_account">Импортировать Trezor-HD-аккаунт</string>
+    <string name="trezor_import_account">Импортировать Trezor-HD Bitcoin-аккаунт</string>
     <string name="trezor_name">Trezor:</string>
     <string name="ext_sig_import_account_caption">Импортировать аккаунт</string>
     <string name="ext_sig_select_account_to_import">Выберете аккаунт для импорта</string>
@@ -590,12 +590,12 @@
     <string name="keepkey_cold_storage_header">Холодное хранилище KeepKey</string>
     <string name="keepkey">KeepKey</string>
     <string name="keepkey_name">KeepKey:</string>
-    <string name="keepkey_import_account">Импортировать KeepKey-HD-аккаунт</string>
+    <string name="keepkey_import_account">Импортировать KeepKey-HD Bitcoin-аккаунт</string>
     <string name="ledger_initial_status">Пожалуйста, подсоедините или нажмите и удерживайте кнопку на вашем Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet работает - идёт сканирование аккаунтов</string>
     <string name="connect_your_ledger_info">Ledger Nano работает только, если ваш телефон поддерживает USB-OTG соединение (on-the-go).\n\nДля подключения Ledger Nano вам необходим USB-OTG-адаптер или кабель. Подключите Ledger Nano к стороне \"клиент\", а \"хост\" сторону кабеля подключите к вашему телефону.</string>
     <string name="select_ledger_account_to_spend_from">Выберете аккаунт, с которого будете тратить</string>
-    <string name="ledger_import_account">Импортировать Ledger HD-аккаунт</string>
+    <string name="ledger_import_account">Импортировать Ledger HD Bitcoin-аккаунт</string>
     <string name="ledger_import_account_caption">Импортировать аккаунт</string>
     <string name="ledger_select_account_to_import">Выберете аккаунт для импорта</string>
     <string name="ledger_amount">Количество:</string>
@@ -633,8 +633,8 @@
     <string name="both">Оба способа</string>
     <string name="button_changelog">История изменений</string>
     <string name="hint_type_to_filter">Начните ввод для фильтрации списка</string>
-    <string name="info_add_account_keep_backup_secure">Информация: Все HD аккаунты являются производными от вашего мастер-ключа Seed - если вы храните вашу резервную копию из 12 слов в безопасном месте (лучше на бумаге в сейфе), вы можете легко восстановить все ваши HD аккаунты в случае потери/поломки смартфона.</string>
-    <string name="warning_add_account_no_backup">Предупреждение: У вас не подтверждена/верифицирована Резервная Копия вашего мастер-ключа Seed. Все HD аккаунты являются производными от него. Они безопасны и восстанавливаемы, если у вас есть верифицированная и безопасно хранящаяся Резервная Копия.</string>
+    <string name="info_add_account_keep_backup_secure">Информация: Все HD Bitcoin аккаунты и Ethereum аккаунт являются производными от вашего мастер-ключа Seed - если вы храните вашу резервную копию из 12 слов в безопасном месте (лучше на бумаге в сейфе), вы можете легко восстановить все ваши HD Bitcoin аккаунты и Ethereum аккаунт в случае потери/поломки смартфона.</string>
+    <string name="warning_add_account_no_backup">Предупреждение: У вас не подтверждена/верифицирована Резервная Копия вашего мастер-ключа Seed. Все HD Bitcoin аккаунты и Ethereum аккаунт являются производными от него. Они безопасны и восстанавливаемы, если у вас есть верифицированная и безопасно хранящаяся Резервная Копия.</string>
     <string name="transaction_to_address_prefix">Кому: %s</string>
     <string name="tor_state_init">Инициализация Tor</string>
     <!-- from libNetCipher -->
@@ -712,32 +712,6 @@
     <string name="block_explorer_summary">Детали транзакции будут показаны с помощью %1$s \"Просмотрщика Блоков\"</string>
     <string name="lt_warning_wrong_account_type">Local Trader не работает с выбранным типом аккаунта - пожалуйста, выберете другой аккаунт.</string>
     <string name="lt_account_not_allowed">Выбранный тип аккаунта не работает с Local Trader. Вам необходимо выбрать другой аккаунт для выполнения этой сделки.</string>
-    <string name="coinapult_sending_via_coinapult">Передать Биткойны через Coinapult</string>
-    <string name="coinapult_account_notes">Аккаунт Coinapult позволяет хранить сбережения в разных фиатных валютах и посылать их немедленно на любой биткойн адрес.\nПоскольку вы используете приватные ключи для отправки биткойнов, они под контролем компании Coinapult, что контрастирует с тем, когда вы тратите ваши средства со своих HD аккаунтов, которые только под вашим контролем.</string>
-    <string name="coinapult_mail_hint">Введите ваш email адрес</string>
-    <string name="coinapult_mail_description">Если вы укажите свой email адрес, поддержка Coinapult сможет соотнести вас с этой проблемой, если вы напишите им на адрес support@coinapult.com с адреса, который вы указали здесь.</string>
-    <string name="coinapult_threshold_warning">Предупреждение: Coinapult аккаунты не работают с транзакциями, которые по объёму посылаемых средств меньше, чем %1$s.</string>
-    <string name="coinapult_amount_too_small">Сумма слишком мала - минимальный вывод средств %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Указать email-адрес</string>
-    <string name="coinapult_set_mail_failed">Установка email-адреса не удалась - пожалуйста, проверьте правильность написания и убедитесь, что ваше устройство подключено к интернет.</string>
-    <string name="coinapult_setting_email">Отправка email-адреса на Coinapult&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Ваш email-адрес установлен - к вам придёт письмо со ссылкой подтверждения. Пожалуйста, скопируйте эту ссылку и вставьте её в настройках вашей учётной записи в пункте \'Проверить email\', чтобы мы могли проверить, что адрес верный.</string>
-    <string name="coinapult_verify_mail_menu_title">Проверка email-адреса</string>
-    <string name="coinapult_mail_verification">Проверка вашего Coinapult email-адреса</string>
-    <string name="coinapult_mail_verification_description">Пожалуйста, вставьте проверочную ссылку, которая пришла на ваш email-адрес, в текстовое поле ниже.</string>
-    <string name="coinapult_mail_verification_hint">вставьте проверочную ссылку</string>
-    <string name="coinapult_verifying_email">Передача проверочной ссылки на Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Ваш Coinapult email-адрес успешно проверен.</string>
-    <string name="coinapult_verify_mail_error">Произошла ошибка проверки вашего email-адреса. Пожалуйста, убедитесь, что вы вставили правильную проверочную ссылку.</string>
-    <string name="coinapult_unable_to_create_account">Не удается создать учетную запись Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Не удалось транслировать Coinapult транзакцию</string>
-    <string name="coinapult_add_locks_account">Добавить Coinapult учётную запись блокировок</string>
-    <string name="coinapult_tos_link">Открыть Coinapult определения и условия использования</string>
-    <string name="coinapult_tos_question">Чтобы создать учетную запись Coinapult, вы должны согласиться с их условиями</string>
-    <string name="coinapult_mail_question">Вы хотите предоставить ваш почтовый адрес?</string>
-    <string name="coinapult_create_account">Создание учётной записи Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">Ключ доступа к учетной записи Coinapult формируется из вашего мастер-ключа seed. Если у вас есть резервная копия вашего мастер-ключа seed, доступ к вашей учетной записи Coinapult также будет работать.</string>
-    <string name="coinapult_currency_account">%1$s Аккаунт</string>
     <string name="colu_add_cc_account">Добавить аккаунт Digital Asset</string>
     <string name="colu_create_account">Создать %s аккаунт</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
@@ -783,10 +757,8 @@
     <string name="credit_card_buy_description">Купить Bitcoin кредитной картой</string>
     <string name="credit_card_buy_setting_description">Купить Bitcoin кредитной картой</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Купить / Продать Bitcoin</string>
     <string name="error_details">Сведения об ошибке</string>
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <string name="si_loading">загрузка…</string>
     <!-- Simplex end -->
@@ -877,4 +849,8 @@
         <item quantity="many">Содержит %1$d приватных ключей.</item>
         <item quantity="other">Содержит %1$d приватных ключей.</item>
     </plurals>
+    <string name="buy_ethereum">Купить ETH</string>
+    <string name="export_fio">Экспортировать публичный ключ FIO</string>
+    <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
+    <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
 </resources>

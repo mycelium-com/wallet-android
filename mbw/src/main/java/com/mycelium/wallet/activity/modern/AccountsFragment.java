@@ -34,14 +34,12 @@
 
 package com.mycelium.wallet.activity.modern;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
@@ -53,7 +51,6 @@ import androidx.appcompat.view.ActionMode.Callback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Html;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,9 +60,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.EditText;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
@@ -75,6 +70,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.AddAccountActivity;
 import com.mycelium.wallet.activity.AddAdvancedAccountActivity;
 import com.mycelium.wallet.activity.MessageSigningActivity;
+import com.mycelium.wallet.activity.export.ExportFioKeyActivity;
 import com.mycelium.wallet.activity.export.VerifyBackupActivity;
 import com.mycelium.wallet.activity.modern.adapter.AccountListAdapter;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
@@ -111,13 +107,14 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultAccount;
-import com.mycelium.wapi.wallet.coinapult.CoinapultModule;
 import com.mycelium.wapi.wallet.coins.Balance;
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.Config;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
@@ -172,12 +169,14 @@ public class AccountsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if (rvRecords == null) {
             rvRecords = view.findViewById(R.id.rvRecords);
-            rvRecords.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
             accountListAdapter = new AccountListAdapter(this, _mbwManager);
             rvRecords.setAdapter(accountListAdapter);
             rvRecords.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.divider_account_list)
                     , LinearLayoutManager.VERTICAL));
             rvRecords.setHasFixedSize(true);
+            if (rvRecords.getItemAnimator() != null) {
+                rvRecords.getItemAnimator().setChangeDuration(0); //avoid item blinking
+            }
         }
         if (llLocked == null) {
             llLocked = view.findViewById(R.id.llLocked);
@@ -292,7 +291,7 @@ public class AccountsFragment extends Fragment {
                     localTraderManager.unsetLocalTraderAccount();
                 }
                 if (hasPrivateData) {
-                    Long satoshis = getPotentialBalance(accountToDelete);
+                    Value potentialBalance = getPotentialBalance(accountToDelete);
                     AlertDialog.Builder confirmDeleteDialog = new AlertDialog.Builder(getActivity());
                     confirmDeleteDialog.setTitle(R.string.confirm_delete_pk_title);
 
@@ -320,16 +319,16 @@ public class AccountsFragment extends Fragment {
                             address = "";
                         }
                     }
-                    if (accountToDelete.isActive() && satoshis != null && satoshis > 0) {
+                    if (accountToDelete.isActive() && potentialBalance != null && potentialBalance.moreThanZero()) {
                         if (label.length() != 0) {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance_with_label,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
                                     getResources().getQuantityString(R.plurals.account_label, labelCount, label),
-                                    address, getBalanceString(accountToDelete.getAccountBalance()));
+                                    address, getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         } else {
                             message = getResources().getQuantityString(R.plurals.confirm_delete_pk_with_balance,
                                     !(accountToDelete instanceof SingleAddressAccount) ? 1 : 0,
-                                    getBalanceString(accountToDelete.getAccountBalance()));
+                                    getBalanceString(accountToDelete.getCoinType(), accountToDelete.getAccountBalance()));
                         }
                     } else {
                         if (label.length() != 0) {
@@ -425,11 +424,19 @@ public class AccountsFragment extends Fragment {
                 }
             }
 
-            private Long getPotentialBalance(WalletAccount account) {
+            private Value getBalance(WalletAccount account) {
                 if (account.isArchived()) {
                     return null;
                 } else {
-                    return account.getAccountBalance().getSpendable().value;
+                    return account.getAccountBalance().confirmed;
+                }
+            }
+
+            private Value getPotentialBalance(WalletAccount account) {
+                if (account.isArchived()) {
+                    return null;
+                } else {
+                    return account.getAccountBalance().getSpendable();
                 }
             }
         });
@@ -465,11 +472,11 @@ public class AccountsFragment extends Fragment {
     private String getActiveAccountDeleteText(WalletAccount accountToDelete, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(accountToDelete.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.delete_account_message, accountName, valueString,
                     linkedAccountName, linkedValueString) + "\n" +
@@ -480,8 +487,8 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    private String getBalanceString(Balance balance) {
-        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination());
+    private String getBalanceString(GenericAssetInfo coinType, Balance balance) {
+        return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
     }
 
     /**
@@ -553,12 +560,12 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
         if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount)
-                && !isBch && !(account instanceof HDAccountExternalSignature)) {
+                && !isBch && !(account instanceof HDAccountExternalSignature) && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_sign);
         }
 
@@ -566,12 +573,8 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !(account instanceof CoinapultAccount) && !isBch) {
+        if (account.isActive() && !isBch && !(account instanceof EthAccount)) {
             menus.add(R.menu.record_options_menu_outputs);
-        }
-
-        if (account instanceof CoinapultAccount) {
-            menus.add(R.menu.record_options_menu_set_coinapult_mail);
         }
 
         if (!(account instanceof Bip44BCHAccount)
@@ -582,6 +585,10 @@ public class AccountsFragment extends Fragment {
 
         if (account.isActive() && account instanceof ExportableAccount && !isBch) {
             menus.add(R.menu.record_options_menu_export);
+        }
+
+        if(account.isDerivedFromInternalMasterseed() && account instanceof HDAccount) {
+            menus.add(R.menu.record_fio_pub_key_export);
         }
 
         if (account.isActive() && account instanceof HDAccount && !(account instanceof HDPubOnlyAccount)
@@ -641,6 +648,9 @@ public class AccountsFragment extends Fragment {
                     case R.id.miExport:
                         exportSelectedPrivateKey();
                         return true;
+                    case R.id.miExportFioPubKey:
+                        exportFioKey();
+                        return true;
                     case R.id.miSignMessage:
                         signMessage();
                         return true;
@@ -658,12 +668,6 @@ public class AccountsFragment extends Fragment {
                         return true;
                     case R.id.miRescan:
                         rescan();
-                        return true;
-                    case R.id.miSetMail:
-                        setCoinapultMail();
-                        return true;
-                    case R.id.miVerifyMail:
-                        verifyCoinapultMail();
                         return true;
                     default:
                         return false;
@@ -685,135 +689,6 @@ public class AccountsFragment extends Fragment {
         // starting for some reason, and this would clear the focus and force
         // an update.
         accountListAdapter.setFocusedAccountId(account.getId());
-    }
-
-    //todo: maybe move it to another class along with the other coinaspult mail stuff? would require passing the context for dialog boxes though.
-    private void setCoinapultMail() {
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-        b.setTitle(getString(R.string.coinapult_mail_question));
-        View diaView = requireActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail, null);
-        final EditText mailField = diaView.findViewById(R.id.mail);
-        mailField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-        if (!email.isEmpty()) {
-            mailField.setText(email);
-        }
-        b.setView(diaView);
-        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String mailText = mailField.getText().toString();
-                if (Utils.isValidEmailAddress(mailText)) {
-                    if (!mailText.isEmpty()) {
-                        _progress.setCancelable(false);
-                        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        _progress.setMessage(getString(R.string.coinapult_setting_email));
-                        _progress.show();
-                        _mbwManager.getMetadataStorage().setCoinapultMail(mailText);
-                        new SetCoinapultMailAsyncTask(mailText).execute();
-                    }
-                    dialog.dismiss();
-                } else {
-                    new Toaster(AccountsFragment.this).toast("Email address not valid", false);
-                }
-            }
-        });
-        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = b.create();
-        dialog.show();
-    }
-
-    private void verifyCoinapultMail() {
-        AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
-        b.setTitle(getString(R.string.coinapult_mail_verification));
-        final String email = _mbwManager.getMetadataStorage().getCoinapultMail();
-        View diaView = requireActivity().getLayoutInflater().inflate(R.layout.ext_coinapult_mail_verification, null);
-        final EditText verificationTextField = diaView.findViewById(R.id.mailVerification);
-
-        // check if there is a probable verification link in the clipboard and if so, pre-fill the textbox
-        String clipboardString = Utils.getClipboardString(getActivity());
-        if (!Strings.isNullOrEmpty(clipboardString) && clipboardString.contains("coinapult.com")) {
-            verificationTextField.setText(clipboardString);
-        }
-
-        b.setView(diaView);
-        b.setPositiveButton(getString(R.string.button_done), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String verification = verificationTextField.getText().toString();
-                _progress.setCancelable(false);
-                _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                _progress.setMessage(getString(R.string.coinapult_verifying_email));
-                _progress.show();
-                new VerifyCoinapultMailAsyncTask(verification, email).execute();
-                dialog.dismiss();
-            }
-        });
-        b.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = b.create();
-        dialog.show();
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class SetCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-        private String mail;
-
-        public SetCoinapultMailAsyncTask(@NonNull String mail) {
-            this.mail = mail;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            return ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).setMail(mail);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            _progress.dismiss();
-            if (success) {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_please_verify);
-            } else {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_set_mail_failed);
-            }
-        }
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class VerifyCoinapultMailAsyncTask extends AsyncTask<Void, Integer, Boolean> {
-        private String link;
-        private String email;
-
-        public VerifyCoinapultMailAsyncTask(String link, String email) {
-            this.link = link;
-            this.email = email;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            return  ((CoinapultModule) walletManager.getModuleById(CoinapultModule.ID)).verifyMail(link, email);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            _progress.dismiss();
-            if (success) {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_success);
-            } else {
-                Utils.showSimpleMessageDialog(getActivity(), R.string.coinapult_verify_mail_error);
-            }
-        }
     }
 
     private void verifySingleKeyBackup() {
@@ -939,6 +814,10 @@ public class AccountsFragment extends Fragment {
         runPinProtected(() -> Utils.exportSelectedAccount(getActivity()));
     }
 
+    private void exportFioKey() {
+        startActivity(new Intent(requireContext(), ExportFioKeyActivity.class));
+    }
+
     private void detachFromLocalTrader() {
         if (!isAdded()) {
             return;
@@ -992,10 +871,7 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-        if (account instanceof CoinapultAccount) {
-            runPinProtected(() -> archive(account));
-            return;
-        } else if (account instanceof HDAccount) {
+        if (account instanceof HDAccount) {
             HDAccount hdAccount = (HDAccount) account;
             if (!hdAccount.hasHadActivity() && hdAccount.isDerivedFromInternalMasterseed()) {
                 // this hdAccount is unused, we don't allow archiving it
@@ -1010,14 +886,19 @@ public class AccountsFragment extends Fragment {
      * Account is protected if after removal no masterseed accounts would stay active, so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        // If the account is not derived from master seed, we can remove it
-        if (!toRemove.isDerivedFromInternalMasterseed()) {
+        // accounts not derived from master seed and ethereum account are not protected
+        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
-
-        // If we have more than one master-seed derived account, we can remove it
-        return accountsList.size() <= 1;
+        int cnt = 0;
+        for (WalletAccount account : accountsList) {
+            if (account.getClass().equals(toRemove.getClass())) {
+                cnt++;
+            }
+        }
+        // If we have more than one master-seed derived account of the same type as toRemove, we can remove it
+        return cnt <= 1;
     }
 
     private void hideSelected() {
@@ -1089,11 +970,11 @@ public class AccountsFragment extends Fragment {
     private String getAccountArchiveText(WalletAccount account, WalletAccount linkedAccount, String accountName) {
         String dialogText;
         Balance balance = checkNotNull(account.getAccountBalance());
-        String valueString = getBalanceString(balance);
+        String valueString = getBalanceString(account.getCoinType(), balance);
 
         if (linkedAccount != null && linkedAccount.isVisible()) {
             Balance linkedBalance = linkedAccount.getAccountBalance();
-            String linkedValueString = getBalanceString(linkedBalance);
+            String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
             String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
             dialogText = getString(R.string.question_archive_account_s, accountName, valueString,
                     linkedAccountName, linkedValueString);
