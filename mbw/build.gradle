@@ -254,18 +254,7 @@ android {
                         '"tcp-tls://electrumx-2a0.mycelium.com:10000",' +
                         '"tcp-tls://electrumx-2a0.mycelium.com:10001",' +
                         '"tcp-tls://electrumx-2a1.mycelium.com:10000",' +
-                        '"tcp-tls://electrumx-2a1.mycelium.com:10001",' +
-                        '"tcp://jq2l2pllz4jvbcgw4ohvk2gkii7rgbn7ngi72huqheo2xz4huhyl4wad.onion:50001",' +
-                        '"tcp://q4y3kuucljneylxxhgser7f46noqc3ci2irijgbyq6ubasspbdmvwcqd.onion:50001",' +
-                        '"tcp://z5wpjeo4hbjezhruykxwuu6xk4a3sbdeuk6j5aj4p32euihcuqafzgyd.onion:50001",' +
-                        '"tcp://xifjtasp3xtac7u6zcqecfxblhs2ojqf6gfcqpdbqwb6lqw6nur6vbad.onion:50001",' +
-                        '"tcp://gi6ndmetg74ql7ou5na5ns6i7sjdsunc3i6trhe624r4hsnu52a76sqd.onion:50001",' +
-                        '"tcp://boaapqef6nrfbirhdpp73wlbevvhwo2glpj4vdzf6w4p2on7tzaanzad.onion:50001",' +
-                        '"tcp://y65mzslchc7dyztymlx46qkc4wonkytlpydlf2vyub2yvmjpsmdd62yd.onion:50001",' +
-                        '"tcp://jmfokzc7xmj3dscdn2dlkrchibn3hyr4p7mcjyrz74ju2oghg3tpkiyd.onion:50001",' +
-                        '"tcp://lsopdyoi775bl4jxmh4fauw5kq44sbvgdkko6lo4b3jruavjwat2dvad.onion:50001",' +
-                        '"tcp://xxqq244pz2gzk62kamea4uslno7lnpcnils63pijo7hlgpz25xjkl4yd.onion:50001",' +
-                        '"tcp://p3gk37s6ai2tgcoaci6fq52mxo4byvceonorpjhrnitfkcs2nb3sktqd.onion:50001"}'
+                        '"tcp-tls://electrumx-2a1.mycelium.com:10001"}'
                 WapiServers='"[{\\\'cert-sha1\':\\\'14:83:CB:96:48:E0:7F:96:D0:C3:78:17:98:6F:E3:72:4C:34:E5:07\\\',\\\'url\\\':\\\'https://wapi.mycelium.com/\\\'},' +
                         '{\\\'cert-sha1\':\\\'C5:09:C8:37:84:53:65:EE:8E:22:89:32:8F:86:70:49:AD:0A:53:4D\\\',\\\'url\\\':\\\'https://vtuao7psnrsot4tb.onion/wapi\\\'},' +
                         '{\\\'cert-sha1\':\\\'65:1B:FF:6B:8C:7F:C8:1C:8E:14:77:1E:74:9C:F7:E5:46:42:BA:E0\\\',\\\'url\\\':\\\'https://mws20.mycelium.com/wapi\\\'}]"'
