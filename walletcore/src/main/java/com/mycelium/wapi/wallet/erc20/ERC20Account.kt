@@ -35,6 +35,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val ethAcc: EthAccount,
                    private val credentials: Credentials? = null,
                    private val backing: EthAccountBacking,
+                   private val accountListener: AccountListener?,
                    endpoints: List<HttpEndpoint>) : WalletAccount<EthAddress> {
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(ERC20Account::javaClass.name)
@@ -57,15 +58,19 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private fun subscribeOnTransferEvents(): Disposable {
         val contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
         return contract.transferEventFlowable(DefaultBlockParameterNumber(accountContext.blockHeight.toLong()), DefaultBlockParameterName.PENDING)
+                .filter { it.to == receivingAddress!!.addressString }
                 .subscribeOn(Schedulers.io())
-                .subscribe {
+                .subscribe({
                     val txhash = it.log!!.transactionHash
                     val tx = client.ethGetTransactionByHash(txhash).send()
-                    backing.putTransaction(-1, System.currentTimeMillis () / 1000, txhash,
+                    backing.putTransaction(-1, System.currentTimeMillis() / 1000, txhash,
                             "", it.from!!, it.to!!, transformValueForDb(Value.valueOf(token, it.value!!)),
                             Value.valueOf(basedOnCoinType, tx.result.gasPrice * tx.result.gas), 0,
                             tx.result.nonce, tx.result.gas, tx.result.gas)
-                }
+                    updateBalanceCache()
+                }, {
+                    logger.log(Level.SEVERE, "onError in subscribeOnTransferEvents, ${it.localizedMessage}")
+                })
     }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
@@ -116,6 +121,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getBasedOnCoinType() = accountContext.currency
 
+    private val balanceService = ERC20BalanceService(receivingAddress!!.addressString, token, basedOnCoinType, client, backing, credentials!!)
+
     override fun getAccountBalance() = readBalance()
 
     override fun isMineAddress(address: GenericAddress?) = address == receivingAddress
@@ -155,7 +162,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         if (!syncTransactions()) {
             return false
         }
-        return updateBalanceCache()
+        updateBalanceCache()
+        return true
     }
 
     override fun getBlockChainHeight() = accountContext.blockHeight
@@ -219,16 +227,11 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun updateBalanceCache(): Boolean {
-        return try {
-            // https://github.com/web3j/web3j/blob/5001c05f6165d24a3df95760ea8ed8343faf46c4/core/src/main/java/org/web3j/tx/gas/DefaultGasProvider.java
-            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
-            val result = erc20Contract.balanceOf(receivingAddress!!.addressString).sendAsync()
-            saveBalance(Balance(Value.valueOf(coinType, result.get()), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType)))
-            true
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ERC20 account: ${e.localizedMessage}")
-            false
+    private fun updateBalanceCache() {
+        balanceService.updateBalanceCache()
+        if (balanceService.balance != accountContext.balance) {
+            accountContext.balance = balanceService.balance
+            accountListener?.balanceUpdated(this)
         }
     }
 

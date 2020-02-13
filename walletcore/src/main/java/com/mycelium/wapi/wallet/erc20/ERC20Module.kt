@@ -29,6 +29,7 @@ class ERC20Module(
         private val web3jServices: List<HttpEndpoint>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
+        private val accountListener: AccountListener?,
         private val ethereumModule: EthereumModule) : GenericModule(metaDataStorage), WalletModule {
     private val accounts = mutableMapOf<UUID, ERC20Account>()
     override val id = ID
@@ -48,7 +49,7 @@ class ERC20Module(
                 val accountContext = createAccountContext(uuid, config)
                 backing.createAccountContext(accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
-                result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking, web3jServices)
+                result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking, accountListener, web3jServices)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -116,7 +117,7 @@ class ERC20Module(
         val token = ERC20Token(accountContext.accountName, accountContext.symbol, accountContext.unitExponent, accountContext.contractAddress)
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
-        val account = ERC20Account(accountContext, token, ethAccount, credentials, accountBacking, web3jServices)
+        val account = ERC20Account(accountContext, token, ethAccount, credentials, accountBacking, accountListener, web3jServices)
         accounts[account.id] = account
         return account
     }
