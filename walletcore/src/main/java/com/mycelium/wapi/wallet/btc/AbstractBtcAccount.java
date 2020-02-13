@@ -1742,7 +1742,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // find parent output
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
-               _logger.logError("Unable to find parent output for: " + input.outPoint);
                continue;
             }
             if (isMine(funding)) {
