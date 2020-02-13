@@ -143,8 +143,12 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
         electrumServers.forEach {
-            val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
-            result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+            try {
+                val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
+                result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+            } catch (ex: Exception) {
+                // We ignore endpoints given in wrong format
+            }
         }
         return result
     }
