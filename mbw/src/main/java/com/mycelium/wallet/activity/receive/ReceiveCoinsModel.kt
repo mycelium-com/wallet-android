@@ -19,7 +19,8 @@ import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.erc20.ERC20Account
+import com.mycelium.wapi.wallet.eth.EthAccount
 import com.squareup.otto.Subscribe
 
 class ReceiveCoinsModel(
@@ -89,12 +90,17 @@ class ReceiveCoinsModel(
                 val value = mbwManager.exchangeRateManager.get(amount.value, account.coinType) ?: amount.value
 
                 if (value != null) {
-                    uri.append("?amount=").append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
+                    if (account is EthAccount || account is ERC20Account) {
+                        uri.append("?value=")
+                    } else {
+                        uri.append("?amount=")
+                    }
+                    uri.append(value.valueAsBigDecimal.stripTrailingZeros().toPlainString())
                 } else {
                     Toast.makeText(context, R.string.value_conversion_error, Toast.LENGTH_LONG).show()
                 }
-                if (account.coinType is ERC20Token) {
-                    uri.append("&req-asset=${(account.coinType as ERC20Token).contractAddress}")
+                if (account is ERC20Account) {
+                    uri.append("&req-asset=${account.coinType.contractAddress}")
                 }
             }
         }
