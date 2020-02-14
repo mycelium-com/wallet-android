@@ -29,19 +29,19 @@ class BlockExplorersFragment : PreferenceFragmentCompat() {
 
         val prefCat = PreferenceCategory(preferenceScreen.context)
         preferenceScreen.addPreference(prefCat)
-        val cryptocurrencies = _mbwManager!!.cryptocurrenciesSorted
+        val cryptocurrencies = _mbwManager.cryptocurrenciesSorted
         for (name in cryptocurrencies) {
             val listPreference = ListPreference(preferenceScreen.context).apply {
                 title = name
 
-                val blockExplorerManager = _mbwManager!!._blockExplorerManager.getBEMByCurrency(name)!!
+                val blockExplorerManager = _mbwManager._blockExplorerManager.getBEMByCurrency(name)!!
                 value = blockExplorerManager.blockExplorer.identifier
                 val blockExplorerNames = blockExplorerManager.getBlockExplorerNames(blockExplorerManager.allBlockExplorer)
                 val blockExplorerValues = blockExplorerManager.blockExplorerIds
                 entries = blockExplorerNames
                 entryValues = blockExplorerValues
                 onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                    _mbwManager!!.setBlockExplorer(name, blockExplorerManager.getBlockExplorerById(newValue.toString()))
+                    _mbwManager.setBlockExplorer(name, blockExplorerManager.getBlockExplorerById(newValue.toString()))
                     true
                 }
                 layoutResource = R.layout.preference_layout_no_icon
@@ -68,7 +68,7 @@ class BlockExplorersFragment : PreferenceFragmentCompat() {
         private const val ARG_PREFS_ROOT = "preference_root_key"
 
         @JvmStatic
-        fun create(pageId: String) = DenominationFragment().apply {
+        fun create(pageId: String) = BlockExplorersFragment().apply {
             arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
         }
     }

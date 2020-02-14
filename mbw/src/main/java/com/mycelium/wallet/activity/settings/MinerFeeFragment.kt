@@ -104,7 +104,7 @@ class MinerFeeFragment : PreferenceFragmentCompat() {
         private const val ARG_PREFS_ROOT = "preference_root_key"
 
         @JvmStatic
-        fun create(pageId: String) = DenominationFragment().apply {
+        fun create(pageId: String) = MinerFeeFragment().apply {
             arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
         }
     }
