@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -121,6 +122,7 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
+import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
@@ -143,6 +145,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import static com.mycelium.wapi.wallet.erc20.ERC20ModuleKt.getERC20Accounts;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -793,6 +797,15 @@ public class Utils {
 
    public static boolean checkIsLinked(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       return getLinkedAccount(account, accounts) != null;
+   }
+
+   public static boolean isERC20Token(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : ERC20ModuleKt.getERC20Accounts(walletManager)) {
+         if (account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
    }
 
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {

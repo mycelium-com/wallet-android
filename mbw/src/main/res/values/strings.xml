@@ -153,6 +153,7 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
+    <string name="no_exchange_available">No Exchange available for Account</string>
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>

@@ -301,11 +301,15 @@ public class BalanceFragment extends Fragment {
         } else {
             Value value = _mbwManager.getExchangeRateManager().get(account.getCoinType().oneCoin(),
                     _mbwManager.getFiatCurrency(account.getCoinType()));
+            String exchange = _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(_mbwManager.getSelectedAccount().getCoinType().getSymbol());
             if (value == null) {
                 // We have no price, exchange not available
-                tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available
-                        , _mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
-                                _mbwManager.getSelectedAccount().getCoinType().getSymbol())));
+                // or no exchange rate providers for the account
+                if (exchange != null) {
+                    tvBtcRate.setText(getResources().getString(R.string.exchange_source_not_available, exchange));
+                } else {
+                    tvBtcRate.setText(R.string.no_exchange_available);
+                }
             } else {
                 tvBtcRate.setText(getResources().getString(R.string.balance_rate
                         , account.getCoinType().getSymbol()
@@ -313,9 +317,12 @@ public class BalanceFragment extends Fragment {
                         , ValueExtensionsKt.toString(value)));
             }
             tvBtcRate.setVisibility(View.VISIBLE);
-            exchangeSource.setText(_mbwManager.getExchangeRateManager().getCurrentExchangeSourceName(
-                    _mbwManager.getSelectedAccount().getCoinType().getSymbol()));
-            exchangeSourceLayout.setVisibility(View.VISIBLE);
+            exchangeSource.setText(exchange);
+            if (exchange != null) {
+                exchangeSourceLayout.setVisibility(View.VISIBLE);
+            } else {
+                exchangeSourceLayout.setVisibility(View.GONE);
+            }
         }
     }
 

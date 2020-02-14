@@ -328,7 +328,9 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             if (_currentExchangeSourceName.get(fromCurrency) == null) {
                 // This only happens the first time the wallet picks up exchange rates.
                 if (getExchangeSourceNames(fromCurrency) != null && getExchangeSourceNames(fromCurrency).size() > 0) {
-                    _currentExchangeSourceName.put(fromCurrency, Constants.DEFAULT_EXCHANGE);
+                    String exchange = getExchangeSourceNames(fromCurrency).contains(Constants.DEFAULT_EXCHANGE) ?
+                            Constants.DEFAULT_EXCHANGE : getExchangeSourceNames(fromCurrency).get(0);
+                    _currentExchangeSourceName.put(fromCurrency, exchange);
                 }
             }
         }
@@ -487,7 +489,8 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     public Value get(Value value, GenericAssetInfo toCurrency) {
-        GetExchangeRate rate = new GetExchangeRate(toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
+        GetExchangeRate rate = new GetExchangeRate(MbwManager.getInstance(_applicationContext).getWalletManager(false),
+                toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();
         if (rateValue != null) {
             BigDecimal bigDecimal = rateValue.multiply(new BigDecimal(value.value))

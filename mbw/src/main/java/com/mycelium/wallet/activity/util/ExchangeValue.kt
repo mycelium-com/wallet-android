@@ -2,6 +2,7 @@ package com.mycelium.wallet.activity.util
 
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.exchange.GetExchangeRate
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
@@ -14,7 +15,7 @@ class ExchangeValue(value: Value, val baseValue: Value) : Value(value.type, valu
     override fun isZero() = baseValue.isZero()
 }
 
-fun ExchangeRateManager.get(value: Value, toCurrency: GenericAssetInfo): Value? {
+fun ExchangeRateManager.get(wm: WalletManager, value: Value, toCurrency: GenericAssetInfo): Value? {
     if(toCurrency == value.type) {
         return value
     }
@@ -22,7 +23,7 @@ fun ExchangeRateManager.get(value: Value, toCurrency: GenericAssetInfo): Value? 
     if (value is ExchangeValue) {
         fromValue = value.baseValue
     }
-    val rate = GetExchangeRate(toCurrency.symbol, fromValue.type.symbol, this).invoke()
+    val rate = GetExchangeRate(wm, toCurrency.symbol, fromValue.type.symbol, this).invoke()
     val rateValue = rate.rate
     return if (rateValue != null) {
         val bigDecimal = rateValue.multiply(BigDecimal(fromValue.value))

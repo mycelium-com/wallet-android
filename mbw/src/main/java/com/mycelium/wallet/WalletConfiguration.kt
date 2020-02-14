@@ -172,7 +172,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
         val tempList = listOf(
                 ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
-                ERC20Token("Binance", "BIN", 18, "0xF73C72c160B69a4E9258fB684Eb64b635074c703"),
+                ERC20Token("Binance", "BNB", 18, "0xF73C72c160B69a4E9258fB684Eb64b635074c703"),
                 ERC20Token("VeChain", "VEN", 18, "0x9E56f421a7D20903928797c8ddf3318a6B461a8e"),
                 ERC20Token("Polymath", "POLY", 18, "0x95957c12a4776Ce4ab5bA683E2C827A83A351aaF"),
                 ERC20Token("MyDFS", "MyDFS", 18, "0x3578AE28E8b6f5664BbE3e855DB209E9DabDC027"),
