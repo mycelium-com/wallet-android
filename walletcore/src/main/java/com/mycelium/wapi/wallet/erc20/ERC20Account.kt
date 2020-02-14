@@ -57,7 +57,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun subscribeOnTransferEvents(): Disposable {
         val contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
-        return contract.transferEventFlowable(DefaultBlockParameterNumber(accountContext.blockHeight.toLong()), DefaultBlockParameterName.PENDING)
+        return contract.transferEventFlowable(DefaultBlockParameterNumber(getBlockHeight().toBigInteger()), DefaultBlockParameterName.PENDING)
                 .filter { it.to == receivingAddress!!.addressString }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
@@ -156,9 +156,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
-        if (!syncBlockHeight()) {
-            return false
-        }
         if (!syncTransactions()) {
             return false
         }
@@ -263,17 +260,15 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return Value.valueOf(basedOnCoinType, value.value)
     }
 
-    private fun syncBlockHeight(): Boolean {
-        try {
+    private fun getBlockHeight(): Int {
+        return try {
             val latestBlock = client.ethBlockNumber().send()
-            if (latestBlock.hasError()) {
-                return false
-            }
+
             accountContext.blockHeight = latestBlock.blockNumber.toInt()
-            return true
+            accountContext.blockHeight
         } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-            return false
+            logger.log(Level.SEVERE, "Error synchronizing ETH (blockheight), ${e.localizedMessage}")
+            accountContext.blockHeight
         }
     }
 
@@ -297,8 +292,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                                     backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
                                 }
                             }
-                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                            else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
+                            val confirmations = if (it.height != -1) getBlockHeight() - it.height
+                                                else max(0, getBlockHeight() - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
@@ -328,6 +323,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             accountContext.nonce = ethGetTransactionCount.transactionCount
             accountContext.nonce
         } catch (e: Exception) {
+            logger.log(Level.SEVERE, "Error synchronizing ETH (nonce), ${e.localizedMessage}")
             accountContext.nonce
         }
     }
