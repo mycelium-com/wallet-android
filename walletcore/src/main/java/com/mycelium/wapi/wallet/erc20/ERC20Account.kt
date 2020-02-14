@@ -139,8 +139,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun getTransactionSummaries(offset: Int, limit: Int) =
             backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress!!.addressString)
 
-    override fun getTransactionsSince(receivingSince: Long): MutableList<GenericTransactionSummary> =
-            mutableListOf()
+    override fun getTransactionsSince(receivingSince: Long) =
+            backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress!!.addressString)
 
     override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
