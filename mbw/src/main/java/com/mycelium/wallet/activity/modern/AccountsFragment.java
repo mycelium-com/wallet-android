@@ -606,7 +606,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -642,15 +642,6 @@ public class AccountsFragment extends Fragment {
             final HDAccount HDAccount = (HDAccount) account;
             BitcoinHDModule bitcoinHDModule = (BitcoinHDModule) walletManager.getModuleById(BitcoinHDModule.ID);
             if (!HDAccount.hasHadActivity() && HDAccount.getAccountIndex() == bitcoinHDModule.getCurrentBip44Index()) {
-                //only allow to remove unused HD accounts from the view
-                menus.add(R.menu.record_options_menu_hide_unused);
-            }
-        }
-
-        if (account.isActive() && account instanceof EthAccount && EthereumModuleKt.getActiveMasterseedEthAccounts(walletManager).size() > 1) {
-            final EthAccount ethAccount = (EthAccount) account;
-            EthereumModule ethereumModule = (EthereumModule) walletManager.getModuleById(EthereumModule.ID);
-            if (!ethAccount.hasHadActivity() && ethAccount.getAccountIndex() == ethereumModule.getCurrentBip44Index()) {
                 //only allow to remove unused HD accounts from the view
                 menus.add(R.menu.record_options_menu_hide_unused);
             }
@@ -953,8 +944,8 @@ public class AccountsFragment extends Fragment {
      * so it would not be possible to select an account
      */
     private boolean accountProtected(WalletAccount toRemove) {
-        // accounts not derived from masterseed are not protected
-        if (!toRemove.isDerivedFromInternalMasterseed()) {
+        // accounts not derived from master seed and ethereum account are not protected
+        if (!toRemove.isDerivedFromInternalMasterseed() || toRemove instanceof EthAccount) {
             return false;
         }
         List<WalletAccount<?>> accountsList = getActiveMasterseedAccounts(_mbwManager.getWalletManager(false));
@@ -977,15 +968,9 @@ public class AccountsFragment extends Fragment {
             _toaster.toast(R.string.keep_one_active, false);
             return;
         }
-
-        if (account instanceof HDAccount || account instanceof EthAccount) {
-            boolean hasHadActivity;
-            if (account instanceof HDAccount) {
-                hasHadActivity = ((HDAccount) account).hasHadActivity();
-            } else {
-                hasHadActivity = ((EthAccount) account).hasHadActivity();
-            }
-            if (hasHadActivity && account.isDerivedFromInternalMasterseed()) {
+        if (account instanceof HDAccount) {
+            final HDAccount hdAccount = (HDAccount) account;
+            if (hdAccount.hasHadActivity() && hdAccount.isDerivedFromInternalMasterseed()) {
                 // this hdAccount is used, we don't allow hiding it
                 _toaster.toast(R.string.dont_allow_hiding_used_notification, false);
                 return;
@@ -994,10 +979,10 @@ public class AccountsFragment extends Fragment {
             runPinProtected(new Runnable() {
                 @Override
                 public void run() {
-                    _mbwManager.getWalletManager(false).deleteAccount(account.getId());
+                    _mbwManager.getWalletManager(false).deleteAccount(hdAccount.getId());
                     // in case user had labeled the account, delete the stored name
-                    _storage.deleteAccountMetadata(account.getId());
-                    eventBus.post(new AccountChanged(account.getId()));
+                    _storage.deleteAccountMetadata(hdAccount.getId());
+                    eventBus.post(new AccountChanged(hdAccount.getId()));
                     _mbwManager.setSelectedAccount(_mbwManager.getWalletManager(false).getActiveSpendingAccounts().get(0).getId());
                     //we dont want to show the context menu for the automatically selected account
                     accountListAdapter.setFocusedAccountId(null);

@@ -57,17 +57,7 @@ class EthereumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    private fun hasBip32MasterSeed(): Boolean = secureStore.hasCiphertextValue(MasterSeedManager.MASTER_SEED_ID)
-
-    /**
-     * To create an additional HD account from the master seed, the master seed must be present and
-     * all existing master seed accounts must have had transactions (no gap accounts)
-     */
-    private fun canCreateAdditionalBip44Account(): Boolean =
-            hasBip32MasterSeed() && accounts.values.filter { it.isDerivedFromInternalMasterseed }
-                    .all { it.hasHadActivity() }
-
-    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig && canCreateAdditionalBip44Account())
+    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig)
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
@@ -177,7 +167,7 @@ class EthereumModule(
         }
     }
 
-    fun getCurrentBip44Index() = accounts.values
+    private fun getCurrentBip44Index() = accounts.values
             .filter { it.isDerivedFromInternalMasterseed }
             .maxBy { it.accountIndex }
             ?.accountIndex
