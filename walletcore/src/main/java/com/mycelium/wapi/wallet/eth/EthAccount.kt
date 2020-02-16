@@ -17,47 +17,25 @@ import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.http.HttpService
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.concurrent.thread
-import kotlin.math.max
 
 class EthAccount(private val accountContext: EthAccountContext,
-                 private val credentials: Credentials? = null,
-                 private val backing: EthAccountBacking,
+                 credentials: Credentials? = null,
+                 backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  endpoints: List<HttpEndpoint>,
-                 address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
-    private var endpoints = ServerEndpoints(endpoints.toTypedArray())
-    private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
-    val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
-
+                 address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, endpoints, address, EthAccount::class.simpleName) {
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
     val accountIndex: Int
         get() = accountContext.accountIndex
-
-    lateinit var client: Web3j
-
-    init {
-        updateClient()
-        accountContext.nonce = getNonce(receivingAddress)
-    }
-
-    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
-
-    private fun updateClient() {
-        client = buildCurrentEndpoint()
-    }
 
     fun removeEnabledToken(tokenName: String) {
         enabledTokens.remove(tokenName)
@@ -73,10 +51,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     fun hasHadActivity(): Boolean {
         return accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
-    }
-
-    override fun setAllowZeroConfSpending(b: Boolean) {
-        // TODO("not implemented")
     }
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
@@ -105,19 +79,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    private fun getNonce(address: EthAddress): BigInteger {
-        return try {
-            val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
-                    DefaultBlockParameterName.PENDING)
-                    .send()
-
-            accountContext.nonce = ethGetTransactionCount.transactionCount
-            accountContext.nonce
-        } catch (e: Exception) {
-            accountContext.nonce
-        }
-    }
-
     override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).rawTransaction
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
@@ -137,8 +98,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
-    override fun getReceiveAddress() = receivingAddress
-
     override fun getCoinType() = accountContext.currency
 
     override fun getBasedOnCoinType() = coinType
@@ -151,59 +110,34 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getAccountBalance() = accountContext.balance
 
-    override fun isMineAddress(address: GenericAddress?) =
-            address == receivingAddress
-
-    override fun isExchangeable() = true
-
-    override fun getTx(transactionId: ByteArray?): GenericTransaction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
-            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
-
-    override fun getTransactionSummaries(offset: Int, limit: Int) =
-            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress.addressString)
-
-    override fun getTransactionsSince(receivingSince: Long) =
-            backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress.addressString)
-
-    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getLabel() = accountContext.accountName
-
     override fun setLabel(label: String?) {
         accountContext.accountName = label!!
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return false
+    override fun getNonce() = accountContext.nonce
+
+    override fun setNonce(nonce: BigInteger) {
+        accountContext.nonce = nonce
     }
 
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override fun doSynchronization(mode: SyncMode?): Boolean {
         if (!selectEndpoint()) {
             return false
         }
-        if (!ethBalanceService.updateBalanceCache()) {
-            return false
-        }
-        accountContext.balance = ethBalanceService.balance
-        accountListener?.balanceUpdated(this)
-
-        if (!syncBlockHeight()) {
-            return false
-        }
-
         if (!syncTransactions()) {
             return false
         }
-
+        updateBalanceCache()
         renewSubscriptions()
         return true
+    }
+
+    private fun updateBalanceCache() {
+        ethBalanceService.updateBalanceCache()
+        if (ethBalanceService.balance != accountContext.balance) {
+            accountContext.balance = ethBalanceService.balance
+            accountListener?.balanceUpdated(this)
+        }
     }
 
     private fun selectEndpoint(): Boolean {
@@ -229,18 +163,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         return false
     }
 
-    override fun getBlockChainHeight(): Int {
-        return accountContext.blockHeight
-    }
-
-    override fun canSpend() = credentials != null
-
-    override fun isSyncing() = false
-
-    override fun isArchived() = accountContext.archived
-
-    override fun isActive() = !isArchived
-
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
@@ -265,14 +187,20 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun broadcastOutgoingTransactions() = true
 
-    override fun removeAllQueuedTransactions() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun calculateMaxSpendableAmount(gasPrice: Value, ign: EthAddress?): Value {
         val spendable = accountBalance.spendable - gasPrice * typicalEstimatedTransactionSize.toLong()
         return max(spendable, Value.zeroValue(coinType))
     }
+
+    override fun getLabel() = accountContext.accountName
+
+    override fun getBlockChainHeight() = accountContext.blockHeight
+
+    override fun setBlockChainHeight(height: Int) {
+        accountContext.blockHeight = height
+    }
+
+    override fun isArchived() = accountContext.archived
 
     override fun getSyncTotalRetrievedTransactions() = 0
 
@@ -280,78 +208,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getDummyAddress() = EthAddress.getDummyAddress(coinType)
-
-    override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
-
-    override fun getDependentAccounts() = emptyList<WalletAccount<GenericAddress>>()
-
-    override fun queueTransaction(transaction: GenericTransaction) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    private fun syncBlockHeight(): Boolean {
-        try {
-            val latestBlock = client.ethBlockNumber().send()
-            if (latestBlock.hasError()) {
-                return false
-            }
-            accountContext.blockHeight = latestBlock.blockNumber.toInt()
-            return true
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-            return false
-        }
-    }
-
-    /**
-     * during this sync we update transactions confirmations number
-     * and check for local transactions that have been created more than 5 minutes ago
-     * but are missing on the server and remove them from local db
-     * assuming the transactions haven't been propagated (transaction queueing for eth not supported yet)
-     */
-    private fun syncTransactions(): Boolean {
-        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
-                receivingAddress.addressString)
-        localTransactions.forEach {
-            try {
-                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
-                if (!remoteTx.hasError()) {
-                    if (remoteTx.result != null) {
-                        // blockNumber is not null when transaction is confirmed
-                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
-                        if (remoteTx.result.blockNumberRaw != null) {
-                            // "it.height == -1" indicates that this is a newly created transaction
-                            // and we haven't received any information about it's confirmation from the server yet
-                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
-                                if (!txReceipt.hasError()) {
-                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
-                                }
-                            }
-                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                                                else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                        }
-                    } else {
-                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
-                        // to prevent local data removal if server still didn't process just sent tx
-                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
-                            backing.deleteTransaction("0x" + it.idHex)
-                        }
-                    }
-                } else {
-                    return false
-                }
-            } catch (e: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-                return false
-            }
-        }
-        return true
     }
 
     private fun subscribeOnBalanceUpdates(): Disposable {

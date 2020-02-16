@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
@@ -16,49 +17,30 @@ import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.Credentials
-import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.DefaultBlockParameterNumber
-import org.web3j.protocol.http.HttpService
 import org.web3j.tx.gas.DefaultGasProvider
 import org.web3j.tx.gas.StaticGasProvider
 import java.math.BigInteger
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
-import java.util.logging.Logger
 import kotlin.concurrent.thread
-import kotlin.math.max
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    private val ethAcc: EthAccount,
-                   private val credentials: Credentials? = null,
-                   private val backing: EthAccountBacking,
+                   credentials: Credentials? = null,
+                   backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   endpoints: List<HttpEndpoint>) : WalletAccount<EthAddress> {
-    private var endpoints = ServerEndpoints(endpoints.toTypedArray())
-    private val logger = Logger.getLogger(ERC20Account::javaClass.name)
-    val receivingAddress = credentials?.let { EthAddress(coinType, it.address) }
-
-    lateinit var client: Web3j
-
-    init {
-        updateClient()
-    }
-
-    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
-
-    private fun updateClient() {
-        client = buildCurrentEndpoint()
-    }
+                   endpoints: List<HttpEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, endpoints, null, ERC20Account::class.simpleName) {
 
     private var transfersDisposable: Disposable = subscribeOnTransferEvents()
 
     private fun subscribeOnTransferEvents(): Disposable {
         val contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
         return contract.transferEventFlowable(DefaultBlockParameterNumber(getBlockHeight().toBigInteger()), DefaultBlockParameterName.PENDING)
-                .filter { it.to == receivingAddress!!.addressString }
+                .filter { it.to == receivingAddress.addressString }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     val txhash = it.log!!.transactionHash
@@ -71,10 +53,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 }, {
                     logger.log(Level.SEVERE, "onError in subscribeOnTransferEvents, ${it.localizedMessage}")
                 })
-    }
-
-    override fun setAllowZeroConfSpending(b: Boolean) {
-        // TODO("not implemented")
     }
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
@@ -96,7 +74,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val erc20Tx = (tx as Erc20Transaction)
         try {
-            accountContext.nonce = getNonce(receivingAddress!!)
+            accountContext.nonce = getNonce(receivingAddress)
             val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
@@ -115,47 +93,20 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         }
     }
 
-    override fun getReceiveAddress() = receivingAddress
-
     override fun getCoinType() = token
 
     override fun getBasedOnCoinType() = accountContext.currency
 
-    private val balanceService = ERC20BalanceService(receivingAddress!!.addressString, token, basedOnCoinType, client, backing, credentials!!)
+    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, client, backing, credentials!!)
 
     override fun getAccountBalance() = readBalance()
-
-    override fun isMineAddress(address: GenericAddress?) = address == receivingAddress
-
-    override fun isExchangeable() = true
-
-    override fun getTx(transactionId: ByteArray?): GenericTransaction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
-            backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress!!.addressString)!!
-
-    override fun getTransactionSummaries(offset: Int, limit: Int) =
-            backing.getTransactionSummaries(offset.toLong(), limit.toLong(), receivingAddress!!.addressString)
-
-    override fun getTransactionsSince(receivingSince: Long) =
-            backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress!!.addressString)
-
-    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun getLabel(): String = token.name
 
     override fun setLabel(label: String?) {
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
-        return false
-    }
-
-    override fun synchronize(mode: SyncMode?): Boolean {
+    override fun doSynchronization(mode: SyncMode?): Boolean {
         if (!syncTransactions()) {
             return false
         }
@@ -163,11 +114,17 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return true
     }
 
+    override fun getNonce() = accountContext.nonce
+
+    override fun setNonce(nonce: BigInteger) {
+        accountContext.nonce = nonce
+    }
+
+    override fun setBlockChainHeight(height: Int) {
+        accountContext.blockHeight = height
+    }
+
     override fun getBlockChainHeight() = accountContext.blockHeight
-
-    override fun canSpend() = credentials != null
-
-    override fun isSyncing() = false // TODO implement
 
     override fun isArchived() = accountContext.archived
 
@@ -199,10 +156,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun broadcastOutgoingTransactions() = true // TODO implement
 
-    override fun removeAllQueuedTransactions() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: EthAddress?): Value =
             accountBalance.spendable
 
@@ -211,16 +164,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun getTypicalEstimatedTransactionSize() = 21000
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getDummyAddress() = EthAddress.getDummyAddress(coinType)
-
-    override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
-
-    override fun getDependentAccounts() = emptyList<WalletAccount<GenericAddress>>()
-
-    override fun queueTransaction(transaction: GenericTransaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -260,71 +203,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return Value.valueOf(basedOnCoinType, value.value)
     }
 
-    private fun getBlockHeight(): Int {
-        return try {
-            val latestBlock = client.ethBlockNumber().send()
-
-            accountContext.blockHeight = latestBlock.blockNumber.toInt()
-            accountContext.blockHeight
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH (blockheight), ${e.localizedMessage}")
-            accountContext.blockHeight
-        }
-    }
-
-    private fun syncTransactions(): Boolean {
-        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
-                receivingAddress!!.addressString)
-        localTransactions.forEach {
-            try {
-                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
-                if (!remoteTx.hasError()) {
-                    if (remoteTx.result != null) {
-                        // blockNumber is not null when transaction is confirmed
-                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
-                        if (remoteTx.result.blockNumberRaw != null) {
-                            // "it.height == -1" indicates that this is a newly created transaction
-                            // and we haven't received any information about it's confirmation from the server yet
-                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
-                                if (!txReceipt.hasError()) {
-                                    val newFee = Value.valueOf(basedOnCoinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
-                                }
-                            }
-                            val confirmations = if (it.height != -1) getBlockHeight() - it.height
-                                                else max(0, getBlockHeight() - remoteTx.result.blockNumber.toInt())
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                        }
-                    } else {
-                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
-                        // to prevent local data removal if server still didn't process just sent tx
-                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
-                            backing.deleteTransaction("0x" + it.idHex)
-                        }
-                    }
-                } else {
-                    return false
-                }
-            } catch (e: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun getNonce(address: EthAddress): BigInteger {
-        return try {
-            val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
-                    DefaultBlockParameterName.PENDING)
-                    .send()
-
-            accountContext.nonce = ethGetTransactionCount.transactionCount
-            accountContext.nonce
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH (nonce), ${e.localizedMessage}")
-            accountContext.nonce
-        }
+    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
+        endpoints = ServerEndpoints(newEndpoints)
+        updateClient()
     }
 }
