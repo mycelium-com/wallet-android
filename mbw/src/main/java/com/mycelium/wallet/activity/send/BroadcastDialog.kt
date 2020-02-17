@@ -15,7 +15,6 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import java.util.*
@@ -51,7 +50,7 @@ class BroadcastDialog : DialogFragment() {
 
     lateinit var account: WalletAccount<*>
     lateinit var transaction: GenericTransaction
-    private var isCold: Boolean = false
+    var isCold: Boolean = false
     private var task: BroadcastTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,7 +126,7 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount) {
                 // When doing cold storage spending we do not offer to queue the transaction
                 // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
@@ -138,11 +137,11 @@ class BroadcastDialog : DialogFragment() {
                 AlertDialog.Builder(activity)
                         .setTitle(R.string.no_server_connection)
                         .setMessage(R.string.queue_transaction_message)
-                        .setPositiveButton(R.string.yes) { _, _ ->
+                        .setPositiveButton(R.string.yes) { textId, listener ->
                             account.queueTransaction(transaction)
                             returnResult(broadcastResult)
                         }
-                        .setNegativeButton(R.string.no) { _, _ -> returnResult(broadcastResult) }
+                        .setNegativeButton(R.string.no) { textId, listener -> returnResult(broadcastResult) }
                         .show()
 
             }
