@@ -280,14 +280,18 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                 }
                 ResultType.ASSET_URI -> {
                     val uri = data.getAssetUri()
-                    model.receivingAddress.value = uri.address
-                    model.transactionLabel.value = uri.label
-                    if (uri.value != null && uri.value!!.isPositive()) {
-                        //we set the amount to the one contained in the qr code, even if another one was entered previously
-                        if (!Value.isNullOrZero(model.amount.value)) {
-                            makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
+                    if (uri.address?.coinType == getAccount().coinType) {
+                        model.receivingAddress.value = uri.address
+                        model.transactionLabel.value = uri.label
+                        if (uri.value != null && uri.value!!.isPositive()) {
+                            //we set the amount to the one contained in the qr code, even if another one was entered previously
+                            if (!Value.isNullOrZero(model.amount.value)) {
+                                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
+                            }
+                            model.amount.value = uri.value
                         }
-                        model.amount.value = uri.value
+                    } else {
+                        makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                     }
                 }
                 ResultType.HD_NODE -> {

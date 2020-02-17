@@ -13,10 +13,8 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.settings.helper.DisplayPreferenceDialogHandler
 import java.util.*
 
-class DenominationFragment(pageId: String) : PreferenceFragmentCompat() {
-    init {
-        arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
-    }
+class DenominationFragment : PreferenceFragmentCompat() {
+
     private var displayPreferenceDialogHandler: DisplayPreferenceDialogHandler? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -82,5 +80,10 @@ class DenominationFragment(pageId: String) : PreferenceFragmentCompat() {
 
     companion object {
         private const val ARG_PREFS_ROOT = "preference_root_key"
+
+        @JvmStatic
+        fun create(pageId: String) = DenominationFragment().apply {
+            arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
+        }
     }
 }

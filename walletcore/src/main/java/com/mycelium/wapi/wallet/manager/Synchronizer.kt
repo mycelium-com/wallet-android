@@ -51,9 +51,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
     private fun startSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
         runBlocking(Dispatchers.Default) {
-            list.groupBy { it.coinType }
-                    .values.flatten()
-                    .map {
+            list.map {
                         async {
                             val accountLabel = it.label ?: ""
                             logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")

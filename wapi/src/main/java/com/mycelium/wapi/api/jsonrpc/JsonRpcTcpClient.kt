@@ -55,6 +55,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
     private val nextRequestId = AtomicInteger(0)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
+    @Volatile private var pingLatch : CountDownLatch? = null
     private var previousRequestsMap = mutableMapOf<String, String>()
     // Stores requests waiting to be processed
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
@@ -142,13 +143,18 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
                 //Close connection if it is still opened
                 closeConnection()
 
+                //Cancel waiting of last ping if it has been sent recently right before the connection is closed
+                pingLatch?.countDown()
+
+                //Finish ping timer thread execution
+                pingTimer?.cancel()
+
                 // Sleep for some time before moving to the next endpoint
                 if (isConnectionThreadActive) {
                     sleep(INTERVAL_BETWEEN_SOCKET_RECONNECTS)
                 }
 
                 curEndpointIndex = (curEndpointIndex + 1) % endpoints.size
-                pingTimer?.cancel()
 
                 previousRequestsMap.clear()
                 previousRequestsMap.putAll(awaitingRequestsMap)
@@ -346,12 +352,12 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
             return
 
         var pong: RpcResponse? = null
-        val latch = CountDownLatch(1)
+        pingLatch = CountDownLatch(1)
         val request = RpcRequestOut("server.ping", RpcMapParams(emptyMap<String, String>())).apply {
             id = nextRequestId.getAndIncrement().toString()
             callbacks[id.toString()] = {
                 pong = it as RpcResponse
-                latch.countDown()
+                pingLatch!!.countDown()
             }
         }
         val requestJson = request.toJson()
@@ -361,13 +367,18 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>,
             return
         }
 
-        if (!latch.await(MAX_PING_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        if (!pingLatch!!.await(MAX_PING_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
             logger.logInfo("Couldn't get reply on server.ping with id=$requestId for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
             // Force socket close. It will cause reconnect to another server
             closeConnection()
             return
         }
-        logger.logInfo("Pong! $pong")
+
+        pingLatch = null
+
+        if (pong != null) {
+            logger.logInfo("Pong! $pong")
+        }
     }
 
 

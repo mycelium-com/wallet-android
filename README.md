@@ -37,10 +37,11 @@ The project layout is designed to be used with a recent version of Android Studi
 
 #### Build commands
 
-On the console type:
+To get the source code, type:
 
     git clone https://github.com/mycelium-com/wallet-android.git
     cd wallet-android
+    git clone https://github.com/mycelium-com/wallet-android-modularization-tools.git
     git submodule update --init --recursive
 
 Linux/Mac type:
@@ -56,13 +57,16 @@ Windows type:
 
 Alternatively you can install the latest version from the [Play Store](https://play.google.com/store/apps/details?id=com.mycelium.wallet).
 
-If you cannot access the Play store, you can obtain the apk directly from https://mycelium.com/bitcoinwallet
+If you cannot access the Play store, you can obtain the apk directly from the Mycelium Bitcoin
+Wallet [download page](https://wallet.mycelium.com/contact.html).
 
 Deterministic builds
 ====================
 
-To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium wallet yourself using Docker and compare both images following these steps:
+To validate the Mycelium image you obtain from Google Play Store, you can rebuild the Mycelium
+wallet yourself using Docker and compare both images following these steps:
 
+* Get the source as above
 * Create your own Docker image from our simple Dockerfile
 
         $ docker build . --tag mycelium-wallet
@@ -71,20 +75,26 @@ To validate the Mycelium image you obtain from Google Play Store, you can rebuil
 
         $ docker images | grep mycelium-wallet
 
+* Use disorderfs to eliminate non-determinism caused by file ordering
+
+        $ mkdir /tmp/s
+        $ sudo disorderfs --sort-dirents=yes --reverse-dirents=no --multi-user=yes $PWD /tmp/s
+        $ cd /tmp/s
+
 * Build Mycelium using Docker
 
-        $ mv local.properties local.properties.bak \
-            ; docker run --rm --volume $(pwd):/project --workdir /project mycelium-wallet \
-            ./gradlew clean test :mbw:assProdRel \
-            && ./collectApks.sh
-            ; sudo chown -R $USER:$USER . \
-            ; mv local.properties.bak local.properties
+        $ mv local.properties local.properties.bak
+        $ docker run --rm --volume $(pwd):/project --workdir /project -it mycelium-wallet bash
+        # yes | /opt/android-sdk/tools/bin/sdkmanager "build-tools;28.0.3"
+        # ./gradlew clean :mbw:assProdRel
             
-  What this line does: `local.properties` can break docker compiles. Move it out of the way. Run the
-  mycelium-wallet docker with gradle test and compilation of mbw.
-  `collectApks.sh` copies all apks to `/tmp/release_mbw/` for easier handling. As docker
+  `local.properties` can break docker compiles. Move it out of the way. Run the
+  mycelium-wallet docker with gradle compilation of mbw.
+  As docker
   might run as a different user, its generated files will also be "not yours". Make them yours using
-  `chown` as super user. Last, restore whatever you had as `local.properties`.
+  `chown` as super user.
+  
+  The app can now be found in `mbw/build/outputs/apk/prodnet/release/mbw-prodnet-release.apk`.
   
   As maintainer with release keys you want to run a slightly different command:
   Add these docker parameters: `--volume 'path/to/keys.properties':/project/keys.properties --volume 'path/to/keystore_mbwProd':/project/keystore_mbwProd --volume 'path/to/keystore_mbwTest':/project/keystore_mbwTest`
