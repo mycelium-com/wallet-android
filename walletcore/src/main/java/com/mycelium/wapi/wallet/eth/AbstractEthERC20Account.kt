@@ -1,16 +1,12 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpEndpoint
-import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
-import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.http.HttpService
 import java.math.BigInteger
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
@@ -20,23 +16,17 @@ import kotlin.math.max
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
                                        protected val backing: EthAccountBacking,
-                                       endpoints: List<HttpEndpoint>,
-                                       address: EthAddress? = null,
-                                       className: String?) : WalletAccount<EthAddress>, ServerEthListChangedListener {
-    protected var endpoints = ServerEndpoints(endpoints.toTypedArray())
-    lateinit var client: Web3j
+                                       className: String?,
+                                       protected val web3jWrapper: Web3jWrapper,
+                                       address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     protected val logger: Logger = Logger.getLogger(className)
-    private fun buildCurrentEndpoint() = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
-    @Volatile protected var syncing = false
-
-    init {
-        updateClient()
-    }
+    @Volatile
+    protected var syncing = false
 
     protected fun getNonce(address: EthAddress): BigInteger {
         return try {
-            val ethGetTransactionCount = client.ethGetTransactionCount(address.toString(),
+            val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
                     DefaultBlockParameterName.PENDING)
                     .send()
 
@@ -59,10 +49,6 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     abstract fun setNonce(nonce: BigInteger)
     abstract fun getNonce(): BigInteger
     abstract fun setBlockChainHeight(height: Int)
-
-    protected fun updateClient() {
-        client = buildCurrentEndpoint()
-    }
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")
@@ -125,7 +111,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         getBlockHeight()
         localTransactions.forEach {
             try {
-                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
+                val remoteTx = web3jWrapper.ethGetTransactionByHash("0x" + it.idHex).send()
                 if (!remoteTx.hasError()) {
                     if (remoteTx.result != null) {
                         // blockNumber is not null when transaction is confirmed
@@ -134,7 +120,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                             // "it.height == -1" indicates that this is a newly created transaction
                             // and we haven't received any information about it's confirmation from the server yet
                             if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
+                                val txReceipt = web3jWrapper.ethGetTransactionReceipt("0x" + it.idHex).send()
                                 if (!txReceipt.hasError()) {
                                     val newFee = Value.valueOf(basedOnCoinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
                                     backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
@@ -142,7 +128,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                             }
 
                             val confirmations = if (it.height != -1) getBlockHeight() - it.height
-                                                else max(0, getBlockHeight() - remoteTx.result.blockNumber.toInt())
+                            else max(0, getBlockHeight() - remoteTx.result.blockNumber.toInt())
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
@@ -165,7 +151,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     protected fun getBlockHeight(): Int {
         return try {
-            val latestBlock = client.ethBlockNumber().send()
+            val latestBlock = web3jWrapper.ethBlockNumber().send()
 
             blockChainHeight = latestBlock.blockNumber.toInt()
             blockChainHeight

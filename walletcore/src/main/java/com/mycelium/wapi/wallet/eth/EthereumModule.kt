@@ -27,10 +27,10 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
-        private val endpoints: List<HttpEndpoint>,
+        private val web3jWrapper: Web3jWrapper,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
-        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule, ServerEthListChangedListener {
+        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
@@ -71,7 +71,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jWrapper)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -82,7 +82,7 @@ class EthereumModule(
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
-                        accountListener = accountListener, endpoints = endpoints)
+                        accountListener = accountListener, web3jWrapper = web3jWrapper)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -100,7 +100,7 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, web3jWrapper)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
@@ -108,7 +108,7 @@ class EthereumModule(
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
-                    accountListener = accountListener, endpoints = endpoints)
+                    accountListener = accountListener, web3jWrapper = web3jWrapper)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -176,14 +176,10 @@ class EthereumModule(
     companion object {
         const val ID: String = "Ethereum"
     }
-
-    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
-        getAccounts().map { it as EthAccount }
-                .forEach { it.serverListChanged(newEndpoints) }
-    }
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
+// TODO remove
 fun WalletManager.getActiveMasterseedEthAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is EthAccount && it.isDerivedFromInternalMasterseed }
 
 interface ServerEthListChangedListener {

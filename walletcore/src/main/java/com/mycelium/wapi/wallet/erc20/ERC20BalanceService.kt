@@ -4,16 +4,16 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.Web3jWrapper
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
-import org.web3j.protocol.Web3j
 import org.web3j.tx.gas.DefaultGasProvider
 import java.math.BigInteger
 
 class ERC20BalanceService(private val address: String,
                           private val token: ERC20Token,
                           private val coinType: CryptoCurrency,
-                          private var client: Web3j,
+                          private var web3jWrapper: Web3jWrapper,
                           private var backing: EthAccountBacking,
                           private val credentials: Credentials) {
     var balance: Balance = Balance.getZeroBalance(coinType)
@@ -21,7 +21,7 @@ class ERC20BalanceService(private val address: String,
 
     fun updateBalanceCache(): Boolean {
         return try {
-            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
+            val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials, DefaultGasProvider())
             val result = erc20Contract.balanceOf(address).send()
 
             val txs = backing.getUnconfirmedTransactions()

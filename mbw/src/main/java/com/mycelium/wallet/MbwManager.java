@@ -158,6 +158,7 @@ import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
+import com.mycelium.wapi.wallet.eth.Web3jWrapper;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
@@ -248,6 +249,7 @@ public class MbwManager {
     private final KeepKeyManager _keepkeyManager;
     private final LedgerManager _ledgerManager;
     private final WapiClientElectrumX _wapi;
+    private final Web3jWrapper web3jWrapper;
     private volatile LoadingProgressTracker migrationProgressTracker;
 
     private final LtApiClient _ltApi;
@@ -312,6 +314,7 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
+        web3jWrapper = initWeb3j();
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -395,6 +398,12 @@ public class MbwManager {
         _versionManager.initBackgroundVersionChecker();
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
+    }
+
+    private Web3jWrapper initWeb3j() {
+        Web3jWrapper web3jWrapper = new Web3jWrapper(configuration.getEthHttpServices());
+        configuration.addEthServerListChangedListener(web3jWrapper);
+        return web3jWrapper;
     }
 
     private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {
@@ -856,14 +865,12 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
         EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+                web3jWrapper, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(ethereumModule);
-        configuration.addEthServerListChangedListener(ethereumModule);
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+                web3jWrapper, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
         walletManager.init();
-
         return walletManager;
     }
 
@@ -917,11 +924,14 @@ public class MbwManager {
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+                web3jWrapper, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
-        configuration.addEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
+    }
+
+    public Web3jWrapper getWeb3j() {
+        return web3jWrapper;
     }
 
     class SyncEventsListener implements WalletListener {

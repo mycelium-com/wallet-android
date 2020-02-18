@@ -2,8 +2,6 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpEndpoint
-import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -12,6 +10,7 @@ import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.eth.EthAddress
+import com.mycelium.wapi.wallet.eth.Web3jWrapper
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
@@ -32,19 +31,19 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials? = null,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   endpoints: List<HttpEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, endpoints, null, ERC20Account::class.simpleName) {
+                   web3jWrapper: Web3jWrapper) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, ERC20Account::class.simpleName, web3jWrapper) {
 
     private var transfersDisposable: Disposable = subscribeOnTransferEvents()
 
     private fun subscribeOnTransferEvents(): Disposable {
-        val contract = StandardToken.load(token.contractAddress, client, credentials, DefaultGasProvider())
+        val contract = web3jWrapper.loadContract(token.contractAddress, credentials!!, DefaultGasProvider())
         return contract.transferEventFlowable(DefaultBlockParameterNumber(getBlockHeight().toBigInteger()), DefaultBlockParameterName.PENDING)
                 .filter { it.to == receivingAddress.addressString }
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     val txhash = it.log!!.transactionHash
-                    val tx = client.ethGetTransactionByHash(txhash).send()
+                    val tx = web3jWrapper.ethGetTransactionByHash(txhash).send()
                     backing.putTransaction(-1, System.currentTimeMillis() / 1000, txhash,
                             "", it.from!!, it.to!!, transformValueForDb(Value.valueOf(token, it.value!!)),
                             Value.valueOf(basedOnCoinType, tx.result.gasPrice * tx.result.gas), 0,
@@ -75,7 +74,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val erc20Tx = (tx as Erc20Transaction)
         try {
             accountContext.nonce = getNonce(receivingAddress)
-            val erc20Contract = StandardToken.load(token.contractAddress, client, credentials, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
+            val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
                 logger.log(Level.SEVERE, "Error sending ERC20 transaction, status not OK: ${result.status}")
@@ -97,7 +96,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getBasedOnCoinType() = accountContext.currency
 
-    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, client, backing, credentials!!)
+    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, backing, credentials!!)
 
     override fun getAccountBalance() = readBalance()
 
@@ -201,10 +200,5 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
      */
     private fun transformValueForDb(value: Value): Value {
         return Value.valueOf(basedOnCoinType, value.value)
-    }
-
-    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
-        endpoints = ServerEndpoints(newEndpoints)
-        updateClient()
     }
 }

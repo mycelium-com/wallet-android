@@ -3,8 +3,6 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpEndpoint
-import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -28,9 +26,9 @@ class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 endpoints: List<HttpEndpoint>,
+                 web3jWrapper: Web3jWrapper,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, endpoints, address, EthAccount::class.simpleName) {
+        backing, EthAccount::class.simpleName, web3jWrapper, address) {
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
@@ -88,7 +86,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val ethSendTransaction = client.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
+        val ethSendTransaction = web3jWrapper.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
@@ -102,7 +100,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, this.endpoints)
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jWrapper)
 
     private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
 
@@ -121,9 +119,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (!selectEndpoint()) {
-            return false
-        }
         if (!syncTransactions()) {
             return false
         }
@@ -138,29 +133,6 @@ class EthAccount(private val accountContext: EthAccountContext,
             accountContext.balance = ethBalanceService.balance
             accountListener?.balanceUpdated(this)
         }
-    }
-
-    private fun selectEndpoint(): Boolean {
-        val currentEndpointIndex = endpoints.currentEndpointIndex
-        for (x in 0 until endpoints.size()) {
-            val ethUtils = EthSyncChecker(client)
-            try {
-                if (ethUtils.isSynced) {
-                    if (currentEndpointIndex != endpoints.currentEndpointIndex) {
-                        ethBalanceService.client = client
-                        balanceDisposable = subscribeOnBalanceUpdates()
-                        incomingTxsDisposable = subscribeOnIncomingTx()
-                    }
-                    return true
-                }
-            } catch (ex: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH, $ex")
-                logger.log(Level.SEVERE, "Switching to next endpoint...")
-            }
-            endpoints.switchToNextEndpoint()
-            updateClient()
-        }
-        return false
     }
 
     override fun archiveAccount() {
@@ -228,7 +200,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun renewSubscriptions() {
-        updateClient()
         if (balanceDisposable.isDisposed) {
             balanceDisposable = subscribeOnBalanceUpdates()
         }
@@ -251,7 +222,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun stopSubscriptions() {
-        client.shutdown()
         if (!balanceDisposable.isDisposed) {
             balanceDisposable.dispose()
         }
@@ -260,18 +230,9 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
-        endpoints = ServerEndpoints(newEndpoints)
-        updateClient()
-        thread {
-            stopSubscriptions(newThread = false)
-            renewSubscriptions()
-        }
-    }
-
     fun fetchTxNonce(txid: String): BigInteger? {
         return try {
-            val tx = client.ethGetTransactionByHash(txid).send()
+            val tx = web3jWrapper.ethGetTransactionByHash(txid).send()
             if (tx.result == null) {
                 null
             } else {
