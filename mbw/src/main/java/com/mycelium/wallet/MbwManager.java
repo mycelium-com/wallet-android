@@ -314,7 +314,6 @@ public class MbwManager {
         migrationProgressTracker = getMigrationProgressTracker();
 
         _wapi = initWapi();
-        web3jWrapper = initWeb3j();
         configuration.setElectrumServerListChangedListener(_wapi);
         _httpErrorCollector = HttpErrorCollector.registerInVM(_applicationContext, _wapi);
 
@@ -374,7 +373,9 @@ public class MbwManager {
         _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
+        web3jWrapper = initWeb3j();
         _walletManager = createWalletManager(_applicationContext, _environment, db);
+        web3jWrapper.setWalletManager(_walletManager);
         contentResolver = createContentResolver(getNetwork());
 
         migrate();
@@ -928,10 +929,6 @@ public class MbwManager {
         walletManager.add(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;
-    }
-
-    public Web3jWrapper getWeb3j() {
-        return web3jWrapper;
     }
 
     class SyncEventsListener implements WalletListener {

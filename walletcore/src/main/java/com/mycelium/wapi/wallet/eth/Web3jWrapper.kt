@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.eth
 
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
+import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.erc20.StandardToken
 import io.reactivex.Flowable
 import org.web3j.crypto.Credentials
@@ -26,6 +27,7 @@ import kotlin.concurrent.timerTask
  * provides wrapper methods that use Web3j client built with the latest endpoint.
  */
 class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener {
+    private var walletManager: WalletManager? = null
     private lateinit var web3j: Web3j
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(Web3jWrapper::class.simpleName)
@@ -35,6 +37,10 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
         Timer().scheduleAtFixedRate(timerTask {
             selectEndpoint()
         }, 1000L * 60, 1000L * 60)
+    }
+
+    fun setWalletManager(walletManager: WalletManager) {
+        this.walletManager = walletManager
     }
 
     private fun updateClient() {
@@ -48,6 +54,10 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
     }
 
     private fun selectEndpoint() {
+        if (walletManager?.isNetworkConnected != true) {
+            return
+        }
+
         logger.log(Level.INFO, "Starting health check...")
         for (x in 0 until endpoints.size()) {
             try {
