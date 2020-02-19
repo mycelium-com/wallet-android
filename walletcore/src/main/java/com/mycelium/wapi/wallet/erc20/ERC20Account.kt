@@ -105,6 +105,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun setLabel(label: String?) {
     }
 
+    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
         if (!syncTransactions()) {
             return false

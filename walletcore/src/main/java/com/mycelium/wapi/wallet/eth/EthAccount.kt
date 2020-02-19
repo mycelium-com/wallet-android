@@ -118,6 +118,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         accountContext.nonce = nonce
     }
 
+    @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
         if (!syncTransactions()) {
             return false
