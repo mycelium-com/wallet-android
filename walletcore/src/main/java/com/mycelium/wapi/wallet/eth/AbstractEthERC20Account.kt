@@ -127,8 +127,14 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                 }
                             }
 
-                            val confirmations = if (it.height != -1) getBlockHeight() - it.height
-                            else max(0, getBlockHeight() - remoteTx.result.blockNumber.toInt())
+                            val confirmations = if (it.height != -1) getBlockHeight() - it.height + 1
+                                                else {
+                                val block = getBlockHeight()
+                                logger.log(Level.INFO, "blockNumberRaw: ${remoteTx.result.blockNumberRaw}, remote: $block, tx: ${remoteTx.result.blockNumber.toInt()} " +
+                                        "getBlockByNumber: ${web3jWrapper.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().block.number}, " +
+                                        "conf: ${block - remoteTx.result.blockNumber.toInt() + 1}")
+                                max(1, block - remoteTx.result.blockNumber.toInt() + 1)
+                            }
                             backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
                         }
                     } else {
@@ -149,7 +155,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         return true
     }
 
-    protected fun getBlockHeight(): Int {
+    private fun getBlockHeight(): Int {
         return try {
             val latestBlock = web3jWrapper.ethBlockNumber().send()
 

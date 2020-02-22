@@ -15,15 +15,16 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import org.web3j.abi.TypeDecoder
+import org.web3j.abi.datatypes.Address
+import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
-import org.web3j.protocol.core.DefaultBlockParameterName
-import org.web3j.protocol.core.DefaultBlockParameterNumber
-import org.web3j.tx.gas.DefaultGasProvider
 import org.web3j.tx.gas.StaticGasProvider
+import java.lang.reflect.Method
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
-import kotlin.concurrent.thread
+
 
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
@@ -33,25 +34,45 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val accountListener: AccountListener?,
                    web3jWrapper: Web3jWrapper) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
+    private var incomingTxDisposable: Disposable? = null
+    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials!!)
+    private var removed = false
 
-    private var transfersDisposable: Disposable = subscribeOnTransferEvents()
-
-    private fun subscribeOnTransferEvents(): Disposable {
-        val contract = web3jWrapper.loadContract(token.contractAddress, credentials!!, DefaultGasProvider())
-        return contract.transferEventFlowable(DefaultBlockParameterNumber(getBlockHeight().toBigInteger()), DefaultBlockParameterName.PENDING)
-                .filter { it.to == receivingAddress.addressString }
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    val txhash = it.log!!.transactionHash
-                    val tx = web3jWrapper.ethGetTransactionByHash(txhash).send()
-                    backing.putTransaction(-1, System.currentTimeMillis() / 1000, txhash,
-                            "", it.from!!, it.to!!, transformValueForDb(Value.valueOf(token, it.value!!)),
-                            Value.valueOf(basedOnCoinType, tx.result.gasPrice * tx.result.gas), 0,
-                            tx.result.nonce, tx.result.gas, tx.result.gas)
+    private fun subscribeOnIncomingTransactions(): Disposable {
+        return web3jWrapper.pendingTransactionFlowable()
+                .filter { tx ->
+                    logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
+                    token.contractAddress.equals(tx.to, true) &&
+                            isTransfer(tx.input) &&
+                            receiveAddress.addressString.equals(getToAddress(tx.input), true)
+                }.subscribeOn(Schedulers.io()).subscribe({ tx ->
+                    logger.log(Level.INFO, "have received incoming transaction")
+                    backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                            tx.raw, tx.from, receivingAddress.addressString, Value.valueOf(basedOnCoinType, getValue(tx.input)),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
                     updateBalanceCache()
                 }, {
-                    logger.log(Level.SEVERE, "onError in subscribeOnTransferEvents, ${it.localizedMessage}")
+                    logger.log(Level.SEVERE, "onError in subscribeOnPendingTransactions, ${it.localizedMessage}")
                 })
+    }
+
+    private fun isTransfer(input: String?) = input != null && input.length == 138 && input.substring(0, 10) == TRANSFER_ID
+
+    private fun getToAddress(input: String?): String? {
+        input ?: return null
+        val to: String = input.substring(10, 74)
+        val refMethod: Method = TypeDecoder::class.java.getDeclaredMethod("decode", String::class.java, Int::class.javaPrimitiveType, Class::class.java)
+        refMethod.isAccessible = true
+        val address: Address = refMethod.invoke(null, to, 0, Address::class.java) as Address
+        return address.toString()
+    }
+
+    private fun getValue(input: String): BigInteger {
+        val value: String = input.substring(74)
+        val refMethod: Method = TypeDecoder::class.java.getDeclaredMethod("decode", String::class.java, Int::class.javaPrimitiveType, Class::class.java)
+        refMethod.isAccessible = true
+        val amount = refMethod.invoke(null, value, 0, Uint256::class.java) as Uint256
+        return amount.value
     }
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
@@ -83,7 +104,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
                     "", receivingAddress.addressString, tx.toAddress.toString(),
-                    transformValueForDb(tx.value), Value.valueOf(basedOnCoinType, tx.gasPrice * result.gasUsed), 0,
+                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * result.gasUsed), 0,
                     accountContext.nonce, tx.gasLimit, result.gasUsed)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
@@ -96,8 +117,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getBasedOnCoinType() = accountContext.currency
 
-    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, backing, credentials!!)
-
     override fun getAccountBalance() = readBalance()
 
     override fun getLabel(): String = token.name
@@ -107,11 +126,17 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (!syncTransactions()) {
+        if (removed || isArchived) {
             return false
         }
-        updateBalanceCache()
-        return true
+        renewSubscriptions()
+        return updateBalanceCache()
+    }
+
+    private fun renewSubscriptions() {
+        stopSubscriptions()
+        logger.log(Level.INFO, "Resubscribing on incoming transactions...")
+        incomingTxDisposable = subscribeOnIncomingTransactions()
     }
 
     override fun getNonce() = accountContext.nonce
@@ -133,15 +158,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        thread {
-            transfersDisposable.dispose()
-        }
+        stopSubscriptions()
     }
 
     override fun activateAccount() {
         accountContext.archived = false
         dropCachedData()
-        transfersDisposable = subscribeOnTransferEvents()
     }
 
     override fun dropCachedData() {
@@ -167,12 +189,33 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun updateBalanceCache() {
+    private fun updateBalanceCache(): Boolean {
         balanceService.updateBalanceCache()
-        if (balanceService.balance != accountContext.balance) {
-            accountContext.balance = balanceService.balance
+        var newBalance = balanceService.balance
+        syncTransactions()
+
+        val pendingReceiving = getPendingReceiving()
+        val pendingSending = getPendingSending()
+        newBalance = Balance(Value.valueOf(basedOnCoinType, newBalance.confirmed.value - pendingSending),
+                Value.valueOf(basedOnCoinType, pendingReceiving), Value.valueOf(basedOnCoinType, pendingSending), Value.zeroValue(basedOnCoinType))
+        if (newBalance != accountContext.balance) {
+            accountContext.balance = newBalance
             accountListener?.balanceUpdated(this)
+            return true
         }
+        return false
+    }
+
+    private fun getPendingReceiving(): BigInteger {
+        return backing.getUnconfirmedTransactions().filter { it.from != receiveAddress.addressString && it.to == receiveAddress.addressString }
+                .map { it.value.value }
+                .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun getPendingSending(): BigInteger {
+        return backing.getUnconfirmedTransactions().filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
+                .map { it.value.value }
+                .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     // the following two wrappers are needed because we can't store balance in db with ERC20 coin type
@@ -196,10 +239,16 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 Value.valueOf(coinType, 0))
     }
 
-    /**
-     * replace coinType -> basedOnCoinType before insert into db
-     */
-    private fun transformValueForDb(value: Value): Value {
-        return Value.valueOf(basedOnCoinType, value.value)
+    fun stopSubscriptions(remove: Boolean = false) {
+        removed = remove
+        if (incomingTxDisposable != null && !incomingTxDisposable!!.isDisposed) {
+            logger.log(Level.INFO, "Stopping subscriptions...")
+            incomingTxDisposable!!.dispose()
+            incomingTxDisposable = null
+        }
+    }
+
+    companion object {
+        const val TRANSFER_ID = "0xa9059cbb"
     }
 }

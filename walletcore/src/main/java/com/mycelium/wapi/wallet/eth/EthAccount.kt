@@ -20,7 +20,6 @@ import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
-import kotlin.concurrent.thread
 
 class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
@@ -29,6 +28,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  web3jWrapper: Web3jWrapper,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, EthAccount::class.simpleName, web3jWrapper, address) {
+    private var removed = false
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
@@ -102,9 +102,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jWrapper)
 
-    private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
-
-    private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
+    private var incomingTxsDisposable: Disposable? = null
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -120,26 +118,52 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     @Synchronized
     override fun doSynchronization(mode: SyncMode?): Boolean {
-        if (!syncTransactions()) {
+        if (removed || isArchived) {
             return false
         }
-        updateBalanceCache()
         renewSubscriptions()
-        return true
+        return updateBalanceCache()
     }
 
-    private fun updateBalanceCache() {
+    private fun updateBalanceCache(): Boolean {
         ethBalanceService.updateBalanceCache()
-        if (ethBalanceService.balance != accountContext.balance) {
-            accountContext.balance = ethBalanceService.balance
+        var newBalance = ethBalanceService.balance
+        syncTransactions()
+
+        val pendingReceiving = getPendingReceiving()
+        val pendingSending = getPendingSending()
+        newBalance = Balance(valueOf(coinType, newBalance.confirmed.value - pendingSending),
+                valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
+        if (newBalance != accountContext.balance) {
+            accountContext.balance = newBalance
             accountListener?.balanceUpdated(this)
+            return true
         }
+        return false
+    }
+
+    private fun getPendingReceiving(): BigInteger {
+        return backing.getUnconfirmedTransactions()
+                .filter { it.from != receiveAddress.addressString && it.to == receiveAddress.addressString }
+                .map { it.value.value }
+                .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun getPendingSending(): BigInteger {
+        return backing.getUnconfirmedTransactions()
+                    .filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
+                    .map { tx -> tx.value.value + tx.fee.value }
+                    .fold(BigInteger.ZERO, BigInteger::add) +
+            backing.getUnconfirmedTransactions()
+                    .filter { it.from == receiveAddress.addressString && it.to == receiveAddress.addressString }
+                    .map { tx -> tx.fee.value }
+                    .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions(newThread = true)
+        stopSubscriptions()
     }
 
     override fun activateAccount() {
@@ -183,51 +207,33 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun subscribeOnBalanceUpdates(): Disposable {
-        return ethBalanceService.balanceFlowable.subscribeOn(Schedulers.io()).subscribe({ balance ->
-            accountContext.balance = balance
-            accountListener?.balanceUpdated(this)
+    private fun subscribeOnIncomingTx(): Disposable {
+        return web3jWrapper.pendingTransactionFlowable().filter { tx ->
+            logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
+            receiveAddress.addressString.equals(tx.to, true)
+        }.subscribeOn(Schedulers.io()).subscribe({ tx ->
+            logger.log(Level.INFO, "have received incoming eth transaction")
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
+                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
+            updateBalanceCache()
         }, {
             logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
         })
     }
 
-    private fun subscribeOnIncomingTx(): Disposable {
-        return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
-        }, {})
-    }
-
     private fun renewSubscriptions() {
-        if (balanceDisposable.isDisposed) {
-            balanceDisposable = subscribeOnBalanceUpdates()
-        }
-        if (incomingTxsDisposable.isDisposed) {
-            incomingTxsDisposable = subscribeOnIncomingTx()
-        }
+        stopSubscriptions()
+        logger.log(Level.INFO, "Resubscribing on incoming transactions...")
+        incomingTxsDisposable = subscribeOnIncomingTx()
     }
 
-    //to avoid io.reactivex.exceptions.UndeliverableException (inside android.os.NetworkOnMainThreadException)
-    //we have to stop subscriptions in another thread
-    //but if we want to restart subscriptions we have to stop it synchronously before subscribe again
-    fun stopSubscriptions(newThread: Boolean = true) {
-        if (newThread) {
-            thread {
-                stopSubscriptions()
-            }
-        } else {
-            stopSubscriptions()
-        }
-    }
-
-    private fun stopSubscriptions() {
-        if (!balanceDisposable.isDisposed) {
-            balanceDisposable.dispose()
-        }
-        if (!incomingTxsDisposable.isDisposed) {
-            incomingTxsDisposable.dispose()
+    fun stopSubscriptions(remove: Boolean = false) {
+        removed = remove
+        if (incomingTxsDisposable!= null && !incomingTxsDisposable!!.isDisposed) {
+            logger.log(Level.INFO, "Stopping subscriptions...")
+            incomingTxsDisposable!!.dispose()
+            incomingTxsDisposable = null
         }
     }
 

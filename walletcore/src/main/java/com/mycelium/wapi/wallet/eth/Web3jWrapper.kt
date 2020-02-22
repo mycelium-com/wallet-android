@@ -4,12 +4,15 @@ import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.erc20.StandardToken
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
+import io.reactivex.FlowableEmitter
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.Request
 import org.web3j.protocol.core.Response
+import org.web3j.protocol.core.filters.Callback
 import org.web3j.protocol.core.methods.response.*
 import org.web3j.protocol.core.methods.response.EthTransaction
 import org.web3j.protocol.http.HttpService
@@ -82,8 +85,6 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
     fun ethGetBalance(address: String, blockParameterName: DefaultBlockParameterName = DefaultBlockParameterName.LATEST): Request<*, EthGetBalance> =
             web3j.ethGetBalance(address, blockParameterName)
 
-    fun pendingTransactionFlowable(): Flowable<Transaction> = web3j.pendingTransactionFlowable()
-
     fun ethSendRawTransaction(hex: String?): Request<*, EthSendTransaction> = web3j.ethSendRawTransaction(hex)
 
     fun ethGetTransactionByHash(txid: String): Request<*, EthTransaction> = web3j.ethGetTransactionByHash(txid)
@@ -94,6 +95,8 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
     fun ethBlockNumber(): Request<*, EthBlockNumber> = web3j.ethBlockNumber()
 
     fun ethGetTransactionReceipt(txid: String): Request<*, EthGetTransactionReceipt> = web3j.ethGetTransactionReceipt(txid)
+
+    fun ethGetBlockByNumber(blockParameterName: DefaultBlockParameterName, includeTx: Boolean): Request<*, EthBlock> = web3j.ethGetBlockByNumber(blockParameterName, includeTx)
 
     fun loadContract(contractAddress: String, credentials: Credentials, gasProvider: ContractGasProvider) =
             StandardToken.load(contractAddress, web3j, credentials, gasProvider)
@@ -110,6 +113,26 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
         } else {
             return response.transactions
         }
+    }
+
+    fun pendingTransactionFlowable(): Flowable<Transaction> {
+        return ethPendingTransactionHashFlowable()
+                .flatMap { transactionHash: String -> web3j.ethGetTransactionByHash(transactionHash).flowable() }
+                .filter { ethTransaction: EthTransaction -> ethTransaction.transaction.isPresent }
+                .map { ethTransaction: EthTransaction -> ethTransaction.transaction.get() }
+    }
+
+    private fun ethPendingTransactionHashFlowable(): Flowable<String> {
+        return Flowable.create({ subscriber: FlowableEmitter<String> ->
+            val pendingTransactionFilter = PendingTransactionFilter(
+                    web3j, Callback { value: String -> subscriber.onNext(value) })
+            run(pendingTransactionFilter, subscriber)
+        }, BackpressureStrategy.BUFFER)
+    }
+
+    private fun <T> run(filter: PendingTransactionFilter, emitter: FlowableEmitter<in T>) {
+        filter.run()
+        emitter.setCancellable { filter.cancel() }
     }
 }
 
