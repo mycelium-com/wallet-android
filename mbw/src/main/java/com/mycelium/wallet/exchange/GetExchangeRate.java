@@ -60,11 +60,8 @@ public class GetExchangeRate {
         sourceExchangeRate = null;
         targetExchangeRate = null;
 
-        if (sourceCurrency.equals(BitcoinMain.get().getSymbol())
-                || sourceCurrency.equals(BitcoinTest.get().getSymbol())
-                || sourceCurrency.equals(EthMain.INSTANCE.getSymbol())
-                || sourceCurrency.equals(EthTest.INSTANCE.getSymbol())
-                || isERC20Token(walletManager, sourceCurrency)) {
+        if (isBtc(sourceCurrency) || isEth(sourceCurrency)
+                || (isERC20Token(walletManager, sourceCurrency) && !(isEth(targetCurrency)))) {
             sourcePrice = BigDecimal.ONE;
         } else {
             sourceExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, sourceCurrency);
@@ -73,11 +70,7 @@ public class GetExchangeRate {
             }
         }
 
-        if (targetCurrency.equals(BitcoinMain.get().getSymbol())
-                || targetCurrency.equals(BitcoinTest.get().getSymbol())
-                || targetCurrency.equals(EthMain.INSTANCE.getSymbol())
-                || targetCurrency.equals(EthTest.INSTANCE.getSymbol())
-                || isERC20Token(walletManager, targetCurrency)) {
+        if (isBtc(targetCurrency) || isEth(targetCurrency) || isERC20Token(walletManager, targetCurrency)) {
             targetPrice = BigDecimal.ONE;
         } else {
             targetExchangeRate = exchangeRateManager.getExchangeRate(sourceCurrency, targetCurrency);
@@ -86,5 +79,13 @@ public class GetExchangeRate {
             }
         }
         return this;
+    }
+
+    private boolean isBtc(String currencySymbol) {
+        return currencySymbol.equals(BitcoinMain.get().getSymbol()) || currencySymbol.equals(BitcoinTest.get().getSymbol());
+    }
+
+    private boolean isEth(String currencySymbol) {
+        return currencySymbol.equals(EthMain.INSTANCE.getSymbol()) || currencySymbol.equals(EthTest.INSTANCE.getSymbol());
     }
 }
