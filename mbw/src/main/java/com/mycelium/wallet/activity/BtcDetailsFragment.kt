@@ -39,6 +39,9 @@ class BtcDetailsFragment : GenericDetailsFragment() {
     }
 
     private fun updateUi(isAfterRemoteUpdate: Boolean, suggestRetryIfError: Boolean) {
+        if (specific_table == null) {
+            return
+        }
         alignTables(specific_table)
 
         btFeeRetry.visibility = View.GONE

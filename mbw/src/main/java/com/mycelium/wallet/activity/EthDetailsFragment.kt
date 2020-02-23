@@ -29,6 +29,9 @@ class EthDetailsFragment : GenericDetailsFragment() {
     }
 
     private fun updateUi() {
+        if (specific_table == null) {
+            return
+        }
         alignTables(specific_table)
 
         val fromAddress = AddressLabel(requireContext())
