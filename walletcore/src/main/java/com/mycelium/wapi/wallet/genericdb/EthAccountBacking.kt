@@ -119,12 +119,12 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val outputs = if (to.isEmpty()) listOf()
         else listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
-        val transferred: Value = if ((from == ownerAddress) && (to != ownerAddress)) {
+        val transferred = if ((from == ownerAddress) && (to != ownerAddress)) {
             if (token != null) -convertedValue else -convertedValue - fee
         } else if ((from != ownerAddress) && (to == ownerAddress)) {
             convertedValue
         } else if ((from == ownerAddress) && (to == ownerAddress)) {
-            -fee // sent to ourselves
+            if (token != null) Value.zeroValue(token) else -fee // sent to ourselves
         } else {
             // transaction doesn't relate to us in any way. should not happen
             throw IllegalStateException("Transaction that wasn't sent to us or from us detected.")

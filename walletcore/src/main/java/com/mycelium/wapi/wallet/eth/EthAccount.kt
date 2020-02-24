@@ -214,7 +214,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }.subscribeOn(Schedulers.io()).subscribe({ tx ->
             logger.log(Level.INFO, "have received incoming eth transaction")
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
+                    tx.raw, tx.from, tx.to, valueOf(coinType, tx.value),
                     valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
             updateBalanceCache()
         }, {

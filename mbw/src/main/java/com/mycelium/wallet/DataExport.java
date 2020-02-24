@@ -88,13 +88,14 @@ public class DataExport {
       df.setTimeZone(tz);
       String date = df.format(new Date(transaction.getTimestamp() * 1000L));
       String value = transaction.getTransferred().toPlainString();
+      String name = transaction.getTransferred().type.getName();
       return
             escape(accountLabel) + "," +
                   transaction.getIdHex() + "," +
                   destAddresses + "," +
                   date + "," +
                   value + "," +
-                  transaction.getType().getName() + "," +
+                  name + "," +
                   escape(txLabel) + "\n";
    }
 

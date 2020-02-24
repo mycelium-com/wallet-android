@@ -48,7 +48,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 }.subscribeOn(Schedulers.io()).subscribe({ tx ->
                     logger.log(Level.INFO, "have received incoming transaction")
                     backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                            tx.raw, tx.from, receivingAddress.addressString, Value.valueOf(basedOnCoinType, getValue(tx.input)),
+                            tx.raw, tx.from, tx.to, Value.valueOf(basedOnCoinType, getValue(tx.input)),
                             Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
                     updateBalanceCache()
                 }, {
