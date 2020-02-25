@@ -21,9 +21,8 @@ import kotlinx.android.synthetic.main.transaction_details_btc.*
 
 
 class BtcDetailsFragment : GenericDetailsFragment() {
-    private val tx: GenericTransactionSummary by lazy {
-        arguments!!.getSerializable("tx") as GenericTransactionSummary
-    }
+    private var tx: GenericTransactionSummary? = null
+
     private val coluMode: Boolean by lazy {
         arguments!!.getBoolean("coluMode")
     }
@@ -33,6 +32,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        tx = arguments!!.getSerializable("tx") as GenericTransactionSummary
         loadAndUpdate(false)
         listOf(btFeeRetry, btInputsRetry).forEach { it.setOnClickListener { startRemoteLoading() } }
         startRemoteLoading()
@@ -51,14 +51,14 @@ class BtcDetailsFragment : GenericDetailsFragment() {
 
         // Set Inputs
         llInputs.removeAllViews()
-        if (tx.inputs != null) {
-            var sum = zeroValue(tx.type)
-            for (input in tx.inputs) {
+        if (tx!!.inputs != null) {
+            var sum = zeroValue(tx!!.type)
+            for (input in tx!!.inputs) {
                 sum = sum.plus(input.value)
             }
             if (!sum.equalZero()) {
                 tvInputsAmount.visibility = View.GONE
-                for (item in tx.inputs) {
+                for (item in tx!!.inputs) {
                     llInputs.addView(getItemView(item))
                 }
             }
@@ -66,20 +66,20 @@ class BtcDetailsFragment : GenericDetailsFragment() {
 
         // Set Outputs
         llOutputs.removeAllViews()
-        if (tx.outputs != null) {
-            for (item in tx.outputs) {
+        if (tx!!.outputs != null) {
+            for (item in tx!!.outputs) {
                 llOutputs.addView(getItemView(item))
             }
         }
 
         // Set Fee
-        val txFeeTotal = tx.fee!!.valueAsLong
-        if (txFeeTotal > 0) {
+        val txFeeTotal = tx!!.fee!!.valueAsLong
+        if (txFeeTotal > 0 && tx!!.inputs.size != 0) {
             tvFeeLabel.visibility = View.VISIBLE
             tvInputsLabel.visibility = View.VISIBLE
-            var fee = tx.fee!!.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)) + "\n"
-            if (tx.rawSize > 0) {
-                fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx.rawSize)
+            var fee = tx!!.fee!!.toStringWithUnit(mbwManager!!.getDenomination(mbwManager!!.selectedAccount.coinType)) + "\n"
+            if (tx!!.rawSize > 0) {
+                fee += BtcFeeFormatter().getFeePerUnitInBytes(txFeeTotal / tx!!.rawSize)
             }
             tvFee.text = fee
             tvFee.visibility = View.VISIBLE
@@ -93,7 +93,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
                     tvInputsAmount.visibility = View.GONE
                 }
             } else {
-                val length = tx.inputs.size
+                val length = tx!!.inputs.size
                 val amountLoading = if (length > 0) {
                     String.format("%s %s", length.toString(), getString(R.string.no_transaction_loading))
                 } else {
@@ -111,6 +111,8 @@ class BtcDetailsFragment : GenericDetailsFragment() {
     }
 
     private fun loadAndUpdate(isAfterRemoteUpdate: Boolean) {
+        // update tx
+        tx = mbwManager!!.selectedAccount.getTxSummary(tx!!.id)
         updateUi(isAfterRemoteUpdate, false)
     }
 
@@ -150,7 +152,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
             if (mbwManager!!.selectedAccount is AbstractBtcAccount) {
                 val selectedAccount = mbwManager!!.selectedAccount as AbstractBtcAccount
                 try {
-                    selectedAccount.updateParentOutputs(tx.id)
+                    selectedAccount.updateParentOutputs(tx!!.id)
                 } catch (e: WapiException) {
                     mbwManager!!.retainingWapiLogger.logError("Can't load parent", e)
                     return false
