@@ -93,15 +93,15 @@ open class Value(
 
     fun signum(): Int = value.signum()
 
-    fun moreThanZero() = this > BigInteger.ZERO
+    fun moreThanZero() = this.value > BigInteger.ZERO
 
-    fun moreOrEqualThanZero() = this >= BigInteger.ZERO
+    fun moreOrEqualThanZero() = this.value >= BigInteger.ZERO
 
-    fun equalZero() = this == BigInteger.ZERO
+    fun equalZero() = this.value == BigInteger.ZERO
 
-    fun lessThanZero() = this < BigInteger.ZERO
+    fun lessThanZero() = this.value < BigInteger.ZERO
 
-    fun lessOrEqualThanZero() = this <= BigInteger.ZERO
+    fun lessOrEqualThanZero() = this.value <= BigInteger.ZERO
 
     fun notEqualsTo(other : Value) = this != other
 
