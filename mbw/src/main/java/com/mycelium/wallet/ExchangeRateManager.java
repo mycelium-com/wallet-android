@@ -84,7 +84,6 @@ import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BCH;
 // import static com.mycelium.wallet.external.changelly.ChangellyAPIService.BTC; gets shadowed by the local definition of the same value.
 
 public class ExchangeRateManager implements ExchangeRateProvider {
-    private static final long MAX_RATE_AGE_MS = TimeUnit.MINUTES.toMillis(5);
     private static final long MIN_RATE_AGE_MS = TimeUnit.SECONDS.toMillis(5);
     public static final String BTC = "BTC";
 
@@ -392,7 +391,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
             return null;
         }
         GetExchangeRatesResponse latestRatesForTargetCurrency = latestRatesForSourceCurrency.get(destination);
-        if (_latestRatesTime + MAX_RATE_AGE_MS < System.currentTimeMillis() || latestRatesForTargetCurrency == null) {
+        if (latestRatesForTargetCurrency == null) {
             //rate is too old or does not exists, exchange source seems to not be available
             //we return a rate with null price to indicate there is something wrong with the exchange rate source
             return ExchangeRate.missingRate(exchangeSource, System.currentTimeMillis(), destination);
