@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycelium.WapiLogger;
 import com.mycelium.net.*;
 import com.mycelium.wapi.api.WapiConst.Function;
 import com.mycelium.wapi.api.request.*;
@@ -33,6 +32,8 @@ import com.squareup.okhttp.*;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public abstract class WapiClient implements Wapi, WapiClientLifecycle {
@@ -48,12 +49,12 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    private static int _minTimeout = 0;
 
    private ObjectMapper _objectMapper;
-   private com.mycelium.WapiLogger _logger;
 
    private ServerEndpoints _serverEndpoints;
    private String versionCode;
+   private Logger _logger = Logger.getLogger(WapiClient.class.getSimpleName());
 
-   public WapiClient(ServerEndpoints serverEndpoints, WapiLogger logger, String versionCode) {
+   public WapiClient(ServerEndpoints serverEndpoints, String versionCode) {
       _serverEndpoints = serverEndpoints;
       this.versionCode = versionCode;
 
@@ -63,7 +64,6 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
       // deserialize
       _objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       _objectMapper.registerModule(new WapiJsonModule());
-      _logger = logger;
    }
 
    private <T> WapiResponse<T> sendRequest(String function, Object request, TypeReference<WapiResponse<T>> typeReference) {
@@ -86,15 +86,11 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    private void logError(String message) {
-      if (_logger != null) {
-         _logger.logError(message);
-      }
+      _logger.log(Level.WARNING, message);
    }
 
    private void logError(String message, Exception e) {
-      if (_logger != null) {
-         _logger.logError(message, e);
-      }
+      _logger.log(Level.WARNING, message,e);
    }
 
    /**
@@ -131,7 +127,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
             OkHttpClient client = serverEndpoint.getClient();
-            _logger.logInfo("Connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
+            _logger.log(Level.INFO, "Connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
             client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
@@ -148,7 +144,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
 
             // execute request
             Response response = client.newCall(rq).execute();
-            _logger.logInfo(String.format(Locale.ENGLISH, "Wapi %s finished (%dms)", function, System.currentTimeMillis() - callStart));
+            _logger.log(Level.INFO, String.format(Locale.ENGLISH, "Wapi %s finished (%dms)", function, System.currentTimeMillis() - callStart));
 
             // Check for status code 2XX
             if (response.isSuccessful()) {
@@ -164,7 +160,7 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
          } catch (IOException e) {
             logError("IOException when sending request " + function, e);
             if (serverEndpoint instanceof FeedbackEndpoint){
-               _logger.logInfo("Resetting tor");
+               _logger.log(Level.INFO, "Resetting tor");
                ((FeedbackEndpoint) serverEndpoint).onError();
             }
          } catch (RuntimeException e) {
@@ -213,10 +209,5 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    public WapiResponse<VersionInfoExResponse> getVersionInfoEx(VersionInfoExRequest request) {
       TypeReference<WapiResponse<VersionInfoExResponse>> typeref = new TypeReference<WapiResponse<VersionInfoExResponse>>() { };
       return sendRequest(Function.GET_VERSION_INFO_EX, request, typeref);
-   }
-
-   @Override
-   public WapiLogger getLogger() {
-      return _logger;
    }
 }

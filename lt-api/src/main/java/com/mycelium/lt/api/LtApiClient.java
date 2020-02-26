@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -56,11 +58,6 @@ import com.squareup.okhttp.*;
 public class LtApiClient implements LtApi {
    private static final long TIMEOUT_MS = TimeUnit.MINUTES.toMillis(2);
 
-   public interface Logger {
-      void logError(String message, Exception e);
-      void logError(String message);
-      void logInfo(String message);
-   }
 
    protected static byte[] uuidToBytes(UUID uuid) {
       ByteArrayOutputStream ba = new ByteArrayOutputStream(16);
@@ -76,9 +73,9 @@ public class LtApiClient implements LtApi {
 
    private ServerEndpoints _serverEndpoints;
    private ObjectMapper _objectMapper;
-   private Logger _logger;
+   private Logger _logger = Logger.getLogger(LtApiClient.class.getSimpleName());
 
-   public LtApiClient(ServerEndpoints serverEndpoints, Logger logger) {
+   public LtApiClient(ServerEndpoints serverEndpoints) {
       _serverEndpoints = serverEndpoints;
 
       _objectMapper = new ObjectMapper();
@@ -86,7 +83,6 @@ public class LtApiClient implements LtApi {
       // deserialize
       _objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       _objectMapper.registerModule(new BitlibJsonModule());
-      _logger = logger;
    }
 
    private HttpEndpoint getEndpoint() {
@@ -114,15 +110,11 @@ public class LtApiClient implements LtApi {
    }
 
    private void logError(String message) {
-      if (_logger != null) {
-         _logger.logError(message);
-      }
+      _logger.log(Level.WARNING,message);
    }
 
    private void logError(String message, Exception e) {
-      if (_logger != null) {
-         _logger.logError(message, e);
-      }
+      _logger.log(Level.WARNING,message,e);
    }
 
    private Response getConnectionAndSendRequest(LtRequest request, long timeout) {
@@ -132,7 +124,7 @@ public class LtApiClient implements LtApi {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
             OkHttpClient client = serverEndpoint.getClient();
-            _logger.logInfo("LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
+            _logger.log(Level.INFO,"LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
             // configure TimeOuts
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
@@ -150,7 +142,7 @@ public class LtApiClient implements LtApi {
             // execute request
             Response response = client.newCall(rq).execute();
             callDuration.stop();
-            _logger.logInfo(String.format(Locale.US, "LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
+            _logger.log(Level.INFO, String.format(Locale.US, "LtApi %s finished (%dms)", request.toString(), callDuration.elapsed(TimeUnit.MILLISECONDS)));
 
 
             // Check for status code 2XX
@@ -167,7 +159,7 @@ public class LtApiClient implements LtApi {
          } catch (IOException e) {
             logError("getConnectionAndSendRequest failed IO exception.");
             if (serverEndpoint instanceof FeedbackEndpoint){
-               _logger.logInfo("Resetting tor");
+               _logger.log(Level.INFO,"Resetting tor");
                ((FeedbackEndpoint) serverEndpoint).onError();
             }
          }

@@ -77,7 +77,6 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
-import com.mycelium.WapiLogger;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -522,50 +521,12 @@ public class MbwManager {
     }
 
     private LtApiClient initLt() {
-        return new LtApiClient(_environment.getLtEndpoints(), new LtApiClient.Logger() {
-            @Override
-            public void logError(String message, Exception e) {
-                Log.e("", message, e);
-                retainLog(Level.SEVERE, message);
-            }
-
-            @Override
-            public void logError(String message) {
-                Log.e("", message);
-                retainLog(Level.SEVERE, message);
-            }
-
-            @Override
-            public void logInfo(String message) {
-                Log.i("", message);
-                retainLog(Level.INFO, message);
-            }
-        });
+        return new LtApiClient(_environment.getLtEndpoints());
     }
 
     private void retainLog(Level level, String message) {
         _wapiLogs.add(new LogEntry(message, level, new Date()));
     }
-
-    public WapiLogger retainingWapiLogger = new WapiLogger() {
-        @Override
-        public void logError(String message) {
-            Log.e("Wapi", message);
-            retainLog(Level.SEVERE, message);
-        }
-
-        @Override
-        public void logError(String message, Exception e) {
-            Log.e("Wapi", message, e);
-            retainLog(Level.SEVERE, message);
-        }
-
-        @Override
-        public void logInfo(String message) {
-            Log.i("Wapi", message);
-            retainLog(Level.INFO, message);
-        }
-    };
 
     private WapiClientElectrumX initWapi() {
         String version = "" + BuildConfig.VERSION_CODE;
@@ -573,8 +534,7 @@ public class MbwManager {
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
         WapiClientElectrumX wapiClientElectrumX =  new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]),
-                retainingWapiLogger, version);
+                tcpEndpoints.toArray(new TcpEndpoint[0]), version);
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;

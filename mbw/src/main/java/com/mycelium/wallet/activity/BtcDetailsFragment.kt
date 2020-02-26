@@ -12,12 +12,15 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.wallet.GenericOutputViewModel
 import com.mycelium.wapi.wallet.GenericTransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class BtcDetailsFragment : GenericDetailsFragment() {
@@ -148,13 +151,14 @@ class BtcDetailsFragment : GenericDetailsFragment() {
      * Async task to perform fetching parent transactions of current transaction from server
      */
     inner class UpdateParentTask : AsyncTask<Void?, Void?, Boolean>() {
+        private val logger = Logger.getLogger(UpdateParentTask::class.java.getSimpleName())
         override fun doInBackground(vararg params: Void?): Boolean {
             if (mbwManager!!.selectedAccount is AbstractBtcAccount) {
                 val selectedAccount = mbwManager!!.selectedAccount as AbstractBtcAccount
                 try {
                     selectedAccount.updateParentOutputs(tx!!.id)
                 } catch (e: WapiException) {
-                    mbwManager!!.retainingWapiLogger.logError("Can't load parent", e)
+                    logger.log(Level.WARNING,"Can't load parent", e)
                     return false
                 }
             }

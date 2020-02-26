@@ -54,6 +54,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class SingleAddressAccount extends AbstractBtcAccount implements ExportableAccount {
    private SingleAddressAccountContext _context;
@@ -105,7 +106,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             }
          }
       } catch (InvalidKeyCipher invalidKeyCipher) {
-         _logger.logError(invalidKeyCipher.getMessage());
+         _logger.log(Level.WARNING,invalidKeyCipher.getMessage());
       }
    }
 
@@ -227,7 +228,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             setBlockChainHeight(result.height);
          } catch (WapiException e) {
             if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
-               _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+               _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
                postEvent(Event.SERVER_CONNECTION_ERROR);
                return false;
             } else if (e.errorCode == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE) {
@@ -258,7 +259,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return false;
          }

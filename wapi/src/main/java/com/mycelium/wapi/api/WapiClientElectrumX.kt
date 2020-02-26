@@ -8,8 +8,6 @@ import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.WapiLogger
-import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.api.exception.RpcResponseException
 import com.mycelium.wapi.api.jsonrpc.*
@@ -23,6 +21,8 @@ import com.mycelium.wapi.model.TransactionStatus
 import kotlinx.coroutines.CancellationException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 /**
@@ -31,9 +31,9 @@ import kotlin.collections.ArrayList
 class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
-        logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode), ServerElectrumListChangedListener {
+    : WapiClient(serverEndpoints, versionCode), ServerElectrumListChangedListener {
+    private val logger = Logger.getLogger(WapiClientElectrumX::class.java.getSimpleName())
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
@@ -45,7 +45,7 @@ class WapiClientElectrumX(
             rpcResponse.getParams(Array<BlockHeader>::class.java)!![0].height
         }
     }
-    private var rpcClient = JsonRpcTcpClient(endpoints, logger)
+    private var rpcClient = JsonRpcTcpClient(endpoints)
 
     private fun updateClient() {
         rpcClient.setActive(isNetworkConnected)
@@ -171,7 +171,7 @@ class WapiClientElectrumX(
     fun handleBroadcastResponse(responseList: List<RpcResponse>): WapiResponse<BroadcastTransactionResponse> {
         try {
             if (responseList.all { it.hasError }) {
-                responseList.forEach { response -> logger.logError(response.error?.toString()) }
+                responseList.forEach { response -> logger.log(Level.WARNING, response.error?.toString(), response.error) }
                 val firstError = responseList[0].error
                         ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val (errorCode, errorMessage) = if (firstError.code > 0) {
@@ -280,7 +280,7 @@ class WapiClientElectrumX(
 
             val txs = responses.mapNotNull {
                 if (it.hasError) {
-                    logger.logError("Transactions retrieval  failed: ${it.error}")
+                    logger.log(Level.INFO, "Transactions retrieval  failed: ${it.error}")
                     null
                 } else {
                     it.getResult(TransactionX::class.java).apply {

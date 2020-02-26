@@ -22,6 +22,7 @@ import com.mycelium.wapi.wallet.btc.ChangeAddressMode
 import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
 
 open class HDAccount(
         protected var context: HDAccountContext,
@@ -266,7 +267,7 @@ open class HDAccount(
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTransactions = 0
-        _logger.logInfo("Starting sync: $mode")
+        _logger.log(Level.INFO,"Starting sync: $mode")
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
         }
@@ -301,7 +302,7 @@ open class HDAccount(
                 discovered = doDiscovery(pathsToDiscover)
             } while (discovered.any { it.value })
         } catch (e: WapiException) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e)
+            _logger.log(Level.WARNING, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }

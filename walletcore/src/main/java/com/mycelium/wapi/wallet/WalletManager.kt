@@ -12,6 +12,8 @@ import com.mycelium.wapi.wallet.providers.ColuFeeProvider
 import com.mycelium.wapi.wallet.providers.EthFeeProvider
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Level
+import java.util.logging.Logger
 
 
 class WalletManager
@@ -25,7 +27,7 @@ constructor(val network: NetworkParameters,
     private val accounts = ConcurrentHashMap<UUID, WalletAccount<*>>()
     private val walletModules = mutableMapOf<String, WalletModule>()
     private val _observers = LinkedList<Observer>()
-    private val _logger = wapi.logger
+    private val _logger  = Logger.getLogger(WalletManager::class.java.getSimpleName())
 
     val feeEstimations = FeeEstimations()
 
@@ -98,7 +100,7 @@ constructor(val network: NetworkParameters,
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
-                    _logger.logError("Account", exception)
+                    _logger.log(Level.WARNING, "Account", exception)
                 }
             }
         }

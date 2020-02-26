@@ -61,6 +61,8 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -80,6 +82,10 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onCreate() {
+        LogManager.getLogManager().reset();
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+
+        rootLogger.addHandler(new CommonLogHandler());
         // Android registers its own BC provider. As it might be outdated and might not include
         // all needed ciphers, we substitute it with a known BC bundled in the app.
         // Android's BC has its package rewritten to "com.android.org.bouncycastle" and because

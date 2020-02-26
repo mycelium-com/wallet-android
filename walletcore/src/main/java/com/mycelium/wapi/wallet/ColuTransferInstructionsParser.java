@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet;
 
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.WapiLogger;
 
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -9,6 +8,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * ColuTransferInstructionsParser class provides parsing of Transfer instructions
@@ -32,7 +33,7 @@ public class ColuTransferInstructionsParser {
         put((byte)0xc0, 7);
     }};
 
-    protected final WapiLogger logger;
+    protected final Logger logger;
 
     private static final int TORRENT_HASH_LEN = 20;
     private static final int SHA2_LEN = 32;
@@ -59,8 +60,8 @@ public class ColuTransferInstructionsParser {
         return 1;
     }
 
-    public ColuTransferInstructionsParser(WapiLogger logger) {
-        this.logger = logger;
+    public ColuTransferInstructionsParser() {
+        this.logger = Logger.getLogger(ColuTransferInstructionsParser.class.getSimpleName());;
     }
 
     //Checks the minimum length of script and protocol identifier
@@ -131,7 +132,7 @@ public class ColuTransferInstructionsParser {
                 }
             }
         } catch(IndexOutOfBoundsException ex) {
-            logger.logError("retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
+            logger.log(Level.WARNING,"retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
             throw new ParseException("Can't parse the script", offset);
             // TODO: 30.01.18 make it not throw here. we throw as we are not 100% sure this is not a colored coind script.
         }
