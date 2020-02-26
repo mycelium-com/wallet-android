@@ -51,21 +51,12 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
     private fun startSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
         runBlocking(Dispatchers.Default) {
-            list
-                    .groupBy {
-                        it.coinType
-                    }
-                    .map {
-                        val coinType = it.key
-                        val accounts = it.value
+            list.map {
                         async {
-                            logger.log(Level.INFO, "Syncing ${coinType.symbol} accounts")
-                            accounts.forEach {
-                                val accountLabel = it.label ?: ""
-                                logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id} in ${Thread.currentThread().name} thread")
-                                val isSyncSuccessful = it.synchronize(syncMode)
-                                logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
-                            }
+                            val accountLabel = it.label ?: ""
+                            logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
+                            val isSyncSuccessful = it.synchronize(syncMode)
+                            logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
                         }
                     }.map {
                         it.await()

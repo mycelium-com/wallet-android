@@ -88,7 +88,7 @@ class WapiClientElectrumX(
             }
             unspentsArray.forEach { response ->
                 val outputs = response.getResult(Array<UnspentOutputs>::class.java)
-                outputs!!.forEach {
+                outputs?.forEach {
                     val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[response.id.toString()]!!],
                             it.value, requestAddressesList[0].network).script
                     unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), if (it.height > 0) it.height else -1,

@@ -624,7 +624,7 @@ public class AccountsFragment extends Fragment {
             @Override
             public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
                 // If we are synchronizing, show "Synchronizing, please wait..." to avoid blocking behavior
-                if (_mbwManager.getWalletManager(false).getState() == State.SYNCHRONIZING) {
+                if (requireFocusedAccount().isSyncing()) {
                     _toaster.toast(R.string.synchronizing_please_wait, false);
                     return true;
                 }

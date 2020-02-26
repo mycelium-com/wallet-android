@@ -31,40 +31,32 @@
  * change. To the extent permitted under your local laws, the Licensor excludes the implied warranties of merchantability,
  * fitness for a particular purpose and non-infringement.
  */
+package com.mycelium.wallet.activity.settings
 
-package com.mycelium.wallet.activity.settings;
-
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.mycelium.wallet.R;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.mycelium.wallet.R
 
 /**
  * PreferenceActivity is a built-in Activity for preferences management
- * <p/>
+ *
+ *
  * To retrieve the values stored by this activity in other activities use the
  * following snippet:
- * <p/>
+ *
+ *
  * SharedPreferences sharedPreferences =
  * PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
- * <Preference Type> preferenceValue = sharedPreferences.get<Preference
- * Type>("<Preference Key>",<default value>);
- */
-public class SettingsActivity extends AppCompatActivity {
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-
-        ActionBar bar = getSupportActionBar();
-        bar.setDisplayShowTitleEnabled(true);
-
-        getSupportFragmentManager()
+ * <Preference Type> preferenceValue = sharedPreferences.get<Preference Type>("<Preference Key>",<default value>);
+</default></Preference></Preference></Preference> */
+class SettingsActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_settings)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+        supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, new SettingsFragment())
-                .commit();
-
+                .replace(R.id.fragment_container, SettingsFragment())
+                .commit()
     }
 }

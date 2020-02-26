@@ -82,6 +82,13 @@
     <string name="confirmed_in_block">В блоке #%1$d</string>
     <string name="no">Нет</string>
     <string name="yes">Да</string>
+    <string name="from">От</string>
+    <string name="to">Кому</string>
+    <string name="value">Сумма</string>
+    <string name="gas_limit">Лимит Газа</string>
+    <string name="gas_used">Использовано Газа</string>
+    <string name="gas_price">Цена Газа</string>
+    <string name="nonce">Нонс</string>
     <string name="pref_category_pin">Установки ПИН-кода</string>
     <string name="randomize_pin">Сделать клавиатуру ввода ПИН-кода случайной</string>
     <string name="randomize_pin_text">Вывод элементов клавиатуру ввода ПИН-кода в случайном порядке существенно улучшает безопасность</string>
