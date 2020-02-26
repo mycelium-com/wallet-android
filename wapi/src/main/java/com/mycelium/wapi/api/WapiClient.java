@@ -86,11 +86,11 @@ public abstract class WapiClient implements Wapi, WapiClientLifecycle {
    }
 
    private void logError(String message) {
-      _logger.log(Level.WARNING, message);
+      _logger.log(Level.SEVERE, message);
    }
 
    private void logError(String message, Exception e) {
-      _logger.log(Level.WARNING, message,e);
+      _logger.log(Level.SEVERE, message,e);
    }
 
    /**

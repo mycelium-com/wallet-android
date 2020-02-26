@@ -322,7 +322,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
 
     private fun messageReceived(message: String) {
         if (message.contains("error")) {
-            logger.log(Level.WARNING, message)
+            logger.log(Level.SEVERE, message)
         }
         val isBatched = message[0] == '['
         if (isBatched) {

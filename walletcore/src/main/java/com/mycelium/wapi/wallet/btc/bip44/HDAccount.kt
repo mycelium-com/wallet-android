@@ -302,7 +302,7 @@ open class HDAccount(
                 discovered = doDiscovery(pathsToDiscover)
             } while (discovered.any { it.value })
         } catch (e: WapiException) {
-            _logger.log(Level.WARNING, "Server connection failed with error code: " + e.errorCode, e)
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(Event.SERVER_CONNECTION_ERROR)
             return false
         }

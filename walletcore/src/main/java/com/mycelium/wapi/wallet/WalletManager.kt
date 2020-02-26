@@ -100,7 +100,7 @@ constructor(val network: NetworkParameters,
                         result[walletAccount.id] = walletAccount
                     }
                 } catch (exception: IllegalStateException){
-                    _logger.log(Level.WARNING, "Account", exception)
+                    _logger.log(Level.SEVERE, "Account", exception)
                 }
             }
         }

@@ -313,7 +313,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
                .getResult();
       } catch (WapiException e) {
-         _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
+         _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
          return -1;
       }
@@ -414,7 +414,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
-            _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
+            _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
@@ -428,7 +428,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                if (isMine(output)) {
                   _backing.putUnspentOutput(output);
                } else {
-                  _logger.log(Level.WARNING,"We got an UTXO that does not belong to us: " + output.toString());
+                  _logger.log(Level.SEVERE,"We got an UTXO that does not belong to us: " + output.toString());
                }
             }
             _backing.setTransactionSuccessful();
@@ -489,7 +489,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
          } catch (TransactionParsingException e) {
             // We hit a transaction that we cannot parse. Log but otherwise ignore it
-            _logger.log(Level.WARNING,"Received transaction that we cannot parse: " + tex.txid.toString());
+            _logger.log(Level.SEVERE,"Received transaction that we cannot parse: " + tex.txid.toString());
          }
       }
 
@@ -559,7 +559,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             if (hash.equals(tx.hash)) {
                parentTransactions.put(tx.txid, tx);
             } else {
-               _logger.log(Level.WARNING,"Failed to validate transaction hash from server. Expected: " + tx.txid
+               _logger.log(Level.SEVERE,"Failed to validate transaction hash from server. Expected: " + tx.txid
                        + " Calculated: " + hash);
                //TODO: Document what's happening here.
                //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
@@ -662,7 +662,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             }
             TransactionOutputEx parent = _backing.getParentTransactionOutput(input.outPoint);
             if (parent == null) {
-               _logger.log(Level.WARNING,"Unable to find parent transaction output: " + input.outPoint);
+               _logger.log(Level.SEVERE,"Unable to find parent transaction output: " + input.outPoint);
                continue;
             }
             TransactionOutput parentOutput = transform(parent);
@@ -720,7 +720,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          try {
             transaction = Transaction.fromBytes(rawTransaction);
          } catch (TransactionParsingException e) {
-            _logger.log(Level.WARNING,"Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+            _logger.log(Level.SEVERE,"Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
             return  false;
          }
          BroadcastResult result = broadcastTransaction(transaction);
@@ -762,13 +762,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                } else {
                    // This transaction was rejected must be double spend or
                    // malleability, delete it locally.
-                   _logger.log(Level.WARNING,"Failed to broadcast transaction due to a double spend or malleability issue");
+                   _logger.log(Level.SEVERE,"Failed to broadcast transaction due to a double spend or malleability issue");
                    postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
                    return new BroadcastResult(BroadcastResultType.REJECT_DUPLICATE);
                }
            } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
                postEvent(Event.SERVER_CONNECTION_ERROR);
-               _logger.log(Level.WARNING,"Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
+               _logger.log(Level.SEVERE,"Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
                return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
            } else if(errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.getErrorCode()) {
                return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_MALFORMED);
@@ -780,12 +780,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_INSUFFICIENT_FEE);
            } else {
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               _logger.log(Level.WARNING,"Server connection failed with error: " + errorCode);
+               _logger.log(Level.SEVERE,"Server connection failed with error: " + errorCode);
                return new BroadcastResult(BroadcastResultType.REJECTED);
            }
        } catch (WapiException e) {
            postEvent(Event.SERVER_CONNECTION_ERROR);
-           _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
+           _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
            return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
        }
    }
@@ -793,7 +793,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected void checkNotArchived() {
       final String usingArchivedAccount = "Using archived account";
       if (isArchived()) {
-         _logger.log(Level.WARNING,usingArchivedAccount);
+         _logger.log(Level.SEVERE,usingArchivedAccount);
          throw new RuntimeException(usingArchivedAccount);
       }
    }
@@ -1337,7 +1337,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          tx = Transaction.fromByteReader(new ByteReader(tex.binary));
       } catch (TransactionParsingException e) {
          // Should not happen as we have parsed the transaction earlier
-         _logger.log(Level.WARNING,"Unable to parse ");
+         _logger.log(Level.SEVERE,"Unable to parse ");
          return null;
       }
 
@@ -1462,7 +1462,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          result = _wapi.checkTransactions(new CheckTransactionsRequest(txids)).getResult();
       } catch (WapiException e) {
          postEvent(Event.SERVER_CONNECTION_ERROR);
-         _logger.log(Level.WARNING,"Server connection failed with error code: " + e.errorCode, e);
+         _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
          // We failed to check transactions
          return false;
       }

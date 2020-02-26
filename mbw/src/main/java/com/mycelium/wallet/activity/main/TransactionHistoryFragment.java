@@ -647,7 +647,7 @@ public class TransactionHistoryFragment extends Fragment {
             try {
                selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
             } catch (WapiException e) {
-               logger.log(Level.WARNING, "Can't load parent", e);
+               logger.log(Level.SEVERE, "Can't load parent", e);
                return false;
             }
          }

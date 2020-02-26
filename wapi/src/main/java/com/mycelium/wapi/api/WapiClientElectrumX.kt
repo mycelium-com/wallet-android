@@ -171,7 +171,7 @@ class WapiClientElectrumX(
     fun handleBroadcastResponse(responseList: List<RpcResponse>): WapiResponse<BroadcastTransactionResponse> {
         try {
             if (responseList.all { it.hasError }) {
-                responseList.forEach { response -> logger.log(Level.WARNING, response.error?.toString(), response.error) }
+                responseList.forEach { response -> logger.log(Level.SEVERE, response.error?.toString(), response.error) }
                 val firstError = responseList[0].error
                         ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val (errorCode, errorMessage) = if (firstError.code > 0) {
