@@ -19,6 +19,7 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
     public TextView tvBalance;
     public TextView backupMissing;
     public TextView tvProgress;
+    public View layoutProgressTxRetreived;
     public View tvProgressLayout;
     public ImageView ivWhatIsSync;
     public ProgressBar progressBar;
@@ -40,5 +41,6 @@ public class AccountViewHolder extends RecyclerView.ViewHolder {
         tvProgressLayout = itemView.findViewById(R.id.tvProgressLayout);
         ivWhatIsSync = itemView.findViewById(R.id.ivWhatIsSync);
         progressBar = itemView.findViewById(R.id.progress_bar);
+        layoutProgressTxRetreived = itemView.findViewById(R.id.progressTxRetreived);
     }
 }

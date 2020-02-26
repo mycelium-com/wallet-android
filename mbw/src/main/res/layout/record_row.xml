@@ -156,6 +156,7 @@
             android:indeterminate="true" />
 
         <LinearLayout
+            android:id="@+id/progressTxRetreived"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:gravity="end|center_vertical"
