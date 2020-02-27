@@ -183,6 +183,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -394,8 +395,9 @@ public class MbwManager {
     private void startLogger() {
         LogManager.getLogManager().reset();
         Logger rootLogger = LogManager.getLogManager().getLogger("");
-        CommonLogHandler handler = new CommonLogHandler(db);
+        DbLogHandler handler = new DbLogHandler(db);
         rootLogger.addHandler(handler);
+        rootLogger.addHandler(new ConsoleHandler());
         handler.cleanUp();
         logger.log(Level.INFO,"Logging started...");
     }
