@@ -116,10 +116,11 @@ import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.manager.Config;
-import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -803,8 +804,10 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        requireFocusedAccount().dropCachedData();
-        _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+        WalletAccount<?> account = requireFocusedAccount();
+        account.dropCachedData();
+        _mbwManager.getWalletManager(false)
+                .startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, Collections.singletonList(account));
     }
 
     private void exportSelectedPrivateKey() {
@@ -848,9 +851,9 @@ public class AccountsFragment extends Fragment {
         runPinProtected(() -> activate(requireFocusedAccount()));
     }
 
-    private void activate(WalletAccount account) {
+    private void activate(WalletAccount<?> account) {
         account.activateAccount();
-        WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+        WalletAccount<?> linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
         if (linkedAccount != null) {
             linkedAccount.activateAccount();
         }
@@ -858,7 +861,8 @@ public class AccountsFragment extends Fragment {
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
-        _mbwManager.getWalletManager(false).startSynchronization();
+        _mbwManager.getWalletManager(false)
+                .startSynchronization(SyncMode.NORMAL_FORCED, Arrays.asList(account, linkedAccount));
     }
 
     private void archiveSelected() {
