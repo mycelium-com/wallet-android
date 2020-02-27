@@ -73,6 +73,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private Logger rootLogger;
+
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException();
@@ -82,10 +84,7 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onCreate() {
-        LogManager.getLogManager().reset();
-        Logger rootLogger = LogManager.getLogManager().getLogger("");
 
-        rootLogger.addHandler(new CommonLogHandler());
         // Android registers its own BC provider. As it might be outdated and might not include
         // all needed ciphers, we substitute it with a known BC bundled in the app.
         // Android's BC has its package rewritten to "com.android.org.bouncycastle" and because

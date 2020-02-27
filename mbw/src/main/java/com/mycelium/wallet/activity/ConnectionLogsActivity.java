@@ -41,43 +41,63 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.mycelium.wallet.*;
+import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.wallet.MbwManager;
+import com.mycelium.wallet.R;
+import com.mycelium.wallet.Utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ConnectionLogsActivity extends Activity {
 
-   public static void callMe(Activity activity){
-      Intent intent = new Intent(activity, ConnectionLogsActivity.class);
-      activity.startActivity(intent);
-   }
+    public static void callMe(Activity activity) {
+        Intent intent = new Intent(activity, ConnectionLogsActivity.class);
+        activity.startActivity(intent);
+    }
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-      setContentView(R.layout.show_logs_activity);
+        setContentView(R.layout.show_logs_activity);
 
-      final MbwManager mbwManager = MbwManager.getInstance(this);
+        final MbwManager mbwManager = MbwManager.getInstance(this);
+        ArrayList<FormattedLog> formattedLogs = new ArrayList<>();
+        for (Logs log : mbwManager.getLogs()) {
+            formattedLogs.add(new FormattedLog(log));
+        }
+        // get the log entries in a new list and show them in reverse order
+        final String logs = Joiner.on("\n").join(formattedLogs);
 
-      // get the log entries in a new list and show them in reverse order
-      ArrayList<LogEntry> logEntries = Lists.newArrayList(mbwManager.getWapiLogs());
-      final String logs = Joiner.on("\n").join(Lists.reverse(logEntries));
+        TextView tvLogDisplay = (TextView) findViewById(R.id.tvLogDisplay);
+        tvLogDisplay.setText(logs);
+        tvLogDisplay.setHorizontallyScrolling(true);
+        tvLogDisplay.setMovementMethod(new ScrollingMovementMethod());
 
-      TextView tvLogDisplay = (TextView) findViewById(R.id.tvLogDisplay);
-      tvLogDisplay.setText(logs);
-      tvLogDisplay.setHorizontallyScrolling(true);
-      tvLogDisplay.setMovementMethod(new ScrollingMovementMethod());
-
-      tvLogDisplay.setOnLongClickListener(new View.OnLongClickListener() {
-         @Override
-         public boolean onLongClick(View view) {
+        tvLogDisplay.setOnLongClickListener(view -> {
             Utils.setClipboardString(logs, ConnectionLogsActivity.this);
             Toast.makeText(ConnectionLogsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
-         }
-      });
-   }
+        });
+    }
+
+    private static class FormattedLog {
+        private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        private Logs log;
+
+        public FormattedLog(Logs log) {
+            this.log = log;
+        }
+
+        @Override
+        public String toString() {
+            return dateFormat.format(new Date(log.getDateMillis())) + ":" + log.getLevel() + ":" + log.getMessage();
+        }
+    }
 }
