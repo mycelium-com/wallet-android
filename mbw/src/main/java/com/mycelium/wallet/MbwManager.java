@@ -397,7 +397,7 @@ public class MbwManager {
         Logger rootLogger = LogManager.getLogManager().getLogger("");
         DbLogHandler handler = new DbLogHandler(db);
         rootLogger.addHandler(handler);
-        rootLogger.addHandler(new ConsoleHandler());
+        rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
         logger.log(Level.INFO,"Logging started...");
     }

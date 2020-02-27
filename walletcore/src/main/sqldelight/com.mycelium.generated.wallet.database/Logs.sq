@@ -24,3 +24,7 @@ WHERE dateMillis > (?);
 delete:
 DELETE FROM Logs;
 
+cleanUp:
+DELETE FROM Logs WHERE dateMillis <
+  (SELECT min(dateMillis) FROM
+    (SELECT dateMillis FROM Logs ORDER BY dateMillis DESC LIMIT (?))) ;
