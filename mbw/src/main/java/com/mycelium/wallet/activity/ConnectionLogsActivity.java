@@ -87,6 +87,14 @@ public class ConnectionLogsActivity extends Activity {
         });
     }
 
+    private void shareLog(String body){
+        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Logs");
+        startActivity(Intent.createChooser(sharingIntent, "Share Logs"));
+    }
+
     private static class FormattedLog {
         private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
         private Logs log;
