@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -164,8 +165,10 @@ public class TransactionHistoryFragment extends Fragment {
          btnReload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               _mbwManager.getSelectedAccount().dropCachedData();
-               _mbwManager.getWalletManager(false).startSynchronization();
+               WalletAccount<?> account = _mbwManager.getSelectedAccount();
+               account.dropCachedData();
+               _mbwManager.getWalletManager(false)
+                       .startSynchronization(SyncMode.NORMAL_FORCED, Collections.singletonList(account));
             }
          });
       }

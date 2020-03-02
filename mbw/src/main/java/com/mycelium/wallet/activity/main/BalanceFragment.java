@@ -86,6 +86,7 @@ import com.mycelium.wallet.pop.PopRequest;
 import com.mycelium.wapi.content.GenericAssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
 import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -139,7 +140,9 @@ public class BalanceFragment extends Fragment {
         balanceArea.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                _mbwManager.getWalletManager(false).startSynchronization();
+                WalletAccount<?> account = _mbwManager.getSelectedAccount();
+                _mbwManager.getWalletManager(false)
+                        .startSynchronization(SyncMode.NORMAL_FORCED, Collections.singletonList(account));
             }
         });
         ButterKnife.bind(this, _root);
