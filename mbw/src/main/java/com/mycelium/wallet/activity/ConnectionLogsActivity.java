@@ -52,6 +52,7 @@ import androidx.core.content.FileProvider;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.mycelium.generated.wallet.database.Logs;
 import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
@@ -103,7 +104,7 @@ public class ConnectionLogsActivity extends Activity {
             }
             logsForPrint.add(formattedLog);
         }
-        final String logsForPrintString = Joiner.on("\n").join(logsForPrint);
+        final String logsForPrintString = Joiner.on("\n").join(Lists.reverse(logsForPrint));
 
         TextView tvLogDisplay = (TextView) findViewById(R.id.tvLogDisplay);
         tvLogDisplay.setText(logsForPrintString);
@@ -140,7 +141,7 @@ public class ConnectionLogsActivity extends Activity {
                         String packageName = resolveInfo.activityInfo.packageName;
                         grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     }
-                    startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
+                    startActivity(Intent.createChooser(intent, getResources().getString(R.string.share)));
                 }
             }
         } catch (IOException | PackageManager.NameNotFoundException e) {
