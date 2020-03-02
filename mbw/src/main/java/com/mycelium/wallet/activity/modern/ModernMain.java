@@ -94,6 +94,7 @@ import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Subscribe;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -319,7 +320,9 @@ public class ModernMain extends AppCompatActivity {
                     final Optional<Long> lastFullSync = _mbwManager.getMetadataStorage().getLastFullSync();
                     if (lastFullSync.isPresent()
                             && (new Date().getTime() - lastFullSync.get() < MIN_FULLSYNC_INTERVAL)) {
-                        _mbwManager.getWalletManager(false).startSynchronization();
+                        WalletAccount<?> account = _mbwManager.getSelectedAccount();
+                        _mbwManager.getWalletManager(false)
+                                .startSynchronization(SyncMode.NORMAL, Collections.singletonList(account));
                     } else {
                         _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
                         _mbwManager.getMetadataStorage().setLastFullSync(new Date().getTime());
@@ -480,7 +483,9 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private boolean startSynchronization(SyncMode syncMode) {
-        boolean started = _mbwManager.getWalletManager(false).startSynchronization(syncMode);
+        WalletAccount<?> account = _mbwManager.getSelectedAccount();
+        boolean started = _mbwManager.getWalletManager(false)
+                .startSynchronization(syncMode, Collections.singletonList(account));
         if (!started) {
             MbwManager.getEventBus().post(new SyncFailed());
         }

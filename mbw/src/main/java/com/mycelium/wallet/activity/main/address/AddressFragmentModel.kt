@@ -90,8 +90,10 @@ class AddressFragmentModel(
         updateLabel()
         onAddressChange()
         mbwManager.getWalletManager(false).run {
-            startSynchronization(
-                    SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account) ?: return@run))
+            if(hasAccount(event.account)) {
+                startSynchronization(
+                        SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, listOf(getAccount(event.account) ?: return@run))
+            }
         }
     }
 

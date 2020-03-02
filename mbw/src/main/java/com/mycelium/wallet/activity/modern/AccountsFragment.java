@@ -117,14 +117,13 @@ import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.EthAccount;
-import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.manager.Config;
-import com.mycelium.wapi.wallet.manager.State;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -849,8 +848,10 @@ public class AccountsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        requireFocusedAccount().dropCachedData();
-        _mbwManager.getWalletManager(false).startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED);
+        WalletAccount<?> account = requireFocusedAccount();
+        account.dropCachedData();
+        _mbwManager.getWalletManager(false)
+                .startSynchronization(SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED, Collections.singletonList(account));
     }
 
     private void exportSelectedPrivateKey() {
@@ -894,28 +895,34 @@ public class AccountsFragment extends Fragment {
         runPinProtected(() -> activate(requireFocusedAccount()));
     }
 
-    private void activate(WalletAccount account) {
+    private void activate(WalletAccount<?> account) {
+        List<WalletAccount<?>> accountsToSync = new ArrayList<>();
         account.activateAccount();
+        accountsToSync.add(account);
         if (account instanceof EthAccount) {
             for (WalletAccount walletAccount : getLinkedERC20Accounts(account)) {
                 walletAccount.activateAccount();
+                accountsToSync.add(walletAccount);
             }
         } else if (account instanceof ERC20Account) {
             EthAccount ethAccount = getLinkedEthAccount(account);
             if (ethAccount.isArchived()) {
                 ethAccount.activateAccount();
+                accountsToSync.add(ethAccount);
             }
         } else {
-            WalletAccount linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
+            WalletAccount<?> linkedAccount = Utils.getLinkedAccount(account, walletManager.getAccounts());
             if (linkedAccount != null) {
                 linkedAccount.activateAccount();
+                accountsToSync.add(linkedAccount);
             }
         }
         //setselected also broadcasts AccountChanged event
         _mbwManager.setSelectedAccount(account.getId());
         updateIncludingMenus();
         _toaster.toast(R.string.activated, false);
-        _mbwManager.getWalletManager(false).startSynchronization();
+        _mbwManager.getWalletManager(false)
+                .startSynchronization(SyncMode.NORMAL_FORCED, accountsToSync);
     }
 
     private void archiveSelected() {
