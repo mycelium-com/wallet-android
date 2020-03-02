@@ -34,25 +34,40 @@
 
 package com.mycelium.wallet.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
 import com.mycelium.generated.wallet.database.Logs;
+import com.mycelium.wallet.DataExport;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
+import com.mycelium.wallet.activity.modern.Toaster;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConnectionLogsActivity extends Activity {
 
@@ -61,6 +76,9 @@ public class ConnectionLogsActivity extends Activity {
         activity.startActivity(intent);
     }
 
+    private Logger _logger = Logger.getLogger(ConnectionLogsActivity.class.getSimpleName());
+    @SuppressLint("SimpleDateFormat")
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,27 +103,37 @@ public class ConnectionLogsActivity extends Activity {
             Toast.makeText(ConnectionLogsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
         });
+        findViewById(R.id.btShare).setOnClickListener(v -> shareLogs(formattedLogs));
     }
 
-    private void shareLog(String body){
-        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Logs");
-        startActivity(Intent.createChooser(sharingIntent, "Share Logs"));
-    }
-
-    private static class FormattedLog {
-        private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        private Logs log;
-
-        public FormattedLog(Logs log) {
-            this.log = log;
-        }
-
-        @Override
-        public String toString() {
-            return dateFormat.format(new Date(log.getDateMillis())) + ":" + log.getLevel() + ":" + log.getMessage();
+    private void shareLogs(ArrayList<FormattedLog> formattedLogs) {
+        try {
+            String fileName = "MyceliumLogs_" + dateFormat.format(new Date()) + ".txt";
+            File logsExport = DataExport.getLogsExport(formattedLogs, getFileStreamPath(fileName));
+            PackageManager packageManager = Preconditions.checkNotNull(this.getPackageManager());
+            PackageInfo packageInfo = packageManager.getPackageInfo(this.getPackageName(), PackageManager.GET_PROVIDERS);
+            for (ProviderInfo info : packageInfo.providers) {
+                if (info.name.equals("androidx.core.content.FileProvider")) {
+                    String authority = info.authority;
+                    Uri uri = FileProvider.getUriForFile(getApplicationContext(), authority, logsExport);
+                    Intent intent = ShareCompat.IntentBuilder.from(this)
+                            .setStream(uri)  // uri from FileProvider
+                            .setType("text/plain")
+                            .setSubject(getResources().getString(R.string.connection_logs))
+                            .setText(getResources().getString(R.string.connection_logs))
+                            .getIntent()
+                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    List<ResolveInfo> resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolveInfo : resInfoList) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+                    startActivity(Intent.createChooser(intent, getResources().getString(R.string.share_transaction_history)));
+                }
+            }
+        } catch (IOException | PackageManager.NameNotFoundException e) {
+            new Toaster(this).toast("Export failed. Check your logs", false);
+            _logger.log(Level.WARNING, e.getLocalizedMessage(), e);
         }
     }
 }
