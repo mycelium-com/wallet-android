@@ -8,7 +8,7 @@ import java.util.logging.LogRecord;
 
 public class DbLogHandler extends Handler {
 
-    private Integer MAX_LOG_RECORDS = 10000;
+    private static final Integer MAX_LOG_RECORDS = 50000;
     private final LogsQueries logsQueries;
 
     public DbLogHandler(WalletDB db) {

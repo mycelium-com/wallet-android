@@ -65,11 +65,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConnectionLogsActivity extends Activity {
+
+    private final static int MAX_TO_SHOW = 10000;
 
     public static void callMe(Activity activity) {
         Intent intent = new Intent(activity, ConnectionLogsActivity.class);
@@ -79,6 +82,7 @@ public class ConnectionLogsActivity extends Activity {
     private Logger _logger = Logger.getLogger(ConnectionLogsActivity.class.getSimpleName());
     @SuppressLint("SimpleDateFormat")
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,16 +94,24 @@ public class ConnectionLogsActivity extends Activity {
         for (Logs log : mbwManager.getLogs()) {
             formattedLogs.add(new FormattedLog(log));
         }
-        // get the log entries in a new list and show them in reverse order
-        final String logs = Joiner.on("\n").join(formattedLogs);
+
+        int counter = 0;
+        ArrayList<FormattedLog> logsForPrint = new ArrayList<>();
+        for (FormattedLog formattedLog : formattedLogs) {
+            if (++counter > MAX_TO_SHOW) {
+                break;
+            }
+            logsForPrint.add(formattedLog);
+        }
+        final String logsForPrintString = Joiner.on("\n").join(logsForPrint);
 
         TextView tvLogDisplay = (TextView) findViewById(R.id.tvLogDisplay);
-        tvLogDisplay.setText(logs);
+        tvLogDisplay.setText(logsForPrintString);
         tvLogDisplay.setHorizontallyScrolling(true);
         tvLogDisplay.setMovementMethod(new ScrollingMovementMethod());
 
         tvLogDisplay.setOnLongClickListener(view -> {
-            Utils.setClipboardString(logs, ConnectionLogsActivity.this);
+            Utils.setClipboardString(logsForPrintString, ConnectionLogsActivity.this);
             Toast.makeText(ConnectionLogsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
         });
