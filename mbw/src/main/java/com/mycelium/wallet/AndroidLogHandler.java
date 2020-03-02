@@ -9,7 +9,9 @@ import java.util.logging.LogRecord;
 
 class AndroidLogHandler extends Handler {
     private static String ANDROID_LOG_TAG = "AndroidLogHandler";
-
+    final private static int SERVE_LOG = 1000;
+    final private static int WARNING_LOG = 900;
+    final private static int INFO_LOG = 800;
     public AndroidLogHandler() {
     }
 
@@ -21,15 +23,15 @@ class AndroidLogHandler extends Handler {
         String dateAsString = dateFormat.format(date);
         String message = dateAsString + ":" + record.getLevel().getName() + ": " + record.getMessage();
         switch (record.getLevel().intValue()) {
-            case 1000: {
+            case SERVE_LOG: {
                 Log.e(ANDROID_LOG_TAG, message);
             }
             break;
-            case 900: {
+            case WARNING_LOG: {
                 Log.w(ANDROID_LOG_TAG, message);
             }
             break;
-            case 800: {
+            case INFO_LOG: {
                 Log.d(ANDROID_LOG_TAG, message);
             }
             break;
