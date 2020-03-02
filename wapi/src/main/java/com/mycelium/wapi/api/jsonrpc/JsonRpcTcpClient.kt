@@ -56,7 +56,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
     private val nextRequestId = AtomicInteger(0)
     // Timer responsible for periodically executing ping requests
     private var pingTimer: Timer? = null
-    @Volatile private var pingLatch : CountDownLatch? = null
     private var previousRequestsMap = mutableMapOf<String, String>()
     // Stores requests waiting to be processed
     private val awaitingRequestsMap = ConcurrentHashMap<String, String>()
@@ -143,9 +142,6 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
 
                 //Close connection if it is still opened
                 closeConnection()
-
-                //Cancel waiting of last ping if it has been sent recently right before the connection is closed
-                pingLatch?.countDown()
 
                 //Finish ping timer thread execution
                 pingTimer?.cancel()
@@ -352,34 +348,11 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
         if (!isConnected.get())
             return
 
-        var pong: RpcResponse? = null
-        pingLatch = CountDownLatch(1)
         val request = RpcRequestOut("server.ping", RpcMapParams(emptyMap<String, String>())).apply {
             id = nextRequestId.getAndIncrement().toString()
-            callbacks[id.toString()] = {
-                pong = it as RpcResponse
-                pingLatch!!.countDown()
-            }
-        }
-        val requestJson = request.toJson()
-        val requestId = request.id.toString()
-        if (!internalWrite(requestJson)) {
-            callbacks.remove(requestId)
-            return
         }
 
-        if (!pingLatch!!.await(MAX_PING_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)) {
-            logger.log(Level.INFO, "Couldn't get reply on server.ping with id=$requestId for $MAX_PING_RESPONSE_TIMEOUT milliseconds. Forcing connection to be closed")
-            // Force socket close. It will cause reconnect to another server
-            closeConnection()
-            return
-        }
-
-        pingLatch = null
-
-        if (pong != null) {
-            logger.log(Level.INFO, "Pong! $pong")
-        }
+        internalWrite(request.toJson())
     }
 
 
@@ -404,8 +377,7 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
     companion object {
         private val INTERVAL_BETWEEN_SOCKET_RECONNECTS = TimeUnit.SECONDS.toMillis(1)
         private val INTERVAL_BETWEEN_PING_REQUESTS = TimeUnit.SECONDS.toMillis(10)
-        private val MAX_PING_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(10)
-        private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(20)
+        private val MAX_READ_RESPONSE_TIMEOUT = TimeUnit.SECONDS.toMillis(30)
         private val WAITING_FOR_CONNECTED_INTERVAL = 300L
     }
 }

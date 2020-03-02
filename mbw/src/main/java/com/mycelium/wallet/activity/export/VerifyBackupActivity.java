@@ -215,7 +215,7 @@ public class VerifyBackupActivity extends Activity {
          success |= _mbwManager.getWalletManager(false).hasAccount(coluUUID);
       }
 
-      if (success) {
+      if (success && allAddresses != null) {
          _mbwManager.getMetadataStorage().setOtherAccountBackupState(account, MetadataStorage.BackupState.VERIFIED);
          for (ColuMain coluAsset : ColuUtils.allColuCoins(BuildConfig.FLAVOR)) {
             UUID coluUUID = ColuUtils.getGuidForAsset(coluAsset, pk.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH).getAllAddressBytes());

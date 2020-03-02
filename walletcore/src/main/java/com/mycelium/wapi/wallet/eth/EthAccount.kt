@@ -41,6 +41,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     lateinit var client: Web3j
+    private var isSyncing = false
 
     init {
         updateClient()
@@ -163,24 +164,30 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
+        isSyncing = true
         if (!selectEndpoint()) {
+            isSyncing = false
             return false
         }
         if (!ethBalanceService.updateBalanceCache()) {
+            isSyncing = false
             return false
         }
         accountContext.balance = ethBalanceService.balance
         accountListener?.balanceUpdated(this)
 
         if (!syncBlockHeight()) {
+            isSyncing = false
             return false
         }
 
         if (!syncTransactions()) {
+            isSyncing = false
             return false
         }
 
         renewSubscriptions()
+        isSyncing = false
         return true
     }
 
@@ -213,7 +220,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun canSpend() = credentials != null
 
-    override fun isSyncing() = false
+    override fun isSyncing() = isSyncing
 
     override fun isArchived() = accountContext.archived
 
