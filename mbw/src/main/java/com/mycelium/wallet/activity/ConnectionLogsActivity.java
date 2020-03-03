@@ -82,7 +82,7 @@ public class ConnectionLogsActivity extends Activity {
 
     private Logger _logger = Logger.getLogger(ConnectionLogsActivity.class.getSimpleName());
     @SuppressLint("SimpleDateFormat")
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +121,7 @@ public class ConnectionLogsActivity extends Activity {
 
     private void shareLogs(ArrayList<FormattedLog> formattedLogs) {
         try {
-            String fileName = "MyceliumLogs_" + dateFormat.format(new Date()) + ".txt";
+            String fileName = "MBW-" + dateFormat.format(new Date()) + ".txt";
             File logsExport = DataExport.getLogsExport(formattedLogs, getFileStreamPath(fileName));
             PackageManager packageManager = Preconditions.checkNotNull(this.getPackageManager());
             PackageInfo packageInfo = packageManager.getPackageInfo(this.getPackageName(), PackageManager.GET_PROVIDERS);
