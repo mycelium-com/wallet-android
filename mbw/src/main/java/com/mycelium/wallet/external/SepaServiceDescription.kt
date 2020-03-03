@@ -3,6 +3,7 @@ package com.mycelium.wallet.external
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import androidx.appcompat.app.AlertDialog
 import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
@@ -21,12 +22,24 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
             }
 
     override fun launchService(activity: Activity, mbwManager: MbwManager, activeReceivingAddress: GenericAddress) {
-        activity.startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse(String.format(if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
-                    BuildConfig.SEPA_ETH
-                } else {
-                    BuildConfig.SEPA
-                }, activeReceivingAddress.toString()))))
+        if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
+            AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
+                    .setItems(arrayOf("BUY", "SELL")) { _, position ->
+                        when (position) {
+                            0 -> {
+                                activity.startActivity(Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(BuildConfig.SEPA_BUY_ETH_BITS_OF_GOLD)))
+                            }
+                            1 -> {
+                                activity.startActivity(Intent(Intent.ACTION_VIEW,
+                                        Uri.parse(BuildConfig.SEPA_SELL_ETH_BITS_OF_GOLD)))
+                            }
+                        }
+                    }.create().show()
+        } else {
+            activity.startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse(String.format(BuildConfig.SEPA, activeReceivingAddress.toString()))))
+        }
     }
 
     override fun isEnabled(mbwManager: MbwManager) = mbwManager.metadataStorage.sepaIsEnabled
