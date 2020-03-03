@@ -76,7 +76,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
-        if (calculateMaxSpendableAmount(null, null).equalZero()) {
+        if (calculateMaxSpendableAmount(null, null) < amount) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
         }
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
@@ -176,12 +176,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getId(): UUID = accountContext.uuid
 
-    override fun broadcastOutgoingTransactions() = true // TODO implement
+    override fun broadcastOutgoingTransactions() = true
 
     override fun calculateMaxSpendableAmount(minerFeePerKilobyte: Value?, destinationAddress: EthAddress?): Value =
             accountBalance.spendable
 
-    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement
+    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
 
     override fun getTypicalEstimatedTransactionSize() = 21000
 

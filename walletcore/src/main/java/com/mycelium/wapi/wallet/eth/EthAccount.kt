@@ -199,7 +199,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun isArchived() = accountContext.archived
 
-    override fun getSyncTotalRetrievedTransactions() = 0
+    override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
 
     override fun getTypicalEstimatedTransactionSize() = 21000
 
