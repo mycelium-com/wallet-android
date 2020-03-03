@@ -5,7 +5,6 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
-import com.mycelium.net.HttpEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -34,6 +33,7 @@ class EthereumModule(
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
+    fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
@@ -117,14 +117,14 @@ class EthereumModule(
     private fun deriveKey(): Credentials {
         val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val path = "m/44'/60'/${getCurrentBip44Index() + 1}'/0/0"
+        val path = getBip44Path(getCurrentBip44Index() + 1)
 
-        val privKey = HexUtils.toHex(rootNode.createChildNode(HdKeyPath.valueOf(path)).privateKey.privateKeyBytes)
+        val privKey = HexUtils.toHex(rootNode.createChildNode(path).privateKey.privateKeyBytes)
         val credentials = Credentials.create(privKey)
 
         secureStore.encryptAndStoreValue(credentials.ecKeyPair.toUUID().toString().toByteArray(),
                 Keys.serialize(credentials.ecKeyPair), AesKeyCipher.defaultKeyCipher())
-        return Credentials.create(privKey)
+        return credentials
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
@@ -181,7 +181,3 @@ class EthereumModule(
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
 // TODO remove
 fun WalletManager.getActiveMasterseedEthAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is EthAccount && it.isDerivedFromInternalMasterseed }
-
-interface ServerEthListChangedListener {
-    fun serverListChanged(newEndpoints: Array<HttpEndpoint>)
-}

@@ -140,3 +140,7 @@ class ParityAllTransactionsResponse : Response<ArrayList<Transaction>>() {
     val transactions: ArrayList<Transaction>
         get() = result
 }
+
+interface ServerEthListChangedListener {
+    fun serverListChanged(newEndpoints: Array<HttpEndpoint>)
+}
