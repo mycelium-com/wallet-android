@@ -22,24 +22,19 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
             }
 
     override fun launchService(activity: Activity, mbwManager: MbwManager, activeReceivingAddress: GenericAddress) {
-        if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
-            AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
-                    .setItems(arrayOf("BUY", "SELL")) { _, position ->
-                        when (position) {
-                            0 -> {
-                                activity.startActivity(Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(BuildConfig.SEPA_BUY_ETH_BITS_OF_GOLD)))
-                            }
-                            1 -> {
-                                activity.startActivity(Intent(Intent.ACTION_VIEW,
-                                        Uri.parse(BuildConfig.SEPA_SELL_ETH_BITS_OF_GOLD)))
-                            }
+        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setItems(arrayOf("BUY", "SELL")) { _, position ->
+                    when (position) {
+                        0 -> {
+                            activity.startActivity(Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(BuildConfig.SEPA_BUY_ETH_BITS_OF_GOLD)))
                         }
-                    }.create().show()
-        } else {
-            activity.startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse(String.format(BuildConfig.SEPA, activeReceivingAddress.toString()))))
-        }
+                        1 -> {
+                            activity.startActivity(Intent(Intent.ACTION_VIEW,
+                                    Uri.parse(BuildConfig.SEPA_SELL_ETH_BITS_OF_GOLD)))
+                        }
+                    }
+                }.create().show()
     }
 
     override fun isEnabled(mbwManager: MbwManager) = mbwManager.metadataStorage.sepaIsEnabled
