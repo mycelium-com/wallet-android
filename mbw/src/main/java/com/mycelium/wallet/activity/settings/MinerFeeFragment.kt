@@ -18,10 +18,7 @@ import com.mycelium.wallet.MinerFee.PRIORITY
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
-class MinerFeeFragment(pageId: String) : PreferenceFragmentCompat() {
-    init {
-        arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
-    }
+class MinerFeeFragment : PreferenceFragmentCompat() {
 
     private var displayPreferenceDialogHandler: DisplayPreferenceDialogHandler? = null
 
@@ -105,5 +102,10 @@ class MinerFeeFragment(pageId: String) : PreferenceFragmentCompat() {
 
     companion object {
         private const val ARG_PREFS_ROOT = "preference_root_key"
+
+        @JvmStatic
+        fun create(pageId: String) = MinerFeeFragment().apply {
+            arguments = Bundle().apply { putString(ARG_PREFS_ROOT, pageId) }
+        }
     }
 }

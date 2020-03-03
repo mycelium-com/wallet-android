@@ -73,7 +73,7 @@ object Adapters {
 
             val rootNode = mapper.readTree(databaseValue)
             val asset = COINS.getValue(rootNode["Asset"].asText())
-            val value = rootNode["Value"].asLong()
+            val value = rootNode["Value"].bigIntegerValue()
             return Value.valueOf(asset, value)
         }
 
