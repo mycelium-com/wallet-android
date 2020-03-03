@@ -122,6 +122,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -628,6 +630,7 @@ public class TransactionHistoryFragment extends Fragment {
     */
    @SuppressLint("StaticFieldLeak")
    private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+      private Logger logger = Logger.getLogger(UpdateParentTask.class.getSimpleName());
       private final Sha256Hash txid;
       private final AlertDialog alertDialog;
       private final Context context;
@@ -647,7 +650,7 @@ public class TransactionHistoryFragment extends Fragment {
             try {
                selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
             } catch (WapiException e) {
-               _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               logger.log(Level.SEVERE, "Can't load parent", e);
                return false;
             }
          }

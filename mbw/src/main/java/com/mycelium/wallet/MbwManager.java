@@ -46,7 +46,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -57,9 +56,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Queues;
 import com.google.common.primitives.Ints;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -77,7 +74,7 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.HashUtils;
-import com.mycelium.WapiLogger;
+import com.mycelium.generated.wallet.database.Logs;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.lt.api.LtApiClient;
 import com.mycelium.net.HttpEndpoint;
@@ -150,14 +147,14 @@ import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
-import com.mycelium.wapi.wallet.fiat.coins.FiatType;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
+import com.mycelium.wapi.wallet.fiat.coins.FiatType;
+import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.genericdb.GenericBacking;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
@@ -168,20 +165,16 @@ import com.squareup.otto.Subscribe;
 import com.squareup.sqldelight.android.AndroidSqliteDriver;
 import com.squareup.sqldelight.db.SqlDriver;
 
-import kotlin.jvm.Synchronized;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -190,11 +183,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+
+import kotlin.jvm.Synchronized;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -224,6 +222,7 @@ public class MbwManager {
     private boolean randomizePinPad;
     private Timer _addressWatchTimer;
     private final WalletDB db;
+    private Logger logger = Logger.getLogger(MbwManager.class.getSimpleName());
 
     @Nonnull
     public static synchronized MbwManager getInstance(Context context) {
@@ -275,7 +274,6 @@ public class MbwManager {
     public final GlobalBlockExplorerManager _blockExplorerManager;
     private HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
 
-    private final Queue<LogEntry> _wapiLogs;
     private Cache<String, Object> _semiPersistingBackgroundObjects = CacheBuilder.newBuilder().maximumSize(10).build();
 
     private WalletConfiguration configuration;
@@ -284,8 +282,7 @@ public class MbwManager {
     private boolean appInForeground = false;
 
     private MbwManager(Context evilContext) {
-        Queue<LogEntry> unsafeWapiLogs = EvictingQueue.create(100);
-        _wapiLogs = Queues.synchronizedQueue(unsafeWapiLogs);
+
         _applicationContext = checkNotNull(evilContext.getApplicationContext());
         //accountsDao = AccountsDB.getDatabase(_applicationContext).contextDao();
         _environment = MbwEnvironment.verifyEnvironment();
@@ -353,7 +350,6 @@ public class MbwManager {
                 AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
         driver.execute(null, "PRAGMA foreign_keys=ON;", 0, null);
 
-
         // Check the device MemoryClass and set the scrypt-parameters for the PDF backup
         ActivityManager am = (ActivityManager) _applicationContext.getSystemService(Context.ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
@@ -391,6 +387,19 @@ public class MbwManager {
         _versionManager.initBackgroundVersionChecker();
 
         _blockExplorerManager = getBlockExplorerManager(preferences);
+
+        startLogger();
+
+    }
+
+    private void startLogger() {
+        LogManager.getLogManager().reset();
+        Logger rootLogger = LogManager.getLogManager().getLogger("");
+        DbLogHandler handler = new DbLogHandler(db);
+        rootLogger.addHandler(handler);
+        rootLogger.addHandler(new AndroidLogHandler());
+        handler.cleanUp();
+        logger.log(Level.INFO,"Logging started...");
     }
 
     private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {
@@ -522,59 +531,16 @@ public class MbwManager {
     }
 
     private LtApiClient initLt() {
-        return new LtApiClient(_environment.getLtEndpoints(), new LtApiClient.Logger() {
-            @Override
-            public void logError(String message, Exception e) {
-                Log.e("", message, e);
-                retainLog(Level.SEVERE, message);
-            }
-
-            @Override
-            public void logError(String message) {
-                Log.e("", message);
-                retainLog(Level.SEVERE, message);
-            }
-
-            @Override
-            public void logInfo(String message) {
-                Log.i("", message);
-                retainLog(Level.INFO, message);
-            }
-        });
+        return new LtApiClient(_environment.getLtEndpoints());
     }
-
-    private void retainLog(Level level, String message) {
-        _wapiLogs.add(new LogEntry(message, level, new Date()));
-    }
-
-    public WapiLogger retainingWapiLogger = new WapiLogger() {
-        @Override
-        public void logError(String message) {
-            Log.e("Wapi", message);
-            retainLog(Level.SEVERE, message);
-        }
-
-        @Override
-        public void logError(String message, Exception e) {
-            Log.e("Wapi", message, e);
-            retainLog(Level.SEVERE, message);
-        }
-
-        @Override
-        public void logInfo(String message) {
-            Log.i("Wapi", message);
-            retainLog(Level.INFO, message);
-        }
-    };
 
     private WapiClientElectrumX initWapi() {
         String version = "" + BuildConfig.VERSION_CODE;
 
         List<TcpEndpoint> tcpEndpoints = configuration.getElectrumEndpoints();
         List<HttpEndpoint> wapiEndpoints = configuration.getWapiEndpoints();
-        WapiClientElectrumX wapiClientElectrumX =  new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
-                tcpEndpoints.toArray(new TcpEndpoint[0]),
-                retainingWapiLogger, version);
+        WapiClientElectrumX wapiClientElectrumX = new WapiClientElectrumX(new ServerEndpoints(wapiEndpoints.toArray(new HttpEndpoint[0])),
+                tcpEndpoints.toArray(new TcpEndpoint[0]), version);
 
         wapiClientElectrumX.setNetworkConnected(Utils.isConnected(_applicationContext));
         return wapiClientElectrumX;
@@ -592,8 +558,7 @@ public class MbwManager {
         _torManager.setStateListener(new TorManager.TorState() {
             @Override
             public void onStateChange(String status, final int percentage) {
-                Log.i("Tor init", status + ", " + percentage);
-                retainLog(Level.INFO, "Tor: " + status + ", " + percentage);
+                logger.log(Level.INFO, "Tor: " + status + ", " + percentage);
                 _torHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -861,6 +826,10 @@ public class MbwManager {
         List<String> cryptocurrencies = getWalletManager(false).getCryptocurrenciesNames();
         Collections.sort(cryptocurrencies, String::compareToIgnoreCase);
         return cryptocurrencies;
+    }
+
+    public List<Logs> getLogs() {
+        return db.getLogsQueries().select().executeAsList();
     }
 
     private class AccountEventManager implements AbstractBtcAccount.EventHandler {
@@ -1557,10 +1526,6 @@ public class MbwManager {
 
     public WapiClientElectrumX getWapi() {
         return _wapi;
-    }
-
-    public Queue<LogEntry> getWapiLogs() {
-        return _wapiLogs;
     }
 
     public TorManager getTorManager() {

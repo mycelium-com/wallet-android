@@ -68,12 +68,6 @@ public interface Wapi {
 
    String MYCELIUM_VERSION_HEADER = "MyceliumVersion";
 
-   /**
-    * Get the logger configured for this {@link Wapi}
-    *
-    * @return the logger configured for this {@link Wapi}
-    */
-   com.mycelium.WapiLogger getLogger();
 
    /**
     * Query the full set of unspent outputs for a set of addresses
