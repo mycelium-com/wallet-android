@@ -22,8 +22,12 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
             }
 
     override fun launchService(activity: Activity, mbwManager: MbwManager, activeReceivingAddress: GenericAddress) {
+        val buySell = if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest)
+            arrayOf(activity.getString(R.string.buy_eth), activity.getString(R.string.sell_eth))
+        else arrayOf(activity.getString(R.string.buy_bitcoin), activity.getString(R.string.sell_bitcoin))
+
         AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setItems(arrayOf("BUY", "SELL")) { _, position ->
+                .setItems(buySell) { _, position ->
                     when (position) {
                         0 -> {
                             activity.startActivity(Intent(Intent.ACTION_VIEW,
