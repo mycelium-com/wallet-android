@@ -26,7 +26,10 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
             arrayOf(activity.getString(R.string.buy_eth), activity.getString(R.string.sell_eth))
         else arrayOf(activity.getString(R.string.buy_bitcoin), activity.getString(R.string.sell_bitcoin))
 
-        AlertDialog.Builder(activity, R.style.MyceliumModern_Dialog_BlueButtons)
+        AlertDialog.Builder(activity, R.style.BuySell_Dialog)
+                .setTitle(if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest)
+                    activity.getString(R.string.dialog_title_buy_sell_eth_sepa) else
+                    activity.getString(R.string.dialog_sepa_buy_sell_btc))
                 .setItems(buySell) { _, position ->
                     when (position) {
                         0 -> {
