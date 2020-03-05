@@ -46,6 +46,7 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                     .setAdapter(adapter) { _, i ->
                         if (regions[adapter.getItem(i)] == true) {
                             context.startActivity(Intent(context, SimplexMainActivity::class.java)
+                                    .putExtra("coinType", receivingAddress.coinType.symbol)
                                     .putExtra("walletAddress", receivingAddress.toString()))
                         }
                     }
