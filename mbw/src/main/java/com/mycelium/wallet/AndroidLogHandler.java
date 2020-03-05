@@ -12,6 +12,7 @@ class AndroidLogHandler extends Handler {
     final private static int SEVERE_LOG = 1000;
     final private static int WARNING_LOG = 900;
     final private static int INFO_LOG = 800;
+
     public AndroidLogHandler() {
     }
 
