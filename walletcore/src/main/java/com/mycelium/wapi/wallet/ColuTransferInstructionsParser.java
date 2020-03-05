@@ -132,7 +132,7 @@ public class ColuTransferInstructionsParser {
                 }
             }
         } catch(IndexOutOfBoundsException ex) {
-            logger.log(Level.SEVERE,"retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
+            logger.log(Level.SEVERE, "retrieveOutputIndexesFromScript(" + HexUtils.toHex(scriptBytes) + ") script could not be parsed. Assuming invalid script.");
             throw new ParseException("Can't parse the script", offset);
             // TODO: 30.01.18 make it not throw here. we throw as we are not 100% sure this is not a colored coind script.
         }
