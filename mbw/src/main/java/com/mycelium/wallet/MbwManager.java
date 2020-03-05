@@ -827,7 +827,11 @@ public class MbwManager {
         return cryptocurrencies;
     }
 
-    public List<Logs> getLogs() {
+    public List<Logs> getLastLogsDesc(long limit) {
+        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+    }
+
+    public List<Logs> getLogsAsc() {
         return db.getLogsQueries().select().executeAsList();
     }
 
