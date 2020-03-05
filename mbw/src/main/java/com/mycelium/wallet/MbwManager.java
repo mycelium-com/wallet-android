@@ -183,7 +183,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -399,7 +398,7 @@ public class MbwManager {
         rootLogger.addHandler(handler);
         rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
-        logger.log(Level.INFO,"Logging started...");
+        logger.log(Level.INFO, "Logging started...");
     }
 
     private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {
@@ -828,7 +827,11 @@ public class MbwManager {
         return cryptocurrencies;
     }
 
-    public List<Logs> getLogs() {
+    public List<Logs> getLastLogsDesc(long limit) {
+        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+    }
+
+    public List<Logs> getLogsAsc() {
         return db.getLogsQueries().select().executeAsList();
     }
 

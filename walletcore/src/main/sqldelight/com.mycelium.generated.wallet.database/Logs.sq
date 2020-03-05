@@ -11,18 +11,10 @@ INSERT INTO Logs(dateMillis, level, message)
 VALUES (?, ?, ?);
 
 select:
-SELECT * FROM Logs;
+SELECT * FROM Logs ORDER BY dateMillis ASC;
 
-selectSince:
-SELECT * FROM Logs
-WHERE dateMillis > (?);
-
-deleteSince:
-DELETE FROM Logs
-WHERE dateMillis > (?);
-
-delete:
-DELETE FROM Logs;
+selectWithLimit:
+SELECT * FROM Logs ORDER BY dateMillis DESC LIMIT (?) ;
 
 cleanUp:
 DELETE FROM Logs WHERE dateMillis <

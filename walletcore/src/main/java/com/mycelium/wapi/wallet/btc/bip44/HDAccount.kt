@@ -267,7 +267,7 @@ open class HDAccount(
         var mode = proposedMode
         checkNotArchived()
         syncTotalRetrievedTransactions = 0
-        _logger.log(Level.INFO,"Starting sync: $mode")
+        _logger.log(Level.INFO, "Starting sync: $mode")
         if (needsDiscovery()) {
             mode = SyncMode.FULL_SYNC_CURRENT_ACCOUNT_FORCED
         }
