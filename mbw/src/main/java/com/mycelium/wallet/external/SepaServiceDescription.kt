@@ -34,11 +34,11 @@ class SepaServiceDescription : BuySellServiceDescriptor(R.string.sepa_buy_sell_t
                     when (position) {
                         0 -> {
                             activity.startActivity(Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(BuildConfig.SEPA_BUY_ETH_BITS_OF_GOLD)))
+                                    Uri.parse(BuildConfig.SEPA_BUY_BITS_OF_GOLD)))
                         }
                         1 -> {
                             activity.startActivity(Intent(Intent.ACTION_VIEW,
-                                    Uri.parse(BuildConfig.SEPA_SELL_ETH_BITS_OF_GOLD)))
+                                    Uri.parse(BuildConfig.SEPA_SELL_BITS_OF_GOLD)))
                         }
                     }
                 }.create().show()
