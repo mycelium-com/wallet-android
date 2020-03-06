@@ -1,7 +1,6 @@
 package com.mycelium.wapi;
 
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.WapiLogger;
 
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import org.junit.Test;
@@ -12,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class ColuTransferInstructionsParserTest {
-    private final ColuTransferInstructionsParser coluTransferInstructionsParser = new ColuTransferInstructionsParser(WapiLogger.NULL_LOGGER);
+    private final ColuTransferInstructionsParser coluTransferInstructionsParser = new ColuTransferInstructionsParser();
     @Test
     public void getAmountTotalBytesSFFC() throws Exception {
         for (byte b: ColuTransferInstructionsParser.SFFC_FLAG_BYTES_MAP.keySet()) {

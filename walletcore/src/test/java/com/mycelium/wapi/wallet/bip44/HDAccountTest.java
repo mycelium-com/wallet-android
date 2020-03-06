@@ -8,7 +8,6 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -18,12 +17,10 @@ import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
-import com.squareup.sqldelight.db.SqlDriver;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,7 +30,6 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HDAccountTest {
     private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
@@ -45,8 +41,6 @@ public class HDAccountTest {
     public void setup() throws KeyCipher.InvalidKeyCipher {
         RandomSource fakeRandomSource = mock(RandomSource.class);
         Wapi fakeWapi = mock(Wapi.class);
-        WapiLogger fakeLogger = mock(WapiLogger.class);
-        when(fakeWapi.getLogger()).thenReturn(fakeLogger);
         LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
         BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
