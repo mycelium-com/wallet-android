@@ -8,7 +8,6 @@ import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -45,8 +44,6 @@ public class HDAccountTest {
     public void setup() throws KeyCipher.InvalidKeyCipher {
         RandomSource fakeRandomSource = mock(RandomSource.class);
         Wapi fakeWapi = mock(Wapi.class);
-        WapiLogger fakeLogger = mock(WapiLogger.class);
-        when(fakeWapi.getLogger()).thenReturn(fakeLogger);
         LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
         BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
