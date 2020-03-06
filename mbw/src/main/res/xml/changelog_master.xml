@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.3.3.0" versioncode="3030300">
+        <change>SEPA buy/sell BTC options updated</change>
+    </release>
     <release version="3.3.0.0" versioncode="3030000">
         <change>Ethereum support</change>
     </release>
