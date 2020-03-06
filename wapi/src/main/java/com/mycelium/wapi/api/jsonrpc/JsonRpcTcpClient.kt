@@ -360,8 +360,9 @@ open class JsonRpcTcpClient(private var endpoints : Array<TcpEndpoint>) {
     private fun internalWrite(msg: String): Boolean {
         var result = true
 
-        if (!isConnected.get())
+        if (!isConnected.get()) {
             return false
+        }
 
         try {
             val bytes = (msg + "\n").toByteArray()

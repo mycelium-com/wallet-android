@@ -408,7 +408,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Fetch updated or added transactions
-      if (transactionsToAddOrUpdate.size() > 0) {
+      if (!transactionsToAddOrUpdate.isEmpty()) {
          GetTransactionsResponse response;
          try {
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
@@ -439,7 +439,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // if we removed some UTXO because of a sync, it means that there are transactions
       // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
-      if (addressesToDiscover.size() > 0) {
+      if (!addressesToDiscover.isEmpty()) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
          } catch (WapiException ignore) {
@@ -453,7 +453,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return _wapi.getTransactions(fullRequest);
    }
 
-   protected abstract Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
+   protected abstract Set<BipDerivationType> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
    private static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
       Map<OutPoint, TransactionOutputEx> map = new HashMap<>();
@@ -464,6 +464,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
+      // TODO: simplify. The "if" is not needed.
       if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          handleNewExternalTransactionsInt(transactions);
          syncTotalRetrievedTransactions += transactions.size();
@@ -499,8 +500,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Store transaction locally
       _backing.putTransactions(transactions);
 
-      for (int i = 0; i < txArray.size(); i++) {
-         onNewTransaction(txArray.get(i));
+      for (Transaction t : txArray) {
+         onNewTransaction(t);
       }
    }
 

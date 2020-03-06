@@ -23,6 +23,7 @@ import com.mycelium.wapi.wallet.btc.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
+import kotlin.math.min
 
 open class HDAccount(
         protected var context: HDAccountContext,
@@ -38,6 +39,8 @@ open class HDAccount(
 
     protected var externalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
     protected var internalAddresses: MutableMap<BipDerivationType, BiMap<Address, Int>> = initAddressesMap()
+    private val safeLastExternalIndex: MutableMap<BipDerivationType, Int> = mutableMapOf()
+    private val safeLastInternalIndex: MutableMap<BipDerivationType, Int> = mutableMapOf()
     private var receivingAddressMap: MutableMap<AddressType, Address> = mutableMapOf()
 
     // public method that needs no synchronization
@@ -85,6 +88,7 @@ open class HDAccount(
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()
         }
+        initSafeLastIndexes(false)
     }
 
     override fun getId() = context.id
@@ -130,12 +134,21 @@ open class HDAccount(
         receivingAddressMap.clear()
         _cachedBalance = null
         initContext(isArchived)
+        initSafeLastIndexes(true)
         if (isActive) {
             ensureAddressIndexes()
             _cachedBalance = calculateLocalBalance()
         }
     }
 
+    private fun initSafeLastIndexes(reset: Boolean) {
+        listOf(BipDerivationType.BIP44,
+                BipDerivationType.BIP49,
+                BipDerivationType.BIP84).forEach {
+            safeLastExternalIndex[it] = if (reset) 0 else context.getLastExternalIndexWithActivity(it)
+            safeLastInternalIndex[it] = if (reset) 0 else context.getLastInternalIndexWithActivity(it)
+        }
+    }
     override fun getAvailableAddressTypes(): List<AddressType> =
         derivePaths.asSequence().map { it.addressType }.toList()
 
@@ -286,21 +299,18 @@ open class HDAccount(
         }
     }
 
-    private fun needsDiscovery() = !isArchived && context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System
-            .currentTimeMillis()
+    private fun needsDiscovery() = !isArchived &&
+            context.getLastDiscovery() + FORCED_DISCOVERY_INTERVAL_MS < System.currentTimeMillis()
 
     @Synchronized
     private fun discovery(): Boolean {
         try {
             // discovered as in "discovered maybe something. further exploration is needed."
-            // thus, method is done, once all are false.
-            var discovered = derivePaths.map { it to true }.toMap()
+            // thus, method is done once discovered is empty.
+            var discovered = derivePaths.toSet()
             do {
-                val pathsToDiscover = discovered.filter { it.value }
-                        .map { it.key }
-                        .toSet()
-                discovered = doDiscovery(pathsToDiscover)
-            } while (discovered.any { it.value })
+                discovered = doDiscovery(discovered)
+            } while (discovered.isNotEmpty())
         } catch (e: WapiException) {
             _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e)
             postEvent(Event.SERVER_CONNECTION_ERROR)
@@ -321,31 +331,32 @@ open class HDAccount(
      * @throws com.mycelium.wapi.api.WapiException
      */
     @Throws(WapiException::class)
-    private fun doDiscovery(derivePaths: Set<BipDerivationType> = this.derivePaths): Map<BipDerivationType, Boolean> {
+    private fun doDiscovery(derivePaths: Set<BipDerivationType>): Set<BipDerivationType> {
         // Ensure that all addresses in the look ahead window have been created
         ensureAddressIndexes()
         return doDiscoveryForAddresses(derivePaths.flatMap { getAddressesToDiscover(it) })
     }
 
-    private fun getAddressesToDiscover(derivationType: BipDerivationType): ArrayList<Address> {
+    private fun getAddressesToDiscover(derivationType: BipDerivationType): List<Address> {
+        // getAddressesToDiscover has to progress covering all addresses while last address with
+        // activity might advance in jumps from sending to oneself from an old UTXO address to one
+        // 30 later.
         // Make look ahead address list
-        val lookAhead = ArrayList<Address>(EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH)
-        val extInverse = externalAddresses[derivationType]!!.inverse()
-        val intInverse = internalAddresses[derivationType]!!.inverse()
-
-        for (i in 0 until EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-            val externalAddress = extInverse[context.getLastExternalIndexWithActivity(derivationType) + 1 + i]
-                    ?: continue
-            lookAhead.add(externalAddress)
-        }
-        for (i in 0 until INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH) {
-            lookAhead.add(intInverse[context.getLastInternalIndexWithActivity(derivationType) + 1 + i]!!)
-        }
+        val lastExternalIndex = min(context.getLastExternalIndexWithActivity(derivationType), safeLastExternalIndex[derivationType] ?: 0)
+        val lastInternalIndex = min(context.getLastInternalIndexWithActivity(derivationType), safeLastInternalIndex[derivationType] ?: 0)
+        safeLastExternalIndex[derivationType] = lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        safeLastInternalIndex[derivationType] = lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+        val lookAhead =
+                (externalAddresses[derivationType]!!.filter {
+                    lastExternalIndex <= it.value && it.value <= lastExternalIndex + EXTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                } + internalAddresses[derivationType]!!.filter {
+                    lastInternalIndex <= it.value && it.value <= lastInternalIndex + INTERNAL_FULL_ADDRESS_LOOK_AHEAD_LENGTH
+                }).map { it.key }
         return lookAhead
     }
 
     @Throws(WapiException::class)
-    override fun doDiscoveryForAddresses(addresses: List<Address>): Map<BipDerivationType, Boolean> {
+    override fun doDiscoveryForAddresses(addresses: List<Address>): Set<BipDerivationType> {
         // Do look ahead query
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
@@ -353,7 +364,7 @@ open class HDAccount(
         val ids = result.txIds
         if (ids.isEmpty()) {
             // nothing found
-            return derivePaths.map { it to false }.toMap()
+            return emptySet()
         }
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
@@ -362,12 +373,11 @@ open class HDAccount(
             val transactions = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
-        return derivePaths.map { derivationType ->
-            // Return true if the last external or internal index has changed
-            derivationType to
+        return derivePaths.filter { derivationType ->
+            // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
                             || lastInternalIndexesBefore[derivationType] != context.getLastInternalIndexWithActivity(derivationType))
-        }.toMap()
+        }.toSet()
     }
 
     private fun updateUnspentOutputs(mode: SyncMode): Boolean {
@@ -511,12 +521,8 @@ open class HDAccount(
         for (out in t.outputs) {
             val receivingAddress = out.script.getAddress(_network)
             val derivationType = getDerivationTypeByAddress(receivingAddress)
-            val externalIndex = externalAddresses[derivationType]?.get(receivingAddress)
-            if (externalIndex != null) {
-                updateLastExternalIndex(externalIndex, derivationType)
-            } else {
-                updateLastInternalIndex(receivingAddress)
-            }
+            updateLastExternalIndex(receivingAddress, derivationType)
+            updateLastInternalIndex(receivingAddress, derivationType)
         }
         ensureAddressIndexes()
     }
@@ -526,11 +532,13 @@ open class HDAccount(
      *
      * @param externalIndex new index
      */
-    protected fun updateLastExternalIndex(externalIndex: Int, derivationType: BipDerivationType) {
-        // Sends coins to an external address, update internal max index if
-        // necessary
-        context.setLastExternalIndexWithActivity(derivationType,
-                Math.max(context.getLastExternalIndexWithActivity(derivationType), externalIndex))
+    protected fun updateLastExternalIndex(receivingAddress: Address, derivationType: BipDerivationType) {
+        externalAddresses[derivationType]?.get(receivingAddress)?.also { externalIndex ->
+            // Sends coins to an external address, update internal max index if necessary
+            if (context.getLastExternalIndexWithActivity(derivationType) < externalIndex) {
+                context.setLastExternalIndexWithActivity(derivationType, externalIndex)
+            }
+        }
     }
 
     /**
@@ -538,15 +546,12 @@ open class HDAccount(
      *
      * @param receivingAddress
      */
-    protected fun updateLastInternalIndex(receivingAddress: Address) {
-        val derivationType = getDerivationTypeByAddress(receivingAddress)
-        val internalIndex = internalAddresses[derivationType]?.get(receivingAddress)
-        if (internalIndex != null) {
-            // Sends coins to an internal address, update internal max index
-            // if necessary
-
-            context.setLastInternalIndexWithActivity(derivationType,
-                    Math.max(context.getLastInternalIndexWithActivity(derivationType), internalIndex))
+    protected fun updateLastInternalIndex(receivingAddress: Address, derivationType: BipDerivationType) {
+        internalAddresses[derivationType]?.get(receivingAddress)?.also { internalIndex ->
+            // Sends coins to an internal address, update internal max index if necessary
+            if (context.getLastInternalIndexWithActivity(derivationType) < internalIndex) {
+                context.setLastInternalIndexWithActivity(derivationType, internalIndex)
+            }
         }
     }
 
