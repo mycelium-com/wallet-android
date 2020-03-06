@@ -73,7 +73,7 @@ import java.util.logging.Logger;
 
 public class ConnectionLogsActivity extends Activity {
 
-    private final static long MAX_TO_SHOW = 10000;
+    private final static long MAX_TO_SHOW = 100;
 
     public static void callMe(Activity activity) {
         Intent intent = new Intent(activity, ConnectionLogsActivity.class);
