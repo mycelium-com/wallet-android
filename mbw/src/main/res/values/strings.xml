@@ -1289,7 +1289,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="gaps_button_ok">OK</string>
     <string name="gaps_button_ignore">Ignore</string>
     <string name="hd_eth_account">Add Ethereum Account</string>
-    <string name="connection_logs">Connection Logs</string>
+    <string name="connection_logs">Logs</string>
     <string name="fio_requires_hd_account">Currently you can only link HD Bitcoin accounts to FIO labels. Please switch to another account.</string>
     <string name="confirm_fio_link">Do you want to register a FIO address for your HD Bitcoin account %1$s?</string>
     <string name="partner_fiopresale">FIO Address Presale</string>
@@ -1328,10 +1328,16 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="not_correct_address_type">Not correct address type</string>
     <string name="export_fio">Export FIO public key</string>
     <string name="export_fio_public_key_title">Export FIO public key</string>
-    <string name="buy_ethereum">BUY ETH</string>
-    <string name="sepa_eth_buy_sell_description">Buy ETH using Single Euro Payment Area.</string>
+    <string name="buy_ethereum">BUY / SELL ETH</string>
+    <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
     <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently, it is limited to local outgoing transactions only and will be improved in future releases.\n\nPlease use block explorer to observe the full transaction history of your ETH account.</string>
+    <string name="buy_eth">BUY ETH</string>
+    <string name="sell_eth">SELL ETH</string>
+    <string name="buy_bitcoin">BUY BITCOIN</string>
+    <string name="sell_bitcoin">SELL BITCOIN</string>
+    <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
+    <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
     <string name="send_mail">Send mail...</string>
 </resources>

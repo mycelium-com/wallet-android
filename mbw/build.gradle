@@ -268,6 +268,8 @@ android {
                 sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
                 sepaEth = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
+                sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
+                sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -299,6 +301,8 @@ android {
                 sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
                 sepaEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&crypto=eth"
+                sepaBuyBitsOfGold = "https://www.bitsofgold.co.il/order/buy?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=ci"
+                sepaSellBitsOfGold = "https://www.bitsofgold.co.il/order/sell?order_id=null&page=0&provider=mycelium&utm_source=Mycelium&utm_medium=mobile_app&utm_campaign=co"
             }
             logger.info("Signing config is ", signingConfig)
         }
@@ -322,6 +326,8 @@ android {
         variant.buildConfigField "String", "SEPA", "\"${flavor.ext.sepa}\""
         variant.buildConfigField "String", "SAFELLO_ETH", "\"${flavor.ext.safelloEth}\""
         variant.buildConfigField "String", "SEPA_ETH", "\"${flavor.ext.sepaEth}\""
+        variant.buildConfigField "String", "SEPA_BUY_BITS_OF_GOLD", "\"${flavor.ext.sepaBuyBitsOfGold}\""
+        variant.buildConfigField "String", "SEPA_SELL_BITS_OF_GOLD", "\"${flavor.ext.sepaSellBitsOfGold}\""
     }
 
     testOptions {
