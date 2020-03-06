@@ -1339,4 +1339,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sell_bitcoin">SELL BITCOIN</string>
     <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
+    <string name="send_mail">Send mail...</string>
 </resources>

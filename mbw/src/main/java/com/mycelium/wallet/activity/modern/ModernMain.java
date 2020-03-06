@@ -54,7 +54,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
@@ -507,10 +506,9 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void openMyceliumHelp() {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(Constants.MYCELIUM_WALLET_HELP_URL));
-        startActivity(intent);
-        Toast.makeText(this, R.string.going_to_mycelium_com_help, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(Intent.ACTION_SENDTO)
+                .setData(Uri.parse("mailto:support@mycelium.com"));
+        startActivity(Intent.createChooser(intent, getString(R.string.send_mail)));
     }
 
     public void setRefreshAnimation() {
