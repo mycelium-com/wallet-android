@@ -51,6 +51,12 @@ class EthAccount(private val accountContext: EthAccountContext,
         return accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
     }
 
+    init {
+        if (isActive) {
+            EthErc20TransactionService.queryHistory(receiveAddress.addressString)
+        }
+    }
+
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
