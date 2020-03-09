@@ -6,7 +6,8 @@ import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.AesKeyCipher
+import com.mycelium.wapi.wallet.SecureKeyValueStore
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.*
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager

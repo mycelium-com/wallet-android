@@ -8,7 +8,7 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ColuTransferInstructionsParserTest {
     private final ColuTransferInstructionsParser coluTransferInstructionsParser = new ColuTransferInstructionsParser();
