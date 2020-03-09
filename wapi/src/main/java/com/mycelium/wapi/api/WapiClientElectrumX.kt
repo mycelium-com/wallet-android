@@ -8,8 +8,8 @@ import com.mrd.bitlib.model.Transaction
 import com.mrd.bitlib.model.TransactionInput
 import com.mrd.bitlib.util.HexUtils
 import com.mrd.bitlib.util.Sha256Hash
-import com.mycelium.WapiLogger
 import com.mycelium.net.ServerEndpoints
+import com.mycelium.wapi.api.exception.RpcResponseException
 import com.mycelium.wapi.api.jsonrpc.*
 import com.mycelium.wapi.api.lib.FeeEstimation
 import com.mycelium.wapi.api.lib.FeeEstimationMap
@@ -21,7 +21,8 @@ import com.mycelium.wapi.model.TransactionStatus
 import kotlinx.coroutines.CancellationException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
 /**
@@ -30,13 +31,12 @@ import kotlin.collections.ArrayList
 class WapiClientElectrumX(
         serverEndpoints: ServerEndpoints,
         endpoints: Array<TcpEndpoint>,
-        logger: WapiLogger,
         versionCode: String)
-    : WapiClient(serverEndpoints, logger, versionCode), ServerListChangedListener {
+    : WapiClient(serverEndpoints, versionCode), ServerElectrumListChangedListener {
+    private val logger = Logger.getLogger(WapiClientElectrumX::class.java.getSimpleName())
     @Volatile
     private var bestChainHeight = -1
     private var isNetworkConnected: Boolean = true
-    private var isInForeground = true
     private val receiveHeaderCallback = { response: AbstractResponse ->
         val rpcResponse = response as RpcResponse
         bestChainHeight = if (rpcResponse.hasResult) {
@@ -45,15 +45,10 @@ class WapiClientElectrumX(
             rpcResponse.getParams(Array<BlockHeader>::class.java)!![0].height
         }
     }
-    private var rpcClient = JsonRpcTcpClient(endpoints, logger)
-
-    override fun setAppInForeground(isInForeground: Boolean) {
-        this.isInForeground = isInForeground
-        updateClient()
-    }
+    private var rpcClient = JsonRpcTcpClient(endpoints)
 
     private fun updateClient() {
-        rpcClient.setActive(isInForeground && isNetworkConnected)
+        rpcClient.setActive(isNetworkConnected)
     }
 
     override fun setNetworkConnected(isNetworkConnected: Boolean) {
@@ -66,28 +61,8 @@ class WapiClientElectrumX(
     }
 
     init {
-        rpcClient.subscribe(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
+        rpcClient.addSubscription(Subscription(HEADRES_SUBSCRIBE_METHOD, RpcParams.listParams(), receiveHeaderCallback))
         rpcClient.start()
-    }
-
-    /*
-        As rpcClient.write() will return TimeoutException if SMALL_RESPONSE_TIMEOUT milliseconds are exceeded
-        and also immediately breaks the connection, we should try to ask the same request from another
-        server. It does make sense because the server could be overloaded and handle responses very slow.
-        We will repeat the request in a loop until reaching a bigger timeout.
-        Methods tryUntilTimeoutExceeded and tryUntilTimeoutExceededSingle are intended to deal with the logic above
-    */
-
-    private fun <T> tryUntilTimeoutExceeded(timeoutMs: Long, func: () -> T): T {
-        val startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            try {
-                return func()
-            } catch (ex: TimeoutException) {
-                // ignore
-            }
-        }
-        throw TimeoutException()
     }
 
     override fun queryUnspentOutputs(request: QueryUnspentOutputsRequest): WapiResponse<QueryUnspentOutputsResponse> {
@@ -104,9 +79,8 @@ class WapiClientElectrumX(
                 val addrScriptHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(LIST_UNSPENT_METHOD, RpcParams.listParams(addrScriptHash)))
             }
-            val unspentsArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
-                rpcClient.write(requestsList).responses
-            }
+
+            val unspentsArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
 
             //Fill temporary indexes map in order to find right address
             requestsList.forEachIndexed { index, req ->
@@ -114,7 +88,7 @@ class WapiClientElectrumX(
             }
             unspentsArray.forEach { response ->
                 val outputs = response.getResult(Array<UnspentOutputs>::class.java)
-                outputs!!.forEach {
+                outputs?.forEach {
                     val script = StandardTransactionBuilder.createOutput(requestAddressesList[requestsIndexesMap[response.id.toString()]!!],
                             it.value, requestAddressesList[0].network).script
                     unspent.add(TransactionOutputEx(OutPoint(Sha256Hash.fromString(it.txHash), it.txPos), if (it.height > 0) it.height else -1,
@@ -124,7 +98,7 @@ class WapiClientElectrumX(
             }
 
             return WapiResponse(QueryUnspentOutputsResponse(bestChainHeight, unspent))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             return WapiResponse<QueryUnspentOutputsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -139,9 +113,7 @@ class WapiClientElectrumX(
                 val addrScripthHash = it.scriptHash.toHex()
                 requestsList.add(RpcRequestOut(GET_HISTORY_METHOD, RpcParams.listParams(addrScripthHash)))
             }
-            val transactionHistoryArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
-                rpcClient.write(requestsList).responses
-            }
+            val transactionHistoryArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
 
             val outputs = transactionHistoryArray.filter { it.hasResult }.flatMap {
                 it.getResult(Array<TransactionHistoryInfo>::class.java)!!.asIterable()
@@ -152,7 +124,7 @@ class WapiClientElectrumX(
                 return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_RESPONSE_TOO_LARGE, null)
             }
             return WapiResponse(QueryTransactionInventoryResponse(bestChainHeight, txIds))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             return WapiResponse<QueryTransactionInventoryResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -175,7 +147,7 @@ class WapiClientElectrumX(
                         rbfRisk)
             }
             WapiResponse(GetTransactionsResponse(transactions))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             WapiResponse<GetTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -186,14 +158,12 @@ class WapiClientElectrumX(
         }
         try {
             val txHex = HexUtils.toHex(request.rawTransaction)
-            val response = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
-                rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex))
-            }
+            val response = rpcClient.write(BROADCAST_METHOD, RpcParams.listParams(txHex), MAX_RESPONSE_TIMEOUT)
 
             // TODO return back to a single RpcResponse object instead of list
             //  as we don't use several TCP clients anymore
             return handleBroadcastResponse(listOf(response))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -201,7 +171,7 @@ class WapiClientElectrumX(
     fun handleBroadcastResponse(responseList: List<RpcResponse>): WapiResponse<BroadcastTransactionResponse> {
         try {
             if (responseList.all { it.hasError }) {
-                responseList.forEach { response -> logger.logError(response.error?.toString()) }
+                responseList.forEach { response -> logger.log(Level.SEVERE, response.error?.toString(), response.error) }
                 val firstError = responseList[0].error
                         ?: return WapiResponse<BroadcastTransactionResponse>(Wapi.ERROR_CODE_PARSING_ERROR, null)
                 val (errorCode, errorMessage) = if (firstError.code > 0) {
@@ -246,7 +216,7 @@ class WapiClientElectrumX(
                         rbfRisk)
             }
             return WapiResponse(CheckTransactionsResponse(transactionsArray))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             return WapiResponse<CheckTransactionsResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
@@ -306,12 +276,11 @@ class WapiClientElectrumX(
         val resultList = ArrayList<TransactionX>()
 
         for (batch in requestsList) {
-            val responses = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
-                rpcClient.write(batch).responses
-            }
+            val responses = rpcClient.write(batch, MAX_RESPONSE_TIMEOUT).responses
+
             val txs = responses.mapNotNull {
                 if (it.hasError) {
-                    logger.logError("Transactions retrieval  failed: ${it.error}")
+                    logger.log(Level.INFO, "Transactions retrieval  failed: ${it.error}")
                     null
                 } else {
                     it.getResult(TransactionX::class.java).apply {
@@ -337,9 +306,7 @@ class WapiClientElectrumX(
                 requestsList.add(RpcRequestOut(ESTIMATE_FEE_METHOD, RpcParams.listParams(nBlocks)))
             }
 
-            val estimatesArray = tryUntilTimeoutExceeded(MAX_RESPONSE_TIMEOUT) {
-                rpcClient.write(requestsList).responses
-            }
+            val estimatesArray = rpcClient.write(requestsList, MAX_RESPONSE_TIMEOUT).responses
             val requestIdToBlocks = requestsList.map {
                 it.id to (it.params as RpcListParams<*>).value[0] as Int
             }.toMap()
@@ -354,14 +321,14 @@ class WapiClientElectrumX(
                 feeEstimationMap[requestIdToBlocks[response.id]] = Bitcoins.valueOf(response.getResult(Double::class.java)!!)
             }
             return WapiResponse(MinerFeeEstimationResponse(FeeEstimation(feeEstimationMap, Date())))
-        } catch (ex: TimeoutException) {
+        } catch (ex: RpcResponseException) {
             return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_NO_SERVER_CONNECTION, null)
         }
     }
 
     @Suppress("unused")
     fun serverFeatures(): ServerFeatures {
-        val response = rpcClient.write(FEATURES_METHOD, RpcParams.listParams())
+        val response = rpcClient.write(FEATURES_METHOD, RpcParams.listParams(), MAX_RESPONSE_TIMEOUT)
         return response.getResult(ServerFeatures::class.java)!!
     }
 
@@ -374,7 +341,7 @@ class WapiClientElectrumX(
         private const val HEADRES_SUBSCRIBE_METHOD = "blockchain.headers.subscribe"
         private const val GET_HISTORY_METHOD = "blockchain.scripthash.get_history"
         private const val GET_TRANSACTION_BATCH_LIMIT = 10
-        private val MAX_RESPONSE_TIMEOUT = TimeUnit.MINUTES.toMillis(5)
+        private val MAX_RESPONSE_TIMEOUT = TimeUnit.MINUTES.toMillis(1)
         private val errorRegex = Regex("the transaction was rejected by network rules.\\n\\n([0-9]*): (.*)\\n.*")
     }
 }
@@ -427,6 +394,6 @@ data class TransactionHistoryInfo(
     }
 }
 
-interface ServerListChangedListener {
+interface ServerElectrumListChangedListener {
     fun serverListChanged(newEndpoints: Array<TcpEndpoint>)
 }

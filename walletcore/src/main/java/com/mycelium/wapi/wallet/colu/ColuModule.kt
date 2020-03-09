@@ -52,7 +52,8 @@ class ColuModule(val networkParameters: NetworkParameters,
                 var linked = singleAddressModule.getAccountById(saId) as SingleAddressAccount?
                 if (linked == null) {
                     linked = singleAddressModule.createAccount(AddressSingleConfig(btcAddress)) as SingleAddressAccount
-                    singleAddressModule.createLabel(it.label + " Bitcoin", linked.id)
+                    val label = singleAddressModule.createLabel(it.label + " Bitcoin")
+                    storeLabel(linked.id, label)
                 }
                 it.linkedAccount = linked
             }
@@ -64,7 +65,7 @@ class ColuModule(val networkParameters: NetworkParameters,
     }
 
     private val accounts = mutableMapOf<UUID, WalletAccount<*>>()
-    override fun getId(): String = ID
+    override val id = ID
 
     override fun getAccounts(): List<WalletAccount<*>> = accounts.values.toList()
 
@@ -127,7 +128,8 @@ class ColuModule(val networkParameters: NetworkParameters,
         }
         accounts[result.id] = result
         val baseName = createColuAccountLabel(coinType)
-        result.label = createLabel(baseName, result.id)
+        result.label = createLabel(baseName)
+        storeLabel(result.id, result.label)
 
         // Create a linked Colu account
         val saAccount = singleAddressModule.createAccount(when (config) {

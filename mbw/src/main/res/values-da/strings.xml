@@ -10,7 +10,7 @@
     <string name="advanced">Avanceret</string>
     <string name="clipboard">Udklipsholder</string>
     <string name="enter_wordlist">Indtast ordlisten</string>
-    <string name="hd_account">Tilføj en HD-konto</string>
+    <string name="hd_account">Tilføj en HD Bitcoin-konto</string>
     <string name="close">Luk</string>
     <string name="sending">Sender %1$s</string>
     <string name="receiving">Modtager %1$s</string>
@@ -90,15 +90,15 @@
     <string name="delete">Slet</string>
     <string name="payment_request">Betalingsanmodning</string>
     <string name="export_account_data_warning">Du er ved at eksportere følsomme data fra den valgte konto.\n\nEnhver, der opnår adgang til disse nøgler, kan overtage dine Bitcoins eller tilgå dine private oplysninger.\n\nVil du fortsætte?</string>
-    <string name="backup_all_warning">Du bør tage en sikkerhedskopi af dit master seed fra din tegnebog.\nEn sikkerhedskopi af dit master seed giver dig mulighed for at genskabe de midler, der er gemt på dine HD-konti, hvis du skulle tabe din enhed.\n\nVil du lave en kopi nu?</string>
+    <string name="backup_all_warning">Du bør tage en sikkerhedskopi af dit master seed fra din tegnebog.\nEn sikkerhedskopi af dit master seed giver dig mulighed for at genskabe de midler, der er gemt på dine HD Bitcoin-konti, hvis du skulle tabe din enhed.\n\nVil du lave en kopi nu?</string>
     <string name="export_to_clipboard_warning">Advarsel: Eksportering af den private nøgle til Udklipsholderen vil gøre den tilgængelig for andre apps.\n\nNote: Det er ikke nok at gemme den private nøgle til udklipsholderen, du skal også indsætte den et sikkert sted.\n\nVil du fortsætte?</string>
     <string name="found_clipboard_private_key_title">Privat nøgle fundet i udklipsholderen</string>
     <string name="exchange_source_not_available">Valutakurs ikke tilgængelig for %1$s</string>
-    <string name="my_own_address_warning">Bemærk: Du sender til en af dine egne adresser.</string>
-    <string name="read_only_warning">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Bemærk: Du sender til en af dine egne adresser.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Advarsel: Din tegnebog indeholder ikke den private nøgle for denne adresse.\nDu kan ikke bruge evt. modtagede mønter, medmindre du har den private nøgle et andet sted.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Tilføj adresse</string>
-    <string name="scan_address_book_desc">Skan Bitcoinadresse.</string>
-    <string name="clipboard_address_book_desc">Hent Bitcoinadresse fra udklipsholderen.</string>
+    <string name="scan_address_book_desc">Skan adresse.</string>
+    <string name="clipboard_address_book_desc">Hent adresse fra udklipsholderen.</string>
     <string name="get_private_key">Hent privat nøgle fra:</string>
     <string name="cold_storage_title">Brug fra papirtegnebog</string>
     <string name="cold_storage_desc">Du er ved at spendere fra en privat nøgle, der tilhører en papirtegnebog. Dette kan være en privat nøgle fra en papirsikkerhedskopi eller en privat nøgle fra en Bitcoinhæveautomat. Følgende formater understøttes:\n Privat nøgle, master seed, xPriv nøgle.\n\nNår denne transaktion er sendt ville alle spor af den blive slette fra den interne hukommelse.</string>
@@ -256,8 +256,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

@@ -40,6 +40,8 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import com.mycelium.wallet.activity.util.Pin;
 
+import static com.mycelium.wallet.Constants.BTC_BLOCK_TIME_IN_SECONDS;
+
 public class NewPinDialog extends PinDialog {
    private final CheckBox cbResettablePin;
 
@@ -67,7 +69,8 @@ public class NewPinDialog extends PinDialog {
       if (cbResettablePin.isChecked()) {
          txtInfo.setText(context.getString(
                R.string.pin_resettable_pin_info,
-               Utils.formatBlockcountAsApproxDuration(this.getContext(), Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN)
+               Utils.formatBlockcountAsApproxDuration(MbwManager.getInstance(context),
+                       Constants.MIN_PIN_BLOCKHEIGHT_AGE_RESET_PIN, BTC_BLOCK_TIME_IN_SECONDS)
          ));
       } else {
          txtInfo.setText(context.getString(R.string.pin_unresettable_pin_info));

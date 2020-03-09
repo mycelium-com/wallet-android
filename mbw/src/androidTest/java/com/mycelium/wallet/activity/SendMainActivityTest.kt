@@ -2,20 +2,21 @@ package com.mycelium.wallet.activity
 
 import android.app.Activity.RESULT_OK
 import android.app.Instrumentation
-import com.mycelium.wallet.activity.send.SendMainActivity
 import org.junit.Before
 import org.junit.Rule
 import android.content.Intent
 import android.app.Instrumentation.ActivityResult
+import androidx.test.InstrumentationRegistry
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-import androidx.test.rule.ActivityTestRule
 import com.mycelium.wallet.activity.StringHandlerActivity.RESULT_PRIVATE_KEY
 import com.mycelium.wallet.content.ResultType
+import androidx.test.rule.ActivityTestRule
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
-import com.mycelium.wallet.activity.send.SendMainActivity.ACCOUNT
+import com.mycelium.wallet.activity.GetAmountActivity.ACCOUNT
+import com.mycelium.wallet.activity.send.SendCoinsActivity
 import com.mycelium.wallet.activity.send.view.SelectableRecyclerView
 import org.junit.After
 import org.junit.Assert.*
@@ -25,15 +26,15 @@ import org.junit.Test
 class SendMainActivityTest {
     @Rule @JvmField
     // disable auto activity launch (launchActivity flag = false) to be able to launch it with intent
-    val sendMainActivityRule = ActivityTestRule(SendMainActivity::class.java, false, false)
-    private var sut: SendMainActivity? = null
+    val sendMainActivityRule = ActivityTestRule(SendCoinsActivity::class.java, false, false)
+    private var sut: SendCoinsActivity? = null
     private var receiversAddressesList: SelectableRecyclerView? = null
     private var activityMonitor: Instrumentation.ActivityMonitor? = null
     private val SCAN_RESULT_CODE = 2
     private val wifPrivkey = "926KDciwGhDW4Qda45QwRGeEvEVBoAWkMaizdoetUf7Lb2gtcC8"
     private val wifCompressedPrivkey = "cTDZUcUF7pvk7FWZtcHnUPZBRXvp7PhjzWsUN1ehxZVV8TkeA846"
     // SendMainActivity requires existing account on create
-    private val accountId = MbwManager.getInstance(getInstrumentation().targetContext).getWalletManager(false).getAccountIds()[0]
+    private val accountId = MbwManager.getInstance(InstrumentationRegistry.getTargetContext()).getWalletManager(false).getAccountIds()[0]
 
     @Before
     fun setUp() {

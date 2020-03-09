@@ -13,10 +13,7 @@ dependencies {
     implementation "com.squareup.okhttp:okhttp:$okhttpVersion"
     implementation "com.squareup.wire:wire-runtime:$wireVersion"
 
-    implementation "com.madgag.spongycastle:core:$spongyCoreVersion"
-    implementation "com.madgag.spongycastle:prov:$spongyProvVersion"
-    implementation "com.madgag.spongycastle:pkix:$spongyPkixVersion"
-    implementation "com.madgag.spongycastle:pg:$spongyPgVersion"
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
 
     testImplementation "junit:junit:$junitVersion"
 }

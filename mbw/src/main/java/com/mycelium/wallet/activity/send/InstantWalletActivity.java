@@ -151,6 +151,7 @@ public class InstantWalletActivity extends FragmentActivity {
    }
 
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+      super.onActivityResult(requestCode, resultCode, intent);
       if (requestCode == REQUEST_SCAN) {
          if (resultCode != RESULT_OK) {
             ScanActivity.toastScanError(resultCode, intent, this);
@@ -205,6 +206,10 @@ public class InstantWalletActivity extends FragmentActivity {
             ArrayList<String> wordList = intent.getStringArrayListExtra(EnterWordListActivity.MASTERSEED);
             String password = intent.getStringExtra(EnterWordListActivity.PASSWORD);
             InstantMasterseedActivity.callMe(this, wordList.toArray(new String[0]), password);
+         }
+      } else if (requestCode == StringHandlerActivity.IMPORT_SSS_CONTENT_CODE) {
+         if (resultCode == RESULT_OK) {
+            finish();
          }
       } else {
          throw new IllegalStateException("unknown return codes after scanning... " + requestCode + " " + resultCode);

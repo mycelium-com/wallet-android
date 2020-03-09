@@ -5,18 +5,18 @@
     <string name="add_unrelated_account_title">Přidat nesouvisející účet</string>
     <string name="import_seed_title">Import master seedu</string>
     <string name="import_words_title">Zadejte seznam slov</string>
-    <string name="add_account_desc">Mycelium podporuje HD účty a účty s jednou adresou. Všechny vytvořené HD účty jsou založeny na stejném master seedu.</string>
+    <string name="add_account_desc">Mycelium podporuje HD Bitcoin účty a účty s jednou adresou. Všechny vytvořené HD Bitcoin účty jsou založeny na stejném master seedu.</string>
     <string name="add_single_acc_info">Chcete-li přidat pouze adresu odvozenou od privátního klíče nebo nahrát adresu pouze pro sledování zůstatků, klepněte níže na \"Rozšířené nastavení\".</string>
-    <string name="scan_desc">Sken Bitcoin adresy, soukromého klíče nebo HD účtu.</string>
+    <string name="scan_desc">Sken Bitcoin adresy, soukromého klíče nebo HD Bitcoin účtu.</string>
     <string name="scan_seed">Skenování Seedu ze zálohy Mycelium</string>
-    <string name="use_acc_first">Můžete mít pouze jeden nepoužitý HD účet.</string>
+    <string name="use_acc_first">Můžete mít pouze jeden nepoužitý HD Bitcoin účet.</string>
     <string name="clipboard_desc">Importuje adresu nebo soukromý klíč ze schránky.</string>
     <string name="wordlist_des">Vytvoření Seedu ze seznamu slov</string>
     <string name="scan">Skenovat</string>
     <string name="advanced">Rozšířené</string>
     <string name="clipboard">Schránka</string>
     <string name="enter_wordlist">Zadejte seznam slov</string>
-    <string name="hd_account">Přidat HD účet</string>
+    <string name="hd_account">Přidat HD Bitcoin účet</string>
     <string name="close">Zavřít‏</string>
     <string name="sending">Odesílám %1$s</string>
     <string name="receiving">Přijímám %1$s</string>
@@ -101,15 +101,15 @@
     <string name="delete">Odstranit</string>
     <string name="payment_request">Žádost o platbu</string>
     <string name="export_account_data_warning">Chystáte se exportovat citlivá data zvoleného účtu.\n\nKaždý, kdo k těmto klíčům získá přístup, se může buď zmocnit Bitcoinů, které spravují, nebo informací, které mohou narušit vaše soukromí.\n\nChcete pokračovat?</string>
-    <string name="backup_all_warning">Měli byste zálohovat master seed vaší peněženky.\nZáloha vašeho master seedu vám dovolí obnovit vaše finance uložené na HD účtech v případě ztráty či poškození vašeho zařízení.\n\nChcete to udělat nyní?</string>
+    <string name="backup_all_warning">Měli byste zálohovat master seed vaší peněženky.\nZáloha vašeho master seedu vám dovolí obnovit vaše finance uložené na HD Bitcoin účtech v případě ztráty či poškození vašeho zařízení.\n\nChcete to udělat nyní?</string>
     <string name="export_to_clipboard_warning">Varování: Exportování soukromých dat účtu do schránky je odhaluje všem aplikacím ve vašem zařízení.\n\nPozn.: Nestačí uložit soukromá data do schránky, také je musíte někam bezpečně vložit.\n\nChcete pokračovat?</string>
     <string name="found_clipboard_private_key_title">Ve schránce byl nalezen soukromý klíč</string>
     <string name="exchange_source_not_available">Směnný kurz není pro %1$s dostupný</string>
-    <string name="my_own_address_warning">Pozn.: Posíláte na jednu z vlastních adres.</string>
-    <string name="read_only_warning">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Pozn.: Posíláte na jednu z vlastních adres.</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">Varování: Vaše peněženka nemá soukromý klíč pro tuto adresu.\nNemáte-li soukromý klíč jinde, nemůžete utratit obdržené mince.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Přidat adresu</string>
-    <string name="scan_address_book_desc">Naskenovat BTC adresu</string>
-    <string name="clipboard_address_book_desc">Získat bitcoinovou adresu ze schránky.</string>
+    <string name="scan_address_book_desc">Naskenovat adresu</string>
+    <string name="clipboard_address_book_desc">Získat adresu ze schránky.</string>
     <string name="get_private_key">Získat soukromý klíč z:</string>
     <string name="cold_storage">Cold storage</string>
     <string name="cold_storage_title">Útrata z cold storage</string>
@@ -405,7 +405,7 @@
     <string name="ignore_update">Aktualizuji později</string>
     <string name="get_from">Získat z</string>
     <string name="sign_message">Podepsat zprávu</string>
-    <string name="cant_sign_message">Nemůžete podepsat zprávu s HD účtem</string>
+    <string name="cant_sign_message">Nemůžete podepsat zprávu s HD Bitcoin účtem</string>
     <string name="enter_message_hint">Zadejte prosím zprávu, kterou zde chcete podepsat</string>
     <string name="copy_signature">Kopírovat podpis do schránky</string>
     <string name="share_signature">Sdílet text + podpis</string>
@@ -438,7 +438,7 @@
     <!-- BitID end -->
     <string name="selected_archived_warning">Nemůžete pracovat s archivovanými účty.</string>
     <string name="transaction_not_broadcasted_info">Nelze odeslat</string>
-    <string name="hd_account_creation_started">Vytvářím nový HD účet&#8230;</string>
+    <string name="hd_account_creation_started">Vytvářím nový HD Bitcoin účet&#8230;</string>
     <string name="preparing_wallet_on_first_startup_info">Připravuji peněženku&#8230;</string>
     <string name="importing_master_seed_from_wordlist">Počítám master seed&#8230;</string>
     <string name="importing_wordlist_enter_next_word">Zadejte slovo %1$s z %2$s</string>
@@ -481,7 +481,7 @@
     <string name="verify_wordlist_success_pin_already_set">Váš seznam slov byl úspěšně ověřen. Uschovejte zálohu na bezpečném místě, závisí na tom vaše prostředky!</string>
     <string name="note_down_password_title">Poznamenejte si heslo</string>
     <string name="title_wrong_password">Špatné heslo, zkuste to znovu</string>
-    <string name="dont_allow_archiving_unused_notification">Nemůžete archivovat nepoužitý HD účet</string>
+    <string name="dont_allow_archiving_unused_notification">Nemůžete archivovat nepoužitý HD Bitcoin účet</string>
     <string name="newly_generated_coins_from_coinbase">Nově generované mince</string>
     <string name="button_continue">Pokračovat</string>
     <string name="butto_show_release_notes">Zobrazit podrobnosti</string>
@@ -492,7 +492,7 @@
     <string name="pref_legacy_backup_verify_summary">Ověřit existující starou zálohu</string>
     <string name="error_no_browser">Nelze přejít na webové stránky, na telefonu nebyl nalezen prohlížeč</string>
     <string name="transaction_label_title">Popis transakce</string>
-    <string name="no_spending_records">Nemáte účet, ze kterého lze platit.\n\nPro platby potřebujete účet se soukromým klíčem. Momentálně není aktivní žádný HD účet nebo účet s jednou adresou a soukromým klíčem. Pro platby buď aktivujte, nebo importujte účet se soukromým klíčem.</string>
+    <string name="no_spending_records">Nemáte účet, ze kterého lze platit.\n\nPro platby potřebujete účet se soukromým klíčem. Momentálně není aktivní žádný HD Bitcoin účet nebo účet s jednou adresou a soukromým klíčem. Pro platby buď aktivujte, nebo importujte účet se soukromým klíčem.</string>
     <string name="select_key_for_signing">Zvolte klíč pro podpis</string>
     <string name="playstore_link_label">Odkaz na Obchod Play</string>
     <string name="direct_apk_link_label">Přímé\nstažení</string>
@@ -548,7 +548,7 @@
     <string name="select_ext_sig_account_to_spend_from">Zvolte účet pro útratu</string>
     <string name="ext_sig_passphrase_description">Zadejte volitelné heslo</string>
     <string name="ext_sig_show_passphrase">Zobrazit heslo</string>
-    <string name="trezor_import_account">Importovat HD účet z Trezoru</string>
+    <string name="trezor_import_account">Importovat HD Bitcoin účet z Trezoru</string>
     <string name="ext_sig_import_account_caption">Importovat účet</string>
     <string name="ext_sig_select_account_to_import">Zvolte účet k importu</string>
     <string name="ext_sig_verify_transaction_on_device">Zkontrolujte a potvrďte\ntransakci na vašem zařízení</string>
@@ -567,12 +567,12 @@
     <string name="ext_sig_unnamed">(bez názvu)</string>
     <string name="keepkey_cold_storage_header">KeepKey cold storage</string>
     <string name="keepkey_new_firmware_description">Je k dispozici nový firmware pro KeepKey.\n Použijte prosím KeepKey rozšíření pro Chrome na PC a aktualizuje svůj KeepKey.</string>
-    <string name="keepkey_import_account">Importovat HD účet z KeepKey</string>
+    <string name="keepkey_import_account">Importovat HD Bitcoin účet z KeepKey</string>
     <string name="ledger_initial_status">Připojte nebo klepněte a držte vaši Ledger Wallet</string>
     <string name="ledger_scanning_status">Ledger Wallet v pořádku - hledám účty</string>
     <string name="connect_your_ledger_info">Ledger Nano funguje pouze pokud váš telefon podporuje USB OTG (on-the-go).\n\nPro připojení Ledger Nano potřebujete OTG adaptér nebo kabel. Napojte váš Ledger Nano na stranu klienta a spojte ho s telefonem na straně hosta.</string>
     <string name="select_ledger_account_to_spend_from">Zvolte účet pro útratu</string>
-    <string name="ledger_import_account">Importovat HD účet Ledger</string>
+    <string name="ledger_import_account">Importovat HD Bitcoin účet Ledger</string>
     <string name="ledger_import_account_caption">Importovat účet</string>
     <string name="ledger_select_account_to_import">Zvolte účet k importu</string>
     <string name="ledger_amount">Částka:</string>
@@ -606,8 +606,8 @@
     <string name="both">Obojí</string>
     <string name="button_changelog">Přehled změn</string>
     <string name="hint_type_to_filter">pro filtrování začněte psát</string>
-    <string name="info_add_account_keep_backup_secure">Info: Všechny vaše HD účty jsou odvozeny z vašeho master seedu - pokud máte svou 12slovnou zálohu v bezpečí, můžete s ní obnovit všechny vaše účty.</string>
-    <string name="warning_add_account_no_backup">Varování: Nemáte potvrzenou zálohu vašeho master seedu. Všechny vaše HD účty jsou z něj odvozeny. Jsou bezpečné a obnovitelné pouze máte-li platnou a bezpečnou zálohu.</string>
+    <string name="info_add_account_keep_backup_secure">Info: Všechny vaše HD Bitcoin účty jsou odvozeny z vašeho master seedu - pokud máte svou 12slovnou zálohu v bezpečí, můžete s ní obnovit všechny vaše účty.</string>
+    <string name="warning_add_account_no_backup">Varování: Nemáte potvrzenou zálohu vašeho master seedu. Všechny vaše HD Bitcoin účty jsou z něj odvozeny. Jsou bezpečné a obnovitelné pouze máte-li platnou a bezpečnou zálohu.</string>
     <string name="transaction_to_address_prefix">Komu: %s</string>
     <!-- from libNetCipher -->
     <string name="install_orbot_">Nainstalovat Orbot?</string>
@@ -678,32 +678,6 @@
     <string name="block_explorer_summary">Podrobnosti o transakci jsou vyhledávány pomocí %1$s Block Exploreru</string>
     <string name="lt_warning_wrong_account_type">Místní obchodník nefunguje s vybraným typem účtu, zvolte prosím jiný účet.</string>
     <string name="lt_account_not_allowed">Vybraný typ účtu nefunguje s Místním obchodníkem. Pro provedení tohoto obchodu musíte zvolit jiný účet.</string>
-    <string name="coinapult_sending_via_coinapult">Odesílám Bitcoiny přes Coinapult</string>
-    <string name="coinapult_account_notes">Účet Coinapult vám umožňuje držet peníze v někoika měnách a okamžitě utrácet na jakoukoli BTC adresu.\nSoukromé klíče používáte k přístupu, jsou však pod kontrolou Coinapultu, na rozdíl od normálních HD účtů.</string>
-    <string name="coinapult_mail_hint">Zadejte mailovou adresu</string>
-    <string name="coinapult_mail_description">Zadáte-li svou mailovou adresu, můžete podat lístek podpory Coinapultu posláním mailu na support@coinapult.com z uvedené adresy.</string>
-    <string name="coinapult_threshold_warning">Varování: Účty Coinapult nemohou dokončit převod transakcí, které jsou menší než %1$s hodnoty.</string>
-    <string name="coinapult_amount_too_small">Příliš nízká částka, min. výběr je %1$s %2$s.</string>
-    <string name="coinapult_set_mail_menu_item">Nastavit mailovou adresu</string>
-    <string name="coinapult_set_mail_failed">Nastavení mailové adresy selhalo, zkontrolujte, že jste ji zadali správně, a ujistěte se, že je vaše zařízení připojeno k internetu.</string>
-    <string name="coinapult_setting_email">Odesílám mailovou adresu Coinapultu&#8230;</string>
-    <string name="coinapult_set_mail_please_verify">Mailová adresa byla nastavena, obdržíte zprávu s odkazem pro potvrzení. Odkaz si zkopírujte, v nastavení účtu zvolte „Ověřit mail“, vložte odkaz a zkontrolujte, že je mailová adresa správně.</string>
-    <string name="coinapult_verify_mail_menu_title">Ověření mailové adresy</string>
-    <string name="coinapult_mail_verification">Ověřte vaši Coinapult mailovou adresu</string>
-    <string name="coinapult_mail_verification_description">Vložte prosím ověřovací odkaz z Coinapult mailu do políčka níže.</string>
-    <string name="coinapult_mail_verification_hint">vložte celý ověřovací odkaz</string>
-    <string name="coinapult_verifying_email">Odesílám ověřovací odkaz na Coinapult&#8230;</string>
-    <string name="coinapult_verify_mail_success">Váš Coinapult mail byl úspěšně ověřen.</string>
-    <string name="coinapult_verify_mail_error">Při ověřování vaší mailové adresy se vyskytla chyba. Ujistěte se, že jste zkopírovali celý a správný ověřovací odkaz.</string>
-    <string name="coinapult_unable_to_create_account">Nelze vytvořit účet Coinapult</string>
-    <string name="coinapult_failed_to_broadcast">Odesílání transakce na Coinapult selhalo</string>
-    <string name="coinapult_add_locks_account">Přidat účet Coinapult Locks</string>
-    <string name="coinapult_tos_link">Otevřít smluvní podmínky Coinapult</string>
-    <string name="coinapult_tos_question">Pro vytvoření účtu Coinapult musíte souhlasit s jejich obchodními podmínkami</string>
-    <string name="coinapult_mail_question">Chcete poskytnout svou mailovou adresu?</string>
-    <string name="coinapult_create_account">Vytvářím účet Coinapult&#8230;</string>
-    <string name="coinapult_backup_info">Přístupový klíč k vašemu účtu Coinapult je odvozený z vašeho master seedu. Pokud máte platnou zálohu, je zahrnutý také přístup k vašemu účtu Coinapult.</string>
-    <string name="coinapult_currency_account">Účet %1$s</string>
     <!--<string name="colu_tos_link">Open Colu Terms and Conditions</string>-->
     <!-- <string name="colu_tos_link_url">https://www.colu.com/TOS</string>-->
     <!--<string name="colu_tos">By clicking "OK" you agree to use Colored Coin technology, third party-->
@@ -750,12 +724,10 @@
     <string name="credit_card_buy_description">Koupit bitcoiny kreditní kartou</string>
     <string name="credit_card_buy_setting_description">Koupit bitcoiny kreditní kartou</string>
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
     <string name="gd_buy_sell_button">Koupit/prodat BTC</string>
     <string name="error_details">Podrobnosti chyby</string>
     <string name="warning_sync_failed_reusing_first">Synchronizace selhala! Znovu použijete 1. adresu tohoto xpubu!</string>
     <string name="tap_to_toggle_through_other_currencies">Ťuknutím přepínejte dalšími měnami</string>
-    <!-- GlideraService End -->
     <string name="settings_service_enabled">Povolit %1$s</string>
     <!-- Simplex start -->
     <!-- Simplex end -->

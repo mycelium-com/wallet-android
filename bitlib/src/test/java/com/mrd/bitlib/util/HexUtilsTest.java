@@ -1,12 +1,12 @@
 package com.mrd.bitlib.util;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
 
 import static org.junit.Assert.*;
 
-// trivially testing our hex utils against the established bouncy/spongycastle tool Hex
+// trivially testing our hex utils against the established bouncycastle tool Hex
 public class HexUtilsTest {
     private final String [] strings = {"", "1212a873c0ff0023", "234235635645314243655746743565"};
     private final byte[][] bytess = {"Hello".getBytes(), "".getBytes(), "I've watched C-beams glitter in the dark near the Tannhäuser Gate.".getBytes()};
@@ -41,8 +41,8 @@ public class HexUtilsTest {
 
     @Test
     @Ignore
-    // there is probably no good reason to have our own HexUtils. Spongy also handles much nicer spaces in the hex string, like "00 43 43".
-    public void toBytesSpeedSpongy() {
+    // there is probably no good reason to have our own HexUtils. Bouncy also handles much nicer spaces in the hex string, like "00 43 43".
+    public void toBytesSpeedHex() {
         for(int i = 0; i < 10000000; i++) {
             for(String string : strings) {
                 byte [] bytes = Hex.decode(string);

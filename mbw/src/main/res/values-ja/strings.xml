@@ -6,7 +6,7 @@
     <string name="add_unrelated_account_title">関連性のないアカウントを追加する</string>
     <string name="import_seed_title">マスターシードをインポート</string>
     <string name="import_words_title">ワードリストを入力</string>
-    <string name="add_account_desc">MyceliumはHDアカウントとシングルアドレスアカウントをサポートしています。すべてのHDアカウントは同じマスターシードに基づいて作成されます。最初に一つ作成すると、あなたのマスターシードが設定されます。</string>
+    <string name="add_account_desc">MyceliumはHD Bitcoinアカウントとシングルアドレスアカウントをサポートしています。すべてのHD Bitcoinアカウントは同じマスターシードに基づいて作成されます。最初に一つ作成すると、あなたのマスターシードが設定されます。</string>
     <string name="add_single_acc_info">秘密鍵または読み取り専用アドレスに元にシングルアドレスアカウントを追加するには、下の詳細ボタンをクリックしてください。</string>
     <string name="scan_desc">ビットコインアドレス、秘密鍵、または階層的決定性アカウントをスキャンする。</string>
     <string name="scan_seed">Myceliumのバックアップからマスターシードをスキャン</string>
@@ -105,10 +105,9 @@
     <string name="export_to_clipboard_warning">注意：クリップボードに秘密鍵をコピーすると、他のアプリに安易に読み取られてしまいます。\n\n備考：クリップボードにコピーするだけでは秘密鍵のバックアップが不十分です。安全な場所に貼り付けて保存しなければいけません。\n\n続けますか？</string>
     <string name="found_clipboard_private_key_title">クリップボードに秘密鍵を見つけました。</string>
     <string name="exchange_source_not_available">%1$s の為替レートが不明</string>
-    <string name="my_own_address_warning">メモ：送金先にご自身のアドレスが入っています。</string>
-    <string name="read_only_warning">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</string>
+    <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">メモ：送金先にご自身のアドレスが入っています。</font>]]></string>
+    <string name="read_only_warning"><![CDATA[<font color="#ff0000">注意：あなたの財布にはこのアドレスを解除する秘密鍵がありません。\nこのアドレスのビットコインを送るには秘密鍵を入力する必要があります。</font>]]></string>
     <string name="add_to_address_book_dialog_title">アドレス追加</string>
-    <string name="scan_address_book_desc">ビットコイン アドレスを読み取ります。</string>
     <string name="clipboard_address_book_desc">クリップボードからアドレスを取得</string>
     <string name="max">最大</string>
     <string name="get_private_key">秘密鍵インポート：</string>
@@ -476,7 +475,7 @@
     <string name="pref_legacy_backup_verify_summary">存在するレガシー・バックアップの確認</string>
     <string name="error_no_browser">あなたの端末のブラウザーアプリが見つかりませんので、指定のサイトに移動できません。</string>
     <string name="transaction_label_title">取引ラベル</string>
-    <string name="no_spending_records">あなたのアカウントの内、送金可能なアカウントがありません。\n\n送金を行うには、秘密鍵が含まれたアカウントが最低限1つ無いといけません。現在、有効なHDアカウントや単一アドレスアカウントで秘密鍵の含まれたアカウントがありません。送金を行いたい場合、新規アカウントの作成、若しくは秘密鍵の含まれたアカウントの復元を行って下さい。</string>
+    <string name="no_spending_records">あなたのアカウントの内、送金可能なアカウントがありません。\n\n送金を行うには、秘密鍵が含まれたアカウントが最低限1つ無いといけません。現在、有効なHD Bitcoinアカウントや単一アドレスアカウントで秘密鍵の含まれたアカウントがありません。送金を行いたい場合、新規アカウントの作成、若しくは秘密鍵の含まれたアカウントの復元を行って下さい。</string>
     <string name="select_key_for_signing">署名に使うキーを選択します</string>
     <string name="playstore_link_label">Google Playのリンク</string>
     <string name="direct_apk_link_label">ダイレクト\nダウンロード</string>
@@ -591,8 +590,6 @@
     <!--    <string name="colu_backup_info">Your Colu account access-key gets derived from your masterseed. If you have a valid backup, the access to your Colu account is also included.</string>  -->
     <!-- Credit Card -->
     <!-- Credit Card End-->
-    <!-- GlideraService Start -->
-    <!-- GlideraService End -->
     <!-- Simplex start -->
     <!-- Simplex end -->
 </resources>

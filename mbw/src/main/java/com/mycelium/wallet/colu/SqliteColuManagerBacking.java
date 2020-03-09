@@ -42,7 +42,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.ArrayMap;
 import android.util.Log;
-
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.common.base.Optional;
@@ -65,13 +64,10 @@ import com.mycelium.wallet.persistence.SQLiteQueryWithBlobs;
 import com.mycelium.wapi.api.exception.DbCorruptedException;
 import com.mycelium.wapi.model.TransactionOutputEx;
 import com.mycelium.wapi.wallet.CommonAccountBacking;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.SecureKeyValueStoreBacking;
 import com.mycelium.wapi.wallet.WalletBacking;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccountContext;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
-import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccountBacking;
 import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
@@ -103,9 +99,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
    private final SQLiteStatement _deleteSubId;
    private final SQLiteStatement _getMaxSubId;
    private final NetworkParameters networkParameters;
-
-   private static final String LAST_FEE_ESTIMATE = "_LAST_FEE_ESTIMATE";
-
 
    public SqliteColuManagerBacking(Context context, NetworkParameters networkParameters) {
       this.networkParameters = networkParameters;
@@ -459,36 +452,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
       }
 
       @Override
-      public void saveLastFeeEstimation(FeeEstimationsGeneric feeEstimation, GenericAssetInfo assetType) {
-         String assetTypeName = assetType.getName();
-         byte[] key = (assetTypeName + LAST_FEE_ESTIMATE).getBytes();
-         FeeEstimationSerialized feeValues = new FeeEstimationSerialized(feeEstimation.getLow().value,
-                 feeEstimation.getEconomy().value,
-                 feeEstimation.getNormal().value,
-                 feeEstimation.getHigh().value,
-                 feeEstimation.getLastCheck());
-         byte[] value = gson.toJson(feeValues).getBytes();
-         setValue(key, value);
-      }
-
-      @Override
-      public FeeEstimationsGeneric loadLastFeeEstimation(GenericAssetInfo assetType) {
-         String key = assetType.getName() + LAST_FEE_ESTIMATE;
-         FeeEstimationSerialized feeValues;
-         try {
-            feeValues = gson.fromJson(key, FeeEstimationSerialized.class);
-         } catch (Exception ignore) {
-            return null;
-         }
-
-         return new FeeEstimationsGeneric(Value.valueOf(assetType, feeValues.low),
-                 Value.valueOf(assetType, feeValues.economy),
-                 Value.valueOf(assetType, feeValues.normal),
-                 Value.valueOf(assetType, feeValues.high),
-                 feeValues.lastCheck);
-      }
-
-      @Override
       public Tx.Json getTx(Sha256Hash hash) {
          Cursor cursor = null;
          Tx.Json result = null;
@@ -529,20 +492,14 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public List<Tx.Json> getTransactions(int offset, int limit) {
-         Cursor cursor = null;
          List<Tx.Json> result = new LinkedList<>();
-         try {
-            cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
-                            + " ORDER BY height desc limit ? offset ?",
-                    new String[]{Integer.toString(limit), Integer.toString(offset)});
+         try (Cursor cursor = _db.rawQuery("SELECT height, txData FROM " + txTableName
+                         + " ORDER BY height desc, time desc limit ? offset ?",
+                 new String[]{Integer.toString(limit), Integer.toString(offset)})) {
             while (cursor.moveToNext()) {
                String json = new String(cursor.getBlob(1), StandardCharsets.UTF_8);
                Tx.Json tex = getTransactionFromJson(json);
                result.add(tex);
-            }
-         } finally {
-            if (cursor != null) {
-               cursor.close();
             }
          }
          return result;
@@ -576,7 +533,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          List<Tx.Json> result = new LinkedList<>();
          try (Cursor cursor = _db.rawQuery("SELECT height, time, txData FROM " + txTableName
                          + " WHERE time >= ?"
-                         + " ORDER BY height desc",
+                         + " ORDER BY height desc, time desc",
                  new String[]{Long.toString(since / 1000)})) {
 
             while (cursor.moveToNext()) {
@@ -882,6 +839,7 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
          }
          return gson.toJson(addresses);
       }
+
       private boolean columnExistsInTable(SQLiteDatabase db, String table, String columnToCheck) {
          try (Cursor cursor = db.rawQuery("SELECT * FROM " + table + " LIMIT 0", null)) {
             // getColumnIndex()  will return the index of the column

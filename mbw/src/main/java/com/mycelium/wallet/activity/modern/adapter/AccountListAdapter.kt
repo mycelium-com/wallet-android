@@ -1,16 +1,16 @@
 package com.mycelium.wallet.activity.modern.adapter
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import android.content.Context
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
@@ -137,7 +137,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     }
 
     private fun createArchivedTitleViewHolder(parent: ViewGroup): ArchivedGroupTitleViewHolder {
-        val view = layoutInflater.inflate(R.layout.accounts_title_view, parent, false)
+        val view = layoutInflater.inflate(R.layout.archived_accounts_title_view, parent, false)
         return ArchivedGroupTitleViewHolder(view)
     }
 
@@ -171,8 +171,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val groupHolder = holder as GroupTitleViewHolder
                 val group = item as AccountsGroupModel
                 buildGroupBase(group, groupHolder)
-                val sum = getSpendableBalance(listOf(group))
-                groupHolder.tvBalance.setValue(sum)
+                groupHolder.tvBalance.coinType = group.coinType
+                groupHolder.tvBalance.setValue(group.sum!!, false)
                 groupHolder.tvBalance.visibility = View.VISIBLE
             }
             GROUP_ARCHIVED_TITLE_TYPE -> {
@@ -183,7 +183,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             TOTAL_BALANCE_TYPE -> {
                 val totalHolder = holder as TotalViewHolder
                 val sum = (item as TotalViewModel).balance
-                totalHolder.tcdBalance.setValue(sum)
+                totalHolder.tcdBalance.setValue(sum, totalBalance = true)
             }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")
         }
@@ -240,16 +240,38 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 
         private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
 
-        override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean {
-            return when {
-                listOf(GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE).any { it == oldItem.getType() } -> {
-                    val title = (newItem as AccountsGroupModel).getTitle(context)
-                    val sameCollapseState = newItem.isCollapsed == pagePrefs.getBoolean(title, true)
-                    newItem.isCollapsed = pagePrefs.getBoolean(title, true)
-                    sameCollapseState && (oldItem == newItem)
+        override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
+                when (oldItem.getType()) {
+                    GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE -> {
+                        newItem as AccountsGroupModel
+                        oldItem as AccountsGroupModel
+                        newItem.isCollapsed = pagePrefs.getBoolean(newItem.getTitle(context), true)
+                        newItem.isCollapsed == oldItem.isCollapsed
+                                && newItem.coinType == oldItem.coinType
+                                && newItem.accountsList.size == oldItem.accountsList.size
+                                && newItem.sum == oldItem.sum
+                    }
+                    ACCOUNT_TYPE -> {
+                        newItem as AccountViewModel
+                        oldItem as AccountViewModel
+                        newItem.displayAddress == oldItem.displayAddress
+                                && newItem.isActive == oldItem.isActive
+                                && newItem.canSpend == oldItem.canSpend
+                                && newItem.externalAccountType == oldItem.externalAccountType
+                                && newItem.isRMCLinkedAccount == oldItem.isRMCLinkedAccount
+                                && newItem.label == oldItem.label
+                                && newItem.showBackupMissingWarning == oldItem.showBackupMissingWarning
+                                && newItem.syncTotalRetrievedTransactions == oldItem.syncTotalRetrievedTransactions
+                                && newItem.isSyncing == oldItem.isSyncing
+                                && newItem.privateKeyCount == oldItem.privateKeyCount
+                                && newItem.balance?.spendable == oldItem.balance?.spendable
+                    }
+                    TOTAL_BALANCE_TYPE -> {
+                        newItem as TotalViewModel
+                        oldItem as TotalViewModel
+                        newItem.balance.values == oldItem.balance.values
+                    }
+                    else -> oldItem == newItem
                 }
-                else -> oldItem == newItem
-            }
-        }
     }
 }

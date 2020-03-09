@@ -6,8 +6,8 @@ import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.wapi.api.Wapi;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.wallet.*;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
@@ -23,13 +23,13 @@ import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HDAccountTest {
     private static final String MASTER_SEED_WORDS = "degree rain vendor coffee push math onion inside pyramid blush stick treat";
@@ -41,8 +41,6 @@ public class HDAccountTest {
     public void setup() throws KeyCipher.InvalidKeyCipher {
         RandomSource fakeRandomSource = mock(RandomSource.class);
         Wapi fakeWapi = mock(Wapi.class);
-        WapiLogger fakeLogger = mock(WapiLogger.class);
-        when(fakeWapi.getLogger()).thenReturn(fakeLogger);
         LoadingProgressUpdater fakeLoadingProgressUpdater = mock(LoadingProgressUpdater.class);
 
         BtcWalletManagerBacking backing = new InMemoryBtcWalletManagerBacking();
@@ -55,8 +53,10 @@ public class HDAccountTest {
         HashMap<String, CurrencySettings> currenciesSettingsMap = new HashMap<>();
         currenciesSettingsMap.put(BitcoinHDModule.ID, new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.PRIVACY)));
 
+        WalletDB db = Mockito.mock(WalletDB.class);
+
         WalletManager walletManager = new WalletManager(NetworkParameters.productionNetwork, fakeWapi,
-                currenciesSettingsMap);
+                currenciesSettingsMap, db);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
         masterSeedManager.configureBip32MasterSeed(masterSeed, cipher);

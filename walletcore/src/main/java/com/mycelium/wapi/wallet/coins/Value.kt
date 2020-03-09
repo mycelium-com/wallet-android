@@ -1,15 +1,10 @@
 package com.mycelium.wapi.wallet.coins
 
-import com.google.common.math.LongMath
-
+import com.google.common.base.Preconditions.checkArgument
 import java.io.Serializable
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
-
-import com.google.common.base.Preconditions.checkArgument
-import kotlin.math.absoluteValue
-import kotlin.math.sign
 
 open class Value(
         /**
@@ -21,13 +16,16 @@ open class Value(
          * The number of units of this monetary value.
          */
         @JvmField
-        val value: Long) : Serializable {
+        val value: BigInteger) : Serializable {
 
     private val friendlyDigits: Int
         get() = type.friendlyDigits
 
     val valueAsBigDecimal: BigDecimal
-        get() = BigDecimal.valueOf(value).movePointLeft(type.unitExponent)
+        get() = BigDecimal(value).movePointLeft(type.unitExponent)
+
+    val valueAsLong: Long
+        get() = value.toLong()
 
     val currencySymbol: String
         get() = type.symbol
@@ -54,42 +52,64 @@ open class Value(
 
     operator fun plus(value: Value): Value {
         checkArgument(type == value.type, "Cannot add a different type")
-        return Value(this.type, LongMath.checkedAdd(this.value, value.value))
+        return Value(this.type, this.value + value.value)
     }
 
-    operator fun plus(value: Long): Value = Value(this.type, LongMath.checkedAdd(this.value, value))
+    operator fun plus(value: BigInteger): Value = Value(this.type, this.value + value)
+
+    operator fun plus(value: Long): Value = Value(this.type, this.value + value.toBigInteger())
 
     operator fun minus(value: Value): Value {
         checkArgument(type == value.type, "Cannot subtract a different type")
-        return Value(this.type, LongMath.checkedSubtract(this.value, value.value))
+        return Value(this.type, this.value - value.value)
     }
 
     operator fun minus(str: String): Value =
-            Value(this.type, LongMath.checkedSubtract(this.value, type.value(str).value))
+            Value(this.type, this.value - type.value(str).value)
 
-    operator fun minus(value: Long): Value =
-            Value(this.type, LongMath.checkedSubtract(this.value, value))
+    operator fun minus(value: BigInteger): Value = Value(this.type, this.value - value)
 
-    operator fun times(factor: Long): Value =
-            Value(this.type, LongMath.checkedMultiply(this.value, factor))
+    operator fun times(factor: Long): Value = Value(this.type, this.value.times(factor.toBigInteger()))
 
-    operator fun div(divisor: Long): Value = Value(this.type, this.value / divisor)
+    operator fun times(factor: BigInteger): Value = Value(this.type, this.value.times(factor))
 
-    operator fun rem(divisor: Long): Array<Value> =
+    operator fun div(divisor: BigInteger): Value = Value(this.type, this.value / divisor)
+
+    operator fun rem(divisor: BigInteger): Array<Value> =
             arrayOf(Value(this.type, this.value / divisor), Value(this.type, this.value % divisor))
 
-    operator fun div(divisor: Value): Long {
+    operator fun div(divisor: Value): BigInteger {
         checkArgument(type == divisor.type, "Cannot divide with a different type")
         return this.value / divisor.value
     }
 
     operator fun compareTo(other: Value): Int = value.compareTo(other.value)
 
+    operator fun compareTo(other: BigInteger): Int = value.compareTo(other)
+
     fun shiftLeft(n: Int): Value = Value(this.type, this.value shl n)
 
     fun shiftRight(n: Int): Value = Value(this.type, this.value shr n)
 
-    fun signum(): Int = value.sign
+    fun signum(): Int = value.signum()
+
+    fun moreThanZero() = this.value > BigInteger.ZERO
+
+    fun moreOrEqualThanZero() = this.value >= BigInteger.ZERO
+
+    fun equalZero() = this.value == BigInteger.ZERO
+
+    fun lessThanZero() = this.value < BigInteger.ZERO
+
+    fun lessOrEqualThanZero() = this.value <= BigInteger.ZERO
+
+    fun notEqualsTo(other : Value) = this != other
+
+    fun equalsTo(other : Value) = this == other
+
+    fun moreThan(other : Value) = this > other
+
+    fun lessThan(other : Value) = this < other
 
     operator fun unaryMinus(): Value = Value(type, -value)
 
@@ -98,7 +118,7 @@ open class Value(
      * if necessary, but two will always be present.
      */
     fun toFriendlyString(): String =
-            BigDecimal.valueOf(value, smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
+            BigDecimal(value, smallestUnitExponent()).setScale(friendlyDigits, RoundingMode.HALF_UP).toString()
 
     /**
      *
@@ -109,14 +129,14 @@ open class Value(
      *
      */
     fun toPlainString(): String =
-            BigDecimal.valueOf(value, smallestUnitExponent()).stripTrailingZeros().toString()
+            BigDecimal(value, smallestUnitExponent()).stripTrailingZeros().toString()
 
     override fun toString(): String = toPlainString() + " " + type.symbol
 
     /**
      * Returns the value expressed as string
      */
-    fun toUnitsString(): String = BigInteger.valueOf(value).toString()
+    fun toUnitsString(): String = value.toString()
 
     override fun equals(other: Any?): Boolean {
         if (other === this)
@@ -140,19 +160,19 @@ open class Value(
 
     fun canCompare(other: Value): Boolean = canCompare(this, other)
 
-    fun abs(): Value = Value(type, value.absoluteValue)
+    fun abs(): Value = Value(type, value.abs())
 
     companion object {
         @JvmStatic
-        fun valueOf(type: GenericAssetInfo, units: Long): Value = Value(type, units)
-
-        fun valueOf(type: GenericAssetInfo, units: BigInteger): Value = Value(type, units.toLong())
+        fun valueOf(type: GenericAssetInfo, units: Long): Value = Value(type, units.toBigInteger())
+        @JvmStatic
+        fun valueOf(type: GenericAssetInfo, units: BigInteger): Value = Value(type, units)
 
         fun valueOf(type: GenericAssetInfo, unitsStr: String): Value =
                 valueOf(type, BigInteger(unitsStr))
 
         @JvmStatic
-        fun zeroValue(type: GenericAssetInfo): Value = Value(type, 0)
+        fun zeroValue(type: GenericAssetInfo): Value = Value(type, 0.toBigInteger())
 
         /**
          * Convert an amount expressed in the way humans are used to into units.
@@ -161,7 +181,7 @@ open class Value(
             checkArgument(cents < 100)
             checkArgument(cents >= 0)
             checkArgument(coins >= 0)
-            return type.oneCoin()* coins.toLong() + (type.oneCoin() / 100 * cents.toLong())
+            return type.oneCoin()* coins.toBigInteger() + (type.oneCoin() / 100.toBigInteger() * cents.toBigInteger())
         }
 
         /**
@@ -186,7 +206,7 @@ open class Value(
         fun parse(type: GenericAssetInfo, decimal: BigDecimal): Value =
                 valueOf(type, decimal.movePointRight(type.unitExponent)
                         .setScale(0, RoundingMode.HALF_DOWN)
-                        .toBigIntegerExact().toLong())
+                        .toBigIntegerExact())
 
         @JvmStatic
         fun isNullOrZero(value: Value?): Boolean = value == null || value.isZero()

@@ -44,13 +44,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
+import com.mycelium.wapi.wallet.AddressUtils;
+import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -101,15 +102,15 @@ public class ColdStorageSummaryActivity extends Activity {
 
       // Description
       if (_account.canSpend()) {
-         ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_private_key_description);
+         ((TextView) findViewById(R.id.tvDescription)).setText(getString(R.string.cs_private_key_description, _account.getCoinType().getName()));
       } else {
-         ((TextView) findViewById(R.id.tvDescription)).setText(R.string.cs_address_description);
+         ((TextView) findViewById(R.id.tvDescription)).setText(getString(R.string.cs_address_description, _account.getCoinType().getName()));
       }
 
       if (!(_account instanceof AbstractBtcAccount)) {
          // Address
-         Optional<Address> receivingAddress = ((AbstractBtcAccount)_account).getReceivingAddress();
-         ((TextView) findViewById(R.id.tvAddress)).setText(receivingAddress.isPresent() ? receivingAddress.get().toMultiLineString() : "");
+         GenericAddress receivingAddress = _account.getReceiveAddress();
+         ((TextView) findViewById(R.id.tvAddress)).setText(AddressUtils.toMultiLineString(receivingAddress.toString()));
       } else {
          findViewById(R.id.tvAddress).setVisibility(View.GONE);
 
@@ -134,17 +135,18 @@ public class ColdStorageSummaryActivity extends Activity {
          }
       }
 
-      // BalanceSatoshis
-      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination()));
+      // Balance
+      ((TextView) findViewById(R.id.tvBalance)).setText(ValueExtensionsKt.toStringWithUnit(balance.getSpendable(),
+              _mbwManager.getDenomination(_account.getCoinType())));
 
-      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice();
+      Double price = _mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType());
 
       // Fiat
       TextView tvFiat = findViewById(R.id.tvFiat);
       if (!_mbwManager.hasFiatCurrency() || price == null) {
          tvFiat.setVisibility(View.INVISIBLE);
       } else {
-         GenericAssetInfo currency = _mbwManager.getFiatCurrency();
+         GenericAssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
          String converted = _mbwManager.getExchangeRateManager().get(balance.getSpendable()
                  , currency).toFriendlyString();
          tvFiat.setText(getResources().getString(R.string.approximate_fiat_value, currency.getSymbol()
@@ -152,8 +154,9 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Receiving
-      if (balance.pendingReceiving.value > 0) {
-         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving, _mbwManager.getDenomination());
+      if (balance.pendingReceiving.moreThanZero()) {
+         String receivingString = ValueExtensionsKt.toStringWithUnit(balance.pendingReceiving,
+                 _mbwManager.getDenomination(_account.getCoinType()));
          String receivingText = getResources().getString(R.string.receiving, receivingString);
          TextView tvReceiving = findViewById(R.id.tvReceiving);
          tvReceiving.setText(receivingText);
@@ -163,8 +166,9 @@ public class ColdStorageSummaryActivity extends Activity {
       }
 
       // Show/Hide Sending
-      if (balance.getSendingToForeignAddresses().value > 0) {
-         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(), _mbwManager.getDenomination());
+      if (balance.getSendingToForeignAddresses().moreThanZero()) {
+         String sendingString = ValueExtensionsKt.toStringWithUnit(balance.getSendingToForeignAddresses(),
+                 _mbwManager.getDenomination(_account.getCoinType()));
          String sendingText = getResources().getString(R.string.sending, sendingString);
          TextView tvSending = findViewById(R.id.tvSending);
          tvSending.setText(sendingText);
@@ -181,7 +185,7 @@ public class ColdStorageSummaryActivity extends Activity {
             btSend.setOnClickListener(new OnClickListener() {
                @Override
                public void onClick(View arg0) {
-                  Intent intent = SendMainActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
+                  Intent intent = SendCoinsActivity.getIntent(ColdStorageSummaryActivity.this, _account.getId(), true);
                   ColdStorageSummaryActivity.this.startActivityForResult(intent, SEND_MAIN_REQUEST_CODE);
                }
             });

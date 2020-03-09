@@ -1,3 +1,5 @@
 package com.mycelium.wapi.wallet
 
-abstract class GenericFee
+import java.io.Serializable
+
+abstract class GenericFee : Serializable

@@ -55,11 +55,14 @@ import com.mycelium.modularizationtools.ModuleMessageReceiver;
 import com.mycelium.wallet.activity.settings.SettingsPreference;
 import com.mycelium.wallet.external.mediaflow.NewsSyncUtils;
 import com.mycelium.wallet.external.mediaflow.database.NewsDatabase;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class WalletApplication extends MultiDexApplication implements ModuleMessageReceiver {
     private ModuleMessageReceiver moduleMessageReceiver;
@@ -70,6 +73,8 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private Logger rootLogger;
+
     public static WalletApplication getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException();
@@ -79,11 +84,17 @@ public class WalletApplication extends MultiDexApplication implements ModuleMess
 
     @Override
     public void onCreate() {
-        int loadedBouncy = Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+
+        // Android registers its own BC provider. As it might be outdated and might not include
+        // all needed ciphers, we substitute it with a known BC bundled in the app.
+        // Android's BC has its package rewritten to "com.android.org.bouncycastle" and because
+        // of that it's possible to have another BC implementation loaded in VM.
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+        int loadedBouncy = Security.insertProviderAt(new BouncyCastleProvider(), 1);
         if(loadedBouncy == -1) {
-            Log.e("WalletApplication", "Failed to insert spongy castle provider");
+            Log.e("WalletApplication", "Failed to insert security provider");
         } else {
-            Log.d("WalletApplication", "Inserted spongy castle provider");
+            Log.d("WalletApplication", "Inserted security provider");
         }
         INSTANCE = this;
         if (BuildConfig.DEBUG) {

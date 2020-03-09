@@ -10,7 +10,7 @@ import android.webkit.WebView
  * class copied from
  * https://github.com/AhmadNemati/ClickableWebView/blob/master/clickablewebview/src/main/java/com/ahmadnemati/clickablewebview/ClickableWebView.java
  */
-class ClickableWebView(context: Context, attrs: AttributeSet) : WebView(context, attrs), View.OnClickListener, View.OnTouchListener {
+class ClickableWebView : WebView, View.OnClickListener, View.OnTouchListener {
     var imageClicklistener: ((String?) -> Unit)? = null
     private var startClickTime: Long = 0
 
@@ -19,6 +19,11 @@ class ClickableWebView(context: Context, attrs: AttributeSet) : WebView(context,
         setOnTouchListener(this)
     }
 
+    constructor(context: Context) : super(context)
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     override fun onClick(view: View) {
         val hr = hitTestResult

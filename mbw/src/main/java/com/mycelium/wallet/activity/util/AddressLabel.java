@@ -108,7 +108,7 @@ public class AddressLabel extends GenericBlockExplorerLabel {
                     null, null));
          }
       } else {
-         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBlockExplorer());
+         setHandler(MbwManager.getInstance(getContext())._blockExplorerManager.getBEMByCurrency(address.getCoinType().getName()).getBlockExplorer());
       }
    }
    public GenericAddress getAddress() {

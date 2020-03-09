@@ -5,6 +5,7 @@ import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
+import com.mycelium.generated.wallet.database.WalletDB;
 import com.mycelium.net.HttpEndpoint;
 import com.mycelium.net.HttpsEndpoint;
 import com.mycelium.net.ServerEndpoints;
@@ -16,27 +17,32 @@ import com.mycelium.wapi.wallet.SynchronizeFinishedListener;
 import com.mycelium.wapi.wallet.btc.BTCSettings;
 import com.mycelium.wapi.wallet.CurrencySettings;
 import com.mycelium.wapi.wallet.KeyCipher;
-import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
-import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
+import com.mycelium.wapi.wallet.btc.BtcWalletManagerBacking;
 import com.mycelium.wapi.wallet.btc.ChangeAddressMode;
+import com.mycelium.wapi.wallet.btc.InMemoryBtcWalletManagerBacking;
+import com.mycelium.wapi.wallet.btc.Reference;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.ExternalSignatureProviderProxy;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.single.BitcoinSingleAddressModule;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
+import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage;
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory;
+import com.squareup.sqldelight.db.SqlDriver;
+import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver;
+
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 class WalletConsole {
     public static final String[] ColoredCoinsApiURLs = {"http://testnet.api.coloredcoins.org/v3/"};
@@ -44,9 +50,7 @@ class WalletConsole {
 //    public static final String[] ColoredCoinsApiURLs = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
 //    public static final String[] ColuBlockExplorerApiURLs = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
 
-
     private static class MemoryBasedStorage implements IMetaDataStorage {
-
         private HashMap<String, String> map = new HashMap<>();
         @Override
         public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
@@ -90,25 +94,8 @@ class WalletConsole {
                 new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
         });
 
-        final WapiLogger wapiLogger = new WapiLogger() {
-            @Override
-            public void logError(String message) {
-                new Exception(message).printStackTrace();
-            }
-
-            @Override
-            public void logError(String message, Exception e) {
-                new Exception(message).printStackTrace();
-            }
-
-            @Override
-            public void logInfo(String message) {
-                new Exception(message).printStackTrace();
-            }
-        };
-
         final TcpEndpoint[] tcpEndpoints = new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432)};
-        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0");
+        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0");
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy();
 
@@ -123,18 +110,23 @@ class WalletConsole {
         BTCSettings btcSettings = new BTCSettings(AddressType.P2SH_P2WPKH, new Reference<>(ChangeAddressMode.P2SH_P2WPKH));
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
 
+
+        SqlDriver driver = new JdbcSqliteDriver( "wallet.db", new Properties());
+        WalletDB.Companion.getSchema().create(driver);
+        WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
+                AdaptersKt.getEthAccountBackingAdapter(), AdaptersKt.getEthContextAdapter(), AdaptersKt.getFeeEstimatorAdapter());
+
         WalletManager walletManager = new WalletManager(
                 network,
                 wapiClient,
-                currenciesSettingsMap);
+                currenciesSettingsMap,
+                db);
         walletManager.setIsNetworkConnected(true);
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
         try {
-
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-
 
             BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, new MemoryBasedStorage(), null,null, null);
             walletManager.add(bitcoinHDModule);
@@ -163,7 +155,6 @@ class WalletConsole {
         } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();
         }
-
     }
 
     /*

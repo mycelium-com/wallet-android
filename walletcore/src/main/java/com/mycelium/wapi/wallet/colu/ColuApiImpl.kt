@@ -19,7 +19,7 @@ class ColuApiImpl(val coluClient: ColuClient) : ColuApi {
         fromBtcAddress.forEach {
             fromAddress.add(it.address)
         }
-        return coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.value)
+        return coluClient.prepareTransaction(toAddress.address, fromAddress, amount, txFee.valueAsLong)
 
     }
 

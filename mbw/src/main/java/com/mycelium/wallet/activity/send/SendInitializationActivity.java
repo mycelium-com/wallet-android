@@ -142,7 +142,7 @@ public class SendInitializationActivity extends Activity {
       _slowNetworkHandler.postDelayed(showSlowNetwork, 6000);
 
       // If we don't have a fresh exchange rate, now is a good time to request one, as we will need it in a minute
-      if (_mbwManager.getCurrencySwitcher().getExchangeRatePrice() == null) {
+      if (_mbwManager.getCurrencySwitcher().getExchangeRatePrice(_account.getCoinType()) == null) {
          _mbwManager.getExchangeRateManager().requestRefresh();
       }
 
@@ -211,11 +211,11 @@ public class SendInitializationActivity extends Activity {
       } else {
          Intent intent;
          if (_rawPr != null) {
-            intent = SendMainActivity.getIntent(this, _account.getId(), _rawPr, false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), _rawPr, false);
          } else if (_uri != null) {
-            intent = SendMainActivity.getIntent(this, _account.getId(), _uri, false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), _uri, false);
          } else {
-            intent = SendMainActivity.getIntent(this, _account.getId(), false);
+            intent = SendCoinsActivity.getIntent(this, _account.getId(), false);
          }
          intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
          this.startActivity(intent);

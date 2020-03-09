@@ -81,7 +81,7 @@ import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.activity.main.model.transactionhistory.TransactionHistoryModel;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.send.BroadcastDialog;
-import com.mycelium.wallet.activity.send.SendMainActivity;
+import com.mycelium.wallet.activity.send.SendCoinsActivity;
 import com.mycelium.wallet.activity.send.SignTransactionActivity;
 import com.mycelium.wallet.activity.util.EnterAddressLabelUtil;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransaction;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
@@ -108,6 +109,7 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
 import java.io.File;
@@ -120,6 +122,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -163,8 +167,10 @@ public class TransactionHistoryFragment extends Fragment {
          btnReload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               _mbwManager.getSelectedAccount().dropCachedData();
-               _mbwManager.getWalletManager(false).startSynchronization();
+               WalletAccount<?> account = _mbwManager.getSelectedAccount();
+               account.dropCachedData();
+               _mbwManager.getWalletManager(false)
+                       .startSynchronization(SyncMode.NORMAL_FORCED, Collections.singletonList(account));
             }
          });
       }
@@ -236,7 +242,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
       if (requestCode == SIGN_TRANSACTION_REQUEST_CODE) {
          if (resultCode == RESULT_OK) {
-            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendMainActivity.SIGNED_TRANSACTION));
+            GenericTransaction signedTransaction = (GenericTransaction) Preconditions.checkNotNull(intent.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION));
 
             _mbwManager.getMetadataStorage().storeTransactionLabel(HexUtils.toHex(signedTransaction.getId()), "CPFP");
 
@@ -272,6 +278,7 @@ public class TransactionHistoryFragment extends Fragment {
    public void selectedAccountChanged(SelectedAccountChanged event) {
       isLoadingPossible.set(true);
       listView.setSelection(0);
+      updateWrapper(adapter);
    }
 
    @Subscribe
@@ -295,8 +302,13 @@ public class TransactionHistoryFragment extends Fragment {
       startActivity(intent);
    }
 
-   void showHistory(boolean hasHistory) {
+   private void showHistory(boolean hasHistory) {
       _root.findViewById(R.id.llNoRecords).setVisibility(hasHistory ? View.GONE : View.VISIBLE);
+      if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
+         noTransactionMessage.setText(R.string.eth_no_transaction_records);
+      } else {
+         noTransactionMessage.setText(R.string.no_transaction_records);
+      }
       listView.setVisibility(hasHistory ? View.VISIBLE : View.GONE);
       if (accountsWithPartialHistory.contains(_mbwManager.getSelectedAccount().getId())) {
          _root.findViewById(R.id.tvWarningNotFullHistory).setVisibility(View.VISIBLE);
@@ -305,7 +317,7 @@ public class TransactionHistoryFragment extends Fragment {
       }
    }
 
-   public void updateWrapper(TransactionHistoryAdapter adapter) {
+   private void updateWrapper(TransactionHistoryAdapter adapter) {
       this.adapter = adapter;
       listView.setAdapter(adapter);
       listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -448,13 +460,14 @@ public class TransactionHistoryFragment extends Fragment {
                   }
 
                   //We need implementations of GenericTransactionSummary for using something like
-                  //hasDetails|canCoinapult|canCancel
+                  //hasDetails|canCancel
                   //I set default values
                   private void updateActionBar(ActionMode actionMode, Menu menu) {
                      checkNotNull(menu.findItem(R.id.miShowDetails));
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
-                     if((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
-                         || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)) {
+                     if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
+                             || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
+                             || _mbwManager.getSelectedAccount() instanceof EthAccount) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -463,12 +476,12 @@ public class TransactionHistoryFragment extends Fragment {
                      } else {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(record.canCancel());
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction))
-                           .setVisible((record.getConfirmations() == 0));// and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0));
                        checkNotNull(menu.findItem(R.id.miBumpFee))
-                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend())); // and !canCoinapult
+                           .setVisible((record.getConfirmations() == 0) && (_mbwManager.getSelectedAccount().canSpend()));
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
-                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);// !canCoinapult
+                       checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
@@ -494,7 +507,6 @@ public class TransactionHistoryFragment extends Fragment {
                            GenericAddress address = record.getDestinationAddresses().get(0);
                            EnterAddressLabelUtil.enterAddressLabel(requireContext(), _mbwManager.getMetadataStorage(),
                                    address, defaultName, addressLabelChanged);
-                           _mbwManager.getMetadataStorage().storeAddressCoinType(address.toString(), address.getCoinType().getName());
                            break;
                         case R.id.miCancelTransaction:
                            new AlertDialog.Builder(getActivity())
@@ -618,6 +630,7 @@ public class TransactionHistoryFragment extends Fragment {
     */
    @SuppressLint("StaticFieldLeak")
    private class UpdateParentTask extends AsyncTask<Void, Void, Boolean> {
+      private Logger logger = Logger.getLogger(UpdateParentTask.class.getSimpleName());
       private final Sha256Hash txid;
       private final AlertDialog alertDialog;
       private final Context context;
@@ -637,7 +650,7 @@ public class TransactionHistoryFragment extends Fragment {
             try {
                selectedAccount.fetchStoreAndValidateParentOutputs(Collections.singletonList(transaction), true);
             } catch (WapiException e) {
-               _mbwManager.retainingWapiLogger.logError("Can't load parent", e);
+               logger.log(Level.SEVERE, "Can't load parent", e);
                return false;
             }
          }
@@ -648,15 +661,21 @@ public class TransactionHistoryFragment extends Fragment {
       protected void onPostExecute(Boolean isResultOk) {
          super.onPostExecute(isResultOk);
          if (isResultOk) {
-            final long fee = _mbwManager.getSelectedAccount().getFeeEstimations().getHigh().value;
+            final long fee = _mbwManager.getFeeProvider(_mbwManager.getSelectedAccount().getCoinType())
+                    .getEstimation()
+                    .getHigh()
+                    .getValueAsLong();
             final UnsignedTransaction unsigned = tryCreateBumpTransaction(txid, fee);
             if(unsigned != null) {
                long txFee = unsigned.calculateFee();
                Value txFeeBitcoinValue = Value.valueOf(Utils.getBtcCoinType(), txFee);
-               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue, _mbwManager.getDenomination());
-               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue, _mbwManager.getFiatCurrency());
+               String txFeeString = ValueExtensionsKt.toStringWithUnit(txFeeBitcoinValue,
+                       _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType()));
+               Value txFeeCurrencyValue = _mbwManager.getExchangeRateManager().get(txFeeBitcoinValue,
+                       _mbwManager.getFiatCurrency(_mbwManager.getSelectedAccount().getCoinType()));
                if(!Value.isNullOrZero(txFeeCurrencyValue)) {
-                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue, _mbwManager.getDenomination()) + ")";
+                  txFeeString += " (" + ValueExtensionsKt.toStringWithUnit(txFeeCurrencyValue,
+                          _mbwManager.getDenomination(_mbwManager.getSelectedAccount().getCoinType())) + ")";
                }
                alertDialog.setMessage(context.getString(R.string.description_bump_fee, fee / 1000, txFeeString));
                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.yes), (dialog, which) -> _mbwManager.runPinProtectedFunction(getActivity(), () -> {
@@ -685,10 +704,10 @@ public class TransactionHistoryFragment extends Fragment {
       GenericTransactionSummary transaction = _mbwManager.getSelectedAccount().getTxSummary(txid.getBytes());
       long txFee = 0;
       for(GenericOutputViewModel i : transaction.getInputs()) {
-         txFee += i.getValue().value;
+         txFee += i.getValue().getValueAsLong();
       }
       for(GenericOutputViewModel i : transaction.getOutputs()) {
-         txFee -= i.getValue().value;
+         txFee -= i.getValue().getValueAsLong();
       }
       if(txFee * 1000 / transaction.getRawSize() >= feePerKB) {
          makeText(getActivity(), getResources().getString(R.string.bumping_not_necessary), LENGTH_LONG).show();
@@ -723,8 +742,6 @@ public class TransactionHistoryFragment extends Fragment {
          MbwManager.getEventBus().post(new TransactionLabelChanged());
       }
    };
-
-
 
    private void shareTransactionHistory() {
       WalletAccount account = _mbwManager.getSelectedAccount();

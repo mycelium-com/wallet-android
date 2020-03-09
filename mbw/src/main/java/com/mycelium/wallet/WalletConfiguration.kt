@@ -8,12 +8,14 @@ import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
-import com.mycelium.wapi.api.ServerListChangedListener
+import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.web3j.protocol.http.HttpService
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,24 +28,28 @@ interface  MyceliumNodesApi {
     fun getNodes(): Call<MyceliumNodesResponse>
 }
 
-// A set of classes for parsing nodes.json file
+// A set of classes for parsing nodes-b.json file
 
-// MyceliumNodesResponse is intended for parsing nodes.json file
+// MyceliumNodesResponse is intended for parsing nodes-b.json file
 class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNetResponse,
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
+                            @SerializedName("ETH-testnet") val ethTestnet: ETHNetResponse?,
+                            @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
                             @SerializedName("partner-info") val partnerInfos: Map<String, PartnerDateInfo>?,
                             @SerializedName("Business") val partners: Map<String, PartnersLocalized>?)
 
 data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
 
-const val ONION_DOMAIN = ".onion"
-
-// BTCNetResponse is intended for parsing nodes.json file
+// BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
+
+class ETHNetResponse(@SerializedName("servers") val ethServers: EthServerResponse)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
 class ElectrumXResponse(val primary : Array<UrlResponse>)
+
+class EthServerResponse(val primary : Array<UrlResponse>)
 
 class UrlResponse(val url: String)
 
@@ -79,10 +85,20 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
+                    val ethServersFromResponse = if (network.isTestnet)
+                        myceliumNodesResponse?.ethTestnet?.ethServers?.primary?.map { it.url }?.toSet()
+                    else
+                        myceliumNodesResponse?.ethMainnet?.ethServers?.primary?.map { it.url }?.toSet()
+
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
 
+                    val oldElectrum = electrumServers
+                    val oldEth = ethServers
+                    ethServersFromResponse?.let {
+                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServersFromResponse)
+                    }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
                     }
@@ -96,7 +112,15 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     prefEditor.apply()
 
-                    serverListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    if (oldElectrum != electrumServers){
+                        serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
+                    }
+
+                    if (oldEth != ethServers) {
+                        for (serverEthListChangedListener in serverEthListChangedListeners) {
+                            serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
+                        }
+                    }
                 }
             } catch (_: Exception) {}
         }
@@ -110,18 +134,27 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
+    // Returns the set of ethereum servers
+    val ethServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ETH_SERVERS, mutableSetOf(*BuildConfig.EthServers))!!
+
+
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
         val result = ArrayList<TcpEndpoint>()
         electrumServers.forEach {
-            val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
-            result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+            try {
+                val strs = it.replace(TCP_TLS_PREFIX, "").split(":")
+                result.add(TcpEndpoint(strs[0], strs[1].toInt()))
+            } catch (ex: Exception) {
+                // We ignore endpoints given in wrong format
+            }
         }
         return result
     }
 
     fun getWapiEndpoints(): List<HttpEndpoint> {
-        var resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
+        val resp = gson.fromJson(wapiServers, Array<HttpsUrlResponse>::class.java)
         return resp.map {
             if (it.url.contains(ONION_DOMAIN)) {
                 TorHttpsEndpoint(it.url, it.cert)
@@ -131,15 +164,25 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         }
     }
 
-    private var serverListChangedListener: ServerListChangedListener? = null
+    //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
+    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
 
-    fun setServerListChangedListener(serverListChangedListener : ServerListChangedListener) {
-        this.serverListChangedListener = serverListChangedListener
+    private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
+    private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
+
+    fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
+        this.serverElectrumListChangedListener = serverElectrumListChangedListener
+    }
+
+    fun addEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
+        this.serverEthListChangedListeners.add(servereEthListChangedListener)
     }
 
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
+        const val PREFS_ETH_SERVERS = "eth_servers"
+        const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"
 

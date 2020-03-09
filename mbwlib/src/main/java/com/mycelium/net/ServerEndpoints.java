@@ -69,6 +69,10 @@ public class ServerEndpoints {
       return currentEndpoint;
    }
 
+   public int size() {
+      return endpoints.size();
+   }
+
    public synchronized void switchToNextEndpoint(){
       HttpEndpoint selectedEndpoint;
       int cnt=0;

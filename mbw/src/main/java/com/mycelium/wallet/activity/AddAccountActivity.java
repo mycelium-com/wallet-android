@@ -40,14 +40,15 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
@@ -55,15 +56,19 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
+import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.squareup.otto.Subscribe;
 
+import java.util.List;
 import java.util.UUID;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AddAccountActivity extends Activity {
+    private ETHCreationAsyncTask ethCreationAsyncTask;
+
     public static void callMe(Fragment fragment, int requestCode) {
         Intent intent = new Intent(fragment.getActivity(), AddAccountActivity.class);
         fragment.startActivityForResult(intent, requestCode);
@@ -78,9 +83,6 @@ public class AddAccountActivity extends Activity {
     private Toaster _toaster;
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
-
-    @BindView(R.id.btHdBchCreate)
-    View hdBchCreate;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,15 +103,24 @@ public class AddAccountActivity extends Activity {
         final View coluCreate = findViewById(R.id.btColuCreate);
         coluCreate.setOnClickListener(createColuAccount);
         _progress = new ProgressDialog(this);
-        hdBchCreate.setVisibility(View.GONE);
     }
 
-    @OnClick(R.id.btHdBchCreate)
-    void onAddBchHD() {}
+    @OnClick(R.id.btEthCreate)
+    void onAddEth() {
+        final WalletManager wallet = _mbwManager.getWalletManager(false);
+        // at this point, we have to have a master seed, since we created one on startup
+        Preconditions.checkState(_mbwManager.getMasterSeedManager().hasBip32MasterSeed());
 
-    @OnClick(R.id.btCoinapultCreate)
-    void onAddCoinapultAccount() {
-        Utils.showSimpleMessageDialog(this, R.string.coinapult_gone_details);
+        boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
+        if (!canCreateAccount) {
+            _toaster.toast(R.string.single_eth_account, false);
+            return;
+        }
+
+        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+            ethCreationAsyncTask = new ETHCreationAsyncTask();
+            ethCreationAsyncTask.execute();
+        }
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -157,10 +168,7 @@ public class AddAccountActivity extends Activity {
             _toaster.toast(R.string.use_acc_first, false);
             return;
         }
-        _progress.setCancelable(false);
-        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        _progress.setMessage(getString(R.string.hd_account_creation_started));
-        _progress.show();
+        showProgress(R.string.hd_account_creation_started);
         new HdCreationAsyncTask().execute();
     }
 
@@ -175,6 +183,35 @@ public class AddAccountActivity extends Activity {
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
         }
+    }
+
+    private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.eth_account_creation_started);
+        }
+
+        @Override
+        protected UUID doInBackground(Void... params) {
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new EthereumMasterseedConfig());
+            return accounts.get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID account) {
+            _progress.dismiss();
+            MbwManager.getEventBus().post(new AccountCreated(account));
+            MbwManager.getEventBus().post(new AccountChanged(account));
+        }
+    }
+
+    private void showProgress(@StringRes int res) {
+        _progress.setCancelable(false);
+        _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        _progress.setMessage(getString(res));
+        _progress.show();
     }
 
     @Subscribe

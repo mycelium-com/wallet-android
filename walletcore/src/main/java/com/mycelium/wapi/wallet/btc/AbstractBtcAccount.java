@@ -17,7 +17,6 @@
 package com.mycelium.wapi.wallet.btc;
 
 import com.google.common.collect.Lists;
-import com.megiontechnologies.Bitcoins;
 import com.mrd.bitlib.FeeEstimator;
 import com.mrd.bitlib.FeeEstimatorBuilder;
 import com.mrd.bitlib.PopBuilder;
@@ -41,11 +40,9 @@ import com.mrd.bitlib.util.ByteReader;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.HexUtils;
 import com.mrd.bitlib.util.Sha256Hash;
-import com.mycelium.WapiLogger;
 import com.mycelium.wapi.api.Wapi;
 import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.WapiResponse;
-import com.mycelium.wapi.api.lib.FeeEstimation;
 import com.mycelium.wapi.api.lib.TransactionExApi;
 import com.mycelium.wapi.api.request.BroadcastTransactionRequest;
 import com.mycelium.wapi.api.request.CheckTransactionsRequest;
@@ -54,7 +51,6 @@ import com.mycelium.wapi.api.request.QueryUnspentOutputsRequest;
 import com.mycelium.wapi.api.response.BroadcastTransactionResponse;
 import com.mycelium.wapi.api.response.CheckTransactionsResponse;
 import com.mycelium.wapi.api.response.GetTransactionsResponse;
-import com.mycelium.wapi.api.response.MinerFeeEstimationResponse;
 import com.mycelium.wapi.api.response.QueryUnspentOutputsResponse;
 import com.mycelium.wapi.model.BalanceSatoshis;
 import com.mycelium.wapi.model.TransactionDetails;
@@ -68,7 +64,6 @@ import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.GenericFee;
 import com.mycelium.wapi.wallet.GenericInputViewModel;
@@ -109,8 +104,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
@@ -127,7 +122,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    protected final NetworkParameters _network;
    protected final Wapi _wapi;
-   protected final WapiLogger _logger;
+   protected final Logger _logger;
    protected boolean _allowZeroConfSpending = true;      //on per default, we warn users if they use it
    protected BalanceSatoshis _cachedBalance;
 
@@ -137,20 +132,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    protected AbstractBtcAccount(BtcAccountBacking backing, NetworkParameters network, Wapi wapi) {
       _network = network;
-      _logger = wapi.getLogger();
+      _logger = Logger.getLogger(AbstractBtcAccount.class.getSimpleName());
       _wapi = wapi;
       _backing = backing;
-      coluTransferInstructionsParser = new ColuTransferInstructionsParser(_logger);
-   }
-
-   private FeeEstimationsGeneric getDefaultFeeEstimation() {
-      return new FeeEstimationsGeneric(
-              Value.valueOf(getCoinType(), 1000),
-              Value.valueOf(getCoinType(), 3000),
-              Value.valueOf(getCoinType(), 6000),
-              Value.valueOf(getCoinType(), 8000),
-              0
-      );
+      coluTransferInstructionsParser = new ColuTransferInstructionsParser();
    }
 
    @Override
@@ -164,9 +149,9 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
       ArrayList<BtcReceiver> receivers = new ArrayList<>();
-      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().value));
+      receivers.add(new BtcReceiver(btcTransaction.getDestination().getAddress(), btcTransaction.getAmount().getValueAsLong()));
       try {
-         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().value));
+         btcTransaction.setUnsignedTx(createUnsignedTransaction(receivers, btcTransaction.getFeePerKb().getValueAsLong()));
          return btcTransaction;
       } catch (StandardTransactionBuilder.OutputTooSmallException ex) {
          throw new GenericOutputTooSmallException(ex);
@@ -328,7 +313,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             unspentOutputResponse = _wapi.queryUnspentOutputs(new QueryUnspentOutputsRequest(Wapi.VERSION, addresses))
                .getResult();
       } catch (WapiException e) {
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          postEvent(Event.SERVER_CONNECTION_ERROR);
          return -1;
       }
@@ -423,13 +408,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       }
 
       // Fetch updated or added transactions
-      if (transactionsToAddOrUpdate.size() > 0) {
+      if (!transactionsToAddOrUpdate.isEmpty()) {
          GetTransactionsResponse response;
          try {
             response = getTransactionsBatched(transactionsToAddOrUpdate).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
-            _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return -1;
          }
@@ -443,7 +428,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                if (isMine(output)) {
                   _backing.putUnspentOutput(output);
                } else {
-                  _logger.logError("We got an UTXO that does not belong to us: " + output.toString());
+                  _logger.log(Level.SEVERE, "We got an UTXO that does not belong to us: " + output.toString());
                }
             }
             _backing.setTransactionSuccessful();
@@ -454,7 +439,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
       // if we removed some UTXO because of a sync, it means that there are transactions
       // we don't yet know about. Run a discover for all addresses related to the UTXOs we removed
-      if (addressesToDiscover.size() > 0) {
+      if (!addressesToDiscover.isEmpty()) {
          try {
             doDiscoveryForAddresses(Lists.newArrayList(addressesToDiscover));
          } catch (WapiException ignore) {
@@ -468,7 +453,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return _wapi.getTransactions(fullRequest);
    }
 
-   protected abstract Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
+   protected abstract Set<BipDerivationType> doDiscoveryForAddresses(List<Address> lookAhead) throws WapiException;
 
    private static Map<OutPoint, TransactionOutputEx> toMap(Collection<TransactionOutputEx> list) {
       Map<OutPoint, TransactionOutputEx> map = new HashMap<>();
@@ -479,6 +464,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    protected void handleNewExternalTransactions(Collection<TransactionExApi> transactions) throws WapiException {
+      // TODO: simplify. The "if" is not needed.
       if (transactions.size() <= MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          handleNewExternalTransactionsInt(transactions);
          syncTotalRetrievedTransactions += transactions.size();
@@ -504,7 +490,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             txArray.add(Transaction.fromByteReader(new ByteReader(tex.binary)));
          } catch (TransactionParsingException e) {
             // We hit a transaction that we cannot parse. Log but otherwise ignore it
-            _logger.logError("Received transaction that we cannot parse: " + tex.txid.toString());
+            _logger.log(Level.SEVERE, "Received transaction that we cannot parse: " + tex.txid.toString());
          }
       }
 
@@ -514,8 +500,8 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Store transaction locally
       _backing.putTransactions(transactions);
 
-      for (int i = 0; i < txArray.size(); i++) {
-         onNewTransaction(txArray.get(i));
+      for (Transaction t : txArray) {
+         onNewTransaction(t);
       }
    }
 
@@ -574,7 +560,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             if (hash.equals(tx.hash)) {
                parentTransactions.put(tx.txid, tx);
             } else {
-               _logger.logError("Failed to validate transaction hash from server. Expected: " + tx.txid
+               _logger.log(Level.SEVERE, "Failed to validate transaction hash from server. Expected: " + tx.txid
                        + " Calculated: " + hash);
                //TODO: Document what's happening here.
                //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
@@ -677,7 +663,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             }
             TransactionOutputEx parent = _backing.getParentTransactionOutput(input.outPoint);
             if (parent == null) {
-               _logger.logError("Unable to find parent transaction output: " + input.outPoint);
+               _logger.log(Level.SEVERE, "Unable to find parent transaction output: " + input.outPoint);
                continue;
             }
             TransactionOutput parentOutput = transform(parent);
@@ -735,7 +721,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          try {
             transaction = Transaction.fromBytes(rawTransaction);
          } catch (TransactionParsingException e) {
-            _logger.logError("Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
+            _logger.log(Level.SEVERE, "Unable to parse transaction from bytes: " + HexUtils.toHex(rawTransaction), e);
             return  false;
          }
          BroadcastResult result = broadcastTransaction(transaction);
@@ -777,13 +763,13 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                } else {
                    // This transaction was rejected must be double spend or
                    // malleability, delete it locally.
-                   _logger.logError("Failed to broadcast transaction due to a double spend or malleability issue");
+                   _logger.log(Level.SEVERE, "Failed to broadcast transaction due to a double spend or malleability issue");
                    postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
                    return new BroadcastResult(BroadcastResultType.REJECT_DUPLICATE);
                }
            } else if (errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
                postEvent(Event.SERVER_CONNECTION_ERROR);
-               _logger.logError("Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
+               _logger.log(Level.SEVERE, "Server connection failed with ERROR_CODE_NO_SERVER_CONNECTION");
                return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
            } else if(errorCode == Wapi.ElectrumxError.REJECT_MALFORMED.getErrorCode()) {
                return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_MALFORMED);
@@ -795,12 +781,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
                return new BroadcastResult(response.getErrorMessage(), BroadcastResultType.REJECT_INSUFFICIENT_FEE);
            } else {
                postEvent(Event.BROADCASTED_TRANSACTION_DENIED);
-               _logger.logError("Server connection failed with error: " + errorCode);
+               _logger.log(Level.SEVERE, "Server connection failed with error: " + errorCode);
                return new BroadcastResult(BroadcastResultType.REJECTED);
            }
        } catch (WapiException e) {
            postEvent(Event.SERVER_CONNECTION_ERROR);
-           _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+           _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
            return new BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION);
        }
    }
@@ -808,7 +794,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    protected void checkNotArchived() {
       final String usingArchivedAccount = "Using archived account";
       if (isArchived()) {
-         _logger.logError(usingArchivedAccount);
+         _logger.log(Level.SEVERE,usingArchivedAccount);
          throw new RuntimeException(usingArchivedAccount);
       }
    }
@@ -965,7 +951,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          TransactionEx tex = new TransactionEx(btcTx.getId(), btcTx.getHash(), -1, now, txBytes);
          queueTransaction(tex);
       } catch (TransactionParsingException e) {
-         _logger.logInfo(String.format("Unable to parse transaction %s: %s", HexUtils.toHex(transaction.getId()), e.getMessage()));
+         _logger.log(Level.INFO,String.format("Unable to parse transaction %s: %s", HexUtils.toHex(transaction.getId()), e.getMessage()));
       }
    }
 
@@ -975,7 +961,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       try {
          parsedTransaction = Transaction.fromBytes(transaction.binary);
       } catch (TransactionParsingException e) {
-         _logger.logInfo(String.format("Unable to parse transaction %s: %s", transaction.txid, e.getMessage()));
+         _logger.log(Level.INFO,String.format("Unable to parse transaction %s: %s", transaction.txid, e.getMessage()));
          return;
       }
       try {
@@ -1129,12 +1115,12 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public synchronized Value calculateMaxSpendableAmount(long minerFeePerKbToUse, BtcAddress destinationAddress) {
+   public synchronized Value calculateMaxSpendableAmount(Value minerFeePerKbToUse, BtcAddress destinationAddress) {
 
       Address destAddress = destinationAddress != null ? destinationAddress.getAddress() : null;
 
       checkNotArchived();
-      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse));
+      Collection<UnspentTransactionOutput> spendableOutputs = transform(getSpendableOutputs(minerFeePerKbToUse.getValueAsLong()));
       long satoshis = 0;
 
       // sum up the maximal available number of satoshis (i.e. sum of all spendable outputs)
@@ -1147,7 +1133,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // but we use "2" here, because the tx-estimation in StandardTransactionBuilder always includes an
       // output into its estimate - so add one here too to arrive at the same tx fee
       FeeEstimatorBuilder estimatorBuilder = new FeeEstimatorBuilder().setArrayOfInputs(spendableOutputs)
-              .setMinerFeePerKb(minerFeePerKbToUse);
+              .setMinerFeePerKb(minerFeePerKbToUse.getValueAsLong());
       addOutputToEstimation(destAddress, estimatorBuilder);
       FeeEstimator estimator = estimatorBuilder.createFeeEstimator();
       long feeToUse = estimator.estimateFee();
@@ -1178,7 +1164,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Try to create an unsigned transaction
       try {
          stb.createUnsignedTransaction(spendableOutputs, getChangeAddress(Address.getNullAddress(_network, destinationAddressType)),
-                 new PublicKeyRing(), _network, minerFeePerKbToUse);
+                 new PublicKeyRing(), _network, minerFeePerKbToUse.getValueAsLong());
          // We have enough to pay the fees, return the amount as the maximum
          return Value.valueOf(_network.isProdnet() ? BitcoinMain.get() : BitcoinTest.get(), satoshis);
       } catch (InsufficientFundsException | StandardTransactionBuilder.UnableToBuildTransactionException e) {
@@ -1352,7 +1338,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          tx = Transaction.fromByteReader(new ByteReader(tex.binary));
       } catch (TransactionParsingException e) {
          // Should not happen as we have parsed the transaction earlier
-         _logger.logError("Unable to parse ");
+         _logger.log(Level.SEVERE, "Unable to parse ");
          return null;
       }
 
@@ -1477,7 +1463,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
          result = _wapi.checkTransactions(new CheckTransactionsRequest(txids)).getResult();
       } catch (WapiException e) {
          postEvent(Event.SERVER_CONNECTION_ERROR);
-         _logger.logError("Server connection failed with error code: " + e.errorCode, e);
+         _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
          // We failed to check transactions
          return false;
       }
@@ -1539,7 +1525,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // The transaction got a new height. There could be
             // several reasons for that. It confirmed, or might also be a reorg.
             TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary);
-            _logger.logInfo(String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
+            _logger.log(Level.INFO,String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
             _backing.putTransaction(newTex);
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
          }
@@ -1697,20 +1683,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       return history;
    }
 
-    @Override
-    public List<GenericTransaction> getTransactions(int offset, int limit) {
-        checkNotArchived();
-        List<TransactionEx> list = _backing.getTransactionHistory(offset, limit);
-        List<GenericTransaction> history = new ArrayList<>();
-        for (TransactionEx tex: list) {
-            GenericTransaction tx = getTx(tex.txid.getBytes());
-            if(tx != null) {
-                history.add(tx);
-            }
-        }
-        return history;
-    }
-
     public List<GenericTransactionSummary> getTransactionSummaries(int offset, int limit) {
       // Note that this method is not synchronized, and we might fetch the transaction history while synchronizing
       // accounts. That should be ok as we write to the DB in a sane order.
@@ -1772,7 +1744,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // find parent output
             TransactionOutputEx funding = _backing.getParentTransactionOutput(input.outPoint);
             if (funding == null) {
-               _logger.logError("Unable to find parent output for: " + input.outPoint);
                continue;
             }
             if (isMine(funding)) {
@@ -1844,41 +1815,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
 
    public int getSyncTotalRetrievedTransactions() {
       return syncTotalRetrievedTransactions;
-   }
-
-   @Override
-   public FeeEstimationsGeneric getFeeEstimations() {
-      // we try to get fee estimation from server
-      try {
-         WapiResponse<MinerFeeEstimationResponse> response = _wapi.getMinerFeeEstimations();
-         FeeEstimation oldStyleFeeEstimation = response.getResult().feeEstimation;
-         Bitcoins lowPriority = oldStyleFeeEstimation.getEstimation(20);
-         Bitcoins normal = oldStyleFeeEstimation.getEstimation(3);
-         Bitcoins economy = oldStyleFeeEstimation.getEstimation(10);
-         Bitcoins high = oldStyleFeeEstimation.getEstimation(1);
-         FeeEstimationsGeneric result = new FeeEstimationsGeneric(
-                 Value.valueOf(getCoinType(), lowPriority.getLongValue()),
-                 Value.valueOf(getCoinType(), economy.getLongValue()),
-                 Value.valueOf(getCoinType(), normal.getLongValue()),
-                 Value.valueOf(getCoinType(), high.getLongValue()),
-                 System.currentTimeMillis()
-         );
-         //if all ok we return requested new fee estimation
-         _backing.saveLastFeeEstimation(result, getCoinType());
-         return result;
-      } catch (WapiException ex) {
-         return getCachedFeeEstimations();
-      }
-   }
-
-   @Override
-   @Nonnull
-   public FeeEstimationsGeneric getCachedFeeEstimations() {
-      FeeEstimationsGeneric feeFromDb = _backing.loadLastFeeEstimation(getCoinType());
-      //if a read error has occurred from the DB, then we return the predefined default fee
-      return feeFromDb == null
-              ? getDefaultFeeEstimation()
-              : feeFromDb;
    }
 
    public void updateSyncProgress() {

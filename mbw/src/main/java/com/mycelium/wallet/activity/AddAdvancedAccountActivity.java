@@ -38,7 +38,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -71,6 +70,8 @@ import com.mycelium.wallet.activity.util.ImportCoCoHDAccount;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
+import com.mycelium.wallet.event.AccountChanged;
+import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.extsig.keepkey.activity.KeepKeyAccountImportActivity;
 import com.mycelium.wallet.extsig.ledger.activity.LedgerAccountImportActivity;
 import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
@@ -93,6 +94,7 @@ import com.mycelium.wapi.wallet.colu.ColuModule;
 import com.mycelium.wapi.wallet.colu.ColuUtils;
 import com.mycelium.wapi.wallet.colu.PrivateColuConfig;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
+import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,64 +144,24 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       _mbwManager = MbwManager.getInstance(this);
       _network = _mbwManager.getNetwork();
 
-      findViewById(R.id.btScan).setOnClickListener(new View.OnClickListener() {
+      findViewById(R.id.btScan).setOnClickListener(v -> ScanActivity.callMe(activity, SCAN_RESULT_CODE, HandleConfigFactory.returnKeyOrAddressOrHdNode()));
 
-         @Override
-         public void onClick(View v) {
-            ScanActivity.callMe(activity, SCAN_RESULT_CODE, HandleConfigFactory.returnKeyOrAddressOrHdNode());
-         }
-
+      findViewById(R.id.btGenerateNewSingleKey).setOnClickListener(view -> {
+         Intent intent = new Intent(activity, CreateKeyActivity.class);
+         startActivityForResult(intent, CREATE_RESULT_CODE);
       });
 
-      findViewById(R.id.btGenerateNewSingleKey).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Intent intent = new Intent(activity, CreateKeyActivity.class);
-            startActivityForResult(intent, CREATE_RESULT_CODE);
-         }
-      });
+      findViewById(R.id.btTrezor).setOnClickListener(view -> TrezorAccountImportActivity.callMe(activity, TREZOR_RESULT_CODE));
 
-      findViewById(R.id.btTrezor).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            TrezorAccountImportActivity.callMe(activity, TREZOR_RESULT_CODE);
-         }
-      });
+      findViewById(R.id.btBuyTrezor).setOnClickListener(view -> Utils.openWebsite(activity, BUY_TREZOR_LINK));
 
-      findViewById(R.id.btBuyTrezor).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Utils.openWebsite(activity, BUY_TREZOR_LINK);
-         }
-      });
+      findViewById(R.id.btKeepKey).setOnClickListener(view -> KeepKeyAccountImportActivity.callMe(activity, KEEPKEY_RESULT_CODE));
 
-      findViewById(R.id.btKeepKey).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            KeepKeyAccountImportActivity.callMe(activity, KEEPKEY_RESULT_CODE);
-         }
-      });
+      findViewById(R.id.btBuyKeepKey).setOnClickListener(view -> Utils.openWebsite(activity, BUY_KEEPKEY_LINK));
 
-      findViewById(R.id.btBuyKeepKey).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Utils.openWebsite(activity, BUY_KEEPKEY_LINK);
-         }
-      });
+      findViewById(R.id.btLedger).setOnClickListener(view -> LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE));
 
-      findViewById(R.id.btLedger).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            LedgerAccountImportActivity.callMe(activity, LEDGER_RESULT_CODE);
-         }
-      });
-
-      findViewById(R.id.btBuyLedger).setOnClickListener(new View.OnClickListener() {
-         @Override
-         public void onClick(View view) {
-            Utils.openWebsite(activity, BUY_LEDGER_LINK);
-         }
-      });
+      findViewById(R.id.btBuyLedger).setOnClickListener(view -> Utils.openWebsite(activity, BUY_LEDGER_LINK));
       btGenerateNewBchSingleKey.setVisibility(View.GONE);
    }
 
@@ -221,16 +183,12 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       } else {
          clip.setText(R.string.clipboard_not_available);
       }
-      clip.setOnClickListener(new View.OnClickListener() {
+      clip.setOnClickListener(v -> {
+         Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
+                 HandleConfigFactory.returnKeyOrAddressOrHdNode(),
+                 Utils.getClipboardString(AddAdvancedAccountActivity.this));
 
-         @Override
-         public void onClick(View v) {
-            Intent intent = StringHandlerActivity.getIntent(AddAdvancedAccountActivity.this,
-                    HandleConfigFactory.returnKeyOrAddressOrHdNode(),
-                    Utils.getClipboardString(AddAdvancedAccountActivity.this));
-
-            startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
-         }
+         startActivityForResult(intent, CLIPBOARD_RESULT_CODE);
       });
    }
 
@@ -238,7 +196,11 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
     * SA watch only accounts import method.
     */
    private void returnAccount(GenericAddress address) {
-      //UUID acc = _mbwManager.getWalletManager(false).createSingleAddressAccount(address);
+      // temporary solution: unrelated Ethereum accounts will be implemented later
+      if (address.getCoinType() instanceof EthCoin) {
+         new Toaster(this).toast("Exporting unrelated Ethereum accounts still to be implemented.", false);
+         return;
+      }
       new ImportReadOnlySingleAddressAccountAsyncTask(address).execute();
    }
 
@@ -274,12 +236,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
               .setTitle(R.string.coco_service_unavailable)
               .setMessage(R.string.connection_unavailable)
               .setCancelable(true)
-              .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int id) {
-                    returnBip32Account(hdKeyNode);
-                 }
-              })
+              .setPositiveButton(R.string.try_again, (dialog, id) -> returnBip32Account(hdKeyNode))
               .setNegativeButton(R.string.cancel, null)
               .create()
               .show();
@@ -290,13 +247,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
               .setTitle(R.string.attention)
               .setMessage(R.string.coco_scan_warning)
               .setCancelable(true)
-              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int id) {
-                    ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
-                    importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
-                    importCoCoHDAccount.execute();
-                 }
+              .setPositiveButton(R.string.button_continue, (dialog, id) -> {
+                 ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
+                 importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
+                 importCoCoHDAccount.execute();
               })
               .setNegativeButton(R.string.cancel, null)
               .create()
@@ -383,18 +337,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                           .setTitle(R.string.priv_key_of_watch_only_account)
                           .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, _mbwManager.getMetadataStorage().getLabelByAccount(hdKeyNode.getUuid())))
-                          .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                             @Override
-                             public void onClick(DialogInterface dialogInterface, int i) {
-                                finishAlreadyExist(existingAccount.getReceiveAddress());
-                             }
-                          })
-                          .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                             @Override
-                             public void onClick(DialogInterface dialogInterface, int i) {
-                                returnAccount(hdKeyNode, true);
-                             }
-                          })
+                          .setNegativeButton(R.string.cancel, (dialogInterface, i) -> finishAlreadyExist(existingAccount.getReceiveAddress()))
+                          .setPositiveButton(R.string.ok, (dialogInterface, i) -> returnAccount(hdKeyNode, true))
                           .create()
                           .show();
                }
@@ -445,7 +389,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          for (Address addr : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
             GenericAddress checkedAddress = AddressUtils.fromAddress(addr);
             List<WalletAccount<?>> accounts = walletManager.getAccountsBy(checkedAddress);
-            if (accounts.size() > 0) {
+            if (!accounts.isEmpty()) {
                existingAccounts = accounts;
                break;
             }
@@ -454,14 +398,14 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          Address coluAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH);
          ColuModule coluModule = (ColuModule)_mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
          coluAssets = coluModule.getColuAssets(coluAddress);
-         return coluAssets.size() > 0 ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
+         return coluAssets.isEmpty() ? AddressCheckResult.NoColuAssets : AddressCheckResult.HasColuAssets;
       }
 
       @Override
       protected void onPostExecute(AddressCheckResult result) {
          dialog.dismiss();
 
-         if (existingAccounts.size() == 0) {
+         if (existingAccounts.isEmpty()) {
             switch (result) {
                case HasColuAssets:
                   // We support only one asset per address
@@ -476,26 +420,18 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                   adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
                   new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                           .setTitle(R.string.restore_address_as)
-                          .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                             @Override
-                             public void onClick(DialogInterface dialogInterface, int i) {
-                                selectedItem = i;
+                          .setSingleChoiceItems(adapter, 0, (dialogInterface, i) -> selectedItem = i)
+                          .setPositiveButton(R.string.button_ok, (dialogInterface, i) -> {
+                             UUID account1;
+                             if (selectedItem == 0) {
+                                account1 = returnSAAccount(key, backupState);
+                             } else {
+                                ColuMain coinType1 = (ColuMain) adapter.getItem(selectedItem);
+                                List<UUID> accounts = _mbwManager.getWalletManager(false)
+                                        .createAccounts(new PrivateColuConfig(key, coinType1, AesKeyCipher.defaultKeyCipher()));
+                                account1 = accounts.get(0);
                              }
-                          })
-                          .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                             @Override
-                             public void onClick(DialogInterface dialogInterface, int i) {
-                                UUID account;
-                                if (selectedItem == 0) {
-                                   account = returnSAAccount(key, backupState);
-                                } else {
-                                   ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
-                                   List<UUID> accounts = _mbwManager.getWalletManager(false)
-                                           .createAccounts(new PrivateColuConfig(key, coinType, AesKeyCipher.defaultKeyCipher()));
-                                   account = accounts.get(0);
-                                }
-                                finishOk(account, false);
-                             }
+                             finishOk(account1, false);
                           })
                           .create()
                           .show();
@@ -527,26 +463,18 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       new AlertDialog.Builder(AddAdvancedAccountActivity.this)
               .setTitle(R.string.priv_key_of_watch_only_account)
               .setMessage(getString(R.string.want_to_add_priv_key_to_watch_account, existingAccountName))
-              .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialogInterface, int i) {
-                    finishAlreadyExist(accToUpgrade.getReceiveAddress());
+              .setNegativeButton(R.string.cancel, (dialogInterface, i) -> finishAlreadyExist(accToUpgrade.getReceiveAddress()))
+              .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                 UUID accountId = accToUpgrade.getId();
+                 WalletManager walletManager = _mbwManager.getWalletManager(false);
+                 walletManager.deleteAccount(accToUpgrade.getId());
+                 if (accToUpgrade instanceof SingleAddressAccount) {
+                    accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
+                            AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
+                 } else {
+                    walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) accToUpgrade.getCoinType(), AesKeyCipher.defaultKeyCipher()));
                  }
-              })
-              .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialogInterface, int i) {
-                    UUID accountId = accToUpgrade.getId();
-                    WalletManager walletManager = _mbwManager.getWalletManager(false);
-                    walletManager.deleteAccount(accToUpgrade.getId());
-                    if (accToUpgrade instanceof SingleAddressAccount) {
-                       accountId = walletManager.createAccounts(new PrivateSingleConfig(key,
-                               AesKeyCipher.defaultKeyCipher(), existingAccountName)).get(0);
-                    } else {
-                       walletManager.createAccounts(new PrivateColuConfig(key, (ColuMain) accToUpgrade.getCoinType(), AesKeyCipher.defaultKeyCipher()));
-                    }
-                    finishOk(accountId, true);
-                 }
+                 finishOk(accountId, true);
               })
               .create()
               .show();
@@ -625,7 +553,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
          BtcAddress btcAddress = (BtcAddress) address;
          ColuModule coluModule = (ColuModule) _mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
          coluAssets = coluModule.getColuAssets(btcAddress.getAddress());
-         return coluAssets.size() > 0 ? AddressCheckResult.HasColuAssets : AddressCheckResult.NoColuAssets;
+         return coluAssets.isEmpty() ? AddressCheckResult.NoColuAssets : AddressCheckResult.HasColuAssets;
       }
 
       @Override
@@ -649,26 +577,18 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
                adapter.addAll(ColuUtils.allColuCoins(BuildConfig.FLAVOR));
                new AlertDialog.Builder(AddAdvancedAccountActivity.this)
                        .setTitle(R.string.restore_address_as)
-                       .setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialogInterface, int i) {
-                             selectedItem = i;
+                       .setSingleChoiceItems(adapter, 0, (dialogInterface, i) -> selectedItem = i)
+                       .setPositiveButton(R.string.button_ok, (dialogInterface, i) -> {
+                          UUID account1;
+                          if (selectedItem == 0) {
+                             account1 = _mbwManager.getWalletManager(false)
+                                     .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
+                          } else {
+                             ColuMain coinType1 = (ColuMain) adapter.getItem(selectedItem);
+                             account1 = _mbwManager.getWalletManager(false)
+                                     .createAccounts(new AddressColuConfig((BtcAddress) address, coinType1)).get(0);
                           }
-                       })
-                       .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                          @Override
-                          public void onClick(DialogInterface dialogInterface, int i) {
-                             UUID account;
-                             if (selectedItem == 0) {
-                                account = _mbwManager.getWalletManager(false)
-                                        .createAccounts(new AddressSingleConfig((BtcAddress) address)).get(0);
-                             } else {
-                                ColuMain coinType = (ColuMain) adapter.getItem(selectedItem);
-                                account = _mbwManager.getWalletManager(false)
-                                        .createAccounts(new AddressColuConfig((BtcAddress) address, coinType)).get(0);
-                             }
-                             finishOk(account, false);
-                          }
+                          finishOk(account1, false);
                        })
                        .create()
                        .show();
@@ -702,12 +622,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       new AlertDialog.Builder(this)
               .setTitle(R.string.coco_found)
               .setMessage(message)
-              .setPositiveButton(R.string.button_continue, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialogInterface, int i) {
-                    finishOk(firstAddedAccount, false);
-                 }
-              })
+              .setPositiveButton(R.string.button_continue, (dialogInterface, i) -> finishOk(firstAddedAccount, false))
               .create()
               .show();
    }
@@ -718,13 +633,10 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
               .setTitle(R.string.coco_not_found)
               .setMessage(R.string.no_digital_asset)
               .setPositiveButton(R.string.close, null)
-              .setNegativeButton(R.string.rescan, new DialogInterface.OnClickListener() {
-                 @Override
-                 public void onClick(DialogInterface dialog, int id) {
-                    ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
-                    importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
-                    importCoCoHDAccount.execute();
-                 }
+              .setNegativeButton(R.string.rescan, (dialog, id) -> {
+                 ImportCoCoHDAccount importCoCoHDAccount = new ImportCoCoHDAccount(AddAdvancedAccountActivity.this, hdKeyNode);
+                 importCoCoHDAccount.setFinishListener(AddAdvancedAccountActivity.this);
+                 importCoCoHDAccount.execute();
               })
               .create()
               .show();
@@ -751,6 +663,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private void finishOk(UUID account, boolean isUpgrade) {
+      MbwManager.getEventBus().post(new AccountCreated(account));
+      MbwManager.getEventBus().post(new AccountChanged(account));
       Intent result = new Intent()
               .putExtra(AddAccountActivity.RESULT_KEY, account)
               .putExtra(AddAccountActivity.IS_UPGRADE, isUpgrade);

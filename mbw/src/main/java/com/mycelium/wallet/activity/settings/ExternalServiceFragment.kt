@@ -13,16 +13,16 @@ import com.mycelium.wallet.activity.settings.SettingsPreference.fioEnabled
 import com.mycelium.wallet.activity.settings.SettingsPreference.mediaFlowEnabled
 
 class ExternalServiceFragment : PreferenceFragmentCompat() {
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_external_service)
-        val mbwManager = MbwManager.getInstance(requireActivity().application)
+        val mbwManager = MbwManager.getInstance(requireActivity())
         setHasOptionsMenu(true)
-        val actionBar = (requireActivity() as SettingsActivity).supportActionBar
-        actionBar?.setTitle(R.string.external_service)
-        actionBar?.setHomeAsUpIndicator(R.drawable.ic_back_arrow)
-        actionBar?.setDisplayShowHomeEnabled(false)
-        actionBar?.setDisplayHomeAsUpEnabled(true)
+        (requireActivity() as SettingsActivity).supportActionBar!!.apply {
+            setTitle(R.string.external_service)
+            setHomeAsUpIndicator(R.drawable.ic_back_arrow)
+            setDisplayShowHomeEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+        }
 
         val preferenceCategory = findPreference<PreferenceCategory>("container")
         val buySellServices = mbwManager.environmentSettings.buySellServices

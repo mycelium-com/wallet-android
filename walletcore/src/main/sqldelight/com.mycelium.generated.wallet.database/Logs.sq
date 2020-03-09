@@ -1,0 +1,22 @@
+-- Creates table for generic logs storage
+
+CREATE TABLE IF NOT EXISTS Logs(
+    dateMillis INTEGER NOT NULL,
+    level TEXT NOT NULL,
+    message TEXT NOT NULL
+);
+
+insert:
+INSERT INTO Logs(dateMillis, level, message)
+VALUES (?, ?, ?);
+
+select:
+SELECT * FROM Logs ORDER BY dateMillis ASC;
+
+selectWithLimit:
+SELECT * FROM Logs ORDER BY dateMillis DESC LIMIT (?) ;
+
+cleanUp:
+DELETE FROM Logs WHERE dateMillis <
+  (SELECT min(dateMillis) FROM
+    (SELECT dateMillis FROM Logs ORDER BY dateMillis DESC LIMIT (?))) ;
