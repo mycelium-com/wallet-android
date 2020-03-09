@@ -1,8 +1,8 @@
 package com.mycelium.wapi;
 
 import com.mrd.bitlib.util.HexUtils;
-import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 
+import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -12,11 +12,10 @@ import static org.junit.Assert.assertEquals;
 
 public class ColuTransferInstructionsParserTest {
     private final ColuTransferInstructionsParser coluTransferInstructionsParser = new ColuTransferInstructionsParser();
-
     @Test
     public void getAmountTotalBytesSFFC() throws Exception {
-        for (byte b : ColuTransferInstructionsParser.SFFC_FLAG_BYTES_MAP.keySet()) {
-            assertEquals((int) ColuTransferInstructionsParser.SFFC_FLAG_BYTES_MAP.get(b), ColuTransferInstructionsParser.getAmountTotalBytesSFFC(b));
+        for (byte b: ColuTransferInstructionsParser.SFFC_FLAG_BYTES_MAP.keySet()) {
+            assertEquals((int)ColuTransferInstructionsParser.SFFC_FLAG_BYTES_MAP.get(b), ColuTransferInstructionsParser.getAmountTotalBytesSFFC(b));
         }
     }
 
@@ -29,9 +28,9 @@ public class ColuTransferInstructionsParserTest {
                 "00 03");       // output: 0, amount: 3
         List<Integer> outputIndexes = coluTransferInstructionsParser.retrieveOutputIndexesFromScript(script);
         assertEquals(3, outputIndexes.size());
-        assertEquals(1, (int) outputIndexes.get(0));
-        assertEquals(5, (int) outputIndexes.get(1));
-        assertEquals(0, (int) outputIndexes.get(2));
+        assertEquals(1, (int)outputIndexes.get(0));
+        assertEquals(5, (int)outputIndexes.get(1));
+        assertEquals(0, (int)outputIndexes.get(2));
     }
 
     @Test

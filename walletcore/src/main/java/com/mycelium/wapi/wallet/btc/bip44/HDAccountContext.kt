@@ -92,9 +92,8 @@ class HDAccountContext @JvmOverloads constructor(
         }
     }
 
-    fun getLastExternalIndexWithActivity(type: BipDerivationType): Int {
-        return indexesMap[type]!!.lastExternalIndexWithActivity
-    }
+    fun getLastExternalIndexWithActivity(type: BipDerivationType): Int =
+            indexesMap[type]?.lastExternalIndexWithActivity ?: 0
 
     internal fun setLastExternalIndexWithActivity(type: BipDerivationType, lastExternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastExternalIndexWithActivity != lastExternalIndexWithActivity) {
@@ -103,9 +102,8 @@ class HDAccountContext @JvmOverloads constructor(
         }
     }
 
-    fun getLastInternalIndexWithActivity(type: BipDerivationType): Int {
-        return indexesMap[type]!!.lastInternalIndexWithActivity
-    }
+    fun getLastInternalIndexWithActivity(type: BipDerivationType): Int =
+            indexesMap[type]?.lastInternalIndexWithActivity ?: 0
 
     internal fun setLastInternalIndexWithActivity(type: BipDerivationType, lastInternalIndexWithActivity: Int) {
         if (indexesMap[type]!!.lastInternalIndexWithActivity != lastInternalIndexWithActivity) {
