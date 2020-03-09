@@ -143,19 +143,22 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions()
-                .filter { it.from != receiveAddress.addressString && it.to == receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions() .filter {
+                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions()
-                    .filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
-                    .map { tx -> tx.value.value + tx.fee.value }
-                    .fold(BigInteger.ZERO, BigInteger::add) +
-            backing.getUnconfirmedTransactions()
-                    .filter { it.from == receiveAddress.addressString && it.to == receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions().filter {
+                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+                }
+                .map { tx -> tx.value.value + tx.fee.value }
+                .fold(BigInteger.ZERO, BigInteger::add) +
+            backing.getUnconfirmedTransactions() .filter {
+                        it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                    }
                     .map { tx -> tx.fee.value }
                     .fold(BigInteger.ZERO, BigInteger::add)
     }

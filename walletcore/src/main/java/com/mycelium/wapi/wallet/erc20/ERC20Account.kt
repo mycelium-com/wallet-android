@@ -204,13 +204,17 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter { it.from != receiveAddress.addressString && it.to == receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions().filter {
+                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions().filter {
+                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+                }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
