@@ -78,16 +78,15 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         UnconfirmedTransaction(fromAddress, toAddress, value, fee) }).executeAsList()
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
-                       gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger = BigInteger.valueOf(21000)) {
+                       gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
-        ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit, gasUsed)
+        ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit)
+        if (gasUsed != null) {
+            updateGasUsed(txid, gasUsed, gasPrice)
+        }
     }
 
-    fun updateTransaction(txid: String, blockNumber: Int, confirmations: Int) {
-        queries.updateTransaction(blockNumber, confirmations, uuid, txid)
-    }
-
-    fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {
+    private fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {
         ethQueries.updateGasUsed(gasUsed, uuid, txid)
         queries.updateFee(fee, uuid, txid)
     }
@@ -119,11 +118,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val outputs = if (to.isEmpty()) listOf()
         else listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
-        val transferred = if ((from == ownerAddress) && (to != ownerAddress)) {
+        val transferred = if ((from.equals(ownerAddress, true)) && (!to.equals(ownerAddress, true))) {
             if (token != null) -convertedValue else -convertedValue - fee
-        } else if ((from != ownerAddress) && (to == ownerAddress)) {
+        } else if ((!from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
             convertedValue
-        } else if ((from == ownerAddress) && (to == ownerAddress)) {
+        } else if ((from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
             if (token != null) Value.zeroValue(token) else -fee // sent to ourselves
         } else {
             // transaction doesn't relate to us in any way. should not happen

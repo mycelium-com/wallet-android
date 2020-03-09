@@ -3,49 +3,41 @@ package com.mycelium.wapi.wallet.eth
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.math.BigInteger
 import java.net.URL
 import java.util.logging.Level
 import java.util.logging.Logger
 
-object EthErc20TransactionService {
+abstract class AbstractTransactionService(val address: String) {
     private val logger = Logger.getLogger(this.javaClass.simpleName)
-    private const val api = "https://ropsten1.trezor.io/api/v2/address/"
+    private val api = "https://ropsten1.trezor.io/api/v2/address/"
 
-    fun queryHistory(address: String): List<Tx> {
-//        GlobalScope.launch {
-            var urlString = api + "$address?details=txs&pageSize=50"
-            val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-//            withContext(Dispatchers.IO) {
+    protected fun fetchTransactions(): List<Tx> {
+        var urlString = "$api$address?details=txs"
+        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val result: MutableList<Tx> = mutableListOf()
         try {
             val response = mapper.readValue(URL(urlString), Response::class.java)
             result.addAll(response.transactions)
-//                    process(transactions)
+            response.transactions.forEach {
+                logger.log(Level.INFO, "$it")
+            }
             for (i in 2..response.totalPages) {
-                        logger.log(Level.INFO, "page: $i")
-                        urlString = api + "$address?details=txs&pageSize=50&page=$i"
-                        val response = mapper.readValue(URL(urlString), Response::class.java)
-                        result.addAll(response.transactions)
-//                        process(transactions)
-                    }
+                logger.log(Level.INFO, "page: $i")
+                urlString = "$api$address?details=txs&page=$i"
+                val response = mapper.readValue(URL(urlString), Response::class.java)
+                result.addAll(response.transactions)
+                response.transactions.forEach {
+                    logger.log(Level.INFO, "$it")
+                }
+            }
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "${e.javaClass} ${e.localizedMessage}")
         }
         return result
-//            }
-//        }
     }
 
-    private fun process(transactions: List<Tx>) {
-        transactions.forEach {
-            logger.log(Level.INFO, it.txid)
-        }
-    }
+    abstract fun getTransactions(): List<Tx>
 }
 
 private class Response {
@@ -83,13 +75,16 @@ class Tx {
     val gasLimit: BigInteger
         get() = ethereumSpecific!!.gasLimit
 
-    val gasUsed: BigInteger
+    val gasUsed: BigInteger?
         get() = ethereumSpecific!!.gasUsed
 
     val gasPrice: BigInteger
         get() = ethereumSpecific!!.gasPrice
 
     val tokenTransfers: List<TokenTransfer> = emptyList()
+
+    fun getTokenTransfer(contractAddress: String): TokenTransfer? =
+            tokenTransfers.find { it.token.equals(contractAddress, true) }
 
     override fun toString(): String {
         return """{'txid':$txid,'from':$from,'to':$to,'blockHeight':$blockHeight,'confirmations':$confirmations,

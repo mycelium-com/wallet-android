@@ -3,15 +3,12 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.core.DefaultBlockParameterName
 import java.math.BigInteger
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.math.max
 
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
@@ -40,6 +37,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun synchronize(mode: SyncMode?): Boolean {
         syncing = true
+        updateBlockHeight()
         val synced = doSynchronization(mode)
         syncing = false
         return synced
@@ -99,71 +97,13 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun isActive() = !isArchived
 
-    /**
-     * during this sync we update transactions confirmations number
-     * and check for local transactions that have been created more than 5 minutes ago
-     * but are missing on the server and remove them from local db
-     * assuming the transactions haven't been propagated (transaction queueing for eth not supported yet)
-     */
-    protected fun syncTransactions(): Boolean {
-        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
-                receivingAddress.addressString)
-        getBlockHeight()
-        localTransactions.forEach {
-            try {
-                val remoteTx = web3jWrapper.ethGetTransactionByHash("0x" + it.idHex).send()
-                if (!remoteTx.hasError()) {
-                    if (remoteTx.result != null) {
-                        // blockNumber is not null when transaction is confirmed
-                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
-                        if (remoteTx.result.blockNumberRaw != null) {
-                            // "it.height == -1" indicates that this is a newly created transaction
-                            // and we haven't received any information about it's confirmation from the server yet
-                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = web3jWrapper.ethGetTransactionReceipt("0x" + it.idHex).send()
-                                if (!txReceipt.hasError()) {
-                                    val newFee = Value.valueOf(basedOnCoinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
-                                }
-                            }
-
-                            val confirmations = if (it.height != -1) getBlockHeight() - it.height + 1
-                                                else {
-                                val block = getBlockHeight()
-                                logger.log(Level.INFO, "blockNumberRaw: ${remoteTx.result.blockNumberRaw}, remote: $block, tx: ${remoteTx.result.blockNumber.toInt()} " +
-                                        "getBlockByNumber: ${web3jWrapper.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send().block.number}, " +
-                                        "conf: ${block - remoteTx.result.blockNumber.toInt() + 1}")
-                                max(1, block - remoteTx.result.blockNumber.toInt() + 1)
-                            }
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                        }
-                    } else {
-                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
-                        // to prevent local data removal if server still didn't process just sent tx
-                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
-                            backing.deleteTransaction("0x" + it.idHex)
-                        }
-                    }
-                } else {
-                    return false
-                }
-            } catch (e: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun getBlockHeight(): Int {
-        return try {
+    private fun updateBlockHeight() {
+        try {
             val latestBlock = web3jWrapper.ethBlockNumber().send()
 
             blockChainHeight = latestBlock.blockNumber.toInt()
-            blockChainHeight
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
-            blockChainHeight
         }
     }
 }

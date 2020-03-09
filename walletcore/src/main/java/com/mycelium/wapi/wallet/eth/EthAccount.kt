@@ -51,12 +51,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         return accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
     }
 
-    init {
-        if (isActive) {
-            EthErc20TransactionService.queryHistory(receiveAddress.addressString)
-        }
-    }
-
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
@@ -164,6 +158,15 @@ class EthAccount(private val accountContext: EthAccountContext,
                     .filter { it.from == receiveAddress.addressString && it.to == receiveAddress.addressString }
                     .map { tx -> tx.fee.value }
                     .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun syncTransactions() {
+        val remoteTransactions = EthTransactionService(receiveAddress.addressString).getTransactions()
+        remoteTransactions.forEach { tx ->
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
+                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()),
+                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+        }
     }
 
     override fun archiveAccount() {

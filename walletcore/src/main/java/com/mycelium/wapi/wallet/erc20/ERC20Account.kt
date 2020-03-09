@@ -7,10 +7,7 @@ import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
-import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
-import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.Web3jWrapper
+import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
@@ -216,6 +213,16 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return backing.getUnconfirmedTransactions().filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun syncTransactions() {
+        val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, token.contractAddress).getTransactions()
+        remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.getTokenTransfer(token.contractAddress)!!.from,
+                    tx.getTokenTransfer(token.contractAddress)!!.to, Value.valueOf(basedOnCoinType, tx.getTokenTransfer(token.contractAddress)!!.value),
+                    Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
+                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+        }
     }
 
     // the following two wrappers are needed because we can't store balance in db with ERC20 coin type

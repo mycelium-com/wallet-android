@@ -58,8 +58,8 @@ FROM EthAccountBacking AS eb
         WHERE eb.uuid = (?) AND b.confirmations = 0;
 
 insertTransaction:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasUsed)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit)
+VALUES (?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking
