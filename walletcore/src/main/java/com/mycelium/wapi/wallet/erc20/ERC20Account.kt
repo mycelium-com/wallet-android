@@ -2,6 +2,7 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -29,7 +30,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials? = null,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   web3jWrapper: Web3jWrapper) : AbstractEthERC20Account(accountContext.currency, credentials,
+                   web3jWrapper: Web3jWrapper,
+                   private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
     private var incomingTxDisposable: Disposable? = null
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials!!)
@@ -220,7 +222,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     private fun syncTransactions() {
-        val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, token.contractAddress).getTransactions()
+        val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
+                token.contractAddress).getTransactions()
         remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
             backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.getTokenTransfer(token.contractAddress)!!.from,
                     tx.getTokenTransfer(token.contractAddress)!!.to, Value.valueOf(basedOnCoinType, tx.getTokenTransfer(token.contractAddress)!!.value),

@@ -1,14 +1,10 @@
 package com.mycelium.wapi.wallet.eth
 
-import java.util.logging.Level
-import java.util.logging.Logger
+import com.mycelium.net.HttpsEndpoint
 
-class ERC20TransactionService(address: String, private val contractAddress: String) : AbstractTransactionService(address) {
-    private val logger = Logger.getLogger(this.javaClass.simpleName)
+class ERC20TransactionService(address: String, transactionServiceEndpoints: List<HttpsEndpoint>,
+                              private val contractAddress: String)
+    : AbstractTransactionService(address, transactionServiceEndpoints) {
 
-    override fun getTransactions(): List<Tx> {
-        val txs = fetchTransactions().filter { tx -> tx.getTokenTransfer(contractAddress) != null }
-        logger.log(Level.INFO, "account: $address. retrieved: ${txs.size} transactions...")
-        return txs
-    }
+    override fun getTransactions() = fetchTransactions().filter { tx -> tx.getTokenTransfer(contractAddress) != null }
 }

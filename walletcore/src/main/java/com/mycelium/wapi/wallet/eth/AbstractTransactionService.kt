@@ -3,14 +3,15 @@ package com.mycelium.wapi.wallet.eth
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mycelium.net.HttpsEndpoint
 import java.math.BigInteger
 import java.net.URL
 import java.util.logging.Level
 import java.util.logging.Logger
 
-abstract class AbstractTransactionService(val address: String) {
-    private val logger = Logger.getLogger(this.javaClass.simpleName)
-    private val api = "https://ropsten1.trezor.io/api/v2/address/"
+abstract class AbstractTransactionService(private val address: String, endpoints: List<HttpsEndpoint>) {
+    private val logger = Logger.getLogger(AbstractTransactionService::class.simpleName)
+    private val api = "${endpoints[0]}/api/v2/address/"
 
     protected fun fetchTransactions(): List<Tx> {
         var urlString = "$api$address?details=txs"
@@ -19,17 +20,11 @@ abstract class AbstractTransactionService(val address: String) {
         try {
             val response = mapper.readValue(URL(urlString), Response::class.java)
             result.addAll(response.transactions)
-            response.transactions.forEach {
-                logger.log(Level.INFO, "$it")
-            }
             for (i in 2..response.totalPages) {
                 logger.log(Level.INFO, "page: $i")
                 urlString = "$api$address?details=txs&page=$i"
                 val response = mapper.readValue(URL(urlString), Response::class.java)
                 result.addAll(response.transactions)
-                response.transactions.forEach {
-                    logger.log(Level.INFO, "$it")
-                }
             }
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "${e.javaClass} ${e.localizedMessage}")

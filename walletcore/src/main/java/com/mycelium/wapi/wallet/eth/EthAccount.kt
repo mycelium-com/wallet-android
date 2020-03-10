@@ -3,6 +3,7 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -26,6 +27,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  web3jWrapper: Web3jWrapper,
+                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, EthAccount::class.simpleName, web3jWrapper, address) {
     private var removed = false
@@ -164,7 +166,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun syncTransactions() {
-        val remoteTransactions = EthTransactionService(receiveAddress.addressString).getTransactions()
+        val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
         remoteTransactions.forEach { tx ->
             backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                     valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()),

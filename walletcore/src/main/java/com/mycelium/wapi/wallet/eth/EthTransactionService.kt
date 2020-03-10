@@ -1,14 +1,9 @@
 package com.mycelium.wapi.wallet.eth
 
-import java.util.logging.Level
-import java.util.logging.Logger
+import com.mycelium.net.HttpsEndpoint
 
-class EthTransactionService(address: String) : AbstractTransactionService(address) {
-    private val logger = Logger.getLogger(this.javaClass.simpleName)
+class EthTransactionService(address: String, transactionServiceEndpoints: List<HttpsEndpoint>)
+    : AbstractTransactionService(address, transactionServiceEndpoints) {
 
-    override fun getTransactions(): List<Tx> {
-        val txs = fetchTransactions().filter { it.tokenTransfers.isEmpty() }
-        logger.log(Level.INFO, "account: $address. retrieved: ${txs.size} transactions...")
-        return txs
-    }
+    override fun getTransactions() = fetchTransactions().filter { it.tokenTransfers.isEmpty() }
 }
