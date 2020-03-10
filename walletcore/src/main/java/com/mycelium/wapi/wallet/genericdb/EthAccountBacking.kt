@@ -73,18 +73,12 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             }).executeAsOneOrNull()
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
-                       gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger = BigInteger.valueOf(21000)) {
+                       gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
-        ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit, gasUsed)
-    }
-
-    fun updateTransaction(txid: String, blockNumber: Int, confirmations: Int) {
-        queries.updateTransaction(blockNumber, confirmations, uuid, txid)
-    }
-
-    fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {
-        ethQueries.updateGasUsed(gasUsed, uuid, txid)
-        queries.updateFee(fee, uuid, txid)
+        ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit)
+        if (gasUsed != null) {
+            updateGasUsed(txid, gasUsed, gasPrice)
+        }
     }
 
     fun updateNonce(txid: String, nonce: BigInteger) {
@@ -93,6 +87,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
     fun deleteTransaction(txid: String) {
         queries.deleteTransaction(uuid, txid)
+    }
+
+    private fun updateGasUsed(txid: String, gasUsed: BigInteger, fee: Value) {
+        ethQueries.updateGasUsed(gasUsed, uuid, txid)
+        queries.updateFee(fee, uuid, txid)
     }
 
     private fun createTransactionSummary(ownerAddress: String,
@@ -113,11 +112,11 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val outputs = if (to.isEmpty()) listOf()
         else listOf(GenericOutputViewModel(EthAddress(currency, to), value, false))
         val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
-        val transferred: Value = if ((from == ownerAddress) && (to != ownerAddress)) {
+        val transferred = if ((from.equals(ownerAddress, true)) && (!to.equals(ownerAddress, true))) {
             -value - fee
-        } else if ((from != ownerAddress) && (to == ownerAddress)) {
+        } else if ((!from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
             value
-        } else if ((from == ownerAddress) && (to == ownerAddress)) {
+        } else if ((from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
             -fee // sent to ourselves
         } else {
             // transaction doesn't relate to us in any way. should not happen

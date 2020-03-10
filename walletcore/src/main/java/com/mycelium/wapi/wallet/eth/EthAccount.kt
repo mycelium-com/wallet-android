@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.net.HttpEndpoint
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -24,11 +25,9 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.concurrent.thread
-import kotlin.math.max
 
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -36,6 +35,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  endpoints: List<HttpEndpoint>,
+                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
                  address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
@@ -291,50 +291,12 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    /**
-     * during this sync we update transactions confirmations number
-     * and check for local transactions that have been created more than 5 minutes ago
-     * but are missing on the server and remove them from local db
-     * assuming the transactions haven't been propagated (transaction queueing for eth not supported yet)
-     */
     private fun syncTransactions(): Boolean {
-        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
-                receivingAddress.addressString)
-        localTransactions.forEach {
-            try {
-                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
-                if (!remoteTx.hasError()) {
-                    if (remoteTx.result != null) {
-                        // blockNumber is not null when transaction is confirmed
-                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
-                        if (remoteTx.result.blockNumberRaw != null) {
-                            // "it.height == -1" indicates that this is a newly created transaction
-                            // and we haven't received any information about it's confirmation from the server yet
-                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
-                                if (!txReceipt.hasError()) {
-                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
-                                }
-                            }
-                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                                                else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                        }
-                    } else {
-                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
-                        // to prevent local data removal if server still didn't process just sent tx
-                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
-                            backing.deleteTransaction("0x" + it.idHex)
-                        }
-                    }
-                } else {
-                    return false
-                }
-            } catch (e: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-                return false
-            }
+        val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+        remoteTransactions.forEach { tx ->
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
+                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()),
+                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
         }
         return true
     }

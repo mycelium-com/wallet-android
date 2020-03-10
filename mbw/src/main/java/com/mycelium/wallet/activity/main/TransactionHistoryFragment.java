@@ -304,11 +304,6 @@ public class TransactionHistoryFragment extends Fragment {
 
    private void showHistory(boolean hasHistory) {
       _root.findViewById(R.id.llNoRecords).setVisibility(hasHistory ? View.GONE : View.VISIBLE);
-      if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
-         noTransactionMessage.setText(R.string.eth_no_transaction_records);
-      } else {
-         noTransactionMessage.setText(R.string.no_transaction_records);
-      }
       listView.setVisibility(hasHistory ? View.VISIBLE : View.GONE);
       if (accountsWithPartialHistory.contains(_mbwManager.getSelectedAccount().getId())) {
          _root.findViewById(R.id.tvWarningNotFullHistory).setVisibility(View.VISIBLE);

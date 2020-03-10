@@ -27,8 +27,8 @@ class EthBalanceService(val address: String,
 
     private val allTxsFlowable get() = client.pendingTransactionFlowable()
             .onErrorReturn { Transaction() }
-    val incomingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.to == address }
-    val outgoingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.from == address }
+    val incomingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.to.equals(address, true) }
+    val outgoingTxsFlowable get() = allTxsFlowable.filter { tx -> tx.from.equals(address, true) }
 
     val balanceFlowable get() =
             incomingTxsFlowable.mergeWith(outgoingTxsFlowable)
@@ -41,15 +41,15 @@ class EthBalanceService(val address: String,
         return try {
             val balanceRequest = client.ethGetBalance(address, DefaultBlockParameterName.LATEST)
             val balanceResult = balanceRequest.send()
-            val txs = try {
+            val txs: List<Transaction> = try {
                 getPendingTransactions()
             } catch (e: Exception) {
                 logger.log(Level.SEVERE, "Failed while requesting pending transactions $e")
-                emptyList<Transaction>()
+                emptyList()
             }
-            val incomingTx = txs.filter { it.from != address && it.to == address }
-            val outgoingTx = txs.filter { it.from == address && it.to != address }
-            val toSelfTx = txs.filter { it.from == address && it.to == address }
+            val incomingTx = txs.filter { !it.from.equals(address, true) && it.to.equals(address, true) }
+            val outgoingTx = txs.filter { it.from.equals(address, true) && !it.to.equals(address, true) }
+            val toSelfTx = txs.filter { it.from.equals(address, true) && it.to.equals(address, true) }
 
             val incomingSum: BigInteger = incomingTx
                     .map(Transaction::getValue)
