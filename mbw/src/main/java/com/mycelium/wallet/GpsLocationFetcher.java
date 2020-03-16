@@ -141,9 +141,8 @@ public class GpsLocationFetcher {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
-//      LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
       @SuppressLint("MissingPermission")
-      Location lastKnownLocation = getLastKnownLocation(context); //locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+      Location lastKnownLocation = getLastKnownLocation(context);
       if (lastKnownLocation == null) {
          return null;
       }
