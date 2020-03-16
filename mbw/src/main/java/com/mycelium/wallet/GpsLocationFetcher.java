@@ -141,15 +141,32 @@ public class GpsLocationFetcher {
       if (!canObtainGpsPosition(context)) {
          return null;
       }
-      LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+//      LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
       @SuppressLint("MissingPermission")
-      Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+      Location lastKnownLocation = getLastKnownLocation(context); //locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
       if (lastKnownLocation == null) {
          return null;
       }
 
       Address address = getAddress(context, lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
       return GpsLocationEx.fromAddress(address);
+   }
+
+   private Location getLastKnownLocation(Context context) {
+      LocationManager mLocationManager = (LocationManager)context.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+      List<String> providers = mLocationManager.getProviders(true);
+      Location bestLocation = null;
+      for (String provider : providers) {
+         @SuppressLint("MissingPermission") Location l = mLocationManager.getLastKnownLocation(provider);
+         if (l == null) {
+            continue;
+         }
+         if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+            // Found best last known location: %s", l);
+            bestLocation = l;
+         }
+      }
+      return bestLocation;
    }
 
    private static boolean canObtainGpsPosition(Context context) {
