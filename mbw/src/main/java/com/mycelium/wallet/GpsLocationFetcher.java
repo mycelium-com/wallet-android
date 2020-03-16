@@ -117,7 +117,6 @@ public class GpsLocationFetcher {
 
    public void getNetworkLocation(final Callback callback) {
       Thread t = new Thread(new Runnable() {
-
          @Override
          public void run() {
             final GpsLocationEx location;
@@ -130,7 +129,6 @@ public class GpsLocationFetcher {
                   }
                }
             });
-
          }
       });
       t.setDaemon(true);
@@ -152,17 +150,17 @@ public class GpsLocationFetcher {
    }
 
    private Location getLastKnownLocation(Context context) {
-      LocationManager mLocationManager = (LocationManager)context.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-      List<String> providers = mLocationManager.getProviders(true);
+      LocationManager locationManager = (LocationManager)context.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+      List<String> providers = locationManager.getProviders(true);
       Location bestLocation = null;
       for (String provider : providers) {
-         @SuppressLint("MissingPermission") Location l = mLocationManager.getLastKnownLocation(provider);
-         if (l == null) {
+         @SuppressLint("MissingPermission")
+         Location location = locationManager.getLastKnownLocation(provider);
+         if (location == null) {
             continue;
          }
-         if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-            // Found best last known location: %s", l);
-            bestLocation = l;
+         if (bestLocation == null || location.getAccuracy() < bestLocation.getAccuracy()) {
+            bestLocation = location;
          }
       }
       return bestLocation;
