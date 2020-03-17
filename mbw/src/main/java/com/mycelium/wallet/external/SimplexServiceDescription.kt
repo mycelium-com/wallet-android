@@ -32,8 +32,8 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
         val receivingAddress = mbwManager.selectedAccount.receiveAddress
         if (receivingAddress != null) {
             val regions = if (activeReceivingAddress.coinType == EthMain || activeReceivingAddress.coinType == EthTest) {
-                mapOf<String, Boolean>(context.getString(R.string.europe) to true, context.getString(R.string.asia) to false,
-                        context.getString(R.string.united_states) to false, context.getString(R.string.australia) to false)
+                mapOf<String, Boolean>(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
+                        context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
             } else {
                 mapOf(context.getString(R.string.europe) to true, context.getString(R.string.asia) to true,
                         context.getString(R.string.united_states) to true, context.getString(R.string.australia) to true)
@@ -46,6 +46,7 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                     .setAdapter(adapter) { _, i ->
                         if (regions[adapter.getItem(i)] == true) {
                             context.startActivity(Intent(context, SimplexMainActivity::class.java)
+                                    .putExtra("coinType", receivingAddress.coinType.symbol)
                                     .putExtra("walletAddress", receivingAddress.toString()))
                         }
                     }

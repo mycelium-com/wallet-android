@@ -47,6 +47,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
@@ -66,14 +67,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConnectionLogsActivity extends Activity {
 
-    private final static int MAX_TO_SHOW = 10000;
+    private final static long MAX_TO_SHOW = 100;
 
     public static void callMe(Activity activity) {
         Intent intent = new Intent(activity, ConnectionLogsActivity.class);
@@ -90,21 +90,7 @@ public class ConnectionLogsActivity extends Activity {
 
         setContentView(R.layout.show_logs_activity);
 
-        final MbwManager mbwManager = MbwManager.getInstance(this);
-        ArrayList<FormattedLog> formattedLogs = new ArrayList<>();
-        for (Logs log : mbwManager.getLogs()) {
-            formattedLogs.add(new FormattedLog(log));
-        }
-
-        int counter = 0;
-        ArrayList<FormattedLog> logsForPrint = new ArrayList<>();
-        for (FormattedLog formattedLog : formattedLogs) {
-            if (++counter > MAX_TO_SHOW) {
-                break;
-            }
-            logsForPrint.add(formattedLog);
-        }
-        final String logsForPrintString = Joiner.on("\n").join(Lists.reverse(logsForPrint));
+        final String logsForPrintString = Joiner.on("\n").join(getFormattedLogs(MAX_TO_SHOW));
 
         TextView tvLogDisplay = (TextView) findViewById(R.id.tvLogDisplay);
         tvLogDisplay.setText(logsForPrintString);
@@ -116,13 +102,23 @@ public class ConnectionLogsActivity extends Activity {
             Toast.makeText(ConnectionLogsActivity.this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
         });
-        findViewById(R.id.btShare).setOnClickListener(v -> shareLogs(formattedLogs));
+        findViewById(R.id.btShare).setOnClickListener(v -> shareLogs());
     }
 
-    private void shareLogs(ArrayList<FormattedLog> formattedLogs) {
+    private ArrayList<FormattedLog> getFormattedLogs(@Nullable Long limit) {
+        final MbwManager mbwManager = MbwManager.getInstance(this);
+        ArrayList<FormattedLog> formattedLogs = new ArrayList<>();
+        List<Logs> lastLogs = limit != null ? mbwManager.getLastLogsDesc(limit) : mbwManager.getLogsAsc();
+        for (Logs log : lastLogs) {
+            formattedLogs.add(new FormattedLog(log));
+        }
+        return formattedLogs;
+    }
+
+    private void shareLogs() {
         try {
             String fileName = "MBW-" + dateFormat.format(new Date()) + ".txt";
-            File logsExport = DataExport.getLogsExport(formattedLogs, getFileStreamPath(fileName));
+            File logsExport = DataExport.getLogsExport(getFormattedLogs(null), getFileStreamPath(fileName));
             PackageManager packageManager = Preconditions.checkNotNull(this.getPackageManager());
             PackageInfo packageInfo = packageManager.getPackageInfo(this.getPackageName(), PackageManager.GET_PROVIDERS);
             for (ProviderInfo info : packageInfo.providers) {

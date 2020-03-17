@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -228,7 +229,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             setBlockChainHeight(result.height);
          } catch (WapiException e) {
             if (e.errorCode == Wapi.ERROR_CODE_NO_SERVER_CONNECTION) {
-               _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
+               _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
                postEvent(Event.SERVER_CONNECTION_ERROR);
                return false;
             } else if (e.errorCode == Wapi.ERROR_CODE_RESPONSE_TOO_LARGE) {
@@ -259,7 +260,7 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
             GetTransactionsResponse response = getTransactionsBatched(toFetch.subList(fromIndex, toIndex)).getResult();
             handleNewExternalTransactions(response.transactions);
          } catch (WapiException e) {
-            _logger.log(Level.SEVERE,"Server connection failed with error code: " + e.errorCode, e);
+            _logger.log(Level.SEVERE, "Server connection failed with error code: " + e.errorCode, e);
             postEvent(Event.SERVER_CONNECTION_ERROR);
             return false;
          }
@@ -523,9 +524,9 @@ public class SingleAddressAccount extends AbstractBtcAccount implements Exportab
    }
 
    @Override
-   protected Map<BipDerivationType, Boolean> doDiscoveryForAddresses(List<Address> lookAhead) {
+   protected Set<BipDerivationType> doDiscoveryForAddresses(List<Address> lookAhead) {
       // not needed for SingleAddressAccount
-      return Collections.emptyMap();
+      return Collections.emptySet();
    }
 
 

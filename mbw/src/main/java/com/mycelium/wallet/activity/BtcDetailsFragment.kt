@@ -158,7 +158,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
                 try {
                     selectedAccount.updateParentOutputs(tx!!.id)
                 } catch (e: WapiException) {
-                    logger.log(Level.SEVERE,"Can't load parent", e)
+                    logger.log(Level.SEVERE, "Can't load parent", e)
                     return false
                 }
             }

@@ -50,9 +50,7 @@ class WalletConsole {
 //    public static final String[] ColoredCoinsApiURLs = {"https://coloredcoinsd.gear.mycelium.com/v3/", "https://api.coloredcoins.org/v3/"};
 //    public static final String[] ColuBlockExplorerApiURLs = {"https://coloredcoins.gear.mycelium.com/api/", "https://explorer.coloredcoins.org/api/"};
 
-
     private static class MemoryBasedStorage implements IMetaDataStorage {
-
         private HashMap<String, String> map = new HashMap<>();
         @Override
         public void storeKeyCategoryValueEntry(MetadataKeyCategory keyCategory, String value) {
@@ -96,25 +94,8 @@ class WalletConsole {
                 new HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"),
         });
 
-        final WapiLogger wapiLogger = new WapiLogger() {
-            @Override
-            public void logError(String message) {
-                new Exception(message).printStackTrace();
-            }
-
-            @Override
-            public void logError(String message, Exception e) {
-                new Exception(message).printStackTrace();
-            }
-
-            @Override
-            public void logInfo(String message) {
-                new Exception(message).printStackTrace();
-            }
-        };
-
         final TcpEndpoint[] tcpEndpoints = new TcpEndpoint[]{new TcpEndpoint("electrumx.mycelium.com", 4432)};
-        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0");
+        Wapi wapiClient = new WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0");
 
         ExternalSignatureProviderProxy externalSignatureProviderProxy = new ExternalSignatureProviderProxy();
 
@@ -144,10 +125,8 @@ class WalletConsole {
 
         MasterSeedManager masterSeedManager = new MasterSeedManager(store);
         try {
-
             // create and add HD Module
             masterSeedManager.configureBip32MasterSeed(masterSeed, AesKeyCipher.defaultKeyCipher());
-
 
             BitcoinHDModule bitcoinHDModule = new BitcoinHDModule(backing, store, network, wapiClient, btcSettings, new MemoryBasedStorage(), null,null, null);
             walletManager.add(bitcoinHDModule);
@@ -176,7 +155,6 @@ class WalletConsole {
         } catch (KeyCipher.InvalidKeyCipher ex) {
             ex.printStackTrace();
         }
-
     }
 
     /*

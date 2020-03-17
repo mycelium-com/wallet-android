@@ -4,7 +4,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.RandomSource
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.WapiLogger
+import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.ServerEndpoints
@@ -14,12 +14,8 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.*
 import com.mycelium.wapi.wallet.btc.bip44.*
 import com.mycelium.wapi.wallet.btc.single.*
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
 
@@ -65,10 +61,9 @@ class BtcAssetBasicTest {
 
         val testnetWapiEndpoints = ServerEndpoints(arrayOf<HttpEndpoint>(HttpsEndpoint("https://mws30.mycelium.com/wapitestnet", "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB")))
 
-        val wapiLogger = Mockito.mock(WapiLogger::class.java)
 
         val tcpEndpoints = arrayOf(TcpEndpoint("electrumx-c.mycelium.com", 19335))
-        val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, wapiLogger, "0")
+        val wapiClient = WapiClientElectrumX(testnetWapiEndpoints, tcpEndpoints, "0")
 
         val store = SecureKeyValueStore(backing, MyRandomSource())
 
@@ -82,7 +77,8 @@ class BtcAssetBasicTest {
 
         val listener = SynchronizeFinishedListener()
 
-        val walletManager = WalletManager(network, wapiClient, currenciesSettingsMap)
+        val walletDB = Mockito.mock(WalletDB::class.java)
+        val walletManager = WalletManager(network, wapiClient, currenciesSettingsMap, null, walletDB)
         walletManager.setIsNetworkConnected(true)
         walletManager.walletListener = listener
 
