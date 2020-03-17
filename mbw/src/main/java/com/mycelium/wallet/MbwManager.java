@@ -404,7 +404,7 @@ public class MbwManager {
         rootLogger.addHandler(handler);
         rootLogger.addHandler(new AndroidLogHandler());
         handler.cleanUp();
-        logger.log(Level.INFO,"Logging started...");
+        logger.log(Level.INFO, "Logging started...");
     }
 
     private Web3jWrapper initWeb3j() {
@@ -844,7 +844,11 @@ public class MbwManager {
         return cryptocurrencies;
     }
 
-    public List<Logs> getLogs() {
+    public List<Logs> getLastLogsDesc(long limit) {
+        return db.getLogsQueries().selectWithLimit(limit).executeAsList();
+    }
+
+    public List<Logs> getLogsAsc() {
         return db.getLogsQueries().select().executeAsList();
     }
 

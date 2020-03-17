@@ -124,7 +124,7 @@ public class LtApiClient implements LtApi {
          HttpEndpoint serverEndpoint = _serverEndpoints.getCurrentEndpoint();
          try {
             OkHttpClient client = serverEndpoint.getClient();
-            _logger.log(Level.INFO,"LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
+            _logger.log(Level.INFO, "LT connecting to " + serverEndpoint.getBaseUrl() + " (" + _serverEndpoints.getCurrentEndpointIndex() + ")");
 
             // configure TimeOuts
             client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
@@ -159,7 +159,7 @@ public class LtApiClient implements LtApi {
          } catch (IOException e) {
             logError("getConnectionAndSendRequest failed IO exception.");
             if (serverEndpoint instanceof FeedbackEndpoint){
-               _logger.log(Level.INFO,"Resetting tor");
+               _logger.log(Level.INFO, "Resetting tor");
                ((FeedbackEndpoint) serverEndpoint).onError();
             }
          }

@@ -303,7 +303,7 @@ public class TransactionHistoryFragment extends Fragment {
       startActivity(intent);
    }
 
-   void showHistory(boolean hasHistory) {
+   private void showHistory(boolean hasHistory) {
       _root.findViewById(R.id.llNoRecords).setVisibility(hasHistory ? View.GONE : View.VISIBLE);
       if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
          noTransactionMessage.setText(R.string.eth_no_transaction_records);
