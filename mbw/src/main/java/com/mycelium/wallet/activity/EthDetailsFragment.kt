@@ -50,8 +50,7 @@ class EthDetailsFragment : GenericDetailsFragment() {
         val percent = BigDecimal(tx.gasUsed.toDouble() / tx.gasLimit.toDouble() * 100).setScale(2, RoundingMode.UP).toDouble()
         val percentString = if (isWholeNumber(percent)) "%.0f".format(percent) else percent.toString()
         tvGasUsed.text = "${tx.gasUsed} ($percentString%)"
-        val txFeeTotal = tx.fee!!.valueAsLong
-        val txFeePerUnit = BigInteger.valueOf(txFeeTotal) / tx.gasUsed
+        val txFeePerUnit = tx.fee!!.value / tx.gasUsed
         tvGasPrice.text = EthFeeFormatter().getFeePerUnit(txFeePerUnit.toLong())
         tvNonce.text = if (tx.nonce == null) {
             UpdateNonce().execute("0x" + tx.idHex)

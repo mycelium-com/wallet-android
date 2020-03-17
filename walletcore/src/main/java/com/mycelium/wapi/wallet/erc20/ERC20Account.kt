@@ -2,15 +2,13 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
-import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
-import com.mycelium.wapi.wallet.eth.EthAccount
-import com.mycelium.wapi.wallet.eth.EthAddress
-import com.mycelium.wapi.wallet.eth.Web3jWrapper
+import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import io.reactivex.disposables.Disposable
@@ -32,7 +30,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials? = null,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   web3jWrapper: Web3jWrapper) : AbstractEthERC20Account(accountContext.currency, credentials,
+                   web3jWrapper: Web3jWrapper,
+                   private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
     private var incomingTxDisposable: Disposable? = null
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials!!)
@@ -207,15 +206,30 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter { it.from != receiveAddress.addressString && it.to == receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions().filter {
+                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter { it.from == receiveAddress.addressString && it.to != receiveAddress.addressString }
+        return backing.getUnconfirmedTransactions().filter {
+                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+                }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun syncTransactions() {
+        val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
+                token.contractAddress).getTransactions()
+        remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.getTokenTransfer(token.contractAddress)!!.from,
+                    tx.getTokenTransfer(token.contractAddress)!!.to, Value.valueOf(basedOnCoinType, tx.getTokenTransfer(token.contractAddress)!!.value),
+                    Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
+                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+        }
     }
 
     // the following two wrappers are needed because we can't store balance in db with ERC20 coin type
