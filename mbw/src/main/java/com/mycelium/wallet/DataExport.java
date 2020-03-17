@@ -35,10 +35,13 @@
 package com.mycelium.wallet;
 
 
+import com.mycelium.wallet.activity.FormattedLog;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.GenericOutputViewModel;
 import com.mycelium.wapi.wallet.GenericTransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +49,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -54,57 +58,71 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class DataExport {
-   private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
+    private static final String CSV_HEADER = "Account, Transaction ID, Destination Address, Timestamp, Value, Currency, Transaction Label\n";
 
-   public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
-                                      MetadataStorage storage, File file) throws IOException {
-      FileOutputStream fos = new FileOutputStream(file);
-      OutputStreamWriter osw = new OutputStreamWriter(fos);
-      osw.write(CSV_HEADER);
-      String accountLabel = storage.getLabelByAccount(account.getId());
-      Collections.sort(history, new Comparator<GenericTransactionSummary>() {
-         @Override
-         public int compare(GenericTransactionSummary t1, GenericTransactionSummary t2) {
-            return (int) (t2.getTimestamp() - t1.getTimestamp());
-         }
-      });
-      for (GenericTransactionSummary transaction : history) {
-         String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
-         StringBuilder destAddresses = new StringBuilder();
-         for (GenericOutputViewModel output : transaction.getOutputs()) {
-            if (!account.isMineAddress(output.getAddress())) {
-               destAddresses.append(output.getAddress().toString()).append(" ");
+    public static File getTxHistoryCsv(WalletAccount account, List<GenericTransactionSummary> history,
+                                       MetadataStorage storage, File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        OutputStreamWriter osw = new OutputStreamWriter(fos);
+        osw.write(CSV_HEADER);
+        String accountLabel = storage.getLabelByAccount(account.getId());
+        Collections.sort(history, new Comparator<GenericTransactionSummary>() {
+            @Override
+            public int compare(GenericTransactionSummary t1, GenericTransactionSummary t2) {
+                return (int) (t2.getTimestamp() - t1.getTimestamp());
             }
-         }
-         osw.write(getTxLine(accountLabel, txLabel, destAddresses.toString(), transaction));
-      }
-      osw.close();
-      return file;
-   }
+        });
+        for (GenericTransactionSummary transaction : history) {
+            String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
+            StringBuilder destAddresses = new StringBuilder();
+            for (GenericOutputViewModel output : transaction.getOutputs()) {
+                if (!account.isMineAddress(output.getAddress())) {
+                    destAddresses.append(output.getAddress().toString()).append(" ");
+                }
+            }
+            osw.write(getTxLine(accountLabel, txLabel, destAddresses.toString(), transaction));
+        }
+        osw.close();
+        return file;
+    }
 
-   private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransactionSummary transaction) {
-      TimeZone tz = TimeZone.getDefault();
-      DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
-      df.setTimeZone(tz);
-      String date = df.format(new Date(transaction.getTimestamp() * 1000L));
-      String value = transaction.getTransferred().toPlainString();
-      String name = transaction.getTransferred().type.getName();
-      return
-            escape(accountLabel) + "," +
-                  transaction.getIdHex() + "," +
-                  destAddresses + "," +
-                  date + "," +
-                  value + "," +
-                  name + "," +
-                  escape(txLabel) + "\n";
-   }
+    public static File getLogsExport(@NotNull ArrayList<FormattedLog> logs,
+                                     File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        OutputStreamWriter osw = new OutputStreamWriter(fos);
 
-   private static String escape(String input) {
-      String output = input.replaceAll("\"", "\"\""); //replace all " with "" to escape them
-      if (output.contains("\"") || output.contains(",") || output.contains("\n")) {
-         return "\"" + output + "\""; //enclose in double quotes, if double quotes or comma or newline is present
-      } else {
-         return output;
-      }
-   }
+        for (FormattedLog formattedLog : logs) {
+            osw.write(formattedLog.toString());
+            osw.write("\n");
+        }
+
+        osw.close();
+        return file;
+    }
+
+    private static String getTxLine(String accountLabel, String txLabel, String destAddresses, GenericTransactionSummary transaction) {
+        TimeZone tz = TimeZone.getDefault();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US);
+        df.setTimeZone(tz);
+        String date = df.format(new Date(transaction.getTimestamp() * 1000L));
+        String value = transaction.getTransferred().toPlainString();
+        String name = transaction.getTransferred().type.getName();
+        return
+                escape(accountLabel) + "," +
+                        transaction.getIdHex() + "," +
+                        destAddresses + "," +
+                        date + "," +
+                        value + "," +
+                        name + "," +
+                        escape(txLabel) + "\n";
+    }
+
+    private static String escape(String input) {
+        String output = input.replaceAll("\"", "\"\""); //replace all " with "" to escape them
+        if (output.contains("\"") || output.contains(",") || output.contains("\n")) {
+            return "\"" + output + "\""; //enclose in double quotes, if double quotes or comma or newline is present
+        } else {
+            return output;
+        }
+    }
 }
