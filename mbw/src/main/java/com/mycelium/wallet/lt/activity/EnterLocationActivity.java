@@ -144,7 +144,7 @@ public class EnterLocationActivity extends Activity {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                FilterResults filterResults = new FilterResults();
-               if (constraint != null) {
+               if (constraint != null && !constraint.toString().isEmpty()) {
                   // Retrieve the auto-complete results.
 
                   List<Address> addresses = getLocationFromAddress(constraint.toString());
