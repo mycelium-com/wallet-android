@@ -131,7 +131,6 @@ class EthereumModule(
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return if (walletAccount is EthAccount) {
-            walletAccount.stopSubscriptions(newThread = true)
             if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
                 secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
             } else {

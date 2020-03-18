@@ -72,6 +72,10 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
             }).executeAsOneOrNull()
 
+    fun getUnconfirmedTransactions(): List<UnconfirmedTransaction> =
+            ethQueries.selectUnconfirmedTransactions(uuid, mapper = { fromAddress, toAddress, value, fee ->
+                UnconfirmedTransaction(fromAddress, toAddress, value, fee) }).executeAsList()
+
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
                        gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
@@ -129,3 +133,5 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                 destAddresses, null, 21000, fee)
     }
 }
+
+class UnconfirmedTransaction(val from: String, val to: String, val value: Value, val fee: Value)
