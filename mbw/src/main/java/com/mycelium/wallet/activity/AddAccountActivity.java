@@ -47,6 +47,7 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
+import com.mycelium.bequant.intro.BequantIntroActivity;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
@@ -121,6 +122,11 @@ public class AddAccountActivity extends Activity {
             ethCreationAsyncTask = new ETHCreationAsyncTask();
             ethCreationAsyncTask.execute();
         }
+    }
+
+    @OnClick(R.id.btBequantCreate)
+    void onAddInvestmentAccount() {
+        startActivity(new Intent(this, BequantIntroActivity.class));
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {

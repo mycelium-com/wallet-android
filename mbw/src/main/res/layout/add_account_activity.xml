@@ -68,6 +68,17 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginBottom="@dimen/margin_medium"/>
 
+        <Button
+                android:id="@+id/btBequantCreate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
+                android:text="@string/add_investment_account"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="@dimen/margin_medium"/>
+
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

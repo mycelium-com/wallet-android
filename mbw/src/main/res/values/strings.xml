@@ -1339,5 +1339,16 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sell_bitcoin">SELL BITCOIN</string>
     <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
-    <string name="send_mail">Send mail...</string>
+    <string name="send_mail">Send mail…</string>
+    <string name="add_investment_account">Add Investment Account</string>
+    <string name="activate_investment_account">Activate Investment Account</string>
+    <string name="bequant_secure_custodial_storage">Secure custodial storage\nfor crypto on the go</string>
+    <string name="access_from_any_device">Access from any device</string>
+    <string name="bequant_dont_fret_about_losing_your_phone">Don\'t fret about losing your phone - access\nyour crypto assets from any mobile or web\ndevice with our secure login process.</string>
+    <string name="bequant_exchange_withdraw">Exchange, withdraw and deposit</string>
+    <string name="bequant_offers_you_the_most_trusted_secure">Bequant offers you the most trusted, secure\nand convenient way to exchange, withdraw\nand deposit the worlds\' top traded\ncryptocurrencies, all within one app.</string>
+    <string name="industry_leading_security">Industry-leading security</string>
+    <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
+    <string name="global_support">Global Support</string>
+    <string name="we_offer_extensive_support">We offer extensive support via live chat\naround the clock so you can be at peace that\nyour issues are prioritized.</string>
 </resources>
