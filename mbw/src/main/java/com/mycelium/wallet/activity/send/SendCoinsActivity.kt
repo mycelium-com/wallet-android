@@ -124,7 +124,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             mbwManager.exchangeRateManager.requestRefresh()
         }
 
-        Handler(Looper.getMainLooper()).post { viewModel.updateClipboardUri() }
+        Handler(Looper.getMainLooper()).postDelayed({ viewModel.updateClipboardUri() }, 300)
         viewModel.activityResultDialog?.show(supportFragmentManager, "ActivityResultDialog")
         viewModel.activityResultDialog = null
     }
