@@ -124,9 +124,6 @@ public class AddAccountActivity extends Activity {
      */
     private Map<String, ERC20Token> getAvailableTokens(@Nullable UUID ethAccountId) {
         Map<String, ERC20Token> supportedTokens = _mbwManager.getSupportedERC20Tokens();
-        if (supportedTokens.isEmpty()) {
-            return Collections.emptyMap();
-        }
         if (ethAccountId != null) {
             WalletAccount ethAccount = _mbwManager.getWalletManager(false).getAccount(ethAccountId);
             List<String> enabledTokens = ((EthAccount) ethAccount).getEnabledTokens();
@@ -169,28 +166,29 @@ public class AddAccountActivity extends Activity {
     }
 
     private void showEthAccountsOptions() {
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddAccountActivity.this, android.R.layout.select_dialog_singlechoice);
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
         List<WalletAccount<?>> accounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
         arrayAdapter.addAll(getEthAccountsForView(accounts));
-        arrayAdapter.add("Create new account");
-        AlertDialog.Builder dialogBuilder = getSingleChoiceDialog("Select Account", arrayAdapter);
-        dialogBuilder.setPositiveButton("ok", (dialog, which) -> {
-            if (selectedIndex == arrayAdapter.getCount() - 1) { // "Create new account" item
-                showERC20TokensOptions(null);
-            } else {
-                UUID ethAccountId = accounts.get(selectedIndex).getId();
-                showERC20TokensOptions(ethAccountId);
-            }
-        });
-        dialogBuilder.show();
+        arrayAdapter.add(getString(R.string.create_new_account));
+        getSingleChoiceDialog(getString(R.string.select_account), arrayAdapter)
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                    if (selectedIndex == arrayAdapter.getCount() - 1) {
+                        // "Create new account" item
+                        showERC20TokensOptions(null);
+                    } else {
+                        UUID ethAccountId = accounts.get(selectedIndex).getId();
+                        showERC20TokensOptions(ethAccountId);
+                    }
+                })
+                .show();
     }
 
     private List<String> getEthAccountsForView(List<WalletAccount<?>> accounts) {
         List<String> result = new ArrayList<>();
-        String denominatedValue;
         Collections.sort(accounts, (a1, a2) -> Integer.compare(((EthAccount) a1).getAccountIndex(), ((EthAccount) a2).getAccountIndex()));
         for (WalletAccount account : accounts) {
-            denominatedValue = ValueExtensionsKt.toStringWithUnit(account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(account.getCoinType()));
+            String denominatedValue = ValueExtensionsKt.toStringWithUnit(
+                    account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(account.getCoinType()));
             result.add(account.getLabel() + " (" + denominatedValue + ")");
         }
         return result;
@@ -203,38 +201,37 @@ public class AddAccountActivity extends Activity {
      *                     before creating erc20 account
      */
     private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
-        if (getAvailableTokens(ethAccountId).isEmpty()) {
-            _toaster.toast("All supported tokens for this account are already added", true);
+        Map<String, ERC20Token> availableTokens = getAvailableTokens(ethAccountId);
+        if (availableTokens.isEmpty()) {
+            _toaster.toast("All supported tokens for this account are already added", false);
             return;
         }
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddAccountActivity.this, android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.addAll(getAvailableTokens(ethAccountId).keySet());
-        AlertDialog.Builder dialogBuilder = getSingleChoiceDialog("Select Token", arrayAdapter);
-        dialogBuilder.setPositiveButton("ok", (dialog, which) -> {
-            String strName = arrayAdapter.getItem(selectedIndex);
-            if (ethAccountId != null) {
-                EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
-                new ERC20CreationAsyncTask(getAvailableTokens(ethAccountId).get(strName), ethAccount).execute();
-            } else {
-                // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
-                if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-                    ethCreationAsyncTask = new ETHCreationAsyncTask(getAvailableTokens(null).get(strName));
-                    ethCreationAsyncTask.execute();
-                }
-            }
-        });
-        dialogBuilder.show();
+        arrayAdapter.addAll(availableTokens.keySet());
+        getSingleChoiceDialog(getString(R.string.select_token), arrayAdapter)
+                .setPositiveButton("ok", (dialog, which) -> {
+                    String strName = arrayAdapter.getItem(selectedIndex);
+                    if (ethAccountId != null) {
+                        EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
+                        new ERC20CreationAsyncTask(availableTokens.get(strName), ethAccount).execute();
+                    } else {
+                        // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
+                        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            ethCreationAsyncTask = new ETHCreationAsyncTask(getAvailableTokens(null).get(strName));
+                            ethCreationAsyncTask.execute();
+                        }
+                    }
+                })
+                .show();
     }
 
     private AlertDialog.Builder getSingleChoiceDialog(String title, ArrayAdapter<String> arrayAdapter) {
         selectedIndex = 0;
-        AlertDialog.Builder dialogBuilder;
-        dialogBuilder = new AlertDialog.Builder(AddAccountActivity.this);
-        dialogBuilder.setIcon(R.drawable.ic_launcher);
-        dialogBuilder.setTitle(title);
-        dialogBuilder.setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which);
-        dialogBuilder.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
-        return dialogBuilder;
+        return new AlertDialog.Builder(this)
+                .setIcon(R.drawable.ic_launcher)
+                .setTitle(title)
+                .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -247,7 +244,6 @@ public class AddAccountActivity extends Activity {
                 }
             });
         }
-
     };
 
     View.OnClickListener createHdAccount = new View.OnClickListener() {
