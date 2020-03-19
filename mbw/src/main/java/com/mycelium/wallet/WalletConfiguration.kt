@@ -166,6 +166,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
     fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
+    fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it,"") }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
