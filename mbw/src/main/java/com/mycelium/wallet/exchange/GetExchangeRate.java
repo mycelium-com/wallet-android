@@ -61,7 +61,7 @@ public class GetExchangeRate {
         targetExchangeRate = null;
 
         if (isBtc(sourceCurrency) || isEth(sourceCurrency)
-                || (isERC20Token(walletManager, sourceCurrency) && !(isEth(targetCurrency)))) {
+                || (isERC20Token(walletManager, sourceCurrency) && !isEth(targetCurrency))) {
             sourcePrice = BigDecimal.ONE;
         } else {
             sourceExchangeRate = exchangeRateManager.getExchangeRate(targetCurrency, sourceCurrency);

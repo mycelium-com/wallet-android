@@ -27,33 +27,32 @@ import java.util.logging.Level
 class ERC20Account(private val accountContext: ERC20AccountContext,
                    private val token: ERC20Token,
                    private val ethAcc: EthAccount,
-                   credentials: Credentials? = null,
+                   credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
                    web3jWrapper: Web3jWrapper,
                    private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
     private var incomingTxDisposable: Disposable? = null
-    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials!!)
+    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
 
-    private fun subscribeOnIncomingTransactions(): Disposable {
-        return web3jWrapper.pendingTransactionFlowable()
-                .filter { tx ->
-                    logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
-                    token.contractAddress.equals(tx.to, true) &&
-                            isTransfer(tx.input) &&
-                            receiveAddress.addressString.equals(getToAddress(tx.input), true)
-                }.subscribeOn(Schedulers.io()).subscribe({ tx ->
-                    logger.log(Level.INFO, "have received incoming transaction")
-                    backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                            tx.raw, tx.from, tx.to, Value.valueOf(basedOnCoinType, getValue(tx.input)),
-                            Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
-                    updateBalanceCache()
-                }, {
-                    logger.log(Level.SEVERE, "onError in subscribeOnPendingTransactions, ${it.localizedMessage}")
-                })
-    }
+    private fun subscribeOnIncomingTransactions(): Disposable =
+            web3jWrapper.pendingTransactionFlowable()
+                    .filter { tx ->
+                        logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
+                        token.contractAddress.equals(tx.to, true) &&
+                                isTransfer(tx.input) &&
+                                receiveAddress.addressString.equals(getToAddress(tx.input), true)
+                    }.subscribeOn(Schedulers.io()).subscribe({ tx ->
+                        logger.log(Level.INFO, "have received incoming transaction")
+                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
+                                tx.raw, tx.from, tx.to, Value.valueOf(basedOnCoinType, getValue(tx.input)),
+                                Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
+                        updateBalanceCache()
+                    }, {
+                        logger.log(Level.SEVERE, "onError in subscribeOnPendingTransactions, ${it.localizedMessage}")
+                    })
 
     private fun isTransfer(input: String?) = input != null && input.length == 138 && input.substring(0, 10) == TRANSFER_ID
 
@@ -80,7 +79,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         }
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
         val gasLimit = BigInteger.valueOf(90_000)
-        if (ethAcc.accountBalance.spendable.value < (gasPrice * gasLimit)) {
+        if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
@@ -94,7 +93,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val erc20Tx = (tx as Erc20Transaction)
         try {
             accountContext.nonce = getNonce(receivingAddress)
-            val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
+            val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
+                    credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
                 logger.log(Level.SEVERE, "Error sending ERC20 transaction, status not OK: ${result.status}")
@@ -121,6 +121,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun getLabel(): String = token.name
 
     override fun setLabel(label: String?) {
+        // the label is defined by the token name, only.
     }
 
     @Synchronized
@@ -205,28 +206,25 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return false
     }
 
-    private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter {
-                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
-                }
-                .map { it.value.value }
-                .fold(BigInteger.ZERO, BigInteger::add)
-    }
+    private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions().filter {
+                !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+            }
+            .map { it.value.value }
+            .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter {
-                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
-                }
-                .map { it.value.value }
-                .fold(BigInteger.ZERO, BigInteger::add)
-    }
+    private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions().filter {
+                it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+            }
+            .map { it.value.value }
+            .fold(BigInteger.ZERO, BigInteger::add)
 
     private fun syncTransactions() {
         val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
                 token.contractAddress).getTransactions()
         remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
-            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.getTokenTransfer(token.contractAddress)!!.from,
-                    tx.getTokenTransfer(token.contractAddress)!!.to, Value.valueOf(basedOnCoinType, tx.getTokenTransfer(token.contractAddress)!!.value),
+            val transfer = tx.getTokenTransfer(token.contractAddress)!!
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                    transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
                     Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
                     tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
         }

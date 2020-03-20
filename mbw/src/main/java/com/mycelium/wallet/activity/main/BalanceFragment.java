@@ -321,11 +321,7 @@ public class BalanceFragment extends Fragment {
             }
             tvBtcRate.setVisibility(View.VISIBLE);
             exchangeSource.setText(exchange);
-            if (exchange != null) {
-                exchangeSourceLayout.setVisibility(View.VISIBLE);
-            } else {
-                exchangeSourceLayout.setVisibility(View.GONE);
-            }
+            exchangeSourceLayout.setVisibility(exchange != null ? View.VISIBLE : View.GONE);
         }
     }
 

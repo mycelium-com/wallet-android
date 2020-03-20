@@ -15,7 +15,7 @@ class ExchangeValue(value: Value, val baseValue: Value) : Value(value.type, valu
     override fun isZero() = baseValue.isZero()
 }
 
-fun ExchangeRateManager.get(wm: WalletManager, value: Value, toCurrency: GenericAssetInfo): Value? {
+fun ExchangeRateManager.get(walletManager: WalletManager, value: Value, toCurrency: GenericAssetInfo): Value? {
     if(toCurrency == value.type) {
         return value
     }
@@ -23,14 +23,11 @@ fun ExchangeRateManager.get(wm: WalletManager, value: Value, toCurrency: Generic
     if (value is ExchangeValue) {
         fromValue = value.baseValue
     }
-    val rate = GetExchangeRate(wm, toCurrency.symbol, fromValue.type.symbol, this).invoke()
-    val rateValue = rate.rate
-    return if (rateValue != null) {
+    val rate = GetExchangeRate(walletManager, toCurrency.symbol, fromValue.type.symbol, this).invoke()
+    return rate.rate?.let { rateValue ->
         val bigDecimal = rateValue.multiply(BigDecimal(fromValue.value))
                 .movePointLeft(fromValue.type.unitExponent)
                 .round(MathContext.DECIMAL128)
         ExchangeValue(Value.parse(toCurrency, bigDecimal), fromValue)
-    } else {
-        null
     }
 }
