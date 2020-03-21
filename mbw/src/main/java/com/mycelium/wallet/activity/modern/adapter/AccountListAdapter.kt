@@ -72,8 +72,8 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
             val groupModel = AccountsGroupModel(accountsGroup)
             itemList.add(groupModel)
-            groupModel.isCollapsed = pagePrefs.getBoolean(accountsGroup.getTitle(context), true)
-            if (groupModel.isCollapsed) {
+            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), true)
+            if (!groupModel.isCollapsed) {
                 itemList.addAll(accountsGroup.accountsList)
             }
         }
@@ -201,7 +201,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             pagePrefs.edit().putBoolean(title, isGroupVisible).apply()
             refreshList(listModel.accountsData.value!!)
         }
-        groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
+        groupHolder.expandIcon.rotation = (if (!group.isCollapsed) 180 else 0).toFloat()
     }
 
     private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {
