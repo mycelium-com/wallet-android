@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,7 @@ import java.util.UUID;
 public interface WalletAccount<A extends GenericAddress> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
+    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable CoinSpecificTransactionData data)
             throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
     void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;

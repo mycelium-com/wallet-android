@@ -3,9 +3,13 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.util.Log
+import androidx.databinding.InverseMethod
+import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
+import java.math.BigInteger
 import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
@@ -15,6 +19,18 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         super.init(account, intent)
         model = SendEthModel(context, account, intent)
     }
+
+    var isAdvancedBlockExpanded : MutableLiveData<Boolean> = MutableLiveData()
+
+    fun expandCollapseAdvancedBlock() {
+        isAdvancedBlockExpanded.value = isAdvancedBlockExpanded.value != true
+    }
+
+    fun getNonce() = (model as SendEthModel).nonce
+
+    fun getGasLimit() = (model as SendEthModel).gasLimit
+
+    fun getInputData() = (model as SendEthModel).inputData
 
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
@@ -26,4 +42,17 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
     }
 
     override fun getFeeFormatter() = EthFeeFormatter()
+}
+
+object Converter {
+    @InverseMethod("stringToBigInt")
+    @JvmStatic
+    fun bigIntToString(value: BigInteger?): String {
+        return value?.toString() ?: ""
+    }
+
+    @JvmStatic
+    fun stringToBigInt(value: String): BigInteger? {
+        return if (value.isNotEmpty()) BigInteger(value) else null
+    }
 }

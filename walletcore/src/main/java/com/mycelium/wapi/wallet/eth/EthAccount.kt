@@ -19,6 +19,7 @@ import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.http.HttpService
+import org.web3j.tx.RawTransactionManager
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
@@ -55,13 +56,13 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
-    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
+    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: CoinSpecificTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
-        if (value.value <= BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Value should be positive and non-zero"))
+        if (value.value < BigInteger.ZERO) {
+            throw GenericBuildTransactionException(Throwable("Value should be positive"))
         }
         // check whether account has enough funds
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
@@ -70,10 +71,11 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
 
         try {
-            val nonce = getNonce(receivingAddress)
-            val rawTransaction = RawTransaction.createEtherTransaction(nonce,
-                    gasPrice.feePerKb.value, BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
-                    toAddress.toString(), value.value)
+            val nonce = (data as? EthTransactionData)?.nonce ?: getNonce(receivingAddress)
+            val gasLimit = (data as? EthTransactionData)?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
+            val inputData = (data as? EthTransactionData)?.inputData ?: ""
+            val rawTransaction = RawTransaction.createTransaction(nonce,
+                    gasPrice.feePerKb.value, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
@@ -103,7 +105,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val ethSendTransaction = client.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
+        val transactionManager = RawTransactionManager(client, credentials)
+        val ethSendTransaction = transactionManager.signAndSend((tx as EthTransaction).rawTransaction)
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
@@ -140,6 +143,11 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getTransactionsSince(receivingSince: Long) =
             backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress.addressString)
+
+    fun deleteTransaction(txid: String) {
+        backing.deleteTransaction(txid)
+        updateBalanceCache()
+    }
 
     override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

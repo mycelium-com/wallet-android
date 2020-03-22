@@ -57,6 +57,15 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
 
 
+    val transactionData: MutableLiveData<CoinSpecificTransactionData?> = object : MutableLiveData<CoinSpecificTransactionData?>() {
+        override fun setValue(value: CoinSpecificTransactionData?) {
+            if (value != this.value) {
+                super.setValue(value)
+                txRebuildPublisher.onNext(Unit)
+            }
+        }
+    }
+
     val receivingAddress: MutableLiveData<GenericAddress?> = object : MutableLiveData<GenericAddress?>() {
         override fun setValue(value: GenericAddress?) {
             if (value != this.value) {
@@ -428,7 +437,7 @@ abstract class SendCoinsModel(
                 }
                 receivingAddress.value != null -> {
                     // createTx potentially takes long, if server interaction is involved
-                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!))
+                    transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
                     TransactionStatus.OK
                 }

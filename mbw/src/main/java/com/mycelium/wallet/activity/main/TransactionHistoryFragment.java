@@ -478,6 +478,10 @@ public class TransactionHistoryFragment extends Fragment {
                            .setVisible(record.getConfirmations() == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
                      }
+                     if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
+                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+                                .setVisible(record.getConfirmations() == 0);
+                     }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
                   }
@@ -535,9 +539,16 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
-                                         dialog.dismiss();
-                                         finishActionMode();
+                                         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+                                         if (selectedAccount instanceof WalletBtcAccount) {
+                                            ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
+                                            dialog.dismiss();
+                                            finishActionMode();
+                                         } else if (selectedAccount instanceof EthAccount) {
+                                            ((EthAccount) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
+                                            dialog.dismiss();
+                                            finishActionMode();
+                                         }
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

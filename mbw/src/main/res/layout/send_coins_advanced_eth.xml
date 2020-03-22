@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="@layout/send_coins_advanced_block">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.send.model.Converter" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <TableLayout
+        android:id="@+id/advancedBlock"
+        activity="@{activity}"
+        animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--Nonce-->
+            <TextView
+                android:id="@+id/tvNonceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/nonce"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etNonce"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ems="10"
+                android:inputType="number"
+                android:text="@={Converter.bigIntToString(viewModel.nonce)}" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--GasLimit-->
+            <TextView
+                android:id="@+id/tvGasLimitLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/gas_limit"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etGasLimit"
+                android:layout_width="106dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ems="10"
+                android:inputType="number"
+                android:text="@={Converter.bigIntToString(viewModel.gasLimit)}" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!--Data-->
+            <TextView
+                android:id="@+id/tvDataLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/input_data"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etData"
+                android:layout_width="106dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:digits="0123456789abcdefABCDEFx"
+                android:ems="10"
+                android:inputType="text"
+                android:text="@={viewModel.inputData}"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/ic_info_address_type"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="8dp"
+                android:onClick="@{_ -> activity.showInputDataInfo()}"
+                android:tint="@color/dark_sky_blue"
+                app:srcCompat="@drawable/ic_info" />
+        </TableRow>
+    </TableLayout>
+</layout>
