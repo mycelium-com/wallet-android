@@ -389,4 +389,9 @@
         <item name="android:textColor">@color/common_blue</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="Bequant" parent="AppBaseTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

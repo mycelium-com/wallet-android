@@ -1,9 +1,11 @@
 package com.mycelium.bequant.intro
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_intro.*
 
@@ -22,7 +24,7 @@ class BequantIntroActivity : AppCompatActivity(R.layout.activity_bequant_intro) 
 
         create.setOnClickListener {
             finish()
-//            startActivity(Intent())
+            startActivity(Intent(this, BequantMarketActivity::class.java))
         }
     }
 

@@ -1352,4 +1352,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="we_offer_extensive_support">We offer extensive support via live chat\naround the clock so you can be at peace that\nyour issues are prioritized.</string>
     <string name="investment_wallet">Investment Wallet</string>
     <string name="investment_maximise_your_earning">Maximise your earning potential and put your crypto to work by seamlessly managing your digital assets</string>
+    <string name="search_markets">Search markets</string>
+    <string name="support_center">Support Center</string>
+    <string name="kyc">KYC</string>
+    <string name="legal_information">Legal Information</string>
+    <string name="log_in">Log In</string>
+    <string name="available">Available:</string>
+    <string name="you_send">You send:</string>
+    <string name="hide_zero_balances">Hide Zero Balances</string>
 </resources>
