@@ -4,6 +4,7 @@ import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.net.HttpEndpoint
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -14,8 +15,6 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
@@ -24,11 +23,8 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.concurrent.thread
-import kotlin.math.max
 
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -36,6 +32,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  private val backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
                  endpoints: List<HttpEndpoint>,
+                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
                  address: EthAddress? = null) : WalletAccount<EthAddress>, ServerEthListChangedListener {
     private var endpoints = ServerEndpoints(endpoints.toTypedArray())
     private val logger = Logger.getLogger(EthBalanceService::class.simpleName)
@@ -122,11 +119,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client, this.endpoints)
-
-    private var balanceDisposable: Disposable = subscribeOnBalanceUpdates()
-
-    private var incomingTxsDisposable: Disposable = subscribeOnIncomingTx()
+    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, client)
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -169,26 +162,53 @@ class EthAccount(private val accountContext: EthAccountContext,
             isSyncing = false
             return false
         }
-        if (!ethBalanceService.updateBalanceCache()) {
-            isSyncing = false
-            return false
-        }
-        accountContext.balance = ethBalanceService.balance
-        accountListener?.balanceUpdated(this)
 
         if (!syncBlockHeight()) {
             isSyncing = false
             return false
         }
 
-        if (!syncTransactions()) {
-            isSyncing = false
-            return false
-        }
-
-        renewSubscriptions()
+        syncTransactions()
+        updateBalanceCache()
         isSyncing = false
         return true
+    }
+
+    private fun updateBalanceCache(): Boolean {
+        ethBalanceService.updateBalanceCache()
+        var newBalance = ethBalanceService.balance
+
+        val pendingReceiving = getPendingReceiving()
+        val pendingSending = getPendingSending()
+        newBalance = Balance(valueOf(coinType, newBalance.confirmed.value - pendingSending),
+                valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
+        if (newBalance != accountContext.balance) {
+            accountContext.balance = newBalance
+            accountListener?.balanceUpdated(this)
+            return true
+        }
+        return false
+    }
+
+    private fun getPendingReceiving(): BigInteger {
+        return backing.getUnconfirmedTransactions() .filter {
+                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                }
+                .map { it.value.value }
+                .fold(BigInteger.ZERO, BigInteger::add)
+    }
+
+    private fun getPendingSending(): BigInteger {
+        return backing.getUnconfirmedTransactions().filter {
+                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+                }
+                .map { tx -> tx.value.value + tx.fee.value }
+                .fold(BigInteger.ZERO, BigInteger::add) +
+                backing.getUnconfirmedTransactions() .filter {
+                            it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                        }
+                        .map { tx -> tx.fee.value }
+                        .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun selectEndpoint(): Boolean {
@@ -199,8 +219,6 @@ class EthAccount(private val accountContext: EthAccountContext,
                 if (ethUtils.isSynced) {
                     if (currentEndpointIndex != endpoints.currentEndpointIndex) {
                         ethBalanceService.client = client
-                        balanceDisposable = subscribeOnBalanceUpdates()
-                        incomingTxsDisposable = subscribeOnIncomingTx()
                     }
                     return true
                 }
@@ -229,7 +247,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions(newThread = true)
     }
 
     override fun activateAccount() {
@@ -291,111 +308,19 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
     }
 
-    /**
-     * during this sync we update transactions confirmations number
-     * and check for local transactions that have been created more than 5 minutes ago
-     * but are missing on the server and remove them from local db
-     * assuming the transactions haven't been propagated (transaction queueing for eth not supported yet)
-     */
     private fun syncTransactions(): Boolean {
-        val localTransactions = backing.getTransactionSummaries(0, Long.MAX_VALUE,
-                receivingAddress.addressString)
-        localTransactions.forEach {
-            try {
-                val remoteTx = client.ethGetTransactionByHash("0x" + it.idHex).send()
-                if (!remoteTx.hasError()) {
-                    if (remoteTx.result != null) {
-                        // blockNumber is not null when transaction is confirmed
-                        // https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-28
-                        if (remoteTx.result.blockNumberRaw != null) {
-                            // "it.height == -1" indicates that this is a newly created transaction
-                            // and we haven't received any information about it's confirmation from the server yet
-                            if (it.height == -1) { // update gasUsed only once when tx has just been confirmed
-                                val txReceipt = client.ethGetTransactionReceipt("0x" + it.idHex).send()
-                                if (!txReceipt.hasError()) {
-                                    val newFee = valueOf(coinType, remoteTx.result.gasPrice * txReceipt.result.gasUsed)
-                                    backing.updateGasUsed("0x" + it.idHex, txReceipt.result.gasUsed, newFee)
-                                }
-                            }
-                            val confirmations = if (it.height != -1) accountContext.blockHeight - it.height
-                                                else max(0, accountContext.blockHeight - remoteTx.result.blockNumber.toInt())
-                            backing.updateTransaction("0x" + it.idHex, remoteTx.result.blockNumber.toInt(), confirmations)
-                        }
-                    } else {
-                        // no such transaction on remote, remove local transaction but only if it is older 5 minutes
-                        // to prevent local data removal if server still didn't process just sent tx
-                        if (System.currentTimeMillis() - it.timestamp >= TimeUnit.MINUTES.toMillis(5)) {
-                            backing.deleteTransaction("0x" + it.idHex)
-                        }
-                    }
-                } else {
-                    return false
-                }
-            } catch (e: Exception) {
-                logger.log(Level.SEVERE, "Error synchronizing ETH, ${e.localizedMessage}")
-                return false
-            }
+        val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+        remoteTransactions.forEach { tx ->
+            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
+                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()),
+                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
         }
         return true
-    }
-
-    private fun subscribeOnBalanceUpdates(): Disposable {
-        return ethBalanceService.balanceFlowable.subscribeOn(Schedulers.io()).subscribe({ balance ->
-            accountContext.balance = balance
-            accountListener?.balanceUpdated(this)
-        }, {
-            logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
-        })
-    }
-
-    private fun subscribeOnIncomingTx(): Disposable {
-        return ethBalanceService.incomingTxsFlowable.subscribeOn(Schedulers.io()).subscribe({ tx ->
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                    tx.raw, tx.from, receivingAddress.addressString, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
-        }, {})
-    }
-
-    private fun renewSubscriptions() {
-        updateClient()
-        if (balanceDisposable.isDisposed) {
-            balanceDisposable = subscribeOnBalanceUpdates()
-        }
-        if (incomingTxsDisposable.isDisposed) {
-            incomingTxsDisposable = subscribeOnIncomingTx()
-        }
-    }
-
-    //to avoid io.reactivex.exceptions.UndeliverableException (inside android.os.NetworkOnMainThreadException)
-    //we have to stop subscriptions in another thread
-    //but if we want to restart subscriptions we have to stop it synchronously before subscribe again
-    fun stopSubscriptions(newThread: Boolean = true) {
-        if (newThread) {
-            thread {
-                stopSubscriptions()
-            }
-        } else {
-            stopSubscriptions()
-        }
-    }
-
-    private fun stopSubscriptions() {
-        client.shutdown()
-        if (!balanceDisposable.isDisposed) {
-            balanceDisposable.dispose()
-        }
-        if (!incomingTxsDisposable.isDisposed) {
-            incomingTxsDisposable.dispose()
-        }
     }
 
     override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
         endpoints = ServerEndpoints(newEndpoints)
         updateClient()
-        thread {
-            stopSubscriptions(newThread = false)
-            renewSubscriptions()
-        }
     }
 
     fun fetchNonce(txid: String): BigInteger? {

@@ -812,7 +812,7 @@ public class MbwManager {
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+                configuration.getEthHttpServices(), configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
         configuration.addEthServerListChangedListener(walletModule);
         walletManager.init();
@@ -878,7 +878,7 @@ public class MbwManager {
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
-                configuration.getEthHttpServices(), networkParameters, getMetadataStorage(), accountListener);
+                configuration.getEthHttpServices(), configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
         configuration.addEthServerListChangedListener(walletModule);
         walletManager.disableTransactionHistorySynchronization();

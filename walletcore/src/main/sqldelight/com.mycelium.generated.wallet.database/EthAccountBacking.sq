@@ -50,9 +50,16 @@ FROM EthAccountBacking AS eb
     ON eb.uuid = b.uuid AND eb.txid = b.txid
         WHERE eb.uuid = (?) AND eb.txid = (?);
 
+selectUnconfirmedTransactions:
+SELECT eb.fromAddress, eb.toAddress, b.value, b.fee
+FROM EthAccountBacking AS eb
+    INNER JOIN AccountBacking AS b
+    ON eb.uuid = b.uuid AND eb.txid = b.txid
+        WHERE eb.uuid = (?) AND b.confirmations = 0;
+
 insertTransaction:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, gasUsed)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit)
+VALUES (?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking
