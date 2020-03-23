@@ -1350,4 +1350,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="institutional_grade_crypto_storage">Institutional grade crypto storage and\nindustry-leading security, trusted by world\'s\nlargest crypto funds. You can manage your\ncrypto portfolio with confidence.</string>
     <string name="global_support">Global Support</string>
     <string name="we_offer_extensive_support">We offer extensive support via live chat\naround the clock so you can be at peace that\nyour issues are prioritized.</string>
+    <string name="investment_wallet">Investment Wallet</string>
+    <string name="investment_maximise_your_earning">Maximise your earning potential and put your crypto to work by seamlessly managing your digital assets</string>
 </resources>

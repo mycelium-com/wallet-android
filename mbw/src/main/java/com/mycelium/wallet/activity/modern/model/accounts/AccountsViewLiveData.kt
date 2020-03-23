@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern.model.accounts
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import android.os.AsyncTask
+import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
@@ -15,8 +16,6 @@ import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
@@ -66,7 +65,8 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to walletManager.getEthAccounts()
+                    R.string.eth_accounts_name to walletManager.getEthAccounts(),
+                    R.string.investment_wallet to listOf(InvestmentAccount())
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
@@ -104,7 +104,10 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
         }
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
-                accounts.map { AccountViewModel(it, mbwManager) }
+                accounts.map {
+                    if (it is InvestmentAccount) AccountInvestmentViewModel()
+                    else AccountViewModel(it, mbwManager)
+                }
 
         private fun sortAccounts(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 Utils.sortAccounts(accounts, mbwManager.metadataStorage)

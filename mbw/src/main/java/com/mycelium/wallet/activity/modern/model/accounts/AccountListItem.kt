@@ -11,7 +11,8 @@ interface AccountListItem {
         ACCOUNT_TYPE(3),
         TOTAL_BALANCE_TYPE(4),
         GROUP_ARCHIVED_TITLE_TYPE(5),
-        UKNOWN(6);
+        UKNOWN(6),
+        INVESTMENT_TYPE(7);
 
         companion object {
             fun fromId(id: Int) : Type {
@@ -20,6 +21,7 @@ interface AccountListItem {
                     3 -> ACCOUNT_TYPE
                     4 -> TOTAL_BALANCE_TYPE
                     5 -> GROUP_ARCHIVED_TITLE_TYPE
+                    7 -> INVESTMENT_TYPE
                     else -> UKNOWN
                 }
             }

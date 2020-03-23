@@ -14,10 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
-import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.ArchivedGroupTitleViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.GroupTitleViewHolder
-import com.mycelium.wallet.activity.modern.adapter.holder.TotalViewHolder
+import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel
 import com.mycelium.wallet.activity.modern.model.accounts.*
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.*
@@ -47,7 +44,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         layoutInflater = LayoutInflater.from(context)
         listModel.accountsData.observe(fragment, Observer { accountsGroupModels ->
             accountsGroupModels!!
-            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it.accountId == selectedAccountId } }
+            val selectedAccountExists = accountsGroupModels.any { it.accountsList.any { it is AccountViewModel && it.accountId == selectedAccountId } }
             if (!selectedAccountExists) {
                 setFocusedAccountId(null)
             }
@@ -127,6 +124,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             GROUP_ARCHIVED_TITLE_TYPE -> createArchivedTitleViewHolder(parent)
             ACCOUNT_TYPE -> createAccountViewHolder(parent)
             TOTAL_BALANCE_TYPE -> createTotalBalanceViewHolder(parent)
+            INVESTMENT_TYPE -> createInvestmentAccountViewHolder(parent)
             else -> throw IllegalArgumentException("Unknow account type")
         }
     }
@@ -150,6 +148,9 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         val view = layoutInflater.inflate(R.layout.record_row_total, parent, false)
         return TotalViewHolder(view)
     }
+
+    private fun createInvestmentAccountViewHolder(parent: ViewGroup): InvestmentViewHolder =
+            InvestmentViewHolder(layoutInflater.inflate(R.layout.record_row_investment, parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
@@ -185,6 +186,12 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val sum = (item as TotalViewModel).balance
                 totalHolder.tcdBalance.setValue(sum, totalBalance = true)
             }
+            INVESTMENT_TYPE -> {
+                val investHolder = holder as InvestmentViewHolder
+                val investItem = item as AccountInvestmentViewModel
+                investHolder.label.text = investItem.label
+                investHolder.balance.text = investItem.balance
+            }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")
         }
     }
@@ -209,7 +216,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
         for (item in walletAccountList) {
             if (item.getType() == GROUP_TITLE_TYPE) {
                 for (account in (item as AccountsGroupModel).accountsList) {
-                    if (account.isActive) {
+                    if (account.getType() == ACCOUNT_TYPE && (account as AccountViewModel) .isActive) {
                         sum.add(account.balance!!.spendable)
                     }
                 }
