@@ -65,7 +65,6 @@ class ERC20Module(
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean =
             if (walletAccount is ERC20Account) {
-                walletAccount.stopSubscriptions(remove = true)
                 backing.deleteAccountContext(walletAccount.id)
                 accounts.remove(walletAccount.id)
                 true

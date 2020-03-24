@@ -11,14 +11,8 @@ import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import org.web3j.abi.TypeDecoder
-import org.web3j.abi.datatypes.Address
-import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
 import org.web3j.tx.gas.StaticGasProvider
-import java.lang.reflect.Method
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
@@ -33,45 +27,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    web3jWrapper: Web3jWrapper,
                    private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
-    private var incomingTxDisposable: Disposable? = null
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
-
-    private fun subscribeOnIncomingTransactions(): Disposable =
-            web3jWrapper.pendingTransactionFlowable()
-                    .filter { tx ->
-                        logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
-                        token.contractAddress.equals(tx.to, true) &&
-                                isTransfer(tx.input) &&
-                                receiveAddress.addressString.equals(getToAddress(tx.input), true)
-                    }.subscribeOn(Schedulers.io()).subscribe({ tx ->
-                        logger.log(Level.INFO, "have received incoming transaction")
-                        backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                                tx.raw, tx.from, tx.to, Value.valueOf(basedOnCoinType, getValue(tx.input)),
-                                Value.valueOf(basedOnCoinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
-                        updateBalanceCache()
-                    }, {
-                        logger.log(Level.SEVERE, "onError in subscribeOnPendingTransactions, ${it.localizedMessage}")
-                    })
-
-    private fun isTransfer(input: String?) = input != null && input.length == 138 && input.substring(0, 10) == TRANSFER_ID
-
-    private fun getToAddress(input: String?): String? {
-        input ?: return null
-        val to: String = input.substring(10, 74)
-        val refMethod: Method = TypeDecoder::class.java.getDeclaredMethod("decode", String::class.java, Int::class.javaPrimitiveType, Class::class.java)
-        refMethod.isAccessible = true
-        val address: Address = refMethod.invoke(null, to, 0, Address::class.java) as Address
-        return address.toString()
-    }
-
-    private fun getValue(input: String): BigInteger {
-        val value: String = input.substring(74)
-        val refMethod: Method = TypeDecoder::class.java.getDeclaredMethod("decode", String::class.java, Int::class.javaPrimitiveType, Class::class.java)
-        refMethod.isAccessible = true
-        val amount = refMethod.invoke(null, value, 0, Uint256::class.java) as Uint256
-        return amount.value
-    }
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
         if (calculateMaxSpendableAmount(null, null) < amount) {
@@ -129,14 +86,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         if (removed || isArchived) {
             return false
         }
-        renewSubscriptions()
         return updateBalanceCache()
-    }
-
-    private fun renewSubscriptions() {
-        stopSubscriptions()
-        logger.log(Level.INFO, "Resubscribing on incoming transactions...")
-        incomingTxDisposable = subscribeOnIncomingTransactions()
     }
 
     override fun getNonce() = accountContext.nonce
@@ -158,7 +108,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions()
     }
 
     override fun activateAccount() {
@@ -249,18 +198,5 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                 Value.valueOf(coinType, balance.pendingReceiving.value),
                 Value.valueOf(coinType, balance.pendingSending.value),
                 Value.valueOf(coinType, 0))
-    }
-
-    fun stopSubscriptions(remove: Boolean = false) {
-        removed = remove
-        if (incomingTxDisposable != null && !incomingTxDisposable!!.isDisposed) {
-            logger.log(Level.INFO, "Stopping subscriptions...")
-            incomingTxDisposable!!.dispose()
-            incomingTxDisposable = null
-        }
-    }
-
-    companion object {
-        const val TRANSFER_ID = "0xa9059cbb"
     }
 }
