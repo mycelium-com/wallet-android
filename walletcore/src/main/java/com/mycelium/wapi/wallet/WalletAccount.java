@@ -19,7 +19,7 @@ import java.util.UUID;
 public interface WalletAccount<A extends GenericAddress> {
     void setAllowZeroConfSpending(boolean b);
 
-    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable CoinSpecificTransactionData data)
+    GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable GenericTransactionData data)
             throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException;
 
     void signTx(GenericTransaction request, KeyCipher keyCipher) throws KeyCipher.InvalidKeyCipher;

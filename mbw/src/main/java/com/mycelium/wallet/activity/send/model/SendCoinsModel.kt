@@ -57,8 +57,8 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
 
 
-    val transactionData: MutableLiveData<CoinSpecificTransactionData?> = object : MutableLiveData<CoinSpecificTransactionData?>() {
-        override fun setValue(value: CoinSpecificTransactionData?) {
+    val transactionData: MutableLiveData<GenericTransactionData?> = object : MutableLiveData<GenericTransactionData?>() {
+        override fun setValue(value: GenericTransactionData?) {
             if (value != this.value) {
                 super.setValue(value)
                 txRebuildPublisher.onNext(Unit)

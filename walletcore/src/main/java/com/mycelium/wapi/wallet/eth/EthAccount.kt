@@ -56,7 +56,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
-    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: CoinSpecificTransactionData?): GenericTransaction {
+    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
@@ -71,9 +71,10 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
 
         try {
-            val nonce = (data as? EthTransactionData)?.nonce ?: getNonce(receivingAddress)
-            val gasLimit = (data as? EthTransactionData)?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
-            val inputData = (data as? EthTransactionData)?.inputData ?: ""
+            val ethTxData = (data as? EthTransactionData)
+            val nonce = ethTxData?.nonce ?: getNonce(receivingAddress)
+            val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
+            val inputData = ethTxData?.inputData ?: ""
             val rawTransaction = RawTransaction.createTransaction(nonce,
                     gasPrice.feePerKb.value, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)

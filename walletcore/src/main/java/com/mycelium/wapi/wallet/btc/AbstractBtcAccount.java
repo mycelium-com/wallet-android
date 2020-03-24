@@ -62,7 +62,7 @@ import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
-import com.mycelium.wapi.wallet.CoinSpecificTransactionData;
+import com.mycelium.wapi.wallet.GenericTransactionData;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -146,7 +146,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable CoinSpecificTransactionData data)
+   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable GenericTransactionData data)
            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
