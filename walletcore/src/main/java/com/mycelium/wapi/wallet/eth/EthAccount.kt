@@ -13,14 +13,11 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import org.web3j.crypto.*
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
-import java.util.logging.Level
 
 class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
@@ -103,8 +100,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jWrapper)
 
-    private var incomingTxsDisposable: Disposable? = null
-
     override fun getAccountBalance() = accountContext.balance
 
     override fun setLabel(label: String?) {
@@ -122,14 +117,13 @@ class EthAccount(private val accountContext: EthAccountContext,
         if (removed || isArchived) {
             return false
         }
-        renewSubscriptions()
+        syncTransactions()
         return updateBalanceCache()
     }
 
     private fun updateBalanceCache(): Boolean {
         ethBalanceService.updateBalanceCache()
         var newBalance = ethBalanceService.balance
-        syncTransactions()
 
         val pendingReceiving = getPendingReceiving()
         val pendingSending = getPendingSending()
@@ -176,7 +170,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun archiveAccount() {
         accountContext.archived = true
         dropCachedData()
-        stopSubscriptions()
     }
 
     override fun activateAccount() {
@@ -220,35 +213,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun subscribeOnIncomingTx(): Disposable {
-        return web3jWrapper.pendingTransactionFlowable().filter { tx ->
-            logger.log(Level.INFO, "tx.hash: ${tx.hash}, input: ${tx.input}, from: ${tx.from}")
-            receiveAddress.addressString.equals(tx.to, true)
-        }.subscribeOn(Schedulers.io()).subscribe({ tx ->
-            logger.log(Level.INFO, "have received incoming eth transaction")
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, tx.hash,
-                    tx.raw, tx.from, tx.to, valueOf(coinType, tx.value),
-                    valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()), 0, tx.nonce, tx.gas)
-            updateBalanceCache()
-        }, {
-            logger.log(Level.SEVERE, "Error synchronizing ETH, $it")
-        })
-    }
-
-    private fun renewSubscriptions() {
-        stopSubscriptions()
-        logger.log(Level.INFO, "Resubscribing on incoming transactions...")
-        incomingTxsDisposable = subscribeOnIncomingTx()
-    }
-
-    fun stopSubscriptions(remove: Boolean = false) {
-        removed = remove
-        if (incomingTxsDisposable!= null && !incomingTxsDisposable!!.isDisposed) {
-            logger.log(Level.INFO, "Stopping subscriptions...")
-            incomingTxsDisposable!!.dispose()
-            incomingTxsDisposable = null
-        }
-    }
 
     fun fetchTxNonce(txid: String): BigInteger? {
         return try {

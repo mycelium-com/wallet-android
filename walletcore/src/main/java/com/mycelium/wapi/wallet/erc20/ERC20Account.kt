@@ -86,6 +86,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         if (removed || isArchived) {
             return false
         }
+        syncTransactions()
         return updateBalanceCache()
     }
 
@@ -141,7 +142,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private fun updateBalanceCache(): Boolean {
         balanceService.updateBalanceCache()
         var newBalance = balanceService.balance
-        syncTransactions()
 
         val pendingReceiving = getPendingReceiving()
         val pendingSending = getPendingSending()
