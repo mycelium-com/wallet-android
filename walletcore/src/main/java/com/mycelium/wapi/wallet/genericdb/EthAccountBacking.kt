@@ -10,7 +10,6 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAddress
-import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.util.*
 
@@ -115,14 +114,17 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         val convertedValue = if (token != null) transformValueFromDb(token, value) else value
         val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
-        val outputs = if (to.isEmpty()) listOf()
-        else listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
-        val destAddresses = if (to.isEmpty()) listOf(contractCreationAddress) else listOf(EthAddress(currency, to))
-        val transferred = if ((from.equals(ownerAddress, true)) && (!to.equals(ownerAddress, true))) {
+        val outputs = if (to.isEmpty()) {
+            listOf()
+        } else {
+            listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
+        }
+        val destAddresses = listOf(if (to.isEmpty()) contractCreationAddress else EthAddress(currency, to))
+        val transferred = if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {
             if (token != null) -convertedValue else -convertedValue - fee
-        } else if ((!from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
+        } else if (!from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
             convertedValue
-        } else if ((from.equals(ownerAddress, true)) && (to.equals(ownerAddress, true))) {
+        } else if (from.equals(ownerAddress, true) && to.equals(ownerAddress, true)) {
             if (token != null) Value.zeroValue(token) else -fee // sent to ourselves
         } else {
             // transaction doesn't relate to us in any way. should not happen
@@ -135,9 +137,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                 destAddresses, null, 21000, fee)
     }
 
-    private fun transformValueFromDb(token: ERC20Token, value: Value): Value {
-        return Value.valueOf(token, value.value)
-    }
+    private fun transformValueFromDb(token: ERC20Token, value: Value): Value = Value.valueOf(token, value.value)
 }
 
 class UnconfirmedTransaction(val from: String, val to: String, val value: Value, val fee: Value)

@@ -176,11 +176,6 @@ public class SignTransactionActivity extends Activity {
    }
 
    @Override
-   protected void onPause() {
-      super.onPause();
-   }
-
-   @Override
    protected void onDestroy() {
       if (signingTask != null){
          signingTask.cancel(true);

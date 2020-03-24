@@ -266,9 +266,7 @@ public class AccountsFragment extends Fragment {
         checkNotNull(accountToDelete);
         final List<WalletAccount> linkedAccounts = new ArrayList<>();
         if (accountToDelete instanceof EthAccount) {
-            if (!getLinkedERC20Accounts(accountToDelete).isEmpty()) {
-                linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
-            }
+            linkedAccounts.addAll(getLinkedERC20Accounts(accountToDelete));
         } else if (accountToDelete instanceof ERC20Account) {
             linkedAccounts.add(getLinkedEthAccount(accountToDelete));
         } else {
@@ -460,16 +458,16 @@ public class AccountsFragment extends Fragment {
         deleteDialog.setNegativeButton(R.string.no, null).show();
     }
 
-    private EthAccount getLinkedEthAccount(WalletAccount accountToDelete) {
-        return (EthAccount) Utils.getLinkedAccount(accountToDelete, EthereumModuleKt.getEthAccounts(walletManager));
+    private EthAccount getLinkedEthAccount(WalletAccount account) {
+        return (EthAccount) Utils.getLinkedAccount(account, EthereumModuleKt.getEthAccounts(walletManager));
     }
 
-    private List<WalletAccount> getLinkedERC20Accounts(WalletAccount accountToDelete) {
-        return Utils.getLinkedAccounts(accountToDelete, ERC20ModuleKt.getERC20Accounts(walletManager));
+    private List<WalletAccount> getLinkedERC20Accounts(WalletAccount account) {
+        return Utils.getLinkedAccounts(account, ERC20ModuleKt.getERC20Accounts(walletManager));
     }
 
-    private List<WalletAccount> getActiveLinkedERC20Accounts(WalletAccount accountToDelete) {
-        return Utils.getLinkedAccounts(accountToDelete, ERC20ModuleKt.getActiveERC20Accounts(walletManager));
+    private List<WalletAccount> getActiveLinkedERC20Accounts(WalletAccount account) {
+        return Utils.getLinkedAccounts(account, ERC20ModuleKt.getActiveERC20Accounts(walletManager));
     }
 
     @NonNull
@@ -506,17 +504,15 @@ public class AccountsFragment extends Fragment {
         String valueString = getBalanceString(accountToDelete.getCoinType(), balance);
 
         // TODO sort linkedAccounts for visible only
-        if (linkedAccounts.size() > 1 || ((accountToDelete instanceof EthAccount) && linkedAccounts.size() > 0)) {
-            StringBuilder linkedAccountsString = new StringBuilder();
+        if (linkedAccounts.size() > 1 || accountToDelete instanceof EthAccount && linkedAccounts.size() > 0) {
+            List<String> linkedAccountStrings = new ArrayList<>();
             for (WalletAccount linkedAccount : linkedAccounts) {
                 Balance linkedBalance = linkedAccount.getAccountBalance();
                 String linkedAccountName =_mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
                 String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
-                linkedAccountsString.append("<b>").append(linkedAccountName).append("</b>").append(" holding ")
-                        .append("<b>").append(linkedValueString).append("</b>").append(", ");
+                linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>");
             }
-            linkedAccountsString.deleteCharAt(linkedAccountsString.length() - 1);
-            linkedAccountsString = linkedAccountsString.replace(linkedAccountsString.length() - 1, linkedAccountsString.length(), "?");
+            String linkedAccountsString = TextUtils.join(", ", linkedAccountStrings) + "?";
             dialogText = getString(R.string.delete_accounts_message, accountName, valueString,
                     linkedAccountsString) + "\n" + getString(R.string.both_eth_and_tokens_will_deleted, accountName);
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible() && !(accountToDelete instanceof ERC20Account)) {

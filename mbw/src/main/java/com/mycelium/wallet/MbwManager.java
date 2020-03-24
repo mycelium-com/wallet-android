@@ -408,9 +408,9 @@ public class MbwManager {
     }
 
     private Web3jWrapper initWeb3j() {
-        Web3jWrapper web3jWrapper = new Web3jWrapper(configuration.getEthHttpServices());
-        configuration.addEthServerListChangedListener(web3jWrapper);
-        return web3jWrapper;
+        Web3jWrapper wrapper = new Web3jWrapper(configuration.getEthHttpServices());
+        configuration.addEthServerListChangedListener(wrapper);
+        return wrapper;
     }
 
     private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {

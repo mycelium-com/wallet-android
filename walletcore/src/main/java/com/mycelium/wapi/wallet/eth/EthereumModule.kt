@@ -59,7 +59,7 @@ class EthereumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig)
+    override fun canCreateAccount(config: Config) = config is EthereumMasterseedConfig
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
@@ -181,5 +181,3 @@ class EthereumModule(
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
-// TODO remove
-fun WalletManager.getActiveMasterseedEthAccounts(): List<WalletAccount<*>> = getAccounts().filter { it is EthAccount && it.isDerivedFromInternalMasterseed }

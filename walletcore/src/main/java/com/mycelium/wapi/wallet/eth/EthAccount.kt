@@ -49,9 +49,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     fun isEnabledToken(tokenName: String) = enabledTokens.contains(tokenName)
 
-    fun hasHadActivity(): Boolean {
-        return accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
-    }
+    fun hasHadActivity(): Boolean =
+            accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
@@ -268,5 +267,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 }
 
 
-fun ECKeyPair.toUUID(): UUID = UUID(BitUtils.uint64ToLong(publicKey.toByteArray(), 8), BitUtils.uint64ToLong(
-        publicKey.toByteArray(), 16))
+fun ECKeyPair.toUUID(): UUID = UUID(
+        BitUtils.uint64ToLong(publicKey.toByteArray(), 8),
+        BitUtils.uint64ToLong(publicKey.toByteArray(), 16))

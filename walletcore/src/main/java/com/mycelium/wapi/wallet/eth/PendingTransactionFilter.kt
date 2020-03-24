@@ -66,9 +66,7 @@ class PendingTransactionFilter(private val web3j: Web3j, private val callback: C
     }
 
     @Throws(IOException::class)
-    fun sendRequest(): EthFilter {
-        return web3j.ethNewPendingTransactionFilter().send()
-    }
+    fun sendRequest(): EthFilter = web3j.ethNewPendingTransactionFilter().send()
 
     fun process(logResults: List<LogResult<*>>) {
         for (logResult in logResults) {
@@ -76,7 +74,7 @@ class PendingTransactionFilter(private val web3j: Web3j, private val callback: C
                 val transactionHash = logResult.get()
                 callback.onEvent(transactionHash)
             } else {
-                throw FilterException("Unexpected result type: " + logResult.get() + ", required Hash")
+                throw FilterException("Unexpected result type: ${logResult.get()}, required Hash")
             }
         }
     }
@@ -84,7 +82,7 @@ class PendingTransactionFilter(private val web3j: Web3j, private val callback: C
     private fun reinstallFilter() {
         logger.log(Level.WARNING, "The filter has not been found. Filter id: $filterId")
         cancel()
-        this.run()
+        run()
     }
 
     fun cancel() {

@@ -146,7 +146,6 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-import static com.mycelium.wapi.wallet.erc20.ERC20ModuleKt.getERC20Accounts;
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;

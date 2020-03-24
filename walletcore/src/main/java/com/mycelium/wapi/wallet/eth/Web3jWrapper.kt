@@ -24,7 +24,7 @@ import kotlin.concurrent.timerTask
 
 /**
  * As we can have multiple ethereum node endpoints for backup purposes and we want
- * to switch between them if one of them got down or out of sync,
+ * to switch between them if one of them went down or out of sync,
  * we need to rebuild client with new endpoint from time to time.
  * This class maintains endpoints health checks and switching and
  * provides wrapper methods that use Web3j client built with the latest endpoint.
@@ -50,11 +50,10 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
         web3j = buildCurrentEndpoint()
     }
 
-    private fun buildCurrentEndpoint(): Web3j {
-        val web3j = Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl))
-        logger.log(Level.INFO, "web3j built with: ${endpoints.currentEndpoint.baseUrl}")
-        return web3j
-    }
+    private fun buildCurrentEndpoint(): Web3j =
+            Web3j.build(HttpService(endpoints.currentEndpoint.baseUrl)).also {
+                logger.log(Level.INFO, "web3j built with: ${endpoints.currentEndpoint.baseUrl}")
+            }
 
     private fun selectEndpoint() {
         if (walletManager?.isNetworkConnected != true) {

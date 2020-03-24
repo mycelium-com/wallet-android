@@ -16,13 +16,12 @@ class ERC20Token(name: String, symbol: String, unitExponent: Int, val contractAd
         this.unitExponent = unitExponent
     }
 
-    override fun parseAddress(addressString: String): GenericAddress? {
-        return if (WalletUtils.isValidAddress(addressString)) {
-            // additional wrap of addressString into Address is called upon
-            // to unify addresses with and without '0x' prefix
-            EthAddress(this, Address(addressString).toString())
-        } else {
-            null
-        }
-    }
+    override fun parseAddress(addressString: String): GenericAddress? =
+            if (WalletUtils.isValidAddress(addressString)) {
+                // additional wrap of addressString into Address is called upon
+                // to unify addresses with and without '0x' prefix
+                EthAddress(this, Address(addressString).toString())
+            } else {
+                null
+            }
 }

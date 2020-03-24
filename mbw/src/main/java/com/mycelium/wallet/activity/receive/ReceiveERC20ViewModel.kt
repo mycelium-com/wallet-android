@@ -14,12 +14,10 @@ class ReceiveERC20ViewModel(application: Application) : ReceiveCoinsViewModel(ap
 
     override fun getFormattedValue(sum: Value) = sum.toString(mbwManager.getDenomination(account.coinType))
 
-    override fun getTitle(): String {
-        return if (Value.isNullOrZero(model.amount.value)) {
-            context.getString(R.string.address_title, account.coinType.symbol)
-        } else {
-            context.getString(R.string.payment_request)
-        }
+    override fun getTitle(): String = if (Value.isNullOrZero(model.amount.value)) {
+        context.getString(R.string.address_title, account.coinType.symbol)
+    } else {
+        context.getString(R.string.payment_request)
     }
 
     override fun getCurrencyName(): String = account.coinType.symbol

@@ -16,13 +16,13 @@ class ERC20BalanceService(private val address: String,
     var balance: Balance = Balance.getZeroBalance(coinType)
         private set
 
-    fun updateBalanceCache() {
-        return try {
-            val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials, DefaultGasProvider())
-            val result = erc20Contract.balanceOf(address).send()
+    fun updateBalanceCache() = try {
+        val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials, DefaultGasProvider())
+        val result = erc20Contract.balanceOf(address).send()
 
-            balance = Balance(Value.valueOf(coinType, result), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
-        } catch (e: Exception) {
-        }
+        balance = Balance(Value.valueOf(coinType, result), Value.zeroValue(coinType),
+                Value.zeroValue(coinType), Value.zeroValue(coinType))
+    } catch (e: Exception) {
+        // ignore. Probably the internet went away temporarily.
     }
 }
