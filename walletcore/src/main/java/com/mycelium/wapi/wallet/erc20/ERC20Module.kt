@@ -54,9 +54,7 @@ class ERC20Module(
                 result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking,
                         accountListener, web3jWrapper, transactionServiceEndpoints)
             }
-            else -> {
-                throw NotImplementedError("Unknown config")
-            }
+            else -> throw NotImplementedError("Unknown config")
         }
         accounts[result.id] = result
         storeLabel(result.id, baseLabel)
@@ -65,16 +63,15 @@ class ERC20Module(
 
     override fun canCreateAccount(config: Config) = config is ERC20Config
 
-    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
-        return if (walletAccount is ERC20Account) {
-            walletAccount.stopSubscriptions(remove = true)
-            backing.deleteAccountContext(walletAccount.id)
-            accounts.remove(walletAccount.id)
-            true
-        } else {
-            false
-        }
-    }
+    override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean =
+            if (walletAccount is ERC20Account) {
+                walletAccount.stopSubscriptions(remove = true)
+                backing.deleteAccountContext(walletAccount.id)
+                accounts.remove(walletAccount.id)
+                true
+            } else {
+                false
+            }
 
     override fun getAccounts() = accounts.values.toList()
 

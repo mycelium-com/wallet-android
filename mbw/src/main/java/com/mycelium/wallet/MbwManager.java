@@ -366,8 +366,9 @@ public class MbwManager {
         _trezorManager = new TrezorManager(_applicationContext, getNetwork(), getEventBus());
         _keepkeyManager = new KeepKeyManager(_applicationContext, getNetwork(), getEventBus());
         _ledgerManager = new LedgerManager(_applicationContext, getNetwork(), getEventBus());
-        _walletManager = createWalletManager(_applicationContext, _environment, db);
         web3jWrapper = initWeb3j();
+        _walletManager = createWalletManager(_applicationContext, _environment, db);
+        web3jWrapper.setWalletManager(_walletManager);
         contentResolver = createContentResolver(getNetwork());
 
         migrate();
@@ -409,7 +410,6 @@ public class MbwManager {
     private Web3jWrapper initWeb3j() {
         Web3jWrapper wrapper = new Web3jWrapper(configuration.getEthHttpServices());
         configuration.addEthServerListChangedListener(wrapper);
-        wrapper.setWalletManager(_walletManager);
         return wrapper;
     }
 

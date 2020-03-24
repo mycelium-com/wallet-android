@@ -185,7 +185,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 ERC20Token("MyDFS", "MyDFS", 18, "0x3578AE28E8b6f5664BbE3e855DB209E9DabDC027"),
                 ERC20Token("MassToken", "MASS", 18, "0xE9c6860069409B6257CD6B0315E73071927ADC2A"),
                 ERC20Token("Mycelium", "MT", 18, "0xA1a6b1FF4d3D23fC1DD8D70FeeB77Db561AfdC8E"))
-    }.map { it.name to it }.toMap()
+    }.associateBy { it.name }
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener

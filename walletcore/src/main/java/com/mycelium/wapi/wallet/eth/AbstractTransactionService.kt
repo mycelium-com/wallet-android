@@ -18,9 +18,9 @@ abstract class AbstractTransactionService(private val address: String, endpoints
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val result: MutableList<Tx> = mutableListOf()
         try {
-            val response = mapper.readValue(URL(urlString), Response::class.java)
-            result.addAll(response.transactions)
-            for (i in 2..response.totalPages) {
+            val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
+            result.addAll(initialResponse.transactions)
+            for (i in 2..initialResponse.totalPages) {
                 logger.log(Level.INFO, "page: $i")
                 urlString = "$api$address?details=txs&page=$i"
                 val response = mapper.readValue(URL(urlString), Response::class.java)

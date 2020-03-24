@@ -21,18 +21,16 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     @Volatile
     protected var syncing = false
 
-    protected fun getNonce(address: EthAddress): BigInteger {
-        return try {
-            val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
-                    DefaultBlockParameterName.PENDING)
-                    .send()
+    protected fun getNonce(address: EthAddress): BigInteger = try {
+        val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
+                DefaultBlockParameterName.PENDING)
+                .send()
 
-            setNonce(ethGetTransactionCount.transactionCount)
-            getNonce()
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
-            getNonce()
-        }
+        setNonce(ethGetTransactionCount.transactionCount)
+        getNonce()
+    } catch (e: Exception) {
+        logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
+        getNonce()
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {

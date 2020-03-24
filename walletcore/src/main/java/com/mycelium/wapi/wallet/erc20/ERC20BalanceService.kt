@@ -20,7 +20,9 @@ class ERC20BalanceService(private val address: String,
         val erc20Contract = web3jWrapper.loadContract(token.contractAddress, credentials, DefaultGasProvider())
         val result = erc20Contract.balanceOf(address).send()
 
-        balance = Balance(Value.valueOf(coinType, result), Value.zeroValue(coinType), Value.zeroValue(coinType), Value.zeroValue(coinType))
+        balance = Balance(Value.valueOf(coinType, result), Value.zeroValue(coinType),
+                Value.zeroValue(coinType), Value.zeroValue(coinType))
     } catch (e: Exception) {
+        // ignore. Probably the internet went away temporarily.
     }
 }
