@@ -12,6 +12,7 @@ import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
+import org.web3j.tx.Transfer
 import org.web3j.tx.gas.StaticGasProvider
 import java.math.BigInteger
 import java.util.*
@@ -133,7 +134,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = 21000
+    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

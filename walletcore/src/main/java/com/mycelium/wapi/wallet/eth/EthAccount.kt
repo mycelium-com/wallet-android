@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
+import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.math.BigInteger
@@ -207,7 +208,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getSyncTotalRetrievedTransactions() = 0 // TODO implement after full transaction history implementation
 
-    override fun getTypicalEstimatedTransactionSize() = 21000
+    override fun getTypicalEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

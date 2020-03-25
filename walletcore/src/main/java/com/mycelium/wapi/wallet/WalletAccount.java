@@ -101,6 +101,11 @@ public interface WalletAccount<A extends GenericAddress> {
     boolean canSpend();
 
     /**
+     * Can this account be used for signing messages?
+     */
+    boolean canSign();
+
+    /**
      * Get is account sync in progress
      */
     boolean isSyncing();

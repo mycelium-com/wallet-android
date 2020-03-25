@@ -10,6 +10,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAddress
+import org.web3j.tx.Transfer
 import java.math.BigInteger
 import java.util.*
 
@@ -78,7 +79,8 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
 
 
     fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
-                       gasPrice: Value, confirmations: Int, nonce: BigInteger, gasLimit: BigInteger = BigInteger.valueOf(21000), gasUsed: BigInteger? = null) {
+                       gasPrice: Value, confirmations: Int, nonce: BigInteger,
+                       gasLimit: BigInteger = Transfer.GAS_LIMIT, gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
         ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit)
         if (gasUsed != null) {
@@ -135,7 +137,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                 convertedValue, gasLimit, gasUsed, currency, HexUtils.toBytes(txid.substring(2)),
                 HexUtils.toBytes(txid.substring(2)), transferred, timestamp, if (blockNumber == Int.MAX_VALUE) -1 else blockNumber,
                 confirmations, false, inputs, outputs,
-                destAddresses, null, 21000, fee)
+                destAddresses, null, Transfer.GAS_LIMIT.toInt(), fee)
     }
 
     private fun transformValueFromDb(token: ERC20Token, value: Value): Value = Value.valueOf(token, value.value)

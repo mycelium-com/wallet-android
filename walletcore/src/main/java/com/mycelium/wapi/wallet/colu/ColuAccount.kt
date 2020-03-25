@@ -448,4 +448,6 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
         return utxos
     }
+
+    override fun canSign(): Boolean = true
 }

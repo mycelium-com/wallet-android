@@ -104,7 +104,6 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
-import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
@@ -605,8 +604,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_delete);
         }
 
-        if (account.isActive() && account.canSpend() && !(account instanceof HDPubOnlyAccount) && !isBch
-                && !(account instanceof HDAccountExternalSignature) && !(account instanceof EthAccount) && !(account instanceof ERC20Account)) {
+        if (account.isActive() && account.canSpend() && !isBch && account.canSign()) {
             menus.add(R.menu.record_options_menu_sign);
         }
 
@@ -1051,16 +1049,14 @@ public class AccountsFragment extends Fragment {
 
         // TODO sort linkedAccounts for visible only
         if (linkedAccounts.size() > 1 || ((account instanceof EthAccount) && linkedAccounts.size() > 0)) {
-            StringBuilder linkedAccountsString = new StringBuilder();
+            List<String> linkedAccountStrings = new ArrayList<>();
             for (WalletAccount linkedAccount : linkedAccounts) {
                 Balance linkedBalance = linkedAccount.getAccountBalance();
                 String linkedAccountName = _mbwManager.getMetadataStorage().getLabelByAccount(linkedAccount.getId());
                 String linkedValueString = getBalanceString(linkedAccount.getCoinType(), linkedBalance);
-                linkedAccountsString.append("<b>").append(linkedAccountName).append("</b>").append(" holding ")
-                        .append("<b>").append(linkedValueString).append("</b>").append(", ");
+                linkedAccountStrings.add("<b>" + linkedAccountName + "</b> holding <b>" + linkedValueString + "</b>");
             }
-            linkedAccountsString.deleteCharAt(linkedAccountsString.length() - 1);
-            linkedAccountsString = linkedAccountsString.replace(linkedAccountsString.length() - 1, linkedAccountsString.length(), "?");
+            String linkedAccountsString = TextUtils.join(", ", linkedAccountStrings) + "?";
             dialogText = getString(R.string.question_archive_many_accounts, accountName, valueString, linkedAccountsString);
         } else if (!linkedAccounts.isEmpty() && linkedAccounts.get(0).isVisible()) {
             Balance linkedBalance = linkedAccounts.get(0).getAccountBalance();

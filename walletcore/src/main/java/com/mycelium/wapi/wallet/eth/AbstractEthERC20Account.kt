@@ -103,4 +103,6 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
         }
     }
+
+    override fun canSign(): Boolean = false
 }
