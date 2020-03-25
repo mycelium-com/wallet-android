@@ -65,7 +65,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
 
         try {
-            val nonce = getNonce(receivingAddress)
+            val nonce = getNewNonce(receivingAddress)
             val rawTransaction = RawTransaction.createEtherTransaction(nonce,
                     gasPrice.feePerKb.value, BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
                     toAddress.toString(), value.value)

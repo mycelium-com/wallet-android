@@ -49,7 +49,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val erc20Tx = (tx as Erc20Transaction)
         try {
-            accountContext.nonce = getNonce(receivingAddress)
+            accountContext.nonce = getNewNonce(receivingAddress)
             val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
                     credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()

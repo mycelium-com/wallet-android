@@ -6,6 +6,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.protocol.core.DefaultBlockParameterName
+import java.io.IOException
 import java.math.BigInteger
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -21,16 +22,14 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     @Volatile
     protected var syncing = false
 
-    protected fun getNonce(address: EthAddress): BigInteger = try {
+    @Throws(IOException::class)
+    protected fun getNewNonce(address: EthAddress): BigInteger {
         val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
                 DefaultBlockParameterName.PENDING)
                 .send()
 
         setNonce(ethGetTransactionCount.transactionCount)
-        getNonce()
-    } catch (e: Exception) {
-        logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
-        getNonce()
+        return getNonce()
     }
 
     override fun synchronize(mode: SyncMode?): Boolean {
