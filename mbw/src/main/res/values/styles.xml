@@ -394,4 +394,25 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="Bequant.Button">
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@drawable/bg_bequant_button</item>
+        <item name="android:textColor">#17191B</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="Bequant.Button.Small">
+        <item name="android:background">@drawable/bg_bequant_button_small</item>
+        <item name="android:textColor">#F2E868</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Bequant.Tabs">
+        <item name="android:background">#23262A</item>
+        <item name="tabIndicatorColor">#F2E868</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabGravity">fill</item>
+    </style>
+
 </resources>

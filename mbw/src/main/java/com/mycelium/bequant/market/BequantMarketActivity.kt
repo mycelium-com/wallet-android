@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_market.*
 

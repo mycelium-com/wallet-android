@@ -77,7 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
-        android:text="@string/you_send"
+        android:text="@string/you_get"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/rate" />
@@ -98,13 +98,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#F2E868"
-        android:fontFamily="@font/exo2medium"
-        android:textAllCaps="false"
-        android:padding="8dp"
+        style="@style/Bequant.Button"
         android:text="@string/exchange"
-        android:textColor="#17191B"
-        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/getView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

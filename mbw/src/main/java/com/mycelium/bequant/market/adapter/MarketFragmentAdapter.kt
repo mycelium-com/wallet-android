@@ -1,8 +1,11 @@
-package com.mycelium.bequant.market
+package com.mycelium.bequant.market.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.mycelium.bequant.market.AccountFragment
+import com.mycelium.bequant.market.ExchangeFragment
+import com.mycelium.bequant.market.MarketsFragment
 
 
 class MarketFragmentAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {

@@ -1360,4 +1360,24 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="available">Available:</string>
     <string name="you_send">You send:</string>
     <string name="hide_zero_balances">Hide Zero Balances</string>
+    <string name="you_get">You get:</string>
+    <string name="bequant_sign_up">Sign Up</string>
+    <string name="bequant_sign_in">Sign In</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="set_password">Set password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="password">Password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="no_account_yet_register">No account yet? <font color="#F2E868">Register</font></string>
+    <string name="google_authenticator_code">Google Authenticator Code</string>
+    <string name="get_a_verification_code">Get a verification code from the Google\nAuthenticator app.</string>
+    <string name="paste_from_clipboard">Paste from clipboard</string>
+    <string name="provide_your_recovery_e_mail_address">Provide your recovery e-mail address below. We will send you a secure link and instructions on how to reset your password.</string>
+    <string name="new_password">New password</string>
+    <string name="change_password">Change password</string>
+    <string name="at_least_6_characters">At least 6 characters, including one number, one uppercase and one lowercase character</string>
+    <string name="by_clicking_sign_up_you_agree_to_our_terms_of_use">By clicking Sign Up you agree to our <font color="#F2E868">Terms of Use</font></string>
+    <string name="build_version_2_3_3">Build Version %s</string>
+    <string name="next">Next</string>
 </resources>

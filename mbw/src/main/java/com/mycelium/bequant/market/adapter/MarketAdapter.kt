@@ -1,4 +1,4 @@
-package com.mycelium.bequant.market
+package com.mycelium.bequant.market.adapter
 
 import android.view.LayoutInflater
 import android.view.View

@@ -32,6 +32,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
     private var selectedAccountId: UUID? = mbwManager.selectedAccount.id
 
     private var itemClickListener: ItemClickListener? = null
+    var investmentAccountClickListener: ItemClickListener? = null
     private val layoutInflater: LayoutInflater
     private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
     private val listModel: AccountsListModel = ViewModelProviders.of(fragment).get(AccountsListModel::class.java)
@@ -191,6 +192,11 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 val investItem = item as AccountInvestmentViewModel
                 investHolder.label.text = investItem.label
                 investHolder.balance.text = investItem.balance
+                investHolder.itemView.setOnClickListener {
+//                    walletManager.getAccount(investItem.accountId)?.run {
+                        investmentAccountClickListener?.onItemClick(item.account)
+//                    }
+                }
             }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")
         }

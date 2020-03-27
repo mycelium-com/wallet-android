@@ -105,7 +105,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map {
-                    if (it is InvestmentAccount) AccountInvestmentViewModel()
+                    if (it is InvestmentAccount) AccountInvestmentViewModel(it)
                     else AccountViewModel(it, mbwManager)
                 }
 

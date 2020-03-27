@@ -262,5 +262,8 @@
         <activity android:name="com.mycelium.bequant.intro.BequantIntroActivity" />
         <activity android:name="com.mycelium.bequant.market.BequantMarketActivity"
             android:theme="@style/Bequant"/>
+        <activity android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
+            android:theme="@style/Bequant"/>
+        <activity android:name="com.mycelium.bequant.sign.SignActivity" />
     </application>
 </manifest>

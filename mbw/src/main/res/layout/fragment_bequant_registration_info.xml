@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/exo2medium"
+        android:text="We sent a confirmation email to"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_bequant_text"
+        android:fontFamily="@font/exo2medium"
+        android:padding="8dp"
+        android:text="xomiwa4145@win-777.net."
+        android:textColor="#F2E868"
+        android:textSize="16sp"
+        tools:text="xomiwa4145@win-777.net." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/exo2medium"
+        android:text="Please follow the instructions in the email to complete your registration."
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_bequant_text"
+        android:fontFamily="@font/exo2medium"
+        android:padding="16dp"
+        android:text="You have 1 hour to reset your password before the link expires. "
+        android:textColor="#CE3C4E"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_bequant_text"
+        android:fontFamily="@font/exo2medium"
+        android:padding="16dp"
+        android:text="If you haven\'t received the email, do the following:"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/next"
+        style="@style/Bequant.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Next" />
+
+</LinearLayout>

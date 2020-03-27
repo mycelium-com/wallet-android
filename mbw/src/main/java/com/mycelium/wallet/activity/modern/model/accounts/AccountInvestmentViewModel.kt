@@ -1,7 +1,11 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.WalletAccount
 
-class AccountInvestmentViewModel : AccountListItem {
+
+class AccountInvestmentViewModel(val account: WalletAccount<out GenericAddress>) : AccountListItem {
+    val accountId = account.id!!
     var label = "Investment Account"
     val balance = "0 BTC"
 
