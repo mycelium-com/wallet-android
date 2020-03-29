@@ -11,11 +11,15 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
@@ -471,4 +475,38 @@ fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsAct
 @BindingAdapter("imageRotation")
 fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
     target.rotation = (if (isExpanded) 180 else 0).toFloat()
+}
+
+@BindingAdapter("visible")
+fun setViewVisible(target: View, newVisibility: Boolean) {
+    target.visibility = if (newVisibility) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter(value = ["selectedItem", "selectedItemAttrChanged"], requireAll = false)
+fun setSpinnerListener(spinner: Spinner, spinnerItem: SpinnerItem, listener: InverseBindingListener) {
+    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = listener.onChange()
+        override fun onNothingSelected(adapterView: AdapterView<*>) = listener.onChange()
+    }
+}
+
+@InverseBindingAdapter(attribute = "selectedItem")
+fun getSelectedItem(spinner: Spinner): SpinnerItem {
+    return spinner.selectedItem as SpinnerItem
+}
+
+interface SpinnerItem
+
+class TransactionItem(val tx: GenericTransactionSummary, private val dateString: String,
+                      private val amountString: String) : SpinnerItem {
+    override fun toString(): String {
+        val idHex = HexUtils.toHex(tx.id)
+        val idString = "${idHex.substring(0, 6)}…${idHex.substring(idHex.length - 2)}"
+        return "$idString ($dateString, $amountString)"
+    }
+}
+
+class NoneItem : SpinnerItem {
+    override fun toString(): String = "none"
+    override fun equals(other: Any?) = this.toString() == other.toString()
 }

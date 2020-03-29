@@ -3,7 +3,6 @@ package com.mycelium.wallet.activity.send.model
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.util.Log
 import androidx.databinding.InverseMethod
 import androidx.lifecycle.MutableLiveData
 import com.mycelium.wallet.activity.util.EthFeeFormatter
@@ -20,17 +19,19 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
         model = SendEthModel(context, account, intent)
     }
 
-    var isAdvancedBlockExpanded : MutableLiveData<Boolean> = MutableLiveData()
+    var isAdvancedBlockExpanded: MutableLiveData<Boolean> = MutableLiveData()
 
     fun expandCollapseAdvancedBlock() {
         isAdvancedBlockExpanded.value = isAdvancedBlockExpanded.value != true
     }
 
-    fun getNonce() = (model as SendEthModel).nonce
-
     fun getGasLimit() = (model as SendEthModel).gasLimit
 
     fun getInputData() = (model as SendEthModel).inputData
+
+    fun getTxItems() = (model as SendEthModel).txItems
+
+    fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {

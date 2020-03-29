@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/send_coins_advanced_block">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -17,7 +16,7 @@
             type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
     </data>
 
-    <TableLayout
+    <LinearLayout
         android:id="@+id/advancedBlock"
         activity="@{activity}"
         animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
@@ -25,75 +24,75 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/llNonce"
+            visible="@{viewModel.txItems.size() > 1}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <!--Nonce-->
             <TextView
                 android:id="@+id/tvNonceLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|start"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="@string/nonce"
-                android:textSize="18sp" />
+                android:width="84dp"
+                android:text="@string/replace_transaction"
+                android:textSize="16sp" />
 
-            <EditText
-                android:id="@+id/etNonce"
-                android:layout_width="150dp"
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinner"
+                selectedItem="@={viewModel.selectedTxItem}"
+                android:layout_width="145dp"
+                android:layout_gravity="center_vertical"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:ems="10"
-                android:inputType="number"
-                android:text="@={Converter.bigIntToString(viewModel.nonce)}" />
-        </TableRow>
+                android:entries="@{viewModel.txItems}"
+                android:textSize="13sp" />
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <!--GasLimit-->
             <TextView
                 android:id="@+id/tvGasLimitLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|start"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:width="84dp"
                 android:text="@string/gas_limit"
                 android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/etGasLimit"
-                android:layout_width="106dp"
+                android:layout_width="145dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:ems="10"
                 android:inputType="number"
                 android:text="@={Converter.bigIntToString(viewModel.gasLimit)}" />
-        </TableRow>
+        </LinearLayout>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <!--Data-->
             <TextView
                 android:id="@+id/tvDataLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|start"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:width="84dp"
                 android:text="@string/input_data"
                 android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/etData"
-                android:layout_width="106dp"
+                android:layout_width="145dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:digits="0123456789abcdefABCDEFx"
-                android:ems="10"
                 android:inputType="text"
                 android:text="@={viewModel.inputData}"
                 tools:ignore="HardcodedText" />
@@ -107,6 +106,6 @@
                 android:onClick="@{_ -> activity.showInputDataInfo()}"
                 android:tint="@color/dark_sky_blue"
                 app:srcCompat="@drawable/ic_info" />
-        </TableRow>
-    </TableLayout>
+        </LinearLayout>
+    </LinearLayout>
 </layout>

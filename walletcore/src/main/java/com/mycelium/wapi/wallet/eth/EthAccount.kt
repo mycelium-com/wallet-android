@@ -69,14 +69,14 @@ class EthAccount(private val accountContext: EthAccountContext,
             throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-
         try {
             val ethTxData = (data as? EthTransactionData)
             val nonce = ethTxData?.nonce ?: getNonce(receivingAddress)
             val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
             val inputData = ethTxData?.inputData ?: ""
+            val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
             val rawTransaction = RawTransaction.createTransaction(nonce,
-                    gasPrice.feePerKb.value, gasLimit, toAddress.toString(), value.value, inputData)
+                    fee, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
@@ -112,8 +112,8 @@ class EthAccount(private val accountContext: EthAccountContext,
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, accountContext.nonce)
+                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
+                (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
@@ -200,25 +200,30 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions() .filter {
-                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+                    !it.sender.addressString.equals(receiveAddress.addressString, true)
+                            && it.receiver.addressString.equals(receiveAddress.addressString, true)
                 }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter {
-                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+                    it.sender.addressString.equals(receiveAddress.addressString, true)
+                            && !it.receiver.addressString.equals(receiveAddress.addressString, true)
                 }
-                .map { tx -> tx.value.value + tx.fee.value }
+                .map { tx -> tx.value.value + tx.fee!!.value }
                 .fold(BigInteger.ZERO, BigInteger::add) +
-                backing.getUnconfirmedTransactions() .filter {
-                            it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+                backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+                            it.sender.addressString.equals(receiveAddress.addressString, true)
+                                    && it.receiver.addressString.equals(receiveAddress.addressString, true)
                         }
-                        .map { tx -> tx.fee.value }
+                        .map { tx -> tx.fee!!.value }
                         .fold(BigInteger.ZERO, BigInteger::add)
     }
+
+    fun getUnconfirmedTransactions() = backing.getUnconfirmedTransactions(receivingAddress.addressString)
 
     private fun selectEndpoint(): Boolean {
         val currentEndpointIndex = endpoints.currentEndpointIndex

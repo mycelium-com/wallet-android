@@ -51,11 +51,12 @@ FROM EthAccountBacking AS eb
         WHERE eb.uuid = (?) AND eb.txid = (?);
 
 selectUnconfirmedTransactions:
-SELECT eb.fromAddress, eb.toAddress, b.value, b.fee
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
+           b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
-        WHERE eb.uuid = (?) AND b.confirmations = 0;
+        WHERE eb.uuid = (:uuid) AND b.confirmations = 0 ORDER BY b.blockNumber DESC, b.timestamp DESC;
 
 insertTransaction:
 INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit)
