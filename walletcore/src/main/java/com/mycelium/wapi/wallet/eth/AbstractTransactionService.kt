@@ -11,7 +11,7 @@ import java.util.logging.Logger
 
 abstract class AbstractTransactionService(private val address: String, endpoints: List<HttpsEndpoint>) {
     private val logger = Logger.getLogger(AbstractTransactionService::class.simpleName)
-    private val api = "${endpoints[0]}/api/v2/address/"
+    private val api = "${endpoints.random()}/api/v2/address/"
 
     protected fun fetchTransactions(): List<Tx> {
         var urlString = "$api$address?details=txs"
