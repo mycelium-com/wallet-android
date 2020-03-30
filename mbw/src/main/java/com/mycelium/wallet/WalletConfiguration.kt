@@ -10,18 +10,19 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.web3j.protocol.http.HttpService
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 interface  MyceliumNodesApi {
     @GET("/nodes-b.json")
@@ -165,10 +166,26 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
-    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
+    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it) }
+
+    fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it) }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
+
+    fun getSupportedERC20Tokens(): Map<String, ERC20Token> = when (BuildConfig.FLAVOR) {
+        "prodnet" -> listOf(
+                ERC20Token("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+                ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"))
+        else -> listOf(
+                ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
+                ERC20Token("Binance", "BNB", 18, "0xF73C72c160B69a4E9258fB684Eb64b635074c703"),
+                ERC20Token("VeChain", "VEN", 18, "0x9E56f421a7D20903928797c8ddf3318a6B461a8e"),
+                ERC20Token("Polymath", "POLY", 18, "0x95957c12a4776Ce4ab5bA683E2C827A83A351aaF"),
+                ERC20Token("MyDFS", "MyDFS", 18, "0x3578AE28E8b6f5664BbE3e855DB209E9DabDC027"),
+                ERC20Token("MassToken", "MASS", 18, "0xE9c6860069409B6257CD6B0315E73071927ADC2A"),
+                ERC20Token("Mycelium", "MT", 18, "0xA1a6b1FF4d3D23fC1DD8D70FeeB77Db561AfdC8E"))
+    }.associateBy { it.name }
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener

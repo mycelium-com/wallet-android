@@ -36,13 +36,17 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
@@ -50,17 +54,25 @@ import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.modern.Toaster;
+import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.persistence.MetadataStorage;
+import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
+import com.mycelium.wapi.wallet.erc20.ERC20Config;
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
+import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
-import com.squareup.otto.Subscribe;
+import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import butterknife.ButterKnife;
@@ -83,6 +95,7 @@ public class AddAccountActivity extends Activity {
     private Toaster _toaster;
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
+    private int selectedIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +118,22 @@ public class AddAccountActivity extends Activity {
         _progress = new ProgressDialog(this);
     }
 
+    /**
+     * @return all supported tokens or all supported tokens except these that are already enabled for
+     *         account with ethAccountId.
+     */
+    private Map<String, ERC20Token> getAvailableTokens(@Nullable UUID ethAccountId) {
+        Map<String, ERC20Token> supportedTokens = _mbwManager.getSupportedERC20Tokens();
+        if (ethAccountId != null) {
+            WalletAccount ethAccount = _mbwManager.getWalletManager(false).getAccount(ethAccountId);
+            List<String> enabledTokens = ((EthAccount) ethAccount).getEnabledTokens();
+            for (String tokenName : enabledTokens) {
+                supportedTokens.remove(tokenName);
+            }
+        }
+        return supportedTokens;
+    }
+
     @OnClick(R.id.btEthCreate)
     void onAddEth() {
         final WalletManager wallet = _mbwManager.getWalletManager(false);
@@ -113,14 +142,96 @@ public class AddAccountActivity extends Activity {
 
         boolean canCreateAccount = wallet.getModuleById(EthereumModule.ID).canCreateAccount(new EthereumMasterseedConfig());
         if (!canCreateAccount) {
-            _toaster.toast(R.string.single_eth_account, false);
+            // TODO replace with string res
+            _toaster.toast("You can only have one unused Ethereum Account.", false);
             return;
         }
 
         if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-            ethCreationAsyncTask = new ETHCreationAsyncTask();
+            ethCreationAsyncTask = new ETHCreationAsyncTask(null);
             ethCreationAsyncTask.execute();
         }
+    }
+
+    @OnClick(R.id.btErc20Create)
+    void onAddERC20() {
+        List<WalletAccount<?>> ethAccounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
+        // if none of eth accounts exist show erc20 selection dialog right away
+        // else ask what eth account to add erc20 account to
+        if (ethAccounts.isEmpty()) {
+            showERC20TokensOptions(null);
+        } else {
+            showEthAccountsOptions();
+        }
+    }
+
+    private void showEthAccountsOptions() {
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
+        List<WalletAccount<?>> accounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
+        arrayAdapter.addAll(getEthAccountsForView(accounts));
+        arrayAdapter.add(getString(R.string.create_new_account));
+        getSingleChoiceDialog(getString(R.string.select_account), arrayAdapter)
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                    if (selectedIndex == arrayAdapter.getCount() - 1) {
+                        // "Create new account" item
+                        showERC20TokensOptions(null);
+                    } else {
+                        UUID ethAccountId = accounts.get(selectedIndex).getId();
+                        showERC20TokensOptions(ethAccountId);
+                    }
+                })
+                .show();
+    }
+
+    private List<String> getEthAccountsForView(List<WalletAccount<?>> accounts) {
+        List<String> result = new ArrayList<>();
+        Collections.sort(accounts, (a1, a2) -> Integer.compare(((EthAccount) a1).getAccountIndex(), ((EthAccount) a2).getAccountIndex()));
+        for (WalletAccount account : accounts) {
+            String denominatedValue = ValueExtensionsKt.toStringWithUnit(
+                    account.getAccountBalance().getSpendable(), _mbwManager.getDenomination(account.getCoinType()));
+            result.add(account.getLabel() + " (" + denominatedValue + ")");
+        }
+        return result;
+    }
+
+    /**
+     * After selecting the desired erc20 token depending on whether ethAccountId is null or not
+     * we create or don't create new ethereum account before creating erc20 account.
+     * @param ethAccountId if it's null we would need to create new ethereum account first
+     *                     before creating erc20 account
+     */
+    private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
+        Map<String, ERC20Token> availableTokens = getAvailableTokens(ethAccountId);
+        if (availableTokens.isEmpty()) {
+            _toaster.toast("All supported tokens for this account are already added", false);
+            return;
+        }
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddAccountActivity.this, android.R.layout.select_dialog_singlechoice);
+        arrayAdapter.addAll(availableTokens.keySet());
+        getSingleChoiceDialog(getString(R.string.select_token), arrayAdapter)
+                .setPositiveButton("ok", (dialog, which) -> {
+                    String strName = arrayAdapter.getItem(selectedIndex);
+                    if (ethAccountId != null) {
+                        EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
+                        new ERC20CreationAsyncTask(availableTokens.get(strName), ethAccount).execute();
+                    } else {
+                        // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
+                        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                            ethCreationAsyncTask = new ETHCreationAsyncTask(getAvailableTokens(null).get(strName));
+                            ethCreationAsyncTask.execute();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private AlertDialog.Builder getSingleChoiceDialog(String title, ArrayAdapter<String> arrayAdapter) {
+        selectedIndex = 0;
+        return new AlertDialog.Builder(this)
+                .setIcon(R.drawable.ic_launcher)
+                .setTitle(title)
+                .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -133,7 +244,6 @@ public class AddAccountActivity extends Activity {
                 }
             });
         }
-
     };
 
     View.OnClickListener createHdAccount = new View.OnClickListener() {
@@ -180,12 +290,19 @@ public class AddAccountActivity extends Activity {
 
         @Override
         protected void onPostExecute(UUID account) {
+            _progress.dismiss();
             MbwManager.getEventBus().post(new AccountCreated(account));
             MbwManager.getEventBus().post(new AccountChanged(account));
+            finishOk(account);
         }
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        ERC20Token token;
+
+        ETHCreationAsyncTask(@Nullable ERC20Token token) {
+            this.token = token;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -200,10 +317,48 @@ public class AddAccountActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(UUID account) {
+        protected void onPostExecute(UUID accountId) {
             _progress.dismiss();
-            MbwManager.getEventBus().post(new AccountCreated(account));
-            MbwManager.getEventBus().post(new AccountChanged(account));
+            MbwManager.getEventBus().post(new AccountCreated(accountId));
+            MbwManager.getEventBus().post(new AccountChanged(accountId));
+            if (token != null) {
+                EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
+                new ERC20CreationAsyncTask(token, ethAccount).execute();
+            } else {
+                finishOk(accountId);
+            }
+        }
+    }
+
+    private class ERC20CreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
+        ERC20Token token;
+        EthAccount ethAccount;
+
+        ERC20CreationAsyncTask(@NonNull ERC20Token token, @NonNull EthAccount ethAccount) {
+            this.token = token;
+            this.ethAccount = ethAccount;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(R.string.erc20_account_creation_started);
+        }
+
+        @Override
+        protected UUID doInBackground(Void... params) {
+            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccount));
+            return accounts.get(0);
+        }
+
+        @Override
+        protected void onPostExecute(UUID accountId) {
+            _progress.dismiss();
+            _mbwManager.getMetadataStorage().setOtherAccountBackupState(accountId, MetadataStorage.BackupState.IGNORED);
+            MbwManager.getEventBus().post(new AccountCreated(accountId));
+            MbwManager.getEventBus().post(new AccountChanged(accountId));
+            ethAccount.addEnabledToken(token.getName());
+            finishOk(accountId);
         }
     }
 
@@ -212,12 +367,6 @@ public class AddAccountActivity extends Activity {
         _progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         _progress.setMessage(getString(res));
         _progress.show();
-    }
-
-    @Subscribe
-    public void hdAccountCreated(AccountCreated event) {
-        _progress.dismiss();
-        finishOk(event.account);
     }
 
     @Override

@@ -419,7 +419,7 @@ abstract class SendCoinsModel(
     }
 
     private fun getTransactionStatus(): TransactionStatus {
-        val toSend = mbwManager.exchangeRateManager.get(amount.value!!, account.coinType)
+        val toSend = mbwManager.exchangeRateManager.get(amount.value!!, account.coinType) ?: amount.value!!
 
         try {
             return when {

@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.Value
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.TransactionDecoder
 import org.web3j.crypto.TransactionEncoder
+import org.web3j.tx.Transfer
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -23,7 +24,7 @@ class EthTransaction(val type: CryptoCurrency, val toAddress: GenericAddress, va
     override fun txBytes() = TransactionEncoder.encode(rawTransaction)!!
 
     // This only true for pure ETH transaction, without contracts.
-    override fun getEstimatedTransactionSize() = 21000
+    override fun getEstimatedTransactionSize() = Transfer.GAS_LIMIT.toInt()
 
     /**
      * Always treat de-serialization as a full-blown constructor, by

@@ -3,6 +3,7 @@ package com.mycelium.wapi.content
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.btc.FallbackUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
@@ -81,7 +82,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
                 is EthMain, is EthTest -> EthUri(address, amount, label, paymentUri)
-                else -> null
+                else -> FallbackUri(address)
             }
         }
     }

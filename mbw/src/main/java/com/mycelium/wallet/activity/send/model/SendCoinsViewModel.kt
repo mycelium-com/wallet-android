@@ -272,7 +272,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     throw NotImplementedError("Private key must be implemented per currency")
                 }
                 ResultType.ADDRESS -> {
-                    if (data.getAddress().coinType == getAccount().coinType) {
+                    if (data.getAddress().coinType == getAccount().basedOnCoinType) {
                         model.receivingAddress.value = data.getAddress()
                     } else {
                         makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()

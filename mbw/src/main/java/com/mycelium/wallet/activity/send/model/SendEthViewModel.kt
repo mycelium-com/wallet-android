@@ -9,7 +9,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
 import java.util.regex.Pattern
 
 open class SendEthViewModel(application: Application) : SendCoinsViewModel(application) {
-    override val uriPattern = Pattern.compile("0x[a-zA-Z0-9]+")
+    override val uriPattern = Pattern.compile("[a-zA-Z0-9]+")!!
 
     override fun init(account: WalletAccount<*>, intent: Intent) {
         super.init(account, intent)

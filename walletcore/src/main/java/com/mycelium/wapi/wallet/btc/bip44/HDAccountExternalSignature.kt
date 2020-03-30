@@ -68,4 +68,6 @@ class HDAccountExternalSignature(
         }
         return false
     }
+
+    override fun canSign(): Boolean = false
 }

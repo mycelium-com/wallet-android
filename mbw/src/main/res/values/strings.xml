@@ -153,6 +153,7 @@
     <string name="found_clipboard_public_keys_message">The clipboard contains a public key.\nDo you want to clear the clipboard?</string>
     <string name="balance_rate">1 %1$s ~ %2$s %3$s</string>
     <string name="exchange_source_not_available">Exchange rate not available for %1$s</string>
+    <string name="no_exchange_available">No Exchange available for Account</string>
     <string name="my_own_address_warning"><![CDATA[<font color="#ffff00">Note: You are sending to one of your own addresses.</font>]]></string>
     <string name="read_only_warning"><![CDATA[<font color="#ff0000">Warning: Your wallet does not have the private key for this address.\nYou cannot spend coins received unless you have the private key elsewhere.</font>]]></string>
     <string name="add_to_address_book_dialog_title">Add Address</string>
@@ -168,6 +169,7 @@
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum</string>
+    <string name="erc20_accounts_name">ERC20</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
@@ -175,6 +177,7 @@
     <string name="archive_action">Archive</string>
     <string name="question_archive_account"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="question_archive_account_s"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and account <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="question_archive_many_accounts"><![CDATA[Archive an account if you don\'t intend to use it for a long time.<br><br>Archived accounts won\'t be monitored. That means you can not work with this account while having its label in your accounts list.<br><br>This feature adds privacy and security, keeping your balance and access to funds secure.<br><br>To activate archived account select it from accounts list "Archived" section, tap on the menu button in the top right corner of the screen and select "Activate".<br><br>Do you want to archive account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="master_seed_configuration_title">Welcome to Mycelium</string>
     <string name="master_seed_configuration_description">Do you want to restore a backup, or create a new wallet?</string>
     <string name="master_seed_create_new_button">Create New</string>
@@ -206,6 +209,7 @@
     <string name="sending_addresses">Address Book</string>
     <string name="delete_account_title">Delete Account?</string>
     <string name="delete_account_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and <b>\"%3$s\"</b> holding <b>%4$s</b>?]]></string>
+    <string name="delete_accounts_message"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b> and %3$s]]></string>
     <string name="delete_archived_account_message"><![CDATA[Do you want to delete accounts <b>\"%1$s\"</b> and <b>\"%2$s\"</b>?]]></string>
     <string name="delete_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b> holding <b>%2$s</b>?]]></string>
     <string name="delete_archived_account_message_s"><![CDATA[Do you want to delete account <b>\"%1$s\"</b>]]></string>
@@ -552,6 +556,7 @@
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
+    <string name="erc20_account_creation_started">Creating new ERC20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
@@ -998,6 +1003,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="what_is_it">What is it?</string>
     <string name="error_start_google_calendar">Something wrong with google calendar</string>
     <string name="both_rmc_will_deleted" formatted="false">Both %s and %s accounts will be deleted.</string>
+    <string name="both_eth_and_tokens_will_deleted" formatted="false">All, %s and its token accounts, will be deleted.</string>
     <string name="tips_rmc_check_address">If you have sent digital assets to a random bitcoin address they are not destroyed.\nIn order to retrieve them you have two options:\n1) Use Colored Coins API to manually send your assets back to the address managed by Mycelium Wallet.\n2) Submit a ticket to Mycelium Wallet support for retrieving your assets. For this service, additional charges may apply. You will receive detailed information after contacting support.\n\nIn both cases, you must own a private key of the address you have sent digital assets to.</string>
     <string name="selected_colu_info">You are now working on this %s account.</string>
     <string name="block_access_to_account">We intentionally deactivate My Accounts tab while you\'re managing your %1$s account. This is  to prevent you from sending your digital assets anywhere else except for another %1$s account.</string>
@@ -1109,8 +1115,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="no_spendable_accounts">No spendable accounts</string>
     <string name="digital_assets">Digital Assets</string>
     <string name="how_is_it_calculated">How is it calculated?</string>
-    <string name="how_is_it_calculated_text_utxo_based">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
-    <string name="how_is_it_calculated_text_other">The \"Spendable Amount\" is the account\'s balance minus miner fee.</string>
+    <string name="how_is_it_calculated_text">The \"Spendable Amount\" is the account\'s balance minus the cost to spend it.\n\nThe costs depend on the number of UTXOs and the miner fee level that you chose.\n\nYou can review your UTXO count in the Accounts tab, selecting your account and then using the context menu.\n\nIf you have more than 300 UTXOs, your spendable amount might further be limited by Bitcoin\'s transaction size limit. In this case you might need more than one transaction to spend all your funds.</string>
     <string name="import_xpub_should_xpriv">Only spendable accounts with Digital Assets are supported for account level 0. Please use xpriv instead of xpub</string>
     <string name="no_digital_asset">Your BIP32 private key does not hold any digital assets.\n\nIf you believe otherwise try to scan it again.</string>
     <string name="coco_addresses_scanned">%d addresses have been scanned</string>
@@ -1332,12 +1337,15 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
-    <string name="eth_no_transaction_records">This page shows your transaction history.\n\nCurrently, it is limited to local outgoing transactions only and will be improved in future releases.\n\nPlease use block explorer to observe the full transaction history of your ETH account.</string>
+    <string name="add_erc20_account">Add ERC20 Account</string>
     <string name="buy_eth">BUY ETH</string>
     <string name="sell_eth">SELL ETH</string>
     <string name="buy_bitcoin">BUY BITCOIN</string>
     <string name="sell_bitcoin">SELL BITCOIN</string>
     <string name="dialog_title_buy_sell_eth_sepa">Buy or Sell ETH using SEPA</string>
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
-    <string name="send_mail">Send mail...</string>
+    <string name="send_mail">Send mail…</string>
+    <string name="select_token">Select Token</string>
+    <string name="select_account">Select Account</string>
+    <string name="create_new_account">Create new account</string>
 </resources>
