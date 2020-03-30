@@ -7,7 +7,7 @@ import com.mycelium.wapi.wallet.eth.EthAddress
 import org.web3j.abi.datatypes.Address
 import org.web3j.crypto.WalletUtils
 
-class ERC20Token(name: String, symbol: String, unitExponent: Int, val contractAddress: String) : CryptoCurrency() {
+class ERC20Token(name: String = "", symbol: String = "", unitExponent: Int = 18, val contractAddress: String) : CryptoCurrency() {
     init {
         id = name
         family = Families.ETHEREUM

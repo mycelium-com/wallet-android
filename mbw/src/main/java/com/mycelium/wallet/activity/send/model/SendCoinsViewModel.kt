@@ -210,7 +210,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             }
         } else {
             val uri = mbwManager.contentResolver.resolveUri(string)
-            if (uri?.address?.coinType == model.account.coinType) {
+            if (uri?.address?.coinType == model.account.basedOnCoinType) {
                 uri
             } else {
                 null
@@ -280,16 +280,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                 }
                 ResultType.ASSET_URI -> {
                     val uri = data.getAssetUri()
-                    if (uri.address?.coinType == getAccount().coinType) {
-                        model.receivingAddress.value = uri.address
-                        model.transactionLabel.value = uri.label
-                        if (uri.value != null && uri.value!!.isPositive()) {
-                            //we set the amount to the one contained in the qr code, even if another one was entered previously
-                            if (!Value.isNullOrZero(model.amount.value)) {
-                                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
-                            }
-                            model.amount.value = uri.value
-                        }
+                    if (uri.address?.coinType == getAccount().basedOnCoinType) {
+                        processAssetUri(uri)
                     } else {
                         makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                     }
@@ -308,6 +300,18 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                             data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY).toString())
                 }
             }
+        }
+    }
+
+    protected open fun processAssetUri(uri: GenericAssetUri) {
+        model.receivingAddress.value = uri.address
+        model.transactionLabel.value = uri.label
+        if (uri.value?.isPositive() == true) {
+            //we set the amount to the one contained in the qr code, even if another one was entered previously
+            if (!Value.isNullOrZero(model.amount.value)) {
+                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
+            }
+            model.amount.value = uri.value
         }
     }
 

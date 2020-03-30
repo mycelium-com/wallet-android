@@ -60,7 +60,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
     }
 
-    private fun splitQuery(query: String?): Map<String, String> {
+    protected fun splitQuery(query: String?): Map<String, String> {
         query ?: return emptyMap()
         val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         return pairs.map {
