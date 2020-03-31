@@ -115,6 +115,7 @@ import com.mycelium.wapi.wallet.colu.ColuAccountContext;
 import com.mycelium.wapi.wallet.colu.coins.ColuMain;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 import com.mycelium.wapi.wallet.manager.Config;
@@ -600,7 +601,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_backup_verify);
         }
 
-        if (!account.isDerivedFromInternalMasterseed() && !isBch || account instanceof EthAccount) {
+        if (!account.isDerivedFromInternalMasterseed() && !isBch) {
             menus.add(R.menu.record_options_menu_delete);
         }
 
@@ -612,7 +613,7 @@ public class AccountsFragment extends Fragment {
             menus.add(R.menu.record_options_menu_active);
         }
 
-        if (account.isActive() && !isBch && !(account instanceof EthAccount) && !(account instanceof ERC20Account)) {
+        if (account.isActive() && !isBch && !(account instanceof AbstractEthERC20Account)) {
             menus.add(R.menu.record_options_menu_outputs);
         }
 
