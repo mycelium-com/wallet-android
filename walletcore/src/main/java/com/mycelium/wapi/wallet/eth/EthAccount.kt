@@ -179,6 +179,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun dropCachedData() {
+        clearBacking()
         accountContext.balance = Balance.getZeroBalance(coinType)
     }
 
@@ -213,7 +214,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-
 
     fun fetchTxNonce(txid: String): BigInteger? {
         return try {

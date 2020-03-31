@@ -92,6 +92,10 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
         ethQueries.updateNonce(nonce, uuid, txid)
     }
 
+    fun deleteAllAccountTransactions() {
+        queries.deleteAllAccountTransactions(uuid)
+    }
+
     fun deleteTransaction(txid: String) {
         queries.deleteTransaction(uuid, txid)
     }

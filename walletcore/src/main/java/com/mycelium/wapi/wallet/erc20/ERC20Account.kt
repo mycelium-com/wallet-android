@@ -118,6 +118,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun dropCachedData() {
+        clearBacking()
         saveBalance(Balance.getZeroBalance(coinType))
     }
 

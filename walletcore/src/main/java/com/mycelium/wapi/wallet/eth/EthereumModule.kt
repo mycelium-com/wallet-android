@@ -138,6 +138,7 @@ class EthereumModule(
                 secureStore.deletePlaintextValue(walletAccount.id.toString().toByteArray())
             }
             backing.deleteAccountContext(walletAccount.id)
+            walletAccount.clearBacking()
             accounts.remove(walletAccount.id)
             true
         } else {
