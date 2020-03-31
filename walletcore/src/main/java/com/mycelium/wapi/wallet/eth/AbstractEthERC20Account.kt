@@ -19,8 +19,13 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     protected val logger: Logger = Logger.getLogger(className)
+
     @Volatile
     protected var syncing = false
+
+    fun clearBacking() {
+        backing.deleteAllAccountTransactions()
+    }
 
     @Throws(IOException::class)
     protected fun getNewNonce(address: EthAddress): BigInteger {
