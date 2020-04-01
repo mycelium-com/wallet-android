@@ -169,7 +169,7 @@
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
     <string name="eth_accounts_name">Ethereum</string>
-    <string name="erc20_accounts_name">ERC20</string>
+    <string name="erc20_accounts_name">ERC-20</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
@@ -556,7 +556,7 @@
     <string name="transaction_not_broadcasted_info">Unable to broadcast</string>
     <string name="hd_account_creation_started">Creating new HD Bitcoin Account…</string>
     <string name="eth_account_creation_started">Creating new ETH Account…</string>
-    <string name="erc20_account_creation_started">Creating new ERC20 Account…</string>
+    <string name="erc20_account_creation_started">Creating new ERC-20 Account…</string>
     <string name="preparing_wallet_on_first_startup_info">Preparing wallet…</string>
     <string name="importing_master_seed_from_wordlist">Calculating Master Seed…</string>
     <string name="importing_wordlist_enter_next_word">enter word number %1$s of %2$s</string>
@@ -1337,7 +1337,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="sepa_eth_buy_sell_description">Buy/Sell ETH using Single Euro Payment Area.</string>
     <string name="si_eth_buy_sell_description">Buy ETH safely and easily using you credit card.</string>
     <string name="share_fio_public_key">Share FIO public key</string>
-    <string name="add_erc20_account">Add ERC20 Account</string>
+    <string name="add_erc20_account">Add ERC-20 Account</string>
     <string name="buy_eth">BUY ETH</string>
     <string name="sell_eth">SELL ETH</string>
     <string name="buy_bitcoin">BUY BITCOIN</string>
@@ -1346,6 +1346,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
     <string name="send_mail">Send mail…</string>
     <string name="select_token">Select Token</string>
-    <string name="select_account">Select Account</string>
-    <string name="create_new_account">Create new account</string>
+    <string name="select_account">Select ETH Account to store your ERC-20 tokens</string>
+    <string name="create_new_account">Add new ETH Account</string>
 </resources>
