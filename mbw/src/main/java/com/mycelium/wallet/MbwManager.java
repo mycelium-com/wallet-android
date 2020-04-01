@@ -508,7 +508,7 @@ public class MbwManager {
         result.add(new MTUriParser(network));
         result.add(new MSSUriParser(network));
         result.add(new RMCUriParser(network));
-        result.add(new EthUriParser(network));
+        result.add(new EthUriParser(network, getSupportedERC20Tokens()));
         return result;
     }
 

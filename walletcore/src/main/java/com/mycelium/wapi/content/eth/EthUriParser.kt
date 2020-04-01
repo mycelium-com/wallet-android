@@ -2,12 +2,54 @@ package com.mycelium.wapi.content.eth
 
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.GenericAssetUri
-import com.mycelium.wapi.content.colu.ColuAssetUriParser
+import com.mycelium.wapi.content.GenericAssetUriParser
+import com.mycelium.wapi.wallet.AddressUtils
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
+import java.math.BigDecimal
 import java.net.URI
 
-class EthUriParser(override val network: NetworkParameters) : ColuAssetUriParser(network) {
+class EthUriParser(override val network: NetworkParameters, private val supportedERC20Tokens: Map<String, ERC20Token>) : GenericAssetUriParser(network) {
+    private fun parseParams(uri: URI): GenericAssetUri? {
+        val params = splitQuery(uri.rawQuery)
+
+        // Identify asset first to define coin type
+        val asset: String? = params["req-asset"]
+        val coinType = if (asset != null) {
+            supportedERC20Tokens.values.firstOrNull {
+                it.contractAddress == asset
+            } ?: ERC20Token(contractAddress = asset)
+        } else {
+            if (network.isProdnet) EthMain else EthTest
+        }
+
+        // Address
+        var address: GenericAddress? = null
+        val addressString = uri.host
+        if (addressString?.isNotEmpty() == true) {
+            // for both eth and erc20 ethereum address is used
+            address = AddressUtils.from(if (network.isProdnet) EthMain else EthTest, addressString)
+        }
+
+        // Amount
+        val amount: Value? = params["value"]?.let {
+            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
+        } ?: params["amount"]?.let {
+            Value.valueOf(coinType, BigDecimal(it).multiply(BigDecimal.TEN.pow(coinType.unitExponent)).toBigIntegerExact())
+        }
+
+        val label: String? = params["label"] ?: params["message"]
+
+        return if (address == null) {
+            null
+        } else {
+            EthUri(address, amount, label, null, asset)
+        }
+    }
+
     override fun parse(content: String): GenericAssetUri? {
         try {
             var uri = URI.create(content.trim { it <= ' ' })
@@ -24,7 +66,7 @@ class EthUriParser(override val network: NetworkParameters) : ColuAssetUriParser
             }
             uri = URI.create("ethereum://$schemeSpecific")
 
-            return parseParameters(uri, if (network.isProdnet) EthMain else EthTest)
+            return parseParams(uri)
         } catch (e: Exception) {
         }
         return null
