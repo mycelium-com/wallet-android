@@ -76,10 +76,10 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun getAccountBalance() = readBalance()
 
-    override fun getLabel(): String = token.name
+    override fun getLabel(): String = accountContext.accountName
 
     override fun setLabel(label: String?) {
-        // the label is defined by the token name, only.
+        accountContext.accountName = label!!
     }
 
     @Synchronized

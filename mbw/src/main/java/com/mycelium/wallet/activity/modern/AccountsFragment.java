@@ -242,7 +242,7 @@ public class AccountsFragment extends Fragment {
                 }
                 accountListAdapter.setFocusedAccountId(account.getId());
                 updateIncludingMenus();
-                if (!(account instanceof ColuAccount) && !(account instanceof ERC20Account)
+                if (!(account instanceof ColuAccount)
                         && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
 
                     setLabelOnAccount(account, account.getLabel(), false);
@@ -581,7 +581,7 @@ public class AccountsFragment extends Fragment {
                 || account instanceof Bip44BCHAccount;
 
         final List<Integer> menus = Lists.newArrayList();
-        if(!(account instanceof ColuAccount) && !(account instanceof ERC20Account)
+        if(!(account instanceof ColuAccount)
                 && !Utils.checkIsLinked(account, getColuAccounts(walletManager))) {
             menus.add(R.menu.record_options_menu);
         }

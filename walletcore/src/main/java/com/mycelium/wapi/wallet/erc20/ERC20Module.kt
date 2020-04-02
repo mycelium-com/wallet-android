@@ -57,6 +57,7 @@ class ERC20Module(
             else -> throw NotImplementedError("Unknown config")
         }
         accounts[result.id] = result
+        result.label = config.token.name
         storeLabel(result.id, baseLabel)
         return result
     }
