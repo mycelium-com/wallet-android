@@ -227,8 +227,7 @@ public class AddAccountActivity extends Activity {
 
     private AlertDialog.Builder getSingleChoiceDialog(String title, ArrayAdapter<String> arrayAdapter) {
         selectedIndex = 0;
-        return new AlertDialog.Builder(this)
-                .setIcon(R.drawable.ic_launcher)
+        return new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setTitle(title)
                 .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());

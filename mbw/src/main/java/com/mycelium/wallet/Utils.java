@@ -132,6 +132,8 @@ import org.ocpsoft.prettytime.TimeUnit;
 import org.ocpsoft.prettytime.units.Minute;
 import org.ocpsoft.prettytime.units.Second;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -969,6 +971,21 @@ public class Utils {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
       }
+
+      if (ERC20Account.class.isAssignableFrom(accountType)) {
+         Drawable drawable = null;
+         String symbol = accountView.getCoinType().getSymbol();
+         try {
+            // get input stream
+            InputStream ims = resources.getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
+            // load image as Drawable
+            drawable = Drawable.createFromStream(ims, null);
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+         return drawable;
+      }
+
       //regular HD account
       if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);

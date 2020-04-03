@@ -55,7 +55,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                     credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
             if (!result.isStatusOK) {
-                logger.log(Level.SEVERE, "Error sending ERC20 transaction, status not OK: ${result.status}")
+                logger.log(Level.SEVERE, "Error sending ERC-20 transaction, status not OK: ${result.status}")
                 return BroadcastResult("Unable to send transaction.", BroadcastResultType.REJECTED)
             }
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
@@ -65,7 +65,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                     accountContext.nonce, tx.gasLimit, result.gasUsed)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error sending ERC20 transaction: ${e.localizedMessage}")
+            logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
             return BroadcastResult("Unable to send transaction: ${e.localizedMessage}", BroadcastResultType.REJECTED)
         }
     }

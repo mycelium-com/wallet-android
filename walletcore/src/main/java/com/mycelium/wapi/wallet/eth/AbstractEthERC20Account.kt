@@ -105,7 +105,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
             blockChainHeight = latestBlock.blockNumber.toInt()
         } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error synchronizing ETH/ERC20, ${e.localizedMessage}")
+            logger.log(Level.SEVERE, "Error synchronizing ETH/ERC-20, ${e.localizedMessage}")
         }
     }
 
