@@ -14,6 +14,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
+
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
@@ -51,25 +52,28 @@ class EthAccount(private val accountContext: EthAccountContext,
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
-    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee): GenericTransaction {
+    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
-        if (value.value <= BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Value should be positive and non-zero"))
+        if (value.value < BigInteger.ZERO) {
+            throw GenericBuildTransactionException(Throwable("Value should be positive"))
         }
         // check whether account has enough funds
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-
         try {
-            val nonce = getNewNonce(receivingAddress)
-            val rawTransaction = RawTransaction.createEtherTransaction(nonce,
-                    gasPrice.feePerKb.value, BigInteger.valueOf(typicalEstimatedTransactionSize.toLong()),
-                    toAddress.toString(), value.value)
+            val ethTxData = (data as? EthTransactionData)
+            val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
+            val gasLimit = ethTxData?.gasLimit
+                    ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
+            val inputData = ethTxData?.inputData ?: ""
+            val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
+            val rawTransaction = RawTransaction.createTransaction(nonce,
+                    fee, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
@@ -85,14 +89,19 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val ethSendTransaction = web3jWrapper.ethSendRawTransaction((tx as EthTransaction).signedHex).send()
+        val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
         if (ethSendTransaction.hasError()) {
             return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
         }
         backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(),
-                tx.value, (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, accountContext.nonce)
+                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
+                (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
         return BroadcastResult(BroadcastResultType.SUCCESS)
+    }
+
+    fun deleteTransaction(txid: String) {
+        backing.deleteTransaction(txid)
+        updateBalanceCache()
     }
 
     override fun getCoinType() = accountContext.currency
@@ -139,24 +148,28 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun getPendingReceiving(): BigInteger {
-        return backing.getUnconfirmedTransactions() .filter {
-                    !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
-                }
+        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+            !it.sender.addressString.equals(receiveAddress.addressString, true)
+                    && it.receiver.addressString.equals(receiveAddress.addressString, true)
+        }
                 .map { it.value.value }
                 .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun getPendingSending(): BigInteger {
-        return backing.getUnconfirmedTransactions().filter {
-                    it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
-                }
-                .map { tx -> tx.value.value + tx.fee.value }
+        return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+            it.sender.addressString.equals(receiveAddress.addressString, true)
+                    && !it.receiver.addressString.equals(receiveAddress.addressString, true)
+        }
+                .map { tx -> tx.value.value + tx.fee!!.value }
                 .fold(BigInteger.ZERO, BigInteger::add) +
-            backing.getUnconfirmedTransactions() .filter {
-                        it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
-                    }
-                    .map { tx -> tx.fee.value }
-                    .fold(BigInteger.ZERO, BigInteger::add)
+
+                backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
+                    it.sender.addressString.equals(receiveAddress.addressString, true)
+                            && it.receiver.addressString.equals(receiveAddress.addressString, true)
+                }
+                        .map { tx -> tx.fee!!.value }
+                        .fold(BigInteger.ZERO, BigInteger::add)
     }
 
     private fun syncTransactions() {

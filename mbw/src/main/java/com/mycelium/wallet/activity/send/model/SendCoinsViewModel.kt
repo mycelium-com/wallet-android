@@ -146,6 +146,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getTransactionLabel() = model.transactionLabel
 
+    fun getTransactionData() = model.transactionData
+
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)
 

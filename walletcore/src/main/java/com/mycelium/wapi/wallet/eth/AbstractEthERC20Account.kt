@@ -27,6 +27,8 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         backing.deleteAllAccountTransactions()
     }
 
+    fun getUnconfirmedTransactions() = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+
     @Throws(IOException::class)
     protected fun getNewNonce(address: EthAddress): BigInteger {
         val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),

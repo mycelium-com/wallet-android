@@ -31,12 +31,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
 
-    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
+    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
         }
+        val ethTxData = (data as? EthTransactionData)
+        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val gasLimit = BigInteger.valueOf(90_000)
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
@@ -157,14 +158,18 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return false
     }
 
-    private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions().filter {
-                !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+    private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+            .filter {
+                !it.sender.addressString.equals(receiveAddress.addressString, true)
+                        && it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions().filter {
-                it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+    private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+            .filter {
+                it.sender.addressString.equals(receiveAddress.addressString, true)
+                        && !it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)

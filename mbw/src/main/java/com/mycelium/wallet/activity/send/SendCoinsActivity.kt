@@ -11,10 +11,15 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
@@ -39,6 +44,7 @@ import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
@@ -169,6 +175,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                             it.activity = this
                         }
             }
+            is EthAccount -> {
+                DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
+                        .also {
+                            it.viewModel = viewModel as SendEthViewModel
+                            it.activity = this
+                        }
+            }
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
@@ -282,6 +295,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         } else {
             viewModel.sendTransaction(this)
         }
+    }
+
+    fun showInputDataInfo() {
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(getString(R.string.input_data_format))
+                .setMessage(getString(R.string.input_data_format_desc))
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
     }
 
     /**
@@ -435,18 +457,57 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
     }
 }
 
-@BindingAdapter("animatedVisibility")
-fun setVisibilityAnimated(target: View, visible: Boolean) {
+@BindingAdapter(value = ["animatedVisibility", "activity"], requireAll = false)
+fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
     val newVisibility = if (visible) View.VISIBLE else View.GONE
     if (target.visibility == newVisibility) {
         return
     }
     if (visible) {
         target.visibility = newVisibility
-        AnimationUtils.expand(target, null)
+        AnimationUtils.expand(target) { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
     } else {
         AnimationUtils.collapse(target) {
             target.visibility = newVisibility
         }
     }
+}
+
+@BindingAdapter("imageRotation")
+fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
+    target.rotation = (if (isExpanded) 180 else 0).toFloat()
+}
+
+@BindingAdapter("visible")
+fun setViewVisible(target: View, newVisibility: Boolean) {
+    target.visibility = if (newVisibility) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter(value = ["selectedItem", "selectedItemAttrChanged"], requireAll = false)
+fun setSpinnerListener(spinner: Spinner, spinnerItem: SpinnerItem, listener: InverseBindingListener) {
+    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = listener.onChange()
+        override fun onNothingSelected(adapterView: AdapterView<*>) = listener.onChange()
+    }
+}
+
+@InverseBindingAdapter(attribute = "selectedItem")
+fun getSelectedItem(spinner: Spinner): SpinnerItem {
+    return spinner.selectedItem as SpinnerItem
+}
+
+interface SpinnerItem
+
+class TransactionItem(val tx: GenericTransactionSummary, private val dateString: String,
+                      private val amountString: String) : SpinnerItem {
+    override fun toString(): String {
+        val idHex = HexUtils.toHex(tx.id)
+        val idString = "${idHex.substring(0, 6)}…${idHex.substring(idHex.length - 2)}"
+        return "$idString ($dateString, $amountString)"
+    }
+}
+
+class NoneItem : SpinnerItem {
+    override fun toString(): String = "none"
+    override fun equals(other: Any?) = this.toString() == other.toString()
 }
