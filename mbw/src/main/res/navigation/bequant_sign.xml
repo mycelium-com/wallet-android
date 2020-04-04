@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bequant_sing"
+    app:startDestination="@id/signFragment">
+
+    <fragment
+        android:id="@+id/signFragment"
+        android:name="com.mycelium.bequant.sign.SignFragment"
+        android:label="SignFragment">
+        <action
+            android:id="@+id/action_signto_registrationInfo"
+            app:destination="@id/registrationInfoFragment" />
+        <action
+            android:id="@+id/action_sign_to_resetPassword"
+            app:destination="@id/resetPasswordFragment" />
+        <action
+            android:id="@+id/action_sign_to_signInTwoFactor"
+            app:destination="@id/signInTwoFactorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationInfoFragment"
+        android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
+        android:label="RegistrationInfoFragment">
+        <action
+            android:id="@+id/action_registrationInfo_to_signUpTwoFactor"
+            app:destination="@id/signUpTwoFactorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordFragment"
+        android:label="ResetPasswordFragment">
+        <action
+            android:id="@+id/action_resetPassword_to_resetPasswordInfo"
+            app:destination="@id/resetPasswordInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInTwoFactorFragment"
+        android:name="com.mycelium.bequant.signin.SignInTwoFactorFragment"
+        android:label="SignInTwoFactorFragment" />
+    <fragment
+        android:id="@+id/signUpTwoFactorFragment"
+        android:name="com.mycelium.bequant.signup.SignUpTwoFactorFragment"
+        android:label="SignUpTwoFactorFragment">
+        <action
+            android:id="@+id/action_signUpTwoFactor_to_backupCode"
+            app:destination="@id/backupCodeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/backupCodeFragment"
+        android:name="com.mycelium.bequant.signup.BackupCodeFragment"
+        android:label="BackupCodeFragment" />
+    <fragment
+        android:id="@+id/resetPasswordInfoFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordInfoFragment"
+        android:label="ResetPasswordInfoFragment">
+        <action
+            android:id="@+id/action_resetPasswordInfo_to_resetPasswordChange"
+            app:destination="@id/resetPasswordChangeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordChangeFragment"
+        android:name="com.mycelium.bequant.signin.ResetPasswordChangeFragment"
+        android:label="ResetPasswordChangeFragment" />
+</navigation>

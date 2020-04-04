@@ -415,4 +415,11 @@
         <item name="tabGravity">fill</item>
     </style>
 
+    <style name="Bequant.EditText">
+        <item name="android:background">@drawable/bg_bequant_input_text</item>
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:padding">8dp</item>
+        <item name="textSize">16sp</item>
+    </style>
+
 </resources>

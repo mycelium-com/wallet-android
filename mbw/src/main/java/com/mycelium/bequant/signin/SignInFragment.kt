@@ -8,19 +8,17 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in.*
 
 
 class SignInFragment : Fragment(R.layout.fragment_bequant_sign_in) {
+
+    var resetPasswordListener: (() -> Unit)? = null
+    var signListener: (() -> Unit)? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         resetPassword.setOnClickListener {
-            // TODO change on navigator
-            requireParentFragment().parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, ResetPasswordFragment(), "reset_password")
-                    .commitAllowingStateLoss()
+            resetPasswordListener?.invoke()
         }
         signIn.setOnClickListener {
-            // TODO change on navigator
-            requireParentFragment().parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, SignInTwoFactorFragment(), "sign_in_two_factor")
-                    .commitAllowingStateLoss()
+            signListener?.invoke()
         }
     }
 }

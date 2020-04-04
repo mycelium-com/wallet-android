@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.activity_bequant_market.*
+import kotlinx.android.synthetic.main.fragment_bequant_sign.*
 
 
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {

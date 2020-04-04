@@ -1,4 +1,4 @@
-package com.mycelium.bequant.receive.model
+package com.mycelium.bequant.common.model
 
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 

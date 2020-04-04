@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/marketFragment">
+    <fragment
+        android:id="@+id/marketFragment"
+        android:name="com.mycelium.bequant.market.MarketFragment"
+        android:label="MarketFragment">
+        <action
+            android:id="@+id/action_market_to_withdraw"
+            app:destination="@id/withdrawFragment" />
+        <action
+            android:id="@+id/action_market_to_receive"
+            app:destination="@id/receiveFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/withdrawFragment"
+        android:name="com.mycelium.bequant.withdraw.WithdrawFragment"
+        android:label="WithdrawFragment" />
+    <fragment
+        android:id="@+id/receiveFragment"
+        android:name="com.mycelium.bequant.receive.ReceiveFragment"
+        android:label="ReceiveFragment" />
+</navigation>

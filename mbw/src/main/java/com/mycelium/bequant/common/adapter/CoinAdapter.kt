@@ -1,4 +1,4 @@
-package com.mycelium.bequant.exchange
+package com.mycelium.bequant.common.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,17 +6,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.bequant.exchange.CoinAdapter
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.wallet.R
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
-                TYPE_SEARCH -> {
+                CoinAdapter.TYPE_SEARCH -> {
                     SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
                 }
-                TYPE_ITEM -> {
+                CoinAdapter.TYPE_ITEM -> {
                     ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_coin, parent, false))
                 }
                 else -> {
@@ -24,7 +26,7 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 }
             }
 
-    override fun onBindViewHolder(parent: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
     }
 
     class DiffCallback : DiffUtil.ItemCallback<CoinListItem>() {
@@ -36,12 +38,12 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 p0.coin?.symbol == p1.coin?.symbol
     }
 
+
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class SearchHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class SpaceHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
 
     companion object {
         const val TYPE_SEARCH = 0

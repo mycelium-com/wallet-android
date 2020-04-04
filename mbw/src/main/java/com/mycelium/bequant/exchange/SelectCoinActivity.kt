@@ -2,7 +2,7 @@ package com.mycelium.bequant.exchange
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mycelium.bequant.receive.model.CoinListItem
+import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_exchange_select_coin.*
 

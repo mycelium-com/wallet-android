@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 repositories {
     google()
@@ -17,6 +18,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
 
@@ -78,6 +80,9 @@ dependencies {
     implementation "androidx.gridlayout:gridlayout:1.0.0"
     implementation "androidx.preference:preference:1.1.0"
     implementation "androidx.work:work-runtime:$workManagerVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "org.ocpsoft.prettytime:prettytime:3.2.5.Final"
     implementation "de.cketti.library.changelog:ckchangelog:1.2.2"

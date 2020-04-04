@@ -14,9 +14,6 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
             setDisplayShowTitleEnabled(false)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_back_arrow))
         }
-        supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, SignFragment(), "sign")
-                .commitAllowingStateLoss()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =
