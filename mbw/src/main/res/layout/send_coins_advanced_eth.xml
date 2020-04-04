@@ -7,6 +7,10 @@
 
         <import type="com.mycelium.wallet.activity.send.model.Converter" />
 
+        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
+
+        <import type="android.view.View" />
+
         <variable
             name="activity"
             type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
@@ -25,11 +29,10 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/llNonce"
-            visible="@{viewModel.txItems.size() > 1}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}">
             <!--Nonce-->
             <TextView
                 android:id="@+id/tvNonceLabel"
@@ -43,8 +46,8 @@
                 android:id="@+id/spinner"
                 selectedItem="@={viewModel.selectedTxItem}"
                 android:layout_width="145dp"
-                android:layout_gravity="center_vertical"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:entries="@{viewModel.txItems}"
                 android:textSize="13sp" />
 
@@ -76,7 +79,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}">
             <!--Data-->
             <TextView
                 android:id="@+id/tvDataLabel"

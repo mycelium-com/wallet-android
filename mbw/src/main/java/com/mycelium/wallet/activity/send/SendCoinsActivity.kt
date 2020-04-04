@@ -175,7 +175,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                             it.activity = this
                         }
             }
-            is EthAccount -> {
+            is EthAccount, is ERC20Account -> {
                 DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
                         .also {
                             it.viewModel = viewModel as SendEthViewModel
@@ -476,11 +476,6 @@ fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsAct
 @BindingAdapter("imageRotation")
 fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
     target.rotation = (if (isExpanded) 180 else 0).toFloat()
-}
-
-@BindingAdapter("visible")
-fun setViewVisible(target: View, newVisibility: Boolean) {
-    target.visibility = if (newVisibility) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter(value = ["selectedItem", "selectedItemAttrChanged"], requireAll = false)
