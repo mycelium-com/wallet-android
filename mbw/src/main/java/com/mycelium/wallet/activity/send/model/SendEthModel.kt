@@ -38,7 +38,8 @@ class SendEthModel(application: Application,
                     is TransactionItem -> {
                         val tx = value.tx as EthTransactionSummary
                         val suggestedGasPrice = if (tx.fee != null) {
-                            tx.fee!!.value / tx.gasUsed + Convert.toWei("1", Convert.Unit.GWEI).toBigInteger()
+                            val oldFeePlusSomething = tx.fee!!.value / tx.gasUsed + Convert.toWei("10", Convert.Unit.GWEI).toBigInteger()
+                            selectedFee.value?.value?.max(oldFeePlusSomething) ?: oldFeePlusSomething
                         } else null
                         transactionData.value = EthTransactionData(tx.nonce, oldData.gasLimit, oldData.inputData, suggestedGasPrice)
                     }
