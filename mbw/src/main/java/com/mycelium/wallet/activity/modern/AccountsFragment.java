@@ -243,9 +243,8 @@ public class AccountsFragment extends Fragment {
                 }
                 accountListAdapter.setFocusedAccountId(account.getId());
                 updateIncludingMenus();
-                if (!(account instanceof ColuAccount)
+                if (!(account instanceof ColuAccount) && !(account instanceof ERC20Account)
                         && !intent.getBooleanExtra(AddAccountActivity.IS_UPGRADE, false)) {
-
                     setLabelOnAccount(account, account.getLabel(), false);
                 }
                 eventBus.post(new ExtraAccountsChanged());
