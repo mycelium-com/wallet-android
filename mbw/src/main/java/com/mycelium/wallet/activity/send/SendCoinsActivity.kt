@@ -244,8 +244,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickUnconfirmedWarning() {
         AlertDialog.Builder(this)
-                .setTitle(getString(R.string.spending_unconfirmed_title))
-                .setMessage(getString(R.string.spending_unconfirmed_description))
+                .setTitle(R.string.spending_unconfirmed_title)
+                .setMessage(R.string.spending_unconfirmed_description)
                 .setPositiveButton(android.R.string.ok, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show()
@@ -286,8 +286,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     fun onClickSend() {
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.possible_duplicate_warning_title))
-                    .setMessage(getString(R.string.possible_duplicate_warning_desc))
+                    .setTitle(R.string.possible_duplicate_warning_title)
+                    .setMessage(R.string.possible_duplicate_warning_desc)
                     .setPositiveButton(android.R.string.yes) { _: DialogInterface?, _: Int -> viewModel.sendTransaction(this) }
                     .setNegativeButton(android.R.string.no) { _: DialogInterface?, _: Int -> finish() }
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -299,8 +299,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun showInputDataInfo() {
         AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle(getString(R.string.input_data_format))
-                .setMessage(getString(R.string.input_data_format_desc))
+                .setTitle(R.string.input_data_format)
+                .setMessage(R.string.input_data_format_desc)
                 .setPositiveButton(R.string.button_ok, null)
                 .create()
                 .show()
