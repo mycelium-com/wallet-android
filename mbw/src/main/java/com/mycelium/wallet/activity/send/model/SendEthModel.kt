@@ -34,7 +34,7 @@ class SendEthModel(application: Application,
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 when (value) {
                     is NoneItem ->
-                        transactionData.value = EthTransactionData(null, oldData.gasLimit, oldData.inputData, oldData.suggestedGasPrice)
+                        transactionData.value = EthTransactionData(null, oldData.gasLimit, oldData.inputData, null)
                     is TransactionItem -> {
                         val tx = value.tx as EthTransactionSummary
                         val suggestedGasPrice = if (tx.fee != null) {

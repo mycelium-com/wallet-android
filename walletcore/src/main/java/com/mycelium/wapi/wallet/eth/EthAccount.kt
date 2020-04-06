@@ -12,13 +12,16 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
 
 import org.web3j.tx.Transfer
 import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
+import java.io.IOException
 import java.math.BigInteger
+import java.net.SocketTimeoutException
 import java.util.*
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -71,10 +74,10 @@ class EthAccount(private val accountContext: EthAccountContext,
             val gasLimit = ethTxData?.gasLimit
                     ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
             val inputData = ethTxData?.inputData ?: ""
-            val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
+            val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
             val rawTransaction = RawTransaction.createTransaction(nonce,
-                    fee, gasLimit, toAddress.toString(), value.value, inputData)
-            return EthTransaction(coinType, toAddress, value, gasPrice, rawTransaction)
+                    fee.value, gasLimit, toAddress.toString(), value.value, inputData)
+            return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))
         }
@@ -89,13 +92,20 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
-        if (ethSendTransaction.hasError()) {
-            return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
+        try {
+            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
+            if (ethSendTransaction.hasError()) {
+                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
+            }
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
+                    (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
+        } catch (e: Exception) {
+            when (e) {
+                is IOException, is SocketTimeoutException -> throw GenericTransactionBroadcastException(e.localizedMessage)
+                else -> throw e
+            }
         }
-        backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-                (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
