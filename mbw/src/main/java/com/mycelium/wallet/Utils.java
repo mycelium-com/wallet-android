@@ -895,6 +895,8 @@ public class Utils {
                   return 0;
                }
                return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
+            } else if (w1 instanceof EthAccount && w2 instanceof EthAccount) {
+               return Integer.compare(((EthAccount) w1).getAccountIndex(), ((EthAccount) w2).getAccountIndex());
             } else if (w1 instanceof EthAccount && w2 instanceof ERC20Account) {
                EthAccount linkedEthAccount = getLinkedEthAccount(w2, accounts);
                if (linkedEthAccount.equals(w1)) {
