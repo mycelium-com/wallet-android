@@ -21,7 +21,6 @@ import org.web3j.utils.Convert
 import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
-import java.net.SocketTimeoutException
 import java.util.*
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -100,11 +99,8 @@ class EthAccount(private val accountContext: EthAccountContext,
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
                     (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
-        } catch (e: Exception) {
-            when (e) {
-                is IOException, is SocketTimeoutException -> throw GenericTransactionBroadcastException(e.localizedMessage)
-                else -> throw e
-            }
+        } catch (e: IOException) {
+            throw GenericTransactionBroadcastException(e.localizedMessage)
         }
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
