@@ -14,6 +14,11 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign.*
 
 
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pager.adapter = SignFragmentAdapter(this)

@@ -9,13 +9,17 @@
         android:name="com.mycelium.bequant.sign.SignFragment"
         android:label="SignFragment">
         <action
-            android:id="@+id/action_signto_registrationInfo"
-            app:destination="@id/registrationInfoFragment" />
+            android:id="@+id/actionRegister"
+            app:destination="@id/registrationInfoFragment">
+            <argument
+                android:name="register"
+                app:argType="com.mycelium.bequant.remote.model.Register" />
+        </action>
         <action
-            android:id="@+id/action_sign_to_resetPassword"
+            android:id="@+id/actionResetPassword"
             app:destination="@id/resetPasswordFragment" />
         <action
-            android:id="@+id/action_sign_to_signInTwoFactor"
+            android:id="@+id/actionSignIn"
             app:destination="@id/signInTwoFactorFragment" />
     </fragment>
     <fragment
@@ -23,7 +27,7 @@
         android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
         android:label="RegistrationInfoFragment">
         <action
-            android:id="@+id/action_registrationInfo_to_signUpTwoFactor"
+            android:id="@+id/actionNext"
             app:destination="@id/signUpTwoFactorFragment" />
     </fragment>
     <fragment
@@ -43,13 +47,17 @@
         android:name="com.mycelium.bequant.signup.SignUpTwoFactorFragment"
         android:label="SignUpTwoFactorFragment">
         <action
-            android:id="@+id/action_signUpTwoFactor_to_backupCode"
+            android:id="@+id/actionNext"
             app:destination="@id/backupCodeFragment" />
     </fragment>
     <fragment
         android:id="@+id/backupCodeFragment"
         android:name="com.mycelium.bequant.signup.BackupCodeFragment"
-        android:label="BackupCodeFragment" />
+        android:label="BackupCodeFragment">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/setupCodeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/resetPasswordInfoFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordInfoFragment"
@@ -62,4 +70,12 @@
         android:id="@+id/resetPasswordChangeFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordChangeFragment"
         android:label="ResetPasswordChangeFragment" />
+    <fragment
+        android:id="@+id/setupCodeFragment"
+        android:name="com.mycelium.bequant.signup.SetupCodeFragment"
+        android:label="SetupCodeFragment">
+        <action
+            android:id="@+id/action_setupCode_to_signInTwoFactor"
+            app:destination="@id/signInTwoFactorFragment" />
+    </fragment>
 </navigation>

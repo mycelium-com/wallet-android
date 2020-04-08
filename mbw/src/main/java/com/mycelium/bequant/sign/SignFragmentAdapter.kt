@@ -14,19 +14,17 @@ class SignFragmentAdapter(val fragment: Fragment) : FragmentStateAdapter(fragmen
     override fun createFragment(position: Int): Fragment =
             when (position) {
                 0 -> SignUpFragment().apply {
-                    registerListener = {
-                        fragment.findNavController()
-                                .navigate(R.id.action_signto_registrationInfo)
+                    registerListener = { register ->
+                        val direction = SignFragmentDirections.actionRegister(register)
+                        fragment.findNavController().navigate(direction)
                     }
                 }
                 1 -> SignInFragment().apply {
                     resetPasswordListener = {
-                        fragment.findNavController()
-                                .navigate(R.id.action_sign_to_resetPassword)
+                        fragment.findNavController().navigate(R.id.actionResetPassword)
                     }
                     signListener = {
-                        fragment.findNavController()
-                                .navigate(R.id.action_sign_to_signInTwoFactor)
+                        fragment.findNavController().navigate(R.id.actionSignIn)
                     }
                 }
                 else -> TODO("not implemented")

@@ -62,4 +62,6 @@
     <color name="media_flow_status_color">#881a1a1a</color>
 
     <fraction name="background_alpha">50%</fraction>
+
+    <color name="bequant_yellow">#F2E868</color>
 </resources>

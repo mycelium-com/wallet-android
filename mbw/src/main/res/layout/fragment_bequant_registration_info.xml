@@ -1,67 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel" />
+    </data>
+
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/exo2medium"
-        android:text="We sent a confirmation email to"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_bequant_text"
-        android:fontFamily="@font/exo2medium"
-        android:padding="8dp"
-        android:text="xomiwa4145@win-777.net."
-        android:textColor="#F2E868"
-        android:textSize="16sp"
-        tools:text="xomiwa4145@win-777.net." />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/thank_you_for_signing_up_with_bequant"
+            android:textSize="28sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="Please follow the instructions in the email to complete your registration."
-        android:textSize="16sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="@string/we_sent_a_confirmation_email_to"
+            android:textSize="16sp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_bequant_text"
-        android:fontFamily="@font/exo2medium"
-        android:padding="16dp"
-        android:text="You have 1 hour to reset your password before the link expires. "
-        android:textColor="#CE3C4E"
-        android:textSize="16sp" />
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_bequant_text"
+            android:fontFamily="@font/exo2medium"
+            android:padding="8dp"
+            android:text="@{viewModel.email}"
+            android:textColor="#F2E868"
+            android:textSize="16sp"
+            tools:text="xomiwa4145@win-777.net." />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_bequant_text"
-        android:fontFamily="@font/exo2medium"
-        android:padding="16dp"
-        android:text="If you haven\'t received the email, do the following:"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="Please follow the instructions in the email to complete your registration."
+            android:textSize="16sp" />
 
-    <Button
-        android:id="@+id/next"
-        style="@style/Bequant.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Next" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_bequant_text"
+            android:fontFamily="@font/exo2medium"
+            android:padding="16dp"
+            android:text="You have 1 hour to reset your password before the link expires. "
+            android:textColor="#CE3C4E"
+            android:textSize="16sp" />
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_bequant_text"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:text="If you haven\'t received the email, do the following:"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="- Please make sure you entered your e-mail address correctly" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="- Check Promotions and Spam" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="- Resend confirmation email." />
+
+            <TextView
+                android:id="@+id/supportTeam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="If none of the above helps, please contact our support team." />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/next"
+            style="@style/Bequant.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Next" />
+    </LinearLayout>
+</layout>

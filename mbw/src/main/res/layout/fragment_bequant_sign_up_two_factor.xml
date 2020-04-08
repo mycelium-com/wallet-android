@@ -45,9 +45,11 @@
             android:text="Google Authenticator for Android" />
 
         <Button
+            android:id="@+id/download"
             style="@style/Bequant.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="Download" />
     </LinearLayout>
 

@@ -1378,10 +1378,17 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="change_password">Change password</string>
     <string name="at_least_6_characters">At least 6 characters, including one number, one uppercase and one lowercase character</string>
     <string name="by_clicking_sign_up_you_agree_to_our_terms_of_use">By clicking Sign Up you agree to our <font color="#F2E868">Terms of Use</font></string>
-    <string name="build_version_2_3_3">Build Version %s</string>
+    <string name="build_version">Build Version %s</string>
     <string name="next">Next</string>
     <string name="only_send_btc_to_this_address">Only send BTC to this address. Sending any other digital asset will result in permanent loss.</string>
     <string name="important_notes">Important Notes</string>
     <string name="deposits_without_destination_tag_will_be_lost">Deposits without Destination Tag will be lost!</string>
     <string name="est_total_balance">Est. Total Balance</string>
+    <string name="bequant_page_title_two_factor_auth_">Two-factor Auth</string>
+    <string name="i_have_a_referral_code">I have a referral code</string>
+    <string name="referral_code">Referral Code</string>
+    <string name="we_sent_a_confirmation_email_to">We sent a confirmation email to</string>
+    <string name="loading">Loading...</string>
+    <string name="thank_you_for_signing_up_with_bequant">Thank you for signing up with Bequant!</string>
+    <string name="residence_country">Residence country</string>
 </resources>

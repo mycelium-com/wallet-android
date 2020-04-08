@@ -9,14 +9,60 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#23262A"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!--    <FrameLayout-->
-    <!--        android:id="@+id/fragment_container"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="0dp"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/toolbar" />-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/logoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_launcher"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/logoArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@id/logo"
+                app:layout_constraintLeft_toRightOf="@id/logo"
+                app:layout_constraintTop_toTopOf="@id/logo"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <TextView
+                android:id="@+id/poweredBy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="@font/exo2medium"
+                android:text="Powered by"
+                android:textColor="#F2E868"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@id/bequant"
+                app:layout_constraintLeft_toRightOf="@id/logoArrow"
+                app:layout_constraintTop_toTopOf="@id/logo" />
+
+            <ImageView
+                android:id="@+id/bequant"
+                android:layout_width="wrap_content"
+                android:layout_height="12dp"
+                android:layout_marginStart="16dp"
+                android:scaleType="fitStart"
+                app:layout_constraintBottom_toBottomOf="@id/logo"
+                app:layout_constraintLeft_toRightOf="@id/logoArrow"
+                app:layout_constraintTop_toBottomOf="@id/poweredBy"
+                app:srcCompat="@drawable/bequant_logo" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <fragment
         android:id="@+id/nav_host_fragment"
@@ -28,4 +74,40 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:navGraph="@navigation/bequant_main" />
 
+    <LinearLayout
+        android:id="@+id/logoMenu"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/lightgrey_transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <TextView
+            android:id="@+id/myceliumWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#23262A"
+            android:fontFamily="@font/exo2medium"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Mycelium Wallet"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/investmentWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#23262A"
+            android:fontFamily="@font/exo2medium"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="Investment Wallet"
+            android:textSize="16sp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

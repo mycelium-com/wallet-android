@@ -10,7 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_two_factor" />
+        app:srcCompat="@drawable/ic_two_factor"
+        android:contentDescription="@null" />
 
     <TextView
         android:layout_width="match_parent"
