@@ -546,8 +546,8 @@ public class TransactionHistoryFragment extends Fragment {
                                             ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
                                             dialog.dismiss();
                                             finishActionMode();
-                                         } else if (selectedAccount instanceof EthAccount) {
-                                            ((EthAccount) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
+                                         } else if (selectedAccount instanceof AbstractEthERC20Account) {
+                                            ((AbstractEthERC20Account) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
                                             dialog.dismiss();
                                             finishActionMode();
                                          }

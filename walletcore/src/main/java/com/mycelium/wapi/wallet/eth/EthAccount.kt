@@ -109,11 +109,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
 
-    fun deleteTransaction(txid: String) {
-        backing.deleteTransaction(txid)
-        updateBalanceCache()
-    }
-
     override fun getCoinType() = accountContext.currency
 
     override fun getBasedOnCoinType() = coinType
@@ -141,7 +136,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         return updateBalanceCache()
     }
 
-    private fun updateBalanceCache(): Boolean {
+    override fun updateBalanceCache(): Boolean {
         ethBalanceService.updateBalanceCache()
         var newBalance = ethBalanceService.balance
 
@@ -186,7 +181,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
         remoteTransactions.forEach { tx ->
             backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
-                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * typicalEstimatedTransactionSize.toBigInteger()),
+                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
                     tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
         }
     }

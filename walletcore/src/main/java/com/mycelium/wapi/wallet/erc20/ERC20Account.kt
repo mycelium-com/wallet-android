@@ -142,7 +142,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun updateBalanceCache(): Boolean {
+    override fun updateBalanceCache(): Boolean {
         balanceService.updateBalanceCache()
         var newBalance = balanceService.balance
 
