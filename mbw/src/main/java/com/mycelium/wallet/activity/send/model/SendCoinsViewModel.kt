@@ -30,11 +30,19 @@ import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.GenericAssetUriParser
+import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.colu.mss.MSSUri
+import com.mycelium.wapi.content.colu.mt.MTUri
+import com.mycelium.wapi.content.colu.rmc.RMCUri
+import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
@@ -210,11 +218,28 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             }
         } else {
             val uri = mbwManager.contentResolver.resolveUri(string)
-            if (uri?.address?.coinType == model.account.basedOnCoinType) {
+            if (uri != null && isUriMatchAccountCoinType(uri, model.account.coinType)) {
                 uri
             } else {
                 null
             }
+        }
+    }
+
+    private fun isUriMatchAccountCoinType(uri: GenericAssetUri, coinType: CryptoCurrency): Boolean {
+        return when (uri) {
+            is BitcoinUri -> coinType == Utils.getBtcCoinType()
+            is MTUri -> coinType == Utils.getMtCoinType()
+            is MSSUri -> coinType == Utils.getMassCoinType()
+            is RMCUri -> coinType == Utils.getRmcCoinType()
+            is EthUri -> {
+                if (uri.asset == null) {
+                    coinType is EthCoin
+                } else {
+                    coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
+                }
+            }
+            else -> false
         }
     }
 
