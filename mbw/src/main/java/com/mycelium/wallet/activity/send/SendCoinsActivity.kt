@@ -11,11 +11,9 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
@@ -476,6 +474,15 @@ fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsAct
 @BindingAdapter("imageRotation")
 fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
     target.rotation = (if (isExpanded) 180 else 0).toFloat()
+}
+
+@BindingAdapter(value = ["isRedColor", "activity"])
+fun setRedTextColor(target: EditText, isRedColor: Boolean, activity: SendCoinsActivity) {
+    if (isRedColor) {
+        target.setTextColor(ContextCompat.getColor(activity, R.color.red))
+    } else {
+        target.setTextColor(ContextCompat.getColor(activity, android.R.color.white))
+    }
 }
 
 @BindingAdapter(value = ["selectedItem", "selectedItemAttrChanged"], requireAll = false)

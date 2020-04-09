@@ -75,6 +75,8 @@ open class SendEthViewModel(application: Application) : SendCoinsViewModel(appli
 
     fun getSelectedTxItem() = (model as SendEthModel).selectedTxItem
 
+    fun showGasLimitError() = (model as SendEthModel).showGasLimitError
+
     override fun sendTransaction(activity: Activity) {
         if (isColdStorage() || model.account is HDAccountExternalSignature) {
             // We do not ask for pin when the key is from cold storage or from a external device (trezor,...)

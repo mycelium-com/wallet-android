@@ -26,6 +26,7 @@ class SendEthModel(application: Application,
                    intent: Intent)
     : SendCoinsModel(application, account, intent) {
     var txItems: List<SpinnerItem> = emptyList()
+    val showGasLimitError: MutableLiveData<Boolean> = MutableLiveData()
 
     val selectedTxItem: MutableLiveData<SpinnerItem> = object : MutableLiveData<SpinnerItem>() {
         override fun setValue(value: SpinnerItem) {
@@ -64,6 +65,7 @@ class SendEthModel(application: Application,
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value = EthTransactionData(oldData.nonce, value, oldData.inputData)
+                showGasLimitError.value = value != null && value < account.typicalEstimatedTransactionSize.toBigInteger()
             }
         }
     }
@@ -82,6 +84,7 @@ class SendEthModel(application: Application,
     init {
         populateTxItems()
         selectedTxItem.value = NoneItem()
+        showGasLimitError.value = false
     }
 
     private fun populateTxItems() {

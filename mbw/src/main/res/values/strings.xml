@@ -106,6 +106,7 @@
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
     <string name="replace_transaction">Replace\ntransaction</string>
+    <string name="gas_limit_error">Gas Limit must be at least 21000</string>
     <string name="input_data">Input Data</string>
     <string name="input_data_format">Input Data format</string>
     <string name="input_data_format_desc">The Input Data should be in hexadecimal form. Start with \'0x\' prefix is not necessary, it is inserted automatically if needed.</string>

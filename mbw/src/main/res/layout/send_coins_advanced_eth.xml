@@ -69,6 +69,8 @@
 
             <EditText
                 android:id="@+id/etGasLimit"
+                activity="@{activity}"
+                isRedColor="@{viewModel.showGasLimitError}"
                 android:layout_width="145dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -111,5 +113,16 @@
                 android:tint="@color/dark_sky_blue"
                 app:srcCompat="@drawable/ic_info" />
         </LinearLayout>
+
+        <TextView
+            animatedVisibility="@{viewModel.showGasLimitError}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:layout_marginBottom="4dp"
+            android:text="@string/gas_limit_error"
+            android:textColor="@color/red"
+            android:textSize="18sp" />
     </LinearLayout>
 </layout>

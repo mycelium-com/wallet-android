@@ -56,26 +56,28 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
+        val ethTxData = (data as? EthTransactionData)
+        val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
+        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
+        val inputData = ethTxData?.inputData ?: ""
+        val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
+
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
         if (value.value < BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Value should be positive"))
         }
-        // check whether account has enough funds
+        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
+            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
+
         try {
-            val ethTxData = (data as? EthTransactionData)
-            val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
-            val gasLimit = ethTxData?.gasLimit
-                    ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
-            val inputData = ethTxData?.inputData ?: ""
-            val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
-            val rawTransaction = RawTransaction.createTransaction(nonce,
-                    fee.value, gasLimit, toAddress.toString(), value.value, inputData)
+            val rawTransaction = RawTransaction.createTransaction(nonce, fee.value, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
         } catch (e: Exception) {
             throw GenericBuildTransactionException(Throwable(e.localizedMessage))

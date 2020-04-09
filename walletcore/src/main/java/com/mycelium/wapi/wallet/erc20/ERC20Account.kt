@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
@@ -32,15 +33,20 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private var removed = false
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
-        if (calculateMaxSpendableAmount(null, null) < amount) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
-        }
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
+
+        if (calculateMaxSpendableAmount(null, null) < amount) {
+            throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
+        }
+        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
+            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
+
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 
