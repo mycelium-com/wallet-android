@@ -498,7 +498,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
                return AmountValidation.Ok; //entering a fiat value + exchange is not availible
             }
             try {
-               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(_kbMinerFee));
+               _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(_kbMinerFee), null);
             } catch (GenericOutputTooSmallException e) {
                return AmountValidation.ValueTooSmall;
             } catch (GenericInsufficientFundsException e) {
