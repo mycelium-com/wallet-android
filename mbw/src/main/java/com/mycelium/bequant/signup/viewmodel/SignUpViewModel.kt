@@ -14,6 +14,8 @@ class SignUpViewModel(application: Application) : AndroidViewModel(application) 
     val email = MutableLiveData<String>()
     val password = MutableLiveData<String>()
     val passwordNoteVisibility = MutableLiveData(View.VISIBLE)
+    val passwordLevelVisibility = MutableLiveData(View.GONE)
+    val passwordLevelText = MutableLiveData<String>()
     val repeatPassword = MutableLiveData<String>()
     val referralCode = MutableLiveData<String>()
 }
