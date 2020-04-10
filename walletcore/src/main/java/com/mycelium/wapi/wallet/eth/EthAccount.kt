@@ -100,7 +100,7 @@ class EthAccount(private val accountContext: EthAccountContext,
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-                    (tx.gasPrice as FeePerKbFee).feePerKb * typicalEstimatedTransactionSize.toBigInteger(), 0, tx.rawTransaction.nonce)
+                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
         } catch (e: IOException) {
             throw GenericTransactionBroadcastException(e.localizedMessage)
         }
