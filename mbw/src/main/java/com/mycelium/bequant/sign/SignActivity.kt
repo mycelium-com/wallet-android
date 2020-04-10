@@ -11,7 +11,7 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
         super.onCreate(savedInstanceState)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
-            setDisplayShowTitleEnabled(false)
+            setDisplayShowTitleEnabled(true)
             setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_back_arrow))
         }
     }

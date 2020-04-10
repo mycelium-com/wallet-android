@@ -24,6 +24,7 @@ import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSignUpBindingImpl
 import kotlinx.android.synthetic.main.fragment_bequant_sign_up.*
+import kotlinx.android.synthetic.main.layout_password_registration.*
 
 
 class SignUpFragment : Fragment() {
@@ -85,6 +86,8 @@ class SignUpFragment : Fragment() {
         }
         iHaveRefCode.setOnClickListener {
             referralLayout.visibility = if (referralLayout.visibility == VISIBLE) GONE else VISIBLE
+            val chevron = if (referralLayout.visibility == VISIBLE) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
+            iHaveRefCode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
         }
     }
 
@@ -121,7 +124,7 @@ class SignUpFragment : Fragment() {
             return false
         }
         if (viewModel.password.value?.isEmpty() != false) {
-            repeatPasswordLayout?.error = "Can't be empty"
+            passwordLayout?.error = "Can't be empty"
             return false
         }
         if (viewModel.password.value != viewModel.repeatPassword.value) {

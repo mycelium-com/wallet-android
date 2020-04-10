@@ -1394,4 +1394,8 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_password_weak">Weak</string>
     <string name="bequant_password_strong">Strong</string>
     <string name="bequant_password_very_strong">Very Strong</string>
+    <string name="reset_password_for">Reset password for</string>
+    <string name="bequant_page_title_backup_code">Backup Code</string>
+    <string name="bequant_page_title_setup_code">Setup Code</string>
+    <string name="bequant_page_title_reset_password">Reset password</string>
 </resources>

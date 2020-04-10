@@ -90,6 +90,7 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/supportCenter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -105,7 +106,7 @@
             android:layout_marginBottom="24dp"
             android:fontFamily="@font/exo2medium"
             android:gravity="center"
-            android:text="Build Version 2.3.3"
+            android:text="@{viewModel.buildVersion}"
             android:textColor="#3C424B"
             android:textSize="12sp" />
     </LinearLayout>

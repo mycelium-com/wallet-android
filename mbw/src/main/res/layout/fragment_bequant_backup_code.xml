@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#2F343A"
+        android:background="@drawable/bg_bequant_text"
         android:orientation="horizontal"
         android:padding="16dp">
 
@@ -35,14 +35,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="xxxx - xxxx - xxxx - xxxx - xxxx - xxxx"
-            android:textSize="20sp" />
+            android:textSize="28sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="#2F343A"
+        android:background="@drawable/bg_bequant_text"
         android:orientation="horizontal"
         android:padding="16dp">
 

@@ -124,6 +124,7 @@ dependencies {
         exclude group: "com.android.support"
     }
     annotationProcessor "com.github.bumptech.glide:compiler:4.7.1"
+    implementation 'com.poovam:pin-edittext-field:1.2.0'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.0-beta-3"
 

@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.market.BequantMarketActivity
@@ -21,6 +22,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = null
         pager.adapter = SignFragmentAdapter(this)
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {

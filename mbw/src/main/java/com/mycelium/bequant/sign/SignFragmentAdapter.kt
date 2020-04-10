@@ -5,7 +5,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.mycelium.bequant.signin.SignInFragment
 import com.mycelium.bequant.signup.SignUpFragment
-import com.mycelium.wallet.R
 
 
 class SignFragmentAdapter(val fragment: Fragment) : FragmentStateAdapter(fragment) {
@@ -21,10 +20,10 @@ class SignFragmentAdapter(val fragment: Fragment) : FragmentStateAdapter(fragmen
                 }
                 1 -> SignInFragment().apply {
                     resetPasswordListener = {
-                        fragment.findNavController().navigate(R.id.actionResetPassword)
+                        fragment.findNavController().navigate(SignFragmentDirections.actionResetPassword())
                     }
                     signListener = {
-                        fragment.findNavController().navigate(R.id.actionSignIn)
+                        fragment.findNavController().navigate(SignFragmentDirections.actionSignIn())
                     }
                 }
                 else -> TODO("not implemented")

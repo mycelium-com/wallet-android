@@ -394,6 +394,14 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="BequantSign" parent="AppBaseTheme">
+        <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
+    </style>
+    <style name="BequantSignToolBarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/bequant_background</item>
+<!--        <item name="titleTextAppearance">@style/MyTitleTextAppearance</item>-->
+<!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
+    </style>
 
     <style name="Bequant.Button">
         <item name="android:fontFamily">@font/exo2medium</item>
