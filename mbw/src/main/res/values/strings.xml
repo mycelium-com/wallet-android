@@ -936,6 +936,7 @@
     <!-- Simplex end -->
 
     <string name="label_single_key_icon">a single key</string>
+    <string name="label_token_icon">an ERC-20 token icon</string>
     <string name="label_blue_circle">blue circle</string>
     <string name="label_type_it_in">type it in</string>
     <string name="label_use_device_location">use device location</string>
