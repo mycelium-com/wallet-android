@@ -5,12 +5,14 @@ import com.mycelium.net.ServerEndpoints
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.erc20.StandardToken
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.RawTransaction
 import org.web3j.protocol.Web3j
 import org.web3j.protocol.core.DefaultBlockParameterName
 import org.web3j.protocol.core.Request
 import org.web3j.protocol.core.methods.response.*
 import org.web3j.protocol.core.methods.response.EthTransaction
 import org.web3j.protocol.http.HttpService
+import org.web3j.tx.RawTransactionManager
 import org.web3j.tx.gas.ContractGasProvider
 import java.util.*
 import java.util.logging.Level
@@ -79,7 +81,10 @@ class Web3jWrapper(endpoints: List<HttpEndpoint>) : ServerEthListChangedListener
     fun ethGetBalance(address: String, blockParameterName: DefaultBlockParameterName = DefaultBlockParameterName.LATEST): Request<*, EthGetBalance> =
             web3j.ethGetBalance(address, blockParameterName)
 
-    fun ethSendRawTransaction(hex: String?): Request<*, EthSendTransaction> = web3j.ethSendRawTransaction(hex)
+    fun ethSendTransaction(rawTx: RawTransaction, credentials: Credentials): EthSendTransaction {
+        val transactionManager = RawTransactionManager(web3j, credentials)
+        return transactionManager.signAndSend(rawTx)
+    }
 
     fun ethGetTransactionByHash(txid: String): Request<*, EthTransaction> = web3j.ethGetTransactionByHash(txid)
 

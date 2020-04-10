@@ -27,6 +27,13 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         backing.deleteAllAccountTransactions()
     }
 
+    fun getUnconfirmedTransactions() = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+
+    fun deleteTransaction(txid: String) {
+        backing.deleteTransaction(txid)
+        updateBalanceCache()
+    }
+
     @Throws(IOException::class)
     protected fun getNewNonce(address: EthAddress): BigInteger {
         val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
@@ -49,6 +56,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     abstract fun setNonce(nonce: BigInteger)
     abstract fun getNonce(): BigInteger
     abstract fun setBlockChainHeight(height: Int)
+    abstract fun updateBalanceCache(): Boolean
 
     override fun setAllowZeroConfSpending(b: Boolean) {
         // TODO("not implemented")

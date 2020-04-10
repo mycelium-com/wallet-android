@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.mycelium.wallet.activity.send.model.Converter" />
+
+        <import type="com.mycelium.wapi.wallet.erc20.ERC20Account" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="activity"
+            type="com.mycelium.wallet.activity.send.SendCoinsActivity" />
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.wallet.activity.send.model.SendEthViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/advancedBlock"
+        activity="@{activity}"
+        animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}">
+            <!--Nonce-->
+            <TextView
+                android:id="@+id/tvNonceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="84dp"
+                android:text="@string/replace_transaction"
+                android:textSize="16sp" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinner"
+                selectedItem="@={viewModel.selectedTxItem}"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:entries="@{viewModel.txItems}"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!--GasLimit-->
+            <TextView
+                android:id="@+id/tvGasLimitLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:width="84dp"
+                android:text="@string/gas_limit"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etGasLimit"
+                activity="@{activity}"
+                isRedColor="@{viewModel.showGasLimitError}"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:inputType="number"
+                android:text="@={Converter.bigIntToString(viewModel.gasLimit)}" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}">
+            <!--Data-->
+            <TextView
+                android:id="@+id/tvDataLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:width="84dp"
+                android:text="@string/input_data"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/etData"
+                android:layout_width="145dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:digits="0123456789abcdefABCDEFx"
+                android:inputType="text"
+                android:text="@={viewModel.inputData}"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/ic_info_address_type"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center|start"
+                android:layout_marginStart="8dp"
+                android:onClick="@{_ -> activity.showInputDataInfo()}"
+                android:tint="@color/dark_sky_blue"
+                app:srcCompat="@drawable/ic_info" />
+        </LinearLayout>
+
+        <TextView
+            animatedVisibility="@{viewModel.showGasLimitError}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:layout_marginBottom="4dp"
+            android:text="@string/gas_limit_error"
+            android:textColor="@color/red"
+            android:textSize="18sp" />
+    </LinearLayout>
+</layout>

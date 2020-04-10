@@ -3,7 +3,6 @@ package com.mycelium.wapi.content
 import com.mrd.bitlib.crypto.Bip38
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.content.btc.BitcoinUri
-import com.mycelium.wapi.content.btc.FallbackUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri

@@ -9,6 +9,7 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
+import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
@@ -31,15 +32,21 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
 
-    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee): GenericTransaction {
+    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
+        val ethTxData = (data as? EthTransactionData)
+        val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
+        val gasPrice = (fee as FeePerKbFee).feePerKb.value
+
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
         }
-        val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val gasLimit = BigInteger.valueOf(90_000)
+        if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
+            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+        }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
+
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 
@@ -141,7 +148,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun updateBalanceCache(): Boolean {
+    override fun updateBalanceCache(): Boolean {
         balanceService.updateBalanceCache()
         var newBalance = balanceService.balance
 
@@ -157,14 +164,18 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         return false
     }
 
-    private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions().filter {
-                !it.from.equals(receiveAddress.addressString, true) && it.to.equals(receiveAddress.addressString, true)
+    private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+            .filter {
+                !it.sender.addressString.equals(receiveAddress.addressString, true)
+                        && it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)
 
-    private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions().filter {
-                it.from.equals(receiveAddress.addressString, true) && !it.to.equals(receiveAddress.addressString, true)
+    private fun getPendingSending(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
+            .filter {
+                it.sender.addressString.equals(receiveAddress.addressString, true)
+                        && !it.receiver.addressString.equals(receiveAddress.addressString, true)
             }
             .map { it.value.value }
             .fold(BigInteger.ZERO, BigInteger::add)

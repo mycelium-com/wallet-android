@@ -1056,6 +1056,18 @@ public class Utils {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
    }
 
+   public static CryptoCurrency getMtCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getMassCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MASSCoin.INSTANCE : MASSCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getRmcCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
+   }
+
    public static boolean isValidEmailAddress(String value) {
       return android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches();
    }

@@ -11,10 +11,13 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
@@ -39,6 +42,7 @@ import com.mycelium.wallet.content.HandleConfigFactory
 import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
+import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
@@ -169,6 +173,13 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                             it.activity = this
                         }
             }
+            is EthAccount, is ERC20Account -> {
+                DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
+                        .also {
+                            it.viewModel = viewModel as SendEthViewModel
+                            it.activity = this
+                        }
+            }
             else -> getDefaultBinding()
         }
         sendCoinsActivityBinding.lifecycleOwner = this
@@ -231,8 +242,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     fun onClickUnconfirmedWarning() {
         AlertDialog.Builder(this)
-                .setTitle(getString(R.string.spending_unconfirmed_title))
-                .setMessage(getString(R.string.spending_unconfirmed_description))
+                .setTitle(R.string.spending_unconfirmed_title)
+                .setMessage(R.string.spending_unconfirmed_description)
                 .setPositiveButton(android.R.string.ok, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show()
@@ -273,8 +284,8 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
     fun onClickSend() {
         if (isPossibleDuplicateSending()) {
             AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.possible_duplicate_warning_title))
-                    .setMessage(getString(R.string.possible_duplicate_warning_desc))
+                    .setTitle(R.string.possible_duplicate_warning_title)
+                    .setMessage(R.string.possible_duplicate_warning_desc)
                     .setPositiveButton(android.R.string.yes) { _: DialogInterface?, _: Int -> viewModel.sendTransaction(this) }
                     .setNegativeButton(android.R.string.no) { _: DialogInterface?, _: Int -> finish() }
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -282,6 +293,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         } else {
             viewModel.sendTransaction(this)
         }
+    }
+
+    fun showInputDataInfo() {
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(R.string.input_data_format)
+                .setMessage(R.string.input_data_format_desc)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
     }
 
     /**
@@ -435,18 +455,61 @@ fun setVisibilityAnimated(target: TextView, error: CharSequence) {
     }
 }
 
-@BindingAdapter("animatedVisibility")
-fun setVisibilityAnimated(target: View, visible: Boolean) {
+@BindingAdapter(value = ["animatedVisibility", "activity"], requireAll = false)
+fun setVisibilityAnimated(target: View, visible: Boolean, activity: SendCoinsActivity?) {
     val newVisibility = if (visible) View.VISIBLE else View.GONE
     if (target.visibility == newVisibility) {
         return
     }
     if (visible) {
         target.visibility = newVisibility
-        AnimationUtils.expand(target, null)
+        AnimationUtils.expand(target) { activity?.root?.smoothScrollTo(0, activity.root.measuredHeight) }
     } else {
         AnimationUtils.collapse(target) {
             target.visibility = newVisibility
         }
     }
+}
+
+@BindingAdapter("imageRotation")
+fun setRotationAnimated(target: ImageView, isExpanded: Boolean) {
+    target.rotation = (if (isExpanded) 180 else 0).toFloat()
+}
+
+@BindingAdapter(value = ["isRedColor", "activity"])
+fun setRedTextColor(target: EditText, isRedColor: Boolean, activity: SendCoinsActivity) {
+    if (isRedColor) {
+        target.setTextColor(ContextCompat.getColor(activity, R.color.red))
+    } else {
+        target.setTextColor(ContextCompat.getColor(activity, android.R.color.white))
+    }
+}
+
+@BindingAdapter(value = ["selectedItem", "selectedItemAttrChanged"], requireAll = false)
+fun setSpinnerListener(spinner: Spinner, spinnerItem: SpinnerItem, listener: InverseBindingListener) {
+    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = listener.onChange()
+        override fun onNothingSelected(adapterView: AdapterView<*>) = listener.onChange()
+    }
+}
+
+@InverseBindingAdapter(attribute = "selectedItem")
+fun getSelectedItem(spinner: Spinner): SpinnerItem {
+    return spinner.selectedItem as SpinnerItem
+}
+
+interface SpinnerItem
+
+class TransactionItem(val tx: GenericTransactionSummary, private val dateString: String,
+                      private val amountString: String) : SpinnerItem {
+    override fun toString(): String {
+        val idHex = HexUtils.toHex(tx.id)
+        val idString = "${idHex.substring(0, 6)}…${idHex.substring(idHex.length - 2)}"
+        return "$idString ($dateString, $amountString)"
+    }
+}
+
+class NoneItem : SpinnerItem {
+    override fun toString(): String = "none"
+    override fun equals(other: Any?) = this.toString() == other.toString()
 }
