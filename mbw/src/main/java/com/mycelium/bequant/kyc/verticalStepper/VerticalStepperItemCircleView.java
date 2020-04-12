@@ -79,11 +79,11 @@ public class VerticalStepperItemCircleView extends FrameLayout {
     }
 
     public void setIconCheck() {
-        setIconResource(R.drawable.ic_vertical_step);
+        setIconResource(R.drawable.ic_vertical_stepper_done);
     }
 
     public void setIconEdit() {
-        setIconResource(R.drawable.ic_vertical_step);
+        setIconResource(R.drawable.ic_vertical_stepper_edit);
     }
 
     public void setIconResource(int id) {
