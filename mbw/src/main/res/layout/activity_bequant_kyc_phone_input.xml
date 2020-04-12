@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:background="@color/bequant_gray"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        android:background="@color/bequant_gray">
 
     <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -21,23 +21,71 @@
             style="@style/Bequant.EditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginTop="8dp"
+            android:gravity="center"
             android:text="For security reasons we need to verify your phone number via SMS or a phone call. Please enter your phone number and choose the desired verification option."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/spCountry"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            style="@style/Bequant.TextView"
-            tools:listitem="@android:layout/simple_dropdown_item_1line"
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_width="0dp"
-            android:layout_height="40dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            style="@style/Bequant.EditText">
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCountry"
+                style="@style/Bequant.EditText"
+                android:background="@null"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:drawableRight="@drawable/ic_arrow_drop_down"
+                tools:text="America" />
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/bequant_gray_2"/>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPhoneCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Bequant.EditText"
+                    android:background="@null"
+                    android:layout_weight="3"
+                    tools:text="+ 344" />
+            <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/bequant_yellow">
+            </View>
+            <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/edPhone"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:hint="Your phone number"
+                    style="@style/Bequant.EditText"
+                    android:background="@null"
+                    tools:text="921-34-55" />
+        </LinearLayout>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
     <Button
             android:id="@+id/btGetCode"
             style="@style/Bequant.Button"
