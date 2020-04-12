@@ -405,7 +405,7 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:padding">8dp</item>
         <item name="android:background">@drawable/bg_bequant_button</item>
-        <item name="android:textColor">#17191B</item>
+        <item name="android:textColor">@color/bequant_gray</item>
         <item name="android:textSize">16sp</item>
     </style>
     <style name="Bequant.Button.Small">
@@ -414,7 +414,7 @@
         <item name="android:textSize">14sp</item>
     </style>
     <style name="Bequant.Tabs">
-        <item name="android:background">#23262A</item>
+        <item name="android:background">@color/bequant_gray_2</item>
         <item name="tabIndicatorColor">@color/bequant_yellow</item>
         <item name="tabIndicatorHeight">2dp</item>
         <item name="tabGravity">fill</item>
