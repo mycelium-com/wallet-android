@@ -15,12 +15,18 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 
 
 class SignRepository {
-    fun authorize(auth: Auth) {
+    fun authorize(auth: Auth, success: () -> Unit, error: () -> Unit) {
         service.authorize(auth).enqueue(object : Callback<Auth> {
             override fun onFailure(call: Call<Auth>, t: Throwable) {
+                error.invoke()
             }
 
             override fun onResponse(call: Call<Auth>, response: Response<Auth>) {
+                if (response.isSuccessful) {
+                    success.invoke()
+                } else {
+                    error.invoke()
+                }
             }
         })
     }
@@ -55,6 +61,11 @@ class SignRepository {
             Retrofit.Builder()
                     .baseUrl(ENDPOINT)
                     .client(OkHttpClient.Builder()
+                            .addInterceptor {
+                                it.proceed(it.request().newBuilder().apply {
+                                    header("X-API-KEY", "CUSSD-3618")
+                                }.build())
+                            }
                             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                             .build())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))

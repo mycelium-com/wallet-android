@@ -54,18 +54,33 @@
                 android:fontFamily="@font/exo2medium"
                 android:hint="@string/set_password"
                 android:inputType="textPassword"
-                android:padding="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="@={viewModel.password}"
                 android:textSize="16sp" />
 
             <ProgressBar
+                android:id="@+id/passwordLevel"
+                style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_marginTop="8dp"
-                android:background="#23262A"
-                android:max="100"
-                android:progress="20"
-                android:progressDrawable="@drawable/bequant_password_line" />
+                android:indeterminate="false"
+                android:indeterminateOnly="false"
+                android:max="90"
+                android:progress="33"
+                android:visibility="@{viewModel.passwordLevelVisibility}"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/passwordLevelLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.passwordLevelText}"
+                android:textSize="12sp"
+                android:visibility="@{viewModel.passwordLevelVisibility}"
+                tools:text="Weak" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -86,18 +101,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:hintEnabled="false"
-            app:layout_constraintTop_toBottomOf="@id/passwordNote">
+            app:layout_constraintTop_toBottomOf="@id/passwordNote"
+            app:passwordToggleEnabled="true">
 
             <EditText
                 android:id="@+id/repeatPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_bequant_input_text"
                 android:fontFamily="@font/exo2medium"
                 android:hint="@string/repeat_password"
                 android:inputType="textPassword"
-                android:padding="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="@={viewModel.repeatPassword}"
                 android:textSize="16sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -135,6 +151,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:visibility="gone"
             app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/iHaveRefCode"
             tools:visibility="visible">
