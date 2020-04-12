@@ -99,9 +99,9 @@ public class OtpView extends AppCompatEditText {
     viewType = typedArray.getInt(R.styleable.OtpView_viewType, VIEW_TYPE_NONE);
     otpViewItemCount = typedArray.getInt(R.styleable.OtpView_itemCount, DEFAULT_COUNT);
     otpViewItemHeight = (int) typedArray.getDimension(R.styleable.OtpView_itemsHeight,
-        res.getDimensionPixelSize(R.dimen.otp_view_item_size));
+        res.getDimensionPixelSize(R.dimen.otp_view_item_height));
     otpViewItemWidth = (int) typedArray.getDimension(R.styleable.OtpView_itemsWidth,
-        res.getDimensionPixelSize(R.dimen.otp_view_item_size));
+        res.getDimensionPixelSize(R.dimen.otp_view_item_width));
     otpViewItemSpacing = typedArray.getDimensionPixelSize(R.styleable.OtpView_itemSpacing,
         res.getDimensionPixelSize(R.dimen.otp_view_item_spacing));
     otpViewItemRadius = (int) typedArray.getDimension(R.styleable.OtpView_itemRadius, 0);
