@@ -18,11 +18,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
-            style="@style/Bequant.EditText"
+            style="@style/Bequant.TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
+            android:background="@null"
             android:text="For security reasons we need to verify your phone number via SMS or a phone call. Please enter your phone number and choose the desired verification option."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
