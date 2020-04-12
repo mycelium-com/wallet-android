@@ -8,7 +8,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bequant_gray_2"
+        android:background="@color/bequant_gray_3"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -90,7 +90,7 @@
             android:id="@+id/myceliumWallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/bequant_gray_2"
+            android:background="@color/bequant_gray_3"
             android:fontFamily="@font/exo2medium"
             android:paddingStart="16dp"
             android:paddingTop="12dp"
@@ -102,7 +102,7 @@
             android:id="@+id/investmentWallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/bequant_gray_2"
+            android:background="@color/bequant_gray_3"
             android:fontFamily="@font/exo2medium"
             android:paddingStart="16dp"
             android:paddingTop="12dp"

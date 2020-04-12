@@ -414,7 +414,7 @@
         <item name="android:textSize">14sp</item>
     </style>
     <style name="Bequant.Tabs">
-        <item name="android:background">@color/bequant_gray_2</item>
+        <item name="android:background">@color/bequant_gray_3</item>
         <item name="tabIndicatorColor">@color/bequant_yellow</item>
         <item name="tabIndicatorHeight">2dp</item>
         <item name="tabGravity">fill</item>
@@ -425,6 +425,7 @@
         <item name="android:fontFamily">@font/exo2medium</item>
         <item name="android:padding">8dp</item>
         <item name="textSize">16sp</item>
+        <item name="hintTextColor">@color/bequant_gray_6</item>
     </style>
 
     <style name="BequantTabText" parent="TextAppearance.Design.Tab">

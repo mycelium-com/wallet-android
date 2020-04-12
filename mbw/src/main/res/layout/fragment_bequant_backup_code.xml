@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@color/bequant_gray_1"
+        android:background="@color/bequant_gray_4"
         android:orientation="horizontal"
         android:padding="16dp">
 
@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@color/bequant_gray_1"
+        android:background="@color/bequant_gray_4"
         android:orientation="horizontal"
         android:padding="16dp">
 

@@ -53,7 +53,7 @@
         <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bequant_gray_2"/>
+                android:background="@color/bequant_gray_3"/>
 
         <LinearLayout
                 android:layout_width="match_parent"
