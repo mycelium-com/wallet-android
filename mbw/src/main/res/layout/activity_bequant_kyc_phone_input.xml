@@ -30,6 +30,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/llInputPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -71,7 +72,7 @@
             <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="@color/bequant_yellow">
+                    android:background="@color/bequant_gray_6">
             </View>
             <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edPhone"
@@ -86,6 +87,21 @@
         </LinearLayout>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvErrorCode1"
+            style="@style/Bequant.TextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Phone number is invalid"
+            android:textColor="@color/bequant_password_red"
+            android:textSize="12dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/llInputPanel"
+            app:layout_constraintStart_toStartOf="@+id/llInputPanel"
+            app:layout_constraintTop_toBottomOf="@+id/llInputPanel"
+            tools:visibility="visible" />
 
     <Button
             android:id="@+id/btGetCode"
