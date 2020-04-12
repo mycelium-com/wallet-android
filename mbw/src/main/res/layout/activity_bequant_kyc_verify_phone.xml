@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
@@ -23,8 +22,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:gravity="center"
             android:background="@null"
+            android:gravity="center"
             android:text="We will call +685 (123) 1234 to give you a confirmation code"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,9 +31,6 @@
 
     <com.mycelium.bequant.kyc.OtpView
             android:id="@+id/otp_view"
-            app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
-            app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
-            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="72dp"
@@ -44,8 +40,37 @@
             app:hideLineWhenFilled="true"
             app:itemCount="6"
             app:itemSpacing="6dp"
+            app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
+            app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
             app:state_filled="true"
             app:viewType="rectangle" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTryAgainCaption"
+            style="@style/Bequant.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@null"
+            android:text="Nothing happened?"
+            android:textColor="@color/bequant_gray_6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otp_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTryAgain"
+            style="@style/Bequant.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="Try again"
+            android:textColor="@color/bequant_yellow"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvTryAgainCaption"
+            app:layout_constraintTop_toTopOf="@+id/tvTryAgainCaption" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
