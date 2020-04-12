@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.core.content.ContextCompat;
 
 import com.mycelium.wallet.R;
@@ -59,13 +60,20 @@ public class VerticalStepperItemCircleView extends FrameLayout {
     }
 
     public void setBackgroundActive() {
+        setColor(R.drawable.vertical_stepper_view_item_circle_active);
+    }
+
+    private void setColor(@DrawableRes int color) {
         GradientDrawable drawable = (GradientDrawable) ContextCompat
                 .getDrawable(
-                        getContext(),
-                        R.drawable.vertical_stepper_view_item_circle_active);
+                        getContext(), color);
         drawable.setColor(Util
                 .getThemeColor(getContext(), R.attr.colorAccent));
         setBackgroundResource(R.drawable.vertical_stepper_view_item_circle_active);
+    }
+
+    public void setBackgroundComplete() {
+        setColor(R.drawable.vertical_stepper_view_item_circle_completed);
     }
 
     public void setBackgroundInactive() {
@@ -91,4 +99,6 @@ public class VerticalStepperItemCircleView extends FrameLayout {
         icon.setVisibility(View.VISIBLE);
         icon.setImageResource(id);
     }
+
+
 }

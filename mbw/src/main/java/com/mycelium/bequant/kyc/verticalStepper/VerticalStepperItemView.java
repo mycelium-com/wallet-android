@@ -166,7 +166,7 @@ public class VerticalStepperItemView extends FrameLayout {
 
     private void setStateComplete() {
         setMarginBottom(false);
-        circle.setBackgroundActive();
+        circle.setBackgroundComplete();
 
         if (isEditable())
             circle.setIconEdit();

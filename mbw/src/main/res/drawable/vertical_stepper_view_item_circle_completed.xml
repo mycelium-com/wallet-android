@@ -6,7 +6,6 @@
     <size
             android:width="32dp"
             android:height="32dp" />
-
-    <solid android:color="@color/bequant_gray_6" />
+    <solid android:color="@color/bequant_green" />
 
 </shape>

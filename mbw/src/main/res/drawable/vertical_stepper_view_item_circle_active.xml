@@ -4,8 +4,8 @@
         android:shape="oval">
 
     <size
-            android:width="24dp"
-            android:height="24dp" />
-    <solid android:color="@android:color/black" />
+            android:width="32dp"
+            android:height="32dp" />
+    <solid android:color="@color/bequant_yellow" />
 
 </shape>
