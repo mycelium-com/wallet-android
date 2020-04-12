@@ -1,4 +1,4 @@
-package com.mycelium.bequant.kyc;
+package com.mycelium.bequant.kyc.otp;
 
 import android.text.Selection;
 import android.text.Spannable;

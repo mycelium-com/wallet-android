@@ -1,4 +1,4 @@
-package com.mycelium.bequant.kyc;
+package com.mycelium.bequant.kyc.otp;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
