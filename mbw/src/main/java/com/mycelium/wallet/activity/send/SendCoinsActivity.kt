@@ -304,6 +304,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 .show()
     }
 
+    fun showGasLimitInfo() {
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(R.string.gas_limit_info_title)
+                .setMessage(R.string.gas_limit_info_desc)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
+
     /**
      * Checks whether the last outgoing transaction that was sent recently (within 10 minutes)
      * has the same amount and receiving address to warn a user about possible duplicate sending.

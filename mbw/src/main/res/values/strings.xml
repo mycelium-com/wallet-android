@@ -105,7 +105,7 @@
     <string name="gas_used">Gas Used</string>
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
-    <string name="replace_transaction">Replace\ntransaction</string>
+    <string name="replace_transaction">Transaction to be replaced</string>
     <string name="gas_limit_error">Gas Limit must be at least 21000</string>
     <string name="input_data">Input Data</string>
     <string name="input_data_format">Input Data format</string>
@@ -1355,6 +1355,11 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
     <string name="send_mail">Send mail…</string>
     <string name="select_token">Select Token</string>
-    <string name="select_account">Select ETH Account to store your ERC-20 tokens</string>
+    <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
     <string name="create_new_account">Add new ETH Account</string>
+    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal Eth transfers, the value is 21,000. For contract this value is higher and bound by block gas limit.</string>
+    <string name="gas_limit_info_title">Gas Limit</string>
+    <string name="transaction_options">Transaction options</string>
+    <string name="transaction_gas_limit">Transaction Gas Limit</string>
+    <string name="transaction_input_data">Transaction Input Data</string>
 </resources>

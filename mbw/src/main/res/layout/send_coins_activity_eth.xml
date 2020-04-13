@@ -64,6 +64,12 @@
                         bind:activity="@{activity}"
                         bind:viewModel="@{viewModel}" />
 
+                    <!-- Advanced block -->
+                    <include
+                        layout="@layout/send_coins_advanced_block"
+                        bind:activity="@{activity}"
+                        bind:viewModel="@{viewModel}" />
+
                     <!--Fee selector-->
                     <include
                         layout="@layout/send_coins_fee_block"
@@ -73,12 +79,6 @@
                 <!-- Amount Error -->
                 <include
                     layout="@layout/send_coins_insufficient"
-                    bind:viewModel="@{viewModel}" />
-
-                <!-- Advanced block -->
-                <include
-                    layout="@layout/send_coins_advanced_block"
-                    bind:activity="@{activity}"
                     bind:viewModel="@{viewModel}" />
 
                 <!--Update progress bar-->

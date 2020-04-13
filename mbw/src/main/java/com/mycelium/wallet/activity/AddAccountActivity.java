@@ -36,7 +36,6 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -54,6 +53,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
@@ -181,7 +181,7 @@ public class AddAccountActivity extends Activity {
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         arrayAdapter.add(getString(R.string.create_new_account));
         new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle(R.string.select_account)
+                .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null))
                 .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(getString(R.string.ok), (dialog, which) -> {

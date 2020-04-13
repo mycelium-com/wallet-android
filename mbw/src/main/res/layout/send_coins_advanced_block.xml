@@ -16,37 +16,27 @@
     </data>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:paddingEnd="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/tvAdvancedTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvAdvancedTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="@{_ -> viewModel.expandCollapseAdvancedBlock()}"
-                android:text="@string/advanced"
-                android:textSize="24sp" />
-
-            <ImageView
-                android:id="@+id/expand"
-                imageRotation="@{viewModel.isAdvancedBlockExpanded}"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="@{_ -> viewModel.expandCollapseAdvancedBlock()}"
-                android:padding="4dp"
-                android:src="@drawable/ic_expand_more_white_24dp" />
-        </LinearLayout>
+            android:checked="@={viewModel.isAdvancedBlockExpanded}"
+            android:text="@string/transaction_options"
+            bind:switchPadding="8dp" />
 
         <include
             layout="@layout/send_coins_advanced_eth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             bind:activity="@{activity}"
             bind:viewModel="@{viewModel}" />
     </LinearLayout>
