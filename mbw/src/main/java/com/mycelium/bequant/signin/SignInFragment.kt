@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.model.Auth
@@ -57,10 +58,10 @@ class SignInFragment : Fragment() {
                 SignRepository.repository.authorize(auth, {
                     loader.dismissAllowingStateLoss()
                     signListener?.invoke()
-                }, {
+                }, { error ->
                     loader.dismissAllowingStateLoss()
                     signListener?.invoke()
-//                ErrorHandler(requireContext()).handle()
+                    ErrorHandler(requireContext()).handle(error)
                 })
             }
         }

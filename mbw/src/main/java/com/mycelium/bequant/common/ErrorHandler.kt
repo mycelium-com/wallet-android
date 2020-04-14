@@ -5,10 +5,10 @@ import android.content.Context
 
 
 class ErrorHandler(val context: Context) {
-    fun handle() {
+    fun handle(error: String) {
         AlertDialog.Builder(context)
                 .setTitle("Error")
-                .setMessage("Error")
+                .setMessage(error)
                 .create()
                 .show()
     }

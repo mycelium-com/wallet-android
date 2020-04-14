@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.remote.SignRepository
@@ -71,10 +72,9 @@ class SignUpFragment : Fragment() {
                 SignRepository.repository.register(register, {
                     loader.dismissAllowingStateLoss()
                     registerListener?.invoke(register)
-                }, {
+                }, { error ->
                     loader.dismissAllowingStateLoss()
-                    registerListener?.invoke(register)
-//                    ErrorHandler(requireContext()).handle()
+                    ErrorHandler(requireContext()).handle(error)
                 })
             }
         }

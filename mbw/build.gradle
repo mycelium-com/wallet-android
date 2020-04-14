@@ -112,6 +112,7 @@ dependencies {
     implementation "com.github.tony19:logback-android-core:1.1.1-6"
     implementation "com.google.http-client:google-http-client-jackson2:$httpClientJacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonDatabindVersion"
     implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
