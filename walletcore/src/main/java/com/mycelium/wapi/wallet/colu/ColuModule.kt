@@ -2,7 +2,7 @@ package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.crypto.PublicKey
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.wapi.api.Wapi
@@ -11,7 +11,6 @@ import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.single.*
 import com.mycelium.wapi.wallet.colu.coins.*
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import java.text.DateFormat
@@ -24,7 +23,7 @@ class ColuModule(val networkParameters: NetworkParameters,
                  val backing: WalletBacking<ColuAccountContext>,
                  val listener: AccountListener,
                  metaDataStorage: IMetaDataStorage,
-                 private val singleAddressModule: BitcoinSingleAddressModule) : GenericModule(metaDataStorage), WalletModule {
+                 private val singleAddressModule: BitcoinSingleAddressModule) : WalletModule(metaDataStorage) {
 
     init {
         if (networkParameters.isProdnet) {
@@ -170,15 +169,15 @@ class ColuModule(val networkParameters: NetworkParameters,
         return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date())
     }
 
-    fun getColuAssets(address: Address): List<ColuMain> {
+    fun getColuAssets(address: BitcoinAddress): List<ColuMain> {
         return coluApi.getCoinTypes(address)
     }
 
-    fun hasColuAssets(address: Address): Boolean {
+    fun hasColuAssets(address: BitcoinAddress): Boolean {
         return getColuAssets(address).isNotEmpty()
     }
 
-    private fun coluMain(address: Address, coinType: ColuMain?): ColuMain? = if (coinType == null) {
+    private fun coluMain(address: BitcoinAddress, coinType: ColuMain?): ColuMain? = if (coinType == null) {
         val types = coluApi.getCoinTypes(address)
         if (types.isEmpty()) null
         else types[0]

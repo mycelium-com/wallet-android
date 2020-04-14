@@ -11,7 +11,7 @@ open class Value(
          * The type of this value
          */
         @JvmField
-        val type: GenericAssetInfo,
+        val type: AssetInfo,
         /**
          * The number of units of this monetary value.
          */
@@ -149,7 +149,7 @@ open class Value(
 
     override fun hashCode(): Int = this.value.toInt()
 
-    fun isOfType(otherType: GenericAssetInfo): Boolean = type == otherType
+    fun isOfType(otherType: AssetInfo): Boolean = type == otherType
 
     fun isOfType(otherValue: Value): Boolean = type == otherValue.type
 
@@ -164,20 +164,20 @@ open class Value(
 
     companion object {
         @JvmStatic
-        fun valueOf(type: GenericAssetInfo, units: Long): Value = Value(type, units.toBigInteger())
+        fun valueOf(type: AssetInfo, units: Long): Value = Value(type, units.toBigInteger())
         @JvmStatic
-        fun valueOf(type: GenericAssetInfo, units: BigInteger): Value = Value(type, units)
+        fun valueOf(type: AssetInfo, units: BigInteger): Value = Value(type, units)
 
-        fun valueOf(type: GenericAssetInfo, unitsStr: String): Value =
+        fun valueOf(type: AssetInfo, unitsStr: String): Value =
                 valueOf(type, BigInteger(unitsStr))
 
         @JvmStatic
-        fun zeroValue(type: GenericAssetInfo): Value = Value(type, 0.toBigInteger())
+        fun zeroValue(type: AssetInfo): Value = Value(type, 0.toBigInteger())
 
         /**
          * Convert an amount expressed in the way humans are used to into units.
          */
-        fun valueOf(type: GenericAssetInfo, coins: Int, cents: Int): Value {
+        fun valueOf(type: AssetInfo, coins: Int, cents: Int): Value {
             checkArgument(cents < 100)
             checkArgument(cents >= 0)
             checkArgument(coins >= 0)
@@ -194,7 +194,7 @@ open class Value(
          * range.
          */
         @JvmStatic
-        fun parse(type: GenericAssetInfo, str: String): Value = parse(type, BigDecimal(str))
+        fun parse(type: AssetInfo, str: String): Value = parse(type, BigDecimal(str))
 
         /**
          * Parses a [BigDecimal] amount expressed in the way humans are used to.
@@ -203,7 +203,7 @@ open class Value(
          * range.
          */
         @JvmStatic
-        fun parse(type: GenericAssetInfo, decimal: BigDecimal): Value =
+        fun parse(type: AssetInfo, decimal: BigDecimal): Value =
                 valueOf(type, decimal.movePointRight(type.unitExponent)
                         .setScale(0, RoundingMode.HALF_DOWN)
                         .toBigIntegerExact())

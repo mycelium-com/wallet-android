@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency
 
 import java.io.Serializable
 
-interface GenericAddress : Serializable {
+interface Address : Serializable {
     val coinType: CryptoCurrency
 
     // An address for the particular asset could have some subtypes.

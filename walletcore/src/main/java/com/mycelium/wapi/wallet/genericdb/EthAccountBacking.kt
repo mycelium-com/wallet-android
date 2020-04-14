@@ -3,9 +3,9 @@ package com.mycelium.wapi.wallet.genericdb
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.wallet.EthTransactionSummary
-import com.mycelium.wapi.wallet.GenericInputViewModel
-import com.mycelium.wapi.wallet.GenericOutputViewModel
-import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.InputViewModel
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
@@ -19,7 +19,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     private val queries = walletDB.accountBackingQueries
     private val contractCreationAddress = EthAddress(currency, "0x0000000000000000000000000000000000000000")
 
-    fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<GenericTransactionSummary> =
+    fun getTransactionSummaries(offset: Long, limit: Long, ownerAddress: String): List<TransactionSummary> =
             ethQueries.selectTransactionSummaries(uuid, limit, offset, mapper = { txid: String,
                                                                                   currency: CryptoCurrency,
                                                                                   blockNumber: Int,
@@ -39,7 +39,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
     /**
      * @param timestampParameter time in seconds
      */
-    fun getTransactionSummariesSince(timestampParameter: Long, ownerAddress: String): List<GenericTransactionSummary> =
+    fun getTransactionSummariesSince(timestampParameter: Long, ownerAddress: String): List<TransactionSummary> =
             ethQueries.selectTransactionSummariesSince(uuid, timestampParameter, mapper = { txid: String,
                                                                                             currency: CryptoCurrency,
                                                                                             blockNumber: Int,
@@ -56,7 +56,7 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                         timestamp, value, fee, confirmations, from, to, nonce, gasLimit, gasUsed)
             }).executeAsList()
 
-    fun getTransactionSummary(txidParameter: String, ownerAddress: String): GenericTransactionSummary? =
+    fun getTransactionSummary(txidParameter: String, ownerAddress: String): TransactionSummary? =
             ethQueries.selectTransactionSummaryById(uuid, txidParameter, mapper = { txid: String,
                                                                                     currency: CryptoCurrency,
                                                                                     blockNumber: Int,
@@ -132,12 +132,12 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
                                          gasLimit: BigInteger,
                                          gasUsed: BigInteger): EthTransactionSummary {
         val convertedValue = if (token != null) transformValueFromDb(token, value) else value
-        val inputs = listOf(GenericInputViewModel(EthAddress(currency, from), value, false))
+        val inputs = listOf(InputViewModel(EthAddress(currency, from), value, false))
         // "to" address may be empty if we have a contract funding transaction
         val outputs = if (to.isEmpty()) {
             listOf()
         } else {
-            listOf(GenericOutputViewModel(EthAddress(currency, to), convertedValue, false))
+            listOf(OutputViewModel(EthAddress(currency, to), convertedValue, false))
         }
         val destAddresses = listOf(if (to.isEmpty()) contractCreationAddress else EthAddress(currency, to))
         val transferred = if (from.equals(ownerAddress, true) && !to.equals(ownerAddress, true)) {

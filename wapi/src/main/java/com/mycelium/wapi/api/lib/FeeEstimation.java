@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.megiontechnologies.Bitcoins;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -50,7 +50,7 @@ public class FeeEstimation implements Serializable {
       Bitcoins bitcoins = feeForNBlocks.get(nBlocks);
 
       // check if we got a sane value, otherwise return a default value
-      if (bitcoins.getLongValue() >= Transaction.MAX_MINER_FEE_PER_KB){
+      if (bitcoins.getLongValue() >= BitcoinTransaction.MAX_MINER_FEE_PER_KB){
          return DEFAULT.getEstimation(nBlocks);
       } else {
          return bitcoins;

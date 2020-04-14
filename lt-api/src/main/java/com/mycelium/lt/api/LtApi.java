@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.api.model.*;
 import com.mycelium.lt.api.params.AdParameters;
 import com.mycelium.lt.api.params.BtcSellPriceParameters;
@@ -259,13 +259,13 @@ public interface LtApi {
    Example HTTP POST:
    curl  -k -X POST -H "Content-Type: application/json" https://node3.mycelium.com/lttestnet/getPublicTraderInfo?sessionId=1ecc892f-249f-4e3a-bde8-cb06bb3cf891&traderId=mivtBy3ahEJTekcjRvXR2WDe6BRUtFYUpD
     */
-   LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, Address traderIdentity);
+   LtResponse<PublicTraderInfo> getPublicTraderInfo(UUID sessionId, BitcoinAddress traderIdentity);
 
    /*
     Get the last change timestamp for a trader identity without authentication
     or session id
     */
-   LtResponse<Long> getLastTradeSessionChange(Address traderIdentity);
+   LtResponse<Long> getLastTradeSessionChange(BitcoinAddress traderIdentity);
 
    /*
    Example HTTP POST:
@@ -283,7 +283,7 @@ public interface LtApi {
    Example HTTP POST:
    curl  -k -X POST -H "Content-Type: application/json" https://node3.mycelium.com/lttestnet/waitForTraderChange?traderId=mispsmBU3CWL1uVAb12NvyEzwiTYfQyy3f&token=d68a13cc-0f63-43d8-a152-e196778e8026&timestamp=0
     */
-   LtResponse<Long> waitForTraderChange(Address traderId, UUID token, long traderTimestamp);
+   LtResponse<Long> waitForTraderChange(BitcoinAddress traderId, UUID token, long traderTimestamp);
 
    /*
    Example HTTP POST:

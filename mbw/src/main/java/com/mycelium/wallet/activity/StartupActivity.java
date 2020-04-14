@@ -80,7 +80,7 @@ import com.mycelium.wallet.content.actions.HdNodeAction;
 import com.mycelium.wallet.content.actions.PrivateKeyAction;
 import com.mycelium.wallet.event.AccountCreated;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.PrivateKeyUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.AesKeyCipher;
@@ -510,7 +510,7 @@ public class StartupActivity extends Activity implements AccountCreatorHelper.Ac
    private void handleUri(Uri intentUri) {
       // We have been launched by a Bitcoin URI
       MbwManager mbwManager = MbwManager.getInstance(getApplication());
-      GenericAssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
+      AssetUri uri = mbwManager.getContentResolver().resolveUri(intentUri.toString());
       if (uri == null) {
          // Invalid Bitcoin URI
          Toast.makeText(this, R.string.invalid_bitcoin_uri, Toast.LENGTH_LONG).show();

@@ -1,10 +1,10 @@
 package com.mycelium.wapi.wallet.coins;
 
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 
 import java.io.Serializable;
 
-public interface GenericAssetInfo extends Serializable {
+public interface AssetInfo extends Serializable {
     String getId();
     String getName();
     String getSymbol();
@@ -22,5 +22,5 @@ public interface GenericAssetInfo extends Serializable {
 
     boolean isMineAddress(String address);
 
-    GenericAddress parseAddress(String address);
+    Address parseAddress(String address);
 }

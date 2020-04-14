@@ -1,7 +1,7 @@
 package com.mycelium.wapi.wallet.bch.coins
 
-import com.mrd.bitlib.model.Address
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mrd.bitlib.model.BitcoinAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
@@ -17,8 +17,8 @@ abstract class BchCoin: CryptoCurrency(){
         return "Bitcoin Cash"
     }
 
-    override fun parseAddress(addressString: String?): GenericAddress {
-        val address = Address.fromString(addressString)
+    override fun parseAddress(addressString: String?): Address {
+        val address = BitcoinAddress.fromString(addressString)
         return BtcAddress(if (address.network.isProdnet) BitcoinMain.get() else BitcoinTest.get(), address)
     }
 }

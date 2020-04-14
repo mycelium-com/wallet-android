@@ -43,7 +43,7 @@ import com.mycelium.wallet.databinding.SendCoinsActivityBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityBtcBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityColuBinding
 import com.mycelium.wallet.databinding.SendCoinsActivityEthBinding
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.*
@@ -136,7 +136,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
     private fun chooseSpendingAccount(rawPaymentRequest: ByteArray?) {
         //we need the user to pick a spending account - the activity will then init sendmain correctly
-        val uri: GenericAssetUri = intent.getSerializableExtra(ASSET_URI) as GenericAssetUri?
+        val uri: AssetUri = intent.getSerializableExtra(ASSET_URI) as AssetUri?
                 ?: BitcoinUri.from(viewModel.getReceivingAddress().value, viewModel.getAmount().value,
                         viewModel.getTransactionLabel().value, null)
 
@@ -312,7 +312,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         // we could have used getTransactionsSince here instead of getTransactionSummaries
         // but for accounts with large number of transactions (>500) it would introduce quite delay
         // so we take last 25 transactions as a sort of heuristic
-        val summaries: List<GenericTransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
+        val summaries: List<TransactionSummary> = viewModel.getAccount().getTransactionSummaries(0, 25)
         if (summaries.isEmpty()) {
             return false // user has no transactions
         }
@@ -320,7 +320,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             return false // latest transaction is too old
         }
         // find latest outgoing transaction
-        var outgoingTx: GenericTransactionSummary? = null
+        var outgoingTx: TransactionSummary? = null
         for (summary in summaries) {
             if (!summary.isIncoming) {
                 outgoingTx = summary
@@ -404,7 +404,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
 
         @JvmStatic
         fun getIntent(currentActivity: Activity, account: UUID,
-                      amountToSend: Long, receivingAddress: GenericAddress, isColdStorage: Boolean): Intent {
+                      amountToSend: Long, receivingAddress: Address, isColdStorage: Boolean): Intent {
             return getIntent(currentActivity, account, isColdStorage)
                     .putExtra(AMOUNT, Value.valueOf(
                             Utils.getBtcCoinType(),
@@ -420,7 +420,7 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         }
 
         @JvmStatic
-        fun getIntent(currentActivity: Activity, account: UUID, uri: GenericAssetUri, isColdStorage: Boolean): Intent {
+        fun getIntent(currentActivity: Activity, account: UUID, uri: AssetUri, isColdStorage: Boolean): Intent {
             return getIntent(currentActivity, account, isColdStorage)
                     .putExtra(AMOUNT, uri.value)
                     .putExtra(RECEIVING_ADDRESS, uri.address)
@@ -500,7 +500,7 @@ fun getSelectedItem(spinner: Spinner): SpinnerItem {
 
 interface SpinnerItem
 
-class TransactionItem(val tx: GenericTransactionSummary, private val dateString: String,
+class TransactionItem(val tx: TransactionSummary, private val dateString: String,
                       private val amountString: String) : SpinnerItem {
     override fun toString(): String {
         val idHex = HexUtils.toHex(tx.id)

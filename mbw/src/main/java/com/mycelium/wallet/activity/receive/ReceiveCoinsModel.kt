@@ -15,12 +15,11 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AccountDisplayType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.ERC20Account
-import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account
 import com.squareup.otto.Subscribe
 
@@ -35,7 +34,7 @@ class ReceiveCoinsModel(
     val nfc: NfcAdapter? = NfcAdapter.getDefaultAdapter(context)
     val receivingAmount: MutableLiveData<Value?> = MutableLiveData()
     val receivingAmountWrong: MutableLiveData<Boolean> = MutableLiveData()
-    val receivingAddress: MutableLiveData<GenericAddress> = MutableLiveData()
+    val receivingAddress: MutableLiveData<Address> = MutableLiveData()
 
     private var syncErrors = 0
     private val mbwManager = MbwManager.getInstance(context)
@@ -160,7 +159,7 @@ class ReceiveCoinsModel(
         lastAddressBalance = sum
     }
 
-    private fun getTransactionsToCurrentAddress(transactionsSince: List<GenericTransactionSummary>) =
+    private fun getTransactionsToCurrentAddress(transactionsSince: List<TransactionSummary>) =
             transactionsSince.filter { tx -> tx.outputs.any {it.address == receivingAddress.value} }
 
     companion object {

@@ -28,15 +28,15 @@ import com.mycelium.wallet.content.ResultType
 import com.mycelium.wallet.event.SyncFailed
 import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
-import com.mycelium.wapi.content.GenericAssetUri
-import com.mycelium.wapi.content.GenericAssetUriParser
+import com.mycelium.wapi.content.AssetUri
+import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.content.colu.mss.MSSUri
 import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -214,7 +214,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             // Raw format
             val address = getAccount().coinType.parseAddress(string)
             if (address != null) {
-                GenericAssetUriParser.createUriByCoinType(model.account.coinType, address, null, null, null)
+                AssetUriParser.createUriByCoinType(model.account.coinType, address, null, null, null)
             } else {
                 null
             }
@@ -228,7 +228,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         }
     }
 
-    private fun isUriMatchAccountCoinType(uri: GenericAssetUri, coinType: CryptoCurrency): Boolean {
+    private fun isUriMatchAccountCoinType(uri: AssetUri, coinType: CryptoCurrency): Boolean {
         return when (uri) {
             is BitcoinUri -> coinType == Utils.getBtcCoinType()
             is MTUri -> coinType == Utils.getMtCoinType()
@@ -268,10 +268,10 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             handleAddressBookResults(data)
         } else if (requestCode == SendCoinsActivity.MANUAL_ENTRY_RESULT_CODE && resultCode == Activity.RESULT_OK) {
             model.receivingAddress.value =
-                    data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as GenericAddress
+                    data!!.getSerializableExtra(ManualAddressEntry.ADDRESS_RESULT_NAME) as Address
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
-                    (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as GenericTransaction
+                    (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction
             activityResultDialog = BroadcastDialog.create(model.account, model.isColdStorage, model.signedTransaction!!)
         } else if (requestCode == SendCoinsActivity.REQUEST_PAYMENT_HANDLER) {
             if (resultCode == Activity.RESULT_OK) {
@@ -330,7 +330,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         }
     }
 
-    protected open fun processAssetUri(uri: GenericAssetUri) {
+    protected open fun processAssetUri(uri: AssetUri) {
         model.receivingAddress.value = uri.address
         model.transactionLabel.value = uri.label
         if (uri.value?.isPositive() == true) {
@@ -344,7 +344,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     private fun handleAddressBookResults(data: Intent?) {
         // Get result from address chooser
-        val address = data?.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME) as GenericAddress?
+        val address = data?.getSerializableExtra(AddressBookFragment.ADDRESS_RESULT_NAME) as Address?
                 ?: return
         model.receivingAddress.value = address
         if (data?.extras!!.containsKey(AddressBookFragment.ADDRESS_RESULT_LABEL)) {
@@ -363,7 +363,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
         activity.startActivityForResult(intent, SendCoinsActivity.REQUEST_PAYMENT_HANDLER)
     }
 
-    fun verifyPaymentRequest(uri: GenericAssetUri, activity: Activity) {
+    fun verifyPaymentRequest(uri: AssetUri, activity: Activity) {
         val intent = VerifyPaymentRequestActivity.getIntent(activity, uri)
         activity.startActivityForResult(intent, SendCoinsActivity.REQUEST_PAYMENT_HANDLER)
     }

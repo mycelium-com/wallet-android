@@ -45,7 +45,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.Bip39;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.MbwManager;
@@ -197,9 +197,9 @@ public class VerifyBackupActivity extends Activity {
    private void verify(InMemoryPrivateKey pk) {
       UUID account = null;
       boolean success = false;
-      Collection<Address> allAddresses = null;
+      Collection<BitcoinAddress> allAddresses = null;
       WalletManager walletManager = _mbwManager.getWalletManager(false);
-      for (Address currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+      for (BitcoinAddress currentAddress : pk.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
          // Figure out the account ID
          account = SingleAddressAccount.calculateId(currentAddress);
          // Check whether regular wallet contains that account
@@ -223,7 +223,7 @@ public class VerifyBackupActivity extends Activity {
          }
          updateUi();
          List<String> addressList = new ArrayList<>();
-         for (Address address : allAddresses){
+         for (BitcoinAddress address : allAddresses){
               addressList.add(address.toMultiLineString());
           }
          String label = _mbwManager.getMetadataStorage().getLabelByAccount(account);

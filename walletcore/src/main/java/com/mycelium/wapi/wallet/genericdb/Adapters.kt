@@ -26,12 +26,12 @@ object Adapters {
         override fun encode(value: CryptoCurrency): String = value.id
     }
 
-    val assetAdapter = object : ColumnAdapter<GenericAssetInfo, String> {
+    val assetAdapter = object : ColumnAdapter<AssetInfo, String> {
         override fun decode(databaseValue: String): CryptoCurrency =
                 databaseValue.let(COINS::get)
                         ?: throw IllegalArgumentException("Unknown currency type $databaseValue")
 
-        override fun encode(value: GenericAssetInfo): String = value.id
+        override fun encode(value: AssetInfo): String = value.id
     }
 
     val balanceAdapter = object : ColumnAdapter<Balance, String> {

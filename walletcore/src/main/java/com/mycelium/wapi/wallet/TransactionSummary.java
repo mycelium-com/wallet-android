@@ -2,27 +2,24 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.util.HexUtils;
-import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
-public class GenericTransactionSummary implements Serializable {
-
+public class TransactionSummary implements Serializable {
     protected CryptoCurrency type;
     protected byte[] id;
     protected byte[] hash;
     protected Value transferred;
     protected long timestamp;
-    protected List<GenericInputViewModel> inputs;
-    protected List<GenericOutputViewModel> outputs;
-    protected List<GenericAddress> destinationAddresses;
+    protected List<InputViewModel> inputs;
+    protected List<OutputViewModel> outputs;
+    protected List<Address> destinationAddresses;
     protected int height;
     protected int confirmations;
     protected int rawSize;
@@ -31,19 +28,18 @@ public class GenericTransactionSummary implements Serializable {
     @Nullable
     protected Value fee;
 
-
-    public GenericTransactionSummary(CryptoCurrency type,
-                                     byte[] id, byte[] hash,
-                                     Value transferred,
-                                     long timestamp,
-                                     int height,
-                                     int confirmations,
-                                     boolean isQueuedOutgoing,
-                                     List<GenericInputViewModel> inputs,
-                                     List<GenericOutputViewModel> outputs,
-                                     List<GenericAddress> destinationAddresses,
-                                     ConfirmationRiskProfileLocal risk,
-                                     int rawSize, @Nullable Value fee) {
+    public TransactionSummary(CryptoCurrency type,
+                              byte[] id, byte[] hash,
+                              Value transferred,
+                              long timestamp,
+                              int height,
+                              int confirmations,
+                              boolean isQueuedOutgoing,
+                              List<InputViewModel> inputs,
+                              List<OutputViewModel> outputs,
+                              List<Address> destinationAddresses,
+                              ConfirmationRiskProfileLocal risk,
+                              int rawSize, @Nullable Value fee) {
         this.type = type;
         this.id = id;
         this.hash = hash;
@@ -64,7 +60,7 @@ public class GenericTransactionSummary implements Serializable {
         return isQueuedOutgoing;
     }
 
-    public GenericAssetInfo getType() {
+    public AssetInfo getType() {
         return type;
     }
 
@@ -89,15 +85,15 @@ public class GenericTransactionSummary implements Serializable {
         return fee;
     }
 
-    public List<GenericInputViewModel> getInputs() {
+    public List<InputViewModel> getInputs() {
         return inputs;
     }
 
-    public List<GenericOutputViewModel> getOutputs() {
+    public List<OutputViewModel> getOutputs() {
         return outputs;
     }
 
-    public List<GenericAddress> getDestinationAddresses() {
+    public List<Address> getDestinationAddresses() {
         return destinationAddresses;
     }
 
@@ -129,7 +125,7 @@ public class GenericTransactionSummary implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GenericTransactionSummary other = (GenericTransactionSummary) o;
+        TransactionSummary other = (TransactionSummary) o;
         return getId().equals(other.getId());
     }
 

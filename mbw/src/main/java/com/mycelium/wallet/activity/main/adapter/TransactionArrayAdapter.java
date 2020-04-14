@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.mrd.bitlib.model.Address;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.send.SendCoinsActivity;
@@ -21,9 +20,9 @@ import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.TransactionSummary;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 import java.text.DateFormat;
@@ -38,25 +37,25 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE;
 import static com.mycelium.wallet.external.changelly.bch.ExchangeFragment.BCH_EXCHANGE_TRANSACTIONS;
 
-public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSummary> {
+public class TransactionArrayAdapter extends ArrayAdapter<TransactionSummary> {
    private final MetadataStorage _storage;
    protected Context _context;
    private DateFormat _dateFormat;
    private MbwManager _mbwManager;
    private Fragment _containerFragment;
    private SharedPreferences transactionFiatValuePref;
-   private Map<GenericAddress, String> _addressBook;
+   private Map<Address, String> _addressBook;
    private boolean _alwaysShowAddress;
    private Set<String> exchangeTransactions;
 
-   public TransactionArrayAdapter(Context context, List<GenericTransactionSummary> transactions, Map<GenericAddress, String> addressBook) {
+   public TransactionArrayAdapter(Context context, List<TransactionSummary> transactions, Map<Address, String> addressBook) {
       this(context, transactions, null, addressBook, true);
    }
 
    public TransactionArrayAdapter(Context context,
-                                  List<GenericTransactionSummary> transactions,
+                                  List<TransactionSummary> transactions,
                                   Fragment containerFragment,
-                                  Map<GenericAddress, String> addressBook,
+                                  Map<Address, String> addressBook,
                                   boolean alwaysShowAddress) {
       super(context, R.layout.transaction_row, transactions);
       _context = context;
@@ -89,7 +88,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
          return rowView;
       }
 
-      final GenericTransactionSummary record = getItem(position);
+      final TransactionSummary record = getItem(position);
 
       // Determine Color
       int color;
@@ -112,7 +111,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
 
       // Set alternative value
       TextView tvFiat = rowView.findViewById(R.id.tvFiatAmount);
-      GenericAssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher()
+      AssetInfo alternativeCurrency = _mbwManager.getCurrencySwitcher()
               .getCurrentFiatCurrency(_mbwManager.getSelectedAccount().getCoinType());
 
       if (alternativeCurrency != null) {
@@ -146,7 +145,7 @@ public class TransactionArrayAdapter extends ArrayAdapter<GenericTransactionSumm
          // As we have a current limitation to send only to one recepient, we consider that
          // record.destinationAddresses should always have size of 1
          // and thus take the first element from it.
-         GenericAddress destAddress = record.getDestinationAddresses().get(0);
+         Address destAddress = record.getDestinationAddresses().get(0);
          String destAddressStr = destAddress.toString();
          if (_addressBook.containsKey(destAddress)) {
             tvDestAddress.setText(AddressUtils.toShortString(destAddressStr));

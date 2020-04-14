@@ -43,7 +43,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.AccountChanged;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Bus;
 
@@ -58,7 +58,7 @@ public class EnterAddressLabelUtil {
         void OnTransactionLabelChanged(Sha256Hash txid, String label);
     }
 
-    public static void enterAddressLabel(Context context, MetadataStorage storage, GenericAddress address,
+    public static void enterAddressLabel(Context context, MetadataStorage storage, Address address,
                                          String defaultName, AddressLabelChangedHandler changeHandler) {
         String hintText = context.getResources().getString(R.string.name);
         String currentName = storage.getLabelByAddress(address);
@@ -76,11 +76,11 @@ public class EnterAddressLabelUtil {
 
     private static class EnterAddressLabelHandler extends EnterTextDialog.EnterTextHandler {
         private MetadataStorage _storage;
-        private GenericAddress _address;
+        private Address _address;
         private String _invalidOkToastMessage;
         private AddressLabelChangedHandler _changeHandler;
 
-        EnterAddressLabelHandler(MetadataStorage storage, GenericAddress address, String invalidOkToastMessage,
+        EnterAddressLabelHandler(MetadataStorage storage, Address address, String invalidOkToastMessage,
                                  AddressLabelChangedHandler changeHandler) {
             _storage = storage;
             _address = address;

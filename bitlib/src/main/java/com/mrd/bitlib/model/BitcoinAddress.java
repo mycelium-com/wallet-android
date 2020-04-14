@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-public class Address implements Serializable, Comparable<Address> {
+public class BitcoinAddress implements Serializable, Comparable<BitcoinAddress> {
    private static final long serialVersionUID = 1L;
    public static final int NUM_ADDRESS_BYTES = 21;
 
@@ -35,8 +35,8 @@ public class Address implements Serializable, Comparable<Address> {
    private Sha256Hash scriptHash;
    private HdKeyPath bip32Path;
 
-   public static Address fromString(String address, NetworkParameters network) {
-      Address addr = Address.fromString(address);
+   public static BitcoinAddress fromString(String address, NetworkParameters network) {
+      BitcoinAddress addr = BitcoinAddress.fromString(address);
       if (addr == null) {
          return null;
       }
@@ -51,7 +51,7 @@ public class Address implements Serializable, Comparable<Address> {
     * @return an Address if address could be decoded with valid checksum and length of 21 bytes
     *         null else
     */
-   public static Address fromString(String address) {
+   public static BitcoinAddress fromString(String address) {
       if (address == null) {
          return null;
       }
@@ -68,27 +68,27 @@ public class Address implements Serializable, Comparable<Address> {
       if (bytes == null || bytes.length != NUM_ADDRESS_BYTES) {
          return null;
       }
-      return new Address(bytes);
+      return new BitcoinAddress(bytes);
    }
 
-   public static Address fromP2SHBytes(byte[] bytes, NetworkParameters network) {
+   public static BitcoinAddress fromP2SHBytes(byte[] bytes, NetworkParameters network) {
       if (bytes.length != 20) {
          return null;
       }
       byte[] all = new byte[NUM_ADDRESS_BYTES];
       all[0] = (byte) (network.getMultisigAddressHeader() & 0xFF);
       System.arraycopy(bytes, 0, all, 1, 20);
-      return new Address(all);
+      return new BitcoinAddress(all);
    }
 
-   public static Address fromStandardBytes(byte[] bytes, NetworkParameters network) {
+   public static BitcoinAddress fromStandardBytes(byte[] bytes, NetworkParameters network) {
       if (bytes.length != 20) {
          return null;
       }
       byte[] all = new byte[NUM_ADDRESS_BYTES];
       all[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
       System.arraycopy(bytes, 0, all, 1, 20);
-      return new Address(all);
+      return new BitcoinAddress(all);
    }
 
    /**
@@ -98,7 +98,7 @@ public class Address implements Serializable, Comparable<Address> {
     *
     * @param bytes containing the full address representation 1 + 20 bytes.
     */
-   public Address(byte[] bytes) {
+   public BitcoinAddress(byte[] bytes) {
       _bytes = bytes;
       _address = null;
    }
@@ -114,7 +114,7 @@ public class Address implements Serializable, Comparable<Address> {
     * @param bytes         containing the full address representation 1 + 20 bytes.
     * @param stringAddress the string representation of a Bitcoin address
     */
-   public Address(byte[] bytes, String stringAddress) {
+   public BitcoinAddress(byte[] bytes, String stringAddress) {
       _bytes = bytes;
       _address = stringAddress;
    }
@@ -199,19 +199,19 @@ public class Address implements Serializable, Comparable<Address> {
       if (obj == this) {
          return true;
       }
-      if (!(obj instanceof Address)) {
+      if (!(obj instanceof BitcoinAddress)) {
          return false;
       }
-      return BitUtils.areEqual(_bytes, ((Address) obj)._bytes);
+      return BitUtils.areEqual(_bytes, ((BitcoinAddress) obj)._bytes);
    }
 
-   public static Address getNullAddress(NetworkParameters network) {
+   public static BitcoinAddress getNullAddress(NetworkParameters network) {
       byte[] bytes = new byte[NUM_ADDRESS_BYTES];
       bytes[0] = (byte) (network.getStandardAddressHeader() & 0xFF);
-      return new Address(bytes);
+      return new BitcoinAddress(bytes);
    }
 
-   public static Address getNullAddress(NetworkParameters network, AddressType addressType) {
+   public static BitcoinAddress getNullAddress(NetworkParameters network, AddressType addressType) {
       byte[] bytes = new byte[NUM_ADDRESS_BYTES];
 
       if (addressType == null) {
@@ -234,11 +234,11 @@ public class Address implements Serializable, Comparable<Address> {
             break;
       }
 
-      return new Address(bytes);
+      return new BitcoinAddress(bytes);
    }
 
    @Override
-   public int compareTo(@NotNull Address other) {
+   public int compareTo(@NotNull BitcoinAddress other) {
       // We sort on the actual address bytes.
       // We wish to achieve consistent sorting, the exact order is not
       // important.

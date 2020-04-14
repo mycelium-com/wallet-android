@@ -17,7 +17,7 @@ import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wapi.wallet.coins.Value
 
-open class GenericDetailsFragment : Fragment() {
+open class DetailsFragment : Fragment() {
     protected var mbwManager: MbwManager? = null
     protected var whiteColor = 0
 

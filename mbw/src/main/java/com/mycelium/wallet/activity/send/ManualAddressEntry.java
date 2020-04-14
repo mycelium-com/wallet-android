@@ -48,14 +48,14 @@ import android.widget.TextView;
 
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 public class ManualAddressEntry extends Activity {
 
    public static final String ADDRESS_RESULT_NAME = "address";
-   private GenericAddress _address;
+   private Address _address;
    private String _entered;
    private MbwManager _mbwManager;
 

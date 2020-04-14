@@ -66,15 +66,15 @@ import com.mycelium.wallet.activity.util.ExchangeValueKt;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.FeePerKbFee;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException;
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException;
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException;
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.squareup.otto.Subscribe;
 
@@ -114,14 +114,14 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    private Value _amount;
    private MbwManager _mbwManager;
    private Value _maxSpendableAmount;
-   private GenericAddress destinationAddress;
+   private Address destinationAddress;
    private Value _kbMinerFee;
-   private GenericAssetInfo mainCurrencyType;
+   private AssetInfo mainCurrencyType;
    /**
     * Get Amount for spending
     */
    public static void callMeToSend(Activity currentActivity, int requestCode, UUID account, Value amountToSend, Value kbMinerFee,
-                                   boolean isColdStorage, GenericAddress destinationAddress)
+                                   boolean isColdStorage, Address destinationAddress)
    {
       Intent intent = new Intent(currentActivity, GetAmountActivity.class)
               .putExtra(ACCOUNT, account)
@@ -174,7 +174,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       checkEntry();
    }
 
-   private int getMaxDecimal(GenericAssetInfo assetInfo) {
+   private int getMaxDecimal(AssetInfo assetInfo) {
       if (!(assetInfo instanceof FiatType)) {
          return assetInfo.getUnitExponent() - _mbwManager.getDenomination(_account.getCoinType()).getScale();
       } else {
@@ -185,7 +185,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
    private void initSendMode() {
       // Calculate the maximum amount that can be spent where we send everything we got to another address
       _kbMinerFee = Preconditions.checkNotNull((Value) getIntent().getSerializableExtra(KB_MINER_FEE));
-      destinationAddress = (GenericAddress) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
+      destinationAddress = (Address) getIntent().getSerializableExtra(DESTINATION_ADDRESS);
 
       if (destinationAddress == null) {
          destinationAddress = _account.getDummyAddress();
@@ -222,7 +222,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
       // Init the number pad
       String amountString;
-      GenericAssetInfo asset;
+      AssetInfo asset;
       if (!Value.isNullOrZero(_amount)) {
          amountString = ValueExtensionsKt.toString(_amount, _mbwManager.getDenomination(_account.getCoinType()));
          asset = _amount.type;
@@ -263,11 +263,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
 
    @OnClick(R.id.btRight)
    void onSwitchCurrencyClick() {
-      final List<GenericAssetInfo> currencyList = getAvailableCurrencyList();
+      final List<AssetInfo> currencyList = getAvailableCurrencyList();
       if (currencyList.size() > 1) {
          PopupMenu currencyListMenu = new PopupMenu(this, btCurrency);
          List<String> cryptocurrencies = _mbwManager.getWalletManager(false).getCryptocurrenciesSymbols();
-         for (GenericAssetInfo asset : currencyList) {
+         for (AssetInfo asset : currencyList) {
             String itemTitle = asset.getSymbol();
             // we want to display cryptocurrency items as "Symbol (denomination if it differs from UNIT)", e.g. "BTC (bits)"
             Denomination denomination =_mbwManager.getDenomination(_account.getCoinType());
@@ -279,11 +279,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          currencyListMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-               for (GenericAssetInfo genericAssetInfo : currencyList) {
-                  if (menuItem.getItemId() == genericAssetInfo.hashCode()) {
-                     _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), genericAssetInfo);
+               for (AssetInfo AssetInfo : currencyList) {
+                  if (menuItem.getItemId() == AssetInfo.hashCode()) {
+                     _mbwManager.getCurrencySwitcher().setCurrency(_account.getCoinType(), AssetInfo);
                      if (_amount != null) {
-                        _amount = convert(_amount, genericAssetInfo);
+                        _amount = convert(_amount, AssetInfo);
                      }
                      updateUI();
                      return true;
@@ -296,9 +296,9 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       }
    }
 
-   private List<GenericAssetInfo> getAvailableCurrencyList() {
-      List<GenericAssetInfo> result = new ArrayList<>();
-      for (GenericAssetInfo asset : _mbwManager.getCurrencySwitcher().getCurrencyList(mainCurrencyType)) {
+   private List<AssetInfo> getAvailableCurrencyList() {
+      List<AssetInfo> result = new ArrayList<>();
+      for (AssetInfo asset : _mbwManager.getCurrencySwitcher().getCurrencyList(mainCurrencyType)) {
          if (convert(asset.oneCoin(), mainCurrencyType) != null) {
             result.add(asset);
          }
@@ -448,7 +448,7 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
          Value convertedAmount;
          if (mainCurrencyType.equals(_mbwManager.getCurrencySwitcher().getCurrentCurrency(_account.getCoinType()))) {
             // Show Fiat as alternate amount
-            GenericAssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
+            AssetInfo currency = _mbwManager.getFiatCurrency(_account.getCoinType());
             convertedAmount = convert(_amount, currency);
          } else {
             try {
@@ -499,11 +499,11 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
             }
             try {
                _account.createTx(_account.getDummyAddress(destinationAddress.getSubType()), value, new FeePerKbFee(_kbMinerFee), null);
-            } catch (GenericOutputTooSmallException e) {
+            } catch (OutputTooSmallException e) {
                return AmountValidation.ValueTooSmall;
-            } catch (GenericInsufficientFundsException e) {
+            } catch (InsufficientFundsException e) {
                return AmountValidation.NotEnoughFunds;
-            } catch (GenericBuildTransactionException e) {
+            } catch (BuildTransactionException e) {
                // under certain conditions the max-miner-fee check fails - report it back to the server, so we can better
                // debug it
                _mbwManager.reportIgnoredException("MinerFeeException", e);
@@ -578,9 +578,9 @@ public class GetAmountActivity extends AppCompatActivity implements NumberEntryL
       });
    }
 
-   private Value convert(Value value, GenericAssetInfo genericAssetInfo) {
+   private Value convert(Value value, AssetInfo AssetInfo) {
       return ExchangeValueKt.get(_mbwManager.getExchangeRateManager(),
-              _mbwManager.getWalletManager(false), value, genericAssetInfo);
+              _mbwManager.getWalletManager(false), value, AssetInfo);
    }
 
    @Subscribe

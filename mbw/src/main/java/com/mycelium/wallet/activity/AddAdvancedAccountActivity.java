@@ -58,7 +58,7 @@ import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.BipSss;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.InMemoryPrivateKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.BuildConfig;
@@ -78,7 +78,7 @@ import com.mycelium.wallet.extsig.trezor.activity.TrezorAccountImportActivity;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.BtcAddress;
@@ -195,7 +195,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    /**
     * SA watch only accounts import method.
     */
-   private void returnAccount(GenericAddress address) {
+   private void returnAccount(Address address) {
       // temporary solution: unrelated Ethereum accounts will be implemented later
       if (address.getCoinType() instanceof EthCoin) {
          new Toaster(this).toast("Exporting unrelated Ethereum accounts still to be implemented.", false);
@@ -386,8 +386,8 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       protected AddressCheckResult doInBackground(Void... params) {
          WalletManager walletManager = _mbwManager.getWalletManager(false);
          //Check whether this address is already used in any account
-         for (Address addr : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
-            GenericAddress checkedAddress = AddressUtils.fromAddress(addr);
+         for (BitcoinAddress addr : key.getPublicKey().getAllSupportedAddresses(_mbwManager.getNetwork()).values()) {
+            Address checkedAddress = AddressUtils.fromAddress(addr);
             List<WalletAccount<?>> accounts = walletManager.getAccountsBy(checkedAddress);
             if (!accounts.isEmpty()) {
                existingAccounts = accounts;
@@ -395,7 +395,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
             }
          }
 
-         Address coluAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH);
+         BitcoinAddress coluAddress = key.getPublicKey().toAddress(_mbwManager.getNetwork(), AddressType.P2PKH);
          ColuModule coluModule = (ColuModule)_mbwManager.getWalletManager(false).getModuleById(ColuModule.ID);
          coluAssets = coluModule.getColuAssets(coluAddress);
          return coluAssets.isEmpty() ? AddressCheckResult.NoColuAssets : AddressCheckResult.HasColuAssets;
@@ -525,12 +525,12 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
    }
 
    private class ImportReadOnlySingleAddressAccountAsyncTask extends AsyncTask<Void, Integer, AddressCheckResult> {
-      private GenericAddress address;
+      private Address address;
       private ProgressDialog dialog;
       private int selectedItem;
       private List<ColuMain> coluAssets;
 
-      ImportReadOnlySingleAddressAccountAsyncTask(GenericAddress address) {
+      ImportReadOnlySingleAddressAccountAsyncTask(Address address) {
          this.address = address;
       }
 
@@ -642,7 +642,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
               .show();
    }
 
-   private void finishAlreadyExist(GenericAddress address) {
+   private void finishAlreadyExist(Address address) {
       String accountType = getAccountType(address);
       Intent result = new Intent()
               .putExtra(AddAccountActivity.RESULT_MSG, getString(R.string.account_already_exist, accountType));
@@ -650,7 +650,7 @@ public class AddAdvancedAccountActivity extends FragmentActivity implements Impo
       finish();
    }
 
-   private String getAccountType(GenericAddress address) {
+   private String getAccountType(Address address) {
       UUID accountId = _mbwManager.getAccountId(address).get();
       WalletAccount account = _mbwManager.getWalletManager(false).getAccount(accountId);
       if (account instanceof HDAccount) {

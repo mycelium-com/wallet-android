@@ -3,7 +3,7 @@ package com.mycelium.wapi.wallet
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.generated.wallet.database.WalletDB
 import com.mycelium.wapi.api.Wapi
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.colu.coins.ColuMain
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.genericdb.FeeEstimationsBacking
@@ -79,14 +79,14 @@ constructor(val network: NetworkParameters,
 
     fun getModuleById(id: String) : WalletModule? = walletModules[id]
 
-    fun getAccountsBy(address: GenericAddress): List<WalletAccount<*>> =
+    fun getAccountsBy(address: Address): List<WalletAccount<*>> =
             accounts.values.filter { it.isMineAddress(address) }
 
     fun setIsNetworkConnected(connected: Boolean) {
         isNetworkConnected = connected
     }
 
-    fun hasPrivateKey(address: GenericAddress): Boolean =
+    fun hasPrivateKey(address: Address): Boolean =
             accounts.values.any { it.canSpend() && it.isMineAddress(address) }
 
     fun createAccounts(config: Config): List<UUID> {
@@ -152,7 +152,7 @@ constructor(val network: NetworkParameters,
      * @param address the address to query for
      * @return if any account in the wallet manager has the address
      */
-    fun isMyAddress(address: GenericAddress): Boolean = getAccountByAddress(address) != null
+    fun isMyAddress(address: Address): Boolean = getAccountByAddress(address) != null
 
     /**
      * Get the account associated with an address if any
@@ -161,7 +161,7 @@ constructor(val network: NetworkParameters,
      * @return the first account UUID if found.
      */
     @Synchronized
-    fun getAccountByAddress(address: GenericAddress): UUID? = accounts.values.firstOrNull {
+    fun getAccountByAddress(address: Address): UUID? = accounts.values.firstOrNull {
             it.isMineAddress(address)
         }?.id
 
@@ -194,13 +194,13 @@ constructor(val network: NetworkParameters,
 
     fun getAllActiveAccounts():  List<WalletAccount<*>> = accounts.values.filter { it.isActive }
 
-    fun getAcceptableAssetTypes(address: String): List<GenericAssetInfo> = walletModules.values
+    fun getAcceptableAssetTypes(address: String): List<AssetInfo> = walletModules.values
                 .flatMap { it.getSupportedAssets() }
                 .distinctBy { it.id }
                 .filter { it.isMineAddress(address)}
                 .toList()
 
-    fun getAssetTypes(): List<GenericAssetInfo> = accounts.values.map { it.coinType }.distinct()
+    fun getAssetTypes(): List<AssetInfo> = accounts.values.map { it.coinType }.distinct()
 
     fun getCryptocurrenciesSymbols(): List<String> = getAssetTypes()
             .filterNot { it is ColuMain }
@@ -210,11 +210,11 @@ constructor(val network: NetworkParameters,
             .filterNot { it is ColuMain || it is ERC20Token }
             .map { it.name }
 
-    fun parseAddress(address: String): List<GenericAddress> = walletModules.values
+    fun parseAddress(address: String): List<Address> = walletModules.values
                 .flatMap { it.getSupportedAssets() }
                 .distinctBy { it.id }
-                .mapNotNull { genericAssetInfo ->
-                    genericAssetInfo.parseAddress(address)
+                .mapNotNull { AssetInfo ->
+                    AssetInfo.parseAddress(address)
                 }
 
     /**

@@ -46,7 +46,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.util.TransactionConfirmationsDisplay;
 import com.mycelium.wallet.activity.util.TransactionDetailsLabel;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
@@ -61,7 +61,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
     protected static final LayoutParams FPWC = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
     protected static final LayoutParams WCWC = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1);
     private boolean coluMode = false;
-    private GenericTransactionSummary tx;
+    private TransactionSummary tx;
 
     /**
      * Called when the activity is first created.
@@ -76,7 +76,7 @@ public class TransactionDetailsActivity extends AppCompatActivity {
         WalletAccount account = MbwManager.getInstance(this.getApplication()).getSelectedAccount();
         tx = account.getTxSummary(txid);
         coluMode = account instanceof ColuAccount;
-        GenericDetailsFragment detailsFragment = (GenericDetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
+        DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.spec_details_fragment);
         if (detailsFragment == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             if (account instanceof EthAccount || account instanceof ERC20Account) {

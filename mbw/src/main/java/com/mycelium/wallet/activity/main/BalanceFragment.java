@@ -83,9 +83,9 @@ import com.mycelium.wallet.event.SelectedAccountChanged;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
 import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
@@ -93,7 +93,7 @@ import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.squareup.otto.Subscribe;
@@ -325,7 +325,7 @@ public class BalanceFragment extends Fragment {
         }
     }
 
-    private void updateUiKnownBalance(Balance balance, GenericAssetInfo coinType) {
+    private void updateUiKnownBalance(Balance balance, AssetInfo coinType) {
         CharSequence valueString = ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
         ((TextView) _root.findViewById(R.id.tvBalance)).setText(valueString);
 
@@ -401,13 +401,13 @@ public class BalanceFragment extends Fragment {
                                 StringHandlerActivity.SEND_INITIALIZATION_CODE);
                         break;
                     case ADDRESS:
-                        GenericAddress address = getAddress(data);
+                        Address address = getAddress(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(),
                                 _mbwManager.getSelectedAccount().getId(), 0, address, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;
                     case ASSET_URI: {
-                        GenericAssetUri uri = getAssetUri(data);
+                        AssetUri uri = getAssetUri(data);
                         startActivity(SendCoinsActivity.getIntent(getActivity(), _mbwManager.getSelectedAccount().getId(), uri, false)
                                 .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT));
                         break;

@@ -61,7 +61,7 @@ import com.mycelium.wallet.lt.LocalTraderEventSubscriber;
 import com.mycelium.wallet.lt.LocalTraderManager;
 import com.mycelium.wallet.lt.api.GetTraderInfo;
 import com.mycelium.wallet.lt.api.SetNotificationMail;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -882,9 +882,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private String localCurrencySummary() {
         if (mbwManager.hasFiatCurrency()) {
-            GenericAssetInfo currentCurrency = mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
+            AssetInfo currentCurrency = mbwManager.getCurrencySwitcher().getCurrentTotalCurrency();
             String currencies = currentCurrency.getSymbol();
-            List<GenericAssetInfo> currencyList = mbwManager.getCurrencyList();
+            List<AssetInfo> currencyList = mbwManager.getCurrencyList();
             currencyList.remove(currentCurrency);
             for (int i = 0; i < Math.min(currencyList.size(), 2); i++) {
                 //noinspection StringConcatenationInLoop

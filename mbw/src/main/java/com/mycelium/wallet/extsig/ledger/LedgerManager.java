@@ -44,7 +44,6 @@ import android.util.Log;
 
 import com.btchip.BTChipDongle;
 import com.btchip.BTChipException;
-import com.btchip.BitcoinTransaction;
 import com.btchip.comm.BTChipTransportFactory;
 import com.btchip.comm.BTChipTransportFactoryCallback;
 import com.btchip.comm.android.BTChipTransportAndroid;
@@ -61,14 +60,14 @@ import com.mrd.bitlib.UnsignedTransaction;
 import com.mrd.bitlib.crypto.BipDerivationType;
 import com.mrd.bitlib.crypto.HdKeyNode;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.model.OutPoint;
 import com.mrd.bitlib.model.ScriptOutput;
 import com.mrd.bitlib.model.ScriptOutputP2PKH;
 import com.mrd.bitlib.model.ScriptOutputP2SH;
 import com.mrd.bitlib.model.ScriptOutputP2WPKH;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.model.TransactionInput;
 import com.mrd.bitlib.model.TransactionOutput;
 import com.mrd.bitlib.model.TransactionOutput.TransactionOutputParsingException;
@@ -210,8 +209,8 @@ public class LedgerManager extends AbstractAccountScanManager implements
    }
 
    @Override
-   public Transaction getSignedTransaction(UnsignedTransaction unsigned,
-                                           HDAccountExternalSignature forAccount) {
+   public BitcoinTransaction getSignedTransaction(UnsignedTransaction unsigned,
+                                                  HDAccountExternalSignature forAccount) {
       try {
          return signInternal(unsigned, forAccount);
       } catch (Exception e) {
@@ -230,7 +229,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       tx2FaEntry.offer(tx2FaPin);
    }
 
-   private Transaction signInternal(final UnsignedTransaction unsigned, final HDAccountExternalSignature forAccount)
+   private BitcoinTransaction signInternal(final UnsignedTransaction unsigned, final HDAccountExternalSignature forAccount)
            throws BTChipException, TransactionOutputParsingException {
       if (!initialize()) {
          postErrorMessage("Failed to connect to Ledger device");
@@ -266,7 +265,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       LegacyParams legacyParams = new LegacyParams(unsigned, forAccount);
 
       // Prepare for creating inputs
-      Transaction unsignedTx = Transaction.fromUnsignedTransaction(unsigned);
+      BitcoinTransaction unsignedTx = BitcoinTransaction.fromUnsignedTransaction(unsigned);
       int inputsNumber = unsignedTx.inputs.length;
       BTChipDongle.BTChipInput[] inputs = new BTChipDongle.BTChipInput[inputsNumber];
 
@@ -293,9 +292,9 @@ public class LedgerManager extends AbstractAccountScanManager implements
             inputs[i] = dongle.createInput(inputBuf.toByteArray(), currentInput.sequence,false, true);
          } else {
             TransactionInput currentInput = unsignedTx.inputs[i];
-            Transaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransaction(currentInput.outPoint.txid));
+            BitcoinTransaction currentTransaction = TransactionEx.toTransaction(forAccount.getTransaction(currentInput.outPoint.txid));
             ByteArrayInputStream bis = new ByteArrayInputStream(currentTransaction.toBytes());
-            inputs[i] = dongle.getTrustedInput(new BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
+            inputs[i] = dongle.getTrustedInput(new com.btchip.BitcoinTransaction(bis), currentInput.outPoint.index, currentInput.sequence);
          }
       }
 
@@ -404,7 +403,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
       if (derivationType == null) {
          throw new IllegalArgumentException("Can't sign one of the inputs");
       }
-      Address toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
+      BitcoinAddress toSignWith = signingRequest.getPublicKey().toAddress(getNetwork(), derivationType.getAddressType());
       Optional<Integer[]> addressId = forAccount.getAddressId(toSignWith);
       String keyPath = String.format(commonPath + addressId.get()[0] + "/" + addressId.get()[1],
               ((Byte) derivationType.getPurpose()).toString());
@@ -526,7 +525,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private String getChangePath(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount, String commonPath) {
       String changePath = "";
       for (TransactionOutput o : unsigned.getOutputs()) {
-         Address toAddress = o.script.getAddress(getNetwork());
+         BitcoinAddress toAddress = o.script.getAddress(getNetwork());
          String purpose = ((Byte) BipDerivationType.Companion.getDerivationTypeByAddress(toAddress).getPurpose()).toString();
          Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
          if (addressId.isPresent() && addressId.get()[0] == 1) {
@@ -539,7 +538,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private String getOutputAddressString(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
       String outputAddress = null;
       for (TransactionOutput output : unsigned.getOutputs()) {
-         Address toAddress = output.script.getAddress(getNetwork());
+         BitcoinAddress toAddress = output.script.getAddress(getNetwork());
          Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
          if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
             // this output goes to a foreign address (addressId[0]==1 means its internal change)
@@ -559,7 +558,7 @@ public class LedgerManager extends AbstractAccountScanManager implements
    private long calculateTotalSending(UnsignedTransaction unsigned, HDAccountExternalSignature forAccount) {
       long totalSending = 0;
       for (TransactionOutput output : unsigned.getOutputs()) {
-         Address toAddress = output.script.getAddress(getNetwork());
+         BitcoinAddress toAddress = output.script.getAddress(getNetwork());
          Optional<Integer[]> addressId = forAccount.getAddressId(toAddress);
          if (!(addressId.isPresent() && addressId.get()[0] == 1)) {
             // this output goes to a foreign address (addressId[0]==1 means its internal change)

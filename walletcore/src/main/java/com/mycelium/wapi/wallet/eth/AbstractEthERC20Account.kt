@@ -62,9 +62,9 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
         // TODO("not implemented")
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?) = false
+    override fun isSpendingUnconfirmed(tx: Transaction?) = false
 
-    override fun queueTransaction(transaction: GenericTransaction) {
+    override fun queueTransaction(transaction: Transaction) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -78,17 +78,17 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     override fun getDummyAddress(subType: String?): EthAddress = dummyAddress
 
-    override fun getDependentAccounts() = emptyList<WalletAccount<GenericAddress>>()
+    override fun getDependentAccounts() = emptyList<WalletAccount<Address>>()
 
-    override fun isMineAddress(address: GenericAddress?) = address == receivingAddress
+    override fun isMineAddress(address: Address?) = address == receivingAddress
 
     override fun isExchangeable() = true
 
-    override fun getTx(transactionId: ByteArray?): GenericTransaction {
+    override fun getTx(transactionId: ByteArray?): Transaction {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getTxSummary(transactionId: ByteArray?): GenericTransactionSummary =
+    override fun getTxSummary(transactionId: ByteArray?): TransactionSummary =
             backing.getTransactionSummary("0x" + HexUtils.toHex(transactionId), receivingAddress.addressString)!!
 
     override fun getTransactionSummaries(offset: Int, limit: Int) =
@@ -97,7 +97,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     override fun getTransactionsSince(receivingSince: Long) =
             backing.getTransactionSummariesSince(receivingSince / 1000, receivingAddress.addressString)
 
-    override fun getUnspentOutputViewModels(): MutableList<GenericOutputViewModel> {
+    override fun getUnspentOutputViewModels(): MutableList<OutputViewModel> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

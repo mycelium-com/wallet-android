@@ -60,8 +60,8 @@ public class ScriptOutputP2SH extends ScriptOutput implements Serializable {
    }
 
    @Override
-   public Address getAddress(NetworkParameters network) {
+   public BitcoinAddress getAddress(NetworkParameters network) {
       byte[] addressBytes = getAddressBytes();
-      return Address.fromP2SHBytes(addressBytes, network);
+      return BitcoinAddress.fromP2SHBytes(addressBytes, network);
    }
 }

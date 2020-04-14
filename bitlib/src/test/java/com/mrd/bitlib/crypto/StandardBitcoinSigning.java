@@ -2,7 +2,7 @@ package com.mrd.bitlib.crypto;
 
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Point;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import org.junit.Assert;
@@ -16,11 +16,11 @@ import static org.junit.Assert.fail;
 
 public class StandardBitcoinSigning {
    private static InMemoryPrivateKey privKey;
-   private static Address address;
+   private static BitcoinAddress address;
 
    @BeforeClass
    public static void createFixtures() {
-      address = Address.fromString("16F9yVJYb267n8rq5sDCU2xmDpxNajUfLV");
+      address = BitcoinAddress.fromString("16F9yVJYb267n8rq5sDCU2xmDpxNajUfLV");
       NetworkParameters network = NetworkParameters.productionNetwork;
       privKey = new InMemoryPrivateKey("KxrnQTQKTZv2y75BUUVFPrFFjWyjaEy8hqYXEkvdMMfgrGoo6XHB", network);
       Assert.assertEquals(network, address.getNetwork());

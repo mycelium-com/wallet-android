@@ -10,7 +10,7 @@ import androidx.appcompat.widget.PopupMenu;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.event.SelectedCurrencyChanged;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ public class TotalToggleableCurrencyButton extends ToggleableCurrencyDisplay {
     @Override
     protected void updateUi() {
         super.updateUi();
-        final List<GenericAssetInfo> currencies = getCurrencySwitcher().getCurrencyList();
+        final List<AssetInfo> currencies = getCurrencySwitcher().getCurrencyList();
         // there are more than one fiat-currency
         // there is only one currency to show - don't show a triangle hinting that the user can toggle
         findViewById(R.id.ivSwitchable).setVisibility(currencies.size() > 1 ? VISIBLE : INVISIBLE);
@@ -42,7 +42,7 @@ public class TotalToggleableCurrencyButton extends ToggleableCurrencyDisplay {
         linearLayout.setOnClickListener(v -> menu.show());
 
         if (currencies.size() > 0) {
-            final Map<MenuItem, GenericAssetInfo> itemMap = new HashMap<>();
+            final Map<MenuItem, AssetInfo> itemMap = new HashMap<>();
             for (int i = 0; i < currencies.size(); i++) {
                 String currency = currencies.get(i).getSymbol();
                 MenuItem item = menu.getMenu().add(currency);

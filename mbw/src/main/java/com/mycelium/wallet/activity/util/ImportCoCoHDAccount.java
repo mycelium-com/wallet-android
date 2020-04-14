@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.google.common.base.Optional;
 import com.mrd.bitlib.crypto.HdKeyNode;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.hdpath.HdKeyPath;
 import com.mycelium.wallet.MbwManager;
@@ -106,7 +106,7 @@ public class ImportCoCoHDAccount extends AsyncTask<Void, Integer, UUID> {
         int coloredLookAhead = 2;
         while (empty < coloredLookAhead) {
             HdKeyNode currentNode = hdKeyNode.createChildNode(HdKeyPath.valueOf(String.format(coCoDerivationPath, accountIndex, addressIndex)));
-            Address address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
+            BitcoinAddress address = currentNode.getPublicKey().toAddress(mbwManager.getNetwork(), AddressType.P2PKH);
             Optional<UUID> accountId;
             accountId = mbwManager.getAccountId(AddressUtils.fromAddress(address));
             if (accountId.isPresent()) {

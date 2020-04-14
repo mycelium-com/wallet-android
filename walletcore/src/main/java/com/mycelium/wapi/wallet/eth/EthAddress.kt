@@ -1,15 +1,15 @@
 package com.mycelium.wapi.wallet.eth
 
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
-import org.web3j.abi.datatypes.Address
+import org.web3j.abi.datatypes.Address as E3jAddress
 import java.io.IOException
 import java.io.ObjectInputStream
 
 
-class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : GenericAddress {
+class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Address {
     @Transient
-    var address = Address(addressString)
+    var address = E3jAddress(addressString)
     override val coinType = cryptoCurrency
 
     override fun getSubType() = "default"
@@ -27,7 +27,7 @@ class EthAddress(cryptoCurrency: CryptoCurrency, val addressString: String) : Ge
         //always perform the default de-serialization first
         inputStream.defaultReadObject()
 
-        address = Address(addressString)
+        address = E3jAddress(addressString)
     }
 
     override fun equals(other: Any?): Boolean {

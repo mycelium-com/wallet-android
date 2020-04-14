@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.mrd.bitlib.TransactionUtils;
 import com.mrd.bitlib.crypto.PublicKey;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 public class TradeSession implements Serializable {
    private static final long serialVersionUID = 1L;
@@ -50,21 +50,21 @@ public class TradeSession implements Serializable {
    @JsonProperty
    public final long satoshisForBuyer;
    @JsonProperty
-   public final Address buyerAddress;
+   public final BitcoinAddress buyerAddress;
    @JsonProperty
-   public final Address feeAddress;
+   public final BitcoinAddress feeAddress;
    @JsonProperty
    public final List<ChatEntry> chatEntries;
    @JsonProperty
    public final String ownerName;
    @JsonProperty
-   public final Address ownerId;
+   public final BitcoinAddress ownerId;
    @JsonProperty
    public final PublicKey ownerPublicKey;
    @JsonProperty
    public final String peerName;
    @JsonProperty
-   public final Address peerId;
+   public final BitcoinAddress peerId;
    @JsonProperty
    public final PublicKey peerPublicKey;
    @JsonProperty
@@ -95,24 +95,24 @@ public class TradeSession implements Serializable {
    public final GpsLocation location;
 
    public TradeSession(@JsonProperty("id") UUID id, @JsonProperty("creationTime") long creationTime,
-         @JsonProperty("lastChange") long lastChange, @JsonProperty("priceFormula") PriceFormula priceFormula,
-         @JsonProperty("premium") double premium, @JsonProperty("currency") String currency,
-         @JsonProperty("fiatTraded") int fiatTraded, @JsonProperty("satoshisAtMarketPrice") long satoshisAtMarketPrice,
-         @JsonProperty("satoshisFromSeller") long satoshisFromSeller,
-         @JsonProperty("satoshisForBuyer") long satoshisForBuyer, @JsonProperty("buyerAddress") Address buyerAddress,
-         @JsonProperty("feeAddress") Address feeAddress, @JsonProperty("chatEntries") List<ChatEntry> chatEntries,
-         @JsonProperty("ownerName") String ownerName, @JsonProperty("ownerId") Address ownerId,
-         @JsonProperty("ownerPublicKey") PublicKey ownerPublicKey, @JsonProperty("peerName") String peerName,
-         @JsonProperty("peerId") Address peerId, @JsonProperty("peerPublicKey") PublicKey peerPublicKey,
-         @JsonProperty("isOwner") boolean isOwner, @JsonProperty("isBuyer") boolean isBuyer,
-         @JsonProperty("statusText") String statusText, @JsonProperty("confidence") Double confidence,
-         @JsonProperty("acceptAction") ActionState acceptAction, @JsonProperty("abortAction") ActionState abortAction,
-         @JsonProperty("refreshRateAction") ActionState refreshRateAction,
-         @JsonProperty("changePriceAction") ActionState changePriceAction,
-         @JsonProperty("releaseBtcAction") ActionState releaseBtcAction,
-         @JsonProperty("sendMessageAction") ActionState sendMessageAction,
-         @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept,
-         @JsonProperty("isOpen") boolean isOpen, @JsonProperty("location") GpsLocation location) {
+                       @JsonProperty("lastChange") long lastChange, @JsonProperty("priceFormula") PriceFormula priceFormula,
+                       @JsonProperty("premium") double premium, @JsonProperty("currency") String currency,
+                       @JsonProperty("fiatTraded") int fiatTraded, @JsonProperty("satoshisAtMarketPrice") long satoshisAtMarketPrice,
+                       @JsonProperty("satoshisFromSeller") long satoshisFromSeller,
+                       @JsonProperty("satoshisForBuyer") long satoshisForBuyer, @JsonProperty("buyerAddress") BitcoinAddress buyerAddress,
+                       @JsonProperty("feeAddress") BitcoinAddress feeAddress, @JsonProperty("chatEntries") List<ChatEntry> chatEntries,
+                       @JsonProperty("ownerName") String ownerName, @JsonProperty("ownerId") BitcoinAddress ownerId,
+                       @JsonProperty("ownerPublicKey") PublicKey ownerPublicKey, @JsonProperty("peerName") String peerName,
+                       @JsonProperty("peerId") BitcoinAddress peerId, @JsonProperty("peerPublicKey") PublicKey peerPublicKey,
+                       @JsonProperty("isOwner") boolean isOwner, @JsonProperty("isBuyer") boolean isBuyer,
+                       @JsonProperty("statusText") String statusText, @JsonProperty("confidence") Double confidence,
+                       @JsonProperty("acceptAction") ActionState acceptAction, @JsonProperty("abortAction") ActionState abortAction,
+                       @JsonProperty("refreshRateAction") ActionState refreshRateAction,
+                       @JsonProperty("changePriceAction") ActionState changePriceAction,
+                       @JsonProperty("releaseBtcAction") ActionState releaseBtcAction,
+                       @JsonProperty("sendMessageAction") ActionState sendMessageAction,
+                       @JsonProperty("isWaitingForPeerAccept") boolean isWaitingForPeerAccept,
+                       @JsonProperty("isOpen") boolean isOpen, @JsonProperty("location") GpsLocation location) {
       this.id = id;
       this.creationTime = creationTime;
       this.lastChange = lastChange;

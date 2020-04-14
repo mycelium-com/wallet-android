@@ -1,9 +1,9 @@
 package com.mycelium.wapi.wallet.colu;
 
 import com.google.api.client.http.HttpTransport;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
-import com.mrd.bitlib.model.Transaction;
+import com.mrd.bitlib.model.BitcoinTransaction;
 import com.mrd.bitlib.util.HexUtils;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.json.*;
@@ -54,12 +54,12 @@ public class ColuClient {
         return coloredCoinsClient.sendGetRequest(AssetMetadata.class, endpoint);
     }
 
-    public AddressInfo.Json getBalance(Address address) throws IOException {
+    public AddressInfo.Json getBalance(BitcoinAddress address) throws IOException {
         String endpoint = "getaddressinfo?address=" + address.toString();
         return blockExplorerClient.sendGetRequest(AddressInfo.Json.class, endpoint);
     }
 
-    public AddressTransactionsInfo.Json getAddressTransactions(Address address) throws IOException {
+    public AddressTransactionsInfo.Json getAddressTransactions(BitcoinAddress address) throws IOException {
         return getAddressTransactions(address.toString());
     }
 
@@ -69,7 +69,7 @@ public class ColuClient {
     }
 
     //TODO: move most of the logic to ColuManager
-    public ColuBroadcastTxHex.Json prepareTransaction(Address destAddress, List<Address> src,
+    public ColuBroadcastTxHex.Json prepareTransaction(BitcoinAddress destAddress, List<BitcoinAddress> src,
                                                       Value nativeAmount,
                                                       long txFee)
             throws IOException {
@@ -103,7 +103,7 @@ public class ColuClient {
         // v1: let colu chose source tx
         if (ColuClient.coluAutoSelectUtxo) {
             LinkedList<String> from = new LinkedList<>();
-            for (Address addr : src) {
+            for (BitcoinAddress addr : src) {
                 from.add(addr.toString());
             }
             request.from = from;
@@ -144,7 +144,7 @@ public class ColuClient {
         return coloredCoinsClient.sendPostRequest(ColuBroadcastTxHex.Json.class, "sendasset", null, request);
     }
 
-    public ColuBroadcastTxId.Json broadcastTransaction(Transaction coluSignedTransaction) throws IOException {
+    public ColuBroadcastTxId.Json broadcastTransaction(BitcoinTransaction coluSignedTransaction) throws IOException {
         ColuBroadcastTxHex.Json tx = new ColuBroadcastTxHex.Json();
         byte[] signedTr = coluSignedTransaction.toBytes();
         tx.txHex = HexUtils.toHex(signedTr);

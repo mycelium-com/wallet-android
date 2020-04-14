@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.HashUtils;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.R;
@@ -71,11 +71,11 @@ public class MessageVerifyActivity extends Activity {
     @OnTextChanged(value = R.id.signedMessage, callback = AFTER_TEXT_CHANGED)
     void textChanged(Editable editable) {
         checkResult = false;
-        Address address = null;
+        BitcoinAddress address = null;
         String msgWithSign = signedMessageEditText.getText().toString();
         Matcher matcher = messagePattern.matcher(msgWithSign);
         if (matcher.find()) {
-            address = Address.fromString(matcher.group(6));
+            address = BitcoinAddress.fromString(matcher.group(6));
             String msg = matcher.group(1);
             Sha256Hash data = HashUtils.doubleSha256(X509Utils.formatMessageForSigning(msg));
             try {

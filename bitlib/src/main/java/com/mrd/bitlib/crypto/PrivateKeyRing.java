@@ -18,7 +18,7 @@ package com.mrd.bitlib.crypto;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 
 public class PrivateKeyRing extends PublicKeyRing implements IPrivateKeyRing {
@@ -40,7 +40,7 @@ public class PrivateKeyRing extends PublicKeyRing implements IPrivateKeyRing {
      * Add a private and public key pair along with the corresponding address to
      * the key ring.
      */
-    public void addPrivateKey(PrivateKey privateKey, PublicKey publicKey, Address address) {
+    public void addPrivateKey(PrivateKey privateKey, PublicKey publicKey, BitcoinAddress address) {
         _privateKeys.put(publicKey, privateKey);
         addPublicKey(publicKey, address);
     }

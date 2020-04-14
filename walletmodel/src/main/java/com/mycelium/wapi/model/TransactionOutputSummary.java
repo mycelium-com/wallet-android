@@ -17,7 +17,7 @@
 package com.mycelium.wapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.OutPoint;
 
 import java.io.Serializable;
@@ -30,11 +30,11 @@ public class TransactionOutputSummary implements Comparable<TransactionOutputSum
    public final int height;
    public final int confirmations;
    @JsonProperty
-   public final Address address;
+   public final BitcoinAddress address;
 
    public TransactionOutputSummary(OutPoint outPoint, long value,
                                    int height, int confirmations,
-                                   Address address) {
+                                   BitcoinAddress address) {
       this.outPoint = outPoint;
       this.value = value;
       this.height = height;

@@ -9,14 +9,14 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.EthFeeFormatter
 import com.mycelium.wapi.wallet.EthTransactionSummary
-import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.transaction_details_eth.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.RoundingMode
 
-class EthDetailsFragment : GenericDetailsFragment() {
+class EthDetailsFragment : DetailsFragment() {
     private val tx: EthTransactionSummary by lazy {
         arguments!!.getSerializable("tx") as EthTransactionSummary
     }
@@ -79,7 +79,7 @@ class EthDetailsFragment : GenericDetailsFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(tx: GenericTransactionSummary): EthDetailsFragment {
+        fun newInstance(tx: TransactionSummary): EthDetailsFragment {
             val f = EthDetailsFragment()
             val args = Bundle()
 

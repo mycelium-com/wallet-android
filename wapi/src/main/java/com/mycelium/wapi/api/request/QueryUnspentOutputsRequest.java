@@ -17,7 +17,7 @@
 package com.mycelium.wapi.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -28,10 +28,10 @@ public class QueryUnspentOutputsRequest implements Serializable {
    @JsonProperty
    public final int version;
    @JsonProperty
-   public final Collection<Address> addresses;
+   public final Collection<BitcoinAddress> addresses;
 
    public QueryUnspentOutputsRequest(@JsonProperty("version") int version,
-                                     @JsonProperty("address") Collection<Address> addresses) {
+                                     @JsonProperty("address") Collection<BitcoinAddress> addresses) {
       this.version = version;
       this.addresses = addresses;
    }

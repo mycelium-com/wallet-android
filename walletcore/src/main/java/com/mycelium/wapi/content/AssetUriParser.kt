@@ -8,7 +8,7 @@ import com.mycelium.wapi.content.colu.mt.MTUri
 import com.mycelium.wapi.content.colu.rmc.RMCUri
 import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.AddressUtils
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -21,10 +21,10 @@ import java.net.URI
 import java.net.URLDecoder
 
 
-abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriParser {
-    protected fun parseParameters(uri: URI, coinType: CryptoCurrency): GenericAssetUri? {
+abstract class AssetUriParser(open val network: NetworkParameters) : UriParser {
+    protected fun parseParameters(uri: URI, coinType: CryptoCurrency): AssetUri? {
         // Address
-        var address: GenericAddress? = null
+        var address: Address? = null
         val addressString = uri.host
         if (addressString?.isNotEmpty() == true) {
             address = AddressUtils.from(coinType, addressString)
@@ -71,10 +71,10 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
     companion object {
         @JvmStatic
         fun createUriByCoinType(coinType: CryptoCurrency,
-                                address: GenericAddress?,
+                                address: Address?,
                                 amount: Value?,
                                 label: String?,
-                                paymentUri: String?): GenericAssetUri? {
+                                paymentUri: String?): AssetUri? {
             return when (coinType) {
                 is BitcoinMain, is BitcoinTest -> BitcoinUri(address, amount, label, paymentUri)
                 is RMCCoin, is RMCCoinTest -> RMCUri(address, amount, label, paymentUri)

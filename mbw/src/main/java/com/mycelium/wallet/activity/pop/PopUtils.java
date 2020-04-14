@@ -37,11 +37,11 @@ package com.mycelium.wallet.activity.pop;
 import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 class PopUtils {
-   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, GenericTransactionSummary transaction) {
+   public static boolean matches(PopRequest popRequest, MetadataStorage metadataStorage, TransactionSummary transaction) {
       if (popRequest.getTxid() != null && !transaction.getId().equals(popRequest.getTxid())) {
          return false;
       }

@@ -1,8 +1,8 @@
 package com.mycelium.wapi.wallet.colu.coins
 
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.families.BitcoinBasedCryptoCurrency
 
@@ -23,8 +23,8 @@ abstract class ColuMain : BitcoinBasedCryptoCurrency() {
         return javaClass.hashCode()
     }
 
-    override fun parseAddress(addressString: String): GenericAddress? {
-        val address = Address.fromString(addressString) ?: return null
+    override fun parseAddress(addressString: String): Address? {
+        val address = BitcoinAddress.fromString(addressString) ?: return null
 
         try {
             if (address.type === AddressType.P2WPKH)

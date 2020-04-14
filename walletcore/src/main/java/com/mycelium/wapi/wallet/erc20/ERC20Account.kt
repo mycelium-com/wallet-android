@@ -9,8 +9,8 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.*
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.tx.Transfer
@@ -32,29 +32,29 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
 
-    override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
+    override fun createTx(address: Address, amount: Value, fee: Fee, data: TransactionData?): Transaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
+            throw InsufficientFundsException(Throwable("Insufficient funds"))
         }
         if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (ethAcc.accountBalance.spendable.value < gasPrice * gasLimit) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
+            throw InsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
         return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
     }
 
-    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         (request as Erc20Transaction).txBinary = ByteArray(0)
     }
 
-    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val erc20Tx = (tx as Erc20Transaction)
         try {
             accountContext.nonce = getNewNonce(receivingAddress)

@@ -12,10 +12,9 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.BtcFeeFormatter
 import com.mycelium.wallet.activity.util.toStringWithUnit
-import com.mycelium.wapi.api.WapiClientElectrumX
 import com.mycelium.wapi.api.WapiException
-import com.mycelium.wapi.wallet.GenericOutputViewModel
-import com.mycelium.wapi.wallet.GenericTransactionSummary
+import com.mycelium.wapi.wallet.OutputViewModel
+import com.mycelium.wapi.wallet.TransactionSummary
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount
 import com.mycelium.wapi.wallet.coins.Value.Companion.zeroValue
 import kotlinx.android.synthetic.main.transaction_details_btc.*
@@ -23,8 +22,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 
-class BtcDetailsFragment : GenericDetailsFragment() {
-    private var tx: GenericTransactionSummary? = null
+class BtcDetailsFragment : DetailsFragment() {
+    private var tx: TransactionSummary? = null
 
     private val coluMode: Boolean by lazy {
         arguments!!.getBoolean("coluMode")
@@ -35,7 +34,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tx = arguments!!.getSerializable("tx") as GenericTransactionSummary
+        tx = arguments!!.getSerializable("tx") as TransactionSummary
         loadAndUpdate(false)
         listOf(btFeeRetry, btInputsRetry).forEach { it.setOnClickListener { startRemoteLoading() } }
         startRemoteLoading()
@@ -119,7 +118,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
         updateUi(isAfterRemoteUpdate, false)
     }
 
-    private fun getItemView(item: GenericOutputViewModel): View? { // Create vertical linear layout
+    private fun getItemView(item: OutputViewModel): View? { // Create vertical linear layout
         return LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = TransactionDetailsActivity.WCWC
@@ -177,7 +176,7 @@ class BtcDetailsFragment : GenericDetailsFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(tx: GenericTransactionSummary, coluMode: Boolean): BtcDetailsFragment {
+        fun newInstance(tx: TransactionSummary, coluMode: Boolean): BtcDetailsFragment {
             val f = BtcDetailsFragment()
             val args = Bundle()
 

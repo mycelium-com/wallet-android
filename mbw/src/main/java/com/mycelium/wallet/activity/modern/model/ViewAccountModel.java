@@ -10,14 +10,14 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class ViewAccountModel{
     public UUID accountId;
-    public GenericAssetInfo coinType;
+    public AssetInfo coinType;
     public Class<?> accountType;
     public String displayAddress;
     public Balance balance;

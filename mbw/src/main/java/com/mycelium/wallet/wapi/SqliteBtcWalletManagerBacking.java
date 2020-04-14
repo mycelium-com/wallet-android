@@ -292,9 +292,9 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
             UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
             Type type = new TypeToken<Collection<String>>(){}.getType();
             Collection<String> addressStringsList = gson.fromJson(cursor.getString(1), type);
-            Map<AddressType, Address> addresses = new ArrayMap<>(3);
+            Map<AddressType, BitcoinAddress> addresses = new ArrayMap<>(3);
             for (String addressString : addressStringsList) {
-               Address address = Address.fromString(addressString);
+               BitcoinAddress address = BitcoinAddress.fromString(addressString);
                addresses.put(address.getType(), address);
             }
             boolean isArchived = cursor.getInt(2) == 1;
@@ -326,7 +326,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          // Create context
          _insertOrReplaceSingleAddressAccount.bindBlob(1, uuidToBytes(context.getId()));
          List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
+         for (BitcoinAddress address: context.getAddresses().values()){
             addresses.add(address.toString());
          }
          _insertOrReplaceSingleAddressAccount.bindString(2, gson.toJson(addresses));
@@ -347,7 +347,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
          _updateSingleAddressAccount.bindLong(1, context.isArchived() ? 1 : 0);
          _updateSingleAddressAccount.bindLong(2, context.getBlockHeight());
          List<String> addresses = new ArrayList<>();
-         for (Address address: context.getAddresses().values()){
+         for (BitcoinAddress address: context.getAddresses().values()){
             addresses.add(address.toString());
          }
          _updateSingleAddressAccount.bindString(3, gson.toJson(addresses));
@@ -785,13 +785,13 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
 
       private void putReferencedOutputs(byte[] rawTx) {
          try {
-            final Transaction transaction = Transaction.fromBytes(rawTx);
+            final BitcoinTransaction transaction = BitcoinTransaction.fromBytes(rawTx);
             final List<OutPoint> refersOutpoint = new ArrayList<>();
             for (TransactionInput input : transaction.inputs) {
                refersOutpoint.add(input.outPoint);
             }
             putTxRefersParentTransaction(transaction.getId(), refersOutpoint);
-         } catch (Transaction.TransactionParsingException e) {
+         } catch (BitcoinTransaction.TransactionParsingException e) {
             Log.w(LOG_TAG, "Unable to decode transaction: " + e.getMessage());
          }
       }
@@ -1043,7 +1043,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
                   UUID id = SQLiteQueryWithBlobs.uuidFromBytes(cursor.getBlob(0));
                   byte[] addressBytes = cursor.getBlob(1);
                   String addressString = cursor.getString(2);
-                  Address address = new Address(addressBytes, addressString);
+                  BitcoinAddress address = new BitcoinAddress(addressBytes, addressString);
                   UUID newId = SingleAddressAccount.calculateId(address);
 
                   metadataStorage.storeAccountLabel(newId, metadataStorage.getLabelByAccount(id));
@@ -1066,7 +1066,7 @@ public class SqliteBtcWalletManagerBacking implements BtcWalletManagerBacking<Si
             for (SingleAddressAccountContext context : list) {
                statement.bindBlob(1, uuidToBytes(context.getId()));
                List<String> addresses = new ArrayList<>();
-               for (Address address: context.getAddresses().values()){
+               for (BitcoinAddress address: context.getAddresses().values()){
                   addresses.add(address.toString());
                }
                statement.bindString(2, gson.toJson(addresses));

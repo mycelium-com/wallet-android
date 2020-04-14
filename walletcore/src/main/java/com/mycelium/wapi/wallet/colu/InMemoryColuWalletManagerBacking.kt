@@ -6,7 +6,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.model.TransactionOutputEx
 import com.mycelium.wapi.wallet.CommonAccountBacking
 import com.mycelium.wapi.wallet.FeeEstimationsGeneric
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.colu.json.Tx
 import java.util.*
 

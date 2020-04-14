@@ -1,9 +1,9 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericFee
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Fee
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
 import org.web3j.crypto.RawTransaction
@@ -15,8 +15,8 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
 
-class EthTransaction(val type: CryptoCurrency, val toAddress: GenericAddress, val value: Value, val gasPrice: GenericFee,
-                     @Transient var rawTransaction: RawTransaction) : GenericTransaction(type) {
+class EthTransaction(val type: CryptoCurrency, val toAddress: Address, val value: Value, val gasPrice: Fee,
+                     @Transient var rawTransaction: RawTransaction) : Transaction(type) {
     var signedHex: String? = null
     var txHash: ByteArray? = null
     override fun getId() = txHash

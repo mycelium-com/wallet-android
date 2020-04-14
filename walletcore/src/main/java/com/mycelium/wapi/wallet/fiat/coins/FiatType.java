@@ -1,6 +1,6 @@
 package com.mycelium.wapi.wallet.fiat.coins;
 
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.coins.AbstractAsset;
 import com.mycelium.wapi.wallet.coins.Value;
 
@@ -39,7 +39,7 @@ public class FiatType extends AbstractAsset {
     }
 
     @Override
-    public GenericAddress parseAddress(String address) {
+    public Address parseAddress(String address) {
         return null;
     }
 
@@ -60,7 +60,7 @@ public class FiatType extends AbstractAsset {
  /* TODO - implement equals
 e
     @Override
-    public boolean equals(GenericAssetInfo o) {
+    public boolean equals(AssetInfo o) {
         if (this == o) return true;
        if (o == null || getClass() != o.getClass()) return false;
        FiatType fiatType = (FiatType) o;

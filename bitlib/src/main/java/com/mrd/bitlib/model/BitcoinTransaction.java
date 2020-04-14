@@ -40,7 +40,7 @@ import java.util.Arrays;
  * Implements Serializable and is inserted directly in and out of the database. Therefore it cannot be changed
  * without messing with the database.
  */
-public class Transaction implements Serializable {
+public class BitcoinTransaction implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final long ONE_uBTC_IN_SATOSHIS = 100;
     private static final long ONE_mBTC_IN_SATOSHIS = 1000 * ONE_uBTC_IN_SATOSHIS;
@@ -59,7 +59,7 @@ public class Transaction implements Serializable {
     private transient Boolean _rbfAble = null;
     private transient int _txSize = -1;
 
-    public static Transaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
+    public static BitcoinTransaction fromUnsignedTransaction(UnsignedTransaction unsignedTransaction) {
         UnspentTransactionOutput[] fundingOutputs = unsignedTransaction.getFundingOutputs();
         TransactionInput[] inputs = new TransactionInput[fundingOutputs.length];
         for (int idx = 0; idx < fundingOutputs.length; idx++) {
@@ -78,19 +78,19 @@ public class Transaction implements Serializable {
             }
             inputs[idx] = new TransactionInput(u.outPoint, script, unsignedTransaction.getDefaultSequenceNumber(), u.value);
         }
-        return new Transaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
+        return new BitcoinTransaction(1, inputs, unsignedTransaction.getOutputs(), unsignedTransaction.getLockTime());
     }
 
-    public static Transaction fromBytes(byte[] transaction) throws TransactionParsingException {
+    public static BitcoinTransaction fromBytes(byte[] transaction) throws TransactionParsingException {
         return fromByteReader(new ByteReader(transaction));
     }
 
-    public static Transaction fromByteReader(ByteReader reader) throws TransactionParsingException {
+    public static BitcoinTransaction fromByteReader(ByteReader reader) throws TransactionParsingException {
         return fromByteReader(reader, null);
     }
 
     // use this builder if you already know the resulting transaction hash to speed up computation
-    public static Transaction fromByteReader(ByteReader reader, Sha256Hash knownTransactionHash)
+    public static BitcoinTransaction fromByteReader(ByteReader reader, Sha256Hash knownTransactionHash)
             throws TransactionParsingException {
         int size = reader.available();
         try {
@@ -118,7 +118,7 @@ public class Transaction implements Serializable {
             }
 
             int lockTime = reader.getIntLE();
-            return new Transaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
+            return new BitcoinTransaction(version, inputs, outputs, lockTime, size, knownTransactionHash);
         } catch (InsufficientBytesException e) {
             throw new TransactionParsingException(e.getMessage());
         }
@@ -174,9 +174,9 @@ public class Transaction implements Serializable {
         return b;
     }
 
-    public Transaction copy() {
+    public BitcoinTransaction copy() {
         try {
-            return Transaction.fromByteReader(new ByteReader(toBytes()));
+            return BitcoinTransaction.fromByteReader(new ByteReader(toBytes()));
         } catch (TransactionParsingException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -254,11 +254,11 @@ public class Transaction implements Serializable {
         }
     }
 
-    public Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
+    public BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime) {
         this(version, inputs, outputs, lockTime, -1);
     }
 
-    private Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
+    private BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime, int txSize) {
         this.version = version;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -266,7 +266,7 @@ public class Transaction implements Serializable {
         this._txSize = txSize;
     }
 
-    public Transaction(Transaction copyFrom) {
+    public BitcoinTransaction(BitcoinTransaction copyFrom) {
         this.version = copyFrom.version;
         this.inputs = copyFrom.inputs;
         this.outputs = copyFrom.outputs;
@@ -278,8 +278,8 @@ public class Transaction implements Serializable {
     }
 
     // we already know the hash of this transaction, dont recompute it
-    protected Transaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
-                          int txSize, Sha256Hash knownTransactionHash) {
+    protected BitcoinTransaction(int version, TransactionInput[] inputs, TransactionOutput[] outputs, int lockTime,
+                                 int txSize, Sha256Hash knownTransactionHash) {
         this(version, inputs, outputs, lockTime, txSize);
         this._hash = knownTransactionHash;
     }
@@ -434,10 +434,10 @@ public class Transaction implements Serializable {
         if (other == this) {
             return true;
         }
-        if (!(other instanceof Transaction)) {
+        if (!(other instanceof BitcoinTransaction)) {
             return false;
         }
-        return getHash().equals(((Transaction) other).getHash());
+        return getHash().equals(((BitcoinTransaction) other).getHash());
     }
 
     public boolean isCoinbase() {

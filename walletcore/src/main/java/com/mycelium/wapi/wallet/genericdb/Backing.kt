@@ -2,7 +2,7 @@ package com.mycelium.wapi.wallet.genericdb
 
 import java.util.*
 
-interface GenericBacking<Context> {
+interface Backing<Context> {
     fun loadAccountContexts(): List<Context>
 
     fun loadAccountContext(accountId: UUID): Context?

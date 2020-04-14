@@ -55,7 +55,7 @@ import com.mycelium.wallet.activity.modern.RecordRowBuilder;
 import com.mycelium.wallet.activity.modern.adapter.holder.AccountViewHolder;
 import com.mycelium.wallet.activity.modern.model.ViewAccountModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.wallet.WalletAccount;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import java.util.List;
 import static com.mycelium.wallet.activity.util.ValueExtensionsKt.isBtc;
 
 public class GetSpendingRecordActivity extends Activity {
-   private GenericAssetUri _uri;
+   private AssetUri _uri;
    private MbwManager _mbwManager;
    private boolean _showAccounts = false;
    private byte[] _rawPr;
@@ -73,7 +73,7 @@ public class GetSpendingRecordActivity extends Activity {
    private AccountsAdapter accountsAdapter;
    private RecordRowBuilder builder;
 
-   public static void callMeWithResult(Activity currentActivity, GenericAssetUri uri, int request) {
+   public static void callMeWithResult(Activity currentActivity, AssetUri uri, int request) {
       Intent intent = new Intent(currentActivity, GetSpendingRecordActivity.class);
       intent.putExtra("uri", uri);
       currentActivity.startActivityForResult(intent, request);
@@ -96,7 +96,7 @@ public class GetSpendingRecordActivity extends Activity {
       listView.setOnItemClickListener(new RecordClicked());
 
       // Get intent parameters
-      _uri = (GenericAssetUri) getIntent().getSerializableExtra("uri");
+      _uri = (AssetUri) getIntent().getSerializableExtra("uri");
       _rawPr = getIntent().getByteArrayExtra("rawPr");
 
       if (savedInstanceState != null){

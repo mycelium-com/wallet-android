@@ -48,12 +48,12 @@ public class ScriptOutputOpReturn extends ScriptOutput implements Serializable {
 
    @Override
    public byte[] getAddressBytes() {
-      return new byte[Address.NUM_ADDRESS_BYTES];
+      return new byte[BitcoinAddress.NUM_ADDRESS_BYTES];
    }
 
    @Override
-   public Address getAddress(NetworkParameters network) {
+   public BitcoinAddress getAddress(NetworkParameters network) {
       // there is no address associated with this output
-      return Address.getNullAddress(network);
+      return BitcoinAddress.getNullAddress(network);
    }
 }
