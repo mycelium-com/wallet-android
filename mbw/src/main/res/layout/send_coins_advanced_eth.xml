@@ -24,29 +24,35 @@
         android:id="@+id/advancedBlock"
         activity="@{activity}"
         animatedVisibility="@{viewModel.isAdvancedBlockExpanded}"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/tvNonceLabel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:singleLine="true"
+            android:layout_marginEnd="32dp"
             android:text="@string/replace_transaction"
             android:textSize="16sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"
             selectedItem="@={viewModel.selectedTxItem}"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:entries="@{viewModel.txItems}"
             android:textSize="14sp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintLeft_toRightOf="@id/tvNonceLabel"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
 
         <TextView

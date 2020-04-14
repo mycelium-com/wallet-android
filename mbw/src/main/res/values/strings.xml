@@ -1362,4 +1362,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="transaction_options">Transaction options</string>
     <string name="transaction_gas_limit">Transaction Gas Limit</string>
     <string name="transaction_input_data">Transaction Input Data</string>
+    <string name="account_added_part"> (Added)</string>
 </resources>

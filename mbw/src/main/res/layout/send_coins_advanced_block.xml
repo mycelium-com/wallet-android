@@ -35,8 +35,6 @@
 
         <include
             layout="@layout/send_coins_advanced_eth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             bind:activity="@{activity}"
             bind:viewModel="@{viewModel}" />
     </LinearLayout>
