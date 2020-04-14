@@ -25,7 +25,7 @@ class ERC20TokenAdapter(context: Context,
             convertView ?: LayoutInflater.from(context).inflate(resource, parent, false)!!.apply {
                 val tvName = this.findViewById<CheckedTextView>(R.id.tvName)
                 val token = getItem(position)
-                tvName?.text = token?.name + if(alreadyAdded.contains(token)) context.getString(R.string.account_added_part) else ""
+                tvName?.text = token?.name + if(alreadyAdded.contains(token)) " " + context.getString(R.string.account_added_part) else ""
 
                 var icon: Drawable? = null
                 val symbol = token?.symbol

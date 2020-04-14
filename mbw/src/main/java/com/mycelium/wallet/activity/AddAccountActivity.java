@@ -43,7 +43,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,6 +55,7 @@ import androidx.fragment.app.Fragment;
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
 import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
@@ -97,7 +99,6 @@ public class AddAccountActivity extends Activity {
     private Toaster _toaster;
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
-    private int selectedIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -171,21 +172,23 @@ public class AddAccountActivity extends Activity {
     }
 
     private void showEthAccountsOptions() {
-        selectedIndex = 0;
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.checked_item);
+        final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
         List<WalletAccount<?>> accounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         arrayAdapter.add(getString(R.string.create_new_account));
+        View view = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null);
+        ((ListView) view.findViewById(R.id.list)).setAdapter(arrayAdapter);
         new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null))
-                .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
+                .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null))
+                .setView(view)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                    if (selectedIndex == arrayAdapter.getCount() - 1) {
+                    int selected = arrayAdapter.getSelected();
+                    if (selected == arrayAdapter.getCount() - 1) {
                         // "Create new account" item
                         showERC20TokensOptions(null);
                     } else {
-                        UUID ethAccountId = accounts.get(selectedIndex).getId();
+                        UUID ethAccountId = accounts.get(selected).getId();
                         showERC20TokensOptions(ethAccountId);
                     }
                 })
@@ -210,28 +213,35 @@ public class AddAccountActivity extends Activity {
      *                     before creating erc20 account
      */
     private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
-        selectedIndex = 0;
+        final EthAccount ethAccount = ethAccountId != null ? (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId) : null;
+        List<ERC20Token> supportedTokens = new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values());
+        List<ERC20Token> addedTokens = getAddedTokens(ethAccountId);
         final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
                 R.layout.token_item,
-                new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values()),
-                getAddedTokens(ethAccountId));
-        new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle(R.string.select_token)
+                supportedTokens,
+                addedTokens);
+        View customTitle = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setAdapter(arrayAdapter, null)
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    if (ethAccountId != null) {
-                        EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
-                        new ERC20CreationAsyncTask(arrayAdapter.getSelectedList(), ethAccount).execute();
-                    } else {
-                        // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
-                        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            ethCreationAsyncTask = new ETHCreationAsyncTask(arrayAdapter.getSelectedList());
-                            ethCreationAsyncTask.execute();
-                        }
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        if (addedTokens.size() < supportedTokens.size()) {
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(getString(R.string.select_token, ethAccount != null ? ethAccount.getLabel() : "new"));
+            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                if (ethAccount != null) {
+                    new ERC20CreationAsyncTask(arrayAdapter.getSelectedList(), ethAccount).execute();
+                } else {
+                    // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
+                    if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        ethCreationAsyncTask = new ETHCreationAsyncTask(arrayAdapter.getSelectedList());
+                        ethCreationAsyncTask.execute();
                     }
-                })
-                .show();
+                }
+            });
+        } else {
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(getString(R.string.list_added_tokens, ethAccount != null ? ethAccount.getLabel() : "new"));
+        }
+        builder.setCustomTitle(customTitle);
+        builder.show();
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
