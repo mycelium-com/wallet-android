@@ -161,14 +161,7 @@ public class AddAccountActivity extends Activity {
 
     @OnClick(R.id.btErc20Create)
     void onAddERC20() {
-        List<WalletAccount<?>> ethAccounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
-        // if none of eth accounts exist show erc20 selection dialog right away
-        // else ask what eth account to add erc20 account to
-        if (ethAccounts.isEmpty()) {
-            showERC20TokensOptions(null);
-        } else {
-            showEthAccountsOptions();
-        }
+        showEthAccountsOptions();
     }
 
     private void showEthAccountsOptions() {
