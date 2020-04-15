@@ -32,8 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:singleLine="true"
             android:layout_marginEnd="32dp"
+            android:singleLine="true"
             android:text="@string/replace_transaction"
             android:textSize="16sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
@@ -46,14 +46,21 @@
             selectedItem="@={viewModel.selectedTxItem}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:entries="@{viewModel.txItems}"
             android:textSize="14sp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:background="@drawable/send_coin_spinner_selector"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvNonceLabel" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@drawable/divider_account_list"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner" />
 
         <TextView
             android:id="@+id/tvGasLimitLabel"
@@ -105,8 +112,8 @@
             android:id="@+id/ic_info_address_type"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:layout_marginTop="1dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="1dp"
             android:onClick="@{_ -> activity.showInputDataInfo()}"
             android:tint="@color/dark_sky_blue"
             android:visibility="@{!(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
