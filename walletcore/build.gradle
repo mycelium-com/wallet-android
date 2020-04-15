@@ -63,3 +63,17 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+// Creates a single Jar with all dependencies
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+       exclude "META-INF/*.SF"
+       exclude "META-INF/*.DSA"
+       exclude "META-INF/*.RSA"
+    }
+    with jar
+}

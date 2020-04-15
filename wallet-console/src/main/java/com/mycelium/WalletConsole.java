@@ -111,7 +111,7 @@ class WalletConsole {
         currenciesSettingsMap.put(BitcoinHDModule.ID, btcSettings);
 
 
-        SqlDriver driver = new JdbcSqliteDriver( "wallet.db", new Properties());
+        SqlDriver driver = new JdbcSqliteDriver( "jdbc:sqlite::memory:", new Properties());
         WalletDB.Companion.getSchema().create(driver);
         WalletDB db = WalletDB.Companion.invoke(driver, AdaptersKt.getAccountBackingAdapter(), AdaptersKt.getAccountContextAdapter(),
                 AdaptersKt.getErc20ContextAdapter(),
