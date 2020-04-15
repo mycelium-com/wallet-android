@@ -15,6 +15,7 @@ import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
 import org.web3j.tx.Transfer
 import org.web3j.tx.gas.StaticGasProvider
+import java.io.IOException
 import java.math.BigInteger
 import java.util.*
 import java.util.logging.Level
@@ -61,10 +62,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
                     credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
             val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
-            if (!result.isStatusOK) {
-                logger.log(Level.SEVERE, "Error sending ERC-20 transaction, status not OK: ${result.status}")
-                return BroadcastResult("Unable to send transaction.", BroadcastResultType.REJECTED)
-            }
             tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
                     "", receivingAddress.addressString, tx.toAddress.toString(),
@@ -72,8 +69,13 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                     accountContext.nonce, tx.gasLimit, result.gasUsed)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
-            logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
-            return BroadcastResult("Unable to send transaction: ${e.localizedMessage}", BroadcastResultType.REJECTED)
+            return when (e) {
+                is IOException -> BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
+                else -> {
+                    logger.log(Level.SEVERE, "Error sending ERC-20 transaction: ${e.localizedMessage}")
+                    BroadcastResult(e.localizedMessage, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+                }
+            }
         }
     }
 
