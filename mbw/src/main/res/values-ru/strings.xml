@@ -861,7 +861,7 @@
     <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
     <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
     <string name="select_eth_account_to_erc20">Выберите ETH Аккаунт для хранения ERC-20 токенов</string>
-    <string name="list_added_tokens"> ERC-20 токены на аккаунте \"%s\"</string>
+    <string name="list_added_tokens">ERC-20 токены на аккаунте \"%s\"</string>
     <string name="select_token">Добавить ERC-20 токены на аккаунт \"%s\"</string>
     <string name="select_eth_account_to_erc20_subtext">ERC-20 токены находятся на ETH Аккаунтах и требуют ETH для совершения транзакций.
 На одном ETH Аккаунте может храниться несколько ERC-20 токенов - по одному типу на каждый ETH Аккаунт.</string>
