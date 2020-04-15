@@ -304,7 +304,7 @@ public class AddAccountActivity extends Activity {
         List<ERC20Token> tokens;
 
         ETHCreationAsyncTask(@Nullable List<ERC20Token> tokens) {
-            this.token = token;
+            this.tokens = tokens;
         }
 
         @Override
@@ -324,9 +324,9 @@ public class AddAccountActivity extends Activity {
             _progress.dismiss();
             MbwManager.getEventBus().post(new AccountCreated(accountId));
             MbwManager.getEventBus().post(new AccountChanged(accountId));
-            if (token != null) {
+            if (tokens != null) {
                 EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
-                new ERC20CreationAsyncTask(token, ethAccount).execute();
+                new ERC20CreationAsyncTask(tokens, ethAccount).execute();
             } else {
                 finishOk(accountId);
             }
