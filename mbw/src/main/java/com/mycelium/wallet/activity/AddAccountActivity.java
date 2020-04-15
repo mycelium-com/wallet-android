@@ -301,9 +301,9 @@ public class AddAccountActivity extends Activity {
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-        List<ERC20Token> token;
+        List<ERC20Token> tokens;
 
-        ETHCreationAsyncTask(@Nullable List<ERC20Token> token) {
+        ETHCreationAsyncTask(@Nullable List<ERC20Token> tokens) {
             this.token = token;
         }
 
