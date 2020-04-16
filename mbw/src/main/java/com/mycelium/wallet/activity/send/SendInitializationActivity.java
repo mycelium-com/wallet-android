@@ -129,13 +129,15 @@ public class SendInitializationActivity extends Activity {
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
       WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _account = Preconditions.checkNotNull(account, crashHint);
-      if (!_account.getCoinType().isUtxosBased()) {
-         goToSendActivity();
-      }
+
+      continueIfReadyOrNonUtxos();
    }
 
    @Override
    protected void onResume() {
+      if (isFinishing()) {
+         return;
+      }
       MbwManager.getEventBus().register(this);
 
       // Show delayed messages so the user does not grow impatient
@@ -153,7 +155,7 @@ public class SendInitializationActivity extends Activity {
       if (_isColdStorage) {
          _mbwManager.getWalletManager(true).startSynchronization();
       } else {
-         continueIfReady();
+         continueIfReadyOrNonUtxos();
       }
       super.onResume();
    }
@@ -198,15 +200,16 @@ public class SendInitializationActivity extends Activity {
 
    @Subscribe
    public void syncStopped(SyncStopped sync) {
-      continueIfReady();
+      continueIfReadyOrNonUtxos();
    }
 
-   private void continueIfReady() {
+   private void continueIfReadyOrNonUtxos() {
       if (isFinishing()) {
          return;
       }
-      if (_account.isSyncing()) {
+      if (_account.isSyncing() && _account.getCoinType().isUtxosBased()) {
          // wait till its finished syncing
+         // no need wait for non utxo's based accounts
          return;
       }
       goToSendActivity();
