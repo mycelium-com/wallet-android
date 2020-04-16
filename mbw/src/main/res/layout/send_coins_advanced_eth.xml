@@ -56,7 +56,7 @@
         <View
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="@drawable/divider_account_list"
+            android:background="#AFB0B1"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

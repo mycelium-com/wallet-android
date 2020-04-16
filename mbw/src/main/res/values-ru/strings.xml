@@ -860,11 +860,11 @@
     <string name="export_fio">Экспортировать публичный ключ FIO</string>
     <string name="export_fio_public_key_title">Экспортировать публичный ключ FIO</string>
     <string name="share_fio_public_key">Поделиться публичным ключем FIO</string>
-    <string name="select_eth_account_to_erc20">Выберите ETH Аккаунт для хранения ERC-20 токенов</string>
+    <string name="select_eth_account_to_erc20">Выберите ETH аккаунт для хранения ERC-20 токенов</string>
     <string name="list_added_tokens">ERC-20 токены на аккаунте \"%s\"</string>
     <string name="select_token">Добавить ERC-20 токены на аккаунт \"%s\"</string>
-    <string name="select_eth_account_to_erc20_subtext">ERC-20 токены находятся на ETH Аккаунтах и требуют ETH для совершения транзакций.\nНа одном ETH Аккаунте может храниться неограниченное количество типов ERC-20 токенов - по одному типу на каждый ETH Аккаунт.</string>
-    <string name="create_new_account">Добавить новый ETH Аккаунт</string>
+    <string name="select_eth_account_to_erc20_subtext">ERC-20 токены находятся на ETH аккаунтах и требуют ETH для совершения транзакций.\nНа одном ETH аккаунте может храниться неограниченное количество типов ERC-20 токенов - по одному типу на каждый ETH аккаунт.</string>
+    <string name="create_new_account">Добавить новый ETH аккаунт</string>
     <string name="hd_eth_account">Добавить Ethereum аккаунт</string>
     <string name="add_erc20_account">Добавить ERC-20 аккаунт</string>
 </resources>

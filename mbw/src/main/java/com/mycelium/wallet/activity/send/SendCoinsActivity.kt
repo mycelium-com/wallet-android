@@ -520,7 +520,7 @@ class TransactionItem(val tx: GenericTransactionSummary, private val dateString:
     override fun toString(): String {
         val idHex = HexUtils.toHex(tx.id)
         val idString = "${idHex.substring(0, 6)}…${idHex.substring(idHex.length - 2)}"
-        return "$idString ($dateString, $amountString)"
+        return "$idString - $dateString, $amountString"
     }
 }
 
