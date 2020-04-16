@@ -21,7 +21,7 @@
         style="@style/AccountProgressBar"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="5dp"
         android:indeterminate="true"
         app:animatedVisibility="@{viewModel.transactionStatus == TransactionStatus.BUILDING}" />
 

@@ -166,7 +166,7 @@ public class AddAccountActivity extends Activity {
 
     private void showEthAccountsOptions() {
         final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
-        List<WalletAccount<?>> accounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
+        List<WalletAccount<?>> accounts = EthereumModuleKt.getActiveEthAccounts(_mbwManager.getWalletManager(false));
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         arrayAdapter.add(getString(R.string.create_new_account));
         View view = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null);
@@ -218,7 +218,8 @@ public class AddAccountActivity extends Activity {
                 .setAdapter(arrayAdapter, null)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
         if (addedTokens.size() < supportedTokens.size()) {
-            ((TextView) customTitle.findViewById(R.id.titleText)).setText(getString(R.string.select_token, ethAccount != null ? ethAccount.getLabel() : "new"));
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+                    getString(R.string.select_token, ethAccount.getLabel()) : getString(R.string.select_token_new_account));
             builder.setPositiveButton(R.string.ok, (dialog, which) -> {
                 if (ethAccount != null) {
                     new ERC20CreationAsyncTask(arrayAdapter.getSelectedList(), ethAccount).execute();
@@ -231,7 +232,8 @@ public class AddAccountActivity extends Activity {
                 }
             });
         } else {
-            ((TextView) customTitle.findViewById(R.id.titleText)).setText(getString(R.string.list_added_tokens, ethAccount != null ? ethAccount.getLabel() : "new"));
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+                    getString(R.string.list_added_tokens, ethAccount.getLabel()) : getString(R.string.list_added_tokens_new_account));
         }
         builder.setCustomTitle(customTitle);
         builder.show();
