@@ -744,7 +744,6 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
-
       @Override
       public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
          MbwManager.getEventBus().post(new TransactionLabelChanged());
@@ -755,7 +754,9 @@ public class TransactionHistoryFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
-         String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
+         String accountLabel = _storage.getLabelByAccount(account.getId()).replaceAll("[^A-Za-z0-9]", "_");
+
+         String fileName = "MyceliumExport_" + accountLabel + "_" + System.currentTimeMillis() + ".csv";
 
          List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 

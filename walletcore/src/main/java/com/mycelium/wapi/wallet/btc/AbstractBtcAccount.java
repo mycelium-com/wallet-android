@@ -1527,7 +1527,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // The transaction got a new height. There could be
             // several reasons for that. It confirmed, or might also be a reorg.
             TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary);
-            _logger.log(Level.INFO,String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
+            _logger.log(Level.INFO, String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
             _backing.putTransaction(newTex);
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
          }
