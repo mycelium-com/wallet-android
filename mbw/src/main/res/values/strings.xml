@@ -1363,6 +1363,6 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="transaction_gas_limit">Transaction Gas Limit</string>
     <string name="transaction_input_data">Transaction Input Data</string>
     <string name="account_added_part">(Added)</string>
-    <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of erc20 tokens - one of each type per ETH account.</string>
+    <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
     <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
 </resources>
