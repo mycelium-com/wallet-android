@@ -12,7 +12,6 @@ import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
 
@@ -96,13 +95,13 @@ class EthAccount(private val accountContext: EthAccountContext,
         try {
             val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
             if (ethSendTransaction.hasError()) {
-                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECTED)
+                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             }
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
                     (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
         } catch (e: IOException) {
-            throw GenericTransactionBroadcastException(e.localizedMessage)
+            return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
         return BroadcastResult(BroadcastResultType.SUCCESS)
     }
