@@ -129,6 +129,9 @@ public class SendInitializationActivity extends Activity {
       String crashHint = TextUtils.join(", ", getIntent().getExtras().keySet()) + " (account id was " + accountId + ")";
       WalletAccount account = _mbwManager.getWalletManager(_isColdStorage).getAccount(accountId);
       _account = Preconditions.checkNotNull(account, crashHint);
+      if (!_account.getCoinType().isUtxosBased()) {
+         goToSendActivity();
+      }
    }
 
    @Override
@@ -206,6 +209,10 @@ public class SendInitializationActivity extends Activity {
          // wait till its finished syncing
          return;
       }
+      goToSendActivity();
+   }
+
+   private void goToSendActivity() {
       if (_isColdStorage) {
          ColdStorageSummaryActivity.callMe(this, _account.getId());
       } else {
