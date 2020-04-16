@@ -14,6 +14,7 @@ class ERC20Token(name: String = "", symbol: String = "", unitExponent: Int = 18,
         this.name = name
         this.symbol = symbol
         this.unitExponent = unitExponent
+        this.isUtxosBased = false
     }
 
     override fun parseAddress(addressString: String): GenericAddress? =
