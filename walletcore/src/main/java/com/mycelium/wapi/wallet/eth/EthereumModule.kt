@@ -182,3 +182,4 @@ class EthereumModule(
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
+fun WalletManager.getActiveEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible && it.isActive }

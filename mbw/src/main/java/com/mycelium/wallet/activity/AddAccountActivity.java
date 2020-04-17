@@ -36,29 +36,27 @@
 package com.mycelium.wallet.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
-import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.base.Preconditions;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
+import com.mycelium.wallet.activity.addaccount.ERC20EthAccountAdapter;
+import com.mycelium.wallet.activity.addaccount.ERC20TokenAdapter;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.AccountChanged;
@@ -68,7 +66,6 @@ import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.AdditionalHDAccountConfig;
 import com.mycelium.wapi.wallet.btc.bip44.BitcoinHDModule;
-import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.erc20.ERC20Config;
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -76,8 +73,6 @@ import com.mycelium.wapi.wallet.eth.EthereumMasterseedConfig;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.eth.EthereumModuleKt;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +99,6 @@ public class AddAccountActivity extends Activity {
     private Toaster _toaster;
     private MbwManager _mbwManager;
     private ProgressDialog _progress;
-    private int selectedIndex = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,16 +125,19 @@ public class AddAccountActivity extends Activity {
      * @return all supported tokens or all supported tokens except these that are already enabled for
      *         account with ethAccountId.
      */
-    private List<ERC20Token> getAvailableTokens(@Nullable UUID ethAccountId) {
+    private List<ERC20Token> getAddedTokens(@Nullable UUID ethAccountId) {
+        List<ERC20Token> result = new ArrayList<>();
         Map<String, ERC20Token> supportedTokens = _mbwManager.getSupportedERC20Tokens();
         if (ethAccountId != null) {
             WalletAccount ethAccount = _mbwManager.getWalletManager(false).getAccount(ethAccountId);
             List<String> enabledTokens = ((EthAccount) ethAccount).getEnabledTokens();
-            for (String tokenName : enabledTokens) {
-                supportedTokens.remove(tokenName);
+            for (Map.Entry<String, ERC20Token> entry : supportedTokens.entrySet()) {
+                if (enabledTokens.contains(entry.getKey())) {
+                    result.add(entry.getValue());
+                }
             }
         }
-        return new ArrayList<>(supportedTokens.values());
+        return result;
     }
 
     @OnClick(R.id.btEthCreate)
@@ -164,32 +161,27 @@ public class AddAccountActivity extends Activity {
 
     @OnClick(R.id.btErc20Create)
     void onAddERC20() {
-        List<WalletAccount<?>> ethAccounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
-        // if none of eth accounts exist show erc20 selection dialog right away
-        // else ask what eth account to add erc20 account to
-        if (ethAccounts.isEmpty()) {
-            showERC20TokensOptions(null);
-        } else {
-            showEthAccountsOptions();
-        }
+        showEthAccountsOptions();
     }
 
     private void showEthAccountsOptions() {
-        selectedIndex = 0;
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.checked_item);
-        List<WalletAccount<?>> accounts = EthereumModuleKt.getEthAccounts(_mbwManager.getWalletManager(false));
+        final ERC20EthAccountAdapter arrayAdapter = new ERC20EthAccountAdapter(this, R.layout.checked_item);
+        List<WalletAccount<?>> accounts = EthereumModuleKt.getActiveEthAccounts(_mbwManager.getWalletManager(false));
         arrayAdapter.addAll(getEthAccountsForView(accounts));
         arrayAdapter.add(getString(R.string.create_new_account));
+        View view = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20, null);
+        ((ListView) view.findViewById(R.id.list)).setAdapter(arrayAdapter);
         new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle(R.string.select_account)
-                .setSingleChoiceItems(arrayAdapter, selectedIndex, (dialog, which) -> selectedIndex = which)
+                .setCustomTitle(LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null))
+                .setView(view)
                 .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                    if (selectedIndex == arrayAdapter.getCount() - 1) {
+                    int selected = arrayAdapter.getSelected();
+                    if (selected == arrayAdapter.getCount() - 1) {
                         // "Create new account" item
                         showERC20TokensOptions(null);
                     } else {
-                        UUID ethAccountId = accounts.get(selectedIndex).getId();
+                        UUID ethAccountId = accounts.get(selected).getId();
                         showERC20TokensOptions(ethAccountId);
                     }
                 })
@@ -214,89 +206,37 @@ public class AddAccountActivity extends Activity {
      *                     before creating erc20 account
      */
     private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
-        selectedIndex = 0;
-        List<ERC20Token> availableTokens = getAvailableTokens(ethAccountId);
-        if (availableTokens.isEmpty()) {
-            _toaster.toast("All supported tokens for this account are already added", false);
-            return;
-        }
-        final ArrayAdapter<ERC20Token> arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
-                R.layout.token_item, availableTokens, availableTokens.get(0).getName());
-        new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
-                .setTitle(R.string.select_token)
-                .setSingleChoiceItems(arrayAdapter, selectedIndex, null)
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    ERC20Token token = arrayAdapter.getItem(selectedIndex);
-                    if (ethAccountId != null) {
-                        EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId);
-                        new ERC20CreationAsyncTask(token, ethAccount).execute();
-                    } else {
-                        // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
-                        if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
-                            ethCreationAsyncTask = new ETHCreationAsyncTask(token);
-                            ethCreationAsyncTask.execute();
-                        }
+        final EthAccount ethAccount = ethAccountId != null ? (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId) : null;
+        List<ERC20Token> supportedTokens = new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values());
+        List<ERC20Token> addedTokens = getAddedTokens(ethAccountId);
+        final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
+                R.layout.token_item,
+                supportedTokens,
+                addedTokens);
+        View customTitle = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setAdapter(arrayAdapter, null)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss());
+        if (addedTokens.size() < supportedTokens.size()) {
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+                    getString(R.string.select_token, ethAccount.getLabel()) : getString(R.string.select_token_new_account));
+            builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+                if (ethAccount != null) {
+                    new ERC20CreationAsyncTask(arrayAdapter.getSelectedList(), ethAccount).execute();
+                } else {
+                    // we need new ethereum account, so create it first and erc20 account after. pass which token we want to create then
+                    if (ethCreationAsyncTask == null || ethCreationAsyncTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        ethCreationAsyncTask = new ETHCreationAsyncTask(arrayAdapter.getSelectedList());
+                        ethCreationAsyncTask.execute();
                     }
-                })
-                .show();
-    }
-
-    private class ERC20TokenAdapter extends ArrayAdapter<ERC20Token> {
-        private int resource;
-        private String selectedText;
-
-        ERC20TokenAdapter(@NonNull Context context, int resource, @NonNull List<ERC20Token> objects, String selectedText) {
-            super(context, resource, objects);
-            this.resource = resource;
-            this.selectedText = selectedText;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View v = convertView;
-
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                v = Preconditions.checkNotNull(vi.inflate(resource, null));
-            }
-
-            CheckedTextView tvName = v.findViewById(R.id.tvName);
-            CryptoCurrency token = getItem(position);
-            tvName.setText(token.getName());
-
-            ImageView ivIcon = v.findViewById(R.id.ivIcon);
-            Drawable icon = null;
-            String symbol = token.getSymbol();
-            try {
-                // get input stream
-                InputStream ims = getResources().getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
-                // load image as Drawable
-                icon = Drawable.createFromStream(ims, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (icon == null) {
-                ivIcon.setVisibility(View.INVISIBLE);
-            } else {
-                ivIcon.setImageDrawable(icon);
-                ivIcon.setVisibility(View.VISIBLE);
-            }
-
-            if (tvName.getText().toString().equals(selectedText)) {
-                tvName.setChecked(true);
-            } else {
-                tvName.setChecked(false);
-            }
-
-            v.setOnClickListener(v1 -> {
-                selectedIndex = position;
-                selectedText = tvName.getText().toString();
-                notifyDataSetChanged();
+                }
             });
-            return v;
+        } else {
+            ((TextView) customTitle.findViewById(R.id.titleText)).setText(ethAccount != null ?
+                    getString(R.string.list_added_tokens, ethAccount.getLabel()) : getString(R.string.list_added_tokens_new_account));
         }
+        builder.setCustomTitle(customTitle);
+        builder.show();
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {
@@ -363,10 +303,10 @@ public class AddAccountActivity extends Activity {
     }
 
     private class ETHCreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-        ERC20Token token;
+        List<ERC20Token> tokens;
 
-        ETHCreationAsyncTask(@Nullable ERC20Token token) {
-            this.token = token;
+        ETHCreationAsyncTask(@Nullable List<ERC20Token> tokens) {
+            this.tokens = tokens;
         }
 
         @Override
@@ -386,21 +326,21 @@ public class AddAccountActivity extends Activity {
             _progress.dismiss();
             MbwManager.getEventBus().post(new AccountCreated(accountId));
             MbwManager.getEventBus().post(new AccountChanged(accountId));
-            if (token != null) {
+            if (tokens != null) {
                 EthAccount ethAccount = (EthAccount) _mbwManager.getWalletManager(false).getAccount(accountId);
-                new ERC20CreationAsyncTask(token, ethAccount).execute();
+                new ERC20CreationAsyncTask(tokens, ethAccount).execute();
             } else {
                 finishOk(accountId);
             }
         }
     }
 
-    private class ERC20CreationAsyncTask extends AsyncTask<Void, Integer, UUID> {
-        ERC20Token token;
+    private class ERC20CreationAsyncTask extends AsyncTask<Void, Integer, List<UUID>> {
+        List<ERC20Token> tokens;
         EthAccount ethAccount;
 
-        ERC20CreationAsyncTask(@NonNull ERC20Token token, @NonNull EthAccount ethAccount) {
-            this.token = token;
+        ERC20CreationAsyncTask(@NonNull List<ERC20Token> tokens, @NonNull EthAccount ethAccount) {
+            this.tokens = tokens;
             this.ethAccount = ethAccount;
         }
 
@@ -411,19 +351,24 @@ public class AddAccountActivity extends Activity {
         }
 
         @Override
-        protected UUID doInBackground(Void... params) {
-            List<UUID> accounts = _mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccount));
-            return accounts.get(0);
+        protected List<UUID> doInBackground(Void... params) {
+            List<UUID> accounts = new ArrayList<>();
+            for (ERC20Token token : tokens) {
+                accounts.addAll(_mbwManager.getWalletManager(false).createAccounts(new ERC20Config(token, ethAccount)));
+                ethAccount.addEnabledToken(token.getName());
+            }
+            return accounts;
         }
 
         @Override
-        protected void onPostExecute(UUID accountId) {
+        protected void onPostExecute(List<UUID> accountIds) {
             _progress.dismiss();
-            _mbwManager.getMetadataStorage().setOtherAccountBackupState(accountId, MetadataStorage.BackupState.IGNORED);
-            MbwManager.getEventBus().post(new AccountCreated(accountId));
-            MbwManager.getEventBus().post(new AccountChanged(accountId));
-            ethAccount.addEnabledToken(token.getName());
-            finishOk(accountId);
+            for (UUID accountId : accountIds) {
+                _mbwManager.getMetadataStorage().setOtherAccountBackupState(accountId, MetadataStorage.BackupState.IGNORED);
+                MbwManager.getEventBus().post(new AccountCreated(accountId));
+                MbwManager.getEventBus().post(new AccountChanged(accountId));
+            }
+            finishOk(accountIds.get(0));
         }
     }
 
