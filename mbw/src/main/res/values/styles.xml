@@ -398,7 +398,7 @@
         <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
     </style>
     <style name="BequantSignToolBarStyle" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/bequant_background</item>
+        <item name="android:background">@color/bequant_gray_2</item>
 <!--        <item name="titleTextAppearance">@style/MyTitleTextAppearance</item>-->
 <!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
     </style>
