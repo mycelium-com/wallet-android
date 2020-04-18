@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:srcCompat="@drawable/ic_two_factor"
-        android:contentDescription="@null" />
+        android:contentDescription="@null"
+        app:srcCompat="@drawable/ic_two_factor" />
 
     <TextView
         android:layout_width="match_parent"
@@ -34,12 +34,17 @@
         android:layout_marginTop="8dp"
         app:errorTextColor="#CE3C4E">
 
-        <LinearLayout
+        <com.poovam.pinedittextfield.SquarePinField
             android:id="@+id/pinCode"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-
-            android:orientation="horizontal" />
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/exo2medium"
+            android:inputType="number"
+            android:textSelectHandle="@drawable/text_handle"
+            android:textSize="28sp"
+            app:cornerRadius="4dp"
+            app:noOfFields="6" />
+        <!--        app:fieldBgColor="#23262A"-->
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -48,6 +53,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
+        android:fontFamily="@font/exo2medium"
         android:padding="8dp"
-        android:text="@string/paste_from_clipboard" />
+        android:text="@string/paste_from_clipboard"
+        android:textAllCaps="false"
+        android:textSize="14sp" />
 </LinearLayout>

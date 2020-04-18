@@ -35,7 +35,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="xxxx - xxxx - xxxx - xxxx - xxxx - xxxx"
-            android:textSize="20sp" />
+            android:textSize="28sp" />
     </LinearLayout>
 
     <LinearLayout

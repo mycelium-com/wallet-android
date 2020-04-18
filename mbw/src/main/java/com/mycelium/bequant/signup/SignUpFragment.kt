@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.remote.SignRepository
@@ -24,6 +25,7 @@ import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSignUpBindingImpl
 import kotlinx.android.synthetic.main.fragment_bequant_sign_up.*
+import kotlinx.android.synthetic.main.layout_password_registration.*
 
 
 class SignUpFragment : Fragment() {
@@ -70,10 +72,9 @@ class SignUpFragment : Fragment() {
                 SignRepository.repository.register(register, {
                     loader.dismissAllowingStateLoss()
                     registerListener?.invoke(register)
-                }, {
+                }, { error ->
                     loader.dismissAllowingStateLoss()
-                    registerListener?.invoke(register)
-//                    ErrorHandler(requireContext()).handle()
+                    ErrorHandler(requireContext()).handle(error)
                 })
             }
         }
@@ -85,6 +86,8 @@ class SignUpFragment : Fragment() {
         }
         iHaveRefCode.setOnClickListener {
             referralLayout.visibility = if (referralLayout.visibility == VISIBLE) GONE else VISIBLE
+            val chevron = if (referralLayout.visibility == VISIBLE) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
+            iHaveRefCode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
         }
     }
 
@@ -121,7 +124,7 @@ class SignUpFragment : Fragment() {
             return false
         }
         if (viewModel.password.value?.isEmpty() != false) {
-            repeatPasswordLayout?.error = "Can't be empty"
+            passwordLayout?.error = "Can't be empty"
             return false
         }
         if (viewModel.password.value != viewModel.repeatPassword.value) {

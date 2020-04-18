@@ -6,3 +6,7 @@ class Auth(val email: String,
            val otpCode: String,
            val othBackupPassword: String) {
 }
+
+class AuthResponse(val issues: String?,
+                   val session: String) {
+}
