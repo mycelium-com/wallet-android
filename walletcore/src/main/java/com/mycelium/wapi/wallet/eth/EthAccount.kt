@@ -21,6 +21,7 @@ import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
+import java.util.logging.Level
 
 class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
@@ -175,11 +176,25 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     private fun syncTransactions() {
-        val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
-        remoteTransactions.forEach { tx ->
-            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
-                    valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
-                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+        try {
+            val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+            remoteTransactions.forEach { tx ->
+                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
+                        valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed
+                        ?: typicalEstimatedTransactionSize.toBigInteger())),
+                        tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+            }
+            val localTxs = getUnconfirmedTransactions()
+            // remove such transactions that are not on server anymore
+            // this could happen if transaction was replaced by another e.g.
+            val toRemove = localTxs.filter { localTx ->
+                !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+            }
+            toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
+                backing.deleteTransaction(it)
+            }
+        } catch (e: IOException) {
+            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history, ${e.localizedMessage}")
         }
     }
 
