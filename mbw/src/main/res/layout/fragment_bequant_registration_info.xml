@@ -60,51 +60,7 @@
             android:textColor="#CE3C4E"
             android:textSize="16sp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_bequant_text"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/exo2medium"
-                android:text="If you haven\'t received the email, do the following:"
-                android:textColor="@color/white"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/exo2medium"
-                android:text="- Please make sure you entered your e-mail address correctly" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/exo2medium"
-                android:text="- Check Promotions and Spam" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/exo2medium"
-                android:text="- Resend confirmation email." />
-
-            <TextView
-                android:id="@+id/supportTeam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/exo2medium"
-                android:text="If none of the above helps, please contact our support team." />
-        </LinearLayout>
+        <include layout="@layout/part_bequant_not_receive_email" />
 
         <Space
             android:layout_width="0dp"

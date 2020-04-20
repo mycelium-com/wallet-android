@@ -18,7 +18,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
-        android:text="Set up 2FA to secure your account"
+        android:text="@string/set_up_2fa_to_secure_your_account"
         android:textSize="20sp" />
 
     <TextView
@@ -27,7 +27,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
-        android:text="Please note that you will need to install the Google Authenticator app on your phone. It can be found on the Google Play store, at the link below. "
+        android:text="@string/please_note_that_you_will_need_to_install_the_google_authenticator_app_on_your_phone_it_can_be_found_on_the_google_play_store_at_the_link_below"
         android:textSize="16sp" />
 
     <LinearLayout

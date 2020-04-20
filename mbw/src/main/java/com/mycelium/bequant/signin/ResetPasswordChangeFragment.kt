@@ -15,6 +15,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.market.BequantMarketActivity
+import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.model.PasswordSet
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBindingImpl
@@ -59,8 +61,11 @@ class ResetPasswordChangeFragment : Fragment() {
             }
         }
         changePassword.setOnClickListener {
-            requireActivity().finish()
-            startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            SignRepository.repository.resetPasswordUpdate(PasswordSet(viewModel.password.value!!, ""), {
+                requireActivity().finish()
+                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            }, {
+            })
         }
     }
 

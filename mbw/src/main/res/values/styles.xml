@@ -434,4 +434,15 @@
         <item name="textAllCaps">false</item>
     </style>
 
+    <style name="Bequant.TextInputLayout">
+        <item name="boxBackgroundColor">@color/bg_bequant_text_input_layout</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxCornerRadiusBottomEnd">4dp</item>
+        <item name="boxCornerRadiusBottomStart">4dp</item>
+        <item name="boxCornerRadiusTopEnd">4dp</item>
+        <item name="boxCornerRadiusTopStart">4dp</item>
+        <item name="boxStrokeColor">@color/outline_bequant_text_input_layout</item>
+        <item name="errorTextColor">#CE3C4E</item>
+        <item name="hintEnabled">false</item>
+    </style>
 </resources>

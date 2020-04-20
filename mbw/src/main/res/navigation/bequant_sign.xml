@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bequant_sing"
     app:startDestination="@id/signFragment">
 
     <fragment
         android:id="@+id/signFragment"
         android:name="com.mycelium.bequant.sign.SignFragment"
-        android:label="SignFragment">
+        android:label="SignFragment"
+        tools:layout="@layout/fragment_bequant_sign">
         <action
             android:id="@+id/actionRegister"
             app:destination="@id/registrationInfoFragment">
@@ -25,7 +27,8 @@
     <fragment
         android:id="@+id/registrationInfoFragment"
         android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
-        android:label="RegistrationInfoFragment">
+        android:label="RegistrationInfoFragment"
+        tools:layout="@layout/fragment_bequant_registration_info">
         <action
             android:id="@+id/actionNext"
             app:destination="@id/signUpTwoFactorFragment" />
@@ -33,7 +36,8 @@
     <fragment
         android:id="@+id/resetPasswordFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordFragment"
-        android:label="ResetPasswordFragment">
+        android:label="ResetPasswordFragment"
+        tools:layout="@layout/fragment_bequant_sign_in_reset_password">
         <action
             android:id="@+id/actionSubmit"
             app:destination="@id/resetPasswordInfoFragment">
@@ -45,11 +49,13 @@
     <fragment
         android:id="@+id/signInTwoFactorFragment"
         android:name="com.mycelium.bequant.signin.SignInTwoFactorFragment"
-        android:label="SignInTwoFactorFragment" />
+        android:label="SignInTwoFactorFragment"
+        tools:layout="@layout/fragment_bequant_sign_in_two_factor" />
     <fragment
         android:id="@+id/signUpTwoFactorFragment"
         android:name="com.mycelium.bequant.signup.SignUpTwoFactorFragment"
-        android:label="SignUpTwoFactorFragment">
+        android:label="SignUpTwoFactorFragment"
+        tools:layout="@layout/fragment_bequant_sign_up_two_factor">
         <action
             android:id="@+id/actionNext"
             app:destination="@id/backupCodeFragment" />
@@ -57,7 +63,8 @@
     <fragment
         android:id="@+id/backupCodeFragment"
         android:name="com.mycelium.bequant.signup.BackupCodeFragment"
-        android:label="BackupCodeFragment">
+        android:label="BackupCodeFragment"
+        tools:layout="@layout/fragment_bequant_backup_code">
         <action
             android:id="@+id/actionNext"
             app:destination="@id/setupCodeFragment" />
@@ -65,7 +72,8 @@
     <fragment
         android:id="@+id/resetPasswordInfoFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordInfoFragment"
-        android:label="ResetPasswordInfoFragment">
+        android:label="ResetPasswordInfoFragment"
+        tools:layout="@layout/fragment_bequant_reset_password_info">
         <action
             android:id="@+id/actionNext"
             app:destination="@id/resetPasswordChangeFragment">
@@ -77,10 +85,12 @@
     <fragment
         android:id="@+id/resetPasswordChangeFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordChangeFragment"
-        android:label="ResetPasswordChangeFragment" />
+        android:label="ResetPasswordChangeFragment"
+        tools:layout="@layout/fragment_bequant_change_password" />
     <fragment
         android:id="@+id/setupCodeFragment"
         android:name="com.mycelium.bequant.signup.SetupCodeFragment"
+        tools:layout="@layout/fragment_bequant_setup_code"
         android:label="SetupCodeFragment">
         <action
             android:id="@+id/actionNext"

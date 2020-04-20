@@ -18,10 +18,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/emailLayout"
+            style="@style/Bequant.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:hintEnabled="false">
+            android:layout_marginTop="24dp">
 
             <EditText
                 android:id="@+id/email"
@@ -37,10 +37,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordLayout"
+            style="@style/Bequant.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:hintEnabled="false"
             app:passwordToggleEnabled="true">
 
             <EditText
