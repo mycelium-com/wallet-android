@@ -194,7 +194,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                 backing.deleteTransaction(it)
             }
         } catch (e: IOException) {
-            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history, ${e.localizedMessage}")
+            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
         }
     }
 

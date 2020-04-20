@@ -7,11 +7,8 @@ import com.mycelium.net.HttpsEndpoint
 import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
-import java.util.logging.Level
-import java.util.logging.Logger
 
 abstract class AbstractTransactionService(private val address: String, endpoints: List<HttpsEndpoint>) {
-    private val logger = Logger.getLogger(AbstractTransactionService::class.simpleName)
     private val api = "${endpoints.random()}/api/v2/address/"
 
     @Throws(IOException::class)
@@ -23,7 +20,6 @@ abstract class AbstractTransactionService(private val address: String, endpoints
         val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
         result.addAll(initialResponse.transactions)
         for (i in 2..initialResponse.totalPages) {
-            logger.log(Level.INFO, "page: $i")
             urlString = "$api$address?details=txs&page=$i"
             val response = mapper.readValue(URL(urlString), Response::class.java)
             result.addAll(response.transactions)
