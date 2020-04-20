@@ -869,4 +869,11 @@
     <string name="create_new_account">Добавить новый ETH аккаунт</string>
     <string name="hd_eth_account">Добавить Ethereum аккаунт</string>
     <string name="add_erc20_account">Добавить ERC-20 аккаунт</string>
+    <string name="transaction_options">Параметры транзакции</string>
+    <string name="replace_transaction">Заменяемая транзакция</string>
+    <string name="tx_replace_info_title">Заменяемая транзакция</string>
+    <string name="transaction_gas_limit">Лимит Газа для транзакции</string>
+    <string name="transaction_input_data">Входные данные транзакции</string>
+    <string name="tx_replacae_info_desc">Выберите неподтвержденную транзакцию, которую вы хотите заменить.\nВознаграждение майнеру у заменяющей транзакции должно быть больше, чем у транзакции, выбранной для замены.</string>
+    <string name="none">не выбрана</string>
 </resources>

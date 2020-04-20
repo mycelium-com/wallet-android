@@ -1368,4 +1368,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="select_eth_account_to_erc20_subtext">ERC-20 tokens exist on ETH Accounts and require ETH to make transactions.\nSingle ETH Account can store unlimited types of ERC-20 tokens - one of each type per ETH account.</string>
     <string name="list_added_tokens">ERC-20 tokens on \"%s\" account</string>
     <string name="list_added_tokens_new_account">ERC-20 tokens on new account</string>
+    <string name="tx_replace_info_title">Transaction to be replaced</string>
+    <string name="tx_replacae_info_desc">Select an unconfirmed transaction you want to replace.\nMiner fee of the replacement transaction must be higher than the fee of the selected unconfirmed transaction.</string>
+    <string name="none">none</string>
 </resources>
