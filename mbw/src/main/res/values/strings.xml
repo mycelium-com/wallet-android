@@ -1356,10 +1356,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="dialog_sepa_buy_sell_btc">Buy or Sell Bitcoin using SEPA</string>
     <string name="send_mail">Send mail…</string>
     <string name="select_token">Add ERC-20 tokens to \"%s\" account</string>
-    <string name="select_token_new_account">Add ERC-20 tokens to new account</string>
+    <string name="select_token_new_account">Add ERC-20 tokens to new ETH Account</string>
     <string name="select_eth_account_to_erc20">Select ETH Account to store your ERC-20 tokens</string>
     <string name="create_new_account">Add new ETH Account</string>
-    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal Eth transfers, the value is 21,000. For contract this value is higher and bound by block gas limit.</string>
+    <string name="gas_limit_info_desc">Maximum amount of gas provided for the transaction. For normal ETH transfers, the value is 21,000.\nFor contract this value is higher and bound by block gas limit.</string>
     <string name="gas_limit_info_title">Gas Limit</string>
     <string name="transaction_options">Transaction options</string>
     <string name="transaction_gas_limit">Transaction Gas Limit</string>
