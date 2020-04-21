@@ -55,6 +55,7 @@ import com.mycelium.wapi.wallet.colu.ColuAccount
 import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import kotlinx.android.synthetic.main.send_coins_activity.*
+import kotlinx.android.synthetic.main.send_coins_advanced_eth.*
 import kotlinx.android.synthetic.main.send_coins_fee_selector.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -176,7 +177,12 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
             is EthAccount, is ERC20Account -> {
                 DataBindingUtil.setContentView<SendCoinsActivityEthBinding>(this, R.layout.send_coins_activity_eth)
                         .also {
-                            it.viewModel = viewModel as SendEthViewModel
+                            it.viewModel = (viewModel as SendEthViewModel).apply {
+                                spinner?.adapter = ArrayAdapter(context,
+                                        R.layout.layout_send_coin_transaction_replace, R.id.text, getTxItems()).apply {
+                                    this.setDropDownViewResource(R.layout.layout_send_coin_transaction_replace_dropdown)
+                                }
+                            }
                             it.activity = this
                         }
             }
@@ -299,6 +305,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
         AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setTitle(R.string.input_data_format)
                 .setMessage(R.string.input_data_format_desc)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
+
+    fun showGasLimitInfo() {
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(R.string.gas_limit_info_title)
+                .setMessage(R.string.gas_limit_info_desc)
                 .setPositiveButton(R.string.button_ok, null)
                 .create()
                 .show()
@@ -505,7 +520,7 @@ class TransactionItem(val tx: TransactionSummary, private val dateString: String
     override fun toString(): String {
         val idHex = HexUtils.toHex(tx.id)
         val idString = "${idHex.substring(0, 6)}…${idHex.substring(idHex.length - 2)}"
-        return "$idString ($dateString, $amountString)"
+        return "$idString - $dateString, $amountString"
     }
 }
 

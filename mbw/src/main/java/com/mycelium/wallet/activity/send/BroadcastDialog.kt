@@ -165,6 +165,10 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent_small_fee) {
                     returnResult(broadcastResult)
                 }
+            BroadcastResultType.REJECT_INVALID_TX_PARAMS -> // Transaction rejected, display message and exit
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_invalid_tx_params, broadcastResult.errorMessage)) {
+                    returnResult(broadcastResult)
+                }
             BroadcastResultType.SUCCESS -> {
                 // Toast success and finish
                 Toast.makeText(activity, resources.getString(R.string.transaction_sent),

@@ -487,7 +487,6 @@ public class SqliteColuManagerBacking implements WalletBacking<ColuAccountContex
 
       @Override
       public void putUnspentOutputs(List<TransactionOutputEx> unspentOutputs) {
-
       }
 
       @Override

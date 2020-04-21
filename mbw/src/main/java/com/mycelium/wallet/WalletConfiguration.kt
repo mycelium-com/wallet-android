@@ -173,19 +173,18 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
 
-    fun getSupportedERC20Tokens(): Map<String, ERC20Token> = when (BuildConfig.FLAVOR) {
-        "prodnet" -> listOf(
-                ERC20Token("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
-                ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"))
-        else -> listOf(
-                ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560"),
-                ERC20Token("Binance", "BNB", 18, "0xF73C72c160B69a4E9258fB684Eb64b635074c703"),
-                ERC20Token("VeChain", "VEN", 18, "0x9E56f421a7D20903928797c8ddf3318a6B461a8e"),
-                ERC20Token("Polymath", "POLY", 18, "0x95957c12a4776Ce4ab5bA683E2C827A83A351aaF"),
-                ERC20Token("MyDFS", "MyDFS", 18, "0x3578AE28E8b6f5664BbE3e855DB209E9DabDC027"),
-                ERC20Token("MassToken", "MASS", 18, "0xE9c6860069409B6257CD6B0315E73071927ADC2A"),
-                ERC20Token("Mycelium", "MT", 18, "0xA1a6b1FF4d3D23fC1DD8D70FeeB77Db561AfdC8E"))
-    }.associateBy { it.name }
+    fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
+            ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
+            ERC20Token("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+            ERC20Token("HuobiToken", "HT", 18, "0x6f259637dcd74c767781e37bc6133cd6a68aa161"),
+            ERC20Token("Binance USD", "BUSD", 18, "0x4fabb145d64652a948d72533023f6e7a623c7c53"),
+            ERC20Token("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
+            when (BuildConfig.FLAVOR) {
+                "prodnet" -> ERC20Token("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498")
+                // for testing purposes
+                else -> ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560")
+            })
+            .associateBy { it.name }
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
