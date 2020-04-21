@@ -67,7 +67,7 @@ public class DataExport {
         osw.write(CSV_HEADER);
         String accountLabel = storage.getLabelByAccount(account.getId());
         Collections.sort(history);
-        for (tTransactionSummary transaction : history) {
+        for (TransactionSummary transaction : history) {
             String txLabel = storage.getLabelByTransaction(transaction.getIdHex());
                 List<String> destAddresses = new ArrayList<>();
             for (OutputViewModel output : transaction.getOutputs()) {
