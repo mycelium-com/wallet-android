@@ -186,13 +186,14 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         try {
             val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
                     token.contractAddress).getTransactions()
-            remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
-                val transfer = tx.getTokenTransfer(token.contractAddress)!!
-                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                        transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
-                        Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
-                                ?: typicalEstimatedTransactionSize.toBigInteger())),
-                        tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+            remoteTransactions.forEach { tx ->
+                tx.getTokenTransfer(token.contractAddress)?.also { transfer ->
+                    backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                            transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                            Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
+                                    ?: typicalEstimatedTransactionSize.toBigInteger())),
+                            tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+                }
             }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
