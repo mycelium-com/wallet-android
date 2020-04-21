@@ -183,14 +183,28 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             .fold(BigInteger.ZERO, BigInteger::add)
 
     private fun syncTransactions() {
-        val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
-                token.contractAddress).getTransactions()
-        remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
-            val transfer = tx.getTokenTransfer(token.contractAddress)!!
-            backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
-                    transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
-                    Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed ?: typicalEstimatedTransactionSize.toBigInteger())),
-                    tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+        try {
+            val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
+                    token.contractAddress).getTransactions()
+            remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
+                val transfer = tx.getTokenTransfer(token.contractAddress)!!
+                backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
+                        transfer.to, Value.valueOf(basedOnCoinType, transfer.value),
+                        Value.valueOf(basedOnCoinType, tx.gasPrice * (tx.gasUsed
+                                ?: typicalEstimatedTransactionSize.toBigInteger())),
+                        tx.confirmations.toInt(), tx.nonce, tx.gasLimit, tx.gasUsed)
+            }
+            val localTxs = getUnconfirmedTransactions()
+            // remove such transactions that are not on server anymore
+            // this could happen if transaction was replaced by another e.g.
+            val toRemove = localTxs.filter { localTx ->
+                !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+            }
+            toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
+                backing.deleteTransaction(it)
+            }
+        } catch (e: IOException) {
+            logger.log(Level.SEVERE, "Error retrieving ETH/ERC-20 transaction history: ${e.javaClass} ${e.localizedMessage}")
         }
     }
 
