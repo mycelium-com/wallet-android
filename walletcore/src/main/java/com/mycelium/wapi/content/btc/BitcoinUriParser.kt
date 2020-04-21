@@ -1,15 +1,15 @@
 package com.mycelium.wapi.content.btc
 
 import com.mrd.bitlib.model.NetworkParameters
-import com.mycelium.wapi.content.GenericAssetUri
-import com.mycelium.wapi.content.GenericAssetUriParser
+import com.mycelium.wapi.content.AssetUri
+import com.mycelium.wapi.content.AssetUriParser
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain
 import com.mycelium.wapi.wallet.btc.coins.BitcoinTest
 import java.net.URI
 
 
-class BitcoinUriParser(override val network: NetworkParameters) : GenericAssetUriParser(network) {
-    override fun parse(content: String): GenericAssetUri? {
+class BitcoinUriParser(override val network: NetworkParameters) : AssetUriParser(network) {
+    override fun parse(content: String): AssetUri? {
         try {
             var uri = URI.create(content.trim { it <= ' ' })
             val scheme = uri.scheme

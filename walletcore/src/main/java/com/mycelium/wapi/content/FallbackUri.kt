@@ -1,5 +1,5 @@
 package com.mycelium.wapi.content
 
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 
-class FallbackUri(address: GenericAddress?) : GenericAssetUri(address, null, null, null)
+class FallbackUri(address: Address?) : AssetUri(address, null, null, null)

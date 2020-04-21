@@ -37,8 +37,8 @@ package com.mycelium.wallet.activity.util;
 
 import androidx.annotation.NonNull;
 
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.TransactionSummary;
 
 public class BlockExplorer {
     private final String baseAddressUrlClear;
@@ -57,7 +57,7 @@ public class BlockExplorer {
        this.baseTransactionUrlTor = baseTransactionUrlTor;
     }
 
-    String getUrl(GenericAddress address, boolean isTor) {
+    String getUrl(Address address, boolean isTor) {
        if (isTor) {
           return baseAddressUrlTor + address.toString();
        } else {
@@ -65,7 +65,7 @@ public class BlockExplorer {
        }
     }
 
-   String getUrl(GenericTransactionSummary transaction, boolean isTor) {
+   String getUrl(TransactionSummary transaction, boolean isTor) {
       if (isTor){
          return baseTransactionUrlTor + transaction.getIdHex();
       } else {

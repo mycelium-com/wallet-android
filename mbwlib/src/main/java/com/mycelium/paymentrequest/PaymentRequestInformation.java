@@ -111,7 +111,7 @@ public class PaymentRequestInformation implements Serializable {
             public boolean apply(TransactionOutput input) {
                // search if we got a strange output or a null address as destination
                return input.script instanceof ScriptOutputStrange ||
-                     input.script.getAddress(networkParameters).equals(Address.getNullAddress(networkParameters));
+                     input.script.getAddress(networkParameters).equals(BitcoinAddress.getNullAddress(networkParameters));
             }
          });
 
@@ -251,8 +251,8 @@ public class PaymentRequestInformation implements Serializable {
    }
 
    // try to parse the output scripts and get associated addresses - not all output scripts may be parse-able
-   public ArrayList<Address> getKnownOutputAddresses(NetworkParameters networkParameters) {
-      ArrayList<Address> ret = new ArrayList<>();
+   public ArrayList<BitcoinAddress> getKnownOutputAddresses(NetworkParameters networkParameters) {
+      ArrayList<BitcoinAddress> ret = new ArrayList<>();
       for (Output out : paymentDetails.outputs) {
          ScriptOutput scriptOutput = ScriptOutput.fromScriptBytes(out.script.toByteArray());
          if (!(scriptOutput instanceof ScriptOutputStrange)) {
@@ -274,7 +274,7 @@ public class PaymentRequestInformation implements Serializable {
       return pkiVerificationData;
    }
 
-   public Payment buildPaymentResponse(Address refundAddress, String memo, Transaction signedTransaction) {
+   public Payment buildPaymentResponse(BitcoinAddress refundAddress, String memo, BitcoinTransaction signedTransaction) {
       byte[] scriptBytes = new ScriptOutputP2PKH(refundAddress.getTypeSpecificBytes()).getScriptBytes();
       Output refundOutput = new Output.Builder()
             .amount(getOutputs().getTotalAmount())

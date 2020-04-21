@@ -23,7 +23,7 @@ import com.mrd.bitlib.crypto.ec.Curve;
 import com.mrd.bitlib.crypto.ec.EcTools;
 import com.mrd.bitlib.crypto.ec.Parameters;
 import com.mrd.bitlib.crypto.ec.Point;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.util.BitUtils;
 import com.mrd.bitlib.util.ByteWriter;
 import com.mrd.bitlib.util.HashUtils;
@@ -52,7 +52,7 @@ public class SignedMessage implements Serializable {
       return recoverFromSignature(message, signatureEncoded, sig).publicKey;
    }
 
-   public static SignedMessage validate(Address address, String message, String signatureBase64)
+   public static SignedMessage validate(BitcoinAddress address, String message, String signatureBase64)
          throws WrongSignatureException {
       final byte[] signatureEncoded = Base64.decode(signatureBase64);
       if (signatureEncoded == null) {
@@ -65,8 +65,8 @@ public class SignedMessage implements Serializable {
       return new SignedMessage(sig, info.publicKey, info.recId);
    }
 
-   public static void validateAddressMatches(Address address, PublicKey key) throws WrongSignatureException {
-      Collection<Address> possibleAddresses = key.getAllSupportedAddresses(address.getNetwork()).values();
+   public static void validateAddressMatches(BitcoinAddress address, PublicKey key) throws WrongSignatureException {
+      Collection<BitcoinAddress> possibleAddresses = key.getAllSupportedAddresses(address.getNetwork()).values();
       if (!possibleAddresses.contains(address)) {
          String possibleAddressesString = Joiner.on(", ").join(possibleAddresses);
          throw new WrongSignatureException(String.format("given Address did not match \nexpected %s\n but possible %s",

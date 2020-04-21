@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.NetworkParameters;
 
 public class PublicKeyRing implements IPublicKeyRing {
-    private List<Address> _addresses;
-    private Set<Address> _addressSet;
-    private Map<Address, PublicKey> _publicKeys;
+    private List<BitcoinAddress> _addresses;
+    private Set<BitcoinAddress> _addressSet;
+    private Map<BitcoinAddress, PublicKey> _publicKeys;
 
     public PublicKeyRing() {
         _addresses = new ArrayList<>();
@@ -42,10 +42,10 @@ public class PublicKeyRing implements IPublicKeyRing {
      * Add a public key to the key ring.
      */
     public void addPublicKey(PublicKey key, NetworkParameters network) {
-        Collection<Address> addresses = key.getAllSupportedAddresses(network).values();
+        Collection<BitcoinAddress> addresses = key.getAllSupportedAddresses(network).values();
         _addresses.addAll(addresses);
         _addressSet.addAll(addresses);
-        for (Address address : addresses) {
+        for (BitcoinAddress address : addresses) {
             _publicKeys.put(address, key);
         }
     }
@@ -53,22 +53,22 @@ public class PublicKeyRing implements IPublicKeyRing {
     /**
      * Add a public key and its corresponding Bitcoin address to the key ring.
      */
-    public void addPublicKey(PublicKey key, Address address) {
+    public void addPublicKey(PublicKey key, BitcoinAddress address) {
         _addresses.add(address);
         _addressSet.add(address);
         _publicKeys.put(address, key);
     }
 
     @Override
-    public PublicKey findPublicKeyByAddress(Address address) {
+    public PublicKey findPublicKeyByAddress(BitcoinAddress address) {
         return _publicKeys.get(address);
     }
 
-    public List<Address> getAddresses() {
+    public List<BitcoinAddress> getAddresses() {
         return Collections.unmodifiableList(_addresses);
     }
 
-    public Set<Address> getAddressSet() {
+    public Set<BitcoinAddress> getAddressSet() {
         return Collections.unmodifiableSet(_addressSet);
     }
 }

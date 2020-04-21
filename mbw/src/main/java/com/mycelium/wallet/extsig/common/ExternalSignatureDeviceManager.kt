@@ -185,7 +185,7 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
                     ?.getAddress(network)
 
     // based on https://github.com/trezor/python-trezor/blob/a2a5b6a4601c6912166ef7f85f04fa1101c2afd4/trezorlib/client.py
-    override fun getSignedTransaction(unsigned: UnsignedTransaction, forAccount: HDAccountExternalSignature): Transaction? {
+    override fun getSignedTransaction(unsigned: UnsignedTransaction, forAccount: HDAccountExternalSignature): BitcoinTransaction? {
         Log.d("trezor", "getting this transaction signed: $unsigned")
         if (!initialize()) {
             return null
@@ -273,14 +273,14 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
             Log.d("trezor", "RequestTyp: " + response.requestType.toString())
 
 
-            val requestedTx: Transaction
+            val requestedTx: BitcoinTransaction
             requestedTx = if (txRequestDetailsType.hasTxHash()) {
                 // trezor requested information about a related tx - get it from the account backing
                 val requestHash = Sha256Hash.of(txRequestDetailsType.txHash.toByteArray())
                 TransactionEx.toTransaction(forAccount.getTransaction(requestHash))
             } else {
                 // trezor requested information about the to-be-signed tx
-                Transaction.fromUnsignedTransaction(unsigned)
+                BitcoinTransaction.fromUnsignedTransaction(unsigned)
             }
 
             // Lets see, what trezor wants to know (request type)
@@ -408,10 +408,10 @@ abstract class ExternalSignatureDeviceManager(context: Context, network: Network
         }
 
         return try {
-            Transaction.fromByteReader(ByteReader(signedTx.toBytes()))
+            BitcoinTransaction.fromByteReader(ByteReader(signedTx.toBytes()))
             // TODO: 13.10.18 add this check back in and make it work with segwit.
             //checkSignedTransaction(unsigned, signedTx);
-        } catch (e: Transaction.TransactionParsingException) {
+        } catch (e: BitcoinTransaction.TransactionParsingException) {
             postErrorMessage("Trezor TX not valid.")
             Log.e("trezor", "Trezor TX not valid " + e.message, e)
             return null

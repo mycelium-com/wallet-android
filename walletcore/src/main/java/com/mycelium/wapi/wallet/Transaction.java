@@ -4,7 +4,7 @@ import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 
 import java.io.Serializable;
 
-public abstract class GenericTransaction implements Serializable {
+public abstract class Transaction implements Serializable {
 
     /**
      * Type of cryptocurrency the transaction operates with
@@ -13,7 +13,7 @@ public abstract class GenericTransaction implements Serializable {
 
     public boolean isSigned;
 
-    protected GenericTransaction(CryptoCurrency type) {
+    protected Transaction(CryptoCurrency type) {
         this.type = type;
         this.isSigned = false;
     }

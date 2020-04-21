@@ -58,7 +58,7 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.net.ServerEndpointType;
 import com.mycelium.wallet.Constants;
 import com.mycelium.wallet.MbwManager;
@@ -214,7 +214,7 @@ public class ModernMain extends AppCompatActivity {
         final Set<Integer> gaps = module != null ? module.getGapsBug() : null;
         if (gaps != null && !gaps.isEmpty()) {
             checkNotNull(module);
-            final List<Address> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
+            final List<BitcoinAddress> gapAddresses = module.getGapAddresses(AesKeyCipher.defaultKeyCipher());
             final String gapsString = Joiner.on(", ").join(gapAddresses);
             Log.d("Gaps", gapsString);
 

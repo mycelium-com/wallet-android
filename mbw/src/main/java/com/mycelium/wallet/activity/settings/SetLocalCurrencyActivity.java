@@ -50,7 +50,7 @@ import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.settings.adapter.LocalCurrencyAdapter;
 import com.mycelium.wapi.api.lib.CurrencyCode;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final List<CurrencyCode> selected = new ArrayList<>();
-        for (GenericAssetInfo currency : MbwManager.getInstance(this).getCurrencyList()) {
+        for (AssetInfo currency : MbwManager.getInstance(this).getCurrencyList()) {
             selected.add(CurrencyCode.valueOf(currency.getSymbol()));
         }
 
@@ -161,7 +161,7 @@ public class SetLocalCurrencyActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Set<GenericAssetInfo> currencyList = new HashSet<>();
+        Set<AssetInfo> currencyList = new HashSet<>();
         currencyList.add(new FiatType(CurrencyCode.USD.getShortString()));
         for (CurrencyCode currencyCode : _adapter.getSelected()) {
             currencyList.add(new FiatType(currencyCode.getShortString()));

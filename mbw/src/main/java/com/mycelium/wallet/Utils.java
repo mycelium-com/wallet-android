@@ -82,7 +82,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mycelium.wallet.activity.AdditionalBackupWarningActivity;
@@ -92,12 +92,12 @@ import com.mycelium.wallet.activity.export.ExportAsQrActivity;
 import com.mycelium.wallet.activity.modern.model.accounts.AccountViewModel;
 import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.api.lib.CurrencyCode;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
@@ -113,7 +113,7 @@ import com.mycelium.wapi.wallet.btc.coins.BitcoinTest;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.CoinsKt;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoin;
 import com.mycelium.wapi.wallet.colu.coins.MASSCoinTest;
@@ -540,7 +540,7 @@ public class Utils {
       }
    }
 
-   public static Optional<GenericAddress> addressFromString(String someString, NetworkParameters network) {
+   public static Optional<Address> addressFromString(String someString, NetworkParameters network) {
       if (someString == null) {
          return Optional.absent();
       }
@@ -549,7 +549,7 @@ public class Utils {
          // Raw format
          return Optional.fromNullable(AddressUtils.from(getBtcCoinType(), someString));
       } else {
-         GenericAssetUri b = (new BitcoinUriParser(network)).parse(someString);
+         AssetUri b = (new BitcoinUriParser(network)).parse(someString);
          if (b != null && b.getAddress() != null) {
             // On URI format
             return Optional.of(b.getAddress());
@@ -930,7 +930,7 @@ public class Utils {
       return type.compound(index).compound(linked).compound(name).sortedCopy(accounts);
    }
 
-   public static List<Address> sortAddresses(List<Address> addresses) {
+   public static List<BitcoinAddress> sortAddresses(List<BitcoinAddress> addresses) {
       return Ordering.usingToString().sortedCopy(addresses);
    }
 
@@ -943,7 +943,7 @@ public class Utils {
    }
 
    public static Drawable getDrawableForAccount(AccountViewModel accountView, boolean isSelectedAccount, Resources resources) {
-      Class<? extends WalletAccount<? extends GenericAddress>> accountType = accountView.getAccountType();
+      Class<? extends WalletAccount<? extends Address>> accountType = accountView.getAccountType();
       if (ColuAccount.class.isAssignableFrom(accountType)) {
          CryptoCurrency coinType = accountView.getCoinType();
          if (coinType == MTCoin.INSTANCE || coinType == MTCoinTest.INSTANCE) {
@@ -1119,7 +1119,7 @@ public class Utils {
    }
 
    @Nullable
-   public static GenericAssetInfo getTypeByName(String name) {
+   public static AssetInfo getTypeByName(String name) {
       for (CurrencyCode currencyCode : CurrencyCode.values()) {
          if (name.equals(currencyCode.getShortString())) {
             // then it's a fiat type

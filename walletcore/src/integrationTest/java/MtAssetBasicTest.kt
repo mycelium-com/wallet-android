@@ -20,10 +20,10 @@ import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.*
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
-import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
+import com.mycelium.wapi.wallet.exceptions.TransactionBroadcastException
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
 import com.mycelium.wapi.wallet.metadata.MetadataKeyCategory
@@ -137,13 +137,13 @@ class MtAssetBasicTest {
             println("Colu 1 Account balance: " + coluAccount1.accountBalance.spendable.toString())
             println("Colu 2 Account balance: " + coluAccount2.accountBalance.spendable.toString())
 
-        } catch (ex: GenericTransactionBroadcastException) {
+        } catch (ex: TransactionBroadcastException) {
             ex.printStackTrace()
-        } catch (ex: GenericBuildTransactionException) {
+        } catch (ex: BuildTransactionException) {
             ex.printStackTrace()
-        } catch (ex: GenericInsufficientFundsException) {
+        } catch (ex: InsufficientFundsException) {
             ex.printStackTrace()
-        } catch (ex: GenericOutputTooSmallException) {
+        } catch (ex: OutputTooSmallException) {
             ex.printStackTrace()
         } catch (ex: KeyCipher.InvalidKeyCipher) {
             ex.printStackTrace()

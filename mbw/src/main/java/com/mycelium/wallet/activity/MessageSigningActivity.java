@@ -52,7 +52,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.modern.HDSigningActivity;
 import com.mycelium.wallet.activity.modern.Toaster;
 import com.mycelium.wapi.wallet.AesKeyCipher;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
@@ -94,7 +94,7 @@ public class MessageSigningActivity extends Activity {
         }
     }
 
-    public static void callMe(Context currentActivity, InMemoryPrivateKey privateKey, GenericAddress address) {
+    public static void callMe(Context currentActivity, InMemoryPrivateKey privateKey, Address address) {
         String privKey = privateKey.getBase58EncodedPrivateKey(MbwManager.getInstance(currentActivity).getNetwork());
 
         Intent intent = new Intent(currentActivity, MessageSigningActivity.class)
@@ -108,7 +108,7 @@ public class MessageSigningActivity extends Activity {
         super.onCreate(savedInstanceState);
         setTitle(R.string.sign_message);
         String encoded = getIntent().getStringExtra(PRIVATE_KEY);
-        final GenericAddress address = (GenericAddress) getIntent().getSerializableExtra(ADDRESS);
+        final Address address = (Address) getIntent().getSerializableExtra(ADDRESS);
         NetworkParameters network = MbwManager.getInstance(this).getNetwork();
         final InMemoryPrivateKey privateKey = new InMemoryPrivateKey(encoded, network);
 

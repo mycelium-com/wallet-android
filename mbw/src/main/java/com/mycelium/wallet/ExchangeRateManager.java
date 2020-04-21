@@ -57,7 +57,7 @@ import com.mycelium.wapi.api.WapiException;
 import com.mycelium.wapi.api.request.GetExchangeRatesRequest;
 import com.mycelium.wapi.api.response.GetExchangeRatesResponse;
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.currency.ExchangeRateProvider;
 
@@ -458,11 +458,11 @@ public class ExchangeRateManager implements ExchangeRateProvider {
     }
 
     // set for which fiat currencies we should get fx rates for
-    public void setCurrencyList(Set<GenericAssetInfo> currencies) {
+    public void setCurrencyList(Set<AssetInfo> currencies) {
         synchronized (_requestLock) {
             // copy list to prevent changes from outside
             ImmutableList.Builder<String> listBuilder = new ImmutableList.Builder<>();
-            for (GenericAssetInfo currency : currencies) {
+            for (AssetInfo currency : currencies) {
                 listBuilder.add(currency.getSymbol());
             }
             _fiatCurrencies = listBuilder.build();
@@ -488,7 +488,7 @@ public class ExchangeRateManager implements ExchangeRateProvider {
         }
     }
 
-    public Value get(Value value, GenericAssetInfo toCurrency) {
+    public Value get(Value value, AssetInfo toCurrency) {
         GetExchangeRate rate = new GetExchangeRate(MbwManager.getInstance(_applicationContext).getWalletManager(false),
                 toCurrency.getSymbol(), value.type.getSymbol(), this).invoke();
         BigDecimal rateValue = rate.getRate();

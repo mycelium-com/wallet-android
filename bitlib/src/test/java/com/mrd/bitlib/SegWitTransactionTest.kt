@@ -14,13 +14,13 @@ class SegWitTransactionTest {
     }
 
     @Test
-    @Throws(Transaction.TransactionParsingException::class)
+    @Throws(BitcoinTransaction.TransactionParsingException::class)
     fun generateSignaturesP2SH_P2WPKH() {
         val publicKey = PublicKey(toBytes("03ad1d8e89212f0b92c74d23bb710c00662ad1470198ac48c43f7d6f93a2a26873"))
         val privateKey = InMemoryPrivateKey(toBytes("eb696a065ef48a2192da5b28b694f87544b30fae8327c4510137a922f32c6dcf"))
         val publicKeyRing = IPublicKeyRing { publicKey }
         val privateKeyRing = IPrivateKeyRing { privateKey }
-        val tx = Transaction.fromBytes(toBytes(P2SH_P2WPKH_UNSIGNED))
+        val tx = BitcoinTransaction.fromBytes(toBytes(P2SH_P2WPKH_UNSIGNED))
         Assert.assertEquals(P2SH_P2WPKH_UNSIGNED, toHex(tx.toBytes()))
 
         val input1 = UnspentTransactionOutput(tx.inputs[0].outPoint, 10,1000000000,

@@ -36,20 +36,20 @@ package com.mycelium.wallet.persistence;
 
 import java.io.Serializable;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.OutPoint;
 
 public class PersistedOutput implements Serializable {
    private static final long serialVersionUID = 1L;
 
    public OutPoint outPoint;
-   public Address address;
+   public BitcoinAddress address;
    public int height; // -1 means unconfirmed
    public long value;
    public byte[] script;
    public boolean isCoinBase;
 
-   public PersistedOutput(OutPoint outPoint, Address address, int height, long value, byte[] script, boolean isCoinBase) {
+   public PersistedOutput(OutPoint outPoint, BitcoinAddress address, int height, long value, byte[] script, boolean isCoinBase) {
       this.outPoint = outPoint;
       this.address = address;
       this.height = height;

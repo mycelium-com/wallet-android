@@ -13,9 +13,8 @@ import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
 
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
-import com.mycelium.wapi.wallet.genericdb.GenericBacking
+import com.mycelium.wapi.wallet.genericdb.Backing
 import com.mycelium.wapi.wallet.manager.Config
-import com.mycelium.wapi.wallet.manager.GenericModule
 import com.mycelium.wapi.wallet.manager.WalletModule
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager
 import com.mycelium.wapi.wallet.metadata.IMetaDataStorage
@@ -26,13 +25,13 @@ import java.util.*
 
 class EthereumModule(
         private val secureStore: SecureKeyValueStore,
-        private val backing: GenericBacking<EthAccountContext>,
+        private val backing: Backing<EthAccountContext>,
         private val walletDB: WalletDB,
         private val web3jWrapper: Web3jWrapper,
         private val transactionServiceEndpoints: List<HttpsEndpoint>,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
-        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
+        private val accountListener: AccountListener?) : WalletModule(metaDataStorage) {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""

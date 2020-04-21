@@ -11,14 +11,12 @@ import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.G
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
 import com.mycelium.wallet.event.AccountListChanged
 import com.mycelium.wallet.exchange.ValueSum
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.WalletManager
 import com.mycelium.wapi.wallet.bch.bip44.getBCHBip44Accounts
 import com.mycelium.wapi.wallet.bch.single.getBCHSingleAddressAccounts
 import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
-import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
 import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
@@ -94,16 +92,16 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun getColuAccounts(walletManager: WalletManager): List<WalletAccount<out GenericAddress>> =
+        private fun getColuAccounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getColuAccounts() + walletManager.getColuAccounts().mapNotNull { Utils.getLinkedAccount(it, walletManager.getAccounts()) }
 
-        private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out GenericAddress>> =
+        private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out Address>> =
                 walletManager.getEthAccounts() + walletManager.getERC20Accounts()
 
-        private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
+        private fun accountsToViewModel(accounts: Collection<WalletAccount<out Address>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
 
-        private fun sortAccounts(accounts: Collection<WalletAccount<out GenericAddress>>) =
+        private fun sortAccounts(accounts: Collection<WalletAccount<out Address>>) =
                 Utils.sortAccounts(accounts, mbwManager.metadataStorage)
 
         @SafeVarargs
@@ -133,7 +131,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
     }
 
     companion object {
-        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out GenericAddress>>): ValueSum {
+        private fun getSpendableBalance(walletAccountList: List<WalletAccount<out Address>>): ValueSum {
             val sum = ValueSum()
             for (account in walletAccountList) {
                 if (account.isActive) {

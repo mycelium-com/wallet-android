@@ -63,8 +63,8 @@ import com.mycelium.wallet.content.Action;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.content.StringHandleConfig;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.content.AssetUri;
+import com.mycelium.wapi.wallet.Address;
 
 import java.util.UUID;
 
@@ -272,7 +272,7 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
-   public void finishOk(GenericAssetUri assetUri) {
+   public void finishOk(AssetUri assetUri) {
       Intent result = new Intent();
       result.putExtra(RESULT_URI_KEY, assetUri);
       result.putExtra(RESULT_TYPE_KEY, ResultType.ASSET_URI);
@@ -312,7 +312,7 @@ public class StringHandlerActivity extends Activity {
       finish();
    }
 
-   public void finishOk(GenericAddress address) {
+   public void finishOk(Address address) {
       Intent result = new Intent();
       result.putExtra(RESULT_ADDRESS_KEY, address);
       result.putExtra(RESULT_TYPE_KEY, ResultType.ADDRESS);

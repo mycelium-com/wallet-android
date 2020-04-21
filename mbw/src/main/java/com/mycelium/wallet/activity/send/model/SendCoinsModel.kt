@@ -17,13 +17,13 @@ import com.mycelium.wallet.event.AccountChanged
 import com.mycelium.wallet.event.ExchangeRatesRefreshed
 import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
-import com.mycelium.wapi.content.GenericAssetUri
+import com.mycelium.wapi.content.AssetUri
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
-import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.OutputTooSmallException
 import com.squareup.otto.Subscribe
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -45,9 +45,9 @@ abstract class SendCoinsModel(
     val receivingAddressAdditional: MutableLiveData<String> = MutableLiveData()
     val receivingLabel: MutableLiveData<String> = MutableLiveData()
     val feeDataset: MutableLiveData<List<FeeItem>> = MutableLiveData()
-    val clipboardUri: MutableLiveData<GenericAssetUri?> = MutableLiveData()
+    val clipboardUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val errorText: MutableLiveData<String> = MutableLiveData()
-    val genericUri: MutableLiveData<GenericAssetUri?> = MutableLiveData()
+    val genericUri: MutableLiveData<AssetUri?> = MutableLiveData()
     val paymentFetched: MutableLiveData<Boolean> = MutableLiveData()
     val amountFormatted: MutableLiveData<String> = MutableLiveData()
     val alternativeAmountFormatted: MutableLiveData<String> = MutableLiveData()
@@ -57,8 +57,8 @@ abstract class SendCoinsModel(
     val isColdStorage = intent.getBooleanExtra(SendCoinsActivity.IS_COLD_STORAGE, false)
 
 
-    val transactionData: MutableLiveData<GenericTransactionData?> = object : MutableLiveData<GenericTransactionData?>() {
-        override fun setValue(value: GenericTransactionData?) {
+    val transactionData: MutableLiveData<TransactionData?> = object : MutableLiveData<TransactionData?>() {
+        override fun setValue(value: TransactionData?) {
             if (value != this.value) {
                 super.setValue(value)
                 txRebuildPublisher.onNext(Unit)
@@ -66,8 +66,8 @@ abstract class SendCoinsModel(
         }
     }
 
-    val receivingAddress: MutableLiveData<GenericAddress?> = object : MutableLiveData<GenericAddress?>() {
-        override fun setValue(value: GenericAddress?) {
+    val receivingAddress: MutableLiveData<Address?> = object : MutableLiveData<Address?>() {
+        override fun setValue(value: Address?) {
             if (value != this.value) {
                 super.setValue(value)
                 receiverChanged.onNext(Unit)
@@ -132,8 +132,8 @@ abstract class SendCoinsModel(
         }
     }
 
-    var transaction: GenericTransaction? = null
-    var signedTransaction: GenericTransaction? = null
+    var transaction: Transaction? = null
+    var signedTransaction: Transaction? = null
 
     // This is the list of subscriptions that must be destroyed before exiting
     val listToDispose = ArrayList<Disposable>()
@@ -259,8 +259,8 @@ abstract class SendCoinsModel(
 
 
         transactionLabel.value = intent.getStringExtra(SendCoinsActivity.TRANSACTION_LABEL) ?: ""
-        receivingAddress.value = intent.getSerializableExtra(SendCoinsActivity.RECEIVING_ADDRESS) as GenericAddress?
-        genericUri.value = intent.getSerializableExtra(SendCoinsActivity.ASSET_URI) as GenericAssetUri?
+        receivingAddress.value = intent.getSerializableExtra(SendCoinsActivity.RECEIVING_ADDRESS) as Address?
+        genericUri.value = intent.getSerializableExtra(SendCoinsActivity.ASSET_URI) as AssetUri?
 
         this.feeDataset.value = updateFeeDataset()
     }
@@ -292,10 +292,10 @@ abstract class SendCoinsModel(
             }
 
             amount.value = getSerializable(SendCoinsActivity.AMOUNT) as Value
-            receivingAddress.value = getSerializable(SendCoinsActivity.RECEIVING_ADDRESS) as GenericAddress?
+            receivingAddress.value = getSerializable(SendCoinsActivity.RECEIVING_ADDRESS) as Address?
             transactionLabel.value = getString(SendCoinsActivity.TRANSACTION_LABEL)
-            genericUri.value = getSerializable(SendCoinsActivity.ASSET_URI) as GenericAssetUri?
-            signedTransaction = getSerializable(SendCoinsActivity.SIGNED_TRANSACTION) as GenericTransaction?
+            genericUri.value = getSerializable(SendCoinsActivity.ASSET_URI) as AssetUri?
+            signedTransaction = getSerializable(SendCoinsActivity.SIGNED_TRANSACTION) as Transaction?
         }
     }
 
@@ -445,11 +445,11 @@ abstract class SendCoinsModel(
                     TransactionStatus.MISSING_ARGUMENTS
                 }
             }
-        } catch (ex: GenericBuildTransactionException) {
+        } catch (ex: BuildTransactionException) {
             return TransactionStatus.MISSING_ARGUMENTS
-        } catch (ex: GenericOutputTooSmallException) {
+        } catch (ex: OutputTooSmallException) {
             return TransactionStatus.OUTPUT_TO_SMALL
-        } catch (ex: GenericInsufficientFundsException) {
+        } catch (ex: InsufficientFundsException) {
             return TransactionStatus.INSUFFICIENT_FUNDS
         } catch (ex: IOException) {
             return TransactionStatus.BUILD_ERROR
@@ -472,7 +472,7 @@ abstract class SendCoinsModel(
     private fun isInRange(feeItems: List<FeeItem>, fee: Value) =
             (feeItems[0].feePerKb <= fee.valueAsLong && fee.valueAsLong <= feeItems[feeItems.size - 1].feePerKb)
 
-    private fun getAddressLabel(address: GenericAddress): String {
+    private fun getAddressLabel(address: Address): String {
         val accountId = mbwManager.getAccountId(address, account.coinType).orNull()
         return if (accountId != null) {
             // Get the name of the account

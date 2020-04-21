@@ -69,7 +69,7 @@ import com.mrd.bitlib.crypto.PrivateKey;
 import com.mrd.bitlib.crypto.PublicKey;
 import com.mrd.bitlib.crypto.RandomSource;
 import com.mrd.bitlib.crypto.SignedMessage;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mrd.bitlib.model.NetworkParameters;
 import com.mrd.bitlib.util.BitUtils;
@@ -118,7 +118,7 @@ import com.mycelium.wapi.content.eth.EthUriParser;
 import com.mycelium.wapi.wallet.AccountListener;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.CurrencySettings;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.IdentityAccountKeyManager;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SecureKeyValueStore;
@@ -143,7 +143,7 @@ import com.mycelium.wapi.wallet.btc.single.PrivateSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.PublicPrivateKeyStore;
 import com.mycelium.wapi.wallet.btc.single.PublicSingleConfig;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.colu.ColuApiImpl;
 import com.mycelium.wapi.wallet.colu.ColuClient;
 import com.mycelium.wapi.wallet.colu.ColuModule;
@@ -159,7 +159,7 @@ import com.mycelium.wapi.wallet.eth.Web3jWrapper;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
 import com.mycelium.wapi.wallet.genericdb.AdaptersKt;
-import com.mycelium.wapi.wallet.genericdb.GenericBacking;
+import com.mycelium.wapi.wallet.genericdb.Backing;
 import com.mycelium.wapi.wallet.genericdb.InMemoryAccountContextsBacking;
 import com.mycelium.wapi.wallet.manager.WalletListener;
 import com.mycelium.wapi.wallet.masterseed.MasterSeedManager;
@@ -337,7 +337,7 @@ public class MbwManager {
         _versionManager = new VersionManager(_applicationContext, _language, new AndroidAsyncApi(_wapi, _eventBus, mainLoopHandler), _eventBus);
 
         Set<String> currencyList = getPreferences().getStringSet(Constants.SELECTED_CURRENCIES, null);
-        Set<GenericAssetInfo> fiatCurrencies = new HashSet<>();
+        Set<AssetInfo> fiatCurrencies = new HashSet<>();
         if (currencyList == null || currencyList.isEmpty()) {
             //if there is no list take the default currency
             fiatCurrencies.add(new FiatType(Constants.DEFAULT_CURRENCY));
@@ -413,12 +413,12 @@ public class MbwManager {
         return wrapper;
     }
 
-    private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<GenericAssetInfo> fiatCurrencies) {
+    private CurrencySwitcher createCurrencySwitcher(SharedPreferences preferences, Set<AssetInfo> fiatCurrencies) {
         String defaultCurrencyJson = "{\"" + Utils.getBtcCoinType().getName() + "\":\"" + Constants.DEFAULT_CURRENCY + "\"}";
         String currentCurrenciesString = preferences.getString(Constants.CURRENT_CURRENCIES_SETTING, defaultCurrencyJson);
         String currentFiatString = preferences.getString(Constants.FIAT_CURRENCIES_SETTING, defaultCurrencyJson);
-        Map<GenericAssetInfo, GenericAssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
-        Map<GenericAssetInfo, GenericAssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
+        Map<AssetInfo, AssetInfo> currentCurrencyMap = getCurrentCurrenciesMap(currentCurrenciesString);
+        Map<AssetInfo, AssetInfo> currentFiatMap = getCurrentCurrenciesMap(currentFiatString);
         return new CurrencySwitcher(
                 _exchangeRateManager,
                 fiatCurrencies,
@@ -460,9 +460,9 @@ public class MbwManager {
         return resultMap;
     }
 
-    private Map<GenericAssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
+    private Map<AssetInfo, Denomination> getDenominationMap(SharedPreferences preferences) {
         Gson gson = new GsonBuilder().create();
-        Map<GenericAssetInfo, Denomination> resultMap = new HashMap<>();
+        Map<AssetInfo, Denomination> resultMap = new HashMap<>();
 
         String preferenceValue = preferences.getString(Constants.DENOMINATION_SETTING, null);
         if (preferenceValue == null) {
@@ -476,10 +476,10 @@ public class MbwManager {
         return resultMap;
     }
 
-    private Map<GenericAssetInfo, GenericAssetInfo> getCurrentCurrenciesMap(String jsonString) {
+    private Map<AssetInfo, AssetInfo> getCurrentCurrenciesMap(String jsonString) {
         Gson gson = new GsonBuilder().create();
         Type type = new TypeToken<Map<String, String>>(){}.getType();
-        Map<GenericAssetInfo, GenericAssetInfo> result = new HashMap<>();
+        Map<AssetInfo, AssetInfo> result = new HashMap<>();
 
         Map<String, String> coinNamesMap = gson.fromJson(jsonString, type);
         for (Map.Entry<String, String> entry : coinNamesMap.entrySet()) {
@@ -488,11 +488,11 @@ public class MbwManager {
         return result;
     }
 
-    private String getCurrentCurrenciesString(Map<GenericAssetInfo, GenericAssetInfo> currenciesMap) {
+    private String getCurrentCurrenciesString(Map<AssetInfo, AssetInfo> currenciesMap) {
         Gson gson = new GsonBuilder().create();
         Map<String, String> coinNamesMap = new HashMap<>();
 
-        for (Map.Entry<GenericAssetInfo, GenericAssetInfo> entry : currenciesMap.entrySet()) {
+        for (Map.Entry<AssetInfo, AssetInfo> entry : currenciesMap.entrySet()) {
             coinNamesMap.put(entry.getKey().getName(), entry.getValue().getName());
         }
         return gson.toJson(coinNamesMap);
@@ -685,7 +685,7 @@ public class MbwManager {
         }
 
         // Get the local trader address, may be null
-        Address localTraderAddress = _localTraderManager.getLocalTraderAddress();
+        BitcoinAddress localTraderAddress = _localTraderManager.getLocalTraderAddress();
         if (localTraderAddress == null) {
             _localTraderManager.unsetLocalTraderAccount();
         }
@@ -717,9 +717,9 @@ public class MbwManager {
             }
 
             // See if we need to migrate this account to local trader
-            if (Address.fromString(record.address.toString()).equals(localTraderAddress)) {
+            if (BitcoinAddress.fromString(record.address.toString()).equals(localTraderAddress)) {
                 if (record.hasPrivateKey()) {
-                    _localTraderManager.setLocalTraderData(account, record.key, Address.fromString(record.address.toString()),
+                    _localTraderManager.setLocalTraderData(account, record.key, BitcoinAddress.fromString(record.address.toString()),
                             _localTraderManager.getNickname());
                 } else {
                     _localTraderManager.unsetLocalTraderAccount();
@@ -893,7 +893,7 @@ public class MbwManager {
         walletManager.add(new BitcoinSingleAddressModule(backing, publicPrivateKeyStore, networkParameters, _wapi,
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
-        GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
+        Backing<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
                 web3jWrapper, configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
@@ -931,7 +931,7 @@ public class MbwManager {
         return migrationProgressTracker;
     }
 
-    public GenericAssetInfo getFiatCurrency(GenericAssetInfo coinType) {
+    public AssetInfo getFiatCurrency(AssetInfo coinType) {
         return _currencySwitcher.getCurrentFiatCurrency(coinType);
     }
 
@@ -951,11 +951,11 @@ public class MbwManager {
         return _applicationContext.getSharedPreferences(Constants.SETTINGS_NAME, Activity.MODE_PRIVATE);
     }
 
-    public List<GenericAssetInfo> getCurrencyList() {
+    public List<AssetInfo> getCurrencyList() {
         return _currencySwitcher.getCurrencyList();
     }
 
-    public void setCurrencyList(Set<GenericAssetInfo> currencies) {
+    public void setCurrencyList(Set<AssetInfo> currencies) {
         // let the exchange-rate manager fetch all currencies, that we might need
         _exchangeRateManager.setCurrencyList(currencies);
 
@@ -963,13 +963,13 @@ public class MbwManager {
         _currencySwitcher.setCurrencyList(currencies);
 
         Set<String> data = new HashSet<>();
-        for (GenericAssetInfo currency : currencies) {
+        for (AssetInfo currency : currencies) {
             data.add(currency.getSymbol());
         }
         getEditor().putStringSet(Constants.SELECTED_CURRENCIES, data).apply();
     }
 
-    public GenericAssetInfo getNextCurrency(boolean includeBitcoin) {
+    public AssetInfo getNextCurrency(boolean includeBitcoin) {
         return _currencySwitcher.getNextCurrency(includeBitcoin);
     }
 
@@ -1237,15 +1237,15 @@ public class MbwManager {
         getEditor().putString(Constants.BLOCK_EXPLORERS, gson.toJson(_blockExplorerManager.getCurrentBlockExplorersMap())).apply();
     }
 
-    public Denomination getDenomination(GenericAssetInfo coinType) {
+    public Denomination getDenomination(AssetInfo coinType) {
         return _currencySwitcher.getDenomintation(coinType);
     }
 
-    public void setBitcoinDenomination(GenericAssetInfo coinType, Denomination denomination) {
+    public void setBitcoinDenomination(AssetInfo coinType, Denomination denomination) {
         _currencySwitcher.setDenomintation(coinType, denomination);
         Gson gson = new GsonBuilder().create();
         Map<String, String> resultMap = new HashMap<>();
-        for (Map.Entry<GenericAssetInfo, Denomination> entry : _currencySwitcher.getDenominationMap().entrySet()) {
+        for (Map.Entry<AssetInfo, Denomination> entry : _currencySwitcher.getDenominationMap().entrySet()) {
             resultMap.put(entry.getKey().getName(), entry.getValue().toString());
         }
         getEditor().putString(Constants.DENOMINATION_SETTING, gson.toJson(resultMap)).apply();
@@ -1382,7 +1382,7 @@ public class MbwManager {
         return masterSeedManager;
     }
 
-    public UUID createOnTheFlyAccount(GenericAddress address) {
+    public UUID createOnTheFlyAccount(Address address) {
         UUID accountId;
         if (address instanceof BtcAddress) {
             accountId = _tempWalletManager.createAccounts(new AddressSingleConfig(
@@ -1422,11 +1422,11 @@ public class MbwManager {
         return _walletManager.getAccount(uuid);
     }
 
-    public Optional<UUID> getAccountId(GenericAddress address) {
+    public Optional<UUID> getAccountId(Address address) {
         return getAccountId(address, null);
     }
 
-    public Optional<UUID> getAccountId(GenericAddress address, GenericAssetInfo coinType) {
+    public Optional<UUID> getAccountId(Address address, AssetInfo coinType) {
         Optional<UUID> result = Optional.absent();
         for (UUID uuid : _walletManager.getAccountIds()) {
             WalletAccount account = checkNotNull(_walletManager.getAccount(uuid));
@@ -1459,7 +1459,7 @@ public class MbwManager {
         Preconditions.checkState(account.isActive());
         getEditor().putString(SELECTED_ACCOUNT, uuid.toString()).apply();
         getEventBus().post(new SelectedAccountChanged(uuid));
-        GenericAddress receivingAddress = account.getReceiveAddress();
+        Address receivingAddress = account.getReceiveAddress();
         getEventBus().post(new ReceivingAddressChanged(receivingAddress));
         _walletManager.startSynchronization(account.getId());
     }
@@ -1570,7 +1570,7 @@ public class MbwManager {
         // AccountCreated only when account is created. Reacting only on AccountCreated could leave walletCurrencies list
         // in incorrect state if no accounts of a particular type left after delete event
         _currencySwitcher.setWalletCurrencies(_walletManager.getAssetTypes());
-        for (GenericAssetInfo asset : _walletManager.getAssetTypes()) {
+        for (AssetInfo asset : _walletManager.getAssetTypes()) {
             if (!_minerFee.containsKey(asset.getName())) {
                 _minerFee.put(asset.getName(), MinerFee.NORMAL);
                 Gson gson = new GsonBuilder().create();
@@ -1607,7 +1607,7 @@ public class MbwManager {
         }
     }
 
-    public void watchAddress(final GenericAddress address) {
+    public void watchAddress(final Address address) {
         stopWatchingAddress();
         _addressWatchTimer = new Timer();
         _addressWatchTimer.scheduleAtFixedRate(new TimerTask() {
@@ -1670,7 +1670,7 @@ public class MbwManager {
         this.showQueuedTransactionsRemovalAlert = showQueuedTransactionsRemovalAlert;
     }
 
-    public FeeProvider getFeeProvider(GenericAssetInfo asset) {
+    public FeeProvider getFeeProvider(AssetInfo asset) {
         return _walletManager.getFeeEstimations().getProvider(asset);
     }
 }

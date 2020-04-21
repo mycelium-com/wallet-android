@@ -37,7 +37,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                   , val backing: WalletBacking<ColuAccountContext>
                   , val listener: AccountListener? = null
                   , val wapi: Wapi) : WalletAccount<BtcAddress>, ExportableAccount {
-    override fun queueTransaction(transaction: GenericTransaction) {
+    override fun queueTransaction(transaction: Transaction) {
     }
 
     override fun getBasedOnCoinType(): CryptoCurrency {
@@ -54,14 +54,14 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return result
     }
 
-    override fun isSpendingUnconfirmed(tx: GenericTransaction?): Boolean {
+    override fun isSpendingUnconfirmed(tx: Transaction?): Boolean {
         return false
     }
 
-    override fun getTx(txid: ByteArray): GenericTransaction {
+    override fun getTx(txid: ByteArray): Transaction {
         val txJson = accountBacking.getTx(Sha256Hash(txid))
         val coluTx = ColuTransaction(coinType, null, null, null)
-        val bitcoinTx = Transaction.fromBytes(HexUtils.toBytes(txJson.hex))
+        val bitcoinTx = BitcoinTransaction.fromBytes(HexUtils.toBytes(txJson.hex))
         coluTx.transaction = bitcoinTx
         return coluTx
     }
@@ -72,12 +72,12 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     }
 
     override fun getDummyAddress(subType: String): BtcAddress {
-        val address = Address.getNullAddress(networkParameters, AddressType.valueOf(subType))
+        val address = BitcoinAddress.getNullAddress(networkParameters, AddressType.valueOf(subType))
         return BtcAddress(coinType, address)
     }
 
     override fun getDummyAddress(): BtcAddress {
-        return BtcAddress(coinType, Address.getNullAddress(networkParameters))
+        return BtcAddress(coinType, BitcoinAddress.getNullAddress(networkParameters))
     }
 
     override fun removeAllQueuedTransactions() {
@@ -102,7 +102,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         cachedBalance = calculateBalance(emptyList(), transactionSummaries)
     }
 
-    override fun getTransactionsSince(receivingSince: Long): List<GenericTransactionSummary> {
+    override fun getTransactionsSince(receivingSince: Long): List<TransactionSummary> {
         val transactionsSince = accountBacking.getTransactionsSince(receivingSince)
         return getGenericListFromJsonTxList(transactionsSince)
     }
@@ -129,7 +129,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getReceiveAddress(): GenericAddress {
+    override fun getReceiveAddress(): Address {
         return addressList[AddressType.P2PKH] ?: addressList.values.toList()[0]
     }
 
@@ -137,7 +137,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
     override fun getAccountBalance(): Balance = cachedBalance
 
-    override fun isMineAddress(address: GenericAddress?): Boolean {
+    override fun isMineAddress(address: Address?): Boolean {
         for (btcAddress in addressList) {
             if (btcAddress.value == address) {
                 return true
@@ -146,13 +146,13 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return false
     }
 
-    override fun getTxSummary(transactionId: ByteArray): GenericTransactionSummary? {
+    override fun getTxSummary(transactionId: ByteArray): TransactionSummary? {
         checkNotArchived()
         val transaction = accountBacking.getTx(Sha256Hash.of(transactionId))
         return genericTransactionSummaryFromJson(transaction)
     }
 
-    override fun getTransactionSummaries(offset: Int, limit: Int): List<GenericTransactionSummary> {
+    override fun getTransactionSummaries(offset: Int, limit: Int): List<TransactionSummary> {
         val transactions = accountBacking.getTransactions(offset, limit)
         return getGenericListFromJsonTxList(transactions)
     }
@@ -183,7 +183,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
     private fun getGenericListFromJsonTxList(transactions: MutableList<Tx.Json>) =
             transactions.mapNotNull { genericTransactionSummaryFromJson(it) }
 
-    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<GenericTransactionSummary>): Balance {
+    private fun calculateBalance(unspent: List<TransactionOutputEx>, transactions: List<TransactionSummary>): Balance {
         var confirmed = Value.zeroValue(coinType)
         var receiving = Value.zeroValue(coinType)
         var sending = Value.zeroValue(coinType)
@@ -268,7 +268,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return 0
     }
 
-    override fun createTx(address: GenericAddress?, amount: Value?, fee: GenericFee?, data: GenericTransactionData?): GenericTransaction? {
+    override fun createTx(address: Address?, amount: Value?, fee: Fee?, data: TransactionData?): Transaction? {
         val feePerKb = (fee as FeePerKbFee).feePerKb
         val coluTx = ColuTransaction(coinType, address as BtcAddress, amount!!, feePerKb)
         val fromAddresses = mutableListOf(receiveAddress as BtcAddress)
@@ -277,7 +277,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return coluTx
     }
 
-    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
+    override fun signTx(request: Transaction, keyCipher: KeyCipher) {
         if (request is ColuTransaction) {
             val signedTransaction = signTransaction(request.baseTransaction, this)
             request.transaction = signedTransaction
@@ -286,7 +286,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
     }
 
-    private fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: ColuAccount?): Transaction? {
+    private fun signTransaction(txid: ColuBroadcastTxHex.Json?, coluAccount: ColuAccount?): BitcoinTransaction? {
         if (txid == null) {
 //            Log.e(TAG, "signTx: No transaction to sign !")
             return null
@@ -339,10 +339,10 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         }
 
         val signedTransactionBytes = signTx.bitcoinSerialize()
-        val signedBitlibTransaction: Transaction
+        val signedBitlibTransaction: BitcoinTransaction
         try {
-            signedBitlibTransaction = Transaction.fromBytes(signedTransactionBytes)
-        } catch (e: Transaction.TransactionParsingException) {
+            signedBitlibTransaction = BitcoinTransaction.fromBytes(signedTransactionBytes)
+        } catch (e: BitcoinTransaction.TransactionParsingException) {
 //            Log.e(TAG, "signTx: Error parsing bitcoinj transaction ! msg: " + e.message)
             return null
         }
@@ -350,7 +350,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return signedBitlibTransaction
     }
 
-    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         val coluTx = tx as ColuTransaction
         return if (coluTx.transaction != null && coluClient.broadcastTx(coluTx.transaction!!) != null) {
             BroadcastResult(BroadcastResultType.SUCCESS)
@@ -368,10 +368,10 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
                 .estimateTransactionSize()
     }
 
-    override fun getUnspentOutputViewModels(): List<GenericOutputViewModel> {
-        val result = mutableListOf<GenericOutputViewModel>()
+    override fun getUnspentOutputViewModels(): List<OutputViewModel> {
+        val result = mutableListOf<OutputViewModel>()
         accountBacking.unspentOutputs.forEach {
-            result.add(GenericOutputViewModel(receiveAddress, Value.valueOf(coinType, it.value), false))
+            result.add(OutputViewModel(receiveAddress, Value.valueOf(coinType, it.value), false))
         }
         return result
     }
@@ -380,17 +380,17 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return privateKey
     }
 
-    fun genericTransactionSummaryFromJson(transaction: Tx.Json): GenericTransactionSummary? {
+    fun genericTransactionSummaryFromJson(transaction: Tx.Json): TransactionSummary? {
 
         var transferred = Value.zeroValue(coinType)
-        val destinationAddresses = arrayListOf<GenericAddress>()
+        val destinationAddresses = arrayListOf<Address>()
 
-        val input = mutableListOf<GenericInputViewModel>()
+        val input = mutableListOf<InputViewModel>()
         transaction.vin.forEach { vin ->
             vin.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val address = Address.fromString(vin.previousOutput.addresses[0])
-                input.add(GenericInputViewModel(
+                val address = BitcoinAddress.fromString(vin.previousOutput.addresses[0])
+                input.add(InputViewModel(
                         BtcAddress(coinType, address), value, false))
                 if (vin.previousOutput.addresses.contains(receiveAddress.toString())) {
                     transferred -= value
@@ -398,17 +398,17 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
             }
         }
 
-        val output = mutableListOf<GenericOutputViewModel>()
+        val output = mutableListOf<OutputViewModel>()
         transaction.vout.forEach { vout ->
             vout.assets.filter { it.assetId == coinType.id }.forEach { asset ->
                 val value = Value.valueOf(coinType, asset.amount)
-                val address = Address.fromString(vout.scriptPubKey.addresses[0])
+                val address = BitcoinAddress.fromString(vout.scriptPubKey.addresses[0])
                 val genAddress = AddressUtils.from(coinType,address.toString())
                 if (!isMineAddress(genAddress)) {
                     destinationAddresses.add(genAddress)
                 }
 
-                output.add(GenericOutputViewModel(
+                output.add(OutputViewModel(
                         BtcAddress(coinType, address), value, false))
                 if (vout.scriptPubKey.addresses.contains(receiveAddress.toString())) {
                     transferred += value
@@ -418,7 +418,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
 
         if (input.size > 0 || output.size > 0) {
 
-            return GenericTransactionSummary(
+            return TransactionSummary(
                     coinType,
                     Sha256Hash.fromString(transaction.txid).bytes,
                     Sha256Hash.fromString(transaction.hash).bytes,
@@ -438,7 +438,7 @@ class ColuAccount(val context: ColuAccountContext, val privateKey: InMemoryPriva
         return null
     }
 
-    fun utxosFromJson(json: AddressTransactionsInfo.Json, address: GenericAddress): MutableList<TransactionOutputEx> {
+    fun utxosFromJson(json: AddressTransactionsInfo.Json, address: Address): MutableList<TransactionOutputEx> {
         val utxos = mutableListOf<TransactionOutputEx>()
         for (utxo in json.utxos) {
             utxo.assets.filter { it.assetId == address.coinType.id }.forEach { asset ->

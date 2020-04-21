@@ -44,7 +44,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.google.common.base.Optional;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -208,7 +208,7 @@ public class RecordRowBuilder {
                 int numKeys = ((HDAccount) walletAccount).getPrivateKeyCount();
                 result.displayAddress = resources.getQuantityString(R.plurals.contains_keys, numKeys, numKeys);
             } else {
-                Optional<Address> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
+                Optional<BitcoinAddress> receivingAddress = ((WalletBtcAccount)(walletAccount)).getReceivingAddress();
                 if (receivingAddress.isPresent()) {
                     if (result.label.length() == 0) {
                         // Display address in it's full glory, chopping it into three

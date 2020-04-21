@@ -2,13 +2,13 @@ package com.mycelium.wapi.content.colu.mss
 
 import com.mycelium.wapi.content.WithCallback
 import com.mycelium.wapi.content.colu.ColuAssetUri
-import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.Address
 import com.mycelium.wapi.wallet.coins.Value
 
-class MSSUri(address: GenericAddress?, value: Value?, label: String?, override val callbackURL: String?, scheme: String = "mss")
+class MSSUri(address: Address?, value: Value?, label: String?, override val callbackURL: String?, scheme: String = "mss")
     : ColuAssetUri(address, value, label, scheme), WithCallback {
 
-    constructor(address: GenericAddress?, value: Value?, label: String?) : this(address,value,label,null)
+    constructor(address: Address?, value: Value?, label: String?) : this(address,value,label,null)
 
     override fun equals(other: Any?): Boolean {
         if (other !is ColuAssetUri) {

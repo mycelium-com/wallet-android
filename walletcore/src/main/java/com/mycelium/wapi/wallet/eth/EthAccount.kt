@@ -10,8 +10,8 @@ import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.coins.Value.Companion.max
 import com.mycelium.wapi.wallet.coins.Value.Companion.valueOf
-import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
-import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
+import com.mycelium.wapi.wallet.exceptions.BuildTransactionException
+import com.mycelium.wapi.wallet.exceptions.InsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.*
 
@@ -52,8 +52,8 @@ class EthAccount(private val accountContext: EthAccountContext,
     fun hasHadActivity(): Boolean =
             accountBalance.spendable.isPositive() || accountContext.nonce > BigInteger.ZERO
 
-    @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
-    override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
+    @Throws(InsufficientFundsException::class, BuildTransactionException::class)
+    override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = (data as? EthTransactionData)
         val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
@@ -62,16 +62,16 @@ class EthAccount(private val accountContext: EthAccountContext,
         val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
+            throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
         }
         if (value.value < BigInteger.ZERO) {
-            throw GenericBuildTransactionException(Throwable("Value should be positive"))
+            throw BuildTransactionException(Throwable("Value should be positive"))
         }
         if (gasLimit < typicalEstimatedTransactionSize.toBigInteger()) {
-            throw GenericBuildTransactionException(Throwable("Gas limit must be at least 21000"))
+            throw BuildTransactionException(Throwable("Gas limit must be at least 21000"))
         }
         if (value > calculateMaxSpendableAmount(gasPriceValue, null)) {
-            throw GenericInsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
+            throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
 
@@ -79,11 +79,11 @@ class EthAccount(private val accountContext: EthAccountContext,
             val rawTransaction = RawTransaction.createTransaction(nonce, fee.value, gasLimit, toAddress.toString(), value.value, inputData)
             return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
         } catch (e: Exception) {
-            throw GenericBuildTransactionException(Throwable(e.localizedMessage))
+            throw BuildTransactionException(Throwable(e.localizedMessage))
         }
     }
 
-    override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
+    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
         val rawTransaction = (request as EthTransaction).rawTransaction
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
@@ -91,7 +91,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
     }
 
-    override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
+    override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
             val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
             if (ethSendTransaction.hasError()) {

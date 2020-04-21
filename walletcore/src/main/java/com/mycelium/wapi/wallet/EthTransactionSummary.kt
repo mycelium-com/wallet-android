@@ -9,9 +9,9 @@ class EthTransactionSummary(val sender: EthAddress, val receiver: EthAddress, va
                             val value: Value, val gasLimit: BigInteger, val gasUsed: BigInteger,
                             type: CryptoCurrency?, id: ByteArray?, hash: ByteArray?,
                             transferred: Value?, timestamp: Long, height: Int, confirmations: Int,
-                            isQueuedOutgoing: Boolean, inputs: List<GenericInputViewModel>?,
-                            outputs: List<GenericOutputViewModel>?,
-                            destinationAddresses: List<GenericAddress>?,
+                            isQueuedOutgoing: Boolean, inputs: List<InputViewModel>?,
+                            outputs: List<OutputViewModel>?,
+                            destinationAddresses: List<Address>?,
                             risk: ConfirmationRiskProfileLocal?, rawSize: Int, fee: Value?)
-    : GenericTransactionSummary(type, id, hash, transferred, timestamp, height, confirmations,
+    : TransactionSummary(type, id, hash, transferred, timestamp, height, confirmations,
         isQueuedOutgoing, inputs, outputs, destinationAddresses, risk, rawSize, fee)

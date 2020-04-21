@@ -3,7 +3,7 @@ package com.mycelium.wallet.activity.util
 import com.mycelium.wallet.ExchangeRateManager
 import com.mycelium.wallet.exchange.GetExchangeRate
 import com.mycelium.wapi.wallet.WalletManager
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import java.math.BigDecimal
 import java.math.MathContext
@@ -15,7 +15,7 @@ class ExchangeValue(value: Value, val baseValue: Value) : Value(value.type, valu
     override fun isZero() = baseValue.isZero()
 }
 
-fun ExchangeRateManager.get(walletManager: WalletManager, value: Value, toCurrency: GenericAssetInfo): Value? {
+fun ExchangeRateManager.get(walletManager: WalletManager, value: Value, toCurrency: AssetInfo): Value? {
     if(toCurrency == value.type) {
         return value
     }

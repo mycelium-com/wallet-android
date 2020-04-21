@@ -49,15 +49,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.mrd.bitlib.model.Address;
 import com.mrd.bitlib.util.Sha256Hash;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.activity.main.adapter.TransactionArrayAdapter;
 import com.mycelium.wallet.event.AddressBookChanged;
 import com.mycelium.wallet.pop.PopRequest;
-import com.mycelium.wapi.wallet.GenericAddress;
-import com.mycelium.wapi.wallet.GenericTransactionSummary;
+import com.mycelium.wapi.wallet.Address;
+import com.mycelium.wapi.wallet.TransactionSummary;
 import com.mycelium.wapi.wallet.WalletAccount;
 import com.squareup.otto.Subscribe;
 
@@ -165,7 +164,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    public static class TransactionListFragment extends ListFragment {
       private PopRequest popRequest;
       private TransactionHistoryAdapter transactionHistoryAdapter;
-      private Map<GenericAddress, String> addressBook;
+      private Map<Address, String> addressBook;
       private MbwManager mbwManager;
 
       static TransactionListFragment init(PopRequest popRequest, boolean showMatching) {
@@ -188,11 +187,11 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
          mbwManager = MbwManager.getInstance(getActivity());
          WalletAccount account = mbwManager.getSelectedAccount();
 
-         List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
+         List<TransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 
-         List<GenericTransactionSummary> list = new ArrayList<>();
+         List<TransactionSummary> list = new ArrayList<>();
 
-         for (GenericTransactionSummary transaction : history) {
+         for (TransactionSummary transaction : history) {
             if (transaction.isIncoming()) {
                // We are only interested in payments
                continue;
@@ -239,7 +238,7 @@ public class PopSelectTransactionActivity extends AppCompatActivity implements A
    }
 
    public static class TransactionHistoryAdapter extends TransactionArrayAdapter {
-      TransactionHistoryAdapter(Context context, List<GenericTransactionSummary> objects, Map<GenericAddress, String> addressBook) {
+      TransactionHistoryAdapter(Context context, List<TransactionSummary> objects, Map<Address, String> addressBook) {
          super(context, objects, addressBook);
       }
 

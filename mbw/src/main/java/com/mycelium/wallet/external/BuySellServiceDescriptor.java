@@ -9,7 +9,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.mycelium.wallet.MbwManager;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 
 abstract public class BuySellServiceDescriptor {
    @StringRes
@@ -35,13 +35,13 @@ abstract public class BuySellServiceDescriptor {
       return AppCompatResources.getDrawable(resources, icon);
    }
 
-   public int getDescription(MbwManager mbwManager, GenericAddress activeReceivingAddress) {
+   public int getDescription(MbwManager mbwManager, Address activeReceivingAddress) {
       return description;
    }
 
    public boolean showEnableInSettings() { return true; }
 
-   abstract public void launchService(Activity activity, MbwManager mbwManager, GenericAddress activeReceivingAddress);
+   abstract public void launchService(Activity activity, MbwManager mbwManager, Address activeReceivingAddress);
    abstract public boolean isEnabled(MbwManager mbwManager);
    abstract public void setEnabled(MbwManager mbwManager, boolean enabledState);
 }

@@ -16,7 +16,7 @@
 
 package com.mycelium.wapi.wallet.btc.single
 
-import com.mrd.bitlib.model.Address
+import com.mrd.bitlib.model.BitcoinAddress
 import com.mrd.bitlib.model.AddressType
 import com.mycelium.wapi.wallet.SingleAddressBtcAccountBacking
 import java.util.*
@@ -26,7 +26,7 @@ import java.util.*
  */
 class SingleAddressAccountContext constructor(
         val id: UUID,
-        var addresses: Map<AddressType, Address>,
+        var addresses: Map<AddressType, BitcoinAddress>,
         private var isArchived: Boolean,
         private var blockHeight: Int,
         defaultAddressType: AddressType

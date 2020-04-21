@@ -1,8 +1,8 @@
 package com.mycelium.wapi.wallet.colu
 
 import com.mrd.bitlib.FeeEstimatorBuilder
-import com.mrd.bitlib.model.Transaction
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mrd.bitlib.model.BitcoinTransaction
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
@@ -11,14 +11,14 @@ import com.mycelium.wapi.wallet.colu.json.ColuBroadcastTxHex
 
 
 class ColuTransaction(type: CryptoCurrency?, val destination: BtcAddress?, val amount: Value?, val feePerKb: Value?)
-    : GenericTransaction(type) {
+    : Transaction(type) {
     var txHex: String? = null
 
     var fundingAddress: List<BtcAddress> = listOf()
 
     var baseTransaction: ColuBroadcastTxHex.Json? = null
 
-    var transaction : Transaction? = null
+    var transaction : BitcoinTransaction? = null
 
     val fundingAccounts = mutableListOf<WalletAccount<BtcAddress>>()
 

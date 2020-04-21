@@ -17,11 +17,11 @@
 package com.mycelium.lt.api.params;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 public class LoginParameters {
    @JsonProperty
-   public Address address;
+   public BitcoinAddress address;
    @JsonProperty
    public String signature;
    @JsonProperty
@@ -29,7 +29,7 @@ public class LoginParameters {
    @JsonProperty
    private long lastTradeSessionChange;
 
-   public LoginParameters(@JsonProperty("address") Address address, @JsonProperty("signature") String signature) {
+   public LoginParameters(@JsonProperty("address") BitcoinAddress address, @JsonProperty("signature") String signature) {
       this.address = address;
       this.signature = signature;
    }

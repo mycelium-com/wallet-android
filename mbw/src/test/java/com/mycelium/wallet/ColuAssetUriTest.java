@@ -2,8 +2,8 @@ package com.mycelium.wallet;
 
 import com.mrd.bitlib.model.NetworkParameters;
 
-import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.content.GenericAssetUriParser;
+import com.mycelium.wapi.content.AssetUri;
+import com.mycelium.wapi.content.AssetUriParser;
 import com.mycelium.wapi.content.btc.BitcoinUriParser;
 import com.mycelium.wapi.content.colu.mss.MSSUri;
 import com.mycelium.wapi.content.colu.mss.MSSUriParser;
@@ -76,8 +76,8 @@ public class ColuAssetUriTest {
         testParse("bitid://bitid.bitcoin.blue/callback?x=e7befd6d54c306ef&u=1", BitcoinTest.get(), testNetwork, null);
     }
 
-    private void testParse(String url, CryptoCurrency coinType, NetworkParameters np, GenericAssetUri expected) {
-        GenericAssetUriParser parser;
+    private void testParse(String url, CryptoCurrency coinType, NetworkParameters np, AssetUri expected) {
+        AssetUriParser parser;
         switch (coinType.getName()) {
             case "Bitcoin":
             case "Bitcoin Test":
@@ -99,7 +99,7 @@ public class ColuAssetUriTest {
                 fail();
                 return;
         }
-        GenericAssetUri actual = parser.parse(url);
+        AssetUri actual = parser.parse(url);
         assertEquals(expected, actual);
     }
 }

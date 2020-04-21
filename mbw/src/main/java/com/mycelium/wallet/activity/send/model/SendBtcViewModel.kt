@@ -22,8 +22,8 @@ import com.mycelium.wallet.activity.util.getPrivateKey
 import com.mycelium.wallet.content.ResultType
 import com.mycelium.wapi.content.btc.BitcoinUri
 import com.mycelium.wapi.wallet.AddressUtils
-import com.mycelium.wapi.wallet.GenericAddress
-import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.Address
+import com.mycelium.wapi.wallet.Transaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.BtcAddress
 import com.mycelium.wapi.wallet.btc.bip44.HDAccountExternalSignature
@@ -85,7 +85,7 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
             }
         } else if (requestCode == SendCoinsActivity.SIGN_TRANSACTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             model.signedTransaction =
-                    (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as GenericTransaction
+                    (data!!.getSerializableExtra(SendCoinsActivity.SIGNED_TRANSACTION)) as Transaction
             // if we have a payment request with a payment_url, handle the send differently:
             (model as SendBtcModel).apply {
                 if (hasPaymentRequestHandler() && hasPaymentCallbackUrl()) {
@@ -113,8 +113,8 @@ open class SendBtcViewModel(context: Application) : SendCoinsViewModel(context) 
         "address",
         requireAll = false
 )
-fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: MutableLiveData<List<GenericAddress>>,
-                        receivingAddress: MutableLiveData<GenericAddress>) {
+fun updateReceiversView(view: SelectableRecyclerView, receivingAddressesList: MutableLiveData<List<Address>>,
+                        receivingAddress: MutableLiveData<Address>) {
     if (receivingAddressesList.value!!.isEmpty() || view.adapter != null) {
         return
     }

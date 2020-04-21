@@ -35,15 +35,15 @@
 package com.mycelium.wallet.exchange;
 
 import com.mycelium.wapi.model.ExchangeRate;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 
 public interface ExchangeRateProvider {
-    ExchangeRate getExchangeRate(GenericAssetInfo currency, String source);
+    ExchangeRate getExchangeRate(AssetInfo currency, String source);
 
-    ExchangeRate getExchangeRate(GenericAssetInfo currency);
+    ExchangeRate getExchangeRate(AssetInfo currency);
 
     ExchangeRate getExchangeRate(String currency);
 
-    Value get(Value value, GenericAssetInfo toCurrency);
+    Value get(Value value, AssetInfo toCurrency);
 }

@@ -61,7 +61,7 @@ import com.mycelium.wallet.Utils;
 import com.mycelium.wallet.activity.util.ValueExtensionsKt;
 import com.mycelium.wallet.event.ExchangeRatesRefreshed;
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler;
-import com.mycelium.wapi.content.GenericAssetUri;
+import com.mycelium.wapi.content.AssetUri;
 import com.mycelium.wapi.content.WithCallback;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.squareup.okhttp.OkHttpClient;
@@ -112,7 +112,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
    private Runnable expiredUpdater;
 
 
-   public static Intent getIntent(Activity currentActivity, GenericAssetUri uri) {
+   public static Intent getIntent(Activity currentActivity, AssetUri uri) {
       return new Intent(currentActivity, VerifyPaymentRequestActivity.class)
               .putExtra(CALLBACK_URI, uri);
    }
@@ -132,7 +132,7 @@ public class VerifyPaymentRequestActivity extends AppCompatActivity {
       // only popup the keyboard if the user taps the textbox
       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-      GenericAssetUri assetUri = (GenericAssetUri) getIntent().getSerializableExtra(CALLBACK_URI);
+      AssetUri assetUri = (AssetUri) getIntent().getSerializableExtra(CALLBACK_URI);
       byte[] rawPaymentRequest = (byte[]) getIntent().getSerializableExtra(RAW_PR);
 
       // either one of them must be set...

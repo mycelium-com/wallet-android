@@ -38,7 +38,7 @@ import java.util.UUID;
 
 import android.util.Log;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mycelium.lt.api.LtApi;
 import com.mycelium.lt.api.LtApiException;
 
@@ -76,7 +76,7 @@ public class TraderChangeMonitor {
                   Thread.sleep(10000);
                   continue;
                }
-               Address address = _ltManager.getLocalTraderAddress();
+               BitcoinAddress address = _ltManager.getLocalTraderAddress();
                try {
                   // Wait for session change
                   final Long result = _api.waitForTraderChange(address, _token, timestamp).getResult();

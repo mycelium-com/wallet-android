@@ -59,8 +59,8 @@ import com.mycelium.wallet.content.HandleConfigFactory;
 import com.mycelium.wallet.content.ResultType;
 import com.mycelium.wallet.extsig.keepkey.activity.InstantKeepKeyActivity;
 import com.mycelium.wallet.extsig.trezor.activity.InstantTrezorActivity;
-import com.mycelium.wapi.content.GenericAssetUri;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.content.AssetUri;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig;
 
@@ -164,11 +164,11 @@ public class InstantWalletActivity extends FragmentActivity {
                   sendWithAccount(mbwManager.createOnTheFlyAccount(key));
                   break;
                case ADDRESS:
-                  GenericAddress address = getAddress(intent);
+                  Address address = getAddress(intent);
                   sendWithAccount(mbwManager.createOnTheFlyAccount(address));
                   break;
                case ASSET_URI:
-                  GenericAssetUri uri = getAssetUri(intent);
+                  AssetUri uri = getAssetUri(intent);
                   sendWithAccount(mbwManager.createOnTheFlyAccount(uri.getAddress()));
                   break;
                case HD_NODE:

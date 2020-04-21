@@ -62,7 +62,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.google.common.collect.Lists;
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 import com.mrd.bitlib.model.AddressType;
 import com.mycelium.wallet.MbwManager;
 import com.mycelium.wallet.R;
@@ -95,7 +95,7 @@ import com.mycelium.wallet.persistence.MetadataStorage;
 import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
-import com.mycelium.wapi.wallet.GenericAddress;
+import com.mycelium.wapi.wallet.Address;
 import com.mycelium.wapi.wallet.KeyCipher;
 import com.mycelium.wapi.wallet.SyncMode;
 import com.mycelium.wapi.wallet.WalletAccount;
@@ -107,7 +107,7 @@ import com.mycelium.wapi.wallet.btc.bip44.HDAccount;
 import com.mycelium.wapi.wallet.btc.bip44.HDPubOnlyAccount;
 import com.mycelium.wapi.wallet.btc.single.SingleAddressAccount;
 import com.mycelium.wapi.wallet.coins.Balance;
-import com.mycelium.wapi.wallet.coins.GenericAssetInfo;
+import com.mycelium.wapi.wallet.coins.AssetInfo;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.AddressColuConfig;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
@@ -319,11 +319,11 @@ public class AccountsFragment extends Fragment {
                     // is money on archived accounts
                     String address;
                     if (accountToDelete instanceof SingleAddressAccount) {
-                        Map<AddressType, Address> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
+                        Map<AddressType, BitcoinAddress> addressMap = ((SingleAddressAccount) accountToDelete).getPublicKey().
                                 getAllSupportedAddresses(_mbwManager.getNetwork());
                         address = TextUtils.join("\n\n", addressMap.values());
                     } else {
-                        GenericAddress receivingAddress = accountToDelete.getReceiveAddress();
+                        Address receivingAddress = accountToDelete.getReceiveAddress();
                         if (receivingAddress != null) {
                             address = AddressUtils.toMultiLineString(receivingAddress.toString());
                         } else {
@@ -527,7 +527,7 @@ public class AccountsFragment extends Fragment {
         return dialogText;
     }
 
-    private String getBalanceString(GenericAssetInfo coinType, Balance balance) {
+    private String getBalanceString(AssetInfo coinType, Balance balance) {
         return ValueExtensionsKt.toStringWithUnit(balance.getSpendable(), _mbwManager.getDenomination(coinType));
     }
 

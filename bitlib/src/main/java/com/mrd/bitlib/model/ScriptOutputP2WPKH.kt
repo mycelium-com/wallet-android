@@ -18,7 +18,7 @@ class ScriptOutputP2WPKH : ScriptOutput, Serializable {
 
     override fun getAddressBytes() = addressBytes
 
-    override fun getAddress(network: NetworkParameters): Address =
+    override fun getAddress(network: NetworkParameters): BitcoinAddress =
             SegwitAddress(network, 0x00, addressBytes)
 
     companion object {

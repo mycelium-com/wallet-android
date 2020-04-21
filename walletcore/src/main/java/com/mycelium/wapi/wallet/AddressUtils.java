@@ -1,6 +1,6 @@
 package com.mycelium.wapi.wallet;
 
-import com.mrd.bitlib.model.Address;
+import com.mrd.bitlib.model.BitcoinAddress;
 
 import com.mycelium.wapi.wallet.btc.BtcAddress;
 import com.mycelium.wapi.wallet.btc.coins.BitcoinMain;
@@ -12,14 +12,14 @@ import com.mycelium.wapi.wallet.eth.coins.EthCoin;
 
 public class AddressUtils {
 
-    public static GenericAddress from(CryptoCurrency currencyType, String address) {
+    public static Address from(CryptoCurrency currencyType, String address) {
         if (address.length() == 0) {
             return null;
         }
         if (currencyType instanceof BitcoinMain || currencyType instanceof BitcoinTest) {
             return currencyType.parseAddress(address);
         } else if (currencyType instanceof ColuMain) {
-            Address addr = Address.fromString(address);
+            BitcoinAddress addr = BitcoinAddress.fromString(address);
             if (addr != null) {
                 return new BtcAddress(currencyType, addr);
             } else {
@@ -33,7 +33,7 @@ public class AddressUtils {
     }
 
     //Use only for bitcoin address
-    public static GenericAddress fromAddress(Address address) {
+    public static Address fromAddress(BitcoinAddress address) {
         CryptoCurrency currency = address.getNetwork().isProdnet() ? BitcoinMain.get() : BitcoinTest.get();
         return new BtcAddress(currency, address);
     }

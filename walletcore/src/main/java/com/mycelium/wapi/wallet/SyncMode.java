@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.mrd.bitlib.model.Address;
 
 public class SyncMode {
    // sync all accounts, all known addresses
@@ -35,7 +34,7 @@ public class SyncMode {
    public final boolean ignoreMinerFeeFetch;
 
    // if mode is ONE_ADDRESS, only care about that address
-   public final GenericAddress addressToSync;
+   public final Address addressToSync;
 
    // Ignores timeouts
    // If true, for each SyncMode the last time is noted, and this sync is only
@@ -52,7 +51,7 @@ public class SyncMode {
       this.addressToSync = null;
    }
 
-   public SyncMode(GenericAddress onlyAddress) {
+   public SyncMode(Address onlyAddress) {
       this.mode = Mode.ONE_ADDRESS;
       this.ignoreTransactionHistory = true;
       this.onlyActiveAccount = true;

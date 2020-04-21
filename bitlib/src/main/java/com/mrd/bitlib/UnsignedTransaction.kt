@@ -25,7 +25,7 @@ open class UnsignedTransaction constructor(
 
     init {
         // Create transaction with valid outputs and empty inputs
-        val transaction = Transaction(1, inputs, this.outputs, lockTime)
+        val transaction = BitcoinTransaction(1, inputs, this.outputs, lockTime)
 
         for (i in fundingOutputs.indices) {
             if (isSegWitOutput(i)) {
@@ -79,7 +79,7 @@ open class UnsignedTransaction constructor(
         }
     }
 
-    private fun getInputScript(publicKey: PublicKey, transaction: Transaction, i: Int, isNested: Boolean) {
+    private fun getInputScript(publicKey: PublicKey, transaction: BitcoinTransaction, i: Int, isNested: Boolean) {
         val inpScriptBytes = BitUtils.concatenate(byteArrayOf(Script.OP_0.toByte(), publicKey.pubKeyHashCompressed.size.toByte()), publicKey.pubKeyHashCompressed)
         val inputScript = ScriptInput.fromScriptBytes(BitUtils.concatenate(byteArrayOf((inpScriptBytes.size and 0xFF).toByte()), inpScriptBytes))
         (inputScript as ScriptInputP2WPKH).isNested = isNested
