@@ -265,6 +265,21 @@
         <activity android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/Bequant"/>
         <activity android:name="com.mycelium.bequant.sign.SignActivity"
-            android:theme="@style/BequantSign"/>
+            android:theme="@style/BequantSign"
+            android:launchMode="singleInstance">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="deeplink_to_email_confirm">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="reg.bequant.io"
+                    android:pathPrefix="/account/email/confirm"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

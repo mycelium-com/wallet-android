@@ -1,149 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-    <LinearLayout
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.signup.viewmodel.SetupCodeViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:contentDescription="@null"
-            app:srcCompat="@drawable/ic_two_factor" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/exo2medium"
-            android:gravity="center"
-            android:text="Please add your Bequant account to your Google Authenticator app by manually entering the codes below into the authenticator app."
-            android:textSize="16sp" />
-
-        <com.mycelium.wallet.activity.util.QrImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:background="@color/white"
-            android:maxWidth="@dimen/large_qrcode"
-            android:maxHeight="@dimen/large_qrcode"
-            android:minWidth="@dimen/large_qrcode"
-            android:minHeight="@dimen/large_qrcode" />
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_bequant_text"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                app:srcCompat="@drawable/ic_two_factor" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:fontFamily="@font/exo2medium"
-                android:text="Can\'t scan it?"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:gravity="center"
+                android:text="@string/please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app"
+                android:textSize="16sp" />
+
+            <com.mycelium.wallet.activity.util.QrImageView
+                android:id="@+id/qrCodeView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:background="@color/white"
+                android:maxWidth="@dimen/large_qrcode"
+                android:maxHeight="@dimen/large_qrcode"
+                android:minWidth="@dimen/large_qrcode"
+                android:minHeight="@dimen/large_qrcode" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_bequant_text"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@string/can_t_scan_it"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:alpha="0.5"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@string/please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:alpha="0.5"
                 android:fontFamily="@font/exo2medium"
-                android:text="Please add your Bequant account to your Google Authenticator app by manually entering the codes below into the authenticator app."
-                android:textColor="@color/white"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/exo2medium"
-            android:text="Name"
-            android:textSize="16sp" />
+                android:text="@string/name"
+                android:textSize="16sp" />
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_bequant_text"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_bequant_text"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@{viewModel.name}"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
+
+                <Button
+                    android:id="@+id/nameCopy"
+                    style="@style/Bequant.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/copy" />
+            </LinearLayout>
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="8dp"
                 android:fontFamily="@font/exo2medium"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
+                android:text="@string/secure_private_code"
+                android:textSize="16sp" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_bequant_text"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@{viewModel.secretCode}"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
+
+                <Button
+                    android:id="@+id/secretCodeCopy"
+                    style="@style/Bequant.Button.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/copy" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <Button
-                style="@style/Bequant.Button.Small"
-                android:layout_width="wrap_content"
+                android:id="@+id/next"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Copy" />
+                android:layout_marginTop="24dp"
+                android:text="@string/next" />
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/exo2medium"
-            android:text="Secure private code"
-            android:textSize="16sp" />
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_bequant_text"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/exo2medium"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
-
-            <Button
-                style="@style/Bequant.Button.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Copy" />
-        </LinearLayout>
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/next"
-            style="@style/Bequant.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/next" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</layout>

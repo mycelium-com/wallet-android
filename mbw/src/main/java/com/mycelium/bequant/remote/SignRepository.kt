@@ -67,6 +67,23 @@ class SignRepository {
         })
     }
 
+    fun confirmEmail(confirmToken: String, success: () -> Unit, error: (String) -> Unit) {
+        service.emailConfirm(confirmToken).enqueue(object : Callback<BequantResponse?> {
+            override fun onFailure(call: Call<BequantResponse?>, t: Throwable) {
+                error.invoke(t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<BequantResponse?>, response: Response<BequantResponse?>) {
+                if (response.isSuccessful) {
+                    success.invoke()
+                } else {
+                    error.invoke(response.message())
+                }
+            }
+        })
+    }
+
+
     fun totpList(success: () -> Unit, error: (String) -> Unit) {
         service.totpList().enqueue(object : Callback<TotpListResponse> {
             override fun onFailure(call: Call<TotpListResponse>, t: Throwable) {
@@ -99,12 +116,36 @@ class SignRepository {
         })
     }
 
-    fun totpActivate() {
-        service.totpActivate()
+    fun totpCreate(success: (Int, String, String) -> Unit, error: (String) -> Unit) {
+        service.totpCreate().enqueue(object : Callback<TotpCreateResponse?> {
+            override fun onFailure(call: Call<TotpCreateResponse?>, t: Throwable) {
+                error.invoke(t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<TotpCreateResponse?>, response: Response<TotpCreateResponse?>) {
+                if (response.isSuccessful) {
+                    success.invoke(response.body()?.otpId!!, response.body()?.otpLink!!, response.body()?.backupPassword!!)
+                } else {
+                    error.invoke(response.message())
+                }
+            }
+        })
     }
 
-    fun totpCreate() {
-        service.totpCreate()
+    fun totpActivate(otpId: Int, passcode: String, success: () -> Unit, error: (String) -> Unit) {
+        service.totpActivate(TotpActivate(otpId, passcode)).enqueue(object : Callback<BequantResponse?> {
+            override fun onFailure(call: Call<BequantResponse?>, t: Throwable) {
+                error.invoke(t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<BequantResponse?>, response: Response<BequantResponse?>) {
+                if (response.isSuccessful) {
+                    success.invoke()
+                } else {
+                    error.invoke(response.message())
+                }
+            }
+        })
     }
 
     fun resetPassword(email: String, success: () -> Unit, error: (String) -> Unit) {
@@ -140,8 +181,7 @@ class SignRepository {
     }
 
     companion object {
-        val ENDPOINT = "https://reg.bequant.io/"
-        val API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWNlbGl1bSIsImp0aSI6ImJxN2g2M2ZzdmpvdG8xczVvaDEwIiwiaWF0IjoxNTg2NDM0ODI5LCJpc3MiOiJhdXRoLWFwaSIsImJpZCI6M30.0qvEnMxzbWF-P7eOpZDnSXwoOe5vDWluKFOFq5-tPaE"
+        val ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
 
         private val objectMapper = ObjectMapper()
                 .registerKotlinModule()
@@ -159,8 +199,9 @@ class SignRepository {
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
-                                    header("X-API-KEY", API_KEY)
-                                    header("Authorization", "Bearer ${BequantPreference.getSession()}")
+                                    if (BequantPreference.getSession().isNotEmpty()) {
+                                        header("Authorization", "Bearer ${BequantPreference.getSession()}")
+                                    }
                                 }.build())
                             }
                             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

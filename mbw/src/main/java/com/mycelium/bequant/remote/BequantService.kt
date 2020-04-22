@@ -12,20 +12,23 @@ interface BequantService {
     @POST("account/register")
     fun register(@Body register: Register): Call<Void>
 
+    @GET("account/email/confirm")
+    fun emailConfirm(@Query("token") confirmToken: String): Call<BequantResponse?>
+
     @POST("account/email/confirm/resend")
     fun resendRegister(@Body email: Email): Call<Void>
 
     @GET("account/totp/list")
     fun totpList(): Call<TotpListResponse>
 
-    @GET("account/totp/confirm")
-    fun totpConfirm(@Query("token") token: String): Call<TotpConfirmResponse>
+    @POST("account/totp/create")
+    fun totpCreate(): Call<TotpCreateResponse?>
 
     @POST("account/totp/activate")
-    fun totpActivate()
+    fun totpActivate(@Body activate: TotpActivate): Call<BequantResponse?>
 
-    @POST("account/totp/create")
-    fun totpCreate(): Call<BequantResponse>
+    @GET("account/totp/confirm")
+    fun totpConfirm(@Query("token") token: String): Call<TotpConfirmResponse>
 
     @POST("account/auth")
     fun authorize(@Body auth: Auth): Call<AuthResponse>
@@ -41,4 +44,5 @@ interface BequantService {
 
     @GET("public/currency")
     fun currencies()
+
 }

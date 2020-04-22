@@ -1401,4 +1401,12 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="set_up_2fa_to_secure_your_account">Set up 2FA to secure your account</string>
     <string name="please_note_that_you_will_need_to_install_the_google_authenticator_app_on_your_phone_it_can_be_found_on_the_google_play_store_at_the_link_below">Please note that you will need to install the Google Authenticator app on your phone. It can be found on the Google Play store, at the link below.</string>
     <string name="resend_confirmation_email">- Resend confirmation email.</string>
+    <string name="write_down_the_backup_code">Write down the backup code</string>
+    <string name="please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app">Please add your Bequant account to your Google Authenticator app by manually entering the codes below into the authenticator app.</string>
+    <string name="can_t_scan_it">Can\'t scan it?</string>
+    <string name="secure_private_code">Secure private code</string>
+    <string name="google_authenticator_for_android">Google Authenticator for Android</string>
+    <string name="download">Download</string>
+    <string name="try_demo">Try Demo</string>
+    <string name="s_copied_to_clipboard">%s copied to clipboard</string>
 </resources>

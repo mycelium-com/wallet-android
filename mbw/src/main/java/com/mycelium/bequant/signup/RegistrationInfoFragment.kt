@@ -1,6 +1,9 @@
 package com.mycelium.bequant.signup
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,9 +12,10 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
-import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.model.Email
 import com.mycelium.bequant.remote.model.Register
@@ -26,9 +30,16 @@ class RegistrationInfoFragment : Fragment() {
 
     lateinit var viewModel: RegistrationInfoViewModel
 
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            next.isEnabled = true
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_BEQUANT_EMAIL_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -42,15 +53,9 @@ class RegistrationInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val register = arguments?.getSerializable("register") as Register
         viewModel.setRegister(register)
+        next.isEnabled = false
         next.setOnClickListener {
-            val loader = LoaderFragment()
-            loader.show(parentFragmentManager, "loader")
-            SignRepository.repository.totpConfirm({
-                loader.dismissAllowingStateLoss()
-                findNavController().navigate(RegistrationInfoFragmentDirections.actionNext())
-            }, {
-                loader.dismissAllowingStateLoss()
-            })
+//            findNavController().navigate(RegistrationInfoFragmentDirections.actionNext(register.email))
         }
         resendConfirmationEmail.setOnClickListener {
             SignRepository.repository.resendRegister(Email(register.email), {}, {})
@@ -58,5 +63,10 @@ class RegistrationInfoFragment : Fragment() {
         supportTeam.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
 }

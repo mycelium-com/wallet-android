@@ -42,7 +42,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Google Authenticator for Android" />
+            android:text="@string/google_authenticator_for_android" />
 
         <Button
             android:id="@+id/download"
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Download" />
+            android:text="@string/download" />
     </LinearLayout>
 
     <Space
