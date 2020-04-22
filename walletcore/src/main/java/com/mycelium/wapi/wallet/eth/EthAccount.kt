@@ -187,8 +187,9 @@ class EthAccount(private val accountContext: EthAccountContext,
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore
             // this could happen if transaction was replaced by another e.g.
+            val remoteTransactionsIds = remoteTransactions.map { it.txid }
             val toRemove = localTxs.filter { localTx ->
-                !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+                !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
