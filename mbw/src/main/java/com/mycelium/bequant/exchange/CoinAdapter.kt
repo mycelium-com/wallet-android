@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.wallet.R
+import kotlinx.android.synthetic.main.item_bequant_coin.view.*
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -24,8 +25,25 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 }
             }
 
-    override fun onBindViewHolder(parent: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = getItem(position)
+        when (item.type) {
+            TYPE_SEARCH -> {
+//                val searchHolder = holder as SearchHolder
+//                searchHolder.itemView.search.text =
+            }
+            TYPE_ITEM -> {
+//                item as MarketItem
+//                holder.itemView.currencies.text = item.currencies
+//                holder.itemView.volume.text = item.volume
+//                val itemHolder = holder as ItemViewHolder
+                holder.itemView.coinId.text = item.coin?.symbol
+                holder.itemView.coinFullName.text = item.coin?.name
+            }
+        }
     }
+
+    override fun getItemViewType(position: Int): Int = getItem(position).type
 
     class DiffCallback : DiffUtil.ItemCallback<CoinListItem>() {
         override fun areItemsTheSame(p0: CoinListItem, p1: CoinListItem): Boolean =

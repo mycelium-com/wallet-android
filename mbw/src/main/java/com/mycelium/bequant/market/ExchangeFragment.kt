@@ -25,12 +25,13 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         for (i in 25..100 step 25) {
             send_percent.addTab(send_percent.newTab().setText("$i%"))
         }
+
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         viewModel.available.observe(viewLifecycleOwner, Observer {
             available.text = it.toStringWithUnit(Denomination.UNIT)
         })
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
-            sendView.text = it.toString(Denomination.UNIT)
+            sendView.text = send_percent.getTabAt(send_percent.selectedTabPosition)?.text
         })
         viewModel.youGet.observe(viewLifecycleOwner, Observer {})
 
