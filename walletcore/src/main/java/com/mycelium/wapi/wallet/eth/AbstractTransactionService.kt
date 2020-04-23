@@ -4,30 +4,25 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.net.HttpsEndpoint
+import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
-import java.util.logging.Level
-import java.util.logging.Logger
 
 abstract class AbstractTransactionService(private val address: String, endpoints: List<HttpsEndpoint>) {
-    private val logger = Logger.getLogger(AbstractTransactionService::class.simpleName)
     private val api = "${endpoints.random()}/api/v2/address/"
 
+    @Throws(IOException::class)
     protected fun fetchTransactions(): List<Tx> {
         var urlString = "$api$address?details=txs"
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val result: MutableList<Tx> = mutableListOf()
-        try {
-            val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
-            result.addAll(initialResponse.transactions)
-            for (i in 2..initialResponse.totalPages) {
-                logger.log(Level.INFO, "page: $i")
-                urlString = "$api$address?details=txs&page=$i"
-                val response = mapper.readValue(URL(urlString), Response::class.java)
-                result.addAll(response.transactions)
-            }
-        } catch (e: Exception) {
-            logger.log(Level.SEVERE, "${e.javaClass} ${e.localizedMessage}")
+
+        val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
+        result.addAll(initialResponse.transactions)
+        for (i in 2..initialResponse.totalPages) {
+            urlString = "$api$address?details=txs&page=$i"
+            val response = mapper.readValue(URL(urlString), Response::class.java)
+            result.addAll(response.transactions)
         }
         return result
     }
