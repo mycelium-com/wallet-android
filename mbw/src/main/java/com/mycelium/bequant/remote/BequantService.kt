@@ -25,13 +25,16 @@ interface BequantService {
     fun totpCreate(): Call<TotpCreateResponse?>
 
     @POST("account/totp/activate")
-    fun totpActivate(@Body activate: TotpActivate): Call<BequantResponse?>
+    fun totpActivate(@Body activate: TotpActivate): Call<AuthResponse?>
 
     @GET("account/totp/confirm")
     fun totpConfirm(@Query("token") token: String): Call<TotpConfirmResponse>
 
     @POST("account/auth")
     fun authorize(@Body auth: Auth): Call<AuthResponse>
+
+    @POST("api-key")
+    fun getApiKey(): Call<ApiKeyResponse>
 
     @POST("account/password/reset")
     fun resetPassword(@Body password: Email): Call<RegisterResponse>

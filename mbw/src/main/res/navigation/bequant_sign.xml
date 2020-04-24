@@ -22,9 +22,9 @@
             app:destination="@id/resetPasswordFragment" />
         <action
             android:id="@+id/actionSignIn"
-            app:destination="@id/signUpTwoFactorFragment" />
+            app:destination="@id/signInTwoFactorFragment" />
         <action
-            android:id="@+id/action_signFragment_to_signUpTwoFactorFragment"
+            android:id="@+id/actionSignUp"
             app:destination="@id/signUpTwoFactorFragment" />
     </fragment>
     <fragment

@@ -24,10 +24,11 @@ class SignRepository {
 
             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                 if (response.isSuccessful) {
+                    BequantPreference.setAccessToken(response.body()?.accessToken ?: "")
                     BequantPreference.setSession(response.body()?.session ?: "")
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -44,7 +45,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -61,7 +62,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -77,7 +78,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -94,14 +95,14 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
     }
 
     fun totpConfirm(success: () -> Unit, error: (String) -> Unit) {
-        service.totpConfirm(BequantPreference.getSession()).enqueue(object : Callback<TotpConfirmResponse> {
+        service.totpConfirm(BequantPreference.getAccessToken()).enqueue(object : Callback<TotpConfirmResponse> {
             override fun onFailure(call: Call<TotpConfirmResponse>, t: Throwable) {
                 error.invoke(t.message ?: "")
             }
@@ -110,7 +111,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -126,23 +127,25 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke(response.body()?.otpId!!, response.body()?.otpLink!!, response.body()?.backupPassword!!)
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
     }
 
     fun totpActivate(otpId: Int, passcode: String, success: () -> Unit, error: (String) -> Unit) {
-        service.totpActivate(TotpActivate(otpId, passcode)).enqueue(object : Callback<BequantResponse?> {
-            override fun onFailure(call: Call<BequantResponse?>, t: Throwable) {
+        service.totpActivate(TotpActivate(otpId, passcode)).enqueue(object : Callback<AuthResponse?> {
+            override fun onFailure(call: Call<AuthResponse?>, t: Throwable) {
                 error.invoke(t.message ?: "")
             }
 
-            override fun onResponse(call: Call<BequantResponse?>, response: Response<BequantResponse?>) {
+            override fun onResponse(call: Call<AuthResponse?>, response: Response<AuthResponse?>) {
                 if (response.isSuccessful) {
+                    BequantPreference.setAccessToken(response.body()?.accessToken ?: "")
+                    BequantPreference.setSession(response.body()?.session ?: "")
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -158,7 +161,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -174,7 +177,7 @@ class SignRepository {
                 if (response.isSuccessful) {
                     success.invoke()
                 } else {
-                    error.invoke(response.message())
+                    error.invoke(response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -199,8 +202,8 @@ class SignRepository {
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
-                                    if (BequantPreference.getSession().isNotEmpty()) {
-                                        header("Authorization", "Bearer ${BequantPreference.getSession()}")
+                                    if (BequantPreference.getAccessToken().isNotEmpty()) {
+                                        header("Authorization", "Bearer ${BequantPreference.getAccessToken()}")
                                     }
                                 }.build())
                             }

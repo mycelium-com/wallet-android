@@ -10,5 +10,8 @@ object Constants {
     const val ACTION_BEQUANT_EMAIL_CONFIRMED = "bequant_email_confirmed"
     const val ACTION_BEQUANT_SHOW_REGISTER = "bequant_show_register"
 
+    const val SESSION_KEY = "session"
+    const val ACCESS_TOKEN_KEY = "session"
+
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 }

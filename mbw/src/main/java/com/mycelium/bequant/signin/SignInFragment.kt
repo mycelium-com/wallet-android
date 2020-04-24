@@ -62,7 +62,6 @@ class SignInFragment : Fragment() {
                     signListener?.invoke()
                 }, { error ->
                     loader.dismissAllowingStateLoss()
-                    signListener?.invoke()
                     ErrorHandler(requireContext()).handle(error)
                 })
             }
