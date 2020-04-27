@@ -16,19 +16,20 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 
 
 class SignRepository {
-    fun authorize(auth: Auth, success: () -> Unit, error: (String) -> Unit) {
+    fun authorize(auth: Auth, success: () -> Unit, error: (Int, String) -> Unit) {
         service.authorize(auth).enqueue(object : Callback<AuthResponse> {
             override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
-                error.invoke(t.message ?: "")
+                error.invoke(0, t.message ?: "")
             }
 
             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
                 if (response.isSuccessful) {
+                    BequantPreference.setEmail(auth.email)
                     BequantPreference.setAccessToken(response.body()?.accessToken ?: "")
                     BequantPreference.setSession(response.body()?.session ?: "")
                     success.invoke()
                 } else {
-                    error.invoke(response.errorBody()?.string() ?: "")
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
                 }
             }
         })
@@ -84,8 +85,7 @@ class SignRepository {
         })
     }
 
-
-    fun totpList(success: () -> Unit, error: (String) -> Unit) {
+    fun totpList(success: (List<TotpListItem>) -> Unit, error: (String) -> Unit) {
         service.totpList().enqueue(object : Callback<TotpListResponse> {
             override fun onFailure(call: Call<TotpListResponse>, t: Throwable) {
                 error.invoke(t.message ?: "")
@@ -93,23 +93,7 @@ class SignRepository {
 
             override fun onResponse(call: Call<TotpListResponse>, response: Response<TotpListResponse>) {
                 if (response.isSuccessful) {
-                    success.invoke()
-                } else {
-                    error.invoke(response.errorBody()?.string() ?: "")
-                }
-            }
-        })
-    }
-
-    fun totpConfirm(success: () -> Unit, error: (String) -> Unit) {
-        service.totpConfirm(BequantPreference.getAccessToken()).enqueue(object : Callback<TotpConfirmResponse> {
-            override fun onFailure(call: Call<TotpConfirmResponse>, t: Throwable) {
-                error.invoke(t.message ?: "")
-            }
-
-            override fun onResponse(call: Call<TotpConfirmResponse>, response: Response<TotpConfirmResponse>) {
-                if (response.isSuccessful) {
-                    success.invoke()
+                    success.invoke(response.body()?.data ?: listOf())
                 } else {
                     error.invoke(response.errorBody()?.string() ?: "")
                 }
@@ -151,6 +135,22 @@ class SignRepository {
         })
     }
 
+    fun confirmTotp(token: String, success: () -> Unit, error: (String) -> Unit) {
+        service.totpConfirm(token).enqueue(object : Callback<TotpConfirmResponse> {
+            override fun onFailure(call: Call<TotpConfirmResponse>, t: Throwable) {
+                error.invoke(t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<TotpConfirmResponse>, response: Response<TotpConfirmResponse>) {
+                if (response.isSuccessful) {
+                    success.invoke()
+                } else {
+                    error.invoke(response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
     fun resetPassword(email: String, success: () -> Unit, error: (String) -> Unit) {
         service.resetPassword(Email(email)).enqueue(object : Callback<RegisterResponse> {
             override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
@@ -167,8 +167,8 @@ class SignRepository {
         })
     }
 
-    fun resetPasswordUpdate(passwordSet: PasswordSet, success: () -> Unit, error: (String) -> Unit) {
-        service.resetPasswordSet(passwordSet).enqueue(object : Callback<RegisterResponse> {
+    fun resetPasswordSet(token: String, password: String, success: () -> Unit, error: (String) -> Unit) {
+        service.resetPasswordSet(PasswordSet(password, token)).enqueue(object : Callback<RegisterResponse> {
             override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {
                 error.invoke(t.message ?: "")
             }
@@ -183,8 +183,31 @@ class SignRepository {
         })
     }
 
+    fun getApiKeys(error: (Int, String) -> Unit) {
+        service.getApiKey().enqueue(object : Callback<ApiKeyResponse> {
+            override fun onFailure(call: Call<ApiKeyResponse>, t: Throwable) {
+                error.invoke(0, t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<ApiKeyResponse>, response: Response<ApiKeyResponse>) {
+                if (response.isSuccessful) {
+                    BequantPreference.setApiKeys(response.body()?.privateKey, response.body()?.publicKey)
+                } else {
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
+    fun logout() {
+        BequantPreference.clear()
+    }
+
     companion object {
         val ENDPOINT = "https://xwpe71x4sg.execute-api.us-east-1.amazonaws.com/prd-reg/"
+//        val ENDPOINT = "https://reg.bequant.io/"
+//        val API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJteWNlbGl1bSIsImp0aSI6ImJxN2g2M2ZzdmpvdG8xczVvaDEwIiwiaWF0IjoxNTg2NDM0ODI5LCJpc3MiOiJhdXRoLWFwaSIsImJpZCI6M30.0qvEnMxzbWF-P7eOpZDnSXwoOe5vDWluKFOFq5-tPaE"
+
 
         private val objectMapper = ObjectMapper()
                 .registerKotlinModule()
@@ -202,6 +225,7 @@ class SignRepository {
                             .addInterceptor {
                                 it.proceed(it.request().newBuilder().apply {
                                     header("Content-Type", "application/json")
+//                                    header("X-API-KEY", API_KEY)
                                     if (BequantPreference.getAccessToken().isNotEmpty()) {
                                         header("Authorization", "Bearer ${BequantPreference.getAccessToken()}")
                                     }
@@ -209,9 +233,10 @@ class SignRepository {
                             }
                             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                             .build())
+                    .addConverterFactory(NullOnEmptyConverterFactory())
                     .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                     .build()
-                    .create(BequantService::class.java)
+                    .create(BequantRegService::class.java)
         }
     }
 }

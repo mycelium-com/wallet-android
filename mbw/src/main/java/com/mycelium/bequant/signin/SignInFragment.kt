@@ -27,7 +27,8 @@ class SignInFragment : Fragment() {
 
     lateinit var viewModel: SignInViewModel
     var resetPasswordListener: (() -> Unit)? = null
-    var signListener: (() -> Unit)? = null
+    var signInListener: ((Auth) -> Unit)? = null
+    var totpSignUpListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,15 +55,18 @@ class SignInFragment : Fragment() {
         }
         signIn.setOnClickListener {
             if (validate()) {
-                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!, "", "")
+                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!)
                 val loader = LoaderFragment()
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.authorize(auth, {
-                    loader.dismissAllowingStateLoss()
-                    signListener?.invoke()
-                }, { error ->
-                    loader.dismissAllowingStateLoss()
-                    ErrorHandler(requireContext()).handle(error)
+                    totpSignUpListener?.invoke()
+                }, { code, error ->
+                    if (code == 420) {
+                        signInListener?.invoke(auth)
+                    } else {
+                        loader.dismissAllowingStateLoss()
+                        ErrorHandler(requireContext()).handle(error)
+                    }
                 })
             }
         }

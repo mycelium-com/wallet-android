@@ -17,8 +17,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:fontFamily="@font/exo2medium"
-            android:text="An email has been sent to"
+            android:text="@string/we_sent_a_confirmation_email_to"
             android:textSize="16sp" />
 
         <TextView
@@ -39,21 +40,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
-            android:text="It includes information on changing and confirming your new password"
+            android:text="@string/please_check_your_inbox_to_complete_setup"
             android:textSize="16sp" />
 
-        <TextView
+        <include
+            layout="@layout/part_bequant_not_receive_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_bequant_text"
-            android:fontFamily="@font/exo2medium"
-            android:padding="16dp"
-            android:text="You have 1 hour to reset your password before the link expires. "
-            android:textColor="#CE3C4E"
-            android:textSize="16sp" />
+            android:layout_marginTop="24dp" />
 
-        <include layout="@layout/part_bequant_not_receive_email" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/next"
@@ -62,6 +61,5 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Next" />
-
     </LinearLayout>
 </layout>

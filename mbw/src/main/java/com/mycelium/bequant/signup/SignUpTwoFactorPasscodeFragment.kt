@@ -1,12 +1,12 @@
 package com.mycelium.bequant.signup
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
-import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -28,10 +28,10 @@ class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.totpActivate(otpId!!, enteredText, {
                     loader.dismissAllowingStateLoss()
-                    requireActivity().finish()
-                    startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                    findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
                 }, {
                     loader.dismissAllowingStateLoss()
+                    ErrorHandler(requireContext()).handle(it)
                 })
                 return true
             }

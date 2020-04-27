@@ -9,27 +9,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
-import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
-import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Email
-import com.mycelium.bequant.remote.model.Register
+import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
+import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
-import kotlinx.android.synthetic.main.fragment_bequant_registration_info.*
+import kotlinx.android.synthetic.main.fragment_bequant_registration_totp.*
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
-class RegistrationInfoFragment : Fragment() {
+class RegistrationTotpFragment : Fragment() {
 
     lateinit var viewModel: RegistrationInfoViewModel
 
-    val receiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             next.isEnabled = true
         }
@@ -38,34 +37,31 @@ class RegistrationInfoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
-        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_BEQUANT_EMAIL_CONFIRMED))
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_BEQUANT_EMAIL_CONFIRMED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBindingImpl>(inflater, R.layout.fragment_bequant_registration_info, container, false)
+            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBindingImpl>(inflater, R.layout.fragment_bequant_registration_totp, container, false)
                     .apply {
-                        viewModel = this@RegistrationInfoFragment.viewModel
-                        lifecycleOwner = this@RegistrationInfoFragment
+                        viewModel = this@RegistrationTotpFragment.viewModel
+                        lifecycleOwner = this@RegistrationTotpFragment
                     }.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val register = arguments?.getSerializable("register") as Register
-        viewModel.setRegister(register)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.verify_via_email)
+        viewModel.email.value = BequantPreference.getEmail()
         next.isEnabled = false
         next.setOnClickListener {
-//            findNavController().navigate(RegistrationInfoFragmentDirections.actionNext(register.email))
+            requireActivity().finish()
+            startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
         }
         resendConfirmationEmail.setOnClickListener {
-            SignRepository.repository.resendRegister(Email(register.email), {}, {})
+//            SignRepository.repository.resendRegister(Email(register.email), {}, {})
         }
         supportTeam.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
-    }
 }

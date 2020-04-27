@@ -21,4 +21,5 @@ class TotpListResponse(val data: List<TotpListItem>)
 
 class TotpListItem(val created: Int,
                    val name: String,
-                   @JsonProperty("otp_id") val otpId: Int)
+                   @JsonProperty("otp_id") val otpId: Int,
+                   val status: String)

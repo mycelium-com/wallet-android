@@ -8,7 +8,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 
-interface BequantService {
+interface BequantRegService {
     @POST("account/register")
     fun register(@Body register: Register): Call<Void>
 
@@ -38,6 +38,9 @@ interface BequantService {
 
     @POST("account/password/reset")
     fun resetPassword(@Body password: Email): Call<RegisterResponse>
+
+    @GET("account/password/set")
+    fun resetPasswordSet(@Query("token") token: String): Call<BequantResponse?>
 
     @POST("account/password/set")
     fun resetPasswordSet(@Body passwordSet: PasswordSet): Call<RegisterResponse>

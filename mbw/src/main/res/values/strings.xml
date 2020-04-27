@@ -1409,4 +1409,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="download">Download</string>
     <string name="try_demo">Try Demo</string>
     <string name="s_copied_to_clipboard">%s copied to clipboard</string>
+    <string name="please_check_your_inbox_to_complete_setup">Please check your inbox to complete setup.</string>
+    <string name="verify_via_email">Verify via Email</string>
+    <string name="log_out">Log Out</string>
 </resources>

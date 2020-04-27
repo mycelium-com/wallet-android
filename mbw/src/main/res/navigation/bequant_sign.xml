@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bequant_sing"
+    android:id="@+id/bequant_sign"
     app:startDestination="@id/signFragment">
 
     <fragment
@@ -22,7 +22,11 @@
             app:destination="@id/resetPasswordFragment" />
         <action
             android:id="@+id/actionSignIn"
-            app:destination="@id/signInTwoFactorFragment" />
+            app:destination="@id/signInTwoFactorFragment">
+            <argument
+                android:name="auth"
+                app:argType="com.mycelium.bequant.remote.model.Auth" />
+        </action>
         <action
             android:id="@+id/actionSignUp"
             app:destination="@id/signUpTwoFactorFragment" />
@@ -31,15 +35,7 @@
         android:id="@+id/registrationInfoFragment"
         android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
         android:label="RegistrationInfoFragment"
-        tools:layout="@layout/fragment_bequant_registration_info">
-        <!--        <action-->
-        <!--            android:id="@+id/actionNext"-->
-        <!--            app:destination="@id/signUpTwoFactorFragment">-->
-        <!--            <argument-->
-        <!--                android:name="email"-->
-        <!--                app:argType="string" />-->
-        <!--        </action>-->
-    </fragment>
+        tools:layout="@layout/fragment_bequant_registration_info" />
     <fragment
         android:id="@+id/resetPasswordFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordFragment"
@@ -98,6 +94,9 @@
             <argument
                 android:name="email"
                 app:argType="string" />
+            <argument
+                android:name="token"
+                app:argType="string" />
         </action>
     </fragment>
     <fragment
@@ -125,5 +124,14 @@
         android:id="@+id/signUpTwoFactorPasscodeFragment"
         android:name="com.mycelium.bequant.signup.SignUpTwoFactorPasscodeFragment"
         android:label="SignUpTwoFactorPasscodeFragment"
-        tools:layout="@layout/fragment_bequant_sign_in_two_factor" />
+        tools:layout="@layout/fragment_bequant_sign_in_two_factor">
+        <action
+            android:id="@+id/actionNext"
+            app:destination="@id/registrationTotpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationTotpFragment"
+        android:name="com.mycelium.bequant.signup.RegistrationTotpFragment"
+        android:label="RegistrationTotpFragment"
+        tools:layout="@layout/fragment_bequant_registration_totp" />
 </navigation>

@@ -5,4 +5,5 @@
     <item android:title="@string/about" />
     <item android:title="@string/legal_information" />
     <item android:title="@string/log_in" />
+    <item android:id="@+id/logOut" android:title="@string/log_out" />
 </menu>
