@@ -368,7 +368,13 @@ public class AddAccountActivity extends Activity {
                 MbwManager.getEventBus().post(new AccountCreated(accountId));
                 MbwManager.getEventBus().post(new AccountChanged(accountId));
             }
-            finishOk(accountIds.get(0));
+            if (accountIds.isEmpty()) {
+                _toaster.toast("Error. No account created!", false);
+                setResult(RESULT_CANCELED);
+                finish();
+            } else {
+                finishOk(accountIds.get(0));
+            }
         }
     }
 
