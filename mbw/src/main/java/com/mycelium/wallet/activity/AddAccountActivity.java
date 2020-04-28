@@ -347,6 +347,9 @@ public class AddAccountActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            if (tokens.isEmpty()) {
+                this.cancel(false);
+            }
             showProgress(R.string.erc20_account_creation_started);
         }
 
