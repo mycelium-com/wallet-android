@@ -347,6 +347,9 @@ public class AddAccountActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            if (tokens.isEmpty()) {
+                this.cancel(false);
+            }
             showProgress(R.string.erc20_account_creation_started);
         }
 
@@ -368,7 +371,13 @@ public class AddAccountActivity extends Activity {
                 MbwManager.getEventBus().post(new AccountCreated(accountId));
                 MbwManager.getEventBus().post(new AccountChanged(accountId));
             }
-            finishOk(accountIds.get(0));
+            if (accountIds.isEmpty()) {
+                _toaster.toast("Error. No account created!", false);
+                setResult(RESULT_CANCELED);
+                finish();
+            } else {
+                finishOk(accountIds.get(0));
+            }
         }
     }
 
