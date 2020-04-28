@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/marketFragment">
     <fragment
         android:id="@+id/marketFragment"
         android:name="com.mycelium.bequant.market.MarketFragment"
+        tools:layout="@layout/fragment_bequant_main"
         android:label="MarketFragment">
         <action
             android:id="@+id/action_market_to_withdraw"
@@ -17,9 +19,11 @@
     <fragment
         android:id="@+id/withdrawFragment"
         android:name="com.mycelium.bequant.withdraw.WithdrawFragment"
+        tools:layout="@layout/fragment_bequant_withdraw"
         android:label="WithdrawFragment" />
     <fragment
         android:id="@+id/receiveFragment"
+        tools:layout="@layout/fragment_bequant_receive"
         android:name="com.mycelium.bequant.receive.ReceiveFragment"
         android:label="ReceiveFragment" />
 </navigation>

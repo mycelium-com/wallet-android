@@ -1,6 +1,9 @@
 package com.mycelium.bequant.sign
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -8,13 +11,23 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_sign.*
+import kotlinx.android.synthetic.main.menu_bequant_try_demo.view.*
 
 
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
+
+    val register = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            pager.setCurrentItem(0, true)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -32,9 +45,24 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         }.attach()
     }
 
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(register, IntentFilter(ACTION_BEQUANT_SHOW_REGISTER))
+    }
+
+    override fun onPause() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(register)
+        super.onPause()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_bequant_sign, menu)
+        menu.findItem(R.id.tryDemo).let { item ->
+            item.actionView.tryDemoButton.setOnClickListener {
+                onOptionsItemSelected(item)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =

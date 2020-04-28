@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tryDemo"
-        android:actionLayout="@layout/menu_bequant_try_demo"
-        app:showAsAction="always"
-        android:title="try demo" />
+        android:title="@string/try_demo"
+        app:actionLayout="@layout/menu_bequant_try_demo"
+        app:showAsAction="always" />
 </menu>
