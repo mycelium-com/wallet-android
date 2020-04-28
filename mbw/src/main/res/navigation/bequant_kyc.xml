@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/phoneInput">
+
+    <fragment
+            android:id="@+id/phoneInput"
+            tools:layout="@layout/activity_bequant_kyc_phone_input"
+            android:name="com.mycelium.bequant.kyc.inputPhone.InputPhoneFragment"
+            android:label="InputPhoneFragment" />
+
+    <fragment
+            android:id="@+id/phoneVerify"
+            tools:layout="@layout/activity_bequant_kyc_verify_phone"
+            android:name="com.mycelium.bequant.kyc.checkCode.VerifyPhoneFragment"
+            android:label="VerifyPhoneFragment" />
+
+    <fragment
+            android:id="@+id/kycStep1"
+            tools:layout="@layout/activity_bequant_steps_1"
+            android:name="com.mycelium.bequant.kyc.step1.Step1Fragment"
+            android:label="Step1Fragment" />
+
+    <fragment
+            android:id="@+id/kycStep2"
+            tools:layout="@layout/activity_bequant_steps_2"
+            android:name="com.mycelium.bequant.kyc.step2.Step2Fragment"
+            android:label="Step2Fragment" />
+
+    <fragment
+            android:id="@+id/kycStep3"
+            tools:layout="@layout/activity_bequant_steps_3"
+            android:name="com.mycelium.bequant.kyc.step3.Step3Fragment"
+            android:label="Step3Fragment" />
+</navigation>

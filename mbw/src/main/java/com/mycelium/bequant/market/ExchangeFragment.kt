@@ -8,6 +8,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.exchange.SelectCoinActivity
+import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.model.ExchangeViewModel
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
@@ -39,6 +40,9 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         }
         getView.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
+        }
+        exchange.setOnClickListener {
+            startActivity(Intent(requireActivity(),BequantKycActivity::class.java))
         }
     }
 }
