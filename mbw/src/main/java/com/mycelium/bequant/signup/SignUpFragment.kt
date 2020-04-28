@@ -66,7 +66,7 @@ class SignUpFragment : Fragment() {
         }
         register.setOnClickListener {
             if (validate()) {
-                val register = Register(email.text.toString(), password.text.toString())
+                val register = Register(viewModel.email.value!!, viewModel.password.value!!)
                 val loader = LoaderFragment()
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.register(register, {

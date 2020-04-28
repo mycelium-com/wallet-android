@@ -22,8 +22,11 @@ class SignFragmentAdapter(val fragment: Fragment) : FragmentStateAdapter(fragmen
                     resetPasswordListener = {
                         fragment.findNavController().navigate(SignFragmentDirections.actionResetPassword())
                     }
-                    signListener = {
-                        fragment.findNavController().navigate(SignFragmentDirections.actionSignIn())
+                    signInListener = {
+                        fragment.findNavController().navigate(SignFragmentDirections.actionSignIn(it))
+                    }
+                    totpSignUpListener = {
+                        fragment.findNavController().navigate(SignFragmentDirections.actionSignUp())
                     }
                 }
                 else -> TODO("not implemented")

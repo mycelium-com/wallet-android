@@ -13,8 +13,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.mycelium.bequant.Constants.LOADER_TAG
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.market.BequantMarketActivity
+import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBindingImpl
@@ -42,6 +46,7 @@ class ResetPasswordChangeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
         val mail = arguments?.getString("email") ?: ""
+        val token = arguments?.getString("token") ?: ""
         viewModel.email.value = mail
         viewModel.password.observe(this, Observer { value ->
             passwordLayout.error = null
@@ -59,8 +64,16 @@ class ResetPasswordChangeFragment : Fragment() {
             }
         }
         changePassword.setOnClickListener {
-            requireActivity().finish()
-            startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            val loader = LoaderFragment()
+            loader.show(parentFragmentManager, LOADER_TAG)
+            SignRepository.repository.resetPasswordSet(token, viewModel.password.value!!, {
+                loader.dismissAllowingStateLoss()
+                requireActivity().finish()
+                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            }, {
+                loader.dismissAllowingStateLoss()
+                ErrorHandler(requireContext()).handle(it)
+            })
         }
     }
 

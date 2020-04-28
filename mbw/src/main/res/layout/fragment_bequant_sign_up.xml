@@ -18,17 +18,17 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/emailLayout"
+            style="@style/Bequant.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:hintEnabled="false"
             app:layout_constraintTop_toTopOf="parent">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_bequant_input_text"
+                android:background="@null"
                 android:fontFamily="@font/exo2medium"
                 android:hint="@string/email"
                 android:padding="8dp"
@@ -71,19 +71,19 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/referralLayout"
+            style="@style/Bequant.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:visibility="gone"
-            app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/iHaveRefCode"
             tools:visibility="visible">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/referralCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_bequant_input_text"
+                android:background="@null"
                 android:fontFamily="@font/exo2medium"
                 android:hint="@string/referral_code"
                 android:padding="8dp"

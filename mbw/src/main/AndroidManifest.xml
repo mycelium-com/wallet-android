@@ -265,6 +265,44 @@
         <activity android:name="com.mycelium.bequant.exchange.SelectCoinActivity"
             android:theme="@style/BequantSign"/>
         <activity android:name="com.mycelium.bequant.sign.SignActivity"
-            android:theme="@style/BequantSign"/>
+            android:theme="@style/BequantSign"
+            android:launchMode="singleInstance">
+            <intent-filter
+                android:label="deeplink_to_email_confirm">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="reg.bequant.io"
+                    android:pathPrefix="/account/email/confirm"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter
+                android:label="deeplink_to_totp_confirm">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="reg.bequant.io"
+                    android:pathPrefix="/account/totp/confirm"
+                    android:scheme="https" />
+            </intent-filter>
+            <intent-filter
+                android:label="deeplink_to_reset_password_confirm">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="reg.bequant.io"
+                    android:pathPrefix="/account/password/set"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

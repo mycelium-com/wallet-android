@@ -10,7 +10,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
@@ -25,7 +27,8 @@ class SignInFragment : Fragment() {
 
     lateinit var viewModel: SignInViewModel
     var resetPasswordListener: (() -> Unit)? = null
-    var signListener: (() -> Unit)? = null
+    var signInListener: ((Auth) -> Unit)? = null
+    var totpSignUpListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,18 +55,23 @@ class SignInFragment : Fragment() {
         }
         signIn.setOnClickListener {
             if (validate()) {
-                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!, "", "")
+                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!)
                 val loader = LoaderFragment()
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.authorize(auth, {
-                    loader.dismissAllowingStateLoss()
-                    signListener?.invoke()
-                }, { error ->
-                    loader.dismissAllowingStateLoss()
-                    signListener?.invoke()
-                    ErrorHandler(requireContext()).handle(error)
+                    totpSignUpListener?.invoke()
+                }, { code, error ->
+                    if (code == 420) {
+                        signInListener?.invoke(auth)
+                    } else {
+                        loader.dismissAllowingStateLoss()
+                        ErrorHandler(requireContext()).handle(error)
+                    }
                 })
             }
+        }
+        register.setOnClickListener {
+            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_BEQUANT_SHOW_REGISTER))
         }
         supportCenter.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))

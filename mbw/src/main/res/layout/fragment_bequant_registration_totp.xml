@@ -17,12 +17,6 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/thank_you_for_signing_up_with_bequant"
-            android:textSize="28sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:fontFamily="@font/exo2medium"
             android:text="@string/we_sent_a_confirmation_email_to"
@@ -46,21 +40,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
-            android:text="Please follow the instructions in the email to complete your registration."
+            android:text="@string/please_check_your_inbox_to_complete_setup"
             android:textSize="16sp" />
 
-        <TextView
+        <include
+            layout="@layout/part_bequant_not_receive_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_bequant_text"
-            android:fontFamily="@font/exo2medium"
-            android:padding="16dp"
-            android:text="You have 1 hour to reset your password before the link expires. "
-            android:textColor="#CE3C4E"
-            android:textSize="16sp" />
-
-        <include layout="@layout/part_bequant_not_receive_email" />
+            android:layout_marginTop="24dp" />
 
         <Space
             android:layout_width="0dp"

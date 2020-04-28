@@ -5,11 +5,18 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
 
 
 class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
+
+    private var otpId = 0
+    private var otpLink = ""
+    private var backupCode = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -19,8 +26,19 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             next.isEnabled = checked
         }
         next.setOnClickListener {
-            findNavController().navigate(R.id.actionNext)
+            findNavController().navigate(BackupCodeFragmentDirections.actionNext(otpId, otpLink, backupCode))
         }
+        val loader = LoaderFragment()
+        loader.show(parentFragmentManager, "loader")
+        SignRepository.repository.totpCreate({ otpId, otpLink, backupCode ->
+            this.otpId = otpId
+            this.otpLink = otpLink
+            this.backupCode = backupCode
+            loader.dismissAllowingStateLoss()
+            backupCodeView.text = backupCode
+        }, {
+            loader.dismissAllowingStateLoss()
+            ErrorHandler(requireContext()).handle(it)
+        })
     }
-
 }
