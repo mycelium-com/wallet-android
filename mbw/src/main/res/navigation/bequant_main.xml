@@ -7,23 +7,23 @@
     <fragment
         android:id="@+id/marketFragment"
         android:name="com.mycelium.bequant.market.MarketFragment"
-        tools:layout="@layout/fragment_bequant_main"
-        android:label="MarketFragment">
+        android:label="MarketFragment"
+        tools:layout="@layout/fragment_bequant_main">
         <action
-            android:id="@+id/action_market_to_withdraw"
+            android:id="@+id/actionWithdraw"
             app:destination="@id/withdrawFragment" />
         <action
-            android:id="@+id/action_market_to_receive"
+            android:id="@+id/actionDeposit"
             app:destination="@id/receiveFragment" />
     </fragment>
     <fragment
         android:id="@+id/withdrawFragment"
         android:name="com.mycelium.bequant.withdraw.WithdrawFragment"
-        tools:layout="@layout/fragment_bequant_withdraw"
-        android:label="WithdrawFragment" />
+        android:label="WithdrawFragment"
+        tools:layout="@layout/fragment_bequant_withdraw" />
     <fragment
         android:id="@+id/receiveFragment"
-        tools:layout="@layout/fragment_bequant_receive"
         android:name="com.mycelium.bequant.receive.ReceiveFragment"
-        android:label="ReceiveFragment" />
+        android:label="ReceiveFragment"
+        tools:layout="@layout/fragment_bequant_receive" />
 </navigation>

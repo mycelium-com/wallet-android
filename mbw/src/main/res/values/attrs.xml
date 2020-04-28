@@ -25,4 +25,10 @@
         <attr name="text" format="string|reference" />
         <attr name="icon" />
     </declare-styleable>
+
+    <declare-styleable name="OtpViewTheme">
+        <attr format="reference" name="otpViewStyle"/>
+    </declare-styleable>
+
+
 </resources>

@@ -1,6 +1,5 @@
 package com.mycelium.bequant.signin
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,11 +12,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.LOADER_TAG
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
-import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
@@ -68,8 +67,7 @@ class ResetPasswordChangeFragment : Fragment() {
             loader.show(parentFragmentManager, LOADER_TAG)
             SignRepository.repository.resetPasswordSet(token, viewModel.password.value!!, {
                 loader.dismissAllowingStateLoss()
-                requireActivity().finish()
-                startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
             }, {
                 loader.dismissAllowingStateLoss()
                 ErrorHandler(requireContext()).handle(it)

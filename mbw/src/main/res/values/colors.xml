@@ -67,7 +67,6 @@
     <color name="bequant_password_red">#CE3C4E</color>
     <color name="bequant_password_yellow">#F2E868</color>
     <color name="bequant_password_green">#5EBA89</color>
-    <color name="bequant_background">#17191B</color>
 
     <color name="bequant_gray">#17191B</color>
     <color name="bequant_gray_1">#070A0A</color>
@@ -75,4 +74,6 @@
     <color name="bequant_gray_3">#23262A</color>
     <color name="bequant_gray_4">#2F343A</color>
     <color name="bequant_gray_6">#49505C</color>
+
+    <color name="bequant_green">#5EBA89</color>
 </resources>

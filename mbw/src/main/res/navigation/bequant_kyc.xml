@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nav_graph"
+        app:startDestination="@id/phoneInput">
+
+    <fragment
+            android:id="@+id/phoneInput"
+            android:name="com.mycelium.bequant.kyc.inputPhone.InputPhoneFragment"
+            android:label="InputPhoneFragment"
+            tools:layout="@layout/activity_bequant_kyc_phone_input">
+        <action
+                android:id="@+id/action_phoneInputToPhoneVerify"
+                app:destination="@id/phoneVerify" />
+    </fragment>
+
+    <fragment
+            android:id="@+id/phoneVerify"
+            android:name="com.mycelium.bequant.kyc.checkCode.VerifyPhoneFragment"
+            android:label="VerifyPhoneFragment"
+            tools:layout="@layout/activity_bequant_kyc_verify_phone">
+        <action
+                android:id="@+id/action_phoneVerifyToStep1"
+                app:destination="@id/kycStep1" />
+    </fragment>
+
+    <fragment
+            android:id="@+id/kycStep1"
+            android:name="com.mycelium.bequant.kyc.step1.Step1Fragment"
+            android:label="Step1Fragment"
+            tools:layout="@layout/activity_bequant_steps_1">
+        <action
+                android:id="@+id/action_step1ToStep2"
+                app:destination="@id/kycStep2" />
+    </fragment>
+
+    <fragment
+            android:id="@+id/kycStep2"
+            android:name="com.mycelium.bequant.kyc.step2.Step2Fragment"
+            android:label="Step2Fragment"
+            tools:layout="@layout/activity_bequant_steps_2">
+        <action
+                android:id="@+id/action_step2ToStep3"
+                app:destination="@id/kycStep3" />
+    </fragment>
+
+    <fragment
+            android:id="@+id/kycStep3"
+            android:name="com.mycelium.bequant.kyc.step3.Step3Fragment"
+            android:label="Step3Fragment"
+            tools:layout="@layout/activity_bequant_steps_3">
+
+    </fragment>
+</navigation>

@@ -63,7 +63,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#2F343A"
+        android:background="@color/bequant_gray_4"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,6 +17,7 @@ object Constants {
     const val EMAIL_KEY = "email"
     const val PRIVATE_KEY = "private_key"
     const val PUBLIC_KEY = "public_key"
+    const val HIDE_ZERO_BALANCE_KEY = "hide_zero_balance"
 
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/bequant_gray_2"
+            android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Personal information"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:text="Please fill in your personal information as it appears on the proof of identity document."
+                android:textColor="@color/white" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="First Name"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edFirstname"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="Name Name" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Last Name"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edLastname"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="Name Name" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Date of Birth"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDateOfBirth"
+                style="@style/Bequant.EditText"
+                android:layout_width="156dp"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_date_of_birth"
+                android:gravity="center_vertical"
+                tools:text="11/02/1999" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Nationality"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvNationality"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_arrow_drop_down"
+                android:gravity="center_vertical"
+                tools:text="American" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:text="FATCA Declaration"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:lineSpacingExtra="5dp"
+                android:text="FATCA legislations requires certain U.S. taxpayers, who hold foreign financial assets, to report information about those assets on their annual income tax return. More information on eligibility can be found on www.irs.gov/fatca. Please verify whether you fall under FATCA legislation."
+                android:textColor="@color/white" />
+
+
+        <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp">
+
+            <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="I warrant that I do fall under FATCA" />
+
+            <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="I warrant that I do not fall under FATCA " />
+        </RadioGroup>
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="By clicking Proceed, you agree to our  Terms of Use"
+                android:textColor="@color/white" />
+
+        <Button
+                android:id="@+id/btNext"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Next" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>
