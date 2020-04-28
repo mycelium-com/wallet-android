@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@color/bequant_gray_2"
+            android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Identity Document"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:text="Accepted document:\nTravelling Passport, National Identity Card, Driving Licence "
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Upload Document"
+                android:textColor="@color/bequant_yellow" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/bequant_gray_4" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Proof of Address"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:text="Please upload one of the documents listed below:\n\n - Utility bill (we do not accept invoices for mobile phones) issued within the last 90 days.\n\n - Account statement or reference letter by a recognised credit/financial institution issued within the last 90 days."
+                android:textColor="@color/white" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.Button.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Upload Document"
+                android:textColor="@color/bequant_yellow" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/bequant_gray_4" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/bequant_gray_4" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selfie"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:text='Please submit a selfie in which you are holding your government-issued ID and a paper note. The ID should be the same you attached to this application. On the note you should handwrite your email address, the current date, and the words "for Bequant".'
+                android:textColor="@color/white" />
+
+        <Button
+                android:id="@+id/btFinish"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Finish" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@color/bequant_gray_2"
+            android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTitle"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Residential Address"
+                android:textSize="20sp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:alpha="0.5"
+                android:text="Please fill in your personal information as it appears on the proof of identity document."
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Line 1"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edLine1"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_bequant_input_text"
+                android:lines="3"
+                tools:text="2972 Westheimer Rd undefined Illinois 85486 United States, Santa Ana" />
+
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="24dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Line 2"
+                    android:textColor="@color/white" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:layout_marginLeft="4dp"
+                    android:text="optional"
+                    android:textColor="@color/bequant_gray_6" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edLine2"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_bequant_input_text"
+                android:lines="3"
+                tools:text="2972 Westheimer Rd undefined Illinois 85486 United States, Santa Ana" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="City"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edCity"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="London" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="156dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Postcode"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/edPostcode"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:text="854322" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                style="@style/Bequant.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Coutry"
+                android:textColor="@color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvCountry"
+                style="@style/Bequant.EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableRight="@drawable/ic_arrow_drop_down"
+                android:gravity="center_vertical"
+                tools:text="America" />
+
+        <Button
+                android:id="@+id/btNext"
+                style="@style/Bequant.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Next" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</ScrollView>
