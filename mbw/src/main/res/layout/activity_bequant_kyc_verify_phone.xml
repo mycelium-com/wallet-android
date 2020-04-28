@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
         android:layout_margin="16dp"
-        android:background="@color/bequant_gray">
+        android:background="@color/bequant_gray"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
     <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -30,75 +32,62 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <com.mycelium.bequant.kyc.otp.OtpView
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/otp_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="72dp"
-            android:inputType="number"
-            android:itemBackground="@drawable/bg_otp_item"
-            android:textColor="@android:color/white"
-            app:hideLineWhenFilled="true"
-            app:itemCount="6"
-            app:itemSpacing="6dp"
+            app:errorTextColor="#CE3C4E"
             app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
             app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
-            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle"
-            app:state_filled="true"
-            app:viewType="rectangle" />
+            app:layout_constraintTop_toBottomOf="@+id/tvSubtitle">
 
-    <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvErrorCode"
-            style="@style/Bequant.TextView"
+        <com.poovam.pinedittextfield.SquarePinField
+                android:id="@+id/pinCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:inputType="number"
+                android:textSelectHandle="@drawable/text_handle"
+                android:textSize="28sp"
+                app:cornerRadius="4dp"
+                app:noOfFields="6" />
+        <!--        app:fieldBgColor="#23262A"-->
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Error code"
-            android:textColor="@color/bequant_password_red"
-            android:textSize="12dp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@+id/otp_view"
-            app:layout_constraintTop_toBottomOf="@+id/otp_view"
-            tools:visibility="visible" />
+            android:layout_marginTop="24dp">
 
-    <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTryAgainCaption"
-            style="@style/Bequant.TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@null"
-            android:text="Nothing happened?"
-            android:textColor="@color/bequant_gray_6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/otp_view" />
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTryAgainCaption"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:text="Nothing happened?"
+                android:textColor="@color/bequant_gray_6" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTryAgain"
-            style="@style/Bequant.TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:background="@null"
-            android:text="Try again"
-            android:textColor="@color/bequant_yellow"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tvTryAgainCaption"
-            app:layout_constraintTop_toTopOf="@+id/tvTryAgainCaption" />
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvTryAgain"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@null"
+                android:text="Try again"
+                android:textColor="@color/bequant_yellow" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvResendVerificationCode"
-            style="@style/Bequant.TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:background="@null"
-            android:visibility="gone"
-            android:textColor="@color/bequant_yellow"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTryAgainCaption" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvResendVerificationCode"
+                style="@style/Bequant.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@null"
+                android:textColor="@color/bequant_yellow"
+                android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

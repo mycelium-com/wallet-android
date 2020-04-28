@@ -440,12 +440,6 @@
         <item name="textAllCaps">false</item>
     </style>
 
-    <style name="OtpWidget.OtpView" parent="Widget.AppCompat.EditText">
-        <item name="android:background">@null</item>
-        <item name="android:minHeight">0dp</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
     <style name="Bequant.TextInputLayout">
         <item name="boxBackgroundColor">@color/bg_bequant_text_input_layout</item>
         <item name="boxBackgroundMode">outline</item>
