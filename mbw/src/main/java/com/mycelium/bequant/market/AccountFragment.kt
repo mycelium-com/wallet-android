@@ -35,11 +35,14 @@ class AccountFragment : Fragment(R.layout.fragment_bequant_account) {
             updateList()
         }
         list.adapter = adapter
+        adapter.addCoinListener = {
+            receiveListener?.invoke()
+        }
         ApiRepository.repository.balances({
             balancesData = it
             updateList()
         }, { code, error ->
-
+            receiveListener?.invoke()
         })
     }
 

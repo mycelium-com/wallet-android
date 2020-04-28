@@ -11,6 +11,7 @@ class FromMyceliumViewModel : ViewModel() {
     val coin = MutableLiveData<String>()
     val amount = MutableLiveData<String>()
     val amountFiat = MutableLiveData<String>()
+    val address = MutableLiveData<String>()
 
     fun hasOneCoinFiatRate() = oneCoinFiatRate.value != null && oneCoinFiatRate.value?.isNotEmpty() == true
 }
