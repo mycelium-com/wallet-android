@@ -22,6 +22,8 @@ import kotlinx.android.synthetic.main.menu_bequant_try_demo.view.*
 
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
+    var tabMediator: TabLayoutMediator? = null
+
     val register = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             pager.setCurrentItem(0, true)
@@ -37,12 +39,13 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = null
         pager.adapter = SignFragmentAdapter(this)
-        TabLayoutMediator(tabs, pager) { tab, position ->
+        tabMediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.bequant_sign_up)
                 1 -> tab.text = getString(R.string.bequant_sign_in)
             }
-        }.attach()
+        }
+        tabMediator?.attach()
     }
 
     override fun onResume() {
@@ -53,6 +56,11 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
     override fun onPause() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(register)
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        tabMediator?.detach()
+        super.onDestroyView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -78,4 +86,6 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+
 }

@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@drawable/bg_bequant_text"
     android:padding="16dp">
 
@@ -41,16 +41,9 @@
         android:fontFamily="@font/exo2medium"
         android:textColor="@color/white"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/accountBalance"
+        app:layout_constraintBaseline_toBaselineOf="@id/accountBalance"
         app:layout_constraintLeft_toRightOf="@id/accountBalance"
         tools:text="BTC" />
 
-    <com.google.android.material.tabs.TabLayout
-        android:layout_width="wrap_content"
-        android:layout_height="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/accountBalance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

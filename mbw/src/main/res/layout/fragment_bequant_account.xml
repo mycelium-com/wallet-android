@@ -91,10 +91,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/exo2medium"
         android:text="@string/hide_zero_balances"
         android:textColor="@color/white"
-        android:layout_marginTop="32dp"
         android:textSize="16sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/searchButton"
@@ -117,6 +117,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/hideZeroBalance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

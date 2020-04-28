@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.remote.SignRepository
@@ -54,7 +55,7 @@ class RegistrationInfoFragment : Fragment() {
         viewModel.setRegister(register)
         next.isEnabled = false
         next.setOnClickListener {
-//            findNavController().navigate(RegistrationInfoFragmentDirections.actionNext(register.email))
+            findNavController().navigate(RegistrationInfoFragmentDirections.finish())
         }
         resendConfirmationEmail.setOnClickListener {
             SignRepository.repository.resendRegister(Email(register.email), {}, {})

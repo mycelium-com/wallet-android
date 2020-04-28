@@ -1,126 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel" />
+    </data>
+
+    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/exo2medium"
-        android:text="From"
-        android:textSize="16sp" />
-
-    <include layout="@layout/layout_bequant_mycelium_wallet_accounts" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/exo2medium"
-        android:textColor="#49505C"
-        android:textSize="14sp"
-        tools:text="1 BTC ~ 37.767667876 ETH" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="To"
-        android:textSize="16sp" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_bequant_text"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/castodialLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/exo2medium"
-            android:textColor="#49505C"
-            android:textSize="12sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Custodial wallet (ETH)" />
+            android:text="@string/from"
+            android:textSize="16sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_bequant_text">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/fromAccounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:minHeight="100dp" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/fromAccountsTab"
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fromAccounts"
+                app:tabBackground="@drawable/bequant_intro_dot_inactive"
+                app:tabGravity="center"
+                app:tabIndicator="@drawable/bequant_intro_dot_active"
+                app:tabIndicatorColor="#F2E868"
+                app:tabIndicatorGravity="center"
+                app:tabIndicatorHeight="8dp"
+                app:tabPaddingEnd="4dp"
+                app:tabPaddingStart="4dp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--    <include layout="@layout/layout_bequant_mycelium_wallet_accounts" />-->
 
         <TextView
-            android:id="@+id/receiveBalance"
-            android:layout_width="wrap_content"
+            android:id="@+id/oneCoinFiatRate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/castodialLabel"
-            tools:text="12.68456270" />
-
-        <TextView
-            android:id="@+id/receiveBalanceCurrency"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:fontFamily="@font/exo2medium"
-            android:textColor="@color/white"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="@id/receiveBalance"
-            app:layout_constraintLeft_toRightOf="@id/receiveBalance"
-            tools:text="BTC" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="Amount"
-        android:textSize="16sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/bg_bequant_text"
-        android:padding="16dp">
+            android:text="@{viewModel.oneCoinFiatRate}"
+            android:visibility="@{viewModel.hasOneCoinFiatRate() ? View.GONE : View.VISIBLE}"
+            android:textColor="#49505C"
+            android:textSize="14sp"
+            tools:text="1 BTC ~ 37.767667876 ETH" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:fontFamily="@font/exo2medium"
-            android:textSize="16sp"
-            tools:text="Custodial wallet (ETH)" />
+            android:text="To"
+            android:textSize="16sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_bequant_text"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/castodialLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:textColor="#49505C"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Custodial wallet (ETH)" />
+
+            <TextView
+                android:id="@+id/receiveBalance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/exo2medium"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/castodialLabel"
+                tools:text="12.68456270" />
+
+            <TextView
+                android:id="@+id/receiveBalanceCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/exo2medium"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/receiveBalance"
+                app:layout_constraintLeft_toRightOf="@id/receiveBalance"
+                tools:text="BTC" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="Amount"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_bequant_text"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/exo2medium"
+                android:textSize="16sp"
+                tools:text="100" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:textColor="#49505C"
+            android:textSize="14sp"
+            tools:text="~ 37.767667876 ETH" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            style="@style/Bequant.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Confirm" />
 
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/exo2medium"
-        android:textColor="#49505C"
-        android:textSize="14sp"
-        tools:text="~ 37.767667876 ETH" />
-
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <Button
-        style="@style/Bequant.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Confirm" />
-
-</LinearLayout>
+</layout>

@@ -31,8 +31,8 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
                 auth.otpCode = enteredText
                 SignRepository.repository.authorize(auth, {
                     loader.dismissAllowingStateLoss()
-                    requireActivity().finish()
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+                    requireActivity().finish()
                 }, { code, message ->
                     loader.dismissAllowingStateLoss()
                     ErrorHandler(requireContext()).handle(message)

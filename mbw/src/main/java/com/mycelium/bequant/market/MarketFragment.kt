@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.SignRepository
@@ -20,14 +21,17 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        SignRepository.repository.getApiKeys { code, message ->
-            ErrorHandler(requireContext()).handle(message)
+        if (!BequantPreference.hasKeys()) {
+            SignRepository.repository.getApiKeys { code, message ->
+                ErrorHandler(requireContext()).handle(message)
+            }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pager.adapter = MarketFragmentAdapter(this)
+        pager.offscreenPageLimit = 2
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "Markets"

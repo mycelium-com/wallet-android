@@ -35,7 +35,13 @@
         android:id="@+id/registrationInfoFragment"
         android:name="com.mycelium.bequant.signup.RegistrationInfoFragment"
         android:label="RegistrationInfoFragment"
-        tools:layout="@layout/fragment_bequant_registration_info" />
+        tools:layout="@layout/fragment_bequant_registration_info">
+        <action
+            android:id="@+id/finish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/resetPasswordFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordFragment"
@@ -103,7 +109,13 @@
         android:id="@+id/resetPasswordChangeFragment"
         android:name="com.mycelium.bequant.signin.ResetPasswordChangeFragment"
         android:label="ResetPasswordChangeFragment"
-        tools:layout="@layout/fragment_bequant_change_password" />
+        tools:layout="@layout/fragment_bequant_change_password">
+        <action
+            android:id="@+id/finish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/setupCodeFragment"
         android:name="com.mycelium.bequant.signup.SetupCodeFragment"

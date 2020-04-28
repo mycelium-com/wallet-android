@@ -25,7 +25,7 @@ object BequantPreference {
 
     fun getSession() = preference.getString(Constants.SESSION_KEY, null) ?: ""
 
-    // TODO mybe should be linked to private/public key (/api-key)
+    // TODO maybe should be linked to private/public key (/api-key)
     fun isLogged(): Boolean = getSession().isNotEmpty()
 
 
@@ -38,5 +38,17 @@ object BequantPreference {
                 .putString(Constants.PRIVATE_KEY, privateKey)
                 .putString(Constants.PUBLIC_KEY, publicKey)
                 .apply()
+    }
+
+    fun getPublicKey(): String = preference.getString(Constants.PUBLIC_KEY, null) ?: ""
+
+    fun getPrivateKey(): String = preference.getString(Constants.PRIVATE_KEY, null) ?: ""
+
+    fun hasKeys(): Boolean = getPrivateKey().isNotEmpty()
+
+    fun hideZeroBalance() = preference.getBoolean(Constants.HIDE_ZERO_BALANCE_KEY, false)
+
+    fun setHideZeroBalance(checked: Boolean) {
+        preference.edit().putBoolean(Constants.HIDE_ZERO_BALANCE_KEY, checked).apply()
     }
 }
