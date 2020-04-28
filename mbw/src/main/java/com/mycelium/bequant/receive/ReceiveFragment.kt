@@ -13,6 +13,7 @@ class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         pager.adapter = ReceiveFragmentAdapter(this)
+        pager.offscreenPageLimit = 2
         TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = "From Mycelium"

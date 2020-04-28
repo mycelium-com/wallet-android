@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.model.BequantBalance
+import com.mycelium.bequant.remote.model.DepositAddress
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,6 +28,38 @@ class ApiRepository {
             override fun onResponse(call: Call<List<BequantBalance>>, response: Response<List<BequantBalance>>) {
                 if (response.isSuccessful) {
                     success.invoke(response.body() ?: listOf())
+                } else {
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
+    fun depositAddress(currency: String, success: (DepositAddress) -> Unit, error: (Int, String) -> Unit) {
+        service.depositAddress(currency).enqueue(object : Callback<DepositAddress> {
+            override fun onFailure(call: Call<DepositAddress>, t: Throwable) {
+                error.invoke(0, t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<DepositAddress>, response: Response<DepositAddress>) {
+                if (response.isSuccessful) {
+                    success.invoke(response.body()!!)
+                } else {
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
+    fun createDepositAddress(currency: String, success: (DepositAddress) -> Unit, error: (Int, String) -> Unit) {
+        service.createDepositAddress(currency).enqueue(object : Callback<DepositAddress> {
+            override fun onFailure(call: Call<DepositAddress>, t: Throwable) {
+                error.invoke(0, t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<DepositAddress>, response: Response<DepositAddress>) {
+                if (response.isSuccessful) {
+                    success.invoke(response.body()!!)
                 } else {
                     error.invoke(response.code(), response.errorBody()?.string() ?: "")
                 }

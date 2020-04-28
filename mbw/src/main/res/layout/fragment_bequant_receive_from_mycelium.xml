@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <import type="android.view.View" />
 
         <variable
             name="viewModel"
             type="com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel" />
     </data>
 
-    <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -42,6 +44,8 @@
                 android:layout_height="8dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fromAccounts"
@@ -60,7 +64,8 @@
                 android:layout_marginEnd="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_list" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--    <include layout="@layout/layout_bequant_mycelium_wallet_accounts" />-->
@@ -72,9 +77,9 @@
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
             android:text="@{viewModel.oneCoinFiatRate}"
-            android:visibility="@{viewModel.hasOneCoinFiatRate() ? View.GONE : View.VISIBLE}"
             android:textColor="#49505C"
             android:textSize="14sp"
+            android:visibility="@{viewModel.hasOneCoinFiatRate() ? View.VISIBLE : View.GONE}"
             tools:text="1 BTC ~ 37.767667876 ETH" />
 
         <TextView
@@ -97,6 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.castodialLabel}"
                 android:textColor="#49505C"
                 android:textSize="12sp"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -110,6 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.castodialBalance}"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -122,6 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.coin}"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/receiveBalance"
@@ -143,14 +151,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:background="@drawable/bg_bequant_text"
+            android:orientation="horizontal"
             android:padding="16dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/exo2medium"
+                android:text="@{viewModel.amount}"
                 android:textSize="16sp"
                 tools:text="100" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/coinSelector"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -159,6 +174,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
+            android:text="@{viewModel.amountFiat}"
             android:textColor="#49505C"
             android:textSize="14sp"
             tools:text="~ 37.767667876 ETH" />
@@ -169,11 +185,12 @@
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/confirm"
             style="@style/Bequant.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Confirm" />
+            android:text="@string/confirm" />
 
     </LinearLayout>
 </layout>
