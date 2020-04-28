@@ -11,6 +11,16 @@
             android:background="@color/bequant_gray_3"
             app:layout_constraintTop_toTopOf="parent">
 
+        <FrameLayout
+                android:id="@+id/toolbarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
+                    android:id="@+id/stepper"
+                    android:layout_marginTop="32dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+        </FrameLayout>
 
     </androidx.appcompat.widget.Toolbar>
 
