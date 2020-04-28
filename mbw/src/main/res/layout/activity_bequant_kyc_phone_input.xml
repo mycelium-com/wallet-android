@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp"
+        android:padding="16dp"
         android:background="@color/bequant_gray">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:drawableRight="@drawable/ic_arrow_drop_down"
-                tools:text="America" />
+                android:text="America" />
         <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -68,7 +68,7 @@
                     style="@style/Bequant.EditText"
                     android:background="@null"
                     android:layout_weight="3"
-                    tools:text="+ 344" />
+                    android:text="+ 344" />
             <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
