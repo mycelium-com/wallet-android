@@ -7,7 +7,7 @@
     android:paddingEnd="16dp"
     android:paddingBottom="16dp">
 
-    <include layout="@layout/layout_bequant_mycelium_wallet_accounts" />
+    <include layout="@layout/layout_bequant_accounts_pager" />
 
     <include layout="@layout/layout_bequant_amount" />
 </LinearLayout>

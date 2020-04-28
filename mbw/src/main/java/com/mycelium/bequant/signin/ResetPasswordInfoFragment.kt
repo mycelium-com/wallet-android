@@ -18,7 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantResetPasswordInfoBindingImpl
+import com.mycelium.wallet.databinding.FragmentBequantResetPasswordInfoBinding
 import kotlinx.android.synthetic.main.fragment_bequant_reset_password_info.*
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
@@ -41,7 +41,7 @@ class ResetPasswordInfoFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantResetPasswordInfoBindingImpl>(inflater, R.layout.fragment_bequant_reset_password_info, container, false)
+            DataBindingUtil.inflate<FragmentBequantResetPasswordInfoBinding>(inflater, R.layout.fragment_bequant_reset_password_info, container, false)
                     .apply {
                         viewModel = this@ResetPasswordInfoFragment.viewModel
                         lifecycleOwner = this@ResetPasswordInfoFragment

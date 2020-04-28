@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.Constants
@@ -27,7 +28,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_receive_from_mycelium.*
-
+import kotlinx.android.synthetic.main.layout_bequant_accounts_pager.*
 
 class FromMyceliumFragment : Fragment() {
 
@@ -50,30 +51,33 @@ class FromMyceliumFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mbwManager = MbwManager.getInstance(requireContext())
-        adapter.submitList(mbwManager.getWalletManager(false).getSpendingAccountsWithBalance())
-        fromAccounts.adapter = adapter
-        TabLayoutMediator(fromAccountsTab, fromAccounts) { tab, _ ->
+        viewModel.coin.observe(this, Observer { coinSymbol ->
+            viewModel.castodialLabel.value = "Custodial wallet (${coinSymbol})"
+            val accounts = mbwManager.getWalletManager(false).getSpendingAccountsWithBalance()
+                    .filter { it.coinType.symbol == coinSymbol }
+            adapter.submitList(accounts)
+            requestDepositAddress(coinSymbol)
+
+            if (mbwManager.hasFiatCurrency()) {
+                val coin = accounts[0].coinType
+                val value = mbwManager.exchangeRateManager.get(coin.oneCoin(), mbwManager.getFiatCurrency(coin))
+                if (value == null) {
+                    viewModel.oneCoinFiatRate.value = getString(R.string.exchange_source_not_available
+                            , mbwManager.exchangeRateManager.getCurrentExchangeSourceName(coin.symbol))
+                } else {
+                    viewModel.oneCoinFiatRate.value = resources.getString(R.string.balance_rate
+                            , coin.symbol, mbwManager.getFiatCurrency(coin).symbol, value.toString())
+                }
+            }
+        })
+        accountList.adapter = adapter
+        TabLayoutMediator(accountListTab, accountList) { tab, _ ->
         }.attach()
 
-
-        if (mbwManager.hasFiatCurrency()) {
-            val coin = Utils.getBtcCoinType()
-            val value = mbwManager.exchangeRateManager.get(coin.oneCoin(), mbwManager.getFiatCurrency(coin))
-            if (value == null) {
-                viewModel.oneCoinFiatRate.value = getString(R.string.exchange_source_not_available
-                        , mbwManager.exchangeRateManager.getCurrentExchangeSourceName(coin.symbol))
-            } else {
-                oneCoinFiatRate.text = resources.getString(R.string.balance_rate
-                        , coin.symbol, mbwManager.getFiatCurrency(coin).symbol, value.toString())
-            }
-        }
-
-        viewModel.castodialBalance.value = "0"
-        viewModel.coin.value = "ETH"
-        viewModel.castodialLabel.value = "Custodial wallet (${viewModel.coin.value})"
         val coinAdapter = ArrayAdapter(requireContext(),
-                R.layout.item_bequant_coin_selector, R.id.text,
+                R.layout.item_bequant_coin, R.id.text,
                 mbwManager.getWalletManager(false).getCryptocurrenciesSymbols())
+        coinAdapter.setDropDownViewResource(R.layout.item_bequant_coin_selector)
         coinSelector.adapter = coinAdapter
         coinSelector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -82,18 +86,31 @@ class FromMyceliumFragment : Fragment() {
 
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, id: Long) {
                 viewModel.coin.value = coinAdapter.getItem(position)
-                viewModel.castodialLabel.value = "Custodial wallet (${viewModel.coin.value})"
             }
         }
         confirm.setOnClickListener {
-            val account = adapter.getItem(fromAccounts.currentItem)
+            val account = adapter.getItem(accountList.currentItem)
             val address = mbwManager.getWalletManager(false).parseAddress(viewModel.address.value!!)
             val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
             SendCoinTask(parentFragmentManager, account, address[0], value,
                     FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0")))
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
-        requestDepositAddress(viewModel.coin.value!!)
+
+        viewModel.castodialBalance.value = "0"
+        viewModel.coin.value = "ETH"
+    }
+
+    fun requestDepositAddress(currency: String) {
+        val loader = LoaderFragment()
+        loader.show(parentFragmentManager, Constants.LOADER_TAG)
+        ApiRepository.repository.depositAddress(currency, {
+            loader.dismissAllowingStateLoss()
+            viewModel.address.value = it.address
+        }, { code, message ->
+            loader.dismissAllowingStateLoss()
+            ErrorHandler(requireContext()).handle(message)
+        })
     }
 
     class SendCoinTask(val fragmentManager: FragmentManager,
@@ -119,15 +136,5 @@ class FromMyceliumFragment : Fragment() {
             super.onPostExecute(result)
             BroadcastDialog.create(account, false, result!!)
         }
-    }
-
-    fun requestDepositAddress(currency: String) {
-        val loader = LoaderFragment()
-        loader.show(parentFragmentManager, Constants.LOADER_TAG)
-        ApiRepository.repository.depositAddress(currency, {
-            viewModel.address.value = it.address
-        }, { code, message ->
-            ErrorHandler(requireContext()).handle(message)
-        })
     }
 }
