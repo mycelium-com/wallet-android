@@ -10,7 +10,17 @@ import androidx.annotation.Nullable;
 import com.mycelium.bequant.kyc.verticalStepper.VerticalStepperAdapter;
 import com.mycelium.wallet.R;
 
+import java.util.ArrayList;
+
 public class MainStepperAdapter extends VerticalStepperAdapter {
+
+    ArrayList<String> list = new ArrayList<String>() {{
+        add("Phone Number");
+        add("Personal information");
+        add("Residential Address");
+        add("Documents & Selfie");
+    }};
+
     public MainStepperAdapter(Context context) {
         super(context);
     }
@@ -18,7 +28,7 @@ public class MainStepperAdapter extends VerticalStepperAdapter {
     @NonNull
     @Override
     public CharSequence getTitle(int position) {
-        return "Title " + position;
+        return list.get(position);
     }
 
     @Nullable
@@ -34,7 +44,7 @@ public class MainStepperAdapter extends VerticalStepperAdapter {
 
     @Override
     public int getCount() {
-        return 7;
+        return 4;
     }
 
     @Override
