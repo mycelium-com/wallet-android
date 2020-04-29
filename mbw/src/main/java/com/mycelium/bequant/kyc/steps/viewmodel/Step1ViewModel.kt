@@ -1,4 +1,4 @@
-package com.mycelium.bequant.kyc.step1
+package com.mycelium.bequant.kyc.steps.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,6 +10,14 @@ class Step1ViewModel : ViewModel() {
     val lastName = MutableLiveData<String>()
     val birthday = MutableLiveData<String>()
     val nationality = MutableLiveData<String>()
+
+
+    fun fromModel(kyc: KYCRequest) {
+        firstName.value = kyc.first_name
+        lastName.value = kyc.last_name
+        birthday.value = kyc.birthday
+        nationality.value = kyc.nationality
+    }
 
     fun fillModel(kyc: KYCRequest) {
         kyc.first_name = firstName.value

@@ -19,7 +19,7 @@ import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
-import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
+import com.mycelium.wallet.databinding.FragmentBequantRegistrationTotpBinding
 import kotlinx.android.synthetic.main.fragment_bequant_registration_totp.*
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
@@ -30,7 +30,6 @@ class RegistrationTotpFragment : Fragment() {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            next.isEnabled = true
         }
     }
 
@@ -41,7 +40,7 @@ class RegistrationTotpFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            DataBindingUtil.inflate<FragmentBequantRegistrationInfoBindingImpl>(inflater, R.layout.fragment_bequant_registration_totp, container, false)
+            DataBindingUtil.inflate<FragmentBequantRegistrationTotpBinding>(inflater, R.layout.fragment_bequant_registration_totp, container, false)
                     .apply {
                         viewModel = this@RegistrationTotpFragment.viewModel
                         lifecycleOwner = this@RegistrationTotpFragment
@@ -51,10 +50,10 @@ class RegistrationTotpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.verify_via_email)
         viewModel.email.value = BequantPreference.getEmail()
-        next.isEnabled = false
+
         next.setOnClickListener {
-            requireActivity().finish()
             startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
+            requireActivity().finish()
         }
         resendConfirmationEmail.setOnClickListener {
 //            SignRepository.repository.resendRegister(Email(register.email), {}, {})
