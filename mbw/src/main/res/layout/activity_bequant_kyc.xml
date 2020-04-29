@@ -13,6 +13,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+                android:id="@+id/stepsPanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
@@ -68,19 +69,27 @@
                     android:progressDrawable="@drawable/bequantprogress"
                     android:visibility="visible" />
 
-            <FrameLayout
-                    android:id="@+id/toolbarLayout"
+            <net.cachapa.expandablelayout.ExpandableLayout
+                    android:id="@+id/expandable_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="@+id/toolbar"
-                    app:layout_constraintStart_toStartOf="@+id/toolbar"
-                    app:layout_constraintTop_toBottomOf="@+id/toolbar">
+                    app:el_duration="1000"
+                    app:el_expanded="true"
+                    app:el_parallax="0.5">
 
-                <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
-                        android:id="@+id/stepper"
+                <FrameLayout
+                        android:id="@+id/toolbarLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-            </FrameLayout>
+                        android:layout_height="wrap_content">
+
+                    <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
+                            android:id="@+id/stepper"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                </FrameLayout>
+
+            </net.cachapa.expandablelayout.ExpandableLayout>
+
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 

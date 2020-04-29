@@ -10,6 +10,7 @@ import kotlinx.android.synthetic.main.activity_bequant_steps_2.*
 class Step1Fragment: Fragment(R.layout.activity_bequant_steps_1){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.findViewById<View>(R.id.stepsPanel)?.visibility = View.VISIBLE
         btNext.setOnClickListener {
             findNavController().navigate(R.id.action_step1ToStep2)
         }

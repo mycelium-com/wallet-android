@@ -94,7 +94,7 @@ dependencies {
     implementation "commons-codec:commons-codec:1.10"
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
-
+    implementation "net.cachapa.expandablelayout:expandablelayout:2.9.2"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
