@@ -12,7 +12,12 @@
         tools:layout="@layout/activity_bequant_kyc_phone_input">
         <action
             android:id="@+id/action_phoneInputToPhoneVerify"
-            app:destination="@id/phoneVerify" />
+            app:destination="@id/phoneVerify">
+            <argument
+                    android:name="phoneRequest"
+                    app:argType="com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest"
+                    app:nullable="false" />
+        </action>
     </fragment>
 
     <fragment
@@ -22,7 +27,9 @@
         tools:layout="@layout/activity_bequant_kyc_verify_phone">
         <action
             android:id="@+id/action_phoneVerifyToStep1"
-            app:destination="@id/kycStep1" />
+            app:destination="@id/kycStep1">
+
+        </action>
     </fragment>
 
     <fragment
@@ -48,7 +55,7 @@
             android:id="@+id/actionNext"
             app:destination="@id/kycStep3">
             <argument
-                android:name="kycRequest"
+                    android:name="kycRequest"
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
 
         </action>
@@ -57,7 +64,7 @@
             app:destination="@id/kycStep1">
             <argument
                 android:name="kycRequest"
-                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+                    app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         </action>
     </fragment>
 
