@@ -95,6 +95,13 @@ dependencies {
     implementation "com.google.protobuf:protobuf-java:$protoBufVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "net.cachapa.expandablelayout:expandablelayout:2.9.2"
+    //USED BY KYC only, have to be reviewed later
+    implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
+    implementation "com.squareup.moshi:moshi-adapters:1.8.0"
+    implementation "org.threeten:threetenbp:1.4.0"
+    implementation "com.squareup.retrofit2:converter-scalars:2.8.1"
+    implementation "com.squareup.retrofit2:converter-moshi:2.8.1"
+
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
