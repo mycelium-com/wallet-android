@@ -42,7 +42,7 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
-            startActivity(Intent(requireActivity(),BequantKycActivity::class.java))
+            startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
         }
     }
 }

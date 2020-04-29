@@ -1,7 +1,9 @@
 package com.mycelium.bequant.remote.model
 
+import java.io.Serializable
 
-class KYCRequest() {
+
+class KYCRequest : Serializable {
     var address_1: String? = null
     var address_2: String? = null
     var birthday: String? = null

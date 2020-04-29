@@ -31,25 +31,43 @@
             android:label="Step1Fragment"
             tools:layout="@layout/fragment_bequant_steps_1">
         <action
-                android:id="@+id/actionNext"
-                app:destination="@id/kycStep2" />
+            android:id="@+id/actionNext"
+            app:destination="@id/kycStep2">
+            <argument
+                android:name="kycRequest"
+
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
     </fragment>
 
     <fragment
             android:id="@+id/kycStep2"
             android:name="com.mycelium.bequant.kyc.step2.Step2Fragment"
             android:label="Step2Fragment"
-            tools:layout="@layout/activity_bequant_steps_2">
+            tools:layout="@layout/fragment_bequant_steps_2">
         <action
                 android:id="@+id/actionNext"
-                app:destination="@id/kycStep3" />
+                app:destination="@id/kycStep3" >
+            <argument
+                android:name="kycRequest"
+
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
     </fragment>
 
     <fragment
             android:id="@+id/kycStep3"
             android:name="com.mycelium.bequant.kyc.step3.Step3Fragment"
             android:label="Step3Fragment"
-            tools:layout="@layout/activity_bequant_steps_3">
+            tools:layout="@layout/fragment_bequant_steps_3">
+        <action
+            android:id="@+id/actionNext">
+            <argument
+                android:name="kycRequest"
 
+                app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+
+        </action>
     </fragment>
 </navigation>
