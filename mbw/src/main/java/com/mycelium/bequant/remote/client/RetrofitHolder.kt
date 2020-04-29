@@ -20,15 +20,6 @@ object RetrofitHolder {
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
-                .addNetworkInterceptor {
-                    it.proceed(it.request().newBuilder().apply {
-                        header("Content-Type", "application/json")
-                        header("Authorization",
-                                Credentials.basic(BequantPreference.getPublicKey(),
-                                        BequantPreference.getPrivateKey()))
-                    }.build())
-                }
-                .addInterceptor(HeaderParamInterceptor("ApiKeyAuth", "X-API-KEY", this::apiKeyGenerator))
                 .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::apiKeyGenerator))
 
                 .apply {
@@ -81,10 +72,8 @@ object RetrofitHolder {
     }
 
     private fun apiKeyGenerator(authName: String, request: Request): String? =
-            if (requestHasAuth(request, authName))
-                securityDefinitions[authName]
-            else
-                null
+            Credentials.basic(BequantPreference.getPublicKey(),
+                                        BequantPreference.getPrivateKey())
 
 
     private fun requestHasAuth(request: Request, authName: String): Boolean {
