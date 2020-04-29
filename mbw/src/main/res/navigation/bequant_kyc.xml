@@ -29,9 +29,9 @@
             android:id="@+id/kycStep1"
             android:name="com.mycelium.bequant.kyc.step1.Step1Fragment"
             android:label="Step1Fragment"
-            tools:layout="@layout/activity_bequant_steps_1">
+            tools:layout="@layout/fragment_bequant_steps_1">
         <action
-                android:id="@+id/action_step1ToStep2"
+                android:id="@+id/actionNext"
                 app:destination="@id/kycStep2" />
     </fragment>
 
@@ -41,7 +41,7 @@
             android:label="Step2Fragment"
             tools:layout="@layout/activity_bequant_steps_2">
         <action
-                android:id="@+id/action_step2ToStep3"
+                android:id="@+id/actionNext"
                 app:destination="@id/kycStep3" />
     </fragment>
 

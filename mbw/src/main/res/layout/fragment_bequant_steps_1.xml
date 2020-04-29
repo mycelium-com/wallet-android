@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.kyc.step1.Step1ViewModel" />
+    </data>
+
+    <ScrollView xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
             android:background="@color/bequant_gray_2"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
                 style="@style/Bequant.TextView"
                 android:layout_width="wrap_content"
@@ -19,7 +28,7 @@
                 android:text="Personal information"
                 android:textSize="20sp" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,7 +38,7 @@
                 android:textColor="@color/white" />
 
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -37,15 +46,16 @@
                 android:text="First Name"
                 android:textColor="@color/white" />
 
-        <androidx.appcompat.widget.AppCompatEditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/edFirstname"
                 style="@style/Bequant.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:text="@={viewModel.firstName}"
                 tools:text="Name Name" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,15 +63,16 @@
                 android:text="Last Name"
                 android:textColor="@color/white" />
 
-        <androidx.appcompat.widget.AppCompatEditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/edLastname"
                 style="@style/Bequant.EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:text="@={viewModel.lastName}"
                 tools:text="Name Name" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,17 +80,18 @@
                 android:text="Date of Birth"
                 android:textColor="@color/white" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvDateOfBirth"
                 style="@style/Bequant.EditText"
                 android:layout_width="156dp"
                 android:layout_height="wrap_content"
-                android:drawableRight="@drawable/ic_date_of_birth"
                 android:gravity="center_vertical"
+                android:text="@{viewModel.birthday}"
+                app:drawableRightCompat="@drawable/ic_date_of_birth"
                 tools:text="11/02/1999" />
 
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,7 +99,7 @@
                 android:text="Nationality"
                 android:textColor="@color/white" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvNationality"
                 style="@style/Bequant.EditText"
                 android:layout_width="match_parent"
@@ -96,7 +108,7 @@
                 android:gravity="center_vertical"
                 tools:text="American" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -104,7 +116,7 @@
                 android:text="FATCA Declaration"
                 android:textSize="20sp" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -115,25 +127,25 @@
                 android:textColor="@color/white" />
 
 
-        <RadioGroup
+            <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp">
 
-            <RadioButton
+                <RadioButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="10dp"
                     android:text="I warrant that I do fall under FATCA" />
 
-            <RadioButton
+                <RadioButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="10dp"
                     android:text="I warrant that I do not fall under FATCA " />
-        </RadioGroup>
+            </RadioGroup>
 
-        <androidx.appcompat.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 style="@style/Bequant.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,12 +153,13 @@
                 android:text="By clicking Proceed, you agree to our  Terms of Use"
                 android:textColor="@color/white" />
 
-        <Button
+            <Button
                 android:id="@+id/btNext"
                 style="@style/Bequant.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Next" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</ScrollView>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </ScrollView>
+</layout>

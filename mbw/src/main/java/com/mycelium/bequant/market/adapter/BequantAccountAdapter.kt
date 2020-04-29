@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.item_bequant_account.view.*
 
 class AccountItem(val symbol: String, val name: String, val value: String)
 
-class AccountsAdapter : ListAdapter<AccountItem, RecyclerView.ViewHolder>(DiffCallback()) {
+class BequantAccountAdapter : ListAdapter<AccountItem, RecyclerView.ViewHolder>(DiffCallback()) {
     var addCoinListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): RecyclerView.ViewHolder =

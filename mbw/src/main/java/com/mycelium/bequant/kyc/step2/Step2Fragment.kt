@@ -12,7 +12,7 @@ class Step2Fragment : Fragment(R.layout.activity_bequant_steps_2) {
         super.onViewCreated(view, savedInstanceState)
 
         btNext.setOnClickListener {
-            findNavController().navigate(R.id.action_step2ToStep3)
+            findNavController().navigate(Step2FragmentDirections.actionNext())
         }
     }
 }
