@@ -37,12 +37,12 @@
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/available" />
 
-    <com.google.android.material.tabs.TabLayout
+    <RadioGroup
         android:id="@+id/send_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:tabMode="auto"
+        android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/youSendLabel" />
 
