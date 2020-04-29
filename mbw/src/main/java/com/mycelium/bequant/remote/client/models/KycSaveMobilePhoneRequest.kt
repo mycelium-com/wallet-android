@@ -13,8 +13,10 @@ package com.mycelium.bequant.remote.client.models
 
 
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.android.parcel.Parcelize
 
 /**
  * 
@@ -22,10 +24,11 @@ import com.squareup.moshi.JsonClass
  * @param mobilePhoneCountryCode Mobile phone country code
  */
 @JsonClass(generateAdapter = true)
+@Parcelize
 data class KycSaveMobilePhoneRequest (
     @Json(name = "mobile_phone")
     val mobilePhone: kotlin.String,
     @Json(name = "mobile_phone_country_code")
     val mobilePhoneCountryCode: kotlin.String
-)
+) : Parcelable
 

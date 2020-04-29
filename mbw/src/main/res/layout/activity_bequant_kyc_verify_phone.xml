@@ -3,7 +3,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
                 name="viewModel"
                 type="com.mycelium.bequant.kyc.checkCode.VerifyPhoneViewModel" />
@@ -59,6 +58,7 @@
                     android:inputType="number"
                     android:textSelectHandle="@drawable/text_handle"
                     android:textSize="28sp"
+                    android:text="@={viewModel.code}"
                     app:cornerRadius="4dp"
                     app:noOfFields="6" />
             <!--        app:fieldBgColor="#23262A"-->

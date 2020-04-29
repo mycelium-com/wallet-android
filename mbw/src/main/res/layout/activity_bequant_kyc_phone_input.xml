@@ -99,7 +99,7 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvErrorCode1"
+                android:id="@+id/tvErrorCode"
                 style="@style/Bequant.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
