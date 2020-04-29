@@ -7,25 +7,74 @@
     <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="152dp"
             android:background="@color/bequant_gray_3"
             app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Identity Authentication"/>
-        <FrameLayout
-                android:id="@+id/toolbarLayout"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-            <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
-                    android:id="@+id/stepper"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Identity Authentication"/>
+
+            <LinearLayout
+                    android:layout_marginTop="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Bequant.TextView"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="20dp"
+                        android:text="Step 1" />
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Bequant.TextView"
+                        android:textColor="@color/bequant_gray_6"
+                        android:textStyle="bold"
+                        android:textSize="14dp"
+                        android:layout_marginLeft="5dp"
+                        android:text="of 4" />
+
+            </LinearLayout>
+            <ProgressBar
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:id="@+id/tvProgress"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-        </FrameLayout>
+                    android:layout_height="8dp"
+                    android:layout_weight="1"
+                    android:indeterminate="false"
+                    android:visibility="visible"
+                    android:progress="50"
+                    android:progressDrawable="@drawable/bequantprogress"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="14dp"
+                    android:layout_gravity="center"/>
+        </LinearLayout>
 
     </androidx.appcompat.widget.Toolbar>
+
+    <FrameLayout
+            app:layout_constraintEnd_toEndOf="@+id/toolbar"
+            app:layout_constraintStart_toStartOf="@+id/toolbar"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            android:id="@+id/toolbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
+                android:id="@+id/stepper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+    </FrameLayout>
+
 
     <fragment
             android:id="@+id/nav_host_fragment"
