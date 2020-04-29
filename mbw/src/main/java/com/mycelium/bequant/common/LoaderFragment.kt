@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import com.mycelium.bequant.Constants
 import com.mycelium.wallet.R
 
 
@@ -26,5 +28,19 @@ class LoaderFragment : DialogFragment() {
         super.onStart()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT));
+    }
+}
+
+fun Fragment.loader(show: Boolean) {
+    if (show) {
+        val loader = LoaderFragment()
+        loader.show(parentFragmentManager, Constants.LOADER_TAG)
+    } else {
+        val findFragmentByTag = parentFragmentManager.findFragmentByTag(Constants.LOADER_TAG)
+        if (findFragmentByTag is LoaderFragment) {
+            if (findFragmentByTag.isAdded) {
+                findFragmentByTag.dismissAllowingStateLoss()
+            }
+        }
     }
 }
