@@ -18,6 +18,11 @@
                     app:argType="com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest"
                     app:nullable="false" />
         </action>
+
+        <action
+                android:id="@+id/action_phoneInputToKyc1"
+                app:destination="@id/kycStep1">
+        </action>
     </fragment>
 
     <fragment

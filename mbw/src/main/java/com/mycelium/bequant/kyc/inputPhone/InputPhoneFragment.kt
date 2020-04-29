@@ -47,7 +47,13 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
 
     private fun sendCode() {
         tvErrorCode.visibility = View.GONE
+
+        findNavController().navigate(R.id.action_phoneInputToKyc1)
+        return
         loader(true)
+
+
+
         viewModel.getRequest()?.let {
             viewModel.viewModelScope.launch(Dispatchers.IO) {
                 val postKycSaveMobilePhone = KYCApi.create().postKycSaveMobilePhone(it)
