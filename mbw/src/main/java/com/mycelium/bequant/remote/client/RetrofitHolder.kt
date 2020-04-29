@@ -5,7 +5,6 @@ import com.mycelium.wallet.BuildConfig
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Call
-import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
@@ -20,8 +19,7 @@ object RetrofitHolder {
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
-                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::apiKeyGenerator))
-
+                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::authorizationGenerator))
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().apply {
@@ -52,40 +50,6 @@ object RetrofitHolder {
 
     val retrofit: Retrofit by lazy { retrofitBuilder.build() }
 
-
-    private val securityDefinitions = HashMap<String, String>()
-
-    fun setApiKey(authMethod: AuthMethod, apiKey: String) {
-        securityDefinitions[authMethod.authName] = apiKey
-    }
-
-    fun removeAuthInfo(authMethod: AuthMethod) {
-        securityDefinitions -= authMethod.authName
-    }
-
-    fun setBasicAuth(authMethod: AuthMethod, username: String, password: String) {
-        securityDefinitions[authMethod.authName] = Credentials.basic(username, password)
-    }
-
-    fun setBearerAuth(authMethod: AuthMethod, bearer: String) {
-        securityDefinitions[authMethod.authName] = "Bearer $bearer"
-    }
-
-    private fun apiKeyGenerator(authName: String, request: Request): String? =
-            Credentials.basic(BequantPreference.getPublicKey(),
-                                        BequantPreference.getPrivateKey())
-
-
-    private fun requestHasAuth(request: Request, authName: String): Boolean {
-        val headers = request.headers(AUTH_NAME_HEADER)
-        return headers.contains(authName)
-    }
-
-    const val AUTH_NAME_HEADER = "X-Auth-Name"
-
-}
-
-enum class AuthMethod(internal val authName: String) {
-    ApiKeyAuth("ApiKeyAuth"),
-    BearerAuth("BearerAuth")
+    private fun authorizationGenerator(authName: String, request: Request): String? =
+            "Bearer ${BequantPreference.getAccessToken()}"
 }
