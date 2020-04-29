@@ -9,10 +9,4 @@ class InputPhoneViewModel : ViewModel() {
     val phoneNumber = MutableLiveData<String>()
     val phoneCode = MutableLiveData<String>()
     val countryName = MutableLiveData<String>()
-
-    fun fillModel(kyc: KYCRequest) {
-        kyc.first_name = phoneNumber.value
-        kyc.last_name = countryName.value
-        kyc.birthday = phoneCode.value
-    }
 }
