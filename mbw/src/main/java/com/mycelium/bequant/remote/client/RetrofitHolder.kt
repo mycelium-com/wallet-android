@@ -20,15 +20,16 @@ object RetrofitHolder {
 
     val clientBuilder: OkHttpClient.Builder by lazy {
         OkHttpClient().newBuilder()
-                .addNetworkInterceptor { chain ->
-                    val newRequest = chain.request().newBuilder()
-                            .removeHeader(AUTH_NAME_HEADER)
-                            .build()
-                    chain.proceed(newRequest)
+                .addNetworkInterceptor {
+                    it.proceed(it.request().newBuilder().apply {
+                        header("Content-Type", "application/json")
+                        header("Authorization",
+                                Credentials.basic(BequantPreference.getPublicKey(),
+                                        BequantPreference.getPrivateKey()))
+                    }.build())
                 }
                 .addInterceptor(HeaderParamInterceptor("ApiKeyAuth", "X-API-KEY", this::apiKeyGenerator))
                 .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::apiKeyGenerator))
-                .addInterceptor(HeaderParamInterceptor("Authorization", "Authorization", this::apiKeyGenerator))
 
                 .apply {
                     if (BuildConfig.DEBUG) {
@@ -45,8 +46,6 @@ object RetrofitHolder {
                 .add(KotlinJsonAdapterFactory())
                 .build()
 
-
-        setBasicAuth(AuthMethod.ApiKeyAuthorization,BequantPreference.getPublicKey(), BequantPreference.getPrivateKey())
         Retrofit.Builder()
                 .callFactory(object : Call.Factory {
                     //create client lazy on demand in background thread
@@ -99,7 +98,5 @@ object RetrofitHolder {
 
 enum class AuthMethod(internal val authName: String) {
     ApiKeyAuth("ApiKeyAuth"),
-    ApiKeyAuthorization("Authorization"),
-
     BearerAuth("BearerAuth")
 }
