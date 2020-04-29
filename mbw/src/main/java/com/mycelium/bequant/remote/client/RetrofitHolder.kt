@@ -28,13 +28,10 @@ object RetrofitHolder {
                                         BequantPreference.getPrivateKey()))
                     }.build())
                 }
-                .addInterceptor(HeaderParamInterceptor("ApiKeyAuth", "X-API-KEY", this::apiKeyGenerator))
-                .addInterceptor(HeaderParamInterceptor("BearerAuth", "Authorization", this::apiKeyGenerator))
-
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(HttpLoggingInterceptor().apply {
-                            level = HttpLoggingInterceptor.Level.HEADERS
+                            level = HttpLoggingInterceptor.Level.BODY
                         })
                     }
                 }
