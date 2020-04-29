@@ -31,6 +31,7 @@ class Step1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.findViewById<View>(R.id.stepsPanel)?.visibility = View.VISIBLE
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
             findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
