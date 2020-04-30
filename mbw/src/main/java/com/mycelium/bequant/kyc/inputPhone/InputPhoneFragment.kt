@@ -8,11 +8,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment
 import com.mycelium.bequant.remote.client.apis.KYCApi
 import com.mycelium.wallet.R
@@ -27,11 +29,25 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
         val CHOOSE_COUNTRY_REQUEST_CODE: Int = 102
     }
 
+    private lateinit var activityViewModel: BequantKycViewModel
     lateinit var viewModel: InputPhoneViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(InputPhoneViewModel::class.java)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.run {
+            activityViewModel = ViewModelProviders.of(this).get(BequantKycViewModel::class.java)
+        } ?: throw Throwable("invalid activity")
+
+        activityViewModel.updateActionBarTitle("")
+
+        activityViewModel.country.observe(viewLifecycleOwner, Observer {
+            viewModel.countryModel.value = it
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -43,7 +59,8 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = null
+
+
         btGetCode.setOnClickListener {
             sendCode()
         }

@@ -9,6 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.mycelium.bequant.kyc.BequantKycViewModel
@@ -59,10 +60,12 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
         rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.getContext(), DividerItemDecoration.VERTICAL))
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
-                targetFragment?.onActivityResult(
-                        targetRequestCode,
-                        COUNTRY_MODEL_RESULT_CODE,
-                        Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
+                activityViewModel.country.value = countryModel
+                findNavController().popBackStack()
+//                targetFragment?.onActivityResult(
+//                        targetRequestCode,
+//                        COUNTRY_MODEL_RESULT_CODE,
+//                        Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
             }
         }).apply {
             submitList(countryModels)
