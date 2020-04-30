@@ -1,7 +1,9 @@
 package com.mycelium.bequant
 
 import android.content.Context
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
+import com.mycelium.wapi.wallet.coins.Value
 
 
 object BequantPreference {
@@ -26,8 +28,11 @@ object BequantPreference {
     fun getSession() = preference.getString(Constants.SESSION_KEY, null) ?: ""
 
     // TODO maybe should be linked to private/public key (/api-key)
-    fun isLogged(): Boolean = getSession().isNotEmpty()
+    fun isLogged(): Boolean = getPrivateKey().isNotEmpty()
 
+    fun isIntroShown() = preference.getBoolean(Constants.INTRO_KEY, false)
+
+    fun setIntroShown() = preference.edit().putBoolean(Constants.INTRO_KEY, true).apply()
 
     fun clear() {
         preference.edit().clear().apply()
@@ -51,4 +56,11 @@ object BequantPreference {
     fun setHideZeroBalance(checked: Boolean) {
         preference.edit().putBoolean(Constants.HIDE_ZERO_BALANCE_KEY, checked).apply()
     }
+
+    fun setMockCastodialBalance(value: Value) {
+        preference.edit().putString("balance", value.valueAsBigDecimal.toString()).apply()
+    }
+
+    fun getMockCastodialBalance() = Value.parse(Utils.getBtcCoinType(),
+            preference.getString("balance", "0") ?: "0")
 }

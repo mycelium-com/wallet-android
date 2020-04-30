@@ -1414,4 +1414,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="log_out">Log Out</string>
     <string name="confirm">Confirm</string>
     <string name="activate_account"><u>Activate Account</u></string>
+    <string name="backup_code_will_be_the_font_only">The Backup Code will be the <font color="#CE3C4E">only way to sign in to your account</font> in case your phone is unavailable</string>
 </resources>

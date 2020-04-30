@@ -47,6 +47,8 @@ class AccountFragment : Fragment(R.layout.fragment_bequant_account) {
         withdraw.setOnClickListener {
             withdrawListener?.invoke()
         }
+        estBalance.text = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+        estBalanceCurrency.text = BequantPreference.getMockCastodialBalance().currencySymbol
         hideZeroBalance.isChecked = BequantPreference.hideZeroBalance()
         hideZeroBalance.setOnCheckedChangeListener { _, checked ->
             BequantPreference.setHideZeroBalance(checked)
@@ -76,6 +78,8 @@ class AccountFragment : Fragment(R.layout.fragment_bequant_account) {
     }
 
     fun updateList() {
+        balancesData.find { it.currency == "BTC" }?.available =
+                BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
         adapter.submitList(balancesData
                 .filter { !BequantPreference.hideZeroBalance() || it.available != "0" }
                 .map { AccountItem(it.currency, it.currency, it.available) })

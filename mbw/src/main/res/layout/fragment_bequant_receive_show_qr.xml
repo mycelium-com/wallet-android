@@ -130,11 +130,13 @@
             android:layout_marginTop="16dp"
             android:gravity="center">
 
-            <Button
+            <TextView
                 android:id="@+id/copyAddress"
                 style="@style/Bequant.Button.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:text="Copy" />
 
             <Button
@@ -142,6 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:fontFamily="@font/exo2medium"
                 android:text="Create New" />
         </LinearLayout>
 

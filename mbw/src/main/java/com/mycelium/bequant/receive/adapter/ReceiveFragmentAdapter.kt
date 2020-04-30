@@ -1,18 +1,26 @@
 package com.mycelium.bequant.receive.adapter
 
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import com.mycelium.bequant.receive.FromMyceliumFragment
 import com.mycelium.bequant.receive.ShowQRFragment
 
 
-class ReceiveFragmentAdapter(fa: Fragment) : FragmentStateAdapter(fa) {
-    override fun getItemCount(): Int = 2
+class ReceiveFragmentAdapter(fa: Fragment) : FragmentStatePagerAdapter(fa.parentFragmentManager) {
 
-    override fun createFragment(position: Int): Fragment =
+    override fun getItem(position: Int): Fragment = when (position) {
+        0 -> FromMyceliumFragment()
+        1 -> ShowQRFragment()
+        else -> TODO("not implemented")
+    }
+
+
+    override fun getCount(): Int = 2
+
+    override fun getPageTitle(position: Int): CharSequence? =
             when (position) {
-                0 -> FromMyceliumFragment()
-                1 -> ShowQRFragment()
-                else -> TODO("not implemented")
+                0 -> "From Mycelium"
+                1 -> "Show QR"
+                else -> ""
             }
 }

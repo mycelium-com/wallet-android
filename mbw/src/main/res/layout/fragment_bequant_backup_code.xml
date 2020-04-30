@@ -19,41 +19,32 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
+        android:textColor="@color/white"
         android:text="@string/write_down_the_backup_code"
         android:textSize="16sp" />
 
-    <FrameLayout
+    <TextView
+        android:id="@+id/backupCodeView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@color/bequant_gray_4"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:gravity="center"
+        android:padding="16dp"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        tools:text="xxxx - xxxx - xxxx -\n xxxx - xxxx - xxxx" />
 
-        <TextView
-            android:id="@+id/backupCodeView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textSize="28sp"
-            tools:text="xxxx - xxxx - xxxx - xxxx - xxxx - xxxx" />
-    </FrameLayout>
-
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@color/bequant_gray_4"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="The Backup Code will be the only way to sign in to your account in case your phone is unavailable"
-            android:textSize="14sp" />
-    </LinearLayout>
+        android:fontFamily="@font/exo2medium"
+        android:padding="16dp"
+        android:textColor="@color/white"
+        android:text="@string/backup_code_will_be_the_font_only"
+        android:textSize="14sp" />
 
     <Space
         android:layout_width="0dp"
@@ -65,6 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:fontFamily="@font/exo2medium"
         android:text="I have written down the backup code" />
 
     <Button

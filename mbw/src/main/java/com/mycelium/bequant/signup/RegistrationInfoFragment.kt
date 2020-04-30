@@ -7,12 +7,15 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
@@ -53,6 +56,8 @@ class RegistrationInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val register = arguments?.getSerializable("register") as Register
         viewModel.setRegister(register)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = "Registration"
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         next.isEnabled = false
         next.setOnClickListener {
             findNavController().navigate(RegistrationInfoFragmentDirections.finish())
@@ -69,4 +74,13 @@ class RegistrationInfoFragment : Fragment() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    findNavController().navigate(RegistrationInfoFragmentDirections.finish())
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

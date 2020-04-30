@@ -49,6 +49,8 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_bequant_market, menu)
+        menu.findItem(R.id.logIn).isVisible = !BequantPreference.isLogged()
+        menu.findItem(R.id.logOut).isVisible = BequantPreference.isLogged()
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -64,6 +66,11 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 }
                 R.id.logOut -> {
                     SignRepository.repository.logout()
+                    activity?.finish()
+                    startActivity(Intent(requireContext(), SignActivity::class.java))
+                    true
+                }
+                R.id.logIn -> {
                     activity?.finish()
                     startActivity(Intent(requireContext(), SignActivity::class.java))
                     true

@@ -34,6 +34,7 @@
                 android:fontFamily="@font/exo2medium"
                 android:gravity="center"
                 android:text="@string/please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app"
+                android:textColor="@color/white"
                 android:textSize="16sp" />
 
             <com.mycelium.wallet.activity.util.QrImageView
@@ -89,6 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_bequant_text"
+                android:gravity="center"
                 android:orientation="horizontal"
                 android:padding="16dp">
 
@@ -100,9 +102,9 @@
                     android:text="@{viewModel.name}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
+                    tools:text="0WDQxjS92SsSJ1casdasdfasdfalkasdfasdfasfdasdfsdjflaksdfMeergw6OPttoiLZ8" />
 
-                <Button
+                <TextView
                     android:id="@+id/nameCopy"
                     style="@style/Bequant.Button.Small"
                     android:layout_width="wrap_content"
@@ -125,20 +127,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_bequant_text"
+                android:gravity="center"
                 android:orientation="horizontal"
                 android:padding="16dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:fontFamily="@font/exo2medium"
                     android:text="@{viewModel.secretCode}"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    tools:text="0WDQxjS92SsSJ1cMeergw6OPttoiLZ8" />
+                    tools:text="0WDQxjS92SsSJ1cMeer asdfasd asdfasdfasdf asdf asdf asdfa sdgw6OPttoiLZ8" />
 
-                <Button
+                <TextView
                     android:id="@+id/secretCodeCopy"
                     style="@style/Bequant.Button.Small"
                     android:layout_width="wrap_content"

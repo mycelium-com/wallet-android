@@ -35,7 +35,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             this.otpLink = otpLink
             this.backupCode = backupCode
             loader.dismissAllowingStateLoss()
-            backupCodeView.text = backupCode
+            backupCodeView.text = backupCode.substring(0, backupCode.length / 2 + 1) + "\n" + backupCode.substring(backupCode.length / 2 + 1)
         }, {
             loader.dismissAllowingStateLoss()
             ErrorHandler(requireContext()).handle(it)

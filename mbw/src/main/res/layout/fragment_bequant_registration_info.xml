@@ -17,6 +17,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/exo2regular"
             android:text="@string/thank_you_for_signing_up_with_bequant"
             android:textSize="28sp" />
 

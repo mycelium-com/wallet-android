@@ -26,8 +26,8 @@
                 style="@style/Bequant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:errorTextAppearance="@style/BequantErrorTextAppearance"
-                android:layout_marginTop="24dp">
+                android:layout_marginTop="24dp"
+                app:errorTextAppearance="@style/BequantErrorTextAppearance">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email"
@@ -46,8 +46,8 @@
                 style="@style/Bequant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:endIconMode="password_toggle"
                 android:layout_marginTop="16dp"
+                app:endIconMode="password_toggle"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -58,7 +58,7 @@
                     android:fontFamily="@font/exo2medium"
                     android:hint="@string/password"
                     android:inputType="textPassword"
-                    android:paddingStart="8dp"
+                    android:padding="8dp"
                     android:text="@={viewModel.password}" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -85,7 +85,7 @@
                 android:id="@+id/register"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="16dp"
                 android:fontFamily="@font/exo2medium"
                 android:gravity="center"
                 android:text="@string/no_account_yet_register"

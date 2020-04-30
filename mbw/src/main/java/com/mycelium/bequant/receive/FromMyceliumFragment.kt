@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
@@ -58,7 +60,7 @@ class FromMyceliumFragment : Fragment() {
             adapter.submitList(accounts)
             requestDepositAddress(coinSymbol)
 
-            if (mbwManager.hasFiatCurrency()) {
+            if (mbwManager.hasFiatCurrency() && accounts.isNotEmpty()) {
                 val coin = accounts[0].coinType
                 val value = mbwManager.exchangeRateManager.get(coin.oneCoin(), mbwManager.getFiatCurrency(coin))
                 if (value == null) {
@@ -89,28 +91,34 @@ class FromMyceliumFragment : Fragment() {
             }
         }
         confirm.setOnClickListener {
-            val account = adapter.getItem(accountList.currentItem)
-            val address = mbwManager.getWalletManager(false).parseAddress(viewModel.address.value!!)
             val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
-            SendCoinTask(parentFragmentManager, account, address[0], value,
-                    FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0")))
-                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+            BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
+            findNavController().popBackStack()
+//            val account = adapter.getItem(accountList.currentItem)
+//            val address = mbwManager.getWalletManager(false).parseAddress(viewModel.address.value!!)
+//
+//            SendCoinTask(parentFragmentManager, account, address[0], value,
+//                    FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0")))
+//                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
 
-        viewModel.castodialBalance.value = "0"
-        viewModel.coin.value = "ETH"
+        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+        viewModel.coin.value = Utils.getBtcCoinType().symbol
     }
 
     fun requestDepositAddress(currency: String) {
         val loader = LoaderFragment()
         loader.show(parentFragmentManager, Constants.LOADER_TAG)
-        ApiRepository.repository.depositAddress(currency, {
-            loader.dismissAllowingStateLoss()
-            viewModel.address.value = it.address
-        }, { code, message ->
-            loader.dismissAllowingStateLoss()
-            ErrorHandler(requireContext()).handle(message)
-        })
+        ApiRepository.repository.depositAddress(
+                if (currency.startsWith("t")) currency.substring(1) else currency,
+                {
+                    loader.dismissAllowingStateLoss()
+                    viewModel.address.value = it.address
+                },
+                { code, message ->
+                    loader.dismissAllowingStateLoss()
+                    ErrorHandler(requireContext()).handle(message)
+                })
     }
 
     class SendCoinTask(val fragmentManager: FragmentManager,
