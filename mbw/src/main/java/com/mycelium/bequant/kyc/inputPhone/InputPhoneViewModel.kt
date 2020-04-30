@@ -23,6 +23,9 @@ class InputPhoneViewModel : ViewModel() {
     val countryCode = MutableLiveData<String>("+7")
 
     private fun isValidMobile(phone: String?): Boolean {
+        if (phone==null){
+            return false
+        }
         return Patterns.PHONE.matcher(phone).matches()
     }
 }
