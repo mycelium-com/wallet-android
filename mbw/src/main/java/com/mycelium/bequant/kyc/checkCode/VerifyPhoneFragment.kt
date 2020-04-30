@@ -1,6 +1,7 @@
 package com.mycelium.bequant.kyc.checkCode
 
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -43,6 +44,16 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //FOR DEMO
+        Handler().postDelayed({
+            pinCode.setText("555555")
+        },2000)
+        Handler().postDelayed({
+           goNext()
+        },4000)
+        //
+
         pinCode.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
