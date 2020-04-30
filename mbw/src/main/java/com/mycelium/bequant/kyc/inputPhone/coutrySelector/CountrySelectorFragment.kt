@@ -1,6 +1,5 @@
 package com.mycelium.bequant.kyc.inputPhone.coutrySelector;
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +21,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
 
     lateinit var viewModel: CountrySelectorViewModel
     private lateinit var activityViewModel: BequantKycViewModel
+    private var showPhoneCode = true
 
     companion object {
         val COUNTRY_MODEL_RESULT_CODE = 101
@@ -31,7 +31,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
-
+        showPhoneCode = arguments?.getBoolean("showPhoneCode") ?: true
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -57,7 +57,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
                     acronym = it,
                     code = PhoneNumberUtil.getInstance().getCountryCodeForRegion(it))
         }
-        rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.getContext(), DividerItemDecoration.VERTICAL))
+        rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.context, DividerItemDecoration.VERTICAL))
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
                 activityViewModel.country.value = countryModel
@@ -70,6 +70,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
         }).apply {
             submitList(countryModels)
         }
+        adapter.showPhoneCode = showPhoneCode
         rvCountries.adapter = adapter
 
         edSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

@@ -11,12 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.model.Auth
+import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signin.viewmodel.SignInViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSignInBinding
@@ -27,7 +29,7 @@ class SignInFragment : Fragment() {
 
     lateinit var viewModel: SignInViewModel
     var resetPasswordListener: (() -> Unit)? = null
-    var signInListener: ((Auth) -> Unit)? = null
+
     var totpSignUpListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +53,7 @@ class SignInFragment : Fragment() {
             passwordLayout.error = null
         })
         resetPassword.setOnClickListener {
-            resetPasswordListener?.invoke()
+            findNavController().navigate(SignFragmentDirections.actionResetPassword())
         }
         signIn.setOnClickListener {
             if (validate()) {
@@ -59,10 +61,10 @@ class SignInFragment : Fragment() {
                 val loader = LoaderFragment()
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.authorize(auth, {
-                    totpSignUpListener?.invoke()
+                    findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, { code, error ->
                     if (code == 420) {
-                        signInListener?.invoke(auth)
+                        findNavController().navigate(SignFragmentDirections.actionSignIn(auth))
                     } else {
                         loader.dismissAllowingStateLoss()
                         ErrorHandler(requireContext()).handle(error)

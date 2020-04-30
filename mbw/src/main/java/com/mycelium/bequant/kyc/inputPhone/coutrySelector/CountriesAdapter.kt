@@ -10,8 +10,12 @@ import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.country_item.view.*
 
 class CountriesAdapter(val itemClickListener: ItemClickListener) : ListAdapter<CountryModel, RecyclerView.ViewHolder>(CountryDiffCallback()) {
+    var showPhoneCode = true
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false))
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false).apply {
+                tvCountryCode.visibility = if (showPhoneCode) View.VISIBLE else View.GONE
+            })
 
 
     class ViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)

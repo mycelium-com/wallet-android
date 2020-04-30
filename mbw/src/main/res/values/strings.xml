@@ -1384,7 +1384,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="important_notes">Important Notes</string>
     <string name="deposits_without_destination_tag_will_be_lost">Deposits without Destination Tag will be lost!</string>
     <string name="est_total_balance">Est. Total Balance</string>
-    <string name="bequant_page_title_two_factor_auth_">Two-factor Auth</string>
+    <string name="bequant_page_title_two_factor_auth">Two-factor Auth</string>
     <string name="i_have_a_referral_code">I have a referral code</string>
     <string name="referral_code">Referral Code</string>
     <string name="we_sent_a_confirmation_email_to">We sent a confirmation email to</string>
@@ -1400,7 +1400,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_page_title_reset_password">Reset password</string>
     <string name="set_up_2fa_to_secure_your_account">Set up 2FA to secure your account</string>
     <string name="please_note_that_you_will_need_to_install_the_google_authenticator_app_on_your_phone_it_can_be_found_on_the_google_play_store_at_the_link_below">Please note that you will need to install the Google Authenticator app on your phone. It can be found on the Google Play store, at the link below.</string>
-    <string name="resend_confirmation_email">- Resend confirmation email.</string>
+    <string name="resend_confirmation_email">Resend confirmation email.</string>
     <string name="write_down_the_backup_code">Write down the backup code</string>
     <string name="please_add_your_bequant_account_to_your_google_authenticator_app_by_manually_entering_the_codes_below_into_the_authenticator_app">Please add your Bequant account to your Google Authenticator app by manually entering the codes below into the authenticator app.</string>
     <string name="can_t_scan_it">Can\'t scan it?</string>
@@ -1415,4 +1415,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="confirm">Confirm</string>
     <string name="activate_account"><u>Activate Account</u></string>
     <string name="backup_code_will_be_the_font_only">The Backup Code will be the <font color="#CE3C4E">only way to sign in to your account</font> in case your phone is unavailable</string>
+    <string name="if_none_of_the_above_helps_please_contact_our_support_team">If none of the above helps, please contact our <font color="#F2E868">support team.</font></string>
 </resources>

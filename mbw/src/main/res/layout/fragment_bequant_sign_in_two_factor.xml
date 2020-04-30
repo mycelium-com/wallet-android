@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -19,7 +20,8 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
-        android:text="@string/get_a_verification_code" />
+        android:text="@string/get_a_verification_code"
+        android:textColor="@color/white" />
 
     <TextView
         android:layout_width="match_parent"
@@ -32,30 +34,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:errorTextColor="#CE3C4E">
+        app:errorTextColor="#CE3C4E"
+        app:hintEnabled="false">
 
         <com.poovam.pinedittextfield.SquarePinField
             android:id="@+id/pinCode"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="55dp"
             android:fontFamily="@font/exo2medium"
             android:inputType="number"
             android:textSelectHandle="@drawable/text_handle"
-            android:textSize="28sp"
+            android:textSize="24sp"
             app:cornerRadius="4dp"
-            app:noOfFields="6" />
+            app:noOfFields="6"
+            tools:text="2312" />
         <!--        app:fieldBgColor="#23262A"-->
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <TextView
         android:id="@+id/pasteFromClipboard"
+        style="@style/Bequant.Button.Gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:padding="8dp"
-        android:text="@string/paste_from_clipboard"
-        android:textAllCaps="false"
-        android:textSize="14sp" />
+        android:text="@string/paste_from_clipboard" />
 </LinearLayout>

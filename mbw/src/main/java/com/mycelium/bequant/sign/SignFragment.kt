@@ -38,6 +38,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = null
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         pager.adapter = SignFragmentAdapter(this)
         pager.offscreenPageLimit = 2
         tabMediator = TabLayoutMediator(tabs, pager) { tab, position ->

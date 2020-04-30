@@ -35,12 +35,13 @@ class RegistrationInfoFragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            next.isEnabled = true
+            findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish())
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_BEQUANT_EMAIL_CONFIRMED))
     }
@@ -58,10 +59,6 @@ class RegistrationInfoFragment : Fragment() {
         viewModel.setRegister(register)
         (activity as AppCompatActivity?)?.supportActionBar?.title = "Registration"
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
-        next.isEnabled = false
-        next.setOnClickListener {
-            findNavController().navigate(RegistrationInfoFragmentDirections.finish())
-        }
         resendConfirmationEmail.setOnClickListener {
             SignRepository.repository.resendRegister(Email(register.email), {}, {})
         }
@@ -78,7 +75,7 @@ class RegistrationInfoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 android.R.id.home -> {
-                    findNavController().navigate(RegistrationInfoFragmentDirections.finish())
+                    findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish())
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

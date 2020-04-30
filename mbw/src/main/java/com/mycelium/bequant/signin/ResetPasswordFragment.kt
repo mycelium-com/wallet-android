@@ -16,6 +16,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_p
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         submit.setOnClickListener {
             if (validate()) {
                 val loader = LoaderFragment()

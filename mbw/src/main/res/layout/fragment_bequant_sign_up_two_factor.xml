@@ -27,6 +27,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/exo2medium"
         android:gravity="center"
+        android:textColor="@color/white"
         android:text="@string/please_note_that_you_will_need_to_install_the_google_authenticator_app_on_your_phone_it_can_be_found_on_the_google_play_store_at_the_link_below"
         android:textSize="16sp" />
 
@@ -43,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="16sp"
+            android:textColor="@color/white"
             android:fontFamily="@font/exo2medium"
             android:text="@string/google_authenticator_for_android" />
 

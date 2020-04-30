@@ -14,13 +14,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
+import com.mycelium.bequant.kyc.steps.Step3FragmentDirections
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.model.Register
+import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSignUpBindingImpl
@@ -31,7 +34,7 @@ import kotlinx.android.synthetic.main.layout_password_registration.*
 class SignUpFragment : Fragment() {
 
     lateinit var viewModel: SignUpViewModel
-    var registerListener: ((Register) -> Unit)? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
@@ -64,6 +67,9 @@ class SignUpFragment : Fragment() {
                 viewModel.passwordLevelVisibility.value = GONE
             }
         }
+        counteySelector.setOnClickListener {
+            findNavController().navigate(SignFragmentDirections.actionSelectCountry())
+        }
         register.setOnClickListener {
             if (validate()) {
                 val register = Register(viewModel.email.value!!, viewModel.password.value!!)
@@ -71,7 +77,7 @@ class SignUpFragment : Fragment() {
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.register(register, {
                     loader.dismissAllowingStateLoss()
-                    registerListener?.invoke(register)
+                    findNavController().navigate(SignFragmentDirections.actionRegister(register))
                 }, { error ->
                     loader.dismissAllowingStateLoss()
                     ErrorHandler(requireContext()).handle(error)

@@ -20,7 +20,8 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val auth = arguments?.getSerializable("auth") as Auth
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth_)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         pasteFromClipboard.setOnClickListener {
             pinCode.setText(Utils.getClipboardString(requireContext()))
         }

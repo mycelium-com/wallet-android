@@ -16,7 +16,8 @@ class SignUpTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_up_two_f
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth_)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         next.setOnClickListener {
             findNavController().navigate(SignUpTwoFactorFragmentDirections.actionNext())
         }

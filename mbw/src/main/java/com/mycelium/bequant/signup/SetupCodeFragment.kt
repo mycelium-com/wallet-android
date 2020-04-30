@@ -37,6 +37,7 @@ class SetupCodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_setup_code)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         val otpId = arguments?.getInt("otpId")
         val otpLink = arguments?.getString("otpLink")
         val uri = Uri.parse(otpLink)

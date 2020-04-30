@@ -7,13 +7,16 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.market.BequantMarketActivity
@@ -35,6 +38,7 @@ class RegistrationTotpFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(RegistrationInfoViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_BEQUANT_EMAIL_CONFIRMED))
     }
@@ -49,12 +53,9 @@ class RegistrationTotpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.verify_via_email)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         viewModel.email.value = BequantPreference.getEmail()
-
-        next.setOnClickListener {
-            startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
-            requireActivity().finish()
-        }
+        checkIsEmailCorrect.visibility = GONE
         resendConfirmationEmail.setOnClickListener {
 //            SignRepository.repository.resendRegister(Email(register.email), {}, {})
         }
@@ -62,5 +63,14 @@ class RegistrationTotpFragment : Fragment() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    findNavController().navigate(RegistrationTotpFragmentDirections.actionFinish())
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
 }

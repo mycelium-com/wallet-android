@@ -21,6 +21,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_backup_code)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         next.isEnabled = false
         backupCodeWritten.setOnCheckedChangeListener { _, checked ->
             next.isEnabled = checked

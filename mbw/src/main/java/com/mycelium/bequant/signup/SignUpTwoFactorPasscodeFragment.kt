@@ -17,7 +17,8 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in_two_factor.*
 class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_in_two_factor) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth_)
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
+        (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         val otpId = arguments?.getInt("otpId")
         pasteFromClipboard.setOnClickListener {
             pinCode.setText(Utils.getClipboardString(requireContext()))

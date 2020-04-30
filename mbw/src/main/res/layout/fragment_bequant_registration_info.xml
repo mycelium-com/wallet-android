@@ -18,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/exo2regular"
+            android:textColor="@color/white"
             android:text="@string/thank_you_for_signing_up_with_bequant"
             android:textSize="28sp" />
 
@@ -25,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:textColor="@color/white"
             android:fontFamily="@font/exo2medium"
             android:text="@string/we_sent_a_confirmation_email_to"
             android:textSize="16sp" />
@@ -50,30 +52,17 @@
             android:text="Please follow the instructions in the email to complete your registration."
             android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_bequant_text"
-            android:fontFamily="@font/exo2medium"
-            android:padding="16dp"
-            android:text="You have 1 hour to reset your password before the link expires. "
-            android:textColor="#CE3C4E"
-            android:textSize="16sp" />
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="24dp"-->
+<!--            android:background="@drawable/bg_bequant_text"-->
+<!--            android:fontFamily="@font/exo2medium"-->
+<!--            android:padding="16dp"-->
+<!--            android:text="You have 1 hour to reset your password before the link expires. "-->
+<!--            android:textColor="#CE3C4E"-->
+<!--            android:textSize="16sp" />-->
 
         <include layout="@layout/part_bequant_not_receive_email" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/next"
-            style="@style/Bequant.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Next" />
     </LinearLayout>
 </layout>
