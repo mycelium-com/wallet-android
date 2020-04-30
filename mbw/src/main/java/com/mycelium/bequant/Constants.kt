@@ -12,6 +12,7 @@ object Constants {
     const val ACTION_BEQUANT_TOTP_CONFIRMED = "bequant_totp_confirmed"
     const val ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED = "bequant_reset_password_confirmed"
     const val ACTION_BEQUANT_SHOW_REGISTER = "bequant_show_register"
+    const val ACTION_COUNTRY_SELECTED = "action_country_selected"
 
     const val SESSION_KEY = "session"
     const val ACCESS_TOKEN_KEY = "access_token"
@@ -20,6 +21,7 @@ object Constants {
     const val PUBLIC_KEY = "public_key"
     const val HIDE_ZERO_BALANCE_KEY = "hide_zero_balance"
     const val INTRO_KEY = "intro"
+    const val COUNTRY_MODEL_KEY = "phoneModel"
 
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 

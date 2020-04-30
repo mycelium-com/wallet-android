@@ -53,6 +53,7 @@
                 android:background="@drawable/bg_bequant_input_text"
                 android:fontFamily="@font/exo2medium"
                 android:hint="@string/residence_country"
+                android:text="@{viewModel.country}"
                 android:padding="8dp"
                 android:textSize="16sp"
                 app:drawableEndCompat="@drawable/ic_arrow_drop_down" />

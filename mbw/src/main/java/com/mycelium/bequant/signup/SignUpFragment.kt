@@ -1,6 +1,9 @@
 package com.mycelium.bequant.signup
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -14,13 +17,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
+import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
-import com.mycelium.bequant.kyc.steps.Step3FragmentDirections
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.model.Register
 import com.mycelium.bequant.sign.SignFragmentDirections
@@ -35,9 +41,16 @@ class SignUpFragment : Fragment() {
 
     lateinit var viewModel: SignUpViewModel
 
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            viewModel.country.value = intent?.getParcelableExtra<CountryModel>(COUNTRY_MODEL_KEY)?.name
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -95,6 +108,11 @@ class SignUpFragment : Fragment() {
             val chevron = if (referralLayout.visibility == VISIBLE) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
             iHaveRefCode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
         }
+    }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
     }
 
     private fun calculatePasswordLevel(password: String) {

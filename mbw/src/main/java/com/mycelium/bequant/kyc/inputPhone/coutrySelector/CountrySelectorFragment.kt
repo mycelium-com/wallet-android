@@ -1,32 +1,32 @@
 package com.mycelium.bequant.kyc.inputPhone.coutrySelector;
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
+import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_country_of_residence.*
 import java.util.*
 
-class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_of_residence) {
+class CountrySelectorFragment : Fragment() {
 
     lateinit var viewModel: CountrySelectorViewModel
     private lateinit var activityViewModel: BequantKycViewModel
     private var showPhoneCode = true
-
-    companion object {
-        val COUNTRY_MODEL_RESULT_CODE = 101
-        val COUNTRY_MODEL_KEY = "phoneModel"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,32 +60,30 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
         rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.context, DividerItemDecoration.VERTICAL))
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
-                activityViewModel.country.value = countryModel
-                findNavController().popBackStack()
-//                targetFragment?.onActivityResult(
-//                        targetRequestCode,
-//                        COUNTRY_MODEL_RESULT_CODE,
-//                        Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
+                        .putExtra(COUNTRY_MODEL_KEY, countryModel))
+                if (targetFragment == null) {
+                    activityViewModel.country.value = countryModel
+                    findNavController().popBackStack()
+                } else {
+                    targetFragment?.onActivityResult(targetRequestCode, RESULT_OK,
+                            Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
+                    activity?.onBackPressed()
+                }
             }
         }).apply {
             submitList(countryModels)
         }
         adapter.showPhoneCode = showPhoneCode
         rvCountries.adapter = adapter
-
-        edSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                if (newText.isNullOrEmpty()) {
-                    adapter.submitList(countryModels)
-                    return true
+        viewModel.search.observe(viewLifecycleOwner, Observer { text ->
+            if (text.isNullOrEmpty()) {
+                adapter.submitList(countryModels)
+            } else {
+                val filter = countryModels.filter {
+                    it.name.toLowerCase().contains(text.toLowerCase()) || it.acronym.toLowerCase().contains(text.toLowerCase())
                 }
-                val filter = countryModels.filter { it.name.toLowerCase().contains(newText.toLowerCase()) }
                 adapter.submitList(filter)
-                return true
             }
         })
     }
