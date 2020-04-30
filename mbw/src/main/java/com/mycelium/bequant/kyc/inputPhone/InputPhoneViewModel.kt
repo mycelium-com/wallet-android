@@ -19,7 +19,7 @@ class InputPhoneViewModel : ViewModel() {
     }
 
     val phoneNumber = MutableLiveData<String>()
-    val countryModel = MutableLiveData<CountryModel>(CountryModel("USA","US",1))
+    val countryModel = MutableLiveData<CountryModel>(CountryModel("Russia","RU",7))
 
     private fun isValidMobile(phone: String?): Boolean {
         if (phone == null) {

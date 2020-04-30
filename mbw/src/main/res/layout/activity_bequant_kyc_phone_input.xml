@@ -58,6 +58,7 @@
                     android:background="@null"
                     android:drawableRight="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
+                    tools:text="Russia"
                     android:text="@{viewModel.countryModel.name}" />
 
             <View
@@ -76,6 +77,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
+                        android:gravity="center"
+                        tools:text="+7"
                         android:background="@null"
                         android:text="@{Integer.toString(viewModel.countryModel.code)}" />
 
