@@ -3,6 +3,7 @@ package com.mycelium.bequant.market
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,6 +15,7 @@ import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
+import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_exchange.*
 
 
@@ -24,21 +26,41 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         for (i in 25..100 step 25) {
-            send_percent.addTab(send_percent.newTab().setText("$i%"))
+            val rb = RadioButton(requireContext()).apply {
+                text = "$i%"
+                tag = i
+                setOnClickListener {
+                    val available = viewModel.available.value
+                    if (available != null) {
+                        val result = available.value.toDouble() * ((it.tag as Int).toDouble() / 100)
+                        viewModel.youSend.value = Value.valueOf(available.type,
+                                result.toBigDecimal().toBigInteger())
+                    }
+                }
+            }
+            send_percent.addView(rb)
         }
+        send_percent.apply {
+            (getChildAt(childCount - 1) as RadioButton).isChecked = true
+        }
+
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         viewModel.available.observe(viewLifecycleOwner, Observer {
             available.text = it.toStringWithUnit(Denomination.UNIT)
         })
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             sendView.text = it.toString(Denomination.UNIT)
+            sendViewSymbol.text = it.currencySymbol
         })
-        viewModel.youGet.observe(viewLifecycleOwner, Observer {})
+        viewModel.youGet.observe(viewLifecycleOwner, Observer {
+            getView.text = it.toString(Denomination.UNIT)
+            getViewSymbol.text = it.currencySymbol
+        })
 
-        sendView.setOnClickListener {
+        clSendView.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
         }
-        getView.setOnClickListener {
+        clGetView.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
