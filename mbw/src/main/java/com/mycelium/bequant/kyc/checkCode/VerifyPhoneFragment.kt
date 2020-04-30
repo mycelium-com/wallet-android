@@ -22,6 +22,7 @@ import com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycVerifyPhoneBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_verify_phone.*
+import kotlinx.android.synthetic.main.activity_bequant_kyc_verify_phone.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,7 +48,7 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
 
         //FOR DEMO
         Handler().postDelayed({
-            pinCode.setText("555555")
+            view.pinCode.setText("555555")
         },2000)
         Handler().postDelayed({
            goNext()
