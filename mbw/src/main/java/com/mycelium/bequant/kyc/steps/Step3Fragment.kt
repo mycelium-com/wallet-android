@@ -1,26 +1,33 @@
 package com.mycelium.bequant.kyc.steps
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.kyc.steps.adapter.ItemStep
-import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
-import com.mycelium.bequant.kyc.steps.adapter.StepState
+import com.mycelium.bequant.kyc.steps.adapter.*
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step3ViewModel
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps3Binding
+import kotlinx.android.synthetic.main.fragment_bequant_steps_3.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+
 
 class Step3Fragment : Fragment() {
     lateinit var viewModel: Step3ViewModel
     lateinit var headerViewModel: HeaderViewModel
     lateinit var kycRequest: KYCRequest
+
+    val identityAdapter = DocumentAdapter()
+    val proofAddressAdapter = DocumentAdapter()
+    val selfieAdapter = DocumentAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +63,24 @@ class Step3Fragment : Fragment() {
                 2 -> findNavController().navigate(Step3FragmentDirections.actionEditStep2(kycRequest))
             }
         }
+        identityList.adapter = identityAdapter
+        proofAddressList.adapter = proofAddressAdapter
+        selfieList.adapter = selfieAdapter
+        addIndentity.setOnClickListener {
+            DocumentAttachDialog().apply {
+                setTargetFragment(this@Step3Fragment, REQUEST_CODE_INDENTITY)
+            }.show(parentFragmentManager, "upload_document")
+        }
+        addProofAddress.setOnClickListener {
+            DocumentAttachDialog().apply {
+                setTargetFragment(this@Step3Fragment, REQUEST_CODE_PROOF_ADDRESS)
+            }.show(parentFragmentManager, "upload_document")
+        }
+        addSelfie.setOnClickListener {
+            DocumentAttachDialog().apply {
+                setTargetFragment(this@Step3Fragment, REQUEST_CODE_SELFIE)
+            }.show(parentFragmentManager, "upload_document")
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -71,4 +96,23 @@ class Step3Fragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode / 1000 == DocumentAttachDialog.REQURST_CODE_CAMERA / 1000) {
+            if (requestCode % 1000 == REQUEST_CODE_INDENTITY) {
+                if (data != null && data.extras != null) {
+                    val imageBitmap = data.extras["data"] as Bitmap
+//                    mImageView.setImageBitmap(imageBitmap)
+                    identityAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val REQUEST_CODE_INDENTITY = 101
+        const val REQUEST_CODE_PROOF_ADDRESS = 102
+        const val REQUEST_CODE_SELFIE = 103
+    }
 }

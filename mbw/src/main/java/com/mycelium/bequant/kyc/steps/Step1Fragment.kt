@@ -1,5 +1,6 @@
 package com.mycelium.bequant.kyc.steps
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
@@ -20,6 +21,7 @@ import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import java.util.*
 
 class Step1Fragment : Fragment() {
     lateinit var viewModel: Step1ViewModel
@@ -32,7 +34,7 @@ class Step1Fragment : Fragment() {
         kycRequest = (arguments?.getSerializable("kycRequest") as KYCRequest?) ?: KYCRequest()
         viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
-        headerViewModel=ViewModelProviders.of(this).get(HeaderViewModel::class.java)
+        headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -55,6 +57,13 @@ class Step1Fragment : Fragment() {
                 , ItemStep(2, "Residential Address", StepState.FUTURE)
                 , ItemStep(3, "Documents & Selfie", StepState.FUTURE)))
 
+        tvDateOfBirth.setOnClickListener {
+            DatePickerDialog(requireContext(), { _, year, month, day ->
+                val calendar = Calendar.getInstance()
+                calendar.set(year, month, day)
+                viewModel.birthday.value = calendar.time.toString()
+            }, 2011, 1, 1)
+        }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
             findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))

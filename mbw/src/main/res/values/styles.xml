@@ -451,4 +451,15 @@
         <item name="errorTextColor">#CE3C4E</item>
         <item name="hintEnabled">false</item>
     </style>
+
+    <style name="Bequant.TabLayout">
+        <item name="tabBackground">@drawable/bequant_intro_dot_inactive</item>
+        <item name="tabGravity">center</item>
+        <item name="tabIndicator">@drawable/bequant_intro_dot_active</item>
+        <item name="tabIndicatorColor">@color/bequant_yellow</item>
+        <item name="tabIndicatorGravity">center</item>
+        <item name="tabMinWidth">12dp</item>
+        <item name="tabMaxWidth">12dp</item>
+        <item name="tabIndicatorHeight">8dp</item>
+    </style>
 </resources>

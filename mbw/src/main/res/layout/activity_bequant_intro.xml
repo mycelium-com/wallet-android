@@ -18,20 +18,13 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
+        style="@style/Bequant.TabLayout"
         android:layout_width="match_parent"
         android:layout_height="8dp"
         android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toTopOf="@id/create"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:tabBackground="@drawable/bequant_intro_dot_inactive"
-        app:tabGravity="center"
-        app:tabIndicator="@drawable/bequant_intro_dot_active"
-        app:tabIndicatorColor="#F2E868"
-        app:tabIndicatorGravity="center"
-        app:tabIndicatorHeight="8dp"
-        app:tabPaddingEnd="4dp"
-        app:tabPaddingStart="4dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/create"

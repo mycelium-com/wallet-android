@@ -1,6 +1,7 @@
 package com.mycelium.bequant.market
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -9,6 +10,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
@@ -49,6 +51,10 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
+                R.id.supportCenter -> {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
+                    true
+                }
                 R.id.kyc -> {
                     startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
                     true
