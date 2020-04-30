@@ -1,5 +1,6 @@
 package com.mycelium.bequant.kyc.inputPhone
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment
 import com.mycelium.bequant.remote.client.apis.KYCApi
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycPhoneInputBinding
@@ -20,6 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
+
+    companion object {
+        val CHOOSE_COUNTRY_REQUEST_CODE: Int = 102
+    }
 
     lateinit var viewModel: InputPhoneViewModel
 
@@ -43,7 +49,19 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
         }
 
         tvCountry.setOnClickListener {
+//            val countrySelectorFragment = CountrySelectorFragment()
+//            countrySelectorFragment.setTargetFragment(this, CHOOSE_COUNTRY_REQUEST_CODE)
+//            parentFragmentManager.beginTransaction()
+//                    .add(countrySelectorFragment,"selector")
+//                    .commit()
             findNavController().navigate(R.id.action_phoneInputToChooseCountry)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == CountrySelectorFragment.COUNTRY_MODEL_RESULT_CODE) {
+            viewModel.countryModel.value = data?.getParcelableExtra(CountrySelectorFragment.COUNTRY_MODEL_KEY)
         }
     }
 
