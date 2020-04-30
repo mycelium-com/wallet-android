@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_country_of_residence.*
@@ -19,6 +20,7 @@ import java.util.*
 class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_of_residence) {
 
     lateinit var viewModel: CountrySelectorViewModel
+    private lateinit var activityViewModel: BequantKycViewModel
 
     companion object {
         val COUNTRY_MODEL_RESULT_CODE = 101
@@ -29,6 +31,14 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
 
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.run {
+            activityViewModel = ViewModelProviders.of(this).get(BequantKycViewModel::class.java)
+        } ?: throw Throwable("invalid activity")
+        activityViewModel.updateActionBarTitle("Country of Residence")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -65,7 +75,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if(newText.isNullOrEmpty()) {
+                if (newText.isNullOrEmpty()) {
                     adapter.submitList(countryModels)
                     return true
                 }
