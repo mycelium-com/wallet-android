@@ -6,6 +6,7 @@ object Constants {
     const val LINK_SUPPORT_CENTER = "https://support.bequant.io"
     const val LINK_GOOGLE_AUTHENTICATOR = "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
 
+    const val ACTION_BEQUANT_KEYS = "bequant_keys"
     const val ACTION_BEQUANT_EMAIL_CONFIRMED = "bequant_email_confirmed"
     const val ACTION_BEQUANT_TOTP_CONFIRMED = "bequant_totp_confirmed"
     const val ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED = "bequant_reset_password_confirmed"

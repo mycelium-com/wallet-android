@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.RecordRowBuilder
@@ -196,6 +197,13 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
 //                    walletManager.getAccount(investItem.accountId)?.run {
                         investmentAccountClickListener?.onItemClick(item.account)
 //                    }
+                }
+                if (BequantPreference.isLogged()) {
+                    investHolder.balance.visibility = View.VISIBLE
+                    investHolder.activateLink.visibility = View.GONE
+                } else {
+                    investHolder.balance.visibility = View.GONE
+                    investHolder.activateLink.visibility = View.VISIBLE
                 }
             }
             UKNOWN -> throw IllegalArgumentException("Unknown view type")

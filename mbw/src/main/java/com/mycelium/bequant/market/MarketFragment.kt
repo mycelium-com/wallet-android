@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
@@ -25,9 +26,11 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         if (!BequantPreference.hasKeys()) {
-            SignRepository.repository.getApiKeys { code, message ->
+            SignRepository.repository.getApiKeys({
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
+            }, { code, message ->
                 ErrorHandler(requireContext()).handle(message)
-            }
+            })
         }
     }
 

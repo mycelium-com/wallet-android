@@ -183,7 +183,7 @@ class SignRepository {
         })
     }
 
-    fun getApiKeys(error: (Int, String) -> Unit) {
+    fun getApiKeys(success: () -> Unit, error: (Int, String) -> Unit) {
         service.getApiKey().enqueue(object : Callback<ApiKeyResponse> {
             override fun onFailure(call: Call<ApiKeyResponse>, t: Throwable) {
                 error.invoke(0, t.message ?: "")

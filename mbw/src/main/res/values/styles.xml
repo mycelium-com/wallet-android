@@ -426,6 +426,7 @@
         <item name="tabIndicatorColor">@color/bequant_yellow</item>
         <item name="tabIndicatorHeight">2dp</item>
         <item name="tabGravity">fill</item>
+        <item name="tabTextAppearance">@style/BequantTabText</item>
     </style>
 
     <style name="Bequant.EditText">
@@ -438,6 +439,7 @@
 
     <style name="BequantTabText" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
+        <item name="fontFamily">@font/exo2medium</item>
     </style>
 
     <style name="Bequant.TextInputLayout">
@@ -462,4 +464,6 @@
         <item name="tabMaxWidth">12dp</item>
         <item name="tabIndicatorHeight">8dp</item>
     </style>
+
+    <style name="BequantErrorTextAppearance"></style>
 </resources>

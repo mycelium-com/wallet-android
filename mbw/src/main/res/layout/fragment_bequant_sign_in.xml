@@ -26,9 +26,10 @@
                 style="@style/Bequant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:errorTextAppearance="@style/BequantErrorTextAppearance"
                 android:layout_marginTop="24dp">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -45,10 +46,11 @@
                 style="@style/Bequant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconMode="password_toggle"
                 android:layout_marginTop="16dp"
                 app:passwordToggleEnabled="true">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -56,7 +58,7 @@
                     android:fontFamily="@font/exo2medium"
                     android:hint="@string/password"
                     android:inputType="textPassword"
-                    android:padding="8dp"
+                    android:paddingStart="8dp"
                     android:text="@={viewModel.password}" />
             </com.google.android.material.textfield.TextInputLayout>
 

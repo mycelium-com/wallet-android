@@ -1413,4 +1413,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="verify_via_email">Verify via Email</string>
     <string name="log_out">Log Out</string>
     <string name="confirm">Confirm</string>
+    <string name="activate_account"><u>Activate Account</u></string>
 </resources>

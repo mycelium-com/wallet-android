@@ -39,6 +39,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = null
         pager.adapter = SignFragmentAdapter(this)
+        pager.offscreenPageLimit = 2
         tabMediator = TabLayoutMediator(tabs, pager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.bequant_sign_up)
@@ -86,6 +87,4 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
-
-
 }
