@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
@@ -46,7 +47,7 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
                     code = PhoneNumberUtil.getInstance().getCountryCodeForRegion(it))
         }
         rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.getContext(), DividerItemDecoration.VERTICAL))
-        rvCountries.adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
+        val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
                 targetFragment?.onActivityResult(
                         targetRequestCode,
@@ -56,6 +57,23 @@ class CountrySelectorFragment : Fragment(R.layout.activity_bequant_kyc_country_o
         }).apply {
             submitList(countryModels)
         }
+        rvCountries.adapter = adapter
+
+        edSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                if(newText.isNullOrEmpty()) {
+                    adapter.submitList(countryModels)
+                    return true
+                }
+                val filter = countryModels.filter { it.name.toLowerCase().contains(newText.toLowerCase()) }
+                adapter.submitList(filter)
+                return true
+            }
+        })
     }
 
     val countriesMap = Locale.getISOCountries()

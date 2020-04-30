@@ -15,11 +15,11 @@
             android:padding="16dp"
             android:background="@color/bequant_gray">
 
-        <androidx.appcompat.widget.AppCompatEditText
+        <androidx.appcompat.widget.SearchView
                 android:id="@+id/edSearch"
                 style="@style/Bequant.EditText"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:background="@color/bequant_gray_3"
                 android:drawableLeft="@drawable/ic_search"
                 android:drawablePadding="8dp"
