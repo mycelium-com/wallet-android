@@ -50,13 +50,17 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         })
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             sendView.text = it.toString(Denomination.UNIT)
+            sendViewSymbol.text = it.currencySymbol
         })
-        viewModel.youGet.observe(viewLifecycleOwner, Observer {})
+        viewModel.youGet.observe(viewLifecycleOwner, Observer {
+            getView.text = it.toString(Denomination.UNIT)
+            getViewSymbol.text = it.currencySymbol
+        })
 
-        sendView.setOnClickListener {
+        clSendView.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
         }
-        getView.setOnClickListener {
+        clGetView.setOnClickListener {
             startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {

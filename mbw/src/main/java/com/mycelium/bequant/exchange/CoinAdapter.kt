@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.item_bequant_coin.view.*
+import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -18,7 +18,7 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                     SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
                 }
                 TYPE_ITEM -> {
-                    ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_coin, parent, false))
+                    ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_coin_expanded, parent, false))
                 }
                 else -> {
                     SpaceHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_space, parent, false))

@@ -19,7 +19,7 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                     SearchHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_search, parent, false))
                 }
                 CoinAdapter.TYPE_ITEM -> {
-                    ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_coin, parent, false))
+                    ItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_coin_expanded, parent, false))
                 }
                 else -> {
                     SpaceHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_space, parent, false))
