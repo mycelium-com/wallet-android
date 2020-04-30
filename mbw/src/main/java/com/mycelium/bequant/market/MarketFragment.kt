@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.sign.SignActivity
@@ -48,6 +49,10 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
+                R.id.kyc -> {
+                    startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
+                    true
+                }
                 R.id.logOut -> {
                     SignRepository.repository.logout()
                     activity?.finish()

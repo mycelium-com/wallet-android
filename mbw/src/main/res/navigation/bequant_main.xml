@@ -20,10 +20,23 @@
         android:id="@+id/withdrawFragment"
         android:name="com.mycelium.bequant.withdraw.WithdrawFragment"
         android:label="WithdrawFragment"
-        tools:layout="@layout/fragment_bequant_withdraw" />
+        tools:layout="@layout/fragment_bequant_withdraw">
+        <action
+            android:id="@+id/actionSelectAccount"
+            app:destination="@id/selectAccountFragment" />
+    </fragment>
     <fragment
         android:id="@+id/receiveFragment"
         android:name="com.mycelium.bequant.receive.ReceiveFragment"
         android:label="ReceiveFragment"
-        tools:layout="@layout/fragment_bequant_receive" />
+        tools:layout="@layout/fragment_bequant_receive">
+        <action
+            android:id="@+id/actionSelectAccount"
+            app:destination="@id/selectAccountFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectAccountFragment"
+        android:name="com.mycelium.bequant.receive.SelectAccountFragment"
+        android:label="SelectAccountFragment"
+        tools:layout="@layout/fragment_bequant_select_account"/>
 </navigation>

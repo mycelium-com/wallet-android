@@ -1,42 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/exo2medium"
-        android:text="Amount"
-        android:textSize="16sp" />
+    <data>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <import type="android.view.View" />
 
-        <LinearLayout
+        <variable
+            name="viewModel"
+            type="com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel" />
+    </data>
+
+    <merge>
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/bg_bequant_text"
-            android:padding="16dp">
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/exo2medium"
+            android:text="Amount"
+            android:textSize="16sp" />
 
-            <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/exo2medium"
-                android:textSize="16sp"
-                tools:text="Custodial wallet (ETH)" />
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_bequant_text"
+                android:padding="16dp">
 
-        </LinearLayout>
-    </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/exo2medium"
+                    android:text="@={viewModel.amount}"
+                    android:textSize="16sp"
+                    tools:text="100" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/exo2medium"
-        android:textColor="#49505C"
-        android:textSize="14sp"
-        tools:text="Fee 0.0002 BTC" />
-</merge>
+            </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/exo2medium"
+            android:textColor="#49505C"
+            android:textSize="14sp"
+            tools:text="Fee 0.0002 BTC" />
+    </merge>
+</layout>

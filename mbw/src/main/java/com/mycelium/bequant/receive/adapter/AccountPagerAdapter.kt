@@ -26,6 +26,8 @@ class AccountPagerAdapter : ListAdapter<WalletAccount<*>, RecyclerView.ViewHolde
         viewHolder.itemView.accountBalanceCurrency.text = value.currencySymbol
     }
 
+    public override fun getItem(position: Int): WalletAccount<*> = super.getItem(position)
+
     class ViewHolder(val itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class DiffCallback : DiffUtil.ItemCallback<WalletAccount<*>>() {

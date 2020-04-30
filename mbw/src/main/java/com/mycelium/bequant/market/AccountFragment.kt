@@ -5,8 +5,9 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.InvestmentAccount
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.AccountItem
-import com.mycelium.bequant.market.adapter.AccountsAdapter
+import com.mycelium.bequant.market.adapter.BequantAccountAdapter
 import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.wallet.R
@@ -18,7 +19,7 @@ class AccountFragment : Fragment(R.layout.fragment_bequant_account) {
     var withdrawListener: (() -> Unit)? = null
 
     val account = InvestmentAccount()
-    val adapter = AccountsAdapter()
+    val adapter = BequantAccountAdapter()
     var balancesData = listOf<BequantBalance>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,11 +36,14 @@ class AccountFragment : Fragment(R.layout.fragment_bequant_account) {
             updateList()
         }
         list.adapter = adapter
+        adapter.addCoinListener = {
+            receiveListener?.invoke()
+        }
         ApiRepository.repository.balances({
             balancesData = it
             updateList()
         }, { code, error ->
-
+            ErrorHandler(requireContext()).handle(error)
         })
     }
 

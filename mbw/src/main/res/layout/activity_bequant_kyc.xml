@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -11,7 +12,85 @@
             android:background="@color/bequant_gray_3"
             app:layout_constraintTop_toTopOf="parent">
 
+        <LinearLayout
+                android:id="@+id/stepsPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:orientation="vertical">
 
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="48dp"
+                    android:layout_height="wrap_content"
+                    android:text="Identity Authentication" />
+
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp">
+
+                <TextView
+                        style="@style/Bequant.TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Step 1"
+                        android:textColor="@color/white"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
+
+                <TextView
+                        style="@style/Bequant.TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="of 4"
+                        android:textColor="@color/bequant_gray_6"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <ProgressBar
+                    android:id="@+id/tvProgress"
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="14dp"
+                    android:layout_weight="1"
+                    android:indeterminate="false"
+                    android:progress="50"
+                    android:progressDrawable="@drawable/bequantprogress"
+                    android:visibility="visible" />
+
+            <net.cachapa.expandablelayout.ExpandableLayout
+                    android:id="@+id/expandable_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:el_duration="1000"
+                    app:el_expanded="true"
+                    app:el_parallax="0.5">
+
+                <FrameLayout
+                        android:id="@+id/toolbarLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                    <com.mycelium.bequant.kyc.verticalStepper.VerticalStepperView
+                            android:id="@+id/stepper"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                </FrameLayout>
+
+            </net.cachapa.expandablelayout.ExpandableLayout>
+
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <fragment

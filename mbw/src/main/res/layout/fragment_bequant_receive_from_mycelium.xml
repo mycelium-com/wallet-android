@@ -24,51 +24,7 @@
             android:text="@string/from"
             android:textSize="16sp" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_bequant_text">
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/fromAccounts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:minHeight="100dp" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/fromAccountsTab"
-                android:layout_width="wrap_content"
-                android:layout_height="8dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fromAccounts"
-                app:tabBackground="@drawable/bequant_intro_dot_inactive"
-                app:tabGravity="center"
-                app:tabIndicator="@drawable/bequant_intro_dot_active"
-                app:tabIndicatorColor="#F2E868"
-                app:tabIndicatorGravity="center"
-                app:tabIndicatorHeight="8dp"
-                app:tabPaddingEnd="4dp"
-                app:tabPaddingStart="4dp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_list" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!--    <include layout="@layout/layout_bequant_mycelium_wallet_accounts" />-->
+        <include layout="@layout/layout_bequant_accounts_pager" />
 
         <TextView
             android:id="@+id/oneCoinFiatRate"
@@ -87,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/exo2medium"
-            android:text="To"
+            android:text="@string/to"
             android:textSize="16sp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -154,11 +110,16 @@
             android:orientation="horizontal"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="match_parent"
+            <EditText
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:background="@null"
                 android:fontFamily="@font/exo2medium"
-                android:text="@{viewModel.amount}"
+                android:hint="0"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.amount}"
                 android:textSize="16sp"
                 tools:text="100" />
 
