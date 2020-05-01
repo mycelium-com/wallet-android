@@ -21,6 +21,7 @@ import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class Step1Fragment : Fragment() {
@@ -57,12 +58,14 @@ class Step1Fragment : Fragment() {
                 , ItemStep(2, "Residential Address", StepState.FUTURE)
                 , ItemStep(3, "Documents & Selfie", StepState.FUTURE)))
 
+        val format = SimpleDateFormat("dd/MM/yyy")
         tvDateOfBirth.setOnClickListener {
-            DatePickerDialog(requireContext(), { _, year, month, day ->
+            val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, day ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
-                viewModel.birthday.value = calendar.time.toString()
+                viewModel.birthday.value = format.format(calendar.time);
             }, 2011, 1, 1)
+            datePickerDialog.show()
         }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
