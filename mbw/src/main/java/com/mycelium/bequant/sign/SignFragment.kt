@@ -53,7 +53,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
                 "signUp" -> pager.setCurrentItem(0, true)
                 "signIn" -> pager.setCurrentItem(1, true)
             }
-        }, 1000)
+        }, 500)
     }
 
     override fun onResume() {

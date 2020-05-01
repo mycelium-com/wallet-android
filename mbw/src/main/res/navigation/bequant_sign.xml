@@ -186,7 +186,7 @@
         android:label="CountrySelectorFragment"
         tools:layout="@layout/activity_bequant_kyc_country_of_residence">
         <action
-            android:id="@+id/action_countrySelectorFragment_to_countryFailFragment"
+            android:id="@+id/actionFail"
             app:destination="@id/countryFailFragment" />
     </fragment>
     <fragment

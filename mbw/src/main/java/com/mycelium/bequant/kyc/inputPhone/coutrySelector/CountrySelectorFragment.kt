@@ -55,15 +55,19 @@ class CountrySelectorFragment : Fragment() {
         val countryModels = CountriesSource.countryModels
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
-                        .putExtra(COUNTRY_MODEL_KEY, countryModel))
-                if (targetFragment == null) {
-                    activityViewModel.country.value = countryModel
-                    findNavController().popBackStack()
+                if (countryModel.acronym == "US" && !showPhoneCode) {
+                    findNavController().navigate(CountrySelectorFragmentDirections.actionFail())
                 } else {
-                    targetFragment?.onActivityResult(targetRequestCode, RESULT_OK,
-                            Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
-                    activity?.onBackPressed()
+                    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
+                            .putExtra(COUNTRY_MODEL_KEY, countryModel))
+                    if (targetFragment == null) {
+                        activityViewModel.country.value = countryModel
+                        findNavController().popBackStack()
+                    } else {
+                        targetFragment?.onActivityResult(targetRequestCode, RESULT_OK,
+                                Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
+                        activity?.onBackPressed()
+                    }
                 }
             }
         }).apply {

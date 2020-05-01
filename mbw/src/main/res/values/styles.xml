@@ -395,12 +395,14 @@
         <item name="windowNoTitle">true</item>
         <item name="android:radioButtonStyle">@style/Bequant.Button.Small.RadioButton</item>
     </style>
-    <style name="BequantSign" parent="AppBaseTheme">
+    <style name="BequantSign" parent="Bequant">
+        <item name="android:toolbarStyle" tools:ignore="NewApi">@style/BequantSignToolBarStyle</item>
         <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
     </style>
     <style name="BequantSignToolBarStyle" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/bequant_gray_2</item>
+        <item name="android:background">@color/transparent</item>
         <item name="titleTextAppearance">@style/BequantSignTitleTextAppearance</item>
+        <item name="android:titleTextAppearance" tools:ignore="NewApi">@style/BequantSignTitleTextAppearance</item>
 <!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
     </style>
     <style name="BequantSignTitleTextAppearance">
