@@ -62,6 +62,7 @@ import com.mycelium.wapi.wallet.AddressUtils;
 import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.BroadcastResult;
 import com.mycelium.wapi.wallet.BroadcastResultType;
+import com.mycelium.wapi.wallet.GenericTransactionData;
 import com.mycelium.wapi.wallet.ColuTransferInstructionsParser;
 import com.mycelium.wapi.wallet.ConfirmationRiskProfileLocal;
 import com.mycelium.wapi.wallet.GenericAddress;
@@ -88,6 +89,7 @@ import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException;
 import com.mycelium.wapi.wallet.exceptions.GenericOutputTooSmallException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -144,7 +146,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    @Override
-   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee)
+   public GenericTransaction createTx(GenericAddress address, Value amount, GenericFee fee, @Nullable GenericTransactionData data)
            throws GenericBuildTransactionException, GenericInsufficientFundsException, GenericOutputTooSmallException {
       FeePerKbFee btcFee = (FeePerKbFee)fee;
       BtcTransaction btcTransaction =  new BtcTransaction(getCoinType(), (BtcAddress)address, amount, btcFee.getFeePerKb());
@@ -1525,7 +1527,7 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             // The transaction got a new height. There could be
             // several reasons for that. It confirmed, or might also be a reorg.
             TransactionEx newTex = new TransactionEx(localTransactionEx.txid, localTransactionEx.hash, t.height, localTransactionEx.time, localTransactionEx.binary);
-            _logger.log(Level.INFO,String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
+            _logger.log(Level.INFO, String.format("Replacing: %s With: %s", localTransactionEx.toString(), newTex.toString()));
             _backing.putTransaction(newTex);
             postEvent(Event.TRANSACTION_HISTORY_CHANGED);
          }

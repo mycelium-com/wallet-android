@@ -12,6 +12,7 @@ abstract class EthCoin : CryptoCurrency() {
         family = Families.ETHEREUM
         unitExponent = 18
         addressPrefix = ""
+        isUtxosBased = false
     }
 
     override fun parseAddress(addressString: String): GenericAddress? {

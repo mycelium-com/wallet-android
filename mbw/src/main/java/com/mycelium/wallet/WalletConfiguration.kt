@@ -10,18 +10,19 @@ import com.mycelium.net.TorHttpsEndpoint
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.web3j.protocol.http.HttpService
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 interface  MyceliumNodesApi {
     @GET("/nodes-b.json")
@@ -165,11 +166,25 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
-    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it,"") }
-    fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it,"") }
+    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it) }
+
+    fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it) }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
+
+    fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
+            ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
+            ERC20Token("USD Coin", "USDC", 6, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+            ERC20Token("HuobiToken", "HT", 18, "0x6f259637dcd74c767781e37bc6133cd6a68aa161"),
+            ERC20Token("Binance USD", "BUSD", 18, "0x4fabb145d64652a948d72533023f6e7a623c7c53"),
+            ERC20Token("Bitfinex LEO", "LEO", 18, "0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3"),
+            when (BuildConfig.FLAVOR) {
+                "prodnet" -> ERC20Token("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498")
+                // for testing purposes
+                else -> ERC20Token("0x", "ZRX", 18, "0xd676189f67CAB2D5f9b16a5c0898A0E30ed86560")
+            })
+            .associateBy { it.name }
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener

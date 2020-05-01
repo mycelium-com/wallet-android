@@ -12,4 +12,6 @@ open class Bip44BCHAccount(
         context: HDAccountContext,
         keyManagerMap: MutableMap<BipDerivationType, HDAccountKeyManager>,
         network: NetworkParameters, backing: Bip44BtcAccountBacking, wapi: Wapi) :
-        HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE))
+        HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+    override fun canSign(): Boolean = false
+}

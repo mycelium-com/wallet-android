@@ -6,4 +6,4 @@ class EthTransactionService(address: String, transactionServiceEndpoints: List<H
     : AbstractTransactionService(address, transactionServiceEndpoints) {
 
     override fun getTransactions() = fetchTransactions().filter { it.tokenTransfers.isEmpty() }
-} 
+}

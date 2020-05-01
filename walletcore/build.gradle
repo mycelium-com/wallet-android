@@ -29,8 +29,7 @@ dependencies {
     implementation 'org.bitcoinj:bitcoinj-core:0.14.5'
 
     // Ethereum
-    implementation 'org.web3j:core:4.2.0-android'
-    implementation 'org.web3j:infura:4.2.0-android'
+    implementation 'org.web3j:core:4.2.1-android'
 
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:2.23.0"
@@ -63,4 +62,18 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+// Creates a single Jar with all dependencies
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+       exclude "META-INF/*.SF"
+       exclude "META-INF/*.DSA"
+       exclude "META-INF/*.RSA"
+    }
+    with jar
 }

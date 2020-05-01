@@ -99,6 +99,7 @@ import com.mycelium.wapi.wallet.AesKeyCipher;
 import com.mycelium.wapi.wallet.ExportableAccount;
 import com.mycelium.wapi.wallet.GenericAddress;
 import com.mycelium.wapi.wallet.WalletAccount;
+import com.mycelium.wapi.wallet.WalletManager;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.btc.AbstractBtcAccount;
@@ -120,6 +121,8 @@ import com.mycelium.wapi.wallet.colu.coins.MTCoin;
 import com.mycelium.wapi.wallet.colu.coins.MTCoinTest;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
+import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
@@ -129,8 +132,11 @@ import org.ocpsoft.prettytime.TimeUnit;
 import org.ocpsoft.prettytime.units.Minute;
 import org.ocpsoft.prettytime.units.Second;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -141,6 +147,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
 
 public class Utils {
    private static final DecimalFormat FIAT_FORMAT;
@@ -793,6 +800,15 @@ public class Utils {
       return getLinkedAccount(account, accounts) != null;
    }
 
+   public static boolean isERC20Token(WalletManager walletManager, String symbol) {
+      for (WalletAccount account : ERC20ModuleKt.getERC20Accounts(walletManager)) {
+         if (account.getCoinType().getSymbol().equals(symbol)) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public static WalletAccount getLinkedAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
       for (WalletAccount walletAccount : accounts) {
          if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
@@ -800,6 +816,25 @@ public class Utils {
          }
       }
       return null;
+   }
+
+   public static EthAccount getLinkedEthAccount(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      for (WalletAccount walletAccount : accounts) {
+         if (walletAccount instanceof EthAccount && !walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            return (EthAccount) walletAccount;
+         }
+      }
+      return null;
+   }
+
+   public static List<WalletAccount> getLinkedAccounts(WalletAccount account, final Collection<? extends WalletAccount> accounts) {
+      List<WalletAccount> result = new ArrayList<>();
+      for (WalletAccount walletAccount : accounts) {
+         if (!walletAccount.getId().equals(account.getId()) && account.isMineAddress(walletAccount.getReceiveAddress())) {
+            result.add(walletAccount);
+         }
+      }
+      return result;
    }
 
    public static Collection<WalletAccount> getUniqueAccounts(final Collection<WalletAccount> accounts) {
@@ -818,14 +853,18 @@ public class Utils {
             // "anything else"????
             // PrivateColuAccount and their linked SingleAddressAccount
             // PublicColuAccount (never has anything linked)
-            if(input instanceof HDAccount) { // also covers Bip44BCHAccount
+            // EthAccount and ERC20
+            if (input instanceof HDAccount) { // also covers Bip44BCHAccount
                return 0;
             }
-            if(input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
+            if (input instanceof SingleAddressAccount) { // also covers SingleAddressBCHAccount
                return checkIsLinked(input, accounts) ? 5 : 1;
             }
-            if(input instanceof ColuAccount) {
+            if (input instanceof ColuAccount) {
                return 5;
+            }
+            if (input instanceof EthAccount || input instanceof ERC20Account) {
+               return 6;
             }
             return 4;
          }
@@ -856,9 +895,28 @@ public class Utils {
                   return 0;
                }
                return linkedAccount.getId().equals(w1.getId()) ? 1 : 0;
+            } else if (w1 instanceof EthAccount && w2 instanceof EthAccount) {
+               return Integer.compare(((EthAccount) w1).getAccountIndex(), ((EthAccount) w2).getAccountIndex());
+            } else if (w1 instanceof EthAccount && w2 instanceof ERC20Account) {
+               EthAccount linkedEthAccount = getLinkedEthAccount(w2, accounts);
+               if (linkedEthAccount.equals(w1)) {
+                  return -1;
+               } else {
+                  return Integer.compare(((EthAccount) w1).getAccountIndex(), linkedEthAccount.getAccountIndex());
+               }
+            } else if (w1 instanceof ERC20Account && w2 instanceof EthAccount) {
+               EthAccount linkedEthAccount = getLinkedEthAccount(w1, accounts);
+               if (linkedEthAccount.equals(w2)) {
+                  return 1;
+               } else {
+                  return Integer.compare(linkedEthAccount.getAccountIndex(), ((EthAccount) w2).getAccountIndex());
+               }
+            } else if (w1 instanceof ERC20Account && w2 instanceof ERC20Account) {
+               EthAccount linkedEthAccount1 = getLinkedEthAccount(w1, accounts);
+               EthAccount linkedEthAccount2 = getLinkedEthAccount(w2, accounts);
+               return Integer.compare(linkedEthAccount1.getAccountIndex(), linkedEthAccount2.getAccountIndex());
             }
             return 0;
-
          }
       };
 
@@ -915,6 +973,21 @@ public class Utils {
             return resources.getDrawable(R.drawable.trezor_icon_only);
          }
       }
+
+      if (ERC20Account.class.isAssignableFrom(accountType)) {
+         Drawable drawable = null;
+         String symbol = accountView.getCoinType().getSymbol();
+         try {
+            // get input stream
+            InputStream ims = resources.getAssets().open("token-logos/" + symbol.toLowerCase() + "_logo.png");
+            // load image as Drawable
+            drawable = Drawable.createFromStream(ims, null);
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+         return drawable;
+      }
+
       //regular HD account
       if (HDAccount.class.isAssignableFrom(accountType)) {
          return resources.getDrawable(R.drawable.multikeys_grey);
@@ -981,6 +1054,18 @@ public class Utils {
 
    public static CryptoCurrency getBtcCoinType() {
       return BuildConfig.FLAVOR.equals("prodnet") ? BitcoinMain.get() : BitcoinTest.get();
+   }
+
+   public static CryptoCurrency getMtCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MTCoin.INSTANCE : MTCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getMassCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? MASSCoin.INSTANCE : MASSCoinTest.INSTANCE;
+   }
+
+   public static CryptoCurrency getRmcCoinType() {
+      return BuildConfig.FLAVOR.equals("prodnet") ? RMCCoin.INSTANCE : RMCCoinTest.INSTANCE;
    }
 
    public static boolean isValidEmailAddress(String value) {

@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.coins;
 
 import com.google.common.base.Charsets;
-import com.mycelium.wapi.wallet.FeeEstimationsGeneric;
 
 import java.math.BigInteger;
 
@@ -16,6 +15,7 @@ public abstract class CryptoCurrency extends AbstractAsset {
     protected Integer friendlyDigits;
     protected String addressPrefix;
     protected FeePolicy feePolicy = FeePolicy.FEE_PER_KB;
+    protected boolean isUtxosBased = true;
 
     @Override
     public String getName() {
@@ -81,5 +81,9 @@ public abstract class CryptoCurrency extends AbstractAsset {
 
     public String getId() {
         return id;
+    }
+
+    public boolean isUtxosBased() {
+        return isUtxosBased;
     }
 }

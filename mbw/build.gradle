@@ -110,7 +110,7 @@ dependencies {
     implementation("org.bitcoinj:orchid:1.2.1") {
         exclude(module: 'slf4j-api')
     }
-    implementation 'org.web3j:core:4.2.0-android'
+    implementation 'org.web3j:core:4.2.1-android'
 
     implementation "com.squareup.sqldelight:android-driver:1.2.1"
 
@@ -162,8 +162,8 @@ android {
     buildToolsVersion androidSdkBuildVersion
 
     defaultConfig {
-        versionCode 3030301
-        versionName '3.3.3.1'
+        versionCode 3040001
+        versionName '3.4.0.1'
         multiDexEnabled true
 
         minSdkVersion androidMinSdkVersion

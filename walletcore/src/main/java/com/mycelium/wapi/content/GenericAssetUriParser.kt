@@ -59,7 +59,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
         }
     }
 
-    private fun splitQuery(query: String?): Map<String, String> {
+    protected fun splitQuery(query: String?): Map<String, String> {
         query ?: return emptyMap()
         val pairs = query.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         return pairs.map {
@@ -81,7 +81,7 @@ abstract class GenericAssetUriParser(open val network: NetworkParameters) : UriP
                 is MTCoin, is MTCoinTest -> MTUri(address, amount, label, paymentUri)
                 is MASSCoin, is MASSCoinTest -> MSSUri(address, amount, label, paymentUri)
                 is EthMain, is EthTest -> EthUri(address, amount, label, paymentUri)
-                else -> null
+                else -> FallbackUri(address)
             }
         }
     }

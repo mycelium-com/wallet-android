@@ -30,11 +30,19 @@ import com.mycelium.wallet.event.SyncStopped
 import com.mycelium.wallet.paymentrequest.PaymentRequestHandler
 import com.mycelium.wapi.content.GenericAssetUri
 import com.mycelium.wapi.content.GenericAssetUriParser
+import com.mycelium.wapi.content.btc.BitcoinUri
+import com.mycelium.wapi.content.colu.mss.MSSUri
+import com.mycelium.wapi.content.colu.mt.MTUri
+import com.mycelium.wapi.content.colu.rmc.RMCUri
+import com.mycelium.wapi.content.eth.EthUri
 import com.mycelium.wapi.wallet.GenericAddress
 import com.mycelium.wapi.wallet.GenericTransaction
 import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.bip44.UnrelatedHDAccountConfig
+import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Subscribe
 import org.bitcoin.protocols.payments.PaymentACK
 import java.util.*
@@ -146,6 +154,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
 
     fun getTransactionLabel() = model.transactionLabel
 
+    fun getTransactionData() = model.transactionData
+
     fun hasPaymentRequestHandlerTransformer(): LiveData<Boolean> = Transformations.map(model.paymentRequestHandler,
             this::hasPaymentRequestHandler)
 
@@ -210,11 +220,28 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
             }
         } else {
             val uri = mbwManager.contentResolver.resolveUri(string)
-            if (uri?.address?.coinType == model.account.coinType) {
+            if (uri != null && isUriMatchAccountCoinType(uri, model.account.coinType)) {
                 uri
             } else {
                 null
             }
+        }
+    }
+
+    private fun isUriMatchAccountCoinType(uri: GenericAssetUri, coinType: CryptoCurrency): Boolean {
+        return when (uri) {
+            is BitcoinUri -> coinType == Utils.getBtcCoinType()
+            is MTUri -> coinType == Utils.getMtCoinType()
+            is MSSUri -> coinType == Utils.getMassCoinType()
+            is RMCUri -> coinType == Utils.getRmcCoinType()
+            is EthUri -> {
+                if (uri.asset == null) {
+                    coinType is EthCoin
+                } else {
+                    coinType is ERC20Token && uri.asset.equals(coinType.contractAddress, true)
+                }
+            }
+            else -> false
         }
     }
 
@@ -272,7 +299,7 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                     throw NotImplementedError("Private key must be implemented per currency")
                 }
                 ResultType.ADDRESS -> {
-                    if (data.getAddress().coinType == getAccount().coinType) {
+                    if (data.getAddress().coinType == getAccount().basedOnCoinType) {
                         model.receivingAddress.value = data.getAddress()
                     } else {
                         makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
@@ -280,16 +307,8 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                 }
                 ResultType.ASSET_URI -> {
                     val uri = data.getAssetUri()
-                    if (uri.address?.coinType == getAccount().coinType) {
-                        model.receivingAddress.value = uri.address
-                        model.transactionLabel.value = uri.label
-                        if (uri.value != null && uri.value!!.isPositive()) {
-                            //we set the amount to the one contained in the qr code, even if another one was entered previously
-                            if (!Value.isNullOrZero(model.amount.value)) {
-                                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
-                            }
-                            model.amount.value = uri.value
-                        }
+                    if (uri.address?.coinType == getAccount().basedOnCoinType) {
+                        processAssetUri(uri)
                     } else {
                         makeText(activity, context.getString(R.string.not_correct_address_type), LENGTH_LONG).show()
                     }
@@ -308,6 +327,18 @@ abstract class SendCoinsViewModel(val context: Application) : AndroidViewModel(c
                             data.getSerializableExtra(StringHandlerActivity.RESULT_TYPE_KEY).toString())
                 }
             }
+        }
+    }
+
+    protected open fun processAssetUri(uri: GenericAssetUri) {
+        model.receivingAddress.value = uri.address
+        model.transactionLabel.value = uri.label
+        if (uri.value?.isPositive() == true) {
+            //we set the amount to the one contained in the qr code, even if another one was entered previously
+            if (!Value.isNullOrZero(model.amount.value)) {
+                makeText(activity, R.string.amount_changed, LENGTH_LONG).show()
+            }
+            model.amount.value = uri.value
         }
     }
 

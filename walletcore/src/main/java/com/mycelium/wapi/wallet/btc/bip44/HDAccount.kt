@@ -750,4 +750,6 @@ open class HDAccount(
         // This method should NOT be called for HD account since it has more than one private key
         throw RuntimeException("Calling getPrivateKey() is not supported for HD account")
     }
+
+    override fun canSign(): Boolean = true
 }

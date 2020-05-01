@@ -1,9 +1,11 @@
 package com.mycelium.wallet.activity.modern.model.accounts
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
 import android.os.AsyncTask
-import com.mycelium.wallet.*
+import androidx.lifecycle.LiveData
+import com.mycelium.wallet.MbwManager
+import com.mycelium.wallet.R
+import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_ARCHIVED_TITLE_TYPE
 import com.mycelium.wallet.activity.modern.model.accounts.AccountListItem.Type.GROUP_TITLE_TYPE
 import com.mycelium.wallet.activity.util.getBTCSingleAddressAccounts
@@ -18,6 +20,7 @@ import com.mycelium.wapi.wallet.btc.bip44.getBTCBip44Accounts
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.coins.Value
 import com.mycelium.wapi.wallet.colu.getColuAccounts
+import com.mycelium.wapi.wallet.erc20.getERC20Accounts
 import com.mycelium.wapi.wallet.eth.getEthAccounts
 import com.squareup.otto.Subscribe
 import java.util.*
@@ -66,7 +69,7 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
                     R.string.bitcoin_cash_hd to walletManager.getBCHBip44Accounts(),
                     R.string.bitcoin_cash_sa to walletManager.getBCHSingleAddressAccounts(),
                     R.string.digital_assets to getColuAccounts(walletManager),
-                    R.string.eth_accounts_name to walletManager.getEthAccounts()
+                    R.string.eth_accounts_name to getEthERC20Accounts(walletManager)
             ).forEach {
                 val accounts = walletManager.getActiveAccountsFrom(sortAccounts(it.second))
                 if (accounts.isNotEmpty()) {
@@ -91,17 +94,11 @@ class AccountsViewLiveData(private val mbwManager: MbwManager) : LiveData<List<A
             return accountsList
         }
 
-        private fun getColuAccounts(walletManager: WalletManager): ArrayList<WalletAccount<out GenericAddress>> {
-            val coluAccounts = ArrayList<WalletAccount<out GenericAddress>>()
-            coluAccounts.addAll(walletManager.getColuAccounts())
-            for (walletAccount in walletManager.getColuAccounts()) {
-                val linkedAccount = Utils.getLinkedAccount(walletAccount, walletManager.getAccounts())
-                if (linkedAccount != null) {
-                    coluAccounts.add(linkedAccount)
-                }
-            }
-            return coluAccounts
-        }
+        private fun getColuAccounts(walletManager: WalletManager): List<WalletAccount<out GenericAddress>> =
+                walletManager.getColuAccounts() + walletManager.getColuAccounts().mapNotNull { Utils.getLinkedAccount(it, walletManager.getAccounts()) }
+
+        private fun getEthERC20Accounts(walletManager: WalletManager): List<WalletAccount<out GenericAddress>> =
+                walletManager.getEthAccounts() + walletManager.getERC20Accounts()
 
         private fun accountsToViewModel(accounts: Collection<WalletAccount<out GenericAddress>>) =
                 accounts.map { AccountViewModel(it, mbwManager) }
