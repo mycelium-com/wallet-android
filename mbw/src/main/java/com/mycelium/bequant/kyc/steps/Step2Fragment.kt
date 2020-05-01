@@ -2,11 +2,13 @@ package com.mycelium.bequant.kyc.steps
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -16,6 +18,7 @@ import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps2Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_2.*
+import kotlinx.android.synthetic.main.fragment_bequant_steps_2.btNext
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 
@@ -57,6 +60,19 @@ class Step2Fragment : Fragment() {
             when (it) {
                 1 -> findNavController().navigate(Step2FragmentDirections.actionEditStep1(kycRequest))
             }
+        }
+
+
+        val items = CountriesSource.nationalityModels.map {
+            it.Name
+        }.toTypedArray()
+        tvCountry.setOnClickListener {
+            AlertDialog.Builder(requireActivity())
+                    .setSingleChoiceItems(items, -1) { dialog, which ->
+                        tvCountry.text = items[which]
+                        dialog.dismiss()
+                    }
+                    .show()
         }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)

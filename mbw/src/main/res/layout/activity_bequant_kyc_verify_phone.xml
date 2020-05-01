@@ -35,7 +35,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@null"
                 android:gravity="center"
-                android:text="We will call +685 (123) 1234 to give you a confirmation code"
+                android:text="We will call +685 (123) 1234 to give you  a confirmation code"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />

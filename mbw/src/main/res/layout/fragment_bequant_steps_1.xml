@@ -100,7 +100,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tvDateOfBirth"
                     style="@style/Bequant.EditText"
-                    android:layout_width="156dp"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:text="@{viewModel.birthday}"
@@ -167,7 +167,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="By clicking Proceed, you agree to our  Terms of Use"
+                    android:text="By clicking Proceed, you agree to our Terms of Use"
                     android:textColor="@color/white" />
 
                 <Button
