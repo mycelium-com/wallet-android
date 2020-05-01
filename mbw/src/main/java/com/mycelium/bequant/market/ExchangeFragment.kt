@@ -30,12 +30,7 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
                 text = "$i%"
                 tag = i
                 setOnClickListener {
-                    val available = viewModel.available.value
-                    if (available != null) {
-                        val result = available.value.toDouble() * ((it.tag as Int).toDouble() / 100)
-                        viewModel.youSend.value = Value.valueOf(available.type,
-                                result.toBigDecimal().toBigInteger())
-                    }
+                    updateYouSend((it.tag as Int))
                 }
             }
             send_percent.addView(rb)
@@ -58,13 +53,41 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         })
 
         clSendView.setOnClickListener {
-            startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
+            val intent = Intent(requireContext(), SelectCoinActivity::class.java).also {
+                it.putExtra(PARENT, YOU_SEND)
+            }
+            startActivityForResult(intent, REQUEST_CODE_EXCHANGE_COINS)
         }
         clGetView.setOnClickListener {
-            startActivityForResult(Intent(requireContext(), SelectCoinActivity::class.java), REQUEST_CODE_EXCHANGE_COINS)
+            val intent = Intent(requireContext(), SelectCoinActivity::class.java).also {
+                it.putExtra(PARENT, YOU_GET)
+            }
+            startActivityForResult(intent, REQUEST_CODE_EXCHANGE_COINS)
         }
         exchange.setOnClickListener {
             startActivity(Intent(requireActivity(), BequantKycActivity::class.java))
         }
+        icExchange.setOnClickListener {
+            val tempValue = viewModel.youSend.value
+            viewModel.youSend.value = viewModel.youGet.value
+            viewModel.youGet.value = tempValue
+        }
+
+        updateYouSend(100)
+    }
+
+    private fun updateYouSend(rate: Int) {
+        val available = viewModel.available.value
+        if (available != null) {
+            val result = available.value.toDouble() * (rate.toDouble() / 100)
+            viewModel.youSend.value = Value.valueOf(available.type,
+                    result.toBigDecimal().toBigInteger())
+        }
+    }
+
+    companion object {
+        const val PARENT = "parent"
+        const val YOU_SEND = 0
+        const val YOU_GET = 1
     }
 }
