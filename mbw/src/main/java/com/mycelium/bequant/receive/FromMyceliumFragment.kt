@@ -91,9 +91,11 @@ class FromMyceliumFragment : Fragment() {
             }
         }
         confirm.setOnClickListener {
-            val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
-            BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
-            findNavController().popBackStack()
+            if(viewModel.amount.value != null) {
+                val value = Value.parse(Utils.getBtcCoinType(), viewModel.amount.value!!)
+                BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
+                findNavController().popBackStack()
+            }
 //            val account = adapter.getItem(accountList.currentItem)
 //            val address = mbwManager.getWalletManager(false).parseAddress(viewModel.address.value!!)
 //
@@ -107,18 +109,18 @@ class FromMyceliumFragment : Fragment() {
     }
 
     fun requestDepositAddress(currency: String) {
-        val loader = LoaderFragment()
-        loader.show(parentFragmentManager, Constants.LOADER_TAG)
-        ApiRepository.repository.depositAddress(
-                if (currency.startsWith("t")) currency.substring(1) else currency,
-                {
-                    loader.dismissAllowingStateLoss()
-                    viewModel.address.value = it.address
-                },
-                { code, message ->
-                    loader.dismissAllowingStateLoss()
-                    ErrorHandler(requireContext()).handle(message)
-                })
+//        val loader = LoaderFragment()
+//        loader.show(parentFragmentManager, Constants.LOADER_TAG)
+//        ApiRepository.repository.depositAddress(
+//                if (currency.startsWith("t")) currency.substring(1) else currency,
+//                {
+//                    loader.dismissAllowingStateLoss()
+//                    viewModel.address.value = it.address
+//                },
+//                { code, message ->
+//                    loader.dismissAllowingStateLoss()
+//                    ErrorHandler(requireContext()).handle(message)
+//                })
     }
 
     class SendCoinTask(val fragmentManager: FragmentManager,

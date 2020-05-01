@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Patterns
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -49,6 +50,7 @@ class SignUpFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(ACTION_COUNTRY_SELECTED))
     }
@@ -109,6 +111,16 @@ class SignUpFragment : Fragment() {
             iHaveRefCode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, chevron, 0)
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
 
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)

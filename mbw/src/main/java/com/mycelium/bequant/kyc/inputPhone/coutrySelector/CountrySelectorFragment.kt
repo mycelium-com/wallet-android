@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -19,7 +20,6 @@ import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_country_of_residence.*
-import java.util.*
 
 class CountrySelectorFragment : Fragment() {
 
@@ -29,6 +29,7 @@ class CountrySelectorFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
         showPhoneCode = arguments?.getBoolean("showPhoneCode") ?: true
     }
@@ -81,4 +82,13 @@ class CountrySelectorFragment : Fragment() {
             }
         })
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

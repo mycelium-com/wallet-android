@@ -2,7 +2,6 @@ package com.mycelium.bequant.sign
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
@@ -62,13 +61,4 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                     .putExtra("token", intent.data?.getQueryParameter("token") ?: ""))
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
-                android.R.id.home -> {
-                    onBackPressed()
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 }

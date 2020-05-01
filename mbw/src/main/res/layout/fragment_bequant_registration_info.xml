@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/exo2medium"
+            android:textColor="@color/white"
             android:text="Please follow the instructions in the email to complete your registration."
             android:textSize="16sp" />
 

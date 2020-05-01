@@ -2,6 +2,7 @@ package com.mycelium.bequant.signin
 
 import android.os.Bundle
 import android.util.Patterns
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,6 +14,11 @@ import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_sign_in_reset_password.*
 
 class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_password) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
@@ -31,6 +37,16 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_p
             }
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
 
     private fun validate(): Boolean {
         if (email.text.toString().isEmpty()) {

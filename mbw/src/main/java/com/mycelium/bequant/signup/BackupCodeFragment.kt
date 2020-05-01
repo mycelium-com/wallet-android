@@ -1,6 +1,7 @@
 package com.mycelium.bequant.signup
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -17,6 +18,11 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
     private var otpId = 0
     private var otpLink = ""
     private var backupCode = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,4 +48,14 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             ErrorHandler(requireContext()).handle(it)
         })
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
 }
