@@ -48,10 +48,12 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
             }
         }
         tabMediator?.attach()
-        when (arguments?.getString("tab")) {
-            "signUp" -> pager.currentItem = 0
-            "signIn" -> pager.currentItem = 1
-        }
+        pager.postDelayed({
+            when (arguments?.getString("tab")) {
+                "signUp" -> pager.setCurrentItem(0, true)
+                "signIn" -> pager.setCurrentItem(1, true)
+            }
+        }, 1000)
     }
 
     override fun onResume() {

@@ -56,7 +56,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/identityList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/addIndentity"
@@ -93,7 +95,10 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/proofAddressList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/addProofAddress"
@@ -137,7 +142,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/selfieList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/addSelfie"
