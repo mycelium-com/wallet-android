@@ -51,6 +51,7 @@ class CountrySelectorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rvCountries.addItemDecoration(DividerItemDecoration(rvCountries.context, DividerItemDecoration.VERTICAL))
+        val countryModels = CountriesSource.countryModels
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
@@ -65,7 +66,7 @@ class CountrySelectorFragment : Fragment() {
                 }
             }
         }).apply {
-            submitList(CountriesSource.countryModels)
+            submitList(countryModels)
         }
         adapter.showPhoneCode = showPhoneCode
         rvCountries.adapter = adapter
