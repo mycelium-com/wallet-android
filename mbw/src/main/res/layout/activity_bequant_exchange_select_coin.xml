@@ -6,12 +6,14 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
+        style="@style/Bequant.Tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabTextAppearance="@style/BequantTabText" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

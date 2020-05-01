@@ -393,6 +393,7 @@
     <style name="Bequant" parent="AppBaseTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:radioButtonStyle">@style/Bequant.Button.Small.RadioButton</item>
     </style>
     <style name="BequantSign" parent="AppBaseTheme">
         <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
@@ -481,4 +482,11 @@
     </style>
 
 
+
+    <style name="Bequant.Button.Small.RadioButton">
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/bg_bequant_radio_button</item>
+        <item name="android:textColor">@color/bequant_radio_button</item>
+    </style>
 </resources>

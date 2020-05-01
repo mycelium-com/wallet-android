@@ -1,5 +1,6 @@
 package com.mycelium.bequant.kyc.inputPhone
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment
@@ -77,8 +79,8 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == CountrySelectorFragment.COUNTRY_MODEL_RESULT_CODE) {
-            viewModel.countryModel.value = data?.getParcelableExtra(CountrySelectorFragment.COUNTRY_MODEL_KEY)
+        if (resultCode == RESULT_OK) {
+            viewModel.countryModel.value = data?.getParcelableExtra(COUNTRY_MODEL_KEY)
         }
     }
 
