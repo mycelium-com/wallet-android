@@ -63,12 +63,13 @@ class SignInFragment : Fragment() {
                 val loader = LoaderFragment()
                 loader.show(parentFragmentManager, "loader")
                 SignRepository.repository.authorize(auth, {
+                    loader.dismissAllowingStateLoss()
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, { code, error ->
+                    loader.dismissAllowingStateLoss()
                     if (code == 420) {
                         findNavController().navigate(SignFragmentDirections.actionSignIn(auth))
                     } else {
-                        loader.dismissAllowingStateLoss()
                         ErrorHandler(requireContext()).handle(error)
                     }
                 })

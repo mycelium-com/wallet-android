@@ -406,9 +406,9 @@
 <!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
     </style>
     <style name="BequantSignTitleTextAppearance">
-        <item name="fontFamily">@font/exo2medium</item>
-        <item name="textColor">@color/white</item>
-        <item name="textSize">20sp</item>
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="Bequant.TextView">
