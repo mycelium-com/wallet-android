@@ -42,8 +42,7 @@
             android:id="@+id/chooseCountry"
             android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
             android:label="CountrySelectorFragment"
-            tools:layout="@layout/activity_bequant_kyc_country_of_residence">
-    </fragment>
+            tools:layout="@layout/activity_bequant_kyc_country_of_residence"></fragment>
     <fragment
             android:id="@+id/kycStep1"
             android:name="com.mycelium.bequant.kyc.steps.Step1Fragment"
@@ -104,6 +103,15 @@
             <argument
                     android:name="kycRequest"
                     app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
+        </action>
+    </fragment>
+
+    <fragment
+            android:id="@+id/callbackFailed"
+            android:name="com.mycelium.bequant.kyc.CallbackFailedFragment"
+            android:label="CallbackFailedFragment"
+            tools:layout="@layout/fragment_kyc_callback_failed">
+        <action android:id="@+id/actionClose">
         </action>
     </fragment>
 </navigation>
