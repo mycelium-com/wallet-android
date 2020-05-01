@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mycelium.wallet.R
+import kotlinx.android.synthetic.main.item_bequant_kyc_document.view.*
 
 
 class Document(val image: Bitmap, val name: String)
@@ -18,7 +19,8 @@ class DocumentAdapter : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentD
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-
+        viewHolder.itemView.image.setImageBitmap(item.image)
+        viewHolder.itemView.name.text = item.name
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -28,6 +30,6 @@ class DocumentAdapter : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentD
 
         override fun areContentsTheSame(oldItem: Document, newItem: Document): Boolean =
                 oldItem.name == newItem.name
-                        && oldItem.image == newItem.image
+//                        && oldItem.image == newItem.image
     }
 }
