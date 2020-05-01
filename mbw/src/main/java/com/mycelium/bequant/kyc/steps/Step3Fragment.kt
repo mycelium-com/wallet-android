@@ -3,7 +3,9 @@ package com.mycelium.bequant.kyc.steps
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -102,28 +104,27 @@ class Step3Fragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
 //                && requestCode / 1000 == DocumentAttachDialog.REQURST_CODE_CAMERA / 1000) {
-
-            if (requestCode == REQUEST_CODE_INDENTITY) {
+            if (requestCode == REQUEST_CODE_INDENTITY || requestCode % 10 == REQUEST_CODE_INDENTITY % 10) {
                 if (data != null && data.extras != null) {
-                    val imageBitmap = data.extras["data"] as Bitmap
+                    val imageBitmap = getBitmap(data)
                     identityAdapter.submitList(
                             identityAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
                 }
             }
 
-            if (requestCode == REQUEST_CODE_PROOF_ADDRESS) {
+            if (requestCode == REQUEST_CODE_PROOF_ADDRESS || requestCode % 10 == REQUEST_CODE_PROOF_ADDRESS % 10) {
                 if (data != null && data.extras != null) {
-                    val imageBitmap = data.extras["data"] as Bitmap
+                    val imageBitmap = getBitmap(data)
                     proofAddressAdapter.submitList(
                             proofAddressAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
                 }
             }
 
-            if (requestCode == REQUEST_CODE_SELFIE) {
+            if (requestCode == REQUEST_CODE_SELFIE || requestCode % 10 == REQUEST_CODE_SELFIE % 10) {
                 if (data != null && data.extras != null) {
-                    val imageBitmap = data.extras["data"] as Bitmap
+                    val imageBitmap = getBitmap(data)
                     selfieAdapter.submitList(
                             selfieAdapter.currentList + Document(imageBitmap, "Photo" + (++counter).toString())
                     )
@@ -131,6 +132,9 @@ class Step3Fragment : Fragment() {
             }
         }
     }
+
+    private fun getBitmap(data: Intent) =
+            if (data?.data is Uri) MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data) else data.extras["data"] as Bitmap
 
     companion object {
         const val REQUEST_CODE_INDENTITY = 1001

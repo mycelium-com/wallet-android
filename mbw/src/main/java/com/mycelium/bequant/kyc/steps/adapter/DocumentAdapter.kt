@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.item_bequant_kyc_document.view.*
 
 class Document(val image: Bitmap, val name: String)
 
-class DocumentAdapter : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentDiffCallback()) {
+class DocumentAdapter() : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_bequant_kyc_document, parent, false))
 
@@ -21,6 +21,8 @@ class DocumentAdapter : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentD
         val item = getItem(position)
         viewHolder.itemView.image.setImageBitmap(item.image)
         viewHolder.itemView.name.text = item.name
+
+        viewHolder.itemView.remove.setOnClickListener { submitList(currentList - item) }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
