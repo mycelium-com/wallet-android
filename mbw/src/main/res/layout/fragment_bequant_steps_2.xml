@@ -148,7 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Coutry"
+                    android:text="Country"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
