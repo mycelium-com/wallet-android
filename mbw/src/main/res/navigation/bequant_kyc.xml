@@ -84,7 +84,8 @@
             android:name="com.mycelium.bequant.kyc.steps.Step3Fragment"
             android:label="Step3Fragment"
             tools:layout="@layout/fragment_bequant_steps_3">
-        <action android:id="@+id/actionNext">
+        <action android:id="@+id/actionNext"
+                app:destination="@id/finalPresubmit">
             <argument
                     android:name="kycRequest"
                     app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
@@ -111,7 +112,14 @@
             android:name="com.mycelium.bequant.kyc.CallbackFailedFragment"
             android:label="CallbackFailedFragment"
             tools:layout="@layout/fragment_kyc_callback_failed">
-        <action android:id="@+id/actionClose">
-        </action>
+        <action android:id="@+id/actionClose"></action>
+    </fragment>
+
+    <fragment
+            android:id="@+id/finalPresubmit"
+            android:name="com.mycelium.bequant.kyc.FinalPresubmitFragment"
+            android:label="FinalPresubmitFragment"
+            tools:layout="@layout/fragment_kyc_final_presubmit">
+        <action android:id="@+id/actionSubmit"></action>
     </fragment>
 </navigation>

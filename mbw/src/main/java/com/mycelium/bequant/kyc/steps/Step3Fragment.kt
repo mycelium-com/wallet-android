@@ -83,6 +83,10 @@ class Step3Fragment : Fragment() {
                 setTargetFragment(this@Step3Fragment, REQUEST_CODE_SELFIE)
             }.show(parentFragmentManager, "upload_document")
         }
+
+        btFinish.setOnClickListener {
+            findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

@@ -6,10 +6,13 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.kyc.steps.adapter.ItemStep
+import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
+import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.wallet.R
-import kotlinx.android.synthetic.main.fragment_kyc_callback_failed.*
+import kotlinx.android.synthetic.main.fragment_kyc_final_presubmit.*
 
-class CallbackFailedFragment : Fragment(R.layout.fragment_kyc_callback_failed) {
+class FinalPresubmitFragment : Fragment(R.layout.fragment_kyc_final_presubmit) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -19,11 +22,17 @@ class CallbackFailedFragment : Fragment(R.layout.fragment_kyc_callback_failed) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = "Identity Authentication "
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
-        backButton.setOnClickListener {
-            findNavController().popBackStack()
-        }
-        closeButton.setOnClickListener {
-            findNavController().navigate(CallbackFailedFragmentDirections.actionClose())
+
+        //TODO demo
+        val stepAdapter = StepAdapter()
+        stepper.adapter = stepAdapter
+        stepAdapter.submitList(listOf(ItemStep(0, "Phone Number", StepState.COMPLETE)
+                , ItemStep(1, "Personal information", StepState.COMPLETE)
+                , ItemStep(2, "Residential Address", StepState.COMPLETE)
+                , ItemStep(3, "Documents & Selfie", StepState.COMPLETE)))
+        //
+        submitButton.setOnClickListener {
+            findNavController().navigate(FinalPresubmitFragmentDirections.actionSubmit())
         }
     }
 
