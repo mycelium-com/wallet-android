@@ -13,12 +13,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavArgs
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.kyc.inputPhone.InputPhoneFragmentDirections
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.client.apis.KYCApi
-import com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycVerifyPhoneBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_verify_phone.*
@@ -47,6 +44,7 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
         super.onViewCreated(view, savedInstanceState)
 
         //FOR DEMO
+        loader(false)
         Handler().postDelayed({
             view.pinCode.setText("555555")
         },2000)

@@ -1,7 +1,6 @@
 package com.mycelium.bequant.kyc.steps
 
 import android.app.DatePickerDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
@@ -73,7 +72,7 @@ class Step1Fragment : Fragment() {
         }
 
         val items = CountriesSource.nationalityModels.map {
-            it.Demonym1 ?: it.Demonym2 ?: it.Demonym3!!
+            it.Demonym1 ?: it.Demonym2 ?: it.Demonym3 ?: "Unknown"
         }.toTypedArray()
         tvNationality.setOnClickListener {
             AlertDialog.Builder(requireActivity())

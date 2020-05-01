@@ -8,7 +8,8 @@ object CountriesSource {
 
     val nationalityModels by lazy {
         WalletApplication.getInstance().assets.open("Countries-List.csv").bufferedReader().use {
-            it.readLines()
+            val readLines = it.readLines()
+            readLines.subList(1,readLines.size-1)
         }.map {
             val split = it.split(",")
             NationalityModel(split[0], split[1], split[2], split[3], split[4])
