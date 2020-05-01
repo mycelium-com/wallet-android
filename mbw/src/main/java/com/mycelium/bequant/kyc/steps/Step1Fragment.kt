@@ -1,10 +1,12 @@
 package com.mycelium.bequant.kyc.steps
 
 import android.app.DatePickerDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -24,6 +26,7 @@ import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class Step1Fragment : Fragment() {
     lateinit var viewModel: Step1ViewModel
@@ -67,6 +70,18 @@ class Step1Fragment : Fragment() {
                 viewModel.birthday.value = format.format(calendar.time);
             }, 2011, 1, 1)
             datePickerDialog.show()
+        }
+
+        val items = CountriesSource.nationalityModels.map {
+            it.Demonym1 ?: it.Demonym2 ?: it.Demonym3!!
+        }.toTypedArray()
+        tvNationality.setOnClickListener {
+            AlertDialog.Builder(requireActivity())
+                    .setSingleChoiceItems(items, -1) { dialog, which ->
+                        tvNationality.text = items[which]
+                        dialog.dismiss()
+                    }
+                    .show()
         }
 
         btNext.setOnClickListener {
