@@ -97,6 +97,7 @@ class Step3Fragment : Fragment() {
                 else -> super.onOptionsItemSelected(item)
             }
 
+    var counter: Int = 0
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
@@ -105,21 +106,27 @@ class Step3Fragment : Fragment() {
             if (requestCode == REQUEST_CODE_INDENTITY) {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
-                    identityAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                    identityAdapter.submitList(
+                            identityAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                    )
                 }
             }
 
             if (requestCode == REQUEST_CODE_PROOF_ADDRESS) {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
-                    proofAddressAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                    proofAddressAdapter.submitList(
+                            proofAddressAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                    )
                 }
             }
 
             if (requestCode == REQUEST_CODE_SELFIE) {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
-                    selfieAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                    selfieAdapter.submitList(
+                            selfieAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                    )
                 }
             }
         }

@@ -30,6 +30,6 @@ class DocumentAdapter : ListAdapter<Document, RecyclerView.ViewHolder>(DocumentD
 
         override fun areContentsTheSame(oldItem: Document, newItem: Document): Boolean =
                 oldItem.name == newItem.name
-                        && oldItem.image == newItem.image
+//                        && oldItem.image == newItem.image
     }
 }
