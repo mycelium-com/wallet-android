@@ -107,7 +107,7 @@ class Step3Fragment : Fragment() {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
                     identityAdapter.submitList(
-                            identityAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                            identityAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
                 }
             }
@@ -116,7 +116,7 @@ class Step3Fragment : Fragment() {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
                     proofAddressAdapter.submitList(
-                            proofAddressAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                            proofAddressAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
                 }
             }
@@ -125,7 +125,7 @@ class Step3Fragment : Fragment() {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
                     selfieAdapter.submitList(
-                            selfieAdapter.currentList + Document(imageBitmap, "name" + (++counter).toString())
+                            selfieAdapter.currentList + Document(imageBitmap, "Photo" + (++counter).toString())
                     )
                 }
             }
