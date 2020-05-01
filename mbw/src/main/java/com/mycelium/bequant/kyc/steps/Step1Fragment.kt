@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -67,10 +68,13 @@ class Step1Fragment : Fragment() {
             }, 2011, 1, 1)
             datePickerDialog.show()
         }
+
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
             findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
         }
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
