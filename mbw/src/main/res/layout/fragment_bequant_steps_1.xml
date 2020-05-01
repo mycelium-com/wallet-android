@@ -150,12 +150,14 @@
                     android:layout_marginTop="12dp">
 
                     <RadioButton
+                            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="10dp"
                         android:text="I warrant that I do fall under FATCA" />
 
                     <RadioButton
+                            style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="10dp"
