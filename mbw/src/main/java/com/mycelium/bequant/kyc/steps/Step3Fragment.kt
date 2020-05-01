@@ -99,20 +99,35 @@ class Step3Fragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && requestCode / 1000 == DocumentAttachDialog.REQURST_CODE_CAMERA / 1000) {
-            if (requestCode % 1000 == REQUEST_CODE_INDENTITY) {
+        if (resultCode == RESULT_OK) {
+//                && requestCode / 1000 == DocumentAttachDialog.REQURST_CODE_CAMERA / 1000) {
+
+            if (requestCode == REQUEST_CODE_INDENTITY) {
                 if (data != null && data.extras != null) {
                     val imageBitmap = data.extras["data"] as Bitmap
-//                    mImageView.setImageBitmap(imageBitmap)
                     identityAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                }
+            }
+
+            if (requestCode == REQUEST_CODE_PROOF_ADDRESS) {
+                if (data != null && data.extras != null) {
+                    val imageBitmap = data.extras["data"] as Bitmap
+                    proofAddressAdapter.submitList(listOf(Document(imageBitmap, "name")))
+                }
+            }
+
+            if (requestCode == REQUEST_CODE_SELFIE) {
+                if (data != null && data.extras != null) {
+                    val imageBitmap = data.extras["data"] as Bitmap
+                    selfieAdapter.submitList(listOf(Document(imageBitmap, "name")))
                 }
             }
         }
     }
 
     companion object {
-        const val REQUEST_CODE_INDENTITY = 101
-        const val REQUEST_CODE_PROOF_ADDRESS = 102
-        const val REQUEST_CODE_SELFIE = 103
+        const val REQUEST_CODE_INDENTITY = 1001
+        const val REQUEST_CODE_PROOF_ADDRESS = 1002
+        const val REQUEST_CODE_SELFIE = 1003
     }
 }
