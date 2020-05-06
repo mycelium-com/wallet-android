@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
@@ -30,12 +31,14 @@ import java.util.*
 class Step1Fragment : Fragment() {
     lateinit var viewModel: Step1ViewModel
     lateinit var headerViewModel: HeaderViewModel
-    var kycRequest: KYCRequest = KYCRequest()
+    lateinit var kycRequest: KYCRequest
+
+    val args: Step1FragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        kycRequest = (arguments?.getSerializable("kycRequest") as KYCRequest?) ?: KYCRequest()
+        kycRequest = args.kycRequest ?: KYCRequest()
         viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)

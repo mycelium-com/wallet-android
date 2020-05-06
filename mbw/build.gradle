@@ -186,6 +186,8 @@ android {
         vectorDrawables.useSupportLibrary true
     }
 
+    kotlinOptions { jvmTarget = "1.8" }
+
     signingConfigs {
         release {
             if (project.hasProperty('prodKeyStore') &&

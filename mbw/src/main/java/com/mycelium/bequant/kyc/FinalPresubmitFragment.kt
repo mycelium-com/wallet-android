@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -14,6 +14,9 @@ import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_kyc_final_presubmit.*
 
 class FinalPresubmitFragment : Fragment(R.layout.fragment_kyc_final_presubmit) {
+
+    val args: FinalPresubmitFragmentArgs by navArgs()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -33,7 +36,7 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_kyc_final_presubmit) {
                 , ItemStep(3, "Documents & Selfie", StepState.COMPLETE)))
         //
         submitButton.setOnClickListener {
-            Toast.makeText(requireActivity(),"Submitted",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
 //            findNavController().navigate(FinalPresubmitFragmentDirections.actionSubmit())
         }
     }
