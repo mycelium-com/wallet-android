@@ -12,6 +12,9 @@ import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import org.web3j.abi.FunctionEncoder
+import org.web3j.abi.datatypes.Address
+import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
 import org.web3j.tx.Transfer
 import org.web3j.tx.gas.StaticGasProvider
@@ -58,6 +61,12 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         val erc20Tx = (tx as Erc20Transaction)
         try {
+            val function = org.web3j.abi.datatypes.Function(
+                    StandardToken.FUNC_TRANSFER,
+                    listOf(Address(erc20Tx.toAddress.toString()),
+                            Uint256(erc20Tx.value.value)), emptyList())
+            val hex = FunctionEncoder.encode(function)
+
             accountContext.nonce = getNewNonce(receivingAddress)
             val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
                     credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))

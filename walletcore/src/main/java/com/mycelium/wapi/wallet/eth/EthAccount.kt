@@ -94,13 +94,15 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
-            if (ethSendTransaction.hasError()) {
-                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
+            val result = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints)
+                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECTED)
+//            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
+//            if (ethSendTransaction.hasError()) {
+//                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+//            }
+//            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+//                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
+//                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }

@@ -7,9 +7,13 @@ import com.mycelium.net.HttpsEndpoint
 import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
+import java.util.logging.Level
+import java.util.logging.Logger
 
-abstract class AbstractTransactionService(private val address: String, endpoints: List<HttpsEndpoint>) {
+abstract class AbstractTransactionService(private val address: String,
+                                          private val endpoints: List<HttpsEndpoint>) {
     private val api = "${endpoints.random()}/api/v2/address/"
+    protected val logger: Logger = Logger.getLogger(AbstractTransactionService::class.qualifiedName)
 
     @Throws(IOException::class)
     protected fun fetchTransactions(): List<Tx> {
@@ -27,7 +31,30 @@ abstract class AbstractTransactionService(private val address: String, endpoints
         return result
     }
 
+    fun sendTransaction(hex: String): String? {
+        logger.log(Level.INFO, "sendtx - hex: $hex")
+        val urlString = "${endpoints.random()}/api/v2/sendtx/$hex"
+        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        val result = mapper.readValue(URL(urlString), SendtxResponse::class.java)
+        if (result.error != null) {
+            logger.log(Level.INFO, "sendtx - we're errorned: ${result.error.message}")
+        } else {
+            logger.log(Level.INFO, "sendtx - we're good: ${result.result}")
+        }
+        return result.result
+    }
+
     abstract fun getTransactions(): List<Tx>
+}
+
+private class SendtxResponse {
+    val result: String? = null
+    val error: ErrorResponse? = null
+}
+
+private class ErrorResponse {
+    val message: String = ""
 }
 
 private class Response {
