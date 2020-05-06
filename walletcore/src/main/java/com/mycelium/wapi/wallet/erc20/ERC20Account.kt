@@ -16,8 +16,11 @@ import org.web3j.abi.FunctionEncoder
 import org.web3j.abi.datatypes.Address
 import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.RawTransaction
+import org.web3j.crypto.TransactionEncoder
+import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
-import org.web3j.tx.gas.StaticGasProvider
+import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
@@ -40,6 +43,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
+        val nonce = getNewNonce(receivingAddress)
+        val inputData = getInputData(address.toString(), amount.value)
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
@@ -51,31 +56,38 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
-        return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
+        return EthTransaction(coinType, address.toString(), Value.zeroValue(basedOnCoinType),
+                gasPrice, nonce, gasLimit, inputData)
+    }
+
+    private fun getInputData(address: String, value: BigInteger): String {
+        val function = org.web3j.abi.datatypes.Function(
+                StandardToken.FUNC_TRANSFER,
+                listOf(Address(address),
+                        Uint256(value)), emptyList())
+        return FunctionEncoder.encode(function)
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
-        (request as Erc20Transaction).txBinary = ByteArray(0)
+        val ethTx = (request as EthTransaction)
+        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
+                token.contractAddress, ethTx.value.value, ethTx.inputData)
+        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
+        val hexValue = Numeric.toHexString(signedMessage)
+        request.signedHex = hexValue
+        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val erc20Tx = (tx as Erc20Transaction)
         try {
-            val function = org.web3j.abi.datatypes.Function(
-                    StandardToken.FUNC_TRANSFER,
-                    listOf(Address(erc20Tx.toAddress.toString()),
-                            Uint256(erc20Tx.value.value)), emptyList())
-            val hex = FunctionEncoder.encode(function)
-
-            accountContext.nonce = getNewNonce(receivingAddress)
-            val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
-                    credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
-            val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
-            tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
-                    "", receivingAddress.addressString, tx.toAddress.toString(),
-                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * result.gasUsed), 0,
-                    accountContext.nonce, tx.gasLimit, result.gasUsed)
+            val result = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
+                    token.contractAddress).sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECTED)
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
+                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    accountContext.nonce, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {

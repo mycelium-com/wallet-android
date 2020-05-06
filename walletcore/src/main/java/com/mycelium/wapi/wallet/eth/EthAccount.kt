@@ -60,7 +60,7 @@ class EthAccount(private val accountContext: EthAccountContext,
         val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
-        val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
+        val fee = if (ethTxData?.suggestedGasPrice != null) ethTxData.suggestedGasPrice!! else gasPrice.feePerKb.value
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
@@ -76,33 +76,31 @@ class EthAccount(private val accountContext: EthAccountContext,
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
 
-        try {
-            val rawTransaction = RawTransaction.createTransaction(nonce, fee.value, gasLimit, toAddress.toString(), value.value, inputData)
-            return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
-        } catch (e: Exception) {
-            throw GenericBuildTransactionException(Throwable(e.localizedMessage))
-        }
+        return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
     override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
-        val rawTransaction = (request as EthTransaction).rawTransaction
+        val ethTx = (request as EthTransaction)
+        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
+                ethTx.toAddress, ethTx.value.value, ethTx.inputData)
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.signedHex = hexValue
         request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
             val result = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints)
                     .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECTED)
-//            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
+
 //            if (ethSendTransaction.hasError()) {
 //                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
 //            }
-//            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-//                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-//                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
