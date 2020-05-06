@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.net.HttpsEndpoint
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
@@ -33,10 +37,16 @@ abstract class AbstractTransactionService(private val address: String,
 
     fun sendTransaction(hex: String): String? {
         logger.log(Level.INFO, "sendtx - hex: $hex")
-        val urlString = "${endpoints.random()}/api/v2/sendtx/$hex"
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        val client = OkHttpClient()
+        val url = URL("${endpoints.random()}/api/v2/sendtx/$hex")
+        val request = Request.Builder()
+                .url(url)
+                .post(RequestBody.create(MediaType.parse("text/plain"), hex))
+                .build()
+        val response = client.newCall(request).execute()
 
-        val result = mapper.readValue(URL(urlString), SendtxResponse::class.java)
+        val result = mapper.readValue(response.body()!!.string(), SendtxResponse::class.java)
         if (result.error != null) {
             logger.log(Level.INFO, "sendtx - we're errorned: ${result.error.message}")
         } else {
