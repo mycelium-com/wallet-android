@@ -173,8 +173,7 @@
     <string name="manual_entry">Manual Entry</string>
     <string name="question_mark">\?</string>
     <string name="active_hd_accounts_name">Bitcoin HD</string>
-    <string name="eth_accounts_name">Ethereum</string>
-    <string name="erc20_accounts_name">ERC-20</string>
+    <string name="eth_accounts_name">Ethereum &amp; ERC-20</string>
     <string name="active_other_accounts_name">Other</string>
     <string name="archive_name">Archived</string>
     <string name="active_accounts_empty">(Empty)</string>
@@ -266,6 +265,7 @@
     <string name="share_with">Share with…</string>
     <string name="bitcoin_name">Bitcoin</string>
     <string name="bitcoin_cash_name">Bitcoin Cash</string>
+    <string name="ethereum_name">Ethereum</string>
     <string name="import_decrypt_key_title">Private Key Decryption</string>
     <string name="import_decrypt_key_description">You are about to decrypt a password protected private key.</string>
     <string name="import_decrypt_key_enter_password">Enter the 15 character password and checksum.</string>
