@@ -1,7 +1,6 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
@@ -14,7 +13,7 @@ import java.util.logging.Logger
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
                                        protected val backing: EthAccountBacking,
-                                       protected val transactionServiceEndpoints: List<HttpsEndpoint>,
+                                       protected val blockchainService: EthBlockchainService,
                                        className: String?,
                                        address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
@@ -36,8 +35,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     @Throws(IOException::class)
     protected fun getNewNonce(): BigInteger {
-        val ethGetTransactionCount = EthTransactionService(receiveAddress.addressString,
-                transactionServiceEndpoints).getNonce()
+        val ethGetTransactionCount = blockchainService.getNonce(receivingAddress.addressString)
 
         setNonce(ethGetTransactionCount)
         return getNonce()
@@ -108,8 +106,7 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     private fun updateBlockHeight() {
         try {
-            val latestBlock = EthTransactionService(receiveAddress.addressString,
-                    transactionServiceEndpoints).getBlockHeight()
+            val latestBlock = blockchainService.getBlockHeight()
 
             blockChainHeight = latestBlock.toInt()
         } catch (e: Exception) {

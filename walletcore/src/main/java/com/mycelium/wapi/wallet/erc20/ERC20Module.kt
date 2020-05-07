@@ -4,11 +4,11 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
 import com.mycelium.wapi.wallet.eth.EthAccount
+import com.mycelium.wapi.wallet.eth.EthBlockchainService
 import com.mycelium.wapi.wallet.eth.EthereumModule
 import com.mycelium.wapi.wallet.eth.coins.EthMain
 import com.mycelium.wapi.wallet.eth.coins.EthTest
@@ -26,7 +26,7 @@ class ERC20Module(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<ERC20AccountContext>,
         private val walletDB: WalletDB,
-        private val transactionServiceEndpoints: List<HttpsEndpoint>,
+        private val blockchainService: EthBlockchainService,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?,
@@ -50,7 +50,7 @@ class ERC20Module(
                 backing.createAccountContext(accountContext)
                 val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
                 result = ERC20Account(accountContext, token, config.ethAccount, credentials, accountBacking,
-                        accountListener, transactionServiceEndpoints)
+                        accountListener, blockchainService)
             }
             else -> throw NotImplementedError("Unknown config")
         }
@@ -118,7 +118,7 @@ class ERC20Module(
         val accountBacking = EthAccountBacking(walletDB, accountContext.uuid, ethCoinType, token)
         val ethAccount = ethereumModule.getAccountById(accountContext.ethAccountId) as EthAccount
         val account = ERC20Account(accountContext, token, ethAccount, credentials, accountBacking,
-                accountListener, transactionServiceEndpoints)
+                accountListener, blockchainService)
         accounts[account.id] = account
         return account
     }

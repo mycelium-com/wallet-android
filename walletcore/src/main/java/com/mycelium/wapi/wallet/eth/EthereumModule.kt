@@ -6,7 +6,6 @@ import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
 
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -28,7 +27,7 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
-        private val transactionServiceEndpoints: List<HttpsEndpoint>,
+        private val blockchainService: EthBlockchainService,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
         private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
@@ -73,7 +72,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, transactionServiceEndpoints)
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -84,7 +83,7 @@ class EthereumModule(
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
-                        accountListener = accountListener, transactionServiceEndpoints = transactionServiceEndpoints)
+                        accountListener = accountListener, blockchainService = blockchainService)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -102,7 +101,7 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, transactionServiceEndpoints)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
@@ -110,7 +109,7 @@ class EthereumModule(
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
-                    accountListener = accountListener, transactionServiceEndpoints = transactionServiceEndpoints)
+                    accountListener = accountListener, blockchainService = blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }

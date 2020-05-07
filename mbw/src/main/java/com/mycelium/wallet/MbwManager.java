@@ -154,6 +154,7 @@ import com.mycelium.wapi.wallet.eth.EthAccountContext;
 import com.mycelium.wapi.wallet.eth.EthAddress;
 import com.mycelium.wapi.wallet.eth.EthAddressConfig;
 import com.mycelium.wapi.wallet.eth.EthBacking;
+import com.mycelium.wapi.wallet.eth.EthBlockchainService;
 import com.mycelium.wapi.wallet.eth.EthereumModule;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 import com.mycelium.wapi.wallet.genericdb.AccountContextsBacking;
@@ -817,12 +818,14 @@ public class MbwManager {
 
         AccountContextsBacking genericBacking = new AccountContextsBacking(db);
         EthBacking ethBacking = new EthBacking(db, genericBacking);
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule ethereumModule = new EthereumModule(secureKeyValueStore, ethBacking, walletDB,
-                configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener);
+                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(ethereumModule);
 
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
-                configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener, ethereumModule));
+                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
         walletManager.init();
         return walletManager;
     }
@@ -884,8 +887,10 @@ public class MbwManager {
                 (BTCSettings) currenciesSettingsMap.get(BitcoinSingleAddressModule.ID), walletManager, getMetadataStorage(), null, accountEventManager));
 
         GenericBacking<EthAccountContext> genericBacking = new InMemoryAccountContextsBacking<>();
+        EthBlockchainService ethBlockchainService = new EthBlockchainService(configuration.getBlockBookEndpoints());
+        configuration.addEthServerListChangedListener(ethBlockchainService);
         EthereumModule walletModule = new EthereumModule(secureKeyValueStore, genericBacking, db,
-                configuration.getBlockBookEndpoints(), networkParameters, getMetadataStorage(), accountListener);
+                ethBlockchainService, networkParameters, getMetadataStorage(), accountListener);
         walletManager.add(walletModule);
         walletManager.disableTransactionHistorySynchronization();
         return walletManager;

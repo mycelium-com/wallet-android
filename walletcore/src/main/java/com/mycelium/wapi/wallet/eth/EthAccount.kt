@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -28,9 +27,9 @@ class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 transactionServiceEndpoints: List<HttpsEndpoint>,
+                 blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, transactionServiceEndpoints, EthAccount::class.simpleName, address) {
+        backing, blockchainService, EthAccount::class.simpleName, address) {
     private var removed = false
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
@@ -93,8 +92,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints)
-                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
                     valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
@@ -173,7 +172,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun syncTransactions() {
         try {
-            val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
             remoteTransactions.forEach { tx ->
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                         valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed

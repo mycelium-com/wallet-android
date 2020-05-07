@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -34,8 +33,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, transactionServiceEndpoints, ERC20Account::class.simpleName) {
+                   blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, blockchainService, ERC20Account::class.simpleName) {
     private var removed = false
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
@@ -80,8 +79,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints, token.contractAddress)
-                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
@@ -205,8 +204,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun syncTransactions() {
         try {
-            val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
-                    token.contractAddress).getTransactions()
+            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
                 val transfer = tx.getTokenTransfer(token.contractAddress)!!
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,
