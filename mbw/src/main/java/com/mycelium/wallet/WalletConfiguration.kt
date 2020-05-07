@@ -11,7 +11,6 @@ import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
-import com.mycelium.wapi.wallet.eth.ServerEthListChangedListener
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -116,12 +115,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     if (oldElectrum != electrumServers){
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
                     }
-
-                    if (oldEth != ethServers) {
-                        for (serverEthListChangedListener in serverEthListChangedListeners) {
-                            serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
-                        }
-                    }
                 }
             } catch (_: Exception) {}
         }
@@ -171,7 +164,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it) }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
-    private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
 
     fun getSupportedERC20Tokens(): Map<String, ERC20Token> = listOf(
             ERC20Token("Tether USD", "USDT", 6, "0xdac17f958d2ee523a2206206994597c13d831ec7"),
@@ -188,10 +180,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
 
     fun setElectrumServerListChangedListener(serverElectrumListChangedListener : ServerElectrumListChangedListener) {
         this.serverElectrumListChangedListener = serverElectrumListChangedListener
-    }
-
-    fun addEthServerListChangedListener(servereEthListChangedListener : ServerEthListChangedListener) {
-        this.serverEthListChangedListeners.add(servereEthListChangedListener)
     }
 
     companion object {

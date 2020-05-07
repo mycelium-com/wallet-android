@@ -11,18 +11,15 @@ import okhttp3.RequestBody
 import java.io.IOException
 import java.math.BigInteger
 import java.net.URL
-import java.util.logging.Level
-import java.util.logging.Logger
 
 abstract class AbstractTransactionService(private val address: String,
                                           private val endpoints: List<HttpsEndpoint>) {
     private val api = "${endpoints.random()}/api/v2/address/"
-    protected val logger: Logger = Logger.getLogger(AbstractTransactionService::class.qualifiedName)
+    private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     @Throws(IOException::class)
     protected fun fetchTransactions(): List<Tx> {
         var urlString = "$api$address?details=txs"
-        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val result: MutableList<Tx> = mutableListOf()
 
         val initialResponse = mapper.readValue(URL(urlString), Response::class.java)
@@ -36,8 +33,6 @@ abstract class AbstractTransactionService(private val address: String,
     }
 
     fun sendTransaction(hex: String): String? {
-        logger.log(Level.INFO, "sendtx - hex: $hex")
-        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val client = OkHttpClient()
         val url = URL("${endpoints.random()}/api/v2/sendtx/$hex")
         val request = Request.Builder()
@@ -46,25 +41,39 @@ abstract class AbstractTransactionService(private val address: String,
                 .build()
         val response = client.newCall(request).execute()
 
-        val result = mapper.readValue(response.body()!!.string(), SendtxResponse::class.java)
-        if (result.error != null) {
-            logger.log(Level.INFO, "sendtx - we're errorned: ${result.error.message}")
-        } else {
-            logger.log(Level.INFO, "sendtx - we're good: ${result.result}")
-        }
-        return result.result
+        return mapper.readValue(response.body()!!.string(), SendtxResponse::class.java).result
+    }
+
+    fun getBlockHeight(): BigInteger {
+        val urlString = "https://ropsten1.trezor.io/api/"
+
+        return mapper.readValue(URL(urlString), ApiResponse::class.java).blockbook!!.bestHeight
+    }
+
+    fun getNonce(): BigInteger {
+        val urlString = "$api$address?details=basic"
+
+        return mapper.readValue(URL(urlString), NonceResponse::class.java).nonce
     }
 
     abstract fun getTransactions(): List<Tx>
 }
 
-private class SendtxResponse {
-    val result: String? = null
-    val error: ErrorResponse? = null
+private class ApiResponse {
+    val blockbook: BlockbookInfo? = null
 }
 
-private class ErrorResponse {
-    val message: String = ""
+private class NonceResponse {
+    val nonce: BigInteger = BigInteger.ZERO
+}
+
+private class BlockbookInfo {
+    val bestHeight: BigInteger = BigInteger.ZERO
+}
+
+private class SendtxResponse {
+    val result: String? = null
+    val error: String? = null
 }
 
 private class Response {

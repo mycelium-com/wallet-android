@@ -1,11 +1,11 @@
 package com.mycelium.wapi.wallet.eth
 
 import com.mrd.bitlib.util.HexUtils
+import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.CryptoCurrency
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
 import org.web3j.crypto.Credentials
-import org.web3j.protocol.core.DefaultBlockParameterName
 import java.io.IOException
 import java.math.BigInteger
 import java.util.logging.Level
@@ -14,8 +14,8 @@ import java.util.logging.Logger
 abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
                                        protected val credentials: Credentials? = null,
                                        protected val backing: EthAccountBacking,
+                                       protected val transactionServiceEndpoints: List<HttpsEndpoint>,
                                        className: String?,
-                                       protected val web3jWrapper: Web3jWrapper,
                                        address: EthAddress? = null) : WalletAccount<EthAddress> {
     val receivingAddress = credentials?.let { EthAddress(coinType, it.address) } ?: address!!
     protected val logger: Logger = Logger.getLogger(className)
@@ -35,12 +35,11 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
     }
 
     @Throws(IOException::class)
-    protected fun getNewNonce(address: EthAddress): BigInteger {
-        val ethGetTransactionCount = web3jWrapper.ethGetTransactionCount(address.toString(),
-                DefaultBlockParameterName.PENDING)
-                .send()
+    protected fun getNewNonce(): BigInteger {
+        val ethGetTransactionCount = EthTransactionService(receiveAddress.addressString,
+                transactionServiceEndpoints).getNonce()
 
-        setNonce(ethGetTransactionCount.transactionCount)
+        setNonce(ethGetTransactionCount)
         return getNonce()
     }
 
@@ -109,9 +108,10 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     private fun updateBlockHeight() {
         try {
-            val latestBlock = web3jWrapper.ethBlockNumber().send()
+            val latestBlock = EthTransactionService(receiveAddress.addressString,
+                    transactionServiceEndpoints).getBlockHeight()
 
-            blockChainHeight = latestBlock.blockNumber.toInt()
+            blockChainHeight = latestBlock.toInt()
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC-20, ${e.localizedMessage}")
         }

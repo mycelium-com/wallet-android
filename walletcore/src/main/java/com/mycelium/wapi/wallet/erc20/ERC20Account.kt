@@ -34,16 +34,15 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   web3jWrapper: Web3jWrapper,
-                   private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, ERC20Account::class.simpleName, web3jWrapper) {
+                   transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, transactionServiceEndpoints, ERC20Account::class.simpleName) {
     private var removed = false
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
-        val nonce = getNewNonce(receivingAddress)
+        val nonce = getNewNonce()
         val inputData = getInputData(address.toString(), amount.value)
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
@@ -81,9 +80,8 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            val result = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
-                    token.contractAddress).sendTransaction((tx as EthTransaction).signedHex!!)
-                    ?: return BroadcastResult(BroadcastResultType.REJECTED)
+            ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints, token.contractAddress)
+                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
                     Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,

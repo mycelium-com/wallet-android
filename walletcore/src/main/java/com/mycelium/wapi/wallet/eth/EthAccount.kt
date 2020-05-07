@@ -28,10 +28,9 @@ class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jWrapper: Web3jWrapper,
-                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
+                 transactionServiceEndpoints: List<HttpsEndpoint>,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, EthAccount::class.simpleName, web3jWrapper, address) {
+        backing, transactionServiceEndpoints, EthAccount::class.simpleName, address) {
     private var removed = false
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
@@ -59,7 +58,7 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = (data as? EthTransactionData)
-        val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
+        val nonce = ethTxData?.nonce ?: getNewNonce()
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
         val fee = if (ethTxData?.suggestedGasPrice != null) ethTxData.suggestedGasPrice!! else gasPrice.feePerKb.value
@@ -94,12 +93,8 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            val result = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints)
-                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECTED)
-
-//            if (ethSendTransaction.hasError()) {
-//                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-//            }
+            EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints)
+                    .sendTransaction((tx as EthTransaction).signedHex!!) ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
                     tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
                     valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
@@ -245,21 +240,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    fun fetchTxNonce(txid: String): BigInteger? {
-        return try {
-            val tx = web3jWrapper.ethGetTransactionByHash(txid).send()
-            if (tx.result == null) {
-                null
-            } else {
-                val nonce = tx.result.nonce
-                backing.updateNonce(txid, nonce)
-                nonce
-            }
-        } catch (e: Exception) {
-            null
-        }
     }
 }
 
