@@ -24,6 +24,7 @@ import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 
@@ -36,7 +37,6 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    web3jWrapper: Web3jWrapper,
                    private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, ERC20Account::class.simpleName, web3jWrapper) {
-    private val balanceService = ERC20BalanceService(receivingAddress.addressString, token, basedOnCoinType, web3jWrapper, credentials)
     private var removed = false
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
@@ -172,12 +172,9 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun updateBalanceCache(): Boolean {
-        balanceService.updateBalanceCache()
-        var newBalance = balanceService.balance
-
         val pendingReceiving = getPendingReceiving()
         val pendingSending = getPendingSending()
-        newBalance = Balance(Value.valueOf(basedOnCoinType, newBalance.confirmed.value - pendingSending),
+        val newBalance = Balance(Value.valueOf(basedOnCoinType, getConfirmed() - pendingSending),
                 Value.valueOf(basedOnCoinType, pendingReceiving), Value.valueOf(basedOnCoinType, pendingSending), Value.zeroValue(basedOnCoinType))
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
@@ -186,6 +183,11 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
         }
         return false
     }
+
+    private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
+            .filter { it.confirmations > 0 }
+            .map { it.transferred.value }
+            .fold(BigInteger.ZERO, BigInteger::add)
 
     private fun getPendingReceiving(): BigInteger = backing.getUnconfirmedTransactions(receivingAddress.addressString)
             .filter {
@@ -220,6 +222,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             // this could happen if transaction was replaced by another e.g.
             val toRemove = localTxs.filter { localTx ->
                 !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)

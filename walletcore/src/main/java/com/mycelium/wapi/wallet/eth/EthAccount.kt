@@ -21,6 +21,7 @@ import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 class EthAccount(private val accountContext: EthAccountContext,
@@ -32,6 +33,7 @@ class EthAccount(private val accountContext: EthAccountContext,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
         backing, EthAccount::class.simpleName, web3jWrapper, address) {
     private var removed = false
+
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
@@ -111,8 +113,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getBasedOnCoinType() = coinType
 
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jWrapper)
-
     override fun getAccountBalance() = accountContext.balance
 
     override fun setLabel(label: String?) {
@@ -135,12 +135,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun updateBalanceCache(): Boolean {
-        ethBalanceService.updateBalanceCache()
-        var newBalance = ethBalanceService.balance
-
         val pendingReceiving = getPendingReceiving()
         val pendingSending = getPendingSending()
-        newBalance = Balance(valueOf(coinType, newBalance.confirmed.value - pendingSending),
+        val newBalance = Balance(valueOf(coinType, getConfirmed() - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
@@ -149,6 +146,11 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         return false
     }
+
+    private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
+            .filter { it.confirmations > 0 }
+            .map { it.transferred.value }
+            .fold(BigInteger.ZERO, BigInteger::add)
 
     private fun getPendingReceiving(): BigInteger {
         return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
@@ -166,7 +168,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
                 .map { tx -> tx.value.value + tx.fee!!.value }
                 .fold(BigInteger.ZERO, BigInteger::add) +
-
                 backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
                     it.sender.addressString.equals(receiveAddress.addressString, true)
                             && it.receiver.addressString.equals(receiveAddress.addressString, true)
@@ -189,6 +190,7 @@ class EthAccount(private val accountContext: EthAccountContext,
             // this could happen if transaction was replaced by another e.g.
             val toRemove = localTxs.filter { localTx ->
                 !remoteTransactions.map { it.txid }.contains("0x" + HexUtils.toHex(localTx.id))
+                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
