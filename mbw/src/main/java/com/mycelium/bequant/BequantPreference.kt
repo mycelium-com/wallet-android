@@ -30,6 +30,8 @@ object BequantPreference {
     // TODO maybe should be linked to private/public key (/api-key)
     fun isLogged(): Boolean = getPrivateKey().isNotEmpty()
 
+    fun isDemo():Boolean = getAccessToken().isEmpty()
+
     fun isIntroShown() = preference.getBoolean(Constants.INTRO_KEY, false)
 
     fun setIntroShown() = preference.edit().putBoolean(Constants.INTRO_KEY, true).apply()

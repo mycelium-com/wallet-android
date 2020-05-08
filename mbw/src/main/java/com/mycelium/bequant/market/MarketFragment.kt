@@ -25,7 +25,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if (!BequantPreference.hasKeys()) {
+        if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
             SignRepository.repository.getApiKeys({
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
             }, { code, message ->
