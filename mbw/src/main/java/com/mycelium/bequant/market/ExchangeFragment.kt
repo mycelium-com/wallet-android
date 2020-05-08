@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.kyc.BequantKycActivity
-import com.mycelium.bequant.market.model.ExchangeViewModel
+import com.mycelium.bequant.market.viewmodel.ExchangeViewModel
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.toString

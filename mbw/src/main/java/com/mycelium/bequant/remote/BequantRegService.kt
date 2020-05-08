@@ -47,8 +47,4 @@ interface BequantRegService {
 
     @POST("account/password/update")
     fun passwordUpdate(@Body passwordUpdate: PasswordUpdate): Call<RegisterResponse>
-
-    @GET("public/currency")
-    fun currencies()
-
 }

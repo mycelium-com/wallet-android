@@ -29,9 +29,6 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in.*
 class SignInFragment : Fragment() {
 
     lateinit var viewModel: SignInViewModel
-    var resetPasswordListener: (() -> Unit)? = null
-
-    var totpSignUpListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

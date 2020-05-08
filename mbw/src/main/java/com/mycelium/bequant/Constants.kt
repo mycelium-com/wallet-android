@@ -26,4 +26,12 @@ object Constants {
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 
     const val LOADER_TAG = "loader"
+    const val HIDE_VALUE = "*********"
+
+    const val TYPE_SEARCH = 0
+    const val TYPE_ITEM = 2
+    const val TYPE_SPACE = 1
+
+
+    const val TEST_ADDRESS = "2N7Ua6ZmDgEzVB1crdZFYtCky3WxgVK1SPn"
 }

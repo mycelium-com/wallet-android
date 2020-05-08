@@ -14,7 +14,18 @@
             app:destination="@id/withdrawFragment" />
         <action
             android:id="@+id/actionDeposit"
-            app:destination="@id/receiveFragment" />
+            app:destination="@id/receiveFragment">
+            <argument
+                android:name="currency"
+                app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/actionSelectCoin"
+            app:destination="@id/choseCoinFragment">
+            <argument
+                android:name="action"
+                app:argType="string" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/withdrawFragment"
@@ -38,5 +49,27 @@
         android:id="@+id/selectAccountFragment"
         android:name="com.mycelium.bequant.receive.SelectAccountFragment"
         android:label="SelectAccountFragment"
-        tools:layout="@layout/fragment_bequant_select_account"/>
+        tools:layout="@layout/fragment_bequant_select_account" />
+    <fragment
+        android:id="@+id/choseCoinFragment"
+        android:name="com.mycelium.bequant.common.ChoseCoinFragment"
+        android:label="ChoseCoinFragment"
+        tools:layout="@layout/fragment_bequant_receive_choose_coin">
+        <action
+            android:id="@+id/actionDeposit"
+            app:destination="@id/receiveFragment"
+            app:popUpTo="@+id/marketFragment">
+            <argument
+                android:name="currency"
+                app:argType="string" />
+        </action>
+        <action
+            android:id="@+id/actionWithdraw"
+            app:destination="@id/withdrawFragment"
+            app:popUpTo="@+id/marketFragment">
+            <argument
+                android:name="currency"
+                app:argType="string" />
+        </action>
+    </fragment>
 </navigation>

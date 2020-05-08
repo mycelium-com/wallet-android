@@ -1416,4 +1416,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="activate_account"><u>Activate Account</u></string>
     <string name="backup_code_will_be_the_font_only">The Backup Code will be the <font color="#CE3C4E">only way to sign in to your account</font> in case your phone is unavailable</string>
     <string name="if_none_of_the_above_helps_please_contact_our_support_team">If none of the above helps, please contact our <font color="#F2E868">support team.</font></string>
+    <string name="bequant_s_deposit_address">%s Deposit Address</string>
+    <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
+    <string name="bequant_custodial_wallet_s">Custodial wallet (%s)</string>
 </resources>

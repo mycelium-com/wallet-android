@@ -4,16 +4,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.mycelium.bequant.receive.FromMyceliumFragment
 import com.mycelium.bequant.receive.ShowQRFragment
+import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 
 
-class ReceiveFragmentAdapter(fa: Fragment) : FragmentStatePagerAdapter(fa.parentFragmentManager) {
+class ReceiveFragmentAdapter(fa: Fragment, val vm: ReceiveCommonViewModel) : FragmentStatePagerAdapter(fa.parentFragmentManager) {
 
     override fun getItem(position: Int): Fragment = when (position) {
-        0 -> FromMyceliumFragment()
-        1 -> ShowQRFragment()
+        0 -> FromMyceliumFragment().apply { parentViewModel = vm }
+        1 -> ShowQRFragment().apply { parentViewModel = vm }
         else -> TODO("not implemented")
     }
-
 
     override fun getCount(): Int = 2
 

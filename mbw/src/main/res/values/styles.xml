@@ -393,6 +393,7 @@
     <style name="Bequant" parent="AppBaseTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/bequant_gray_2</item>
         <item name="android:radioButtonStyle">@style/Bequant.Button.Small.RadioButton</item>
     </style>
     <style name="BequantSign" parent="Bequant">

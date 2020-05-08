@@ -1,4 +1,4 @@
-package com.mycelium.bequant.market.model
+package com.mycelium.bequant.market.viewmodel
 
 const val MARKET_ITEM = 1
 const val MARKET_TITLE_ITEM = 2

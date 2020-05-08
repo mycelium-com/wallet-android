@@ -3,12 +3,14 @@ package com.mycelium.bequant.exchange
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.mycelium.bequant.common.model.CoinListItem
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
+import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wapi.wallet.coins.GenericAssetInfo
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_exchange_select_coin.*
@@ -18,6 +20,8 @@ class SelectCoinFragment : Fragment(R.layout.fragment_bequant_exchange_select_co
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
+                .apply { setFromItem(1) })
         list.adapter = adapter
 
         // fetch currencies list here with Constants.API_CURRENCIES url

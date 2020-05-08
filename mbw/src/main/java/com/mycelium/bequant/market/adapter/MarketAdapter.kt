@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.mycelium.bequant.market.model.*
+import com.mycelium.bequant.market.viewmodel.*
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.item_bequant_market.view.*
 

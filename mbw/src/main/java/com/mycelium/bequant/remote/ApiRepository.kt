@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.model.BequantBalance
+import com.mycelium.bequant.remote.model.Currency
 import com.mycelium.bequant.remote.model.DepositAddress
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
@@ -36,7 +37,7 @@ class ApiRepository {
     }
 
     fun depositAddress(currency: String, success: (DepositAddress) -> Unit, error: (Int, String) -> Unit) {
-        service.depositAddress(currency).enqueue(object : Callback<DepositAddress> {
+        service.depositAddress(adopt(currency)).enqueue(object : Callback<DepositAddress> {
             override fun onFailure(call: Call<DepositAddress>, t: Throwable) {
                 error.invoke(0, t.message ?: "")
             }
@@ -52,7 +53,7 @@ class ApiRepository {
     }
 
     fun createDepositAddress(currency: String, success: (DepositAddress) -> Unit, error: (Int, String) -> Unit) {
-        service.createDepositAddress(currency).enqueue(object : Callback<DepositAddress> {
+        service.createDepositAddress(adopt(currency)).enqueue(object : Callback<DepositAddress> {
             override fun onFailure(call: Call<DepositAddress>, t: Throwable) {
                 error.invoke(0, t.message ?: "")
             }
@@ -67,7 +68,25 @@ class ApiRepository {
         })
     }
 
+    fun currencies(success: (List<Currency>) -> Unit, error: (Int, String) -> Unit) {
+        service.currencies().enqueue(object : Callback<List<Currency>> {
+            override fun onFailure(call: Call<List<Currency>>, t: Throwable) {
+                error.invoke(0, t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<List<Currency>>, response: Response<List<Currency>>) {
+                if (response.isSuccessful) {
+                    success.invoke(response.body()!!)
+                } else {
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
     companion object {
+        fun adopt(currency: String) = if (currency.startsWith("t")) currency.substring(1) else currency
+
         val ENDPOINT = "https://fynh6mvro0.execute-api.us-east-1.amazonaws.com/prd/"
 
         private val objectMapper = ObjectMapper()

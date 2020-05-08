@@ -1,4 +1,4 @@
-package com.mycelium.bequant.market.model
+package com.mycelium.bequant.market.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

@@ -7,25 +7,23 @@
     android:paddingBottom="12dp">
 
     <TextView
-        android:id="@+id/label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
+        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:fontFamily="@font/exo2medium"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        tools:text="Bitcoin SA 1" />
+        android:text="@string/total_balance_title"
+        android:textColor="@color/bequant_gray_6"
+        android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/exo2medium"
-        android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textColor="@color/bequant_gray_6"
+        android:textSize="16sp"
         tools:text="5.43 BTC" />
 
 </LinearLayout>
