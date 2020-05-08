@@ -61,11 +61,14 @@
 
     <TextView
         android:id="@+id/change"
-        android:layout_width="86dp"
-        android:layout_height="wrap_content"
+        android:layout_width="72dp"
+        android:layout_height="24dp"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="8dp"
         android:background="#1A5EBA89"
+        android:textSize="14sp"
+        android:fontFamily="@font/exo2medium"
+        android:textColor="@color/bequant_green"
         android:gravity="center"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"

@@ -8,6 +8,7 @@ import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.bequant.remote.model.Currency
 import com.mycelium.bequant.remote.model.DepositAddress
+import com.mycelium.bequant.remote.model.Ticker
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,6 +28,22 @@ class ApiRepository {
             }
 
             override fun onResponse(call: Call<List<BequantBalance>>, response: Response<List<BequantBalance>>) {
+                if (response.isSuccessful) {
+                    success.invoke(response.body() ?: listOf())
+                } else {
+                    error.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
+            }
+        })
+    }
+
+    fun tickers(success: (List<Ticker>) -> Unit, error: (Int, String) -> Unit) {
+        service.tickers().enqueue(object : Callback<List<Ticker>> {
+            override fun onFailure(call: Call<List<Ticker>>, t: Throwable) {
+                error.invoke(0, t.message ?: "")
+            }
+
+            override fun onResponse(call: Call<List<Ticker>>, response: Response<List<Ticker>>) {
                 if (response.isSuccessful) {
                     success.invoke(response.body() ?: listOf())
                 } else {
