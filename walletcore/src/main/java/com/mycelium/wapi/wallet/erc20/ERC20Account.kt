@@ -2,7 +2,6 @@ package com.mycelium.wapi.wallet.erc20
 
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -12,9 +11,15 @@ import com.mycelium.wapi.wallet.eth.*
 import com.mycelium.wapi.wallet.exceptions.GenericBuildTransactionException
 import com.mycelium.wapi.wallet.exceptions.GenericInsufficientFundsException
 import com.mycelium.wapi.wallet.genericdb.EthAccountBacking
+import org.web3j.abi.FunctionEncoder
+import org.web3j.abi.datatypes.Address
+import org.web3j.abi.datatypes.generated.Uint256
 import org.web3j.crypto.Credentials
+import org.web3j.crypto.RawTransaction
+import org.web3j.crypto.TransactionEncoder
+import org.web3j.crypto.TransactionUtils
 import org.web3j.tx.Transfer
-import org.web3j.tx.gas.StaticGasProvider
+import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
@@ -28,15 +33,16 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
                    credentials: Credentials,
                    backing: EthAccountBacking,
                    private val accountListener: AccountListener?,
-                   web3jWrapper: Web3jWrapper,
-                   private val transactionServiceEndpoints: List<HttpsEndpoint>) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, ERC20Account::class.simpleName, web3jWrapper) {
+                   blockchainService: EthBlockchainService) : AbstractEthERC20Account(accountContext.currency, credentials,
+        backing, blockchainService, ERC20Account::class.simpleName) {
     private var removed = false
 
     override fun createTx(address: GenericAddress, amount: Value, fee: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val ethTxData = (data as? EthTransactionData)
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(90_000)
         val gasPrice = (fee as FeePerKbFee).feePerKb.value
+        val nonce = getNewNonce()
+        val inputData = getInputData(address.toString(), amount.value)
 
         if (calculateMaxSpendableAmount(null, null) < amount) {
             throw GenericInsufficientFundsException(Throwable("Insufficient funds"))
@@ -48,25 +54,37 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
             throw GenericInsufficientFundsException(Throwable("Insufficient funds on eth account to pay for fee"))
         }
 
-        return Erc20Transaction(coinType, address, amount, gasPrice, gasLimit)
+        return EthTransaction(coinType, address.toString(), Value.zeroValue(basedOnCoinType),
+                gasPrice, nonce, gasLimit, inputData)
+    }
+
+    private fun getInputData(address: String, value: BigInteger): String {
+        val function = org.web3j.abi.datatypes.Function(
+                StandardToken.FUNC_TRANSFER,
+                listOf(Address(address),
+                        Uint256(value)), emptyList())
+        return FunctionEncoder.encode(function)
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
-        (request as Erc20Transaction).txBinary = ByteArray(0)
+        val ethTx = (request as EthTransaction)
+        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
+                token.contractAddress, ethTx.value.value, ethTx.inputData)
+        val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
+        val hexValue = Numeric.toHexString(signedMessage)
+        request.signedHex = hexValue
+        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
-        val erc20Tx = (tx as Erc20Transaction)
         try {
-            accountContext.nonce = getNewNonce(receivingAddress)
-            val erc20Contract = web3jWrapper.loadContract(token.contractAddress,
-                    credentials!!, StaticGasProvider(erc20Tx.gasPrice, erc20Tx.gasLimit))
-            val result = erc20Contract.transfer(erc20Tx.toAddress.toString(), erc20Tx.value.value).send()
-            tx.txHash = HexUtils.toBytes(result.transactionHash.substring(2))
-            backing.putTransaction(-1, System.currentTimeMillis() / 1000, result.transactionHash,
-                    "", receivingAddress.addressString, tx.toAddress.toString(),
-                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * result.gasUsed), 0,
-                    accountContext.nonce, tx.gasLimit, result.gasUsed)
+            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
+            backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress,
+                    Value.valueOf(basedOnCoinType, tx.value.value), Value.valueOf(basedOnCoinType, tx.gasPrice * tx.gasLimit), 0,
+                    accountContext.nonce, tx.gasLimit, tx.gasLimit)
             return BroadcastResult(BroadcastResultType.SUCCESS)
         } catch (e: Exception) {
             return when (e) {
@@ -186,8 +204,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
 
     private fun syncTransactions() {
         try {
-            val remoteTransactions = ERC20TransactionService(receiveAddress.addressString, transactionServiceEndpoints,
-                    token.contractAddress).getTransactions()
+            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString, token.contractAddress)
             remoteTransactions.filter { tx -> tx.getTokenTransfer(token.contractAddress) != null }.forEach { tx ->
                 val transfer = tx.getTokenTransfer(token.contractAddress)!!
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", transfer.from,

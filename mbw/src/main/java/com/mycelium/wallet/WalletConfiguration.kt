@@ -44,7 +44,7 @@ data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
 
-class ETHNetResponse(@SerializedName("servers") val ethServers: EthServerResponse)
+class ETHNetResponse(@SerializedName("blockbook-servers") val ethBBServers: EthServerResponse)
 
 class WapiSectionResponse(val primary : Array<HttpsUrlResponse>)
 
@@ -76,29 +76,29 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
-                    val electrumXnodes = if (network.isTestnet())
+                    val electrumXnodes = if (network.isTestnet)
                         myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
                     else
                         myceliumNodesResponse?.btcMainnet?.electrumx?.primary?.map { it.url }?.toSet()
 
-                    val wapiNodes = if (network.isTestnet())
+                    val wapiNodes = if (network.isTestnet)
                         myceliumNodesResponse?.btcTestnet?.wapi?.primary
                     else
                         myceliumNodesResponse?.btcMainnet?.wapi?.primary
 
                     val ethServersFromResponse = if (network.isTestnet)
-                        myceliumNodesResponse?.ethTestnet?.ethServers?.primary?.map { it.url }?.toSet()
+                        myceliumNodesResponse?.ethTestnet?.ethBBServers?.primary?.map { it.url }?.toSet()
                     else
-                        myceliumNodesResponse?.ethMainnet?.ethServers?.primary?.map { it.url }?.toSet()
+                        myceliumNodesResponse?.ethMainnet?.ethBBServers?.primary?.map { it.url }?.toSet()
 
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
                             .putString(PREFS_WAPI_SERVERS, gson.toJson(wapiNodes))
 
                     val oldElectrum = electrumServers
-                    val oldEth = ethServers
+                    val oldEth = ethBBServers
                     ethServersFromResponse?.let {
-                        prefEditor.putStringSet(PREFS_ETH_SERVERS, ethServersFromResponse)
+                        prefEditor.putStringSet(PREFS_ETH_BB_SERVERS, ethServersFromResponse)
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.endDate?.let {
                         prefEditor.putLong(PREFS_FIO_END_DATE, it.time)
@@ -117,9 +117,9 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
                     }
 
-                    if (oldEth != ethServers) {
+                    if (oldEth != ethBBServers) {
                         for (serverEthListChangedListener in serverEthListChangedListeners) {
-                            serverEthListChangedListener.serverListChanged(getEthHttpServices().toTypedArray())
+                            serverEthListChangedListener.serverListChanged(getBlockBookEndpoints().toTypedArray())
                         }
                     }
                 }
@@ -128,17 +128,16 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     // Returns the set of electrum servers
-    val electrumServers: Set<String>
+    private val electrumServers: Set<String>
         get() = prefs.getStringSet(PREFS_ELECTRUM_SERVERS, mutableSetOf(*BuildConfig.ElectrumServers))!!
 
     // Returns the set of Wapi servers
-    val wapiServers: String
+    private val wapiServers: String
         get() = prefs.getString(PREFS_WAPI_SERVERS, BuildConfig.WapiServers)!!
 
-    // Returns the set of ethereum servers
-    val ethServers: Set<String>
-        get() = prefs.getStringSet(PREFS_ETH_SERVERS, mutableSetOf(*BuildConfig.EthServers))!!
-
+    // Returns the set of ethereum blockbook servers
+    private val ethBBServers: Set<String>
+        get() = prefs.getStringSet(PREFS_ETH_BB_SERVERS, mutableSetOf(*BuildConfig.EthBlockBook))!!
 
     // Returns the list of TcpEndpoint objects
     fun getElectrumEndpoints(): List<TcpEndpoint> {
@@ -166,9 +165,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     }
 
     //We are not going to call HttpsEndpoint.getClient() , that's why certificate is empty
-    fun getEthHttpServices(): List<HttpsEndpoint> = ethServers.map { HttpsEndpoint(it) }
-
-    fun getBlockBookEndpoints(): List<HttpsEndpoint> = mutableSetOf(*BuildConfig.EthBlockBook).map { HttpsEndpoint(it) }
+    fun getBlockBookEndpoints(): List<HttpsEndpoint> = ethBBServers.map { HttpsEndpoint(it) }
 
     private var serverElectrumListChangedListener: ServerElectrumListChangedListener? = null
     private var serverEthListChangedListeners : ArrayList<ServerEthListChangedListener> = arrayListOf()
@@ -197,7 +194,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
     companion object {
         const val PREFS_ELECTRUM_SERVERS = "electrum_servers"
         const val PREFS_WAPI_SERVERS = "wapi_servers"
-        const val PREFS_ETH_SERVERS = "eth_servers"
+        const val PREFS_ETH_BB_SERVERS = "eth_bb_servers"
         const val ONION_DOMAIN = ".onion"
         const val PREFS_FIO_END_DATE = "fio_end_date"
         const val PREFS_FIO_START_DATE = "fio_start_date"

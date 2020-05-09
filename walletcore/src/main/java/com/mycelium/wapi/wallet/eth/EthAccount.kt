@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -28,10 +27,9 @@ class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jWrapper: Web3jWrapper,
-                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
+                 blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, EthAccount::class.simpleName, web3jWrapper, address) {
+        backing, blockchainService, EthAccount::class.simpleName, address) {
     private var removed = false
 
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
@@ -59,10 +57,10 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
         val ethTxData = (data as? EthTransactionData)
-        val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
+        val nonce = ethTxData?.nonce ?: getNewNonce()
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
-        val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
+        val fee = if (ethTxData?.suggestedGasPrice != null) ethTxData.suggestedGasPrice!! else gasPrice.feePerKb.value
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
@@ -78,31 +76,27 @@ class EthAccount(private val accountContext: EthAccountContext,
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
 
-        try {
-            val rawTransaction = RawTransaction.createTransaction(nonce, fee.value, gasLimit, toAddress.toString(), value.value, inputData)
-            return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
-        } catch (e: Exception) {
-            throw GenericBuildTransactionException(Throwable(e.localizedMessage))
-        }
+        return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
     override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
-        val rawTransaction = (request as EthTransaction).rawTransaction
+        val ethTx = (request as EthTransaction)
+        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
+                ethTx.toAddress, ethTx.value.value, ethTx.inputData)
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
         request.signedHex = hexValue
         request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {
         try {
-            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
-            if (ethSendTransaction.hasError()) {
-                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
+            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -178,7 +172,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun syncTransactions() {
         try {
-            val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
             remoteTransactions.forEach { tx ->
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                         valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed
@@ -245,21 +239,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    fun fetchTxNonce(txid: String): BigInteger? {
-        return try {
-            val tx = web3jWrapper.ethGetTransactionByHash(txid).send()
-            if (tx.result == null) {
-                null
-            } else {
-                val nonce = tx.result.nonce
-                backing.updateNonce(txid, nonce)
-                nonce
-            }
-        } catch (e: Exception) {
-            null
-        }
     }
 }
 
