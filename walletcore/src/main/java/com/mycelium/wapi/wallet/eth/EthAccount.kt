@@ -56,11 +56,11 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(GenericInsufficientFundsException::class, GenericBuildTransactionException::class)
     override fun createTx(toAddress: GenericAddress, value: Value, gasPrice: GenericFee, data: GenericTransactionData?): GenericTransaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
-        val ethTxData = (data as? EthTransactionData)
+        val ethTxData = data as? EthTransactionData
         val nonce = ethTxData?.nonce ?: getNewNonce()
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
-        val fee = if (ethTxData?.suggestedGasPrice != null) ethTxData.suggestedGasPrice!! else gasPrice.feePerKb.value
+        val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw GenericBuildTransactionException(Throwable("Gas price should be positive and non-zero"))
@@ -79,15 +79,18 @@ class EthAccount(private val accountContext: EthAccountContext,
         return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
-    override fun signTx(request: GenericTransaction?, keyCipher: KeyCipher?) {
-        val ethTx = (request as EthTransaction)
-        val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
-                ethTx.toAddress, ethTx.value.value, ethTx.inputData)
+    override fun signTx(request: GenericTransaction, keyCipher: KeyCipher?) {
+        val rawTransaction = (request as EthTransaction).run {
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+                    inputData)
+        }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
-        request.signedHex = hexValue
-        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
-        request.txBinary = TransactionEncoder.encode(rawTransaction)!!
+        request.apply {
+            signedHex = hexValue
+            txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+            txBinary = TransactionEncoder.encode(rawTransaction)!!
+        }
     }
 
     override fun broadcastTx(tx: GenericTransaction): BroadcastResult {

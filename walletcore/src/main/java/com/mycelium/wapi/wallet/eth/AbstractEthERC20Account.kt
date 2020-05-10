@@ -35,9 +35,8 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     @Throws(IOException::class)
     protected fun getNewNonce(): BigInteger {
-        val ethGetTransactionCount = blockchainService.getNonce(receivingAddress.addressString)
-
-        setNonce(ethGetTransactionCount)
+        val nonce = blockchainService.getNonce(receivingAddress.addressString)
+        setNonce(nonce)
         return getNonce()
     }
 
@@ -106,9 +105,9 @@ abstract class AbstractEthERC20Account(coinType: CryptoCurrency,
 
     private fun updateBlockHeight() {
         try {
-            val latestBlock = blockchainService.getBlockHeight()
+            val latestBlockHeight = blockchainService.getBlockHeight()
 
-            blockChainHeight = latestBlock.toInt()
+            blockChainHeight = latestBlockHeight.toInt()
         } catch (e: Exception) {
             logger.log(Level.SEVERE, "Error synchronizing ETH/ERC-20, ${e.localizedMessage}")
         }
