@@ -39,7 +39,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
                 .build()
         val response = client.newCall(request).execute()
 
-        return mapper.readValue(response.body()!!.string(), SendtxResponse::class.java).result
+        return mapper.readValue(response.body()!!.string(), SendTxResponse::class.java).result
     }
 
     fun getBlockHeight(): BigInteger {
@@ -89,7 +89,7 @@ private class BlockbookInfo {
     val bestHeight: BigInteger = BigInteger.ZERO
 }
 
-private class SendtxResponse {
+private class SendTxResponse {
     val result: String? = null
     val error: String? = null
 }
