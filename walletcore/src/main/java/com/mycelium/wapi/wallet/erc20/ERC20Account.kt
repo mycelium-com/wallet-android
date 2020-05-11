@@ -67,7 +67,7 @@ class ERC20Account(private val accountContext: ERC20AccountContext,
     }
 
     override fun signTx(request: GenericTransaction, keyCipher: KeyCipher) {
-        val ethTx = (request as EthTransaction)
+        val ethTx = request as EthTransaction
         val rawTransaction = RawTransaction.createTransaction(ethTx.nonce, ethTx.gasPrice, ethTx.gasLimit,
                 token.contractAddress, ethTx.value.value, ethTx.inputData)
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
