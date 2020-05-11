@@ -9,7 +9,6 @@ import android.view.View
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.MarketAdapter
@@ -18,6 +17,7 @@ import com.mycelium.bequant.market.viewmodel.MarketTitleItem
 import com.mycelium.bequant.remote.ApiRepository
 import com.mycelium.bequant.remote.model.Ticker
 import com.mycelium.wallet.R
+import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 
 
@@ -39,45 +39,32 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
         super.onViewCreated(view, savedInstanceState)
         list.adapter = adapter
         search.doOnTextChanged { text, start, count, after ->
-            updateList(text?.toString() ?: "")
+            updateList(text?.toString()?.trim() ?: "")
         }
         requestTickers()
     }
 
     private fun requestTickers() {
-        if (BequantPreference.hasKeys()) {
-            ApiRepository.repository.tickers({
-                tickersData = it
-                updateList()
-            }, { code, error ->
-                ErrorHandler(requireContext()).handle(error)
-            })
-        }
+        ApiRepository.repository.tickers({
+            tickersData = it
+            updateList()
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        })
     }
 
     private fun updateList(filter: String = "") {
-        if (filter.isEmpty()) {
-            adapter.submitList(listOf(MarketTitleItem(0)) + tickersData
-                    .map {
-                        val change = if (it.last == null || it.open == null) null
-                        else {
-                            100 - it.last / it.open * 100
-                        }
-                        MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
-                                it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
-                    })
-        } else {
-            adapter.submitList(listOf(MarketTitleItem(0)) + tickersData
-                    .filter { it.symbol.contains(filter, true) }
-                    .map {
-                        val change = if (it.last == null || it.open == null) null
-                        else {
-                            100 - it.last / it.open * 100
-                        }
-                        MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
-                                it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
-                    })
-        }
+        adapter.submitList(listOf(MarketTitleItem(0)) + tickersData
+                .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
+                .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
+                .map {
+                    val change = if (it.last == null || it.open == null) null
+                    else {
+                        100 - it.last / it.open * 100
+                    }
+                    MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
+                            it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
+                })
     }
 
     private fun getUSDForPriceCurrency(currency: String): Double? =

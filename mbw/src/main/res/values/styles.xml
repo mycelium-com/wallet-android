@@ -459,7 +459,7 @@
         <item name="boxCornerRadiusTopEnd">4dp</item>
         <item name="boxCornerRadiusTopStart">4dp</item>
         <item name="boxStrokeColor">@color/outline_bequant_text_input_layout</item>
-        <item name="errorTextColor">#CE3C4E</item>
+        <item name="errorTextColor">@color/bequant_red</item>
         <item name="hintEnabled">false</item>
     </style>
 

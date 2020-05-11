@@ -11,10 +11,16 @@ import kotlinx.android.synthetic.main.country_item.view.*
 
 class CountriesAdapter(val itemClickListener: ItemClickListener) : ListAdapter<CountryModel, RecyclerView.ViewHolder>(CountryDiffCallback()) {
     var showPhoneCode = true
+    var nationality = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.country_item, parent, false).apply {
                 tvCountryCode.visibility = if (showPhoneCode) View.VISIBLE else View.GONE
+                if (nationality) {
+                    tvAcronym.visibility = View.GONE
+                } else {
+                    tvAcronym.visibility = View.VISIBLE
+                }
             })
 
 
@@ -22,8 +28,12 @@ class CountriesAdapter(val itemClickListener: ItemClickListener) : ListAdapter<C
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.tvAcronym.text = item.acronym
-        holder.itemView.tvCountryName.text = item.name
+        if (nationality) {
+            holder.itemView.tvCountryName.text = item.nationality
+        } else {
+            holder.itemView.tvAcronym.text = item.acronym
+            holder.itemView.tvCountryName.text = item.name
+        }
         holder.itemView.tvCountryCode.text = "+${item.code}"
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(item)

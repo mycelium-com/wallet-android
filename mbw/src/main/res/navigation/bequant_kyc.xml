@@ -37,7 +37,11 @@
             android:id="@+id/chooseCountry"
             android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
             android:label="CountrySelectorFragment"
-            tools:layout="@layout/activity_bequant_kyc_country_of_residence" />
+            tools:layout="@layout/activity_bequant_kyc_country_of_residence" >
+        <action
+            android:id="@+id/actionFail"
+            app:destination="@id/countryFailFragment" />
+    </fragment>
     <fragment
             android:id="@+id/kycStep1"
             android:name="com.mycelium.bequant.kyc.steps.Step1Fragment"
@@ -51,6 +55,18 @@
         <action
                 android:id="@+id/actionNext"
                 app:destination="@id/kycStep2" />
+        <action
+            android:id="@+id/actionSelectCountry"
+            app:destination="@id/chooseCountry" >
+            <argument
+                android:name="showPhoneCode"
+                android:defaultValue="false"
+                app:argType="boolean" />
+            <argument
+                android:name="nationality"
+                android:defaultValue="true"
+                app:argType="boolean" />
+        </action>
     </fragment>
 
     <fragment
@@ -67,6 +83,14 @@
         <action
                 android:id="@+id/actionEditStep1"
                 app:destination="@id/kycStep1" />
+        <action
+            android:id="@+id/actionSelectCountry"
+            app:destination="@id/chooseCountry">
+            <argument
+                android:name="showPhoneCode"
+                android:defaultValue="false"
+                app:argType="boolean" />
+        </action>
     </fragment>
 
     <fragment
@@ -107,4 +131,9 @@
                 app:argType="com.mycelium.bequant.remote.model.KYCRequest" />
         <action android:id="@+id/actionSubmit" />
     </fragment>
+    <fragment
+        android:id="@+id/countryFailFragment"
+        android:name="com.mycelium.bequant.common.CountryFailFragment"
+        android:label="CountryFailFragment"
+        tools:layout="@layout/fragment_country_fail"/>
 </navigation>

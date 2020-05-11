@@ -7,7 +7,7 @@ import com.mycelium.bequant.receive.ShowQRFragment
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 
 
-class ReceiveFragmentAdapter(fa: Fragment, val vm: ReceiveCommonViewModel) : FragmentStatePagerAdapter(fa.parentFragmentManager) {
+class ReceiveFragmentAdapter(fa: Fragment, val vm: ReceiveCommonViewModel) : FragmentStatePagerAdapter(fa.childFragmentManager) {
 
     override fun getItem(position: Int): Fragment = when (position) {
         0 -> FromMyceliumFragment().apply { parentViewModel = vm }

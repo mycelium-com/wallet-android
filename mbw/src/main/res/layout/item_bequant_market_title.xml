@@ -21,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/volume"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -32,6 +33,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/nameLabel"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/volume"
+        app:srcCompat="@drawable/ic_bequant_arrow_up"
+        app:layout_constraintTop_toTopOf="@id/volume"
+        app:layout_constraintBottom_toBottomOf="@id/volume"
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,7 +57,7 @@
 
     <TextView
         android:id="@+id/changeLabel"
-        android:layout_width="86dp"
+        android:layout_width="72dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:fontFamily="@font/exo2medium"

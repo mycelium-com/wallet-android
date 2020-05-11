@@ -15,7 +15,7 @@
         android:id="@+id/symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/exo2medium"
+        style="@style/Bequant.TextView"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -40,7 +40,7 @@
         android:id="@+id/value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        style="@style/Bequant.TextView"
         android:layout_marginEnd="16dp"
         app:layout_constraintBaseline_toBaselineOf="@id/symbol"
         app:layout_constraintRight_toLeftOf="@id/addButton"

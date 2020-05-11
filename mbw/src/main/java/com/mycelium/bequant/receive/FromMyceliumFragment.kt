@@ -9,14 +9,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
-import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
@@ -30,7 +29,7 @@ import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_receive_from_mycelium.*
-import kotlinx.android.synthetic.main.layout_bequant_accounts_pager.*
+import kotlinx.android.synthetic.main.item_bequant_withdraw_pager_accounts.*
 
 class FromMyceliumFragment : Fragment() {
 
@@ -100,7 +99,7 @@ class FromMyceliumFragment : Fragment() {
                 val account = adapter.getItem(accountList.currentItem)
                 val address = mbwManager.getWalletManager(false)
                         .parseAddress(if (mbwManager.network.isProdnet) viewModel.address.value!! else Constants.TEST_ADDRESS)
-                SendCoinTask(parentFragmentManager, account, address[0], value,
+                SendCoinTask(this, account, address[0], value,
                         FeePerKbFee(Value.parse(Utils.getBtcCoinType(), "0.00000001")))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
             }
@@ -111,16 +110,16 @@ class FromMyceliumFragment : Fragment() {
         viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
     }
 
-    class SendCoinTask(val fragmentManager: FragmentManager,
+    class SendCoinTask(val fragment: Fragment,
                        val account: WalletAccount<*>,
                        val address: GenericAddress,
                        val value: Value,
                        val fee: GenericFee) : AsyncTask<Void, Int, GenericTransaction>() {
-        val loader = LoaderFragment()
+
 
         override fun onPreExecute() {
             super.onPreExecute()
-            loader.show(fragmentManager, Constants.LOADER_TAG)
+            fragment.loader(true)
         }
 
         override fun doInBackground(vararg p0: Void?): GenericTransaction {
@@ -132,9 +131,10 @@ class FromMyceliumFragment : Fragment() {
 
         override fun onPostExecute(result: GenericTransaction?) {
             super.onPostExecute(result)
-            loader.dismissAllowingStateLoss()
+            fragment.loader(false)
             BroadcastDialog.create(account, false, result!!)
             BequantPreference.setMockCastodialBalance(BequantPreference.getMockCastodialBalance().plus(value))
+            fragment.findNavController().popBackStack()
         }
     }
 }

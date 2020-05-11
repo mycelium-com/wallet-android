@@ -8,10 +8,13 @@
 
         <variable
             name="viewModel"
-            type="com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel" />
+            type="com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel" />
     </data>
 
-    <merge>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
@@ -19,6 +22,7 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/exo2medium"
             android:text="Amount"
+            android:textColor="@color/white"
             android:textSize="16sp" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -30,15 +34,27 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/bg_bequant_text"
-                android:padding="16dp">
+                android:padding="8dp">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <EditText
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="numberDecimal"
+                    android:background="@null"
                     android:fontFamily="@font/exo2medium"
+                    android:hint="0"
                     android:text="@={viewModel.amount}"
                     android:textSize="16sp"
                     tools:text="100" />
+
+                <TextView
+                    style="@style/Bequant.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.currency}"
+                    android:textSize="16sp"
+                    tools:text="BTC" />
 
             </LinearLayout>
         </com.google.android.material.textfield.TextInputLayout>
@@ -51,5 +67,5 @@
             android:textColor="#49505C"
             android:textSize="14sp"
             tools:text="Fee 0.0002 BTC" />
-    </merge>
+    </LinearLayout>
 </layout>

@@ -123,6 +123,7 @@
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
+                    android:text="@{viewModel.nationality}"
                     tools:text="American" />
 
                 <androidx.appcompat.widget.AppCompatTextView

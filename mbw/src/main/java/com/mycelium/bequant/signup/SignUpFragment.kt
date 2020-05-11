@@ -144,7 +144,7 @@ class SignUpFragment : Fragment() {
             else -> getString(R.string.bequant_password_very_strong)
         }
         passwordLevelLabel.setTextColor(resources.getColor(when (level) {
-            1 -> R.color.bequant_password_red
+            1 -> R.color.bequant_red
             2 -> R.color.bequant_password_yellow
             else -> R.color.bequant_password_green
         }))

@@ -1,18 +1,24 @@
 package com.mycelium.bequant.kyc.steps
 
 import android.app.DatePickerDialog
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.Constants
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -35,6 +41,12 @@ class Step1Fragment : Fragment() {
 
     val args: Step1FragmentArgs by navArgs()
 
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            viewModel.nationality.value = intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.nationality
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -42,6 +54,7 @@ class Step1Fragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -73,25 +86,14 @@ class Step1Fragment : Fragment() {
             }, 2011, 1, 1)
             datePickerDialog.show()
         }
-
-        val items = CountriesSource.nationalityModels.map {
-            it.Demonym1 ?: it.Demonym2 ?: it.Demonym3 ?: "Unknown"
-        }.toTypedArray()
         tvNationality.setOnClickListener {
-            AlertDialog.Builder(requireActivity())
-                    .setSingleChoiceItems(items, -1) { dialog, which ->
-                        tvNationality.text = items[which]
-                        dialog.dismiss()
-                    }
-                    .show()
+            findNavController().navigate(Step1FragmentDirections.actionSelectCountry())
         }
 
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
             findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
         }
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -107,4 +109,9 @@ class Step1Fragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
 }

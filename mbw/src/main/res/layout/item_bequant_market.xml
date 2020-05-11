@@ -62,10 +62,10 @@
     <TextView
         android:id="@+id/change"
         android:layout_width="72dp"
-        android:layout_height="24dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="8dp"
-        android:background="#1A5EBA89"
+        android:background="@drawable/bg_bequant_change_percent_green"
         android:textSize="14sp"
         android:fontFamily="@font/exo2medium"
         android:textColor="@color/bequant_green"

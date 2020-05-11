@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="72dp"
-                app:errorTextColor="#CE3C4E"
+                app:errorTextColor="@color/bequant_red"
                 app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
                 app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
                 app:layout_constraintTop_toBottomOf="@+id/tvSubtitle">
