@@ -35,6 +35,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     var turnOffListener: (() -> Unit)? = null
     var state = State.DEFAULT
     var isFavorite = false
+    var currencycomBunnerClickListener: (() -> Unit)? = null
 
     fun setData(data: List<News>) {
         dataMap.clear()
@@ -71,7 +72,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                     }
                 }
             }
-            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEach { category ->
+            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
                 val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
                         ?: listOf()
                 if (sortedList.isNotEmpty()) {
@@ -83,6 +84,9 @@ class NewsAdapter(val preferences: SharedPreferences)
                 }
                 if (sortedList.size > 2) {
                     data.add(Entry(TYPE_NEWS, sortedList[2], sortedList[2].isFavorite(preferences)))
+                }
+                if (index == 1) {
+                    data.add(Entry(TYPE_CURRENCYCOM_BANNER, null))
                 }
             }
             else -> dataMap[selectedCategory]?.forEachIndexed { index, news ->
@@ -115,6 +119,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
         TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
         TYPE_NEWS_NO_BOOKMARKS -> NewsNoBookmarksHolder(layoutInflater.inflate(R.layout.item_mediaflow_no_bookmarks, parent, false))
+        TYPE_CURRENCYCOM_BANNER -> CurrencycomBunnerHolder(layoutInflater.inflate(R.layout.item_mediaflow_currencycom_banner, parent, false))
         else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
     }
 
@@ -172,6 +177,11 @@ class NewsAdapter(val preferences: SharedPreferences)
                     openClickListener?.invoke(it)
                 }
             }
+            TYPE_CURRENCYCOM_BANNER -> {
+                holder.itemView.setOnClickListener {
+                    currencycomBunnerClickListener?.invoke()
+                }
+            }
         }
     }
 
@@ -207,6 +217,8 @@ class NewsAdapter(val preferences: SharedPreferences)
         const val TYPE_NEWS_EMPTY = 7
 
         const val TYPE_TURN_OFF = 8
+
+        const val TYPE_CURRENCYCOM_BANNER = 9
 
 
         val ALL = Category("All")

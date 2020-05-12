@@ -7,7 +7,6 @@ import com.mycelium.wallet.Constants
 import com.mycelium.wallet.PartnerDateInfo
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletConfiguration
-import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.partner.model.Partner
 import com.mycelium.wallet.external.partner.model.PartnersLocalized
 import java.util.*
@@ -15,6 +14,7 @@ import java.util.*
 object SettingsPreference {
     private val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
     private val MEDIA_FLOW_ENABLE = "media_flow_enable"
+    private val CURRENCYCOM_ENABLE = "currencycom_enable"
     private val FIO_ENABLE = "fio_enable"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
@@ -71,4 +71,8 @@ object SettingsPreference {
 
     @JvmStatic
     fun getLanguage(): String? = sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().language)
+
+    var currencycomEnabled
+        get() = sharedPreferences.getBoolean(CURRENCYCOM_ENABLE, true)
+        set(value) = sharedPreferences.edit().putBoolean(CURRENCYCOM_ENABLE, value).apply()
 }

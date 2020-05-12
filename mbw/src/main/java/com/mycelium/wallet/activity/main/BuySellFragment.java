@@ -36,15 +36,17 @@ package com.mycelium.wallet.activity.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.InfiniteLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -79,7 +81,7 @@ import butterknife.ButterKnife;
 public class BuySellFragment extends Fragment implements ButtonClickListener {
     public enum ACTION {
         BCH, ALT_COIN, BTC, FIO,
-        ETH
+        ETH, MARGIN_TRADE
     }
 
     private MbwManager mbwManager;
@@ -128,6 +130,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
             } else {
                 actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
+                actions.add(new ActionButton(ACTION.MARGIN_TRADE, "MARGIN TRADE", R.drawable.ic_currencycom));
                 if (showButton) {
                     actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
                 }
@@ -162,6 +165,8 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case FIO:
                 Ads.openFio(requireContext());
                 break;
+            case MARGIN_TRADE:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://exchange.currency.com")));
         }
     }
 

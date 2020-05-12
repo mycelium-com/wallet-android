@@ -3,6 +3,7 @@ package com.mycelium.wallet.activity.modern
 import android.content.*
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.Context.MODE_PRIVATE
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -11,12 +12,14 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayout
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.modern.adapter.isFavorite
@@ -29,6 +32,7 @@ import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
+import kotlin.random.Random
 
 
 class NewsFragment : Fragment() {
@@ -101,6 +105,9 @@ class NewsFragment : Fragment() {
             requireActivity().finish()
             startActivity(Intent(requireContext(), ModernMain::class.java))
         }
+        adapter.currencycomBunnerClickListener = {
+            openCurrencycomLink()
+        }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
             }
@@ -141,6 +148,22 @@ class NewsFragment : Fragment() {
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
+        currencycom_banner_image.setImageDrawable(AppCompatResources.getDrawable(requireContext(),
+                when(Random.nextInt(0, 3)) {
+                    0 -> R.drawable.banner_currencycom_small_1
+                    1 -> R.drawable.banner_currencycom_small_2
+                    else -> R.drawable.banner_currencycom_small_3
+                }))
+        currencycom_banner.setOnClickListener {
+            openCurrencycomLink()
+        }
+        currencycom_banner_close.setOnClickListener {
+            currencycom_banner.visibility = GONE
+        }
+    }
+
+    private fun openCurrencycomLink() {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.CURRENCYCOM_WEB_LINK)))
     }
 
     override fun onResume() {

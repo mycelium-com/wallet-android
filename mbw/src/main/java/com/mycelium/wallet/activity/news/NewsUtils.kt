@@ -20,6 +20,7 @@ object NewsUtils {
         "News" -> R.drawable.ic_earth
         "Micro OTC" -> R.drawable.ic_micro_otc
         "Knowledge Center" -> R.drawable.ic_education
+        "Featured article" -> R.drawable.ic_currencycom
         else -> R.drawable.ic_mediaflow_category_default_icon
     }
 

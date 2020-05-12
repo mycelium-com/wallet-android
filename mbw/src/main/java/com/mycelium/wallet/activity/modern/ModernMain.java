@@ -113,6 +113,7 @@ public class ModernMain extends AppCompatActivity {
     private static final String TAB_ACCOUNTS = "tab_accounts";
     private static final String TAB_BALANCE = "tab_balance";
     private static final String TAB_HISTORY = "tab_history";
+    private static final String TAB_MARGIN_TRADE = "tab_margin_trade";
     private static final String TAB_RECOMMENDATIONS = "tab_recommendations";
     private static final String TAB_ADDRESS_BOOK = "tab_address_book";
 
@@ -164,6 +165,7 @@ public class ModernMain extends AppCompatActivity {
         mBalanceTab = tabLayout.newTab().setText(getString(R.string.tab_balance));
         mTabsAdapter.addTab(mBalanceTab, BalanceMasterFragment.class, null, TAB_BALANCE);
         mTabsAdapter.addTab(tabLayout.newTab().setText(getString(R.string.tab_transactions)), TransactionHistoryFragment.class, null, TAB_HISTORY);
+        mTabsAdapter.addTab(tabLayout.newTab().setText("MARGIN TRADE"), MarginTradeFragment.class, null, TAB_MARGIN_TRADE);
         mRecommendationsTab = tabLayout.newTab().setText(getString(R.string.tab_partners));
         mTabsAdapter.addTab(mRecommendationsTab,
                 RecommendationsFragment.class, null, TAB_RECOMMENDATIONS);
