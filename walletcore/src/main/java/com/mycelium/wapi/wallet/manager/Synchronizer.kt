@@ -47,9 +47,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             list.map {
                 async {
                     val accountLabel = it.label ?: ""
-                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account $accountLabel with id ${it.id}")
+                    logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}")
                     val isSyncSuccessful = it.synchronize(syncMode)
-                    logger.log(Level.INFO, "Account ${it.id} sync result: ${isSyncSuccessful}")
+                    logger.log(Level.INFO, "Account ${it.id} sync result: $isSyncSuccessful")
                 }
             }.map {
                 it.await()
