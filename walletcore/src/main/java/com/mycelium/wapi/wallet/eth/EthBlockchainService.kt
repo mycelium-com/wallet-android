@@ -109,10 +109,10 @@ class Tx {
     private val vout: List<Vin> = emptyList()
 
     val from: String
-        get() = vin[0].addresses[0]
+        get() = vin[0].addresses!![0]
 
-    val to: String
-        get() = vout[0].addresses[0]
+    val to: String?
+        get() = vout[0].addresses?.get(0)
 
     val blockHeight: BigInteger = BigInteger.ZERO
     val confirmations: BigInteger = BigInteger.ZERO
@@ -149,7 +149,7 @@ class Tx {
 }
 
 private class Vin {
-    val addresses: List<String> = emptyList()
+    val addresses: List<String>? = emptyList()
 }
 
 class TokenTransfer {
