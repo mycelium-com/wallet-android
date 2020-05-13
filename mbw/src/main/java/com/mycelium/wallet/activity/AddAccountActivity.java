@@ -37,12 +37,14 @@ package com.mycelium.wallet.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -81,6 +83,8 @@ import java.util.UUID;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class AddAccountActivity extends Activity {
     private ETHCreationAsyncTask ethCreationAsyncTask;
@@ -205,14 +209,25 @@ public class AddAccountActivity extends Activity {
      * @param ethAccountId if it's null we would need to create new ethereum account first
      *                     before creating erc20 account
      */
+    Button positiveButton = null;
+
     private void showERC20TokensOptions(@Nullable UUID ethAccountId) {
         final EthAccount ethAccount = ethAccountId != null ? (EthAccount) _mbwManager.getWalletManager(false).getAccount(ethAccountId) : null;
         List<ERC20Token> supportedTokens = new ArrayList<>(_mbwManager.getSupportedERC20Tokens().values());
+        Collections.sort(supportedTokens, (a1, a2) -> a1.getName().compareTo(a2.getName()));
         List<ERC20Token> addedTokens = getAddedTokens(ethAccountId);
         final ERC20TokenAdapter arrayAdapter = new ERC20TokenAdapter(AddAccountActivity.this,
                 R.layout.token_item,
                 supportedTokens,
                 addedTokens);
+
+        arrayAdapter.setSelectListener(new Function1<List<ERC20Token>, Unit>() {
+            @Override
+            public Unit invoke(List<ERC20Token> erc20Tokens) {
+                positiveButton.setEnabled(!erc20Tokens.isEmpty());
+                return null;
+            }
+        });
         View customTitle = LayoutInflater.from(this).inflate(R.layout.layout_select_eth_account_to_erc20_title, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
                 .setAdapter(arrayAdapter, null)
@@ -236,7 +251,15 @@ public class AddAccountActivity extends Activity {
                     getString(R.string.list_added_tokens, ethAccount.getLabel()) : getString(R.string.list_added_tokens_new_account));
         }
         builder.setCustomTitle(customTitle);
-        builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positiveButton.setEnabled(false);
+            }
+        });
+        dialog.show();
     }
 
     View.OnClickListener advancedClickListener = new View.OnClickListener() {

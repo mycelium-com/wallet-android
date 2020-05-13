@@ -196,7 +196,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             ERC20Token("ICON", "ICX", 18, "0xb5A5F22694352C15B00323844aD545ABb2B11028"),
             ERC20Token("HUSD", "HUSD", 8, "0xdF574c24545E5FfEcb9a659c229253D4111d87e1"),
             ERC20Token("Streamr", "DATA", 18, "0x0Cf0Ee63788A0849fE5297F3407f701E122cC023"),
-            ERC20Token("Loom Network", "LOOM", 18, "0xA4e8C3Ec456107eA67d3075bF9e3DF3A75823DB0"),
+            ERC20Token("Loom Token", "LOOM", 18, "0xA4e8C3Ec456107eA67d3075bF9e3DF3A75823DB0"),
             ERC20Token("Matic", "MATIC", 18, "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"),
             ERC20Token("Decentraland", "MANA", 18, "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"),
             ERC20Token("aelf", "ELF", 18, "0xbf2179859fc6D5BEE9Bf9158632Dc51678a4100e"),
@@ -246,6 +246,7 @@ class WalletConfiguration(private val prefs: SharedPreferences,
             ERC20Token("Rocket Pool", "RPL", 18, "0xB4EFd85c19999D84251304bDA99E90B92300Bd93"),
             ERC20Token("LAtoken", "LA", 18, "0xE50365f5D679CB98a1dd62D6F6e58e59321BcdDf"),
             ERC20Token("Bread", "BRD", 18, "0x558EC3152e2eb2174905cd19AeA4e34A23DE9aD6"),
+            ERC20Token("Tether GOLD", "XAUT", 6, "0x4922a015c4407F87432B179bb209e125432E4a2A"),
             when (BuildConfig.FLAVOR) {
                 "prodnet" -> ERC20Token("0x", "ZRX", 18, "0xe41d2489571d322189246dafa5ebde1f4699f498")
                 // for testing purposes
