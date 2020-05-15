@@ -4,11 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.mycelium.wallet.Constants
-import com.mycelium.wallet.PartnerDateInfo
+import com.mycelium.wallet.PartnerInfo
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wallet.WalletConfiguration
-import com.mycelium.wallet.external.partner.model.Partner
-import com.mycelium.wallet.external.partner.model.PartnersLocalized
+import com.mycelium.wallet.external.partner.model.*
 import java.util.*
 
 object SettingsPreference {
@@ -33,9 +32,9 @@ object SettingsPreference {
         get() = isActive(FIO_ENABLE)
 
     private fun isActive(id: String) = when (id) {
-        FIO_ENABLE -> PartnerDateInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE),
+        FIO_ENABLE -> PartnerInfo(getSharedDate(WalletConfiguration.PREFS_FIO_START_DATE),
                 getSharedDate(WalletConfiguration.PREFS_FIO_END_DATE))
-        else -> PartnerDateInfo(oldDate, oldDate)
+        else -> PartnerInfo(oldDate, oldDate)
     }.isActive()
 
     private fun getSharedDate(key: String, defaultDate: Date = oldDate): Date =
@@ -47,7 +46,7 @@ object SettingsPreference {
     }.time
 
 
-    private fun PartnerDateInfo.isActive() = Date().after(startDate) && Date().before(endDate)
+    private fun PartnerInfo.isActive() = Date().after(startDate) && Date().before(endDate)
 
     var mediaFLowNotificationEnabled
         get() = sharedPreferences.getBoolean(NEWS_NOTIFICATION_ENABLE, true)
@@ -70,9 +69,35 @@ object SettingsPreference {
                     if (sharedPreferences.contains("partners-${getLanguage()}")) "partners-${getLanguage()}" else "partners-en", ""), PartnersLocalized::class.java)
 
     @JvmStatic
+    fun getMediaFlowContent(): MediaFlowContent? =
+            Gson().fromJson(sharedPreferences.getString(
+                    if (sharedPreferences.contains("mediaflow-${getLanguage()}")) "mediaflow-${getLanguage()}" else "mediaflow-en", ""), MediaFlowContent::class.java)
+
+    @JvmStatic
+    fun getMainMenuContent(): MainMenuContent? =
+            Gson().fromJson(sharedPreferences.getString(
+                    if (sharedPreferences.contains("mainmenu-${getLanguage()}")) "mainmenu-${getLanguage()}" else "mainmenu-en", ""), MainMenuContent::class.java)
+
+    @JvmStatic
+    fun getBalanceContent(): BalanceContent? =
+            Gson().fromJson(sharedPreferences.getString(
+                    if (sharedPreferences.contains("balance-${getLanguage()}")) "balance-${getLanguage()}" else "balance-en", ""), BalanceContent::class.java)
+
+    @JvmStatic
+    fun getBuySellContent(): BuySellContent? =
+            Gson().fromJson(sharedPreferences.getString(
+                    if (sharedPreferences.contains("buysell-${getLanguage()}")) "buysell-${getLanguage()}" else "buysell-en", ""), BuySellContent::class.java)
+
+    @JvmStatic
     fun getLanguage(): String? = sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().language)
 
-    var currencycomEnabled
-        get() = sharedPreferences.getBoolean(CURRENCYCOM_ENABLE, true)
-        set(value) = sharedPreferences.edit().putBoolean(CURRENCYCOM_ENABLE, value).apply()
+    @JvmStatic
+    fun getPartnerInfos():List<PartnerInfo> = listOf()
+
+    @JvmStatic
+    fun isEnabled(partnerInfo: PartnerInfo): Boolean = sharedPreferences.getBoolean("partner-enabled-${partnerInfo.id}", true)
+
+    fun setEnabled(partnerInfo: PartnerInfo, enable: Boolean) {
+        sharedPreferences.edit().putBoolean("partner-enabled-${partnerInfo.id}", enable).apply()
+    }
 }

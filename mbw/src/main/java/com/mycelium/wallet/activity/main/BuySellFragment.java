@@ -34,6 +34,7 @@
 
 package com.mycelium.wallet.activity.main;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -65,6 +66,7 @@ import com.mycelium.wallet.external.BuySellSelectActivity;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
 import com.mycelium.wallet.external.changelly.ChangellyActivity;
 import com.mycelium.wallet.external.changelly.bch.ExchangeActivity;
+import com.mycelium.wallet.external.partner.model.BuySellButton;
 import com.mycelium.wapi.wallet.bch.bip44.Bip44BCHAccount;
 import com.mycelium.wapi.wallet.bch.single.SingleAddressBCHAccount;
 import com.mycelium.wapi.wallet.eth.EthAccount;
@@ -81,7 +83,7 @@ import butterknife.ButterKnife;
 public class BuySellFragment extends Fragment implements ButtonClickListener {
     public enum ACTION {
         BCH, ALT_COIN, BTC, FIO,
-        ETH, MARGIN_TRADE
+        ETH, ADS
     }
 
     private MbwManager mbwManager;
@@ -89,15 +91,13 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
     @BindView(R.id.button_list)
     RecyclerView recyclerView;
 
-    ButtonAdapter buttonAdapter;
-    RecyclerView.LayoutManager layoutManager;
+    private ButtonAdapter buttonAdapter = new ButtonAdapter();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = Preconditions.checkNotNull(inflater.inflate(R.layout.main_buy_sell_fragment, container, false));
         ButterKnife.bind(this, root);
-        buttonAdapter = new ButtonAdapter();
-        layoutManager = new InfiniteLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView.LayoutManager layoutManager = new InfiniteLinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(buttonAdapter);
         recyclerView.addOnScrollListener(new ItemCentralizer());
@@ -130,7 +130,13 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
             } else {
                 actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
-                actions.add(new ActionButton(ACTION.MARGIN_TRADE, "MARGIN TRADE", R.drawable.ic_currencycom));
+                for (BuySellButton button : SettingsPreference.getBalanceContent().getButtons()) {
+                    if(button.isEnabled()) {
+                        Bundle args = new Bundle();
+                        args.putSerializable("data", button);
+                        actions.add(new ActionButton(ACTION.ADS, button.getName(), 0, button.getIconUrl(), args));
+                    }
+                }
                 if (showButton) {
                     actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
                 }
@@ -165,8 +171,17 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             case FIO:
                 Ads.openFio(requireContext());
                 break;
-            case MARGIN_TRADE:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://exchange.currency.com")));
+            case ADS:
+                if (actionButton.getArgs() != null
+                        && actionButton.getArgs().containsKey("data")) {
+                    BuySellButton data = (BuySellButton) actionButton.getArgs().getSerializable("data");
+                    if (data != null) {
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(data.getLink())));
+                        } catch (ActivityNotFoundException ignored) {
+                        }
+                    }
+                }
         }
     }
 

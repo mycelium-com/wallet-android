@@ -41,7 +41,6 @@ import com.mycelium.net.ServerEndpoints;
 import com.mycelium.net.TorHttpsEndpoint;
 import com.mycelium.wallet.activity.util.BlockExplorer;
 import com.mycelium.wallet.external.BuySellServiceDescriptor;
-import com.mycelium.wallet.external.CurrencyComServiceDescription;
 import com.mycelium.wallet.external.LocalTraderServiceDescription;
 import com.mycelium.wallet.external.SepaServiceDescription;
 import com.mycelium.wallet.external.SimplexServiceDescription;
@@ -114,7 +113,6 @@ public class MbwTestEnvironment extends MbwEnvironment {
          add(new SimplexServiceDescription());
          add(new SepaServiceDescription());
          add(new LocalTraderServiceDescription());
-         add(new CurrencyComServiceDescription());
       }};
    }
 }

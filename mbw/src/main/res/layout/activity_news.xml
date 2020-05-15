@@ -207,24 +207,11 @@
         app:layout_anchor="@+id/toolbar"
         app:layout_anchorGravity="bottom" />
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/bottomButtonBanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="8dp"
-            android:text="SELL" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="8dp"
-            android:text="BUY" />
-    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

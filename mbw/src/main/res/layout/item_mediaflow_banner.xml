@@ -4,11 +4,11 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="16sp"
-        android:adjustViewBounds="true"
-        android:src="@drawable/banner_currencycom_large" />
+        android:adjustViewBounds="true" />
 
 </FrameLayout>

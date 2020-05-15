@@ -10,12 +10,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.holder.*
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
+import com.mycelium.wallet.external.partner.model.MediaFlowBannerInList
+import kotlinx.android.synthetic.main.item_mediaflow_banner.view.*
 import kotlinx.android.synthetic.main.item_mediaflow_turn_off.view.*
 
 
@@ -35,7 +39,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     var turnOffListener: (() -> Unit)? = null
     var state = State.DEFAULT
     var isFavorite = false
-    var currencycomBunnerClickListener: (() -> Unit)? = null
+    var bunnerClickListener: ((MediaFlowBannerInList?) -> Unit)? = null
 
     fun setData(data: List<News>) {
         dataMap.clear()
@@ -72,25 +76,28 @@ class NewsAdapter(val preferences: SharedPreferences)
                     }
                 }
             }
-            selectedCategory == ALL -> NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
-                val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
-                        ?: listOf()
-                if (sortedList.isNotEmpty()) {
-                    data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
-                    data.add(Entry(TYPE_NEWS_BIG, sortedList[0], sortedList[0].isFavorite(preferences)))
-                }
-                if (sortedList.size > 1) {
-                    data.add(Entry(TYPE_NEWS, sortedList[1], sortedList[1].isFavorite(preferences)))
-                }
-                if (sortedList.size > 2) {
-                    data.add(Entry(TYPE_NEWS, sortedList[2], sortedList[2].isFavorite(preferences)))
-                }
-                if (index == 1) {
-                    data.add(Entry(TYPE_CURRENCYCOM_BANNER, null))
+            selectedCategory == ALL -> {
+                val banners = SettingsPreference.getMediaFlowContent()?.bannersInList ?: listOf()
+                NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
+                    val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
+                            ?: listOf()
+                    banners.filter { it.isEnabled }.find { it.index == index }?.let {
+                        data.add(Entry(TYPE_BIG_BANNER, null, it))
+                    }
+                    if (sortedList.isNotEmpty()) {
+                        data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
+                        data.add(Entry(TYPE_NEWS_BIG, sortedList[0], null, sortedList[0].isFavorite(preferences)))
+                    }
+                    if (sortedList.size > 1) {
+                        data.add(Entry(TYPE_NEWS, sortedList[1], null, sortedList[1].isFavorite(preferences)))
+                    }
+                    if (sortedList.size > 2) {
+                        data.add(Entry(TYPE_NEWS, sortedList[2], null, sortedList[2].isFavorite(preferences)))
+                    }
                 }
             }
             else -> dataMap[selectedCategory]?.forEachIndexed { index, news ->
-                data.add(Entry(if (index == 0) TYPE_NEWS_BIG else TYPE_NEWS, news, news.isFavorite(preferences)))
+                data.add(Entry(if (index == 0) TYPE_NEWS_BIG else TYPE_NEWS, news, null, news.isFavorite(preferences)))
             }
         }
         data.add(Entry(TYPE_SPACE, null))
@@ -119,7 +126,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
         TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
         TYPE_NEWS_NO_BOOKMARKS -> NewsNoBookmarksHolder(layoutInflater.inflate(R.layout.item_mediaflow_no_bookmarks, parent, false))
-        TYPE_CURRENCYCOM_BANNER -> CurrencycomBunnerHolder(layoutInflater.inflate(R.layout.item_mediaflow_currencycom_banner, parent, false))
+        TYPE_BIG_BANNER -> CurrencycomBunnerHolder(layoutInflater.inflate(R.layout.item_mediaflow_banner, parent, false))
         else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
     }
 
@@ -177,9 +184,15 @@ class NewsAdapter(val preferences: SharedPreferences)
                     openClickListener?.invoke(it)
                 }
             }
-            TYPE_CURRENCYCOM_BANNER -> {
+            TYPE_BIG_BANNER -> {
+                Glide.with(holder.itemView.image)
+                        .load(item.banner?.imageUrl)
+                        .apply(RequestOptions()
+                                .placeholder(R.drawable.mediaflow_default_picture)
+                                .error(R.drawable.mediaflow_default_picture))
+                        .into(holder.itemView.image)
                 holder.itemView.setOnClickListener {
-                    currencycomBunnerClickListener?.invoke()
+                    bunnerClickListener?.invoke(getItem(holder.adapterPosition).banner)
                 }
             }
         }
@@ -187,7 +200,9 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    data class Entry(val type: Int, val news: News? = null, val favorite: Boolean = false)
+    data class Entry(val type: Int, val news: News? = null,
+                     val banner: MediaFlowBannerInList? = null,
+                     val favorite: Boolean = false)
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
@@ -218,7 +233,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
         const val TYPE_TURN_OFF = 8
 
-        const val TYPE_CURRENCYCOM_BANNER = 9
+        const val TYPE_BIG_BANNER = 9
 
 
         val ALL = Category("All")

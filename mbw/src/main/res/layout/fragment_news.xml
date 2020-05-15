@@ -6,37 +6,28 @@
     android:background="#272727"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/currencycom_banner"
+    <FrameLayout
+        android:id="@+id/top_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="12dp"
-        android:paddingTop="4dp"
         android:background="#121212"
-        android:paddingEnd="12dp"
-        android:paddingBottom="4dp">
+        android:visibility="gone">
 
         <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_currencycom" />
-
-        <ImageView
-            android:id="@+id/currencycom_banner_image"
-            android:layout_width="0dp"
+            android:id="@+id/banner_image"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/banner_currencycom_small_1" />
+            android:adjustViewBounds="true" />
 
         <ImageView
-            android:id="@+id/currencycom_banner_close"
+            android:id="@+id/banner_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="12dp"
             android:layout_marginStart="16dp"
             app:srcCompat="@drawable/ic_close" />
-    </LinearLayout>
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

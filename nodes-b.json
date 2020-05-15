@@ -1,0 +1,477 @@
+{
+  "partner-info": {
+    "fio-presale": {
+      "name": "Fio Presale",
+      "start-date": "2019-09-25T00:00:00+0100",
+      "end-date": "2020-02-28T23:59:59+0100"
+    },
+    "currencycom": {
+      "id": "currencycom",
+      "name": "Currency.com",
+      "start-date": "2019-09-25T00:00:00+0100",
+      "end-date": "2020-02-28T23:59:59+0100",
+      "isEnabled": true
+    }
+  },
+  "MediaFlow": {
+    "en": {
+      "banner-in-list": [
+        {
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-large-banner.png",
+          "link": "https://exchange.currency.com",
+          "index": 2,
+          "parentId": "currencycom"
+        }
+      ],
+      "banner-top": [
+        {
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-top-banner-1.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-top-banner-2.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        },
+        {
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-top-banner-3.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        }
+      ],
+      "banner-bottom-details" : [
+        {
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-top-banner-1.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "MainMenu": {
+    "en": {
+      "pages": [
+        {
+          "tabName": "MARGIN TRADE",
+          "tabIndex": 5,
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/currency-page.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "Balance": {
+    "en": {
+      "buy-sell-buttons": [
+        {
+          "name": "MARGIN TRADE",
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/currency-2-balance-icon.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "Buy-Sell": {
+    "en": {
+      "list-item": [
+        {
+          "title": "Margin trade on Currency.com",
+          "description": "Trade crypto with 100x leverage. Get 50% discount on commissions for 6 months.",
+          "iconUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/currency-2-buy-sell-icon.png",
+          "link": "https://exchange.currency.com",
+          "parentId": "currencycom",
+          "isEnabled": true
+        }
+      ]
+    }
+  },
+  "Business": {
+    "en": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732",
+          "isEnabled": true
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "ru": {
+      "header-title": "Вы новичок в криптовалютах?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Получите скидку 15% на Amazon.com платя биткоинами через Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "de": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "es": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "pt": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "zh": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    },
+    "ja": {
+      "header-title": "New to crypto?",
+      "header-text": "Please find here a selection of partner businesses",
+      "Partners": [
+        {
+          "title": "1xBit sportsbook and casino",
+          "description": "Welcome bonus up to 7 BTC!\nHigh odds, huge bonuses, fast payout",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/1xbit-icon.png",
+          "link": "https://refpaexhil.top/L?tag=d_33760m_1732c_mycelium&site=33760&ad=1732"
+        },
+        {
+          "title": "NEFT Vodka",
+          "description": "Life is a story. Make it a good one",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/neftvodka-icon.png",
+          "link": "https://www.neftvodkaus.com/"
+        },
+        {
+          "title": "Purse",
+          "description": "Save 15% on Amazon.com by paying with Bitcoin on Purse.io",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/purse-icon.png",
+          "link": "https://purse.io/?_a=MYCELIUM"
+        },
+        {
+          "title": "SaferVPN",
+          "description": "Secure your Internet connection",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/safervpn-icon.png",
+          "link": "https://www.safervpn.com/vpn/6?direct=1&amp;a_aid=313"
+        },
+        {
+          "title": "FIO Address Presale",
+          "description": "Your key to a better blockchain experience",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/fio-icon.png",
+          "action": "open-fio"
+        }
+      ]
+    }
+  },
+  "BTC-mainnet": {
+    "coloredcoinsd": {
+      "primary": [
+        "https://coloredcoinsd.gear.mycelium.com"
+      ]
+    },
+    "coloredcoins-explorer": {
+      "primary": [
+        "https://coloredcoins.gear.mycelium.com"
+      ]
+    },
+    "WAPI": {
+      "primary": [
+        {
+          "url": "https://wapi.mycelium.com",
+          "cert-sha1": "E7:4E:48:56:94:EF:A6:9E:2A:9A:30:BD:1B:9A:CF:59:31:FB:66:24"
+        }
+      ]
+    },
+    "electrumx": {
+      "primary": [
+        {
+          "url": "tcp-tls://electrumx-1a.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a0.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a0.mycelium.com:50002"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a1.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a1.mycelium.com:50002"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a2.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-1a2.mycelium.com:50002"
+        },
+        {
+          "url": "tcp-tls://electrumx-2a0.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-2a0.mycelium.com:10001"
+        },
+        {
+          "url": "tcp-tls://electrumx-2a1.mycelium.com:10000"
+        },
+        {
+          "url": "tcp-tls://electrumx-2a1.mycelium.com:10001"
+        }
+      ]
+    }
+  },
+  "BTC-testnet": {
+    "coloredcoinsd": {
+      "primary": [
+        "https://coloredcoinsd-test.gear.mycelium.com"
+      ]
+    },
+    "coloredcoins-explorer": {
+      "primary": [
+        "https://coloredcoins-test.gear.mycelium.com"
+      ]
+    },
+    "WAPI": {
+      "primary": [
+        {
+          "url": "https://mws30.mycelium.com/wapitestnet",
+          "cert-sha1": "ED:C2:82:16:65:8C:4E:E1:C7:F6:A2:2B:15:EC:30:F9:CD:48:F8:DB"
+        }
+      ]
+    },
+    "electrumx": {
+      "primary": [
+        {
+          "url": "tcp-tls://wallet-testnet.mycelium.com:19335"
+        }
+      ]
+    }
+  },
+  "ETH-testnet": {
+    "servers": {
+      "primary": [
+        {
+          "url": "https://wallet-testnet.mycelium.com:8545"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://ropsten1.trezor.io"
+        },
+        {
+          "url": "https://ropsten2.trezor.io"
+        }
+      ]
+    }
+  },
+  "ETH-mainnet": {
+    "servers": {
+      "primary": [
+        {
+          "url": "https://parity-a.mycelium.com:8545"
+        },
+        {
+          "url": "https://parity-b.mycelium.com:8545"
+        }
+      ]
+    },
+    "blockbook-servers": {
+      "primary": [
+        {
+          "url": "https://eth1.trezor.io"
+        },
+        {
+          "url": "https://eth2.trezor.io"
+        }
+      ]
+    }
+  }
+}

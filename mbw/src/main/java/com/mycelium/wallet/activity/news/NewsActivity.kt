@@ -28,6 +28,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.NewsFragment
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.external.mediaflow.GetMediaFlowTopicTask
 import com.mycelium.wallet.external.mediaflow.MediaFlowSyncWorker
 import com.mycelium.wallet.external.mediaflow.NewsConstants
@@ -130,6 +131,10 @@ class NewsActivity : AppCompatActivity() {
             startActivity(Intent(this, NewsActivity::class.java)
                     .putExtra(NewsConstants.NEWS, it))
         }
+
+//        SettingsPreference.getMediaFlowContent()?.bannersDetails?.filter{it.isEnabled}?.find {
+//            news.it.parentId
+//        }
     }
 
     fun updateUI() {

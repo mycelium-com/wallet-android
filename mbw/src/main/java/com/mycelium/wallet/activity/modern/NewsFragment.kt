@@ -12,14 +12,14 @@ import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
-import com.mycelium.wallet.BuildConfig
+import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
 import com.mycelium.wallet.activity.modern.adapter.isFavorite
@@ -27,9 +27,12 @@ import com.mycelium.wallet.activity.news.NewsActivity
 import com.mycelium.wallet.activity.news.NewsUtils
 import com.mycelium.wallet.activity.news.adapter.NewsSearchAdapter
 import com.mycelium.wallet.activity.news.adapter.PaginationScrollListener
+import com.mycelium.wallet.activity.settings.SettingsPreference
+import com.mycelium.wallet.event.PageSelectedEvent
 import com.mycelium.wallet.external.mediaflow.*
 import com.mycelium.wallet.external.mediaflow.model.Category
 import com.mycelium.wallet.external.mediaflow.model.News
+import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
 import kotlin.random.Random
@@ -105,8 +108,10 @@ class NewsFragment : Fragment() {
             requireActivity().finish()
             startActivity(Intent(requireContext(), ModernMain::class.java))
         }
-        adapter.currencycomBunnerClickListener = {
-            openCurrencycomLink()
+        adapter.bunnerClickListener = {
+            it?.link?.run {
+                openLink(this)
+            }
         }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabReselected(p0: TabLayout.Tab?) {
@@ -148,22 +153,36 @@ class NewsFragment : Fragment() {
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
-        currencycom_banner_image.setImageDrawable(AppCompatResources.getDrawable(requireContext(),
-                when(Random.nextInt(0, 3)) {
-                    0 -> R.drawable.banner_currencycom_small_1
-                    1 -> R.drawable.banner_currencycom_small_2
-                    else -> R.drawable.banner_currencycom_small_3
-                }))
-        currencycom_banner.setOnClickListener {
-            openCurrencycomLink()
-        }
-        currencycom_banner_close.setOnClickListener {
-            currencycom_banner.visibility = GONE
+        initTopBanner()
+    }
+
+    private fun initTopBanner() {
+        if (currentNews == null) {
+            SettingsPreference.getMediaFlowContent()?.bannerTop?.filter { it.isEnabled }?.let { banners ->
+                val banner = banners[Random.nextInt(0, banners.size)]
+                top_banner.visibility = VISIBLE
+                Glide.with(banner_image)
+                        .load(banner.imageUrl)
+                        .into(banner_image)
+                top_banner.setOnClickListener {
+                    openLink(banner.link)
+                }
+                banner_close.setOnClickListener {
+                    top_banner.visibility = GONE
+                }
+            }
         }
     }
 
-    private fun openCurrencycomLink() {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.CURRENCYCOM_WEB_LINK)))
+    @Subscribe
+    internal fun pageSelectedEvent(event: PageSelectedEvent): Unit {
+        if (event.tag == "tab_news") {
+            initTopBanner()
+        }
+    }
+
+    private fun openLink(link: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
     override fun onResume() {
@@ -176,9 +195,11 @@ class NewsFragment : Fragment() {
             registerReceiver(failReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_FAIL_ACTION))
             registerReceiver(startLoadReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_START_LOAD_ACTION))
         }
+        MbwManager.getEventBus().register(this)
     }
 
     override fun onPause() {
+        MbwManager.getEventBus().unregister(this)
         LocalBroadcastManager.getInstance(requireContext()).run {
             unregisterReceiver(updateReceiver)
             unregisterReceiver(failReceiver)
@@ -245,7 +266,7 @@ class NewsFragment : Fragment() {
         }
         GetCategoriesTask {
             //fix possible crash when page was hidden and task the "get categories" returns the result(in this case views are null) 
-            if(!isAdded) { 
+            if (!isAdded) {
                 return@GetCategoriesTask
             }
             if (it.isNotEmpty()) {

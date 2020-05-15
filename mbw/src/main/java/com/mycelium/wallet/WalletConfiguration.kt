@@ -7,7 +7,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
 import com.mycelium.net.TorHttpsEndpoint
-import com.mycelium.wallet.external.partner.model.PartnersLocalized
+import com.mycelium.wallet.external.partner.model.*
 import com.mycelium.wapi.api.ServerElectrumListChangedListener
 import com.mycelium.wapi.api.jsonrpc.TcpEndpoint
 import com.mycelium.wapi.wallet.erc20.coins.ERC20Token
@@ -27,6 +27,10 @@ import kotlin.collections.ArrayList
 interface  MyceliumNodesApi {
     @GET("/nodes-b.json")
     fun getNodes(): Call<MyceliumNodesResponse>
+
+    @GET("/nodes-b-test.json")
+    fun getNodesTest(): Call<MyceliumNodesResponse>
+
 }
 
 // A set of classes for parsing nodes-b.json file
@@ -36,10 +40,17 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("BTC-mainnet") val btcMainnet: BTCNetResponse,
                             @SerializedName("ETH-testnet") val ethTestnet: ETHNetResponse?,
                             @SerializedName("ETH-mainnet") val ethMainnet: ETHNetResponse?,
-                            @SerializedName("partner-info") val partnerInfos: Map<String, PartnerDateInfo>?,
-                            @SerializedName("Business") val partners: Map<String, PartnersLocalized>?)
+                            @SerializedName("partner-info") val partnerInfos: Map<String, PartnerInfo>?,
+                            @SerializedName("Business") val partners: Map<String, PartnersLocalized>?,
+                            @SerializedName("MediaFlow") val mediaFlowSettings: Map<String, MediaFlowContent>,
+                            @SerializedName("MainMenu") val mainMenuSettings: Map<String, MainMenuContent>,
+                            @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
+                            @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
 
-data class PartnerDateInfo(@SerializedName("start-date") val startDate: Date?, @SerializedName("end-date") val endDate: Date?)
+data class PartnerInfo(val id:String?,
+                       val name:String?,
+                       @SerializedName("start-date") val startDate: Date?,
+                       @SerializedName("end-date") val endDate: Date?)
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
@@ -66,13 +77,14 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
-                val resp = Retrofit.Builder()
+                val servise  = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
                         .create(MyceliumNodesApi::class.java)
-                        .getNodes()
-                        .execute()
+                val resp =
+                        (if (BuildConfig.FLAVOR == "prodnet") servise.getNodes()
+                        else servise.getNodesTest()).execute()
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
@@ -109,6 +121,26 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     myceliumNodesResponse?.partners?.let { map ->
                         map.keys.forEach {
                             prefEditor.putString("partners-$it", gson.toJson(map[it]))
+                        }
+                    }
+                    myceliumNodesResponse?.mediaFlowSettings?.let { map ->
+                        map.keys.forEach {
+                            prefEditor.putString("mediaflow-$it", gson.toJson(map[it]))
+                        }
+                    }
+                    myceliumNodesResponse?.mainMenuSettings?.let { map ->
+                        map.keys.forEach {
+                            prefEditor.putString("mainmenu-$it", gson.toJson(map[it]))
+                        }
+                    }
+                    myceliumNodesResponse?.balanceSettings?.let { map ->
+                        map.keys.forEach {
+                            prefEditor.putString("balance-$it", gson.toJson(map[it]))
+                        }
+                    }
+                    myceliumNodesResponse?.buySellSettings?.let { map ->
+                        map.keys.forEach {
+                            prefEditor.putString("buysell-$it", gson.toJson(map[it]))
                         }
                     }
                     prefEditor.apply()
