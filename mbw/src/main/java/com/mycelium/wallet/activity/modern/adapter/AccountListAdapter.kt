@@ -70,10 +70,10 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
                 itemList.add(TotalViewModel(getSpendableBalance(itemList)))
                 totalAdded = true
             }
-            itemList.add(accountsGroup)
-            val title = accountsGroup.getTitle(context)
-            val isGroupVisible = pagePrefs.getBoolean(title, true)
-            if (isGroupVisible) {
+            val groupModel = AccountsGroupModel(accountsGroup)
+            itemList.add(groupModel)
+            groupModel.isCollapsed = !pagePrefs.getBoolean(accountsGroup.getTitle(context), true)
+            if (!groupModel.isCollapsed) {
                 itemList.addAll(accountsGroup.accountsList)
             }
         }
@@ -201,7 +201,7 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             pagePrefs.edit().putBoolean(title, isGroupVisible).apply()
             refreshList(listModel.accountsData.value!!)
         }
-        groupHolder.expandIcon.rotation = (if (pagePrefs.getBoolean(title, true)) 180 else 0).toFloat()
+        groupHolder.expandIcon.rotation = (if (!group.isCollapsed) 180 else 0).toFloat()
     }
 
     private fun getSpendableBalance(walletAccountList: List<AccountListItem>): ValueSum {
@@ -238,14 +238,11 @@ class AccountListAdapter(fragment: Fragment, private val mbwManager: MbwManager)
             }
         }
 
-        private val pagePrefs = context.getSharedPreferences("account_list", Context.MODE_PRIVATE)
-
         override fun areContentsTheSame(oldItem: AccountListItem, newItem: AccountListItem): Boolean =
                 when (oldItem.getType()) {
                     GROUP_TITLE_TYPE, GROUP_ARCHIVED_TITLE_TYPE -> {
                         newItem as AccountsGroupModel
                         oldItem as AccountsGroupModel
-                        newItem.isCollapsed = pagePrefs.getBoolean(newItem.getTitle(context), true)
                         newItem.isCollapsed == oldItem.isCollapsed
                                 && newItem.coinType == oldItem.coinType
                                 && newItem.accountsList.size == oldItem.accountsList.size

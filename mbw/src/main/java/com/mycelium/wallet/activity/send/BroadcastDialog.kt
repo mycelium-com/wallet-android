@@ -15,6 +15,7 @@ import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.event.BroadcastResultListener
 import com.mycelium.wapi.wallet.*
+import com.mycelium.wapi.wallet.erc20.ERC20Account
 import com.mycelium.wapi.wallet.eth.EthAccount
 import com.mycelium.wapi.wallet.exceptions.GenericTransactionBroadcastException
 import java.util.*
@@ -126,7 +127,7 @@ class BroadcastDialog : DialogFragment() {
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_rejected_message) {
                     returnResult(broadcastResult)
                 }
-            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount) {
+            BroadcastResultType.NO_SERVER_CONNECTION -> if (isCold || account is EthAccount || account is ERC20Account) {
                 // When doing cold storage spending we do not offer to queue the transaction
                 // We also do not offer to queue the transaction for eth accounts just yet
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent) {
@@ -162,6 +163,10 @@ class BroadcastDialog : DialogFragment() {
             }
             BroadcastResultType.REJECT_INSUFFICIENT_FEE -> // Transaction rejected, display message and exit
                 Utils.showSimpleMessageDialog(activity, R.string.transaction_not_sent_small_fee) {
+                    returnResult(broadcastResult)
+                }
+            BroadcastResultType.REJECT_INVALID_TX_PARAMS -> // Transaction rejected, display message and exit
+                Utils.showSimpleMessageDialog(activity, getString(R.string.transaction_rejected_invalid_tx_params, broadcastResult.errorMessage)) {
                     returnResult(broadcastResult)
                 }
             BroadcastResultType.SUCCESS -> {

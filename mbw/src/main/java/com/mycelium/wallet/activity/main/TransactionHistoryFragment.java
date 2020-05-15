@@ -109,6 +109,8 @@ import com.mycelium.wapi.wallet.btc.WalletBtcAccount;
 import com.mycelium.wapi.wallet.coins.CryptoCurrency;
 import com.mycelium.wapi.wallet.coins.Value;
 import com.mycelium.wapi.wallet.colu.ColuAccount;
+import com.mycelium.wapi.wallet.erc20.ERC20Account;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.squareup.otto.Subscribe;
 
@@ -304,11 +306,6 @@ public class TransactionHistoryFragment extends Fragment {
 
    private void showHistory(boolean hasHistory) {
       _root.findViewById(R.id.llNoRecords).setVisibility(hasHistory ? View.GONE : View.VISIBLE);
-      if (_mbwManager.getSelectedAccount() instanceof EthAccount) {
-         noTransactionMessage.setText(R.string.eth_no_transaction_records);
-      } else {
-         noTransactionMessage.setText(R.string.no_transaction_records);
-      }
       listView.setVisibility(hasHistory ? View.VISIBLE : View.GONE);
       if (accountsWithPartialHistory.contains(_mbwManager.getSelectedAccount().getId())) {
          _root.findViewById(R.id.tvWarningNotFullHistory).setVisibility(View.VISIBLE);
@@ -467,7 +464,7 @@ public class TransactionHistoryFragment extends Fragment {
                      checkNotNull(menu.findItem(R.id.miAddToAddressBook)).setVisible(!record.isIncoming());
                      if ((_mbwManager.getSelectedAccount() instanceof Bip44BCHAccount
                              || _mbwManager.getSelectedAccount() instanceof SingleAddressBCHAccount)
-                             || _mbwManager.getSelectedAccount() instanceof EthAccount) {
+                             || _mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
                        checkNotNull(menu.findItem(R.id.miCancelTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miRebroadcastTransaction)).setVisible(false);
                        checkNotNull(menu.findItem(R.id.miBumpFee)).setVisible(false);
@@ -482,6 +479,10 @@ public class TransactionHistoryFragment extends Fragment {
                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
                            .setVisible(record.getConfirmations() == 0);
                        checkNotNull(menu.findItem(R.id.miShare)).setVisible(true);
+                     }
+                     if (_mbwManager.getSelectedAccount() instanceof AbstractEthERC20Account) {
+                        checkNotNull(menu.findItem(R.id.miDeleteUnconfirmedTransaction))
+                                .setVisible(record.getConfirmations() == 0);
                      }
                      currentActionMode = actionMode;
                      listView.setItemChecked(position, true);
@@ -540,9 +541,16 @@ public class TransactionHistoryFragment extends Fragment {
                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                       @Override
                                       public void onClick(DialogInterface dialog, int which) {
-                                         ((WalletBtcAccount)_mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
-                                         dialog.dismiss();
-                                         finishActionMode();
+                                         WalletAccount selectedAccount = _mbwManager.getSelectedAccount();
+                                         if (selectedAccount instanceof WalletBtcAccount) {
+                                            ((WalletBtcAccount) _mbwManager.getSelectedAccount()).deleteTransaction(Sha256Hash.of(record.getId()));
+                                            dialog.dismiss();
+                                            finishActionMode();
+                                         } else if (selectedAccount instanceof AbstractEthERC20Account) {
+                                            ((AbstractEthERC20Account) _mbwManager.getSelectedAccount()).deleteTransaction("0x" + HexUtils.toHex(record.getId()));
+                                            dialog.dismiss();
+                                            finishActionMode();
+                                         }
                                       }
                                    })
                                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -736,7 +744,6 @@ public class TransactionHistoryFragment extends Fragment {
    }
 
    private EnterAddressLabelUtil.TransactionLabelChangedHandler transactionLabelChanged = new EnterAddressLabelUtil.TransactionLabelChangedHandler() {
-
       @Override
       public void OnTransactionLabelChanged(Sha256Hash txid, String label) {
          MbwManager.getEventBus().post(new TransactionLabelChanged());
@@ -747,7 +754,9 @@ public class TransactionHistoryFragment extends Fragment {
       WalletAccount account = _mbwManager.getSelectedAccount();
       MetadataStorage metaData = _mbwManager.getMetadataStorage();
       try {
-         String fileName = "MyceliumExport_" + System.currentTimeMillis() + ".csv";
+         String accountLabel = _storage.getLabelByAccount(account.getId()).replaceAll("[^A-Za-z0-9]", "_");
+
+         String fileName = "MyceliumExport_" + accountLabel + "_" + System.currentTimeMillis() + ".csv";
 
          List<GenericTransactionSummary> history = account.getTransactionSummaries(0, Integer.MAX_VALUE);
 

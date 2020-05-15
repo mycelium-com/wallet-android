@@ -1,0 +1,14 @@
+ALTER TABLE EthContext ADD COLUMN enabledTokens TEXT;
+ALTER TABLE EthContext ADD COLUMN accountIndex INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS Erc20Context(
+    uuid TEXT PRIMARY KEY NOT NULL,
+    nonce TEXT NOT NULL,
+    contractAddress TEXT NOT NULL,
+    unitExponent INTEGER NOT NULL,
+    symbol TEXT NOT NULL,
+    ethAccountId TEXT NOT NULL,
+    FOREIGN KEY (uuid)
+        REFERENCES AccountContext (uuid)
+        ON DELETE CASCADE
+);

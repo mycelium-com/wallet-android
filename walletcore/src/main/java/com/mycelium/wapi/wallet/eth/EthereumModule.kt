@@ -5,7 +5,7 @@ import com.mrd.bitlib.model.NetworkParameters
 import com.mrd.bitlib.model.hdpath.HdKeyPath
 import com.mrd.bitlib.util.HexUtils
 import com.mycelium.generated.wallet.database.WalletDB
-import com.mycelium.net.HttpEndpoint
+
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.coins.Balance
 import com.mycelium.wapi.wallet.eth.coins.EthMain
@@ -27,13 +27,14 @@ class EthereumModule(
         private val secureStore: SecureKeyValueStore,
         private val backing: GenericBacking<EthAccountContext>,
         private val walletDB: WalletDB,
-        private val endpoints: List<HttpEndpoint>,
+        private val blockchainService: EthBlockchainService,
         networkParameters: NetworkParameters,
         metaDataStorage: IMetaDataStorage,
-        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule, ServerEthListChangedListener {
+        private val accountListener: AccountListener?) : GenericModule(metaDataStorage), WalletModule {
 
     var settings: EthereumSettings = EthereumSettings()
     val password = ""
+    fun getBip44Path(accountIndex: Int): HdKeyPath = HdKeyPath.valueOf("m/44'/60'/$accountIndex'/0/0")
     private val coinType = if (networkParameters.isProdnet) EthMain else EthTest
 
     private val accounts = mutableMapOf<UUID, EthAccount>()
@@ -57,7 +58,7 @@ class EthereumModule(
             backing.loadAccountContexts()
                     .associateBy({ it.uuid }, { ethAccountFromUUID(it.uuid) })
 
-    override fun canCreateAccount(config: Config) = (config is EthereumMasterseedConfig && accounts.isEmpty())
+    override fun canCreateAccount(config: Config) = config is EthereumMasterseedConfig
             || config is EthAddressConfig
 
     override fun createAccount(config: Config): WalletAccount<*> {
@@ -71,7 +72,7 @@ class EthereumModule(
                 backing.createAccountContext(accountContext)
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
+                result = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             }
             is EthAddressConfig -> {
                 val uuid = UUID.nameUUIDFromBytes(config.address.getBytes())
@@ -82,7 +83,7 @@ class EthereumModule(
                 baseLabel = accountContext.accountName
                 val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
                 result = EthAccount(accountContext, address = config.address, backing = ethAccountBacking,
-                        accountListener = accountListener, endpoints = endpoints)
+                        accountListener = accountListener, blockchainService = blockchainService)
             }
             else -> {
                 throw NotImplementedError("Unknown config")
@@ -100,7 +101,7 @@ class EthereumModule(
                     secureStore.getDecryptedValue(uuid.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())))
             val accountContext = createAccountContext(uuid)
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
-            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, endpoints)
+            val ethAccount = EthAccount(accountContext, credentials, ethAccountBacking, accountListener, blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         } else {
@@ -108,7 +109,7 @@ class EthereumModule(
             val ethAddress = EthAddress(coinType, secureStore.getPlaintextValue(uuid.toString().toByteArray()).toString())
             val ethAccountBacking = EthAccountBacking(walletDB, accountContext.uuid, coinType)
             val ethAccount = EthAccount(accountContext, address = ethAddress, backing = ethAccountBacking,
-                    accountListener = accountListener, endpoints = endpoints)
+                    accountListener = accountListener, blockchainService = blockchainService)
             accounts[ethAccount.id] = ethAccount
             ethAccount
         }
@@ -117,25 +118,25 @@ class EthereumModule(
     private fun deriveKey(): Credentials {
         val seed = MasterSeedManager.getMasterSeed(secureStore, AesKeyCipher.defaultKeyCipher())
         val rootNode = HdKeyNode.fromSeed(seed.bip32Seed, null)
-        val path = "m/44'/60'/0'/0/0"
+        val path = getBip44Path(getCurrentBip44Index() + 1)
 
-        val privKey = HexUtils.toHex(rootNode.createChildNode(HdKeyPath.valueOf(path)).privateKey.privateKeyBytes)
+        val privKey = HexUtils.toHex(rootNode.createChildNode(path).privateKey.privateKeyBytes)
         val credentials = Credentials.create(privKey)
 
         secureStore.encryptAndStoreValue(credentials.ecKeyPair.toUUID().toString().toByteArray(),
                 Keys.serialize(credentials.ecKeyPair), AesKeyCipher.defaultKeyCipher())
-        return Credentials.create(privKey)
+        return credentials
     }
 
     override fun deleteAccount(walletAccount: WalletAccount<*>, keyCipher: KeyCipher): Boolean {
         return if (walletAccount is EthAccount) {
-            walletAccount.stopSubscriptions(newThread = true)
             if (secureStore.hasCiphertextValue(walletAccount.id.toString().toByteArray())) {
                 secureStore.deleteEncryptedValue(walletAccount.id.toString().toByteArray(), AesKeyCipher.defaultKeyCipher())
             } else {
                 secureStore.deletePlaintextValue(walletAccount.id.toString().toByteArray())
             }
             backing.deleteAccountContext(walletAccount.id)
+            walletAccount.clearBacking()
             accounts.remove(walletAccount.id)
             true
         } else {
@@ -151,6 +152,8 @@ class EthereumModule(
                     accountContextInDB.accountName,
                     accountContextInDB.balance,
                     backing::updateAccountContext,
+                    accountContextInDB.accountIndex,
+                    accountContextInDB.enabledTokens,
                     accountContextInDB.archived,
                     accountContextInDB.blockHeight,
                     accountContextInDB.nonce)
@@ -158,24 +161,23 @@ class EthereumModule(
             EthAccountContext(
                     uuid,
                     coinType,
-                    "Ethereum",
+                    "Ethereum ${getCurrentBip44Index() + 2}",
                     Balance.getZeroBalance(coinType),
-                    backing::updateAccountContext)
+                    backing::updateAccountContext,
+                    getCurrentBip44Index() + 1)
         }
     }
+
+    private fun getCurrentBip44Index() = accounts.values
+            .filter { it.isDerivedFromInternalMasterseed }
+            .maxBy { it.accountIndex }
+            ?.accountIndex
+            ?: -1
 
     companion object {
         const val ID: String = "Ethereum"
     }
-
-    override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
-        getAccounts().map { it as EthAccount }
-                .forEach { it.serverListChanged(newEndpoints) }
-    }
 }
 
 fun WalletManager.getEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible }
-
-interface ServerEthListChangedListener {
-    fun serverListChanged(newEndpoints: Array<HttpEndpoint>)
-}
+fun WalletManager.getActiveEthAccounts() = getAccounts().filter { it is EthAccount && it.isVisible && it.isActive }

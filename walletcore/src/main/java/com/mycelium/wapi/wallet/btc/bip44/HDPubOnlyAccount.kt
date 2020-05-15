@@ -15,8 +15,7 @@ open class HDPubOnlyAccount(
         backing: Bip44BtcAccountBacking,
         wapi: Wapi
 ) : HDAccount(context, keyManagerMap, network, backing, wapi, Reference(ChangeAddressMode.NONE)) {
+    override fun canSpend(): Boolean = false
 
-    override fun canSpend(): Boolean {
-        return false
-    }
+    override fun canSign(): Boolean = false
 }
