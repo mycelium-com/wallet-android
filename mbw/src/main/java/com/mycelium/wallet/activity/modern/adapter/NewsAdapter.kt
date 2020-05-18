@@ -40,6 +40,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     var state = State.DEFAULT
     var isFavorite = false
     var bunnerClickListener: ((MediaFlowBannerInList?) -> Unit)? = null
+    var showBanner = true
 
     fun setData(data: List<News>) {
         dataMap.clear()
@@ -77,11 +78,13 @@ class NewsAdapter(val preferences: SharedPreferences)
                 }
             }
             selectedCategory == ALL -> {
-                val banners = SettingsPreference.getMediaFlowContent()?.bannersInList ?: listOf()
+                val banners = SettingsPreference.getMediaFlowContent()?.bannersInList?.filter {
+                    showBanner && it.isEnabled && SettingsPreference.isContentEnabled(it.parentId)
+                } ?: listOf()
                 NewsUtils.sort(dataMap.keys.toMutableList()).forEachIndexed { index, category ->
                     val sortedList = dataMap[category]?.toList()?.sortedByDescending { it.date }
                             ?: listOf()
-                    banners.filter { it.isEnabled }.find { it.index == index }?.let {
+                    banners.firstOrNull { it.index == index }?.let {
                         data.add(Entry(TYPE_BIG_BANNER, null, it))
                     }
                     if (sortedList.isNotEmpty()) {

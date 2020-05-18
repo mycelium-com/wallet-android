@@ -131,7 +131,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
             } else {
                 actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
                 for (BuySellButton button : SettingsPreference.getBalanceContent().getButtons()) {
-                    if(button.isEnabled()) {
+                    if(button.isEnabled() && SettingsPreference.isContentEnabled(button.getParentId())) {
                         Bundle args = new Bundle();
                         args.putSerializable("data", button);
                         actions.add(new ActionButton(ACTION.ADS, button.getName(), 0, button.getIconUrl(), args));

@@ -3,6 +3,7 @@ package com.mycelium.wallet
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
+import com.google.gson.stream.JsonReader
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
@@ -20,6 +21,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -30,7 +32,6 @@ interface  MyceliumNodesApi {
 
     @GET("/nodes-b-test.json")
     fun getNodesTest(): Call<MyceliumNodesResponse>
-
 }
 
 // A set of classes for parsing nodes-b.json file
@@ -47,10 +48,12 @@ class MyceliumNodesResponse(@SerializedName("BTC-testnet") val btcTestnet: BTCNe
                             @SerializedName("Balance") val balanceSettings: Map<String, BalanceContent>,
                             @SerializedName("Buy-Sell") val buySellSettings: Map<String, BuySellContent>)
 
-data class PartnerInfo(val id:String?,
-                       val name:String?,
-                       @SerializedName("start-date") val startDate: Date?,
-                       @SerializedName("end-date") val endDate: Date?)
+data class PartnerInfo(@SerializedName("start-date") val startDate: Date?,
+                       @SerializedName("end-date") val endDate: Date?,
+                       val id: String? = null,
+                       val name: String? = null) {
+    var isEnabled:Boolean? = true
+}
 
 // BTCNetResponse is intended for parsing nodes-b.json file
 class BTCNetResponse(val electrumx: ElectrumXResponse, @SerializedName("WAPI") val wapi: WapiSectionResponse)
@@ -88,6 +91,10 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
+//                    val stream = WalletApplication.getInstance().assets.open("nodes-b.json")
+//                    val jr = JsonReader(InputStreamReader(stream, "UTF-8"))
+//                    myceliumNodesResponse = gson.fromJson(jr, MyceliumNodesResponse::class.java)
+
                     val electrumXnodes = if (network.isTestnet())
                         myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
                     else
@@ -117,6 +124,11 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                     }
                     myceliumNodesResponse?.partnerInfos?.get("fio-presale")?.startDate?.let {
                         prefEditor.putLong(PREFS_FIO_START_DATE, it.time)
+                    }
+                    myceliumNodesResponse?.partnerInfos?.let {
+                        it.entries.forEach {
+                            prefEditor.putString("partner-info-${it.key}", gson.toJson(it.value))
+                        }
                     }
                     myceliumNodesResponse?.partners?.let { map ->
                         map.keys.forEach {

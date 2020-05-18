@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentActivity
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.ModernMain
+import com.mycelium.wallet.activity.settings.SettingsPreference
 import com.mycelium.wallet.activity.settings.SettingsPreference.getBuySellContent
 import com.mycelium.wallet.external.adapter.BuySellSelectAdapter
 import com.mycelium.wallet.external.adapter.BuySellSelectItem
@@ -39,7 +40,7 @@ class BuySellSelectActivity : FragmentActivity() {
                         }
                     }
                 } +
-                (getBuySellContent()?.listItem?.map {
+                (getBuySellContent()?.listItem?.filter { it.isEnabled && SettingsPreference.isContentEnabled(it.parentId) }?.map {
                     BuySellSelectItem(it.title, it.description, null, it.iconUrl) {
                         try {
                             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.link)))

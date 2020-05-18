@@ -217,14 +217,16 @@ public class ModernMain extends AppCompatActivity {
         if (SettingsPreference.getMainMenuContent() != null) {
             Collections.sort(SettingsPreference.getMainMenuContent().getPages(), (a1, a2) -> a1.getTabIndex() - a2.getTabIndex());
             for (MainMenuPage page : SettingsPreference.getMainMenuContent().getPages()) {
-                Bundle adsBundle = new Bundle();
-                adsBundle.putSerializable("page", page);
-                if (0 <= page.getTabIndex() && page.getTabIndex() < mTabsAdapter.getCount()) {
-                    mTabsAdapter.addTab(page.getTabIndex(), tabLayout.newTab().setText(page.getTabName()),
-                            AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
-                } else {
-                    mTabsAdapter.addTab(tabLayout.newTab().setText(page.getTabName()),
-                            AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
+                if (page.isEnabled() && SettingsPreference.isContentEnabled(page.getParentId())) {
+                    Bundle adsBundle = new Bundle();
+                    adsBundle.putSerializable("page", page);
+                    if (0 <= page.getTabIndex() && page.getTabIndex() < mTabsAdapter.getCount()) {
+                        mTabsAdapter.addTab(page.getTabIndex(), tabLayout.newTab().setText(page.getTabName()),
+                                AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
+                    } else {
+                        mTabsAdapter.addTab(tabLayout.newTab().setText(page.getTabName()),
+                                AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
+                    }
                 }
             }
         }

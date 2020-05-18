@@ -9,5 +9,6 @@ data class Partner(@SerializedName("title") val title: String,
                    @SerializedName("imageUrl") val imageUrl: String,
                    @SerializedName("info") val info: String?,
                    @SerializedName("link") val link: String?,
-                   @SerializedName("action") val action: String?,
-                   val isEnabled: Boolean = true)
+                   @SerializedName("action") val action: String?) {
+    var isEnabled: Boolean? = true
+}

@@ -13,8 +13,13 @@ import java.util.*
 object SettingsPreference {
     private val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
     private val MEDIA_FLOW_ENABLE = "media_flow_enable"
-    private val CURRENCYCOM_ENABLE = "currencycom_enable"
     private val FIO_ENABLE = "fio_enable"
+    private val PARTNER_KEY = "partner-info"
+    private val MEDIAFLOW_KEY = "mediaflow"
+    private val MAIN_MENU_KEY = "mainmenu"
+    private val BUY_SELL_KEY = "buysell"
+    private val BALANCE_KEY = "balance"
+    private val PARTNER_ENABLED = "partner-enabled"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
 
@@ -71,33 +76,43 @@ object SettingsPreference {
     @JvmStatic
     fun getMediaFlowContent(): MediaFlowContent? =
             Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("mediaflow-${getLanguage()}")) "mediaflow-${getLanguage()}" else "mediaflow-en", ""), MediaFlowContent::class.java)
+                    if (sharedPreferences.contains("${MEDIAFLOW_KEY}-${getLanguage()}")) "${MEDIAFLOW_KEY}-${getLanguage()}" else "${MEDIAFLOW_KEY}-en", ""), MediaFlowContent::class.java)
 
     @JvmStatic
     fun getMainMenuContent(): MainMenuContent? =
             Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("mainmenu-${getLanguage()}")) "mainmenu-${getLanguage()}" else "mainmenu-en", ""), MainMenuContent::class.java)
+                    if (sharedPreferences.contains("${MAIN_MENU_KEY}-${getLanguage()}")) "${MAIN_MENU_KEY}-${getLanguage()}" else "${MAIN_MENU_KEY}-en", ""), MainMenuContent::class.java)
 
     @JvmStatic
     fun getBalanceContent(): BalanceContent? =
             Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("balance-${getLanguage()}")) "balance-${getLanguage()}" else "balance-en", ""), BalanceContent::class.java)
+                    if (sharedPreferences.contains("${BALANCE_KEY}-${getLanguage()}")) "${BALANCE_KEY}-${getLanguage()}" else "${BALANCE_KEY}-en", ""), BalanceContent::class.java)
 
     @JvmStatic
     fun getBuySellContent(): BuySellContent? =
             Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("buysell-${getLanguage()}")) "buysell-${getLanguage()}" else "buysell-en", ""), BuySellContent::class.java)
+                    if (sharedPreferences.contains("${BUY_SELL_KEY}-${getLanguage()}")) "${BUY_SELL_KEY}-${getLanguage()}" else "${BUY_SELL_KEY}-en", ""), BuySellContent::class.java)
 
     @JvmStatic
     fun getLanguage(): String? = sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().language)
 
     @JvmStatic
-    fun getPartnerInfos():List<PartnerInfo> = listOf()
+    fun getPartnerInfos(): List<PartnerInfo> = mutableListOf<PartnerInfo>().apply {
+        sharedPreferences.all.filter { it.key.startsWith("${PARTNER_KEY}-") }.forEach {
+            add(Gson().fromJson(it.value.toString(), PartnerInfo::class.java))
+        }
+    }
+
+    private fun getPartnerInfo(id: String): PartnerInfo =
+            Gson().fromJson(sharedPreferences.getString("${PARTNER_KEY}-$id", ""), PartnerInfo::class.java)
 
     @JvmStatic
-    fun isEnabled(partnerInfo: PartnerInfo): Boolean = sharedPreferences.getBoolean("partner-enabled-${partnerInfo.id}", true)
+    fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)
 
-    fun setEnabled(partnerInfo: PartnerInfo, enable: Boolean) {
-        sharedPreferences.edit().putBoolean("partner-enabled-${partnerInfo.id}", enable).apply()
+    fun setEnabled(partnerInfoId: String, enable: Boolean) {
+        sharedPreferences.edit().putBoolean("${PARTNER_ENABLED}-${partnerInfoId}", enable).apply()
     }
+
+    @JvmStatic
+    fun isContentEnabled(id: String): Boolean = getPartnerInfo(id).isEnabled ?: true && isEnabled(id)
 }

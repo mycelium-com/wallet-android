@@ -10,4 +10,4 @@ data class MainMenuPage(val tabName: String,
                         val imageUrl: String,
                         val link: String,
                         val parentId:String,
-                        val isEnabled: Boolean = true) : Serializable
+                        var isEnabled: Boolean = true) : Serializable

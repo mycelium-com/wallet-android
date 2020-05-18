@@ -6,12 +6,11 @@ import android.content.Context.MODE_PRIVATE
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.inputmethod.InputMethodManager
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -136,41 +135,40 @@ class NewsFragment : Fragment() {
                 search_input.text = null
             }
         }
-        search_input.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(search: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                startUpdateSearch(search_input.text.toString())
-            }
-        })
+        search_input.doOnTextChanged { text, start, count, after ->
+            startUpdateSearch(search_input.text.toString())
+        }
         retry.setOnClickListener {
             WorkManager.getInstance(requireContext())
                     .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
         }
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
-        initTopBanner()
     }
 
     private fun initTopBanner() {
         if (currentNews == null) {
-            SettingsPreference.getMediaFlowContent()?.bannerTop?.filter { it.isEnabled }?.let { banners ->
-                val banner = banners[Random.nextInt(0, banners.size)]
-                top_banner.visibility = VISIBLE
-                Glide.with(banner_image)
-                        .load(banner.imageUrl)
-                        .into(banner_image)
-                top_banner.setOnClickListener {
-                    openLink(banner.link)
-                }
-                banner_close.setOnClickListener {
-                    top_banner.visibility = GONE
-                }
-            }
+            SettingsPreference.getMediaFlowContent()?.bannersTop
+                    ?.filter { it.isEnabled ?: true && preference.getBoolean(it.parentId, true)
+                            && SettingsPreference.isContentEnabled(it.parentId)}?.let { banners ->
+                        if (banners.isNotEmpty()) {
+                            val banner = banners[Random.nextInt(0, banners.size)]
+                            top_banner.visibility = VISIBLE
+                            Glide.with(banner_image)
+                                    .load(banner.imageUrl)
+                                    .into(banner_image)
+                            top_banner.setOnClickListener {
+                                openLink(banner.link)
+                            }
+                            banner_close.setOnClickListener {
+                                top_banner.visibility = GONE
+                                preference.edit().putBoolean(banner.parentId, false).apply()
+                            }
+                        }
+                    }
+        } else {
+            top_banner.visibility = GONE
+            adapter.showBanner = false
         }
     }
 
@@ -190,6 +188,7 @@ class NewsFragment : Fragment() {
         adapter.openClickListener = newsClick
         adapterSearch.openClickListener = newsClick
         loadItems()
+        initTopBanner()
         LocalBroadcastManager.getInstance(requireContext()).run {
             registerReceiver(updateReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_UPDATE_ACTION))
             registerReceiver(failReceiver, IntentFilter(NewsConstants.MEDIA_FLOW_FAIL_ACTION))

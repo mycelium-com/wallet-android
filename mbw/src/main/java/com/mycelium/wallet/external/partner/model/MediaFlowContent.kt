@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class MediaFlowContent(@SerializedName("banner-in-list") val bannersInList: List<MediaFlowBannerInList>,
                             @SerializedName("banner-top") val bannersTop: List<MediaFlowBannerBannerTop>,
-                            @SerializedName("banner-bottom-details") val bannersDetails: List<MediaFlowBannerBannerTop>)
+                            @SerializedName("banner-bottom-details") val bannersDetails: List<MediaFlowDetailsBannerBottom>)
 
 data class MediaFlowBannerInList(val imageUrl: String,
                                  val link: String,
@@ -20,5 +20,6 @@ data class MediaFlowBannerBannerTop(val imageUrl: String,
 
 data class MediaFlowDetailsBannerBottom(val imageUrl: String,
                                         val link: String,
+                                        val tag: String,
                                         val parentId: String,
                                         val isEnabled: Boolean = true)

@@ -1,9 +1,11 @@
 {
   "partner-info": {
     "fio-presale": {
+      "id": "fio-presale",
       "name": "Fio Presale",
       "start-date": "2019-09-25T00:00:00+0100",
-      "end-date": "2020-02-28T23:59:59+0100"
+      "end-date": "2020-02-28T23:59:59+0100",
+      "isEnabled": true
     },
     "currencycom": {
       "id": "currencycom",
@@ -20,7 +22,8 @@
           "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-large-banner.png",
           "link": "https://exchange.currency.com",
           "index": 2,
-          "parentId": "currencycom"
+          "parentId": "currencycom",
+          "isEnabled": true
         }
       ],
       "banner-top": [
@@ -45,9 +48,9 @@
       ],
       "banner-bottom-details" : [
         {
-          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-top-banner-1.png",
+          "imageUrl": "https://mycelium-wallet.s3.amazonaws.com/business-partners/currency/mediaflow-details-bunner.png",
           "link": "https://exchange.currency.com",
-          "tag" : "Featured article",
+          "tag" : "News",
           "parentId": "currencycom",
           "isEnabled": true
         }

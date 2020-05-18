@@ -132,9 +132,21 @@ class NewsActivity : AppCompatActivity() {
                     .putExtra(NewsConstants.NEWS, it))
         }
 
-//        SettingsPreference.getMediaFlowContent()?.bannersDetails?.filter{it.isEnabled}?.find {
-//            news.it.parentId
-//        }
+        SettingsPreference.getMediaFlowContent()?.bannersDetails
+                ?.firstOrNull { it.isEnabled?:true && news.categories.containsKey(it.tag)
+                        && SettingsPreference.isContentEnabled(it.parentId) }?.let {banner ->
+                    bottomButtonBanner.visibility = VISIBLE
+                    Glide.with(bottomButtonBanner)
+                            .load(banner.imageUrl)
+                            .into(bottomButtonBanner)
+                    bottomButtonBanner.setOnClickListener {
+                        openLink(banner.link)
+                    }
+                }
+    }
+
+    private fun openLink(link: String) {
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
     fun updateUI() {

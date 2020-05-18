@@ -10,5 +10,5 @@ data class BuySellItem(val title: String,
                        val description: String,
                        val iconUrl: String,
                        val link: String,
-                       val parentId:String,
+                       val parentId: String,
                        val isEnabled: Boolean = true)
