@@ -827,6 +827,7 @@ public class MbwManager {
         walletManager.add(new ERC20Module(secureKeyValueStore, new ERC20Backing(db, genericBacking), walletDB,
                 ethBlockchainService, networkParameters, getMetadataStorage(), accountListener, ethereumModule));
         walletManager.init();
+        walletManager.startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS);
         return walletManager;
     }
 
