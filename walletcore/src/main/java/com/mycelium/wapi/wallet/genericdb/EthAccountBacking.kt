@@ -91,18 +91,14 @@ class EthAccountBacking(walletDB: WalletDB, private val uuid: UUID, private val 
             }).executeAsList()
 
 
-    fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String, value: Value,
+    fun putTransaction(blockNumber: Int, timestamp: Long, txid: String, raw: String, from: String, to: String?, value: Value,
                        gasPrice: Value, confirmations: Int, nonce: BigInteger,
                        gasLimit: BigInteger = Transfer.GAS_LIMIT, gasUsed: BigInteger? = null) {
         queries.insertTransaction(txid, uuid, currency, if (blockNumber == -1) Int.MAX_VALUE else blockNumber, timestamp, raw, value, gasPrice, confirmations)
-        ethQueries.insertTransaction(txid, uuid, from, to, nonce, gasLimit)
+        ethQueries.insertTransaction(txid, uuid, from, to ?: contractCreationAddress.addressString, nonce, gasLimit)
         if (gasUsed != null) {
             updateGasUsed(txid, gasUsed, gasPrice)
         }
-    }
-
-    fun updateNonce(txid: String, nonce: BigInteger) {
-        ethQueries.updateNonce(nonce, uuid, txid)
     }
 
     fun deleteAllAccountTransactions() {

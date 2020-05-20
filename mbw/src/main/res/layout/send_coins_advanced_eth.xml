@@ -29,7 +29,7 @@
 
         <TextView
             android:id="@+id/tvNonceLabel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
@@ -38,8 +38,20 @@
             android:textSize="16sp"
             android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ic_info_replace"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="1dp"
+            android:onClick="@{_ -> activity.showTxReplaceInfo()}"
+            android:tint="@color/dark_sky_blue"
+            android:visibility="@{viewModel.txItems.size() > 1 &amp;&amp; !(viewModel.account instanceof ERC20Account) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintLeft_toRightOf="@id/tvNonceLabel"
+            app:layout_constraintTop_toTopOf="@id/tvNonceLabel"
+            app:srcCompat="@drawable/ic_info" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner"

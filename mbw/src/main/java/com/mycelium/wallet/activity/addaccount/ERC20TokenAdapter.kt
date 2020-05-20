@@ -19,6 +19,7 @@ class ERC20TokenAdapter(context: Context,
                         val objects: List<ERC20Token>,
                         val alreadyAdded: List<ERC20Token>) : ArrayAdapter<ERC20Token>(context, resource, objects) {
 
+    var selectListener: ((List<ERC20Token>) -> Unit)? = null
     val selectedList = mutableListOf<ERC20Token>()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
@@ -53,6 +54,7 @@ class ERC20TokenAdapter(context: Context,
                     } else {
                         selectedList.add(token)
                     }
+                    selectListener?.invoke(selectedList)
                     notifyDataSetChanged()
                 }
             }
