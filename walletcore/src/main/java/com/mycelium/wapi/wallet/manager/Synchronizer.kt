@@ -16,28 +16,23 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         walletManager.state = State.SYNCHRONIZING
         walletManager.walletListener?.syncStarted()
 
-        try {
-            if (walletManager.isNetworkConnected) {
-                // If we have any lingering outgoing transactions broadcast them now
-                // this function goes over all accounts - it is reasonable to
-                // exclude this from SyncMode.onlyActiveAccount behaviour
-                if (!broadcastOutgoingTransactions()) {
-                    return
-                }
-
-                // Synchronize selected accounts with the blockchain
-                val list = if (accounts.isEmpty() ||
-                        syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
-                        syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
-                    walletManager.getAllActiveAccounts()
-                } else {
-                    accounts.filterNotNull().filter { it.isActive }
-                }.filter { !it.isSyncing }
-                startSync(list)
+        if (walletManager.isNetworkConnected) {
+            // If we have any lingering outgoing transactions broadcast them now
+            // this function goes over all accounts - it is reasonable to
+            // exclude this from SyncMode.onlyActiveAccount behaviour
+            if (!broadcastOutgoingTransactions()) {
+                return
             }
-        } finally {
-            walletManager.state = State.READY
-            walletManager.walletListener?.syncStopped()
+
+            // Synchronize selected accounts with the blockchain
+            val list = if (accounts.isEmpty() ||
+                    syncMode == SyncMode.FULL_SYNC_ALL_ACCOUNTS ||
+                    syncMode == SyncMode.NORMAL_ALL_ACCOUNTS_FORCED) {
+                walletManager.getAllActiveAccounts()
+            } else {
+                accounts.filterNotNull().filter { it.isActive }
+            }.filter { !it.isSyncing }
+            startSync(list)
         }
     }
 
@@ -54,6 +49,9 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
             }.map {
                 it.await()
             }
+        }.invokeOnCompletion {
+            walletManager.state = State.READY
+            walletManager.walletListener?.syncStopped()
         }
     }
 
