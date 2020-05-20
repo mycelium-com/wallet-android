@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class FormattedLog {
         @SuppressLint("SimpleDateFormat")
-        private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS");
+        private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
         private Logs log;
 
         public FormattedLog(Logs log) {

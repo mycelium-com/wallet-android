@@ -49,22 +49,12 @@ class SendEthModel(application: Application,
         }
     }
 
-    val nonce: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
-        override fun setValue(value: BigInteger?) {
-            if (value != this.value) {
-                super.setValue(value)
-                val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
-                transactionData.value = EthTransactionData(value, oldData.gasLimit, oldData.inputData)
-            }
-        }
-    }
-
     val gasLimit: MutableLiveData<BigInteger?> = object : MutableLiveData<BigInteger?>() {
         override fun setValue(value: BigInteger?) {
             if (value != this.value) {
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
-                transactionData.value = EthTransactionData(oldData.nonce, value, oldData.inputData)
+                transactionData.value = EthTransactionData(oldData.nonce, value, oldData.inputData, oldData.suggestedGasPrice)
                 showGasLimitError.value = value != null && value < account.typicalEstimatedTransactionSize.toBigInteger()
             }
         }
@@ -76,7 +66,7 @@ class SendEthModel(application: Application,
                 super.setValue(value)
                 val oldData = (transactionData.value as? EthTransactionData) ?: EthTransactionData()
                 transactionData.value = EthTransactionData(oldData.nonce, oldData.gasLimit,
-                        if (value == null || value.isEmpty()) null else value)
+                        if (value == null || value.isEmpty()) null else value, oldData.suggestedGasPrice)
             }
         }
     }

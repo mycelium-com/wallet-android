@@ -435,7 +435,7 @@ abstract class SendCoinsModel(
                 paymentRequestHandler.value?.hasValidPaymentRequest() == true -> {
                     handlePaymentRequest(toSend)
                 }
-                receivingAddress.value != null -> {
+                receivingAddress.value != null && !toSend.isZero()-> {
                     // createTx potentially takes long, if server interaction is involved
                     transaction = account.createTx(receivingAddress.value, toSend, FeePerKbFee(selectedFee.value!!), transactionData.value)
                     spendingUnconfirmed.postValue(account.isSpendingUnconfirmed(transaction))
