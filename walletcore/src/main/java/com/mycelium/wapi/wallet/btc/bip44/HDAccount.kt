@@ -15,6 +15,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
@@ -69,7 +70,6 @@ open class HDAccount(
             }
             return addresses
         }
-
 
     open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
@@ -358,6 +358,7 @@ open class HDAccount(
     @Throws(WapiException::class)
     override fun doDiscoveryForAddresses(addresses: List<Address>): Set<BipDerivationType> {
         // Do look ahead query
+        val startMillis = System.currentTimeMillis()
         val result = _wapi.queryTransactionInventory(
                 QueryTransactionInventoryRequest(Wapi.VERSION, addresses)).result
         blockChainHeight = result.height
@@ -369,10 +370,25 @@ open class HDAccount(
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
-        ids.chunked(50).forEach { fewIds ->
-            val transactions = getTransactionsBatched(fewIds).result.transactions
+        val getTxidsMillis = System.currentTimeMillis()
+        // query DB only once to sort TXIDs into new and old ones. Unconfirmed transactions are
+        // "new" in this sense until we know which block they fell into.
+        val sortedIds = mutableMapOf(true to mutableSetOf<Sha256Hash>(), false to mutableSetOf())
+        ids.forEach { sortedIds[backing.getTransaction(it)?.height ?: 0 > 0]!!.add(it) }
+        val newIds = sortedIds[false]!!
+        val knownIds = sortedIds[true]!!
+        newIds.chunked(50).forEach { fewIds ->
+            val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
+        val syncTxsMillis = System.currentTimeMillis()
+        // HACK: skipping server round trip but conserving local handling
+        handleNewExternalTransactions(knownIds.map { backing.getTransaction(it) })
+        _logger.info("Sync for ${addresses.size} addresses took" +
+                " ${getTxidsMillis - startMillis}ms to get ${ids.size} TXIDs," +
+                " ${syncTxsMillis - getTxidsMillis}ms to load ${newIds.size} missing TXs and" +
+                " ${System.currentTimeMillis() - syncTxsMillis}ms to load ${knownIds.size} TXs we had" +
+                " already.")
         return derivePaths.filter { derivationType ->
             // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
