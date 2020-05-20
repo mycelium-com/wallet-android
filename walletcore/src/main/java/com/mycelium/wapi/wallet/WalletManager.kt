@@ -71,8 +71,6 @@ constructor(val network: NetworkParameters,
         feeEstimations.addProvider(EthFeeProvider(network.isTestnet, backing))
         feeEstimations.addProvider(BtcFeeProvider(network.isTestnet, wapi, backing))
         feeEstimations.addProvider(ColuFeeProvider(network.isTestnet, wapi, backing))
-
-        startSynchronization(SyncMode.FULL_SYNC_ALL_ACCOUNTS)
     }
 
     fun getAccountIds(): List<UUID> = accounts.keys().toList()
