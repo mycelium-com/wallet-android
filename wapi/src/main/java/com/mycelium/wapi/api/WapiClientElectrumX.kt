@@ -315,10 +315,11 @@ class WapiClientElectrumX(
 
             estimatesArray.forEach { response ->
                 // This might happened if server haven't got enough info.
-                if (response.getResult(Double::class.java)!! == -1.0) {
+                val result = response.getResult(Double::class.java) ?: -1.0
+                if (result == -1.0) {
                     return WapiResponse<MinerFeeEstimationResponse>(Wapi.ERROR_CODE_INTERNAL_SERVER_ERROR, null)
                 }
-                feeEstimationMap[requestIdToBlocks[response.id]] = Bitcoins.valueOf(response.getResult(Double::class.java)!!)
+                feeEstimationMap[requestIdToBlocks[response.id]] = Bitcoins.valueOf(result)
             }
             return WapiResponse(MinerFeeEstimationResponse(FeeEstimation(feeEstimationMap, Date())))
         } catch (ex: RpcResponseException) {

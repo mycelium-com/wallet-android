@@ -23,10 +23,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.common.base.Strings
 import com.mrd.bitlib.crypto.HdKeyNode
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.wallet.Constants
-import com.mycelium.wallet.MbwManager
-import com.mycelium.wallet.R
-import com.mycelium.wallet.Utils
+import com.mycelium.wallet.*
 import com.mycelium.wallet.activity.GetAmountActivity
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.modern.GetFromAddressBookActivity
@@ -319,6 +316,15 @@ class SendCoinsActivity : AppCompatActivity(), BroadcastResultListener {
                 .show()
     }
 
+    fun showTxReplaceInfo() {
+        AlertDialog.Builder(this, R.style.MyceliumModern_Dialog_BlueButtons)
+                .setTitle(R.string.tx_replace_info_title)
+                .setMessage(R.string.tx_replacae_info_desc)
+                .setPositiveButton(R.string.button_ok, null)
+                .create()
+                .show()
+    }
+
     /**
      * Checks whether the last outgoing transaction that was sent recently (within 10 minutes)
      * has the same amount and receiving address to warn a user about possible duplicate sending.
@@ -525,6 +531,6 @@ class TransactionItem(val tx: GenericTransactionSummary, private val dateString:
 }
 
 class NoneItem : SpinnerItem {
-    override fun toString(): String = "none"
+    override fun toString(): String = WalletApplication.getInstance().getString(R.string.none)
     override fun equals(other: Any?) = this.toString() == other.toString()
 }
