@@ -49,6 +49,7 @@ import com.mycelium.wallet.event.SelectedCurrencyChanged
 import com.mycelium.wallet.exchange.ValueSum
 import com.mycelium.wapi.wallet.coins.AssetInfo
 import com.mycelium.wapi.wallet.coins.Value
+import com.mycelium.wapi.wallet.eth.coins.EthCoin
 import com.squareup.otto.Bus
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.toggleable_currency_display.view.*
@@ -132,9 +133,24 @@ open class ToggleableCurrencyDisplay : LinearLayout {
             }
 
             visibility = View.VISIBLE
-            tvDisplayValue.text = currentValue?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+            val displayValue = currentValue?.toString(currencySwitcher.getDenomintation(coinType!!)!!)
+            tvDisplayValue.text = if (currentValue?.type is EthCoin)
+                makeNDigitsAfterComma(displayValue, 4)
+            else
+                displayValue
             val currentCurrency = currencySwitcher.getCurrentCurrencyIncludingDenomination(coinType!!)
             tvCurrency.text = currentCurrency
+        }
+    }
+
+    private fun makeNDigitsAfterComma(displayValue: String?, n: Int): CharSequence? {
+        displayValue ?: return null
+        val commaPos = displayValue.indexOf(".")
+        val digitsAfterComma = displayValue.length - (displayValue.indexOf(".") + 1)
+        return if (commaPos == -1 || digitsAfterComma < (n + 1)) {
+            displayValue
+        } else {
+            displayValue.substring(0, displayValue.length - (digitsAfterComma - n))
         }
     }
 

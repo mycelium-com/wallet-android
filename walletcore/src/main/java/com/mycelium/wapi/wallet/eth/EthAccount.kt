@@ -3,7 +3,6 @@ package com.mycelium.wapi.wallet.eth
 import com.mrd.bitlib.crypto.InMemoryPrivateKey
 import com.mrd.bitlib.util.BitUtils
 import com.mrd.bitlib.util.HexUtils
-import com.mycelium.net.HttpsEndpoint
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Balance
@@ -21,17 +20,18 @@ import org.web3j.utils.Numeric
 import java.io.IOException
 import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 class EthAccount(private val accountContext: EthAccountContext,
                  credentials: Credentials? = null,
                  backing: EthAccountBacking,
                  private val accountListener: AccountListener?,
-                 web3jWrapper: Web3jWrapper,
-                 private val transactionServiceEndpoints: List<HttpsEndpoint>,
+                 blockchainService: EthBlockchainService,
                  address: EthAddress? = null) : AbstractEthERC20Account(accountContext.currency, credentials,
-        backing, EthAccount::class.simpleName, web3jWrapper, address) {
+        backing, blockchainService, EthAccount::class.simpleName, address) {
     private var removed = false
+
     var enabledTokens: MutableList<String> = accountContext.enabledTokens?.toMutableList()
             ?: mutableListOf()
 
@@ -56,11 +56,11 @@ class EthAccount(private val accountContext: EthAccountContext,
     @Throws(InsufficientFundsException::class, BuildTransactionException::class)
     override fun createTx(toAddress: Address, value: Value, gasPrice: Fee, data: TransactionData?): Transaction {
         val gasPriceValue = (gasPrice as FeePerKbFee).feePerKb
-        val ethTxData = (data as? EthTransactionData)
-        val nonce = ethTxData?.nonce ?: getNewNonce(receivingAddress)
+        val ethTxData = data as? EthTransactionData
+        val nonce = ethTxData?.nonce ?: getNewNonce()
         val gasLimit = ethTxData?.gasLimit ?: BigInteger.valueOf(typicalEstimatedTransactionSize.toLong())
         val inputData = ethTxData?.inputData ?: ""
-        val fee = if (ethTxData?.suggestedGasPrice != null) valueOf(coinType, ethTxData.suggestedGasPrice!!) else gasPrice.feePerKb
+        val fee = ethTxData?.suggestedGasPrice ?: gasPrice.feePerKb.value
 
         if (gasPriceValue.value <= BigInteger.ZERO) {
             throw BuildTransactionException(Throwable("Gas price should be positive and non-zero"))
@@ -75,32 +75,30 @@ class EthAccount(private val accountContext: EthAccountContext,
             throw InsufficientFundsException(Throwable("Insufficient funds to send " + Convert.fromWei(value.value.toBigDecimal(), Convert.Unit.ETHER) +
                     " ether with gas price " + Convert.fromWei(gasPriceValue.valueAsBigDecimal, Convert.Unit.GWEI) + " gwei"))
         }
-
-        try {
-            val rawTransaction = RawTransaction.createTransaction(nonce, fee.value, gasLimit, toAddress.toString(), value.value, inputData)
-            return EthTransaction(coinType, toAddress, value, FeePerKbFee(fee), rawTransaction)
-        } catch (e: Exception) {
-            throw BuildTransactionException(Throwable(e.localizedMessage))
-        }
+        return EthTransaction(coinType, toAddress.toString(), value, fee, nonce, gasLimit, inputData)
     }
 
-    override fun signTx(request: Transaction?, keyCipher: KeyCipher?) {
-        val rawTransaction = (request as EthTransaction).rawTransaction
+    override fun signTx(request: Transaction, keyCipher: KeyCipher?) {
+        val rawTransaction = (request as EthTransaction).run {
+            RawTransaction.createTransaction(nonce, gasPrice, gasLimit, toAddress, value.value,
+                    inputData)
+        }
         val signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials)
         val hexValue = Numeric.toHexString(signedMessage)
-        request.signedHex = hexValue
-        request.txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+        request.apply {
+            signedHex = hexValue
+            txHash = TransactionUtils.generateTransactionHash(rawTransaction, credentials)
+            txBinary = TransactionEncoder.encode(rawTransaction)!!
+        }
     }
 
     override fun broadcastTx(tx: Transaction): BroadcastResult {
         try {
-            val ethSendTransaction = web3jWrapper.ethSendTransaction((tx as EthTransaction).rawTransaction, credentials!!)
-            if (ethSendTransaction.hasError()) {
-                return BroadcastResult(ethSendTransaction.error.message, BroadcastResultType.REJECT_INVALID_TX_PARAMS)
-            }
+            blockchainService.sendTransaction((tx as EthTransaction).signedHex!!)
+                    ?: return BroadcastResult(BroadcastResultType.REJECT_INVALID_TX_PARAMS)
             backing.putTransaction(-1, System.currentTimeMillis() / 1000, "0x" + HexUtils.toHex(tx.txHash),
-                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress.toString(), tx.value,
-                    (tx.gasPrice as FeePerKbFee).feePerKb * tx.rawTransaction.gasLimit, 0, tx.rawTransaction.nonce)
+                    tx.signedHex!!, receivingAddress.addressString, tx.toAddress, tx.value,
+                    valueOf(coinType, tx.gasPrice * tx.gasLimit), 0, tx.nonce)
         } catch (e: IOException) {
             return BroadcastResult(BroadcastResultType.NO_SERVER_CONNECTION)
         }
@@ -110,8 +108,6 @@ class EthAccount(private val accountContext: EthAccountContext,
     override fun getCoinType() = accountContext.currency
 
     override fun getBasedOnCoinType() = coinType
-
-    private val ethBalanceService = EthBalanceService(receivingAddress.toString(), coinType, web3jWrapper)
 
     override fun getAccountBalance() = accountContext.balance
 
@@ -135,12 +131,9 @@ class EthAccount(private val accountContext: EthAccountContext,
     }
 
     override fun updateBalanceCache(): Boolean {
-        ethBalanceService.updateBalanceCache()
-        var newBalance = ethBalanceService.balance
-
         val pendingReceiving = getPendingReceiving()
         val pendingSending = getPendingSending()
-        newBalance = Balance(valueOf(coinType, newBalance.confirmed.value - pendingSending),
+        val newBalance = Balance(valueOf(coinType, getConfirmed() - pendingSending),
                 valueOf(coinType, pendingReceiving), valueOf(coinType, pendingSending), Value.zeroValue(coinType))
         if (newBalance != accountContext.balance) {
             accountContext.balance = newBalance
@@ -149,6 +142,11 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
         return false
     }
+
+    private fun getConfirmed(): BigInteger = getTransactionSummaries(0, Int.MAX_VALUE)
+            .filter { it.confirmations > 0 }
+            .map { it.transferred.value }
+            .fold(BigInteger.ZERO, BigInteger::add)
 
     private fun getPendingReceiving(): BigInteger {
         return backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
@@ -166,7 +164,6 @@ class EthAccount(private val accountContext: EthAccountContext,
         }
                 .map { tx -> tx.value.value + tx.fee!!.value }
                 .fold(BigInteger.ZERO, BigInteger::add) +
-
                 backing.getUnconfirmedTransactions(receivingAddress.addressString).filter {
                     it.sender.addressString.equals(receiveAddress.addressString, true)
                             && it.receiver.addressString.equals(receiveAddress.addressString, true)
@@ -177,7 +174,7 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     private fun syncTransactions() {
         try {
-            val remoteTransactions = EthTransactionService(receiveAddress.addressString, transactionServiceEndpoints).getTransactions()
+            val remoteTransactions = blockchainService.getTransactions(receivingAddress.addressString)
             remoteTransactions.forEach { tx ->
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                         valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed
@@ -190,6 +187,7 @@ class EthAccount(private val accountContext: EthAccountContext,
             val remoteTransactionsIds = remoteTransactions.map { it.txid }
             val toRemove = localTxs.filter { localTx ->
                 !remoteTransactionsIds.contains("0x" + HexUtils.toHex(localTx.id))
+                        && (System.currentTimeMillis() / 1000 - localTx.timestamp > TimeUnit.SECONDS.toSeconds(150))
             }
             toRemove.map { "0x" + HexUtils.toHex(it.id) }.forEach {
                 backing.deleteTransaction(it)
@@ -244,21 +242,6 @@ class EthAccount(private val accountContext: EthAccountContext,
 
     override fun getPrivateKey(cipher: KeyCipher?): InMemoryPrivateKey {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    fun fetchTxNonce(txid: String): BigInteger? {
-        return try {
-            val tx = web3jWrapper.ethGetTransactionByHash(txid).send()
-            if (tx.result == null) {
-                null
-            } else {
-                val nonce = tx.result.nonce
-                backing.updateNonce(txid, nonce)
-                nonce
-            }
-        } catch (e: Exception) {
-            null
-        }
     }
 }
 

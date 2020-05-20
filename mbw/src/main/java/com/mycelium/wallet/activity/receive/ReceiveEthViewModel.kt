@@ -16,13 +16,13 @@ class ReceiveEthViewModel(application: Application) : ReceiveCoinsViewModel(appl
 
     override fun getTitle(): String {
         return if (Value.isNullOrZero(model.amount.value)) {
-            context.getString(R.string.address_title, context.getString(R.string.eth_accounts_name))
+            context.getString(R.string.address_title, context.getString(R.string.ethereum_name))
         } else {
             context.getString(R.string.payment_request)
         }
     }
 
-    override fun getCurrencyName() = context.getString(R.string.eth_accounts_name)
+    override fun getCurrencyName() = context.getString(R.string.ethereum_name)
 
     companion object {
         private const val ACCOUNT_LABEL = "ethereum"

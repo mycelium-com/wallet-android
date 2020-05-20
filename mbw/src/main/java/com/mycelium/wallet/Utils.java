@@ -123,6 +123,7 @@ import com.mycelium.wapi.wallet.colu.coins.RMCCoin;
 import com.mycelium.wapi.wallet.colu.coins.RMCCoinTest;
 import com.mycelium.wapi.wallet.erc20.ERC20Account;
 import com.mycelium.wapi.wallet.erc20.ERC20ModuleKt;
+import com.mycelium.wapi.wallet.eth.AbstractEthERC20Account;
 import com.mycelium.wapi.wallet.eth.EthAccount;
 import com.mycelium.wapi.wallet.fiat.coins.FiatType;
 
@@ -1022,7 +1023,7 @@ public class Utils {
       if (account instanceof Bip44BCHAccount
               || account instanceof SingleAddressBCHAccount
               || account instanceof ColuAccount
-              || account instanceof EthAccount) {
+              || account instanceof AbstractEthERC20Account) {
          return false; //we do not support these account types in LT
       }
       if (!((WalletBtcAccount)(account)).getReceivingAddress().isPresent()) {
