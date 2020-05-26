@@ -12,8 +12,9 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
     fromAddress TEXT NOT NULL,
     toAddress TEXT NOT NULL,
     nonce TEXT AS BigInteger,
-    gasLimit TEXT as BigInteger DEFAULT 21000 NOT NULL,
-    gasUsed TEXT as BigInteger DEFAULT 21000 NOT NULL,
+    gasLimit TEXT AS BigInteger DEFAULT 21000 NOT NULL,
+    gasUsed TEXT AS BigInteger DEFAULT 21000 NOT NULL,
+    success INTEGER AS Boolean NOT NULL DEFAULT 1,
     PRIMARY KEY (txid, uuid),
     FOREIGN KEY (txid, uuid)
             REFERENCES AccountBacking (txid, uuid)
@@ -22,8 +23,8 @@ CREATE TABLE IF NOT EXISTS EthAccountBacking (
 
 
 selectTransactionSummaries:
-SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -34,8 +35,8 @@ FROM EthAccountBacking AS eb
 -- Selects transactions since time in seconds
 
 selectTransactionSummariesSince:
-SELECT eb.txid, b.currency, b.blockNumber, b.timestamp,
-    b.value, b.fee, b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+    eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -43,8 +44,8 @@ FROM EthAccountBacking AS eb
         ORDER BY b.blockNumber DESC, b.timestamp DESC;
 
 selectTransactionSummaryById:
-SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee,
-    b.confirmations, eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed
+SELECT eb.txid, b.currency, b.blockNumber, b.timestamp, b.value, b.fee, b.confirmations,
+     eb.fromAddress, eb.toAddress, eb.nonce, eb.gasLimit, eb.gasUsed, eb.success
 FROM EthAccountBacking AS eb
     INNER JOIN AccountBacking AS b
     ON eb.uuid = b.uuid AND eb.txid = b.txid
@@ -59,8 +60,8 @@ FROM EthAccountBacking AS eb
         WHERE eb.uuid = (:uuid) AND b.confirmations = 0 ORDER BY b.blockNumber DESC, b.timestamp DESC;
 
 insertTransaction:
-INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO EthAccountBacking(txid, uuid, fromAddress, toAddress, nonce, gasLimit, success)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 updateGasUsed:
 UPDATE EthAccountBacking

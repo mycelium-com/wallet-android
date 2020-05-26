@@ -96,6 +96,16 @@ object Adapters {
         }
     }
 
+    val booleanAdapter = object : ColumnAdapter<Boolean, String> {
+        override fun decode(databaseValue: String): Boolean {
+            return databaseValue.toInt() != 0
+        }
+
+        override fun encode(value: Boolean): String {
+            return (if (value) 1 else 0).toString()
+        }
+    }
+
     val listAdapter = object : ColumnAdapter<List<String>, String> {
         override fun decode(databaseValue: String): List<String> {
             val mapper = ObjectMapper()
@@ -112,7 +122,8 @@ object Adapters {
 val accountBackingAdapter = AccountBacking.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.valueAdapter, Adapters.valueAdapter)
 
-val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter, Adapters.bigIntAdapter)
+val ethAccountBackingAdapter = EthAccountBacking.Adapter(Adapters.uuidAdapter, Adapters.bigIntAdapter,
+        Adapters.bigIntAdapter, Adapters.bigIntAdapter)
 
 val accountContextAdapter = AccountContext.Adapter(Adapters.uuidAdapter, Adapters.cryptoCurrencyAdapter,
         Adapters.balanceAdapter)

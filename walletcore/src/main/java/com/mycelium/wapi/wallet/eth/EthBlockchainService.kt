@@ -30,7 +30,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
         return result
     }
 
-    fun sendTransaction(hex: String): String? {
+    fun sendTransaction(hex: String): SendResult {
         val client = OkHttpClient()
         val url = URL("${endpoints.random()}/api/v2/sendtx/$hex")
         val request = Request.Builder()
@@ -38,8 +38,8 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
                 .post(RequestBody.create(MediaType.parse("text/plain"), hex))
                 .build()
         val response = client.newCall(request).execute()
-
-        return mapper.readValue(response.body()!!.string(), SendTxResponse::class.java).result
+        val result = mapper.readValue(response.body()!!.string(), SendTxResponse::class.java)
+        return SendResult(result.result != null, result.error)
     }
 
     fun getBlockHeight(): BigInteger {
@@ -71,6 +71,8 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
     override fun serverListChanged(newEndpoints: Array<HttpEndpoint>) {
         endpoints = newEndpoints.toList()
     }
+
+    class SendResult(val success: Boolean, val message: String?)
 }
 
 private fun isOutgoing(address: String, transfer: TokenTransfer) =
@@ -135,6 +137,9 @@ class Tx {
     val gasPrice: BigInteger
         get() = ethereumSpecific!!.gasPrice
 
+    val success: Boolean
+        get() = ethereumSpecific!!.status
+
     val tokenTransfers: List<TokenTransfer> = emptyList()
 
     fun getTokenTransfer(contractAddress: String): TokenTransfer? =
@@ -167,6 +172,7 @@ private class EthereumSpecific {
     val gasLimit: BigInteger = BigInteger.ZERO
     val gasUsed: BigInteger = BigInteger.ZERO
     val gasPrice: BigInteger = BigInteger.ZERO
+    val status: Boolean = true
 }
 
 interface ServerEthListChangedListener {
