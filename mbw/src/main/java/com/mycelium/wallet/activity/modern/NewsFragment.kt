@@ -18,6 +18,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
+import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
@@ -107,7 +108,7 @@ class NewsFragment : Fragment() {
             requireActivity().finish()
             startActivity(Intent(requireContext(), ModernMain::class.java))
         }
-        adapter.bunnerClickListener = {
+        adapter.bannerClickListener = {
             it?.link?.run {
                 openLink(this)
             }
@@ -139,6 +140,11 @@ class NewsFragment : Fragment() {
             startUpdateSearch(search_input.text.toString())
         }
         retry.setOnClickListener {
+            WorkManager.getInstance(requireContext())
+                    .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
+        }
+        startSync.visibility = if (BuildConfig.DEBUG) VISIBLE else GONE
+        startSync.setOnClickListener {
             WorkManager.getInstance(requireContext())
                     .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
         }

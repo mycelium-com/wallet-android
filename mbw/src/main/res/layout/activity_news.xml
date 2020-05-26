@@ -97,6 +97,7 @@
                 tools:ignore="WebViewLayout">
 
                 <LinearLayout
+                    android:id="@+id/headLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"

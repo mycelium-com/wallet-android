@@ -114,5 +114,5 @@ object SettingsPreference {
     }
 
     @JvmStatic
-    fun isContentEnabled(id: String): Boolean = getPartnerInfo(id).isEnabled ?: true && isEnabled(id)
+    fun isContentEnabled(id: String): Boolean = getPartnerInfo(id).let { it.isEnabled ?: true && it.isActive() } && isEnabled(id)
 }

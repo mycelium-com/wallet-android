@@ -37,6 +37,7 @@ import com.mycelium.wallet.external.mediaflow.database.NewsDatabase
 import com.mycelium.wallet.external.mediaflow.model.News
 import kotlinx.android.synthetic.main.activity_news.*
 import kotlin.math.abs
+import kotlin.math.exp
 
 
 class NewsActivity : AppCompatActivity() {
@@ -124,6 +125,13 @@ class NewsActivity : AppCompatActivity() {
             val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight
             layoutParams.width = scrollView.measuredWidth * scrollY / scrollHeight
             scrollBar.layoutParams = layoutParams
+            if (bottomButtonBanner.visibility == VISIBLE) {
+                // sigmoid function for smooth change translationY of banner button
+                val contentHeight = content.height + headLayout.height + tvTitle.height +
+                        resources.getDimensionPixelOffset(R.dimen.media_head_margin_sum)
+                val sigmoid = 1.0f / (1.0f + exp((contentHeight - scrollView.measuredHeight - scrollY).toDouble() / 100))
+                bottomButtonBanner.translationY = (sigmoid * bottomButtonBanner.height).toFloat()
+            }
         })
         shareBtn2.setOnClickListener {
             share()
@@ -137,8 +145,10 @@ class NewsActivity : AppCompatActivity() {
         }
 
         SettingsPreference.getMediaFlowContent()?.bannersDetails
-                ?.firstOrNull { it.isEnabled?:true && news.categories.containsKey(it.tag)
-                        && SettingsPreference.isContentEnabled(it.parentId) }?.let {banner ->
+                ?.firstOrNull { banner ->
+                    banner.isEnabled && news.tags?.firstOrNull { it.name.equals(banner.tag, true) } != null
+                            && SettingsPreference.isContentEnabled(banner.parentId)
+                }?.let { banner ->
                     bottomButtonBanner.visibility = VISIBLE
                     Glide.with(bottomButtonBanner)
                             .load(banner.imageUrl)

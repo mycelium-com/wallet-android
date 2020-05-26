@@ -39,7 +39,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     var turnOffListener: (() -> Unit)? = null
     var state = State.DEFAULT
     var isFavorite = false
-    var bunnerClickListener: ((MediaFlowBannerInList?) -> Unit)? = null
+    var bannerClickListener: ((MediaFlowBannerInList?) -> Unit)? = null
     var showBanner = true
 
     fun setData(data: List<News>) {
@@ -71,9 +71,9 @@ class NewsAdapter(val preferences: SharedPreferences)
                         data.add(Entry(TYPE_NEWS_LOADING))
                         data.add(Entry(TYPE_NEWS_LOADING))
                     }
-                    State.FAIL -> data.add(Entry(TYPE_NEWS_EMPTY))
+                    State.FAIL -> data.add(Entry(TYPE_EMPTY))
                     else -> {
-                        data.add(Entry(if (isFavorite) TYPE_NEWS_NO_BOOKMARKS else TYPE_NEWS_EMPTY))
+                        data.add(Entry(if (isFavorite) TYPE_NEWS_NO_BOOKMARKS else TYPE_EMPTY))
                     }
                 }
             }
@@ -195,7 +195,7 @@ class NewsAdapter(val preferences: SharedPreferences)
                                 .error(R.drawable.mediaflow_default_picture))
                         .into(holder.itemView.image)
                 holder.itemView.setOnClickListener {
-                    bunnerClickListener?.invoke(getItem(holder.adapterPosition).banner)
+                    bannerClickListener?.invoke(getItem(holder.adapterPosition).banner)
                 }
             }
         }
@@ -209,14 +209,24 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     class ItemListDiffCallback : DiffUtil.ItemCallback<Entry>() {
         override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean =
-                oldItem.type == newItem.type && oldItem.news != null && newItem.news != null
-                        && oldItem.news.id == newItem.news.id
+                oldItem.type == newItem.type
+                        && oldItem.news?.id == newItem.news?.id
+                        && oldItem.banner?.imageUrl == newItem.banner?.imageUrl
 
         override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean =
-                oldItem.type == newItem.type
-                        && oldItem.news?.title?.rendered == newItem.news?.title?.rendered
-                        && oldItem.news?.content?.rendered == newItem.news?.content?.rendered
-                        && oldItem.favorite == newItem.favorite
+                when (oldItem.type) {
+                    TYPE_NEWS, TYPE_NEWS_BIG -> {
+                        oldItem.news?.title?.rendered == newItem.news?.title?.rendered
+                                && oldItem.news?.content?.rendered == newItem.news?.content?.rendered
+                                && oldItem.favorite == newItem.favorite
+                                && oldItem.news?.image == newItem.news?.image
+                    }
+                    TYPE_BIG_BANNER -> {
+                        oldItem.banner?.index == newItem.banner?.index
+                                && oldItem.banner?.imageUrl == newItem.banner?.imageUrl
+                    }
+                    else -> oldItem == newItem
+                }
     }
 
     companion object {
@@ -232,7 +242,7 @@ class NewsAdapter(val preferences: SharedPreferences)
 
         const val TYPE_NEWS_ITEM_LOADING = 5
         const val TYPE_NEWS_NO_BOOKMARKS = 6
-        const val TYPE_NEWS_EMPTY = 7
+        const val TYPE_EMPTY = 7
 
         const val TYPE_TURN_OFF = 8
 

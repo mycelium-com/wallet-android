@@ -44,7 +44,7 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
                 }
             })
         }
-        SettingsPreference.getPartnerInfos().forEach { partnerInfo ->
+        SettingsPreference.getPartnerInfos().filter { it.name != null }.forEach { partnerInfo ->
             preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
                 title = resources.getString(R.string.settings_service_enabled, partnerInfo.name)
                 layoutResource = R.layout.preference_layout
