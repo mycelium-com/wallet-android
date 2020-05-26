@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mycelium.net.HttpEndpoint
-import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -16,7 +15,7 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
     private val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     @Throws(IOException::class)
-    protected fun fetchTransactions(address: String): List<Tx> {
+    private fun fetchTransactions(address: String): List<Tx> {
         var urlString = "${endpoints.random()}/api/v2/address/$address?details=txs"
         val result: MutableList<Tx> = mutableListOf()
 
@@ -32,10 +31,10 @@ class EthBlockchainService(private var endpoints: List<HttpEndpoint>) : ServerEt
 
     fun sendTransaction(hex: String): SendResult {
         val client = OkHttpClient()
-        val url = URL("${endpoints.random()}/api/v2/sendtx/$hex")
+        val url = URL("${endpoints.random()}/api/v2/sendtx/")
         val request = Request.Builder()
                 .url(url)
-                .post(RequestBody.create(MediaType.parse("text/plain"), hex))
+                .post(RequestBody.create(null, hex))
                 .build()
         val response = client.newCall(request).execute()
         val result = mapper.readValue(response.body()!!.string(), SendTxResponse::class.java)
