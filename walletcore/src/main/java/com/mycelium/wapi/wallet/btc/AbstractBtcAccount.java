@@ -507,7 +507,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       // Find list of parent outputs to fetch
       Collection<Sha256Hash> toFetch = new HashSet<>();
       for (Transaction t : transactions) {
-
          for (TransactionInput in : t.inputs) {
             if (in.outPoint.txid.equals(OutPoint.COINBASE_OUTPOINT.txid)) {
                // Coinbase input, so no parent
