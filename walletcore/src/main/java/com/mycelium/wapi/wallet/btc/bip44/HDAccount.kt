@@ -371,16 +371,25 @@ open class HDAccount(
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
         // query DB only once to sort TXIDs into new and old ones. Unconfirmed transactions are
         // "new" in this sense until we know which block they fell into.
-        val sortedIds = mutableMapOf(true to mutableSetOf<Sha256Hash>(), false to mutableSetOf())
-        ids.forEach { sortedIds[backing.getTransaction(it)?.height ?: 0 > 0]!!.add(it) }
-        val newIds = sortedIds[false]!!
-        val knownIds = sortedIds[true]!!
+        val newIds = mutableSetOf<Sha256Hash>()
+        val knownTransactions = mutableSetOf<TransactionEx>()
+        ids.forEach {
+            val dbTransaction = backing.getTransaction(it)
+            if (dbTransaction?.height ?: 0 > 0) {
+                // we have it and know its block
+                knownTransactions.add(dbTransaction)
+            } else {
+                // we have to query for details
+                newIds.add(it)
+            }
+        }
         newIds.chunked(50).forEach { fewIds ->
             val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
-        // HACK: skipping server round trip but conserving local handling
-        handleNewExternalTransactions(knownIds.map { backing.getTransaction(it) })
+        // HACK: skipping local handling of known transactions breaks the sync process. This should
+        // be fixed somewhere else to make this line obsolete.
+        handleNewExternalTransactions(knownTransactions)
         return derivePaths.filter { derivationType ->
             // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
