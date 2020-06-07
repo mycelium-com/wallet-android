@@ -24,8 +24,8 @@ class AccountViewModel(account: WalletAccount<out GenericAddress>, mbwManager: M
     val isActive = account.isActive
     val balance: Balance? = if (isActive) account.accountBalance else null
     val syncTotalRetrievedTransactions = account.syncTotalRetrievedTransactions
-    val isRMCLinkedAccount = if (mbwManager != null) isRmcAccountLinked(account, mbwManager) else false
-    var showBackupMissingWarning = if (mbwManager != null) showBackupMissingWarning(account, mbwManager) else false
+    val isRMCLinkedAccount = mbwManager != null && isRmcAccountLinked(account, mbwManager)
+    var showBackupMissingWarning = mbwManager != null && showBackupMissingWarning(account, mbwManager)
     var label: String = mbwManager?.metadataStorage?.getLabelByAccount(accountId) ?: ""
     var displayAddress: String
     val isSyncing = account.isSyncing

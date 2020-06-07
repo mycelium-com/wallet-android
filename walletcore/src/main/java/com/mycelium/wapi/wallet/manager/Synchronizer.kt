@@ -33,7 +33,7 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
                 } else {
                     accounts.filterNotNull().filter { it.isActive }
                 }.filter { !it.isSyncing }
-                startSync(list)
+                runSync(list)
             }
         } finally {
             walletManager.state = State.READY
@@ -41,18 +41,15 @@ class Synchronizer(val walletManager: WalletManager, val syncMode: SyncMode,
         }
     }
 
-    private fun startSync(list: List<WalletAccount<*>>) {
+    private fun runSync(list: List<WalletAccount<*>>) {
         //split synchronization by coinTypes in own threads
-        GlobalScope.launch(Dispatchers.Default) {
+        runBlocking {
             list.map {
                 async {
-                    val accountLabel = it.label ?: ""
                     logger.log(Level.INFO, "Synchronizing ${it.coinType.symbol} account ${it.id}")
                     val isSyncSuccessful = it.synchronize(syncMode)
                     logger.log(Level.INFO, "Account ${it.id} sync result: $isSyncSuccessful")
                 }
-            }.map {
-                it.await()
             }
         }
     }
