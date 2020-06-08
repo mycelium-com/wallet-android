@@ -12,10 +12,11 @@ object NewsFactory {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
 
-    val service: NewsApiService
-        get() = Retrofit.Builder()
+    val service by lazy {
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.MEDIA_FLOW_URL)
                 .addConverterFactory(JacksonConverterFactory.create(objectMapper))
                 .build()
                 .create(NewsApiService::class.java)
+    }
 }
