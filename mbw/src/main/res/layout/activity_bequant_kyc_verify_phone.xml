@@ -60,7 +60,7 @@
                     android:textSize="28sp"
                     android:text="@={viewModel.code}"
                     app:cornerRadius="4dp"
-                    app:noOfFields="6" />
+                    app:noOfFields="7" />
             <!--        app:fieldBgColor="#23262A"-->
         </com.google.android.material.textfield.TextInputLayout>
 

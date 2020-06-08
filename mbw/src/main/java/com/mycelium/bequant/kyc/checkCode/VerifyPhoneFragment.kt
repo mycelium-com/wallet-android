@@ -1,7 +1,6 @@
 package com.mycelium.bequant.kyc.checkCode
 
 import android.os.Bundle
-import android.os.Handler
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -15,19 +14,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.loader
-import com.mycelium.bequant.remote.client.apis.KYCApi
+import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycVerifyPhoneBinding
+import com.poovam.pinedittextfield.PinField
 import kotlinx.android.synthetic.main.activity_bequant_kyc_verify_phone.*
-import kotlinx.android.synthetic.main.activity_bequant_kyc_verify_phone.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone) {
-    private val CODE_LENGHT: Int = 6
+
     lateinit var viewModel: VerifyPhoneViewModel
-//    val args:VerifyPhoneFragmentArgs by navArgs()
+
+    //    val args:VerifyPhoneFragmentArgs by navArgs()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(VerifyPhoneViewModel::class.java)
@@ -43,26 +43,12 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //FOR DEMO
-        loader(false)
-        Handler().postDelayed({
-            view.pinCode.setText("555555")
-        },2000)
-        Handler().postDelayed({
-           goNext()
-        },4000)
-        //
-
-        pinCode.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-                if (TextUtils.isDigitsOnly(text) && text.length == CODE_LENGHT) {
-                    tryCheckCode()
-                }
+        pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
+            override fun onTextComplete(enteredText: String): Boolean {
+                tryCheckCode(enteredText)
+                return true
             }
-        })
-
+        }
         tvResendVerificationCode.setOnClickListener {
             resendCode()
         }
@@ -80,37 +66,33 @@ class VerifyPhoneFragment : Fragment(R.layout.activity_bequant_kyc_verify_phone)
         }
     }
 
-    private fun tryCheckCode() {
-        viewModel.fillModel()?.let {
-            viewModel.viewModelScope.launch {
-                progress(true)
-                withContext(Dispatchers.IO) {
-                    val postKycCheckMobilePhone = KYCApi.create().postKycCheckMobilePhone(it)
-                    if (postKycCheckMobilePhone.isSuccessful) {
-                        goNext()
-                    } else {
-                        showError(postKycCheckMobilePhone.code())
-                    }
-                    progress(false)
-                }
-            }
+    private fun tryCheckCode(code: String) {
+        loader(true)
+        KYCRepository.repository.checkMobileVerification(viewModel.viewModelScope, code) {
+            loader(false)
+            findNavController().navigate(VerifyPhoneFragmentDirections.actionNext())
         }
+
+
+//        viewModel.fillModel()?.let {
+//            viewModel.viewModelScope.launch {
+//                progress(true)
+//                withContext(Dispatchers.IO) {
+//                    val postKycCheckMobilePhone = KYCApi.create().postKycCheckMobilePhone(it)
+//                    if (postKycCheckMobilePhone.isSuccessful) {
+//                        goNext()
+//                    } else {
+//                        showError(postKycCheckMobilePhone.code())
+//                    }
+//                    progress(false)
+//                }
+//            }
+//        }
     }
 
     private fun showError(code: Int) {
         lifecycleScope.launch(Dispatchers.Main) {
             otp_view.error = "Error code"
         }
-    }
-
-
-    private fun progress(show: Boolean) {
-        lifecycleScope.launch(Dispatchers.Main) {
-
-        }
-    }
-
-    private fun goNext() {
-        findNavController().navigate(R.id.action_phoneVerifyToStep1)
     }
 }

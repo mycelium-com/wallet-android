@@ -10,7 +10,7 @@
             android:label="InputPhoneFragment"
             tools:layout="@layout/activity_bequant_kyc_phone_input">
         <action
-                android:id="@+id/action_phoneInputToPhoneVerify"
+                android:id="@+id/actionNext"
                 app:destination="@id/phoneVerify" />
         <action
                 android:id="@+id/action_phoneInputToKyc1"
@@ -30,7 +30,7 @@
                 app:argType="com.mycelium.bequant.remote.client.models.KycSaveMobilePhoneRequest"
                 app:nullable="false" />
         <action
-                android:id="@+id/action_phoneVerifyToStep1"
+                android:id="@+id/actionNext"
                 app:destination="@id/kycStep1" />
     </fragment>
     <fragment
