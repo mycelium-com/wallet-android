@@ -66,7 +66,7 @@ class NewsActivity : AppCompatActivity() {
             val scrollDelta = abs(verticalOffset * 1f / appBarLayout.totalScrollRange)
             tvCategory.alpha = 1 - scrollDelta
             toolbar_shadow.visibility = if (scrollDelta == 1f) VISIBLE else GONE
-            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title) else ""
+            collapsing_toolbar.title = if (scrollDelta == 1f) Html.fromHtml(news.title.rendered) else ""
             llRoot.clipChildren = scrollDelta == 1f
             llRoot.clipToPadding = scrollDelta == 1f
         })
@@ -114,6 +114,10 @@ class NewsActivity : AppCompatActivity() {
             startActivity(Intent(this, NewsImageActivity::class.java)
                     .putExtra("url", url))
         }
+        ivImage.setOnClickListener {
+            startActivity(Intent(this, NewsImageActivity::class.java)
+                    .putExtra("url", news.image))
+        }
         scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, _, scrollY, _, oldScrollY ->
             val layoutParams = scrollBar.layoutParams
             val scrollHeight = scrollView.getChildAt(0).measuredHeight - scrollView.measuredHeight
@@ -133,7 +137,7 @@ class NewsActivity : AppCompatActivity() {
     }
 
     fun updateUI() {
-        news.content?.let { topicContent ->
+        news.content?.rendered?.let { topicContent ->
             val parsedContent = NewsUtils.parseNews(topicContent)
             val contentText = parsedContent.news
                     .replace("width=\".*?\"", "width=\"100%\"")
@@ -152,13 +156,13 @@ class NewsActivity : AppCompatActivity() {
         }
         news_loading.visibility = if (news.isFull) INVISIBLE else VISIBLE
 
-        tvTitle.text = Html.fromHtml(news.title)
+        tvTitle.text = Html.fromHtml(news.title.rendered)
         news.date?.let {
             tvDate.text = NewsUtils.getDateString(this, news)
         }
         tvAuthor.text = news.author?.name
 
-        val categoryText = if (news.categories?.values?.isNotEmpty() == true) news.categories.values.elementAt(0).name else ""
+        val categoryText = if (news.categories?.isNotEmpty() == true) news.categories[0].name else ""
         tvCategory.text = categoryText
         news.image?.let {
             Glide.with(ivImage)
@@ -181,7 +185,7 @@ class NewsActivity : AppCompatActivity() {
 
     private fun share() {
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND)
-                .putExtra(Intent.EXTRA_SUBJECT, Html.fromHtml(news.title))
+                .putExtra(Intent.EXTRA_SUBJECT, Html.fromHtml(news.title.rendered))
                 .putExtra(Intent.EXTRA_TEXT, news.link)
                 .setType("text/plain"), getString(R.string.share_news)))
     }

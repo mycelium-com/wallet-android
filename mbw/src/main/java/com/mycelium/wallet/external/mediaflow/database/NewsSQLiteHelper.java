@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class NewsSQLiteHelper extends SQLiteOpenHelper {
     public static final String NEWS = "news";
     private static final String DATABASE_NAME = NEWS + ".db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     public NewsSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,6 +27,7 @@ public class NewsSQLiteHelper extends SQLiteOpenHelper {
                 ", read INTEGER" +
                 ", excerpt TEXT" +
                 ", isfull INTEGER" +
+                ", tags TEXT" +
                 ");");
     }
 
@@ -39,6 +40,9 @@ public class NewsSQLiteHelper extends SQLiteOpenHelper {
         }
         if(oldVersion < 4) {
             db.execSQL("ALTER TABLE " + NEWS + " ADD COLUMN isfull INTEGER");
+        }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE " + NEWS + " ADD COLUMN tags TEXT");
         }
     }
 }

@@ -13,6 +13,9 @@ public class Category implements Serializable {
     public Category() {
     }
 
+    @JsonProperty("id")
+    public int id;
+
     @JsonProperty("name")
     public String name;
 
