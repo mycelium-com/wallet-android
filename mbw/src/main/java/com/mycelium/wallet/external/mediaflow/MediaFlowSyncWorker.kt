@@ -73,15 +73,14 @@ class MediaFlowSyncWorker(val context: Context, workerParams: WorkerParameters)
                     NewsFactory.service.posts(nextPage)
                 }.execute().apply {
                     totalPageCount = this.headers()["X-WP-TotalPages"]?.toInt() ?: 1
-                }.body()?.apply {
-                    this.forEach {
-                        it.categories = it.categoriesIds.map { categoryId -> categories?.find { it.id == categoryId } }
-                        it.tags = it.tagsIds.map { tagId -> tags?.find { it.id == tagId } }
-                        it.author = NewsFactory.service.user(it.authorId).execute().body()
-                        if(it.featuredMediaId != null) {
-                            it.image = NewsFactory.service.media(it.featuredMediaId).execute().body()?.sourceUrl
-                        }
+                }.body()?.map {
+                    it.categories = it.categoriesIds.map { categoryId -> categories?.find { it.id == categoryId } }
+                    it.tags = it.tagsIds.map { tagId -> tags?.find { it.id == tagId } }
+                    it.author = NewsFactory.service.user(it.authorId).execute().body()
+                    if(it.featuredMediaId != null) {
+                        it.image = NewsFactory.service.media(it.featuredMediaId).execute().body()?.sourceUrl
                     }
+                    it
                 }, totalPageCount)
             }.let { NewsDatabase.saveNews(it) }
         } catch (e: Exception) {
