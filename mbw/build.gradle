@@ -264,6 +264,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc",
                             debug  : "com.modules.tradingbots.getextrabtc.debug"]
+                simplex ="https://exchange.mycelium.com/"
                 safello = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.safello.com/sdk/quickbuy.html?appId=908d82e3-939d-45eb-95fa-77d9c9441d9d&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.safello.com/sdk/quickbuy.html?appId=21d71273-8f10-4c48-b5f4-09617586f909&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
@@ -298,6 +299,7 @@ android {
                                debug  : "com.mycelium.module.spvbch.testnet.debug"]
                 appIdGeb = [release: "com.modules.tradingbots.getextrabtc.testnet",
                             debug  : "com.modules.tradingbots.getextrabtc.testnet.debug"]
+                simplex ="https://exchange.mycelium.com/"
                 safello = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true"
                 sepa = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&channel=bank_transfer&tabs=true"
                 safelloEth = "https://app.s4f3.io/sdk/quickbuy.html?appId=1234-5678&lang=en&utm_source=Mycelium&utm_medium=Wallet&address=%s&dark-mode=true&crypto=eth"
@@ -324,6 +326,7 @@ android {
         variant.buildConfigField "String", "WapiServers", "${flavor.ext.WapiServers}"
         variant.buildConfigField "String", "appIdSpvBch", "\"${flavor.ext.appIdSpvBch[variant.buildType.name]}\""
         variant.buildConfigField "String", "appIdGeb", "\"${flavor.ext.appIdGeb[variant.buildType.name]}\""
+        variant.buildConfigField "String", "SIMPLEX", "\"${flavor.ext.simplex}\""
         variant.buildConfigField "String", "SAFELLO", "\"${flavor.ext.safello}\""
         variant.buildConfigField "String", "SEPA", "\"${flavor.ext.sepa}\""
         variant.buildConfigField "String", "SAFELLO_ETH", "\"${flavor.ext.safelloEth}\""
