@@ -116,6 +116,8 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         int scrollTo = 0;
         if(mbwManager.getSelectedAccount() instanceof EthAccount) {
             actions.add(new ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)));
+            actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
+            addAdsContent(actions);
         } else {
             boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
                 @Override
@@ -130,13 +132,7 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
             } else {
                 actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
-                for (BuySellButton button : SettingsPreference.getBalanceContent().getButtons()) {
-                    if(button.isEnabled() && SettingsPreference.isContentEnabled(button.getParentId())) {
-                        Bundle args = new Bundle();
-                        args.putSerializable("data", button);
-                        actions.add(new ActionButton(ACTION.ADS, button.getName(), 0, button.getIconUrl(), args));
-                    }
-                }
+                addAdsContent(actions);
                 if (showButton) {
                     actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
                 }
@@ -146,6 +142,19 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         buttonAdapter.setButtons(actions);
         if (scrollTo != 0) {
             recyclerView.postDelayed(new ScrollToRunner(scrollTo), 500);
+        }
+    }
+
+    private void addAdsContent(List<ActionButton> actions) {
+        if(SettingsPreference.getBalanceContent() == null) {
+            return;
+        }
+        for (BuySellButton button : SettingsPreference.getBalanceContent().getButtons()) {
+            if(button.isEnabled() && SettingsPreference.isContentEnabled(button.getParentId())) {
+                Bundle args = new Bundle();
+                args.putSerializable("data", button);
+                actions.add(new ActionButton(ACTION.ADS, button.getName(), 0, button.getIconUrl(), args));
+            }
         }
     }
 
