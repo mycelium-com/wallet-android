@@ -15,6 +15,7 @@ import com.mrd.bitlib.util.Sha256Hash
 import com.mycelium.wapi.api.Wapi
 import com.mycelium.wapi.api.WapiException
 import com.mycelium.wapi.api.request.QueryTransactionInventoryRequest
+import com.mycelium.wapi.model.TransactionEx
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.KeyCipher.InvalidKeyCipher
 import com.mycelium.wapi.wallet.WalletManager.Event
@@ -69,7 +70,6 @@ open class HDAccount(
             }
             return addresses
         }
-
 
     open fun getPrivateKeyCount() = derivePaths.sumBy {
         context.getLastExternalIndexWithActivity(it) +
@@ -369,10 +369,27 @@ open class HDAccount(
 
         val lastExternalIndexesBefore = derivePaths.map { it to context.getLastExternalIndexWithActivity(it) }.toMap()
         val lastInternalIndexesBefore = derivePaths.map { it to context.getLastInternalIndexWithActivity(it) }.toMap()
-        ids.chunked(50).forEach { fewIds ->
-            val transactions = getTransactionsBatched(fewIds).result.transactions
+        // query DB only once to sort TXIDs into new and old ones. Unconfirmed transactions are
+        // "new" in this sense until we know which block they fell into.
+        val newIds = mutableSetOf<Sha256Hash>()
+        val knownTransactions = mutableSetOf<TransactionEx>()
+        ids.forEach {
+            val dbTransaction = backing.getTransaction(it)
+            if (dbTransaction?.height ?: 0 > 0) {
+                // we have it and know its block
+                knownTransactions.add(dbTransaction)
+            } else {
+                // we have to query for details
+                newIds.add(it)
+            }
+        }
+        newIds.chunked(50).forEach { fewIds ->
+            val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
+        // HACK: skipping local handling of known transactions breaks the sync process. This should
+        // be fixed somewhere else to make this line obsolete.
+        handleNewExternalTransactions(knownTransactions)
         return derivePaths.filter { derivationType ->
             // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
