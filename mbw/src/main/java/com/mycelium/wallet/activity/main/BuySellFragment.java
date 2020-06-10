@@ -115,9 +115,10 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
         List<ActionButton> actions = new ArrayList<>();
         int scrollTo = 0;
         if(mbwManager.getSelectedAccount() instanceof EthAccount) {
-            actions.add(new ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)));
             actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
+            actions.add(new ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)));
             addAdsContent(actions);
+            scrollTo = 1;
         } else {
             boolean showButton = Iterables.any(mbwManager.getEnvironmentSettings().getBuySellServices(), new Predicate<BuySellServiceDescriptor>() {
                 @Override
@@ -132,10 +133,10 @@ public class BuySellFragment extends Fragment implements ButtonClickListener {
                 actions.add(new ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)));
             } else {
                 actions.add(new ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)));
-                addAdsContent(actions);
                 if (showButton) {
                     actions.add(new ActionButton(ACTION.BTC, getString(R.string.gd_buy_sell_button)));
                 }
+                addAdsContent(actions);
                 addFio(actions);
             }
         }
