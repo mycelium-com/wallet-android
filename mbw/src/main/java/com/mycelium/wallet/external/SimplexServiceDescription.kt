@@ -49,7 +49,7 @@ class SimplexServiceDescription : BuySellServiceDescriptor(R.string.si_buy_sell,
                             context.startActivity(Intent(Intent.ACTION_VIEW,
                                     Uri.parse(BuildConfig.SIMPLEX +
                                             "?crypto=${activeReceivingAddress.coinType.symbol}" +
-                                            "&address=${activeReceivingAddress.toString()}")))
+                                            "&address=$activeReceivingAddress")))
                         }
                     }
                     .create().show()
