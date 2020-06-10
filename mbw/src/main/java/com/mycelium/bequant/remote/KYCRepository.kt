@@ -7,14 +7,19 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCCreateRequest
+import com.mycelium.bequant.remote.model.KYCDocument
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
+import java.io.File
 
 
 class KYCRepository {
@@ -44,6 +49,19 @@ class KYCRepository {
     fun checkMobileVerification(scope: CoroutineScope, code: String, success: (() -> Unit)) {
         scope.launch(Dispatchers.IO) {
             val result = service.checkMobileVerification(uuid, code)
+            if (result.isSuccessful) {
+                withContext(Dispatchers.Main) {
+                    success.invoke()
+                }
+            }
+        }
+    }
+
+    fun uploadDocument(scope: CoroutineScope, type: KYCDocument, filePath: String, success: (() -> Unit)) {
+        scope.launch(Dispatchers.IO) {
+            val requestFile: RequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), filePath)
+            val multipartBody = MultipartBody.Part.createFormData("file", File(filePath).name, requestFile)
+            val result = service.uploadFile(uuid, type, "ITA", multipartBody)
             if (result.isSuccessful) {
                 withContext(Dispatchers.Main) {
                     success.invoke()

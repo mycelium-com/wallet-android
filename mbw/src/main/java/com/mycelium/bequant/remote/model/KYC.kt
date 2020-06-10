@@ -56,3 +56,8 @@ data class KYCCreateResponse(var status: Int?,
 data class KYCResponse(var status: Int?,
                        var message: String?,
                        var error: Int?)
+
+enum class KYCDocument {
+    PASSPORT, ID_CARD_FRONT_SIDE, ID_CARD_BACK_SIDE, FACTA, SELFIE, BANK_STATEMENT_FOR_FIAT,
+    EXP, POA, DRIVERS_FRONT_SIDE, DRIVERS_BACK_SIDE
+}

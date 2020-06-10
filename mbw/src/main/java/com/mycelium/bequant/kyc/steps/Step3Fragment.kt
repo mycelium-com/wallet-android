@@ -10,11 +10,14 @@ import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.kyc.steps.adapter.*
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step3ViewModel
+import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps3Binding
@@ -117,6 +120,9 @@ class Step3Fragment : Fragment() {
                     identityAdapter.submitList(
                             identityAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
+                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.PASSPORT, data.data?.path!!) {
+
+                    }
                 }
             }
 
@@ -126,6 +132,9 @@ class Step3Fragment : Fragment() {
                     proofAddressAdapter.submitList(
                             proofAddressAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
                     )
+                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.POA, data.data?.path!!) {
+
+                    }
                 }
             }
 
@@ -135,6 +144,9 @@ class Step3Fragment : Fragment() {
                     selfieAdapter.submitList(
                             selfieAdapter.currentList + Document(imageBitmap, "Photo" + (++counter).toString())
                     )
+                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.SELFIE, data.data?.path!!) {
+
+                    }
                 }
             }
         }
