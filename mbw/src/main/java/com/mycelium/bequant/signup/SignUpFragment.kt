@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
@@ -27,14 +28,19 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
-import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Register
+import com.mycelium.bequant.remote.client.apis.AccountApi
+import com.mycelium.bequant.remote.client.load
+import com.mycelium.bequant.remote.client.models.RegisterAccountRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSignUpBindingImpl
 import kotlinx.android.synthetic.main.fragment_bequant_sign_up.*
 import kotlinx.android.synthetic.main.layout_password_registration.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 
 class SignUpFragment : Fragment() {
@@ -85,15 +91,11 @@ class SignUpFragment : Fragment() {
         }
         register.setOnClickListener {
             if (validate()) {
-                val register = Register(viewModel.email.value!!, viewModel.password.value!!)
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                SignRepository.repository.register(register, {
-                    loader.dismissAllowingStateLoss()
-                    findNavController().navigate(SignFragmentDirections.actionRegister(register))
-                }, { error ->
-                    loader.dismissAllowingStateLoss()
-                    ErrorHandler(requireContext()).handle(error)
+                val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
+                load(request = {
+                    AccountApi.create().postAccountRegister(registerAccountRequest)
+                }, invokeOnSuccess = {
+                    findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
                 })
             }
         }

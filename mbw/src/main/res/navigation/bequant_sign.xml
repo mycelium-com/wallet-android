@@ -15,7 +15,7 @@
             app:destination="@id/registrationInfoFragment">
             <argument
                 android:name="register"
-                app:argType="com.mycelium.bequant.remote.model.Register" />
+                app:argType="com.mycelium.bequant.remote.client.models.RegisterAccountRequest" />
         </action>
         <action
             android:id="@+id/actionResetPassword"
