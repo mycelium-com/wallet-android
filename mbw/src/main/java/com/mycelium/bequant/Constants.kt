@@ -19,6 +19,7 @@ object Constants {
     const val SESSION_KEY = "session"
     const val ACCESS_TOKEN_KEY = "access_token"
     const val EMAIL_KEY = "email"
+    const val PHONE_KEY = "phone"
     const val PRIVATE_KEY = "private_key"
     const val PUBLIC_KEY = "public_key"
     const val HIDE_ZERO_BALANCE_KEY = "hide_zero_balance"

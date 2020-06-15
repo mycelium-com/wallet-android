@@ -10,10 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
@@ -21,7 +24,10 @@ import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step2ViewModel
+import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.model.toModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps2Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_2.*
@@ -85,7 +91,12 @@ class Step2Fragment : Fragment() {
         }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
-            findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+            val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
+            loader(true)
+            KYCRepository.repository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
+                loader(false)
+                findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+            }
         }
     }
 

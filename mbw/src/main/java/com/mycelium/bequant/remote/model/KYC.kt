@@ -9,16 +9,33 @@ import java.util.*
 
 @Parcelize
 data class KYCRequest(
+        var phone: String? = null,
         var address_1: String? = null,
         var address_2: String? = null,
-        var birthday: String? = null,
+        var birthday: Date? = null,
         var city: String? = null,
         var country: String? = null,
         var first_name: String? = null,
         var last_name: String? = null,
         var nationality: String? = null,
-        var zip: String? = null
+        var zip: String? = null,
+        val identityList: MutableList<String> = mutableListOf(),
+        val poaList: MutableList<String> = mutableListOf(),
+        val selfieList: MutableList<String> = mutableListOf()
 ) : Parcelable
+
+fun KYCRequest.toModel(applicant: KYCApplicant): KYCApplicant {
+    applicant.firstName = this.first_name
+    applicant.lastName = this.last_name
+    applicant.nationality = this.nationality
+    applicant.dob = this.birthday
+    applicant.address.address1 = this.address_1 ?: ""
+    applicant.address.address2 = this.address_2 ?: ""
+    applicant.address.city = this.city ?: ""
+    applicant.address.country = this.country ?: ""
+    applicant.address.postcode = this.zip ?: ""
+    return applicant
+}
 
 
 data class KYCCreateRequest(var applicant: KYCApplicant)

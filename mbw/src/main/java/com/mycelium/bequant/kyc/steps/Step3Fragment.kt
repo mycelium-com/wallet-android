@@ -3,7 +3,7 @@ package com.mycelium.bequant.kyc.steps
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
@@ -20,10 +20,14 @@ import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.bequant.remote.model.KYCDocument
 import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.news.NewsImageActivity
 import com.mycelium.wallet.databinding.FragmentBequantSteps3Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_3.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class Step3Fragment : Fragment() {
@@ -72,8 +76,38 @@ class Step3Fragment : Fragment() {
             }
         }
         identityList.adapter = identityAdapter
+        identityAdapter.submitList(kycRequest.identityList.map {
+            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+        })
+        identityAdapter.removeListner = {
+            kycRequest.identityList.remove(it.name)
+        }
+        identityAdapter.viewListener = {
+            startActivity(Intent(requireContext(), NewsImageActivity::class.java)
+                    .putExtra("url", it.url))
+        }
         proofAddressList.adapter = proofAddressAdapter
+        proofAddressAdapter.submitList(kycRequest.poaList.map {
+            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+        })
+        proofAddressAdapter.removeListner = {
+            kycRequest.poaList.remove(it.name)
+        }
+        proofAddressAdapter.viewListener = {
+            startActivity(Intent(requireContext(), NewsImageActivity::class.java)
+                    .putExtra("url", it.url))
+        }
         selfieList.adapter = selfieAdapter
+        selfieAdapter.submitList(kycRequest.selfieList.map {
+            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+        })
+        selfieAdapter.removeListner = {
+            kycRequest.selfieList.remove(it.name)
+        }
+        selfieAdapter.viewListener = {
+            startActivity(Intent(requireContext(), NewsImageActivity::class.java)
+                    .putExtra("url", it.url))
+        }
         addIndentity.setOnClickListener {
             DocumentAttachDialog().apply {
                 setTargetFragment(this@Step3Fragment, REQUEST_CODE_INDENTITY)
@@ -113,47 +147,41 @@ class Step3Fragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
-//                && requestCode / 1000 == DocumentAttachDialog.REQURST_CODE_CAMERA / 1000) {
             if (requestCode == REQUEST_CODE_INDENTITY || requestCode % 10 == REQUEST_CODE_INDENTITY % 10) {
-                if (data != null && data.extras != null) {
-                    val imageBitmap = getBitmap(data)
-                    identityAdapter.submitList(
-                            identityAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
-                    )
-                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.PASSPORT, data.data?.path!!) {
-
-                    }
-                }
+                uploadImage(data, identityAdapter, KYCDocument.PASSPORT, kycRequest.identityList)
             }
 
             if (requestCode == REQUEST_CODE_PROOF_ADDRESS || requestCode % 10 == REQUEST_CODE_PROOF_ADDRESS % 10) {
-                if (data != null && data.extras != null) {
-                    val imageBitmap = getBitmap(data)
-                    proofAddressAdapter.submitList(
-                            proofAddressAdapter.currentList + Document(imageBitmap, "Doc" + (++counter).toString())
-                    )
-                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.POA, data.data?.path!!) {
-
-                    }
-                }
+                uploadImage(data, proofAddressAdapter, KYCDocument.POA, kycRequest.poaList)
             }
 
             if (requestCode == REQUEST_CODE_SELFIE || requestCode % 10 == REQUEST_CODE_SELFIE % 10) {
-                if (data != null && data.extras != null) {
-                    val imageBitmap = getBitmap(data)
-                    selfieAdapter.submitList(
-                            selfieAdapter.currentList + Document(imageBitmap, "Photo" + (++counter).toString())
-                    )
-                    KYCRepository.repository.uploadDocument(viewModel.viewModelScope, KYCDocument.SELFIE, data.data?.path!!) {
-
-                    }
-                }
+                uploadImage(data, selfieAdapter, KYCDocument.SELFIE, kycRequest.selfieList)
             }
         }
     }
 
-    private fun getBitmap(data: Intent) =
-            if (data?.data is Uri) MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data?.data) else data.extras["data"] as Bitmap
+    private fun uploadImage(data: Intent?, adapter: DocumentAdapter, docType: KYCDocument, requestList: MutableList<String>) {
+        val outputFile = if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile
+
+        val item = Document(BitmapFactory.decodeFile(outputFile?.absolutePath), "Doc" + (++counter).toString(), outputFile?.absolutePath)
+        adapter.submitList(adapter.currentList + item)
+        KYCRepository.repository.uploadDocument(viewModel.viewModelScope, docType,
+                outputFile!!, { uploaded, total ->
+            item.size = total
+            item.progress = (uploaded * 100 / total).toInt()
+            adapter.notifyItemChanged(adapter.currentList.indexOf(item))
+        }, {
+            requestList.add(outputFile.absolutePath)
+        })
+    }
+
+    private fun getFileFromGallery(data: Intent): File =
+            File.createTempFile(SimpleDateFormat("yyyyMMdd_HHmmss").format(Date()),
+                    ".jpg", requireContext().cacheDir).apply {
+                MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, data.data)
+                        .compress(Bitmap.CompressFormat.JPEG, 100, this.outputStream())
+            }
 
     companion object {
         const val REQUEST_CODE_INDENTITY = 1001

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -88,12 +89,19 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
         tvErrorCode.visibility = View.GONE
         loader(true)
 
-        viewModel.getRequest()?.let {
-            val applicant = KYCApplicant("+${it.mobilePhoneCountryCode}${it.mobilePhone}", BequantPreference.getEmail())
+        viewModel.getRequest()?.let { request ->
+            val phone = "+${request.mobilePhoneCountryCode}${request.mobilePhone}"
+            BequantPreference.setPhone(phone)
+            val applicant = KYCApplicant(phone, BequantPreference.getEmail())
             KYCRepository.repository.create(viewModel.viewModelScope, applicant) {
                 KYCRepository.repository.mobileVerification(viewModel.viewModelScope) {
                     loader(false)
-                    findNavController().navigate(InputPhoneFragmentDirections.actionNext(it))
+                    AlertDialog.Builder(requireContext())
+                            .setMessage(it)
+                            .setPositiveButton(R.string.ok) { _, _ ->
+                                findNavController().navigate(InputPhoneFragmentDirections.actionNext(request))
+                            }
+                            .show()
                 }
             }
 //            viewModel.viewModelScope.launch(Dispatchers.IO) {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <import type="java.text.SimpleDateFormat"/>
         <variable
             name="headerViewModel"
             type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
@@ -67,6 +67,7 @@
                     android:id="@+id/edFirstname"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
+                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@={viewModel.firstName}"
@@ -84,6 +85,7 @@
                     android:id="@+id/edLastname"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
+                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@={viewModel.lastName}"
@@ -103,7 +105,7 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="@{viewModel.birthday}"
+                    android:text="@{@string/format(viewModel.birthday)}"
                     app:drawableRightCompat="@drawable/ic_date_of_birth"
                     tools:text="11/02/1999" />
 

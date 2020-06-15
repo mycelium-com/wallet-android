@@ -1388,7 +1388,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="i_have_a_referral_code">I have a referral code</string>
     <string name="referral_code">Referral Code</string>
     <string name="we_sent_a_confirmation_email_to">We sent a confirmation email to</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="thank_you_for_signing_up_with_bequant">Thank you for signing up with Bequant!</string>
     <string name="residence_country">Residence country</string>
     <string name="bequant_password_weak">Weak</string>
@@ -1419,4 +1419,5 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_address">%s Deposit Address</string>
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
+    <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
 </resources>

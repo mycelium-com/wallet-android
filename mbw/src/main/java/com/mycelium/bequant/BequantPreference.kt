@@ -9,6 +9,12 @@ import com.mycelium.wapi.wallet.coins.Value
 object BequantPreference {
     val preference by lazy { WalletApplication.getInstance().getSharedPreferences("bequant_main", Context.MODE_PRIVATE) }
 
+    fun setPhone(phone: String) {
+        preference.edit().putString(Constants.PHONE_KEY, phone).apply()
+    }
+
+    fun getPhone() = preference.getString(Constants.PHONE_KEY, null) ?: ""
+
     fun setEmail(email: String) {
         preference.edit().putString(Constants.EMAIL_KEY, email).apply()
     }
@@ -30,7 +36,7 @@ object BequantPreference {
     // TODO maybe should be linked to private/public key (/api-key)
     fun isLogged(): Boolean = getPrivateKey().isNotEmpty()
 
-    fun isDemo():Boolean = getAccessToken().isEmpty()
+    fun isDemo(): Boolean = getAccessToken().isEmpty()
 
     fun isIntroShown() = preference.getBoolean(Constants.INTRO_KEY, false)
 
