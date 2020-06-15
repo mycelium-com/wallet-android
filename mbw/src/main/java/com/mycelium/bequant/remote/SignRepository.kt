@@ -123,9 +123,11 @@ class SignRepository {
     private fun <T> doRequest(lifecycleOwner: LifecycleOwner, request: suspend () -> Response<T>, invokeOnSuccess: (T?) -> Unit, error: ((Int, String) -> Unit)? = null) {
         if (lifecycleOwner is Fragment) {
             doRequest(lifecycleOwner.lifecycleScope, lifecycleOwner.parentFragmentManager, request, invokeOnSuccess, error)
+            return
         }
         if (lifecycleOwner is AppCompatActivity) {
             doRequest(lifecycleOwner.lifecycleScope, lifecycleOwner.supportFragmentManager, request, invokeOnSuccess, error)
+            return
         }
 
         throw NotImplementedError("$lifecycleOwner is not supported")
