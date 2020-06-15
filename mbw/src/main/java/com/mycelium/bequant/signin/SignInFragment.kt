@@ -10,14 +10,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Auth
+import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signin.viewmodel.SignInViewModel
 import com.mycelium.wallet.R
@@ -57,17 +56,12 @@ class SignInFragment : Fragment() {
         }
         signIn.setOnClickListener {
             if (validate()) {
-                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!)
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                SignRepository.repository.authorize(auth, {
+                val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
+                SignRepository.repository.authorize(this, request, {
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, { code, error ->
                     if (code == 420) {
-                        findNavController().navigate(SignFragmentDirections.actionSignIn(auth))
-                    } else {
-                        loader.dismissAllowingStateLoss()
-                        ErrorHandler(requireContext()).handle(error)
+                        findNavController().navigate(SignFragmentDirections.actionSignIn(request))
                     }
                 })
             }

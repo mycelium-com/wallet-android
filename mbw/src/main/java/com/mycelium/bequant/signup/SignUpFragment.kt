@@ -25,8 +25,7 @@ import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
-import com.mycelium.bequant.remote.client.apis.AccountApi
-import com.mycelium.bequant.remote.load
+import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.RegisterAccountRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
@@ -85,9 +84,7 @@ class SignUpFragment : Fragment() {
         register.setOnClickListener {
             if (validate()) {
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
-                load(request = {
-                    AccountApi.create().postAccountRegister(registerAccountRequest)
-                }, invokeOnSuccess = {
+                SignRepository.repository.signUp(this, registerAccountRequest, {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
                 })
             }

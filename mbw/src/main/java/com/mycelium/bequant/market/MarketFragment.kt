@@ -26,11 +26,9 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         if (!BequantPreference.hasKeys()) {
-            SignRepository.repository.getApiKeys({
+            SignRepository.repository.getApiKeys(this, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
-            }, { code, message ->
-                ErrorHandler(requireContext()).handle(message)
-            })
+            }, { _, _ -> {} })
         }
     }
 

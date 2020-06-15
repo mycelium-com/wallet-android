@@ -5,12 +5,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
-import com.mycelium.bequant.remote.load
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
 
@@ -31,12 +27,10 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             findNavController().navigate(BackupCodeFragmentDirections.actionNext(response!!))
         }
 
-        load({
-            AccountApi.create().postAccountTotpCreate()
-        }, {
+        SignRepository.repository.totpCreate(this,{
             response = it
             val (backupPassword, otpId, otpLink) = it!!
             backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
-        })
+        },{})
     }
 }

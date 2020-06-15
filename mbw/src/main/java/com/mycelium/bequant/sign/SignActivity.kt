@@ -8,8 +8,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_TOTP_CONFIRMED
-import com.mycelium.bequant.remote.client.apis.AccountApi
-import com.mycelium.bequant.remote.load
+import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
 
 
@@ -33,26 +32,23 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
         if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/email/confirm") {
-
-            load({
-                AccountApi.create().getAccountEmailConfirm(intent.data?.getQueryParameter("token")
-                        ?: "")
-            }, {
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
-            })
+            SignRepository.repository.accountEmailConfirm(this,
+                    intent.data?.getQueryParameter("token") ?: "",
+                    {
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
+                    })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/totp/confirm") {
-            load({
-                AccountApi.create().getAccountTotpConfirm(intent.data?.getQueryParameter("token") ?: "")
-            }, {
+            SignRepository.repository.accountTotpConfirm(this, intent.data?.getQueryParameter("token")
+                    ?: "", {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
             })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/password/set") {
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED)
-                        .putExtra("token", intent.data?.getQueryParameter("token") ?: ""))
+            LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED)
+                    .putExtra("token", intent.data?.getQueryParameter("token") ?: ""))
         }
     }
 

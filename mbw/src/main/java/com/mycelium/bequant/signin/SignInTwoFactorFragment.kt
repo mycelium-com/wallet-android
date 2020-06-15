@@ -5,11 +5,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Auth
+import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.poovam.pinedittextfield.PinField
@@ -17,9 +16,11 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in_two_factor.*
 
 
 class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_factor) {
+
+    val args by navArgs<SignInTwoFactorFragmentArgs>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val auth = arguments?.getSerializable("auth") as Auth
+        val auth = args.auth
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         pasteFromClipboard.setOnClickListener {
@@ -27,16 +28,10 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
         }
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                auth.otpCode = enteredText
-                SignRepository.repository.authorize(auth, {
-                    loader.dismissAllowingStateLoss()
+                SignRepository.repository.authorize(this@SignInTwoFactorFragment, auth.copy(otpCode = enteredText), {
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                     requireActivity().finish()
-                }, { code, message ->
-                    loader.dismissAllowingStateLoss()
-                    ErrorHandler(requireContext()).handle(message)
+                },{ _, _ ->
                 })
                 return true
             }
