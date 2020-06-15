@@ -23,6 +23,8 @@ import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.SignRepository
@@ -83,9 +85,14 @@ class SignUpFragment : Fragment() {
         }
         register.setOnClickListener {
             if (validate()) {
+                loader(true)
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.signUp(this, registerAccountRequest, {
+                SignRepository.repository.signUp(this, registerAccountRequest, success = {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
+                }, error = { _, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                }, finallyBlock = {
+                    loader(false)
                 })
             }
         }

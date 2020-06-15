@@ -5,6 +5,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.TotpCreateResponse
 import com.mycelium.wallet.R
@@ -27,10 +29,15 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             findNavController().navigate(BackupCodeFragmentDirections.actionNext(response!!))
         }
 
-        SignRepository.repository.totpCreate(this,{
+        loader(true)
+        SignRepository.repository.totpCreate(this, {
             response = it
             val (backupPassword, otpId, otpLink) = it!!
             backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
-        },{})
+        }, error = { _, message ->
+            ErrorHandler(requireContext()).handle(message)
+        }, finallyBlock = {
+            loader(false)
+        })
     }
 }

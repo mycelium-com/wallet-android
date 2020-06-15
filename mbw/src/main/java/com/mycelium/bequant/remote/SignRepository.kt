@@ -12,89 +12,77 @@ class SignRepository {
     private val apiKeyApi = ApiKeyApi.create()
 
     fun signUp(lifecycleOwner: LifecycleOwner,
-               request: RegisterAccountRequest, success: () -> Unit) {
+               request: RegisterAccountRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             accountApi.postAccountRegister(request)
-        }, {
-            success.invoke()
-        }, error = null)
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
 
-    fun authorize(lifecycleOwner: LifecycleOwner,
-                  request: AccountAuthRequest, success: () -> Unit, error: (Int, String) -> Unit) {
+    fun authorize(lifecycleOwner: LifecycleOwner, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             accountApi.postAccountAuth(request)
-        }, { response ->
+        }, successBlock = { response ->
             BequantPreference.setEmail(request.email)
             BequantPreference.setAccessToken(response?.accessToken ?: "")
             BequantPreference.setSession(response?.session ?: "")
-            success.invoke()
-        }, error = error)
+            success.invoke(response)
+        }, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resendRegister(lifecycleOwner: LifecycleOwner, request: AccountEmailConfirmResend) {
+    fun resendRegister(lifecycleOwner: LifecycleOwner, request: AccountEmailConfirmResend, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             accountApi.postAccountEmailConfirmResend(request)
-        }, {
-        }, error = null)
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun totpCreate(lifecycleOwner: LifecycleOwner, success: (TotpCreateResponse?) -> Unit, error: (String) -> Unit) {
+    fun totpCreate(lifecycleOwner: LifecycleOwner, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             AccountApi.create().postAccountTotpCreate()
-        }, {
-            success.invoke(it)
-        }, null)
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun totpActivate(lifecycleOwner: LifecycleOwner, totpActivateRequest: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (String) -> Unit) {
+    fun totpActivate(lifecycleOwner: LifecycleOwner, request: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
-            accountApi.postAccountTotpActivate(totpActivateRequest)
+            accountApi.postAccountTotpActivate(request)
         }, {
             BequantPreference.setAccessToken(it?.accessToken ?: "")
             BequantPreference.setSession(it?.session ?: "")
             success.invoke(it)
-        })
+        }, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun accountEmailConfirm(lifecycleOwner: LifecycleOwner, token: String, success: () -> Unit) {
+    fun accountEmailConfirm(lifecycleOwner: LifecycleOwner, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             accountApi.getAccountEmailConfirm(token)
-        }, {
-            success.invoke()
-        })
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun accountTotpConfirm(lifecycleOwner: LifecycleOwner, token: String, success: () -> Unit) {
+    fun accountTotpConfirm(lifecycleOwner: LifecycleOwner, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             accountApi.getAccountTotpConfirm(token)
-        }, {
-            success.invoke()
-        })
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resetPassword(lifecycleOwner: LifecycleOwner, request: AccountPasswordResetRequest, success: () -> Unit, error: (String) -> Unit) {
+    fun resetPassword(lifecycleOwner: LifecycleOwner, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             AccountApi.create().postAccountPasswordReset(request)
-        }, {}, null)
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resetPasswordSet(lifecycleOwner: LifecycleOwner, request: AccountPasswordSetRequest, success: () -> Unit) {
+    fun resetPasswordSet(lifecycleOwner: LifecycleOwner, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             AccountApi.create().postAccountPasswordSet(request)
-        }, {
-            success.invoke()
-        })
+        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun getApiKeys(lifecycleOwner: LifecycleOwner, success: () -> Unit, error: (Int, String) -> Unit) {
+    fun getApiKeys(lifecycleOwner: LifecycleOwner, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
         lifecycleOwner.doRequest({
             apiKeyApi.postApiKey()
         }, {
             BequantPreference.setApiKeys(it?.privateKey, it?.publicKey)
-            success.invoke()
-        })
+            success.invoke(it)
+        }, errorBlock = error, finallyBlock = finallyBlock)
     }
 
     fun logout() {

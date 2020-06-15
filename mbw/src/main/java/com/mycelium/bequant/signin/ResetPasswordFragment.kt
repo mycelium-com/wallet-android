@@ -6,6 +6,8 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountPasswordResetRequest
 import com.mycelium.wallet.R
@@ -18,10 +20,15 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_p
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         submit.setOnClickListener {
             if (validate()) {
+                loader(true)
                 val email = email.text.toString()
                 SignRepository.repository.resetPassword(this, AccountPasswordResetRequest(email), {
                     findNavController().navigate(ResetPasswordFragmentDirections.actionSubmit(email))
-                }, {})
+                }, error = { _, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                }, finallyBlock = {
+                    loader(false)
+                })
             }
         }
     }

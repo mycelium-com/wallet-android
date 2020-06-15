@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.SignRepository
@@ -26,9 +27,14 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         if (!BequantPreference.hasKeys()) {
+            loader(true)
             SignRepository.repository.getApiKeys(this, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
-            }, { _, _ -> {} })
+            }, error = { _, message ->
+                ErrorHandler(requireContext()).handle(message)
+            }, finallyBlock = {
+                loader(false)
+            })
         }
     }
 

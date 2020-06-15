@@ -19,6 +19,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
@@ -54,11 +56,17 @@ class RegistrationInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.setRegister( args.register)
+        viewModel.setRegister(args.register)
         (activity as AppCompatActivity?)?.supportActionBar?.title = "Registration"
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         resendConfirmationEmail.setOnClickListener {
-            SignRepository.repository.resendRegister(this,AccountEmailConfirmResend( args.register.email))
+            loader(true)
+            SignRepository.repository.resendRegister(this, AccountEmailConfirmResend(args.register.email), {},
+                    error = { _, message ->
+                        ErrorHandler(requireContext()).handle(message)
+                    }, finallyBlock = {
+                loader(false)
+            })
         }
         supportTeam.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))

@@ -15,6 +15,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
@@ -56,13 +58,18 @@ class SignInFragment : Fragment() {
         }
         signIn.setOnClickListener {
             if (validate()) {
+                loader(true)
                 val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.authorize(this, request, {
+                SignRepository.repository.authorize(this, request, success = {
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
-                }, { code, error ->
+                }, error = { code, message ->
                     if (code == 420) {
                         findNavController().navigate(SignFragmentDirections.actionSignIn(request))
+                    } else {
+                        ErrorHandler(requireContext()).handle(message)
                     }
+                }, finallyBlock = {
+                    loader(false)
                 })
             }
         }

@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.bequant.remote.client.models.TotpActivateRequest
 import com.mycelium.wallet.R
@@ -26,9 +28,14 @@ class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_
         }
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
+                loader(true)
                 SignRepository.repository.totpActivate(this@SignUpTwoFactorPasscodeFragment, TotpActivateRequest(args.otp.otpId, enteredText), {
                     findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
-                }, {})
+                }, error = { _, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                }, finallyBlock = {
+                    loader(false)
+                })
                 return true
             }
         }

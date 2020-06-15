@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_TOTP_CONFIRMED
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
 
@@ -32,17 +35,29 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
         if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/email/confirm") {
-            SignRepository.repository.accountEmailConfirm(this,
-                    intent.data?.getQueryParameter("token") ?: "",
-                    {
+            loader(true)
+            SignRepository.repository.accountEmailConfirm(this, intent.data?.getQueryParameter("token")
+                    ?: "",
+                    success = {
                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
-                    })
+                    },
+                    error = { code, message ->
+                        ErrorHandler(this).handle(message)
+                    }, finallyBlock = {
+                loader(false)
+            })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/totp/confirm") {
+            loader(true)
             SignRepository.repository.accountTotpConfirm(this, intent.data?.getQueryParameter("token")
                     ?: "", {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
+            },
+                    error = { _, message ->
+                        ErrorHandler(this).handle(message)
+                    }, finallyBlock = {
+                loader(false)
             })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
