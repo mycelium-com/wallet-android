@@ -86,15 +86,8 @@
             android:id="@+id/actionNext"
             app:destination="@id/setupCodeFragment">
             <argument
-                android:name="otpId"
-                app:argType="integer" />
-
-            <argument
-                android:name="otpLink"
-                app:argType="string" />
-            <argument
-                android:name="backupCode"
-                app:argType="string" />
+                android:name="otp"
+                app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
         </action>
     </fragment>
     <fragment
@@ -136,14 +129,10 @@
         tools:layout="@layout/fragment_bequant_setup_code">
         <action
             android:id="@+id/actionNext"
-            app:destination="@id/signUpTwoFactorPasscodeFragment">
-            <argument
-                android:name="otpId"
-                app:argType="integer" />
-            <argument
-                android:name="otpLink"
-                app:argType="string" />
-        </action>
+            app:destination="@id/signUpTwoFactorPasscodeFragment"></action>
+        <argument
+            android:name="otp"
+            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
     </fragment>
     <fragment
         android:id="@+id/signUpTwoFactorPasscodeFragment"
@@ -153,6 +142,9 @@
         <action
             android:id="@+id/actionNext"
             app:destination="@id/registrationTotpFragment" />
+        <argument
+            android:name="otp"
+            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
     </fragment>
     <fragment
         android:id="@+id/registrationTotpFragment"

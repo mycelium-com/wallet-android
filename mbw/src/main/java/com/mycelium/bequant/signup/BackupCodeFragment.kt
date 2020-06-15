@@ -8,15 +8,16 @@ import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.client.apis.AccountApi
+import com.mycelium.bequant.remote.client.models.TotpCreateResponse
+import com.mycelium.bequant.remote.load
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.fragment_bequant_backup_code.*
 
 
 class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
 
-    private var otpId = 0
-    private var otpLink = ""
-    private var backupCode = ""
+    private var response: TotpCreateResponse? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -27,19 +28,15 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             next.isEnabled = checked
         }
         next.setOnClickListener {
-            findNavController().navigate(BackupCodeFragmentDirections.actionNext(otpId, otpLink, backupCode))
+            findNavController().navigate(BackupCodeFragmentDirections.actionNext(response!!))
         }
-        val loader = LoaderFragment()
-        loader.show(parentFragmentManager, "loader")
-        SignRepository.repository.totpCreate({ otpId, otpLink, backupCode ->
-            this.otpId = otpId
-            this.otpLink = otpLink
-            this.backupCode = backupCode
-            loader.dismissAllowingStateLoss()
-            backupCodeView.text = backupCode.substring(0, backupCode.length / 2 + 1) + "\n" + backupCode.substring(backupCode.length / 2 + 1)
+
+        load({
+            AccountApi.create().postAccountTotpCreate()
         }, {
-            loader.dismissAllowingStateLoss()
-            ErrorHandler(requireContext()).handle(it)
+            response = it
+            val (backupPassword, otpId, otpLink) = it!!
+            backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
         })
     }
 }

@@ -18,6 +18,9 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.LoaderFragment
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.remote.SignRepository
+import com.mycelium.bequant.remote.client.apis.AccountApi
+import com.mycelium.bequant.remote.client.models.AccountPasswordSetRequest
+import com.mycelium.bequant.remote.load
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantChangePasswordBindingImpl
@@ -64,14 +67,10 @@ class ResetPasswordChangeFragment : Fragment() {
             }
         }
         changePassword.setOnClickListener {
-            val loader = LoaderFragment()
-            loader.show(parentFragmentManager, LOADER_TAG)
-            SignRepository.repository.resetPasswordSet(token, viewModel.password.value!!, {
-                loader.dismissAllowingStateLoss()
+            load({
+                AccountApi.create().postAccountPasswordSet(AccountPasswordSetRequest(viewModel.password.value!!,token))
+            },{
                 findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
-            }, {
-                loader.dismissAllowingStateLoss()
-                ErrorHandler(requireContext()).handle(it)
             })
         }
     }

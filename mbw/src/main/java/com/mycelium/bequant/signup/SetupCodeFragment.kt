@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.signup.viewmodel.SetupCodeViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
@@ -22,6 +23,7 @@ class SetupCodeFragment : Fragment() {
 
     lateinit var viewModel: SetupCodeViewModel
 
+    val args by navArgs<SetupCodeFragmentArgs>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(SetupCodeViewModel::class.java)
@@ -38,12 +40,10 @@ class SetupCodeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_setup_code)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
-        val otpId = arguments?.getInt("otpId")
-        val otpLink = arguments?.getString("otpLink")
-        val uri = Uri.parse(otpLink)
+        val uri = Uri.parse(args.otp.otpLink)
         viewModel.name.value = uri.pathSegments[0]
         viewModel.secretCode.value = uri.getQueryParameter("secret")
-        qrCodeView.qrCode = otpLink
+        qrCodeView.qrCode = args.otp.otpLink
         nameCopy.setOnClickListener {
             Utils.setClipboardString(viewModel.name.value, requireContext())
             Toast.makeText(requireContext(), getString(R.string.s_copied_to_clipboard, "Name"), Toast.LENGTH_SHORT).show()
@@ -53,7 +53,7 @@ class SetupCodeFragment : Fragment() {
             Toast.makeText(requireContext(), getString(R.string.s_copied_to_clipboard, "Secret"), Toast.LENGTH_SHORT).show()
         }
         next.setOnClickListener {
-            findNavController().navigate(SetupCodeFragmentDirections.actionNext(otpId!!, otpLink!!))
+            findNavController().navigate(SetupCodeFragmentDirections.actionNext(args.otp))
         }
     }
 }

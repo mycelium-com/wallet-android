@@ -35,23 +35,6 @@ class SignRepository {
         })
     }
 
-    fun register(register: Register, success: () -> Unit, error: (String) -> Unit) {
-        service.register(register).enqueue(object : Callback<Void> {
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                error.invoke(t.message ?: "")
-                t.printStackTrace()
-            }
-
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    success.invoke()
-                } else {
-                    error.invoke(response.errorBody()?.string() ?: "")
-                }
-            }
-        })
-    }
-
     fun resendRegister(email: Email, success: () -> Unit, error: (String) -> Unit) {
         service.resendRegister(email).enqueue(object : Callback<Void> {
             override fun onFailure(call: Call<Void>, t: Throwable) {
