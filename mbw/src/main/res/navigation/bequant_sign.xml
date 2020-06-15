@@ -20,9 +20,6 @@
         <action
             android:id="@+id/actionSignIn"
             app:destination="@id/signInTwoFactorFragment">
-            <argument
-                android:name="auth"
-                app:argType="com.mycelium.bequant.remote.client.models.AccountAuthRequest" />
         </action>
         <action
             android:id="@+id/actionSignUp"
@@ -30,10 +27,6 @@
         <action
             android:id="@+id/actionSelectCountry"
             app:destination="@id/countrySelectorFragment">
-            <argument
-                android:name="showPhoneCode"
-                android:defaultValue="false"
-                app:argType="boolean" />
         </action>
     </fragment>
     <fragment
@@ -166,5 +159,10 @@
         android:id="@+id/countrySelectorFragment"
         android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
         android:label="CountrySelectorFragment"
-        tools:layout="@layout/activity_bequant_kyc_country_of_residence" />
+        tools:layout="@layout/activity_bequant_kyc_country_of_residence" >
+        <argument
+            android:name="showPhoneCode"
+            android:defaultValue="true"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

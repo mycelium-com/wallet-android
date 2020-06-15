@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
 import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
@@ -25,12 +26,12 @@ class CountrySelectorFragment : Fragment() {
 
     lateinit var viewModel: CountrySelectorViewModel
     private lateinit var activityViewModel: BequantKycViewModel
-    private var showPhoneCode = true
+
+    val args by navArgs<CountrySelectorFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
-        showPhoneCode = arguments?.getBoolean("showPhoneCode") ?: true
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -68,7 +69,7 @@ class CountrySelectorFragment : Fragment() {
         }).apply {
             submitList(countryModels)
         }
-        adapter.showPhoneCode = showPhoneCode
+        adapter.showPhoneCode = args.showPhoneCode
         rvCountries.adapter = adapter
         viewModel.search.observe(viewLifecycleOwner, Observer { text ->
             if (text.isNullOrEmpty()) {
