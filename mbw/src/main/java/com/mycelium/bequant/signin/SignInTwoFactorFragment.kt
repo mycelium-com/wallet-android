@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -31,7 +32,7 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
                 loader(true)
-                SignRepository.repository.authorize(this@SignInTwoFactorFragment, auth.copy(otpCode = enteredText), {
+                SignRepository.repository.authorize(this@SignInTwoFactorFragment.lifecycleScope, auth.copy(otpCode = enteredText), {
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                     requireActivity().finish()
                 }, error = { _, message ->

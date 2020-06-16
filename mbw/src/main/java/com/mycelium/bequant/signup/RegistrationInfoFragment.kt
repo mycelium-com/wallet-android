@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -61,7 +62,7 @@ class RegistrationInfoFragment : Fragment() {
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         resendConfirmationEmail.setOnClickListener {
             loader(true)
-            SignRepository.repository.resendRegister(this, AccountEmailConfirmResend(args.register.email), {},
+            SignRepository.repository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
                     error = { _, message ->
                         ErrorHandler(requireContext()).handle(message)
                     }, finallyBlock = {

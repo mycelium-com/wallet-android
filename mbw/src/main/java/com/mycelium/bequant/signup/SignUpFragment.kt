@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
@@ -87,7 +88,7 @@ class SignUpFragment : Fragment() {
             if (validate()) {
                 loader(true)
                 val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.signUp(this, registerAccountRequest, success = {
+                SignRepository.repository.signUp(lifecycleScope, registerAccountRequest, success = {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)

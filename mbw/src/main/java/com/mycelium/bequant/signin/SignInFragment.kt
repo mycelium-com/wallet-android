@@ -60,7 +60,7 @@ class SignInFragment : Fragment() {
             if (validate()) {
                 loader(true)
                 val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
-                SignRepository.repository.authorize(this, request, success = {
+                SignRepository.repository.authorize(lifecycleScope, request, success = {
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, error = { code, message ->
                     if (code == 420) {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
@@ -29,7 +30,7 @@ class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
                 loader(true)
-                SignRepository.repository.totpActivate(this@SignUpTwoFactorPasscodeFragment, TotpActivateRequest(args.otp.otpId, enteredText), {
+                SignRepository.repository.totpActivate(this@SignUpTwoFactorPasscodeFragment.lifecycleScope, TotpActivateRequest(args.otp.otpId, enteredText), {
                     findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)

@@ -1,26 +1,28 @@
 package com.mycelium.bequant.remote
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
 import com.mycelium.bequant.remote.client.models.*
+import kotlinx.coroutines.CoroutineScope
 
 class SignRepository {
 
     private val accountApi = AccountApi.create()
     private val apiKeyApi = ApiKeyApi.create()
 
-    fun signUp(lifecycleOwner: LifecycleOwner,
+    fun signUp(scope: CoroutineScope,
                request: RegisterAccountRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+        doRequest(scope, {
             accountApi.postAccountRegister(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
 
-    fun authorize(lifecycleOwner: LifecycleOwner, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun authorize(scope: CoroutineScope, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             accountApi.postAccountAuth(request)
         }, successBlock = { response ->
             BequantPreference.setEmail(request.email)
@@ -30,20 +32,20 @@ class SignRepository {
         }, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resendRegister(lifecycleOwner: LifecycleOwner, request: AccountEmailConfirmResend, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun resendRegister(scope: CoroutineScope, request: AccountEmailConfirmResend, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             accountApi.postAccountEmailConfirmResend(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun totpCreate(lifecycleOwner: LifecycleOwner, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun totpCreate(scope: CoroutineScope, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             AccountApi.create().postAccountTotpCreate()
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun totpActivate(lifecycleOwner: LifecycleOwner, request: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun totpActivate(scope: CoroutineScope, request: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             accountApi.postAccountTotpActivate(request)
         }, {
             BequantPreference.setAccessToken(it?.accessToken ?: "")
@@ -52,32 +54,32 @@ class SignRepository {
         }, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun accountEmailConfirm(lifecycleOwner: LifecycleOwner, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun accountEmailConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             accountApi.getAccountEmailConfirm(token)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun accountTotpConfirm(lifecycleOwner: LifecycleOwner, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun accountTotpConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             accountApi.getAccountTotpConfirm(token)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resetPassword(lifecycleOwner: LifecycleOwner, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun resetPassword(scope: CoroutineScope, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             AccountApi.create().postAccountPasswordReset(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun resetPasswordSet(lifecycleOwner: LifecycleOwner, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun resetPasswordSet(scope: CoroutineScope, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             AccountApi.create().postAccountPasswordSet(request)
         }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
     }
 
-    fun getApiKeys(lifecycleOwner: LifecycleOwner, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-        lifecycleOwner.doRequest({
+    fun getApiKeys(scope: CoroutineScope, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+        doRequest(scope, {
             apiKeyApi.postApiKey()
         }, {
             BequantPreference.setApiKeys(it?.privateKey, it?.publicKey)

@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
@@ -66,7 +67,7 @@ class ResetPasswordChangeFragment : Fragment() {
         changePassword.setOnClickListener {
             val request = AccountPasswordSetRequest(viewModel.password.value!!, token)
             loader(true)
-            SignRepository.repository.resetPasswordSet(this, request, {
+            SignRepository.repository.resetPasswordSet(lifecycleScope, request, {
                 findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED
@@ -36,7 +37,7 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/email/confirm") {
             loader(true)
-            SignRepository.repository.accountEmailConfirm(this, intent.data?.getQueryParameter("token")
+            SignRepository.repository.accountEmailConfirm(lifecycleScope, intent.data?.getQueryParameter("token")
                     ?: "",
                     success = {
                         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
@@ -50,7 +51,7 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/totp/confirm") {
             loader(true)
-            SignRepository.repository.accountTotpConfirm(this, intent.data?.getQueryParameter("token")
+            SignRepository.repository.accountTotpConfirm(lifecycleScope, intent.data?.getQueryParameter("token")
                     ?: "", {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
             },
