@@ -1,6 +1,8 @@
 package com.mycelium.bequant
 
 import android.content.Context
+import com.google.gson.Gson
+import com.mycelium.bequant.remote.model.KYCRequest
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.WalletApplication
 import com.mycelium.wapi.wallet.coins.Value
@@ -20,6 +22,12 @@ object BequantPreference {
     }
 
     fun getEmail() = preference.getString(Constants.EMAIL_KEY, null) ?: ""
+
+    fun getKYCToken() = preference.getString(Constants.KYC_UUID_KEY, null) ?: ""
+
+    fun setKYCToken(uuid: String) {
+        preference.edit().putString(Constants.KYC_UUID_KEY, uuid).apply()
+    }
 
     fun setAccessToken(accessToken: String) {
         preference.edit().putString(Constants.ACCESS_TOKEN_KEY, accessToken).apply()
@@ -71,4 +79,11 @@ object BequantPreference {
 
     fun getMockCastodialBalance() = Value.parse(Utils.getBtcCoinType(),
             preference.getString("balance", "0") ?: "0")
+
+    fun getKYCRequest() =
+            Gson().fromJson(preference.getString(Constants.KYC_REQUEST_KEY, null), KYCRequest::class.java)
+
+    fun setKYCRequest(request: KYCRequest) {
+        preference.edit().putString(Constants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
+    }
 }

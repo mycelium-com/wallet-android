@@ -70,6 +70,13 @@ data class KYCCreateResponse(var status: Int?,
                              var uuid: String?,
                              var error: Int?)
 
+data class KYCStatusResponse(var status: Int?,
+                             var message: StatusMessage?,
+                             var error: Int?)
+
+data class StatusMessage(val phoneVerified: Boolean,
+                         val global: KYCStatus)
+
 data class KYCResponse(var status: Int?,
                        var message: String?,
                        var error: Int?)
@@ -78,3 +85,5 @@ enum class KYCDocument {
     PASSPORT, ID_CARD_FRONT_SIDE, ID_CARD_BACK_SIDE, FACTA, SELFIE, BANK_STATEMENT_FOR_FIAT,
     EXP, POA, DRIVERS_FRONT_SIDE, DRIVERS_BACK_SIDE
 }
+
+enum class KYCStatus { PENDING, INCOMPLETE, REJECTED, APPROVED, SIGNED_OFF }

@@ -1,9 +1,6 @@
 package com.mycelium.bequant.remote
 
-import com.mycelium.bequant.remote.model.KYCCreateRequest
-import com.mycelium.bequant.remote.model.KYCCreateResponse
-import com.mycelium.bequant.remote.model.KYCDocument
-import com.mycelium.bequant.remote.model.KYCResponse
+import com.mycelium.bequant.remote.model.*
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -26,6 +23,6 @@ interface BequantKYCApiService {
                            @Query("country-iso-3166-3") country: String,
                            @Part file: MultipartBody.Part): Response<KYCResponse>
 
-    @GET("eapi/applicant/status?uuid=​{uuid}")
-    suspend fun status(): KYCResponse
+    @GET("eapi/applicant/status")
+    suspend fun status(@Query("uuid") uuid: String): Response<KYCStatusResponse>
 }

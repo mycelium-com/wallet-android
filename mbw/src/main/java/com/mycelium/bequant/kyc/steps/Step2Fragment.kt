@@ -67,15 +67,15 @@ class Step2Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = "Identity Authentication"
-        step.text = "Step 2"
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
+        step.text = getString(R.string.step_n, 2)
         stepProgress.progress = 2
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, "Phone Number", StepState.COMPLETE)
-                , ItemStep(1, "Personal information", StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, "Residential Address", StepState.CURRENT)
-                , ItemStep(3, "Documents & Selfie", StepState.FUTURE)))
+        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
+                , ItemStep(2, getString(R.string.residential_address), StepState.CURRENT)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
 
         stepAdapter.clickListener = {
             when (it) {

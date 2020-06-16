@@ -38,7 +38,7 @@ class VerticalStepperItemView : ConstraintLayout {
             StepState.COMPLETE -> {
                 vertical_stepper_view_item_circle?.setIconCheck()
                 vertical_stepper_view_item_circle?.setComplete()
-                setTitleColor(R.color.bequant_gray_6)
+                setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_green)
                 }
@@ -46,7 +46,7 @@ class VerticalStepperItemView : ConstraintLayout {
             StepState.COMPLETE_EDITABLE -> {
                 vertical_stepper_view_item_circle?.setIconEdit()
                 vertical_stepper_view_item_circle?.setActive()
-                setTitleColor(R.color.bequant_gray_6)
+                setTitleColor(R.color.white)
                 if (showConnectorLine) {
                     setLineColor(R.color.bequant_yellow)
                 }

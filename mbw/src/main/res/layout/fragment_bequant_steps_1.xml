@@ -180,6 +180,7 @@
                     style="@style/Bequant.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:enabled="@{viewModel.nextButton}"
                     android:layout_marginTop="32dp"
                     android:text="Next" />
             </androidx.appcompat.widget.LinearLayoutCompat>

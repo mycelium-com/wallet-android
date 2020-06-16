@@ -1420,4 +1420,10 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="bequant_s_deposit_tag">%s Deposit Tag</string>
     <string name="bequant_custodial_wallet_s">Investment Account (%s)</string>
     <string name="format" translatable="false">%1$td/%1$tm/%1$tY</string>
+    <string name="step_n">Step %d</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="personal_info">Personal information</string>
+    <string name="residential_address">Residential Address</string>
+    <string name="doc_selfie"><![CDATA[Documents & Selfie]]></string>
+    <string name="identity_auth">Identity Authentication</string>
 </resources>

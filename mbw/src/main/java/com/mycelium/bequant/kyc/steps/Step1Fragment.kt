@@ -12,6 +12,7 @@ import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -35,7 +36,6 @@ import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -72,15 +72,15 @@ class Step1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity?)?.supportActionBar?.title = "Identity Authentication"
-        step.text = "Step 1"
+        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.identity_auth)
+        step.text = getString(R.string.step_n, 1)
         stepProgress.progress = 1
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, "Phone Number", StepState.COMPLETE)
-                , ItemStep(1, "Personal information", StepState.CURRENT)
-                , ItemStep(2, "Residential Address", StepState.FUTURE)
-                , ItemStep(3, "Documents & Selfie", StepState.FUTURE)))
+        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(1, getString(R.string.personal_info), StepState.CURRENT)
+                , ItemStep(2, getString(R.string.residential_address), StepState.FUTURE)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.FUTURE)))
 
 //        val format = SimpleDateFormat("dd/MM/yyy")
         tvDateOfBirth.setOnClickListener {
@@ -104,6 +104,18 @@ class Step1Fragment : Fragment() {
                 findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
             }
         }
+        viewModel.firstName.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.lastName.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.birthday.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.nationality.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

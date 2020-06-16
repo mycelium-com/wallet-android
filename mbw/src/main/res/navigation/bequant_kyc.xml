@@ -18,6 +18,12 @@
         <action
             android:id="@+id/action_phoneInputToChooseCountry"
             app:destination="@id/chooseCountry" />
+        <action
+            android:id="@+id/actionCallback"
+            app:destination="@id/callbackFailed" />
+        <action
+            android:id="@+id/actionPending"
+            app:destination="@id/finalPresubmit" />
     </fragment>
 
     <fragment

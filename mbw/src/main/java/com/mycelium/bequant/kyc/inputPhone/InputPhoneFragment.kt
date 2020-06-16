@@ -20,6 +20,7 @@ import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.bequant.remote.KYCRepository
 import com.mycelium.bequant.remote.model.KYCApplicant
+import com.mycelium.bequant.remote.model.KYCStatus
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycPhoneInputBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_phone_input.*
@@ -75,6 +76,20 @@ class InputPhoneFragment : Fragment(R.layout.activity_bequant_kyc_phone_input) {
 //                    .add(countrySelectorFragment,"selector")
 //                    .commit()
             findNavController().navigate(R.id.action_phoneInputToChooseCountry)
+        }
+        if (BequantPreference.getKYCToken().isNotEmpty()) {
+            loader(true)
+            KYCRepository.repository.status(lifecycleScope) { status ->
+                when (status) {
+                    KYCStatus.PENDING,
+                    KYCStatus.INCOMPLETE ->
+                        findNavController().navigate(InputPhoneFragmentDirections.actionPending(BequantPreference.getKYCRequest()))
+
+                    KYCStatus.APPROVED,
+                    KYCStatus.REJECTED ->
+                        findNavController().navigate(InputPhoneFragmentDirections.actionCallback())
+                }
+            }
         }
     }
 
