@@ -12,16 +12,7 @@ import retrofit2.Response
 
 
 fun <T> LifecycleOwner.doRequest(request: suspend () -> Response<T>, successBlock: (T?) -> Unit, errorBlock: (Int, String) -> Unit, finallyBlock: () -> Unit) {
-    if (this is Fragment) {
-        doRequest(lifecycleScope, request, successBlock, errorBlock, finallyBlock)
-        return
-    }
-    if (this is AppCompatActivity) {
-        doRequest(lifecycleScope, request, successBlock, errorBlock, finallyBlock)
-        return
-    }
-
-    throw NotImplementedError("$this is not supported")
+    doRequest(lifecycleScope, request, successBlock, errorBlock, finallyBlock)
 }
 
 fun <T> doRequest(lifecycleCoroutineScope: LifecycleCoroutineScope, request: suspend () -> Response<T>, successBlock: (T?) -> Unit, errorBlock: (Int, String) -> Unit, finallyBlock: () -> Unit) {
