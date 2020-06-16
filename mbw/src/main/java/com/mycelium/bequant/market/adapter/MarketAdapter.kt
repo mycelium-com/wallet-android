@@ -68,13 +68,13 @@ class MarketAdapter : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCall
                         "N/A"
                     }
                     item.change < 0 -> {
-                        holder.itemView.change.setBackgroundResource(R.drawable.bg_bequant_change_percent_green)
-                        holder.itemView.change.setTextColor(holder.itemView.resources.getColor(R.color.bequant_green))
+                        holder.itemView.change.setBackgroundResource(R.drawable.bg_bequant_change_percent_red)
+                        holder.itemView.change.setTextColor(holder.itemView.resources.getColor(R.color.bequant_red))
                         "%.${2}f%%".format(item.change)
                     }
                     else -> {
-                        holder.itemView.change.setBackgroundResource(R.drawable.bg_bequant_change_percent_red)
-                        holder.itemView.change.setTextColor(holder.itemView.resources.getColor(R.color.bequant_red))
+                        holder.itemView.change.setBackgroundResource(R.drawable.bg_bequant_change_percent_green)
+                        holder.itemView.change.setTextColor(holder.itemView.resources.getColor(R.color.bequant_green))
                         "+%.${2}f%%".format(item.change)
                     }
                 }
