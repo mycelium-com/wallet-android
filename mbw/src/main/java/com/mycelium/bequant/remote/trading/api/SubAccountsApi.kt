@@ -1,4 +1,4 @@
-package org.openapitools.client.apis
+package com.mycelium.bequant.remote.trading.api
 
 import com.mycelium.bequant.remote.trading.model.*
 import retrofit2.Response
