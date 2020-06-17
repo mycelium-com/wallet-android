@@ -103,7 +103,7 @@ object SettingsPreference {
         }
     }
 
-    private fun getPartnerInfo(id: String): PartnerInfo =
+    private fun getPartnerInfo(id: String): PartnerInfo? =
             Gson().fromJson(sharedPreferences.getString("${PARTNER_KEY}-$id", ""), PartnerInfo::class.java)
 
     @JvmStatic
@@ -114,5 +114,5 @@ object SettingsPreference {
     }
 
     @JvmStatic
-    fun isContentEnabled(id: String): Boolean = getPartnerInfo(id).let { it.isEnabled ?: true && it.isActive() } && isEnabled(id)
+    fun isContentEnabled(id: String): Boolean = getPartnerInfo(id).let { it?.isEnabled ?: true && it?.isActive() ?: true } && isEnabled(id)
 }

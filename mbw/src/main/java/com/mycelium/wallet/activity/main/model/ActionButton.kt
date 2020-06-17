@@ -6,7 +6,7 @@ import java.util.*
 
 class ActionButton @JvmOverloads constructor(val id: BuySellFragment.ACTION, val text: String,
                                              val icon: Int = 0, val iconUrl: String? = null,
-                                             val args: Bundle? = null) {
+                                             var args: Bundle = Bundle()) {
     var textColor = 0
 
     override fun equals(other: Any?): Boolean {
