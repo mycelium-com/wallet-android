@@ -91,10 +91,6 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
-//                    val stream = WalletApplication.getInstance().assets.open("nodes-b.json")
-//                    val jr = JsonReader(InputStreamReader(stream, "UTF-8"))
-//                    myceliumNodesResponse = gson.fromJson(jr, MyceliumNodesResponse::class.java)
-
                     val electrumXnodes = if (network.isTestnet)
                         myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
                     else
