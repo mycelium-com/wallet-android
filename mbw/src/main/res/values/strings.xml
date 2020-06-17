@@ -1160,7 +1160,7 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="this_is_read_only_account">This is watch-only account. In order to spend funds from it, you need to import the corresponding private key.\nYou can do it by selecting Accounts tab > Add New Account > Advanced and using either Scan or Clipboard option for key\'s importing.</string>
     <string name="balance_error">Insufficient funds</string>
     <string name="or">or</string>
-    <string name="waiting_offer">Waiting offer…</string>
+    <string name="waiting_offer">Waiting for an offer…</string>
     <string name="both_bch_will_deleted">Both %1$s and Bitcoin Cash - %2$s accounts will be deleted.</string>
     <string name="given_rates_includes_transaction_fee">Given rate includes transaction fee</string>
     <string name="try_again">Try Again</string>

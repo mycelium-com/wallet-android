@@ -33,7 +33,10 @@ public class News implements Serializable {
     @JsonProperty("link")
     public String link;
 
-    @JsonProperty("jetpack_featured_media_url")
+    @JsonProperty("featured_media")
+    public Integer featuredMediaId;
+
+//    @JsonProperty("jetpack_featured_media_url")
     public String image;
 
     @JsonProperty("categories")

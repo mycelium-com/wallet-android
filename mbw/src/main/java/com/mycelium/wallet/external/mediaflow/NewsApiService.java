@@ -2,6 +2,7 @@ package com.mycelium.wallet.external.mediaflow;
 
 import com.mycelium.wallet.external.mediaflow.model.Author;
 import com.mycelium.wallet.external.mediaflow.model.Category;
+import com.mycelium.wallet.external.mediaflow.model.Media;
 import com.mycelium.wallet.external.mediaflow.model.News;
 import com.mycelium.wallet.external.mediaflow.model.Tag;
 
@@ -15,7 +16,7 @@ import retrofit2.http.Query;
 
 public interface NewsApiService {
 
-    @GET("posts?per_page=100")
+    @GET("posts?per_page=100&date_query_column=post_modified")
     Call<List<News>> updatedPosts(@Query("after") String updateAfterDate, @Query("page") int page);
 
     @GET("posts?per_page=100")
@@ -30,4 +31,7 @@ public interface NewsApiService {
 
     @GET("users/{id}")
     Call<Author> user(@Path("id") int userId);
+
+    @GET("media/{id}")
+    Call<Media> media(@Path("id") int mediaId);
 }
