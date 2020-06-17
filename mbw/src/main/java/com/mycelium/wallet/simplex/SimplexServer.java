@@ -4,6 +4,7 @@ package com.mycelium.wallet.simplex;
 import android.content.Context;
 import android.os.Handler;
 
+import com.mycelium.wallet.BuildConfig;
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
 import com.squareup.okhttp.Callback;
@@ -17,16 +18,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 class SimplexServer {
-    private final String baseUrl = "https://mycelium.simplex-affiliates.com";
     private OkHttpClient client = new OkHttpClient();
 
     String getAuthRequestUrl() {
-        return baseUrl + "/val";
+        return BuildConfig.SIMPLEX + "/val";
     }
 
     void getNonceAsync(final Bus eventBus, final Context context) {
         Request request = new Request.Builder()
-                .url(baseUrl + "/android")
+                .url(BuildConfig.SIMPLEX + "/android")
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
