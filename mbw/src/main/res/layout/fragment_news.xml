@@ -28,12 +28,7 @@
             android:layout_marginStart="16dp"
             app:srcCompat="@drawable/ic_close" />
     </FrameLayout>
-    <Button
-        android:id="@+id/startSync"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="start sync"/>
-
+    
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
