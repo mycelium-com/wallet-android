@@ -48,7 +48,6 @@ class ExternalServiceFragment : PreferenceFragmentCompat() {
             preferenceCategory?.addPreference(CheckBoxPreference(requireActivity()).apply {
                 title = resources.getString(R.string.settings_service_enabled, partnerInfo.name)
                 layoutResource = R.layout.preference_layout
-//                setSummary(buySellService.settingDescription)
                 isChecked = SettingsPreference.isEnabled(partnerInfo.id ?: "")
                 widgetLayoutResource = R.layout.preference_switch
                 onPreferenceClickListener = Preference.OnPreferenceClickListener { preference: Preference ->
