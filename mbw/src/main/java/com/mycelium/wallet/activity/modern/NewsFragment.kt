@@ -142,12 +142,7 @@ class NewsFragment : Fragment() {
         retry.setOnClickListener {
             WorkManager.getInstance(requireContext())
                     .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
-        }
-        startSync.visibility = if (BuildConfig.DEBUG) VISIBLE else GONE
-        startSync.setOnClickListener {
-            WorkManager.getInstance(requireContext())
-                    .enqueue(OneTimeWorkRequest.Builder(MediaFlowSyncWorker::class.java).build())
-        }
+        }   
         media_flow_loading.text = getString(R.string.loading_media_flow_feed_please_wait, "")
         updateUI()
     }
