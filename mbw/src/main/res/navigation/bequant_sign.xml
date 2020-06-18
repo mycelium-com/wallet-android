@@ -30,8 +30,8 @@
         </action>
         <argument
             android:name="tab"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"
             />
     </fragment>
     <fragment

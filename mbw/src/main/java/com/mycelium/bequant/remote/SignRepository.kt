@@ -40,7 +40,7 @@ class SignRepository {
 
     fun totpCreate(scope: CoroutineScope, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            AccountApi.create().postAccountTotpCreate()
+            AccountApi.create().postAccountTotpCreate(TotpCreateRequest())
         }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 

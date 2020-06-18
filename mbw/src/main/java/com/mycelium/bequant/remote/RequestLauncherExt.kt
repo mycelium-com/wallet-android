@@ -10,10 +10,12 @@ fun <T> doRequest(coroutineScope: CoroutineScope, request: suspend () -> Respons
     coroutineScope.launch {
         withContext(Dispatchers.IO) {
             val response = request()
-            if (response.isSuccessful) {
-                successBlock(response.body())
-            } else {
-                errorBlock.invoke(response.code(), response.errorBody()?.string() ?: "")
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    successBlock(response.body())
+                } else {
+                    errorBlock.invoke(response.code(), response.errorBody()?.string() ?: "")
+                }
             }
         }
     }

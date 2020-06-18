@@ -34,7 +34,7 @@ class RegistrationInfoFragment : Fragment() {
 
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
-            findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish(null))
+            findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish())
         }
     }
 
@@ -79,7 +79,7 @@ class RegistrationInfoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 android.R.id.home -> {
-                    findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish(null))
+                    findNavController().navigate(RegistrationInfoFragmentDirections.actionFinish())
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

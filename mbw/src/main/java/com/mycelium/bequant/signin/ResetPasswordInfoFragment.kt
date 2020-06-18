@@ -69,7 +69,7 @@ class ResetPasswordInfoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 android.R.id.home -> {
-                    findNavController().navigate(ResetPasswordInfoFragmentDirections.actionFinish(null))
+                    findNavController().navigate(ResetPasswordInfoFragmentDirections.actionFinish())
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
