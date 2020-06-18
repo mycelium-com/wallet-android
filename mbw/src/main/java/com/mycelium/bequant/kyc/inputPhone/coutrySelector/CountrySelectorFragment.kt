@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -20,7 +21,6 @@ import com.mycelium.bequant.kyc.BequantKycViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.ActivityBequantKycCountryOfResidenceBinding
 import kotlinx.android.synthetic.main.activity_bequant_kyc_country_of_residence.*
-import java.util.*
 
 class CountrySelectorFragment : Fragment() {
 
@@ -28,10 +28,16 @@ class CountrySelectorFragment : Fragment() {
     private lateinit var activityViewModel: BequantKycViewModel
 
     val args by navArgs<CountrySelectorFragmentArgs>()
+    private var showPhoneCode = true
+    //TODO nationality maybe need other fragment
+    private var nationality = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
+        showPhoneCode = arguments?.getBoolean("showPhoneCode") ?: true
+        nationality = arguments?.getBoolean("nationality") ?: false
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -55,20 +61,25 @@ class CountrySelectorFragment : Fragment() {
         val countryModels = CountriesSource.countryModels
         val adapter = CountriesAdapter(object : CountriesAdapter.ItemClickListener {
             override fun onItemClick(countryModel: CountryModel) {
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
-                        .putExtra(COUNTRY_MODEL_KEY, countryModel))
-                if (targetFragment == null) {
-                    activityViewModel.country.value = countryModel
-                    findNavController().popBackStack()
+                if (countryModel.acronym == "US" && !showPhoneCode) {
+                    findNavController().navigate(CountrySelectorFragmentDirections.actionFail())
                 } else {
-                    targetFragment?.onActivityResult(targetRequestCode, RESULT_OK,
-                            Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
-                    activity?.onBackPressed()
+                    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(ACTION_COUNTRY_SELECTED)
+                            .putExtra(COUNTRY_MODEL_KEY, countryModel))
+                    if (targetFragment == null) {
+                        activityViewModel.country.value = countryModel
+                        findNavController().popBackStack()
+                    } else {
+                        targetFragment?.onActivityResult(targetRequestCode, RESULT_OK,
+                                Intent().putExtra(COUNTRY_MODEL_KEY, countryModel))
+                        activity?.onBackPressed()
+                    }
                 }
             }
         }).apply {
             submitList(countryModels)
         }
+        adapter.nationality = nationality
         adapter.showPhoneCode = args.showPhoneCode
         rvCountries.adapter = adapter
         viewModel.search.observe(viewLifecycleOwner, Observer { text ->
@@ -82,4 +93,13 @@ class CountrySelectorFragment : Fragment() {
             }
         })
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 }

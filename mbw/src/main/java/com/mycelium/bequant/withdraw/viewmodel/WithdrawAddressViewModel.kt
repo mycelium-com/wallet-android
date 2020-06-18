@@ -6,5 +6,5 @@ import androidx.lifecycle.ViewModel
 
 class WithdrawAddressViewModel : ViewModel() {
     val address = MutableLiveData<String>()
-    val amount = MutableLiveData<String>()
+
 }

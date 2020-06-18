@@ -64,7 +64,6 @@
     <fraction name="background_alpha">50%</fraction>
 
     <color name="bequant_yellow">#F2E868</color>
-    <color name="bequant_password_red">#CE3C4E</color>
     <color name="bequant_password_yellow">#F2E868</color>
     <color name="bequant_password_green">#5EBA89</color>
 
@@ -76,4 +75,8 @@
     <color name="bequant_gray_6">#49505C</color>
 
     <color name="bequant_green">#5EBA89</color>
+    <color name="bequant_green_a1">#1A5EBA89</color>
+
+    <color name="bequant_red">#CE3C4E</color>
+    <color name="bequant_red_a1">#1ACE3C4E</color>
 </resources>

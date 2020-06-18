@@ -109,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Phone number is invalid"
-                android:textColor="@color/bequant_password_red"
+                android:textColor="@color/bequant_red"
                 android:textSize="12dp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@+id/llInputPanel"

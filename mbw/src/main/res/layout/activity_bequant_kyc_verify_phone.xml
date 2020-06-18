@@ -35,7 +35,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@null"
                 android:gravity="center"
-                android:text="We will call +685 (123) 1234 to give you  a confirmation code"
+                android:text="We will call +685 (123) 1234 to give you a confirmation code"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle" />
@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="72dp"
-                app:errorTextColor="#CE3C4E"
+                app:errorTextColor="@color/bequant_red"
                 app:layout_constraintEnd_toEndOf="@+id/tvSubtitle"
                 app:layout_constraintStart_toStartOf="@+id/tvSubtitle"
                 app:layout_constraintTop_toBottomOf="@+id/tvSubtitle">
@@ -53,14 +53,14 @@
             <com.poovam.pinedittextfield.SquarePinField
                     android:id="@+id/pinCode"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="55dp"
                     android:fontFamily="@font/exo2medium"
                     android:inputType="number"
                     android:textSelectHandle="@drawable/text_handle"
-                    android:textSize="28sp"
+                    android:textSize="24sp"
                     android:text="@={viewModel.code}"
                     app:cornerRadius="4dp"
-                    app:noOfFields="6" />
+                    app:noOfFields="7" />
             <!--        app:fieldBgColor="#23262A"-->
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -88,16 +88,6 @@
                     android:background="@null"
                     android:text="Try again"
                     android:textColor="@color/bequant_yellow" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvResendVerificationCode"
-                    style="@style/Bequant.TextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:background="@null"
-                    android:textColor="@color/bequant_yellow"
-                    android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </layout>

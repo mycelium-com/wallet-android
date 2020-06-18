@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawAddressViewModel
+import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.ScanActivity
 import com.mycelium.wallet.activity.StringHandlerActivity
@@ -25,7 +26,7 @@ import kotlinx.android.synthetic.main.fragment_bequant_withdraw_address.*
 
 
 class WithdrawAddressFragment : Fragment() {
-
+    var parentViewModel: WithdrawViewModel? = null
     lateinit var viewModel: WithdrawAddressViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +79,7 @@ class WithdrawAddressFragment : Fragment() {
 //                    if (uri.address?.coinType == getAccount().coinType) {
                     viewModel.address.value = uri.address.toString()
                     if (uri.value != null && uri.value!!.isPositive()) {
-                        viewModel.amount.value = uri.value?.valueAsBigDecimal.toString()
+                        parentViewModel?.amount?.value = uri.value?.valueAsBigDecimal.toString()
                     }
 //                    } else {
 //                        Toast.makeText(activity, context.getString(R.string.not_correct_address_type), Toast.LENGTH_LONG).show()

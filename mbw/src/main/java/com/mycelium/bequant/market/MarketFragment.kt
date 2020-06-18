@@ -1,6 +1,9 @@
 package com.mycelium.bequant.market
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -24,10 +27,17 @@ import kotlinx.android.synthetic.main.fragment_bequant_main.*
 
 
 class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
+
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            pager.setCurrentItem(1, true)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if (!BequantPreference.hasKeys()) {
+        if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
             loader(true)
             SignRepository.repository.getApiKeys(lifecycleScope, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
@@ -37,6 +47,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 loader(false)
             })
         }
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,4 +93,9 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
 }

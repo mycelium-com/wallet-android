@@ -393,20 +393,23 @@
     <style name="Bequant" parent="AppBaseTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/bequant_gray_2</item>
         <item name="android:radioButtonStyle">@style/Bequant.Button.Small.RadioButton</item>
     </style>
-    <style name="BequantSign" parent="AppBaseTheme">
+    <style name="BequantSign" parent="Bequant">
+        <item name="android:toolbarStyle" tools:ignore="NewApi">@style/BequantSignToolBarStyle</item>
         <item name="toolbarStyle">@style/BequantSignToolBarStyle</item>
     </style>
     <style name="BequantSignToolBarStyle" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/bequant_gray_2</item>
+        <item name="android:background">@color/transparent</item>
         <item name="titleTextAppearance">@style/BequantSignTitleTextAppearance</item>
+        <item name="android:titleTextAppearance" tools:ignore="NewApi">@style/BequantSignTitleTextAppearance</item>
 <!--        <item name="subtitleTextAppearance">@style/MySubTitleTextAppearance</item>-->
     </style>
     <style name="BequantSignTitleTextAppearance">
-        <item name="fontFamily">@font/exo2medium</item>
-        <item name="textColor">@color/white</item>
-        <item name="textSize">20sp</item>
+        <item name="android:fontFamily">@font/exo2medium</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="Bequant.TextView">
@@ -456,7 +459,7 @@
         <item name="boxCornerRadiusTopEnd">4dp</item>
         <item name="boxCornerRadiusTopStart">4dp</item>
         <item name="boxStrokeColor">@color/outline_bequant_text_input_layout</item>
-        <item name="errorTextColor">#CE3C4E</item>
+        <item name="errorTextColor">@color/bequant_red</item>
         <item name="hintEnabled">false</item>
     </style>
 

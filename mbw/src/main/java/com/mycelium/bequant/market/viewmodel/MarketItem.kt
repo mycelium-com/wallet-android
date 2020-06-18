@@ -1,4 +1,4 @@
-package com.mycelium.bequant.market.model
+package com.mycelium.bequant.market.viewmodel
 
 const val MARKET_ITEM = 1
 const val MARKET_TITLE_ITEM = 2
@@ -22,9 +22,9 @@ open class AdapterItem(val viewType: Int) {
 
 //TODO correct variables class
 class MarketItem(val currencies: String,
-                 val volume: String,
-                 val price: String,
-                 val fiatPrice: String,
-                 val change: String) : AdapterItem(MARKET_ITEM)
+                 val volume: Double,
+                 val price: Double?,
+                 val fiatPrice: Double?,
+                 val change: Double?) : AdapterItem(MARKET_ITEM)
 
 class MarketTitleItem(val sortBy: Int) : AdapterItem(MARKET_TITLE_ITEM)

@@ -32,10 +32,11 @@ class BequantIntroActivity : AppCompatActivity(R.layout.activity_bequant_intro) 
         if (BequantPreference.isLogged()) {
             startActivity(Intent(this, BequantMarketActivity::class.java))
             finish()
-        } else if (BequantPreference.isIntroShown()) {
-            startActivity(Intent(this, SignActivity::class.java))
-            finish()
         }
+//        else if (BequantPreference.isIntroShown()) {
+//            startActivity(Intent(this, SignActivity::class.java))
+//            finish()
+//        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean =

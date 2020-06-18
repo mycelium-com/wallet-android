@@ -1,17 +1,29 @@
 package com.mycelium.bequant.common.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.mycelium.bequant.exchange.CoinAdapter
+import com.mycelium.bequant.Constants.TYPE_ITEM
+import com.mycelium.bequant.Constants.TYPE_SEARCH
+import com.mycelium.bequant.common.equalsValuesBy
+import com.mycelium.bequant.common.holder.ItemViewHolder
+import com.mycelium.bequant.common.holder.SearchHolder
+import com.mycelium.bequant.common.holder.SpaceHolder
 import com.mycelium.bequant.common.model.CoinListItem
+import com.mycelium.bequant.exchange.CoinAdapter
 import com.mycelium.wallet.R
+import com.mycelium.wapi.wallet.coins.GenericAssetInfo
+import kotlinx.android.synthetic.main.item_bequant_coin_expanded.view.*
+import kotlinx.android.synthetic.main.item_bequant_search.view.*
 
 
 class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    var coinClickListener: ((GenericAssetInfo) -> Unit)? = null
+    var searchChangeListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -26,28 +38,31 @@ class CoinAdapter : ListAdapter<CoinListItem, RecyclerView.ViewHolder>(DiffCallb
                 }
             }
 
-    override fun onBindViewHolder(p0: RecyclerView.ViewHolder, p1: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = getItem(position)
+        when (item.type) {
+            TYPE_SEARCH -> {
+                holder.itemView.search.doOnTextChanged { text, start, count, after ->
+                    searchChangeListener?.invoke(text?.toString() ?: "")
+                }
+            }
+            TYPE_ITEM -> {
+                holder.itemView.coinId.text = item.coin?.symbol
+                holder.itemView.coinFullName.text = item.coin?.name
+                holder.itemView.setOnClickListener {
+                    coinClickListener?.invoke(getItem(holder.adapterPosition).coin!!)
+                }
+            }
+        }
     }
+
+    override fun getItemViewType(position: Int): Int = getItem(position).type
 
     class DiffCallback : DiffUtil.ItemCallback<CoinListItem>() {
-        override fun areItemsTheSame(p0: CoinListItem, p1: CoinListItem): Boolean =
-                p0.type == p1.type
-                        && p0.coin == p1.coin
+        override fun areItemsTheSame(oldItem: CoinListItem, newItem: CoinListItem): Boolean =
+                equalsValuesBy(oldItem, newItem, { it.type }, { it.coin })
 
-        override fun areContentsTheSame(p0: CoinListItem, p1: CoinListItem): Boolean =
-                p0.coin?.symbol == p1.coin?.symbol
-    }
-
-
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
-    class SearchHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
-    class SpaceHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-
-    companion object {
-        const val TYPE_SEARCH = 0
-        const val TYPE_SPACE = 1
-        const val TYPE_ITEM = 2
+        override fun areContentsTheSame(oldItem: CoinListItem, newItem: CoinListItem): Boolean =
+                equalsValuesBy(oldItem, newItem, { it.coin?.symbol })
     }
 }

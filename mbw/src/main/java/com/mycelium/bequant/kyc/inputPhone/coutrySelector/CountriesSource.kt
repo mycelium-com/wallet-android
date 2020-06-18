@@ -9,7 +9,7 @@ object CountriesSource {
     val nationalityModels by lazy {
         WalletApplication.getInstance().assets.open("Countries-List.csv").bufferedReader().use {
             val readLines = it.readLines()
-            readLines.subList(1,readLines.size-1)
+            readLines.subList(1, readLines.size - 1)
         }.map {
             val split = it.split(",")
             NationalityModel(split[0], split[1], split[2], split[3], split[4])
@@ -21,11 +21,14 @@ object CountriesSource {
             .associate { it to Locale("", it).displayCountry }
 
     val countryModels by lazy {
-        countryCodes.map {
+        countryCodes.map { code ->
+            val natio = nationalityModels.find { it.code == code }
+            val nat = natio?.Demonym1 ?: natio?.Demonym2 ?: natio?.Demonym3 ?: "Unknown"
             CountryModel(
-                    name = codeToCountryNameMap[it] ?: "Unknown",
-                    acronym = it,
-                    code = PhoneNumberUtil.getInstance().getCountryCodeForRegion(it));
+                    name = codeToCountryNameMap[code] ?: "Unknown",
+                    acronym = code,
+                    code = PhoneNumberUtil.getInstance().getCountryCodeForRegion(code),
+                    nationality = nat)
         }
     }
 }

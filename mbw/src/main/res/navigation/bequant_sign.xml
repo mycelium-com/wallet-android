@@ -165,4 +165,21 @@
             android:defaultValue="true"
             app:argType="boolean" />
     </fragment>
+        tools:layout="@layout/activity_bequant_kyc_country_of_residence">
+        <action
+            android:id="@+id/actionFail"
+            app:destination="@id/countryFailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/countryFailFragment"
+        android:name="com.mycelium.bequant.common.CountryFailFragment"
+        android:label="CountryFailFragment"
+        tools:layout="@layout/fragment_country_fail">
+        <action
+            android:id="@+id/actionFinish"
+            app:destination="@id/signFragment"
+            app:popUpTo="@id/signFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
 </navigation>

@@ -3,6 +3,7 @@ package com.mycelium.bequant.signup
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -26,6 +27,7 @@ class SetupCodeFragment : Fragment() {
     val args by navArgs<SetupCodeFragmentArgs>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(SetupCodeViewModel::class.java)
     }
 
@@ -56,4 +58,14 @@ class SetupCodeFragment : Fragment() {
             findNavController().navigate(SetupCodeFragmentDirections.actionNext(args.otp))
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
 }

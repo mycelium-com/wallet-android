@@ -65,6 +65,7 @@
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edLine1"
                     style="@style/Bequant.EditText"
+                    android:gravity="top"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -101,6 +102,7 @@
                     android:id="@+id/edLine2"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
+                    android:gravity="top"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_bequant_input_text"
@@ -120,6 +122,7 @@
                     android:id="@+id/edCity"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
+                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@={viewModel.city}"
@@ -138,6 +141,7 @@
                     android:id="@+id/edPostcode"
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
+                    android:singleLine="true"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="@={viewModel.postcode}"
@@ -148,7 +152,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:text="Coutry"
+                    android:text="Country"
                     android:textColor="@color/white" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -156,6 +160,7 @@
                     style="@style/Bequant.EditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     android:drawableRight="@drawable/ic_arrow_drop_down"
                     android:gravity="center_vertical"
                     android:text="@={viewModel.country}"

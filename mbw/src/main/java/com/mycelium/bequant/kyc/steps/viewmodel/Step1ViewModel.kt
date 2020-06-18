@@ -3,12 +3,13 @@ package com.mycelium.bequant.kyc.steps.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mycelium.bequant.remote.model.KYCRequest
+import java.util.*
 
 
 class Step1ViewModel : ViewModel() {
     val firstName = MutableLiveData<String>()
     val lastName = MutableLiveData<String>()
-    val birthday = MutableLiveData<String>()
+    val birthday = MutableLiveData<Date>()
     val nationality = MutableLiveData<String>()
 
 

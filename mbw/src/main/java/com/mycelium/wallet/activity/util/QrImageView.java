@@ -36,14 +36,16 @@ package com.mycelium.wallet.activity.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 import com.mycelium.wallet.R;
 import com.mycelium.wallet.Utils;
@@ -63,6 +65,18 @@ public class QrImageView extends AppCompatImageView {
 
    public QrImageView(Context context, AttributeSet attrs) {
       this(context, attrs, 0);
+      TypedArray a = context.getTheme().obtainStyledAttributes(
+              attrs,
+              R.styleable.QrImageView,
+              0, 0);
+      try {
+         String data = a.getString(R.styleable.QrImageView_qrCode);
+         if(data!= null) {
+            setQrCode(data);
+         }
+      } finally {
+         a.recycle();
+      }
    }
 
    public QrImageView(Context context, AttributeSet attrs, int defStyle) {
@@ -129,7 +143,7 @@ public class QrImageView extends AppCompatImageView {
    }
 
    public void setQrCode(String qrCode) {
-      if (qrCode.equals(this.qrCodeText)) {
+      if (qrCode == null || qrCode.equals(this.qrCodeText)) {
          // Only update QR code if necessary
          return;
       }

@@ -7,6 +7,10 @@
         <import type="android.view.View" />
 
         <variable
+            name="parentViewModel"
+            type="com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel" />
+
+        <variable
             name="viewModel"
             type="com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel" />
     </data>
@@ -18,13 +22,13 @@
         android:padding="16dp">
 
         <TextView
+            style="@style/Bequant.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/exo2medium"
             android:text="@string/from"
             android:textSize="16sp" />
 
-        <include layout="@layout/layout_bequant_accounts_pager" />
+        <include layout="@layout/item_bequant_withdraw_pager_accounts" />
 
         <TextView
             android:id="@+id/oneCoinFiatRate"
@@ -39,10 +43,10 @@
             tools:text="1 BTC ~ 37.767667876 ETH" />
 
         <TextView
+            style="@style/Bequant.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/exo2medium"
             android:text="@string/to"
             android:textSize="16sp" />
 
@@ -58,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/exo2medium"
-                android:text="@{viewModel.castodialLabel}"
+                android:text="@{@string/bequant_custodial_wallet_s(parentViewModel.currency)}"
                 android:textColor="#49505C"
                 android:textSize="12sp"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -85,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:fontFamily="@font/exo2medium"
-                android:text="@{viewModel.coin}"
+                android:text="@{parentViewModel.currency}"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 app:layout_constraintBaseline_toBaselineOf="@id/receiveBalance"
@@ -95,10 +99,10 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
+            style="@style/Bequant.TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/exo2medium"
             android:text="Amount"
             android:textSize="16sp" />
 

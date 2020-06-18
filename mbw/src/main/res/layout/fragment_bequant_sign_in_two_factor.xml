@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:textColor="@color/white"
         android:fontFamily="@font/exo2medium"
         android:text="@string/google_authenticator_code" />
 
@@ -34,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:errorTextColor="#CE3C4E"
+        app:errorTextColor="@color/bequant_red"
         app:hintEnabled="false">
 
         <com.poovam.pinedittextfield.SquarePinField

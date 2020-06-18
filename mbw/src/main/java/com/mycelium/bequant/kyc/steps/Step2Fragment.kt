@@ -1,24 +1,36 @@
 package com.mycelium.bequant.kyc.steps
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step2ViewModel
+import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.model.toModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps2Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_2.*
-import kotlinx.android.synthetic.main.fragment_bequant_steps_2.btNext
 import kotlinx.android.synthetic.main.part_bequant_step_header.*
 import kotlinx.android.synthetic.main.part_bequant_stepper_body.*
 
@@ -27,13 +39,22 @@ class Step2Fragment : Fragment() {
     lateinit var headerViewModel: HeaderViewModel
     lateinit var kycRequest: KYCRequest
 
+    val args: Step2FragmentArgs by navArgs()
+
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            viewModel.country.value = intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.name
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        kycRequest = arguments?.getSerializable("kycRequest") as KYCRequest
+        kycRequest = args.kycRequest
         viewModel = ViewModelProviders.of(this).get(Step2ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -58,25 +79,24 @@ class Step2Fragment : Fragment() {
 
         stepAdapter.clickListener = {
             when (it) {
-                1 -> findNavController().navigate(Step2FragmentDirections.actionEditStep1(kycRequest))
+                1 -> findNavController().navigate(Step2FragmentDirections.actionEditStep1().setKycRequest(kycRequest))
             }
         }
-
 
         val items = CountriesSource.nationalityModels.map {
             it.Name
         }.toTypedArray()
         tvCountry.setOnClickListener {
-            AlertDialog.Builder(requireActivity())
-                    .setSingleChoiceItems(items, -1) { dialog, which ->
-                        tvCountry.text = items[which]
-                        dialog.dismiss()
-                    }
-                    .show()
+            findNavController().navigate(Step2FragmentDirections.actionSelectCountry())
         }
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
-            findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+            val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
+            loader(true)
+            KYCRepository.repository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
+                loader(false)
+                findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
+            }
         }
     }
 
@@ -93,4 +113,9 @@ class Step2Fragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
 }

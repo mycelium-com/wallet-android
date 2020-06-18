@@ -1,28 +1,77 @@
 package com.mycelium.bequant.market
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.market.adapter.MarketAdapter
-import com.mycelium.bequant.market.model.MarketItem
-import com.mycelium.bequant.market.model.MarketTitleItem
+import com.mycelium.bequant.market.viewmodel.MarketItem
+import com.mycelium.bequant.market.viewmodel.MarketTitleItem
+import com.mycelium.bequant.remote.ApiRepository
+import com.mycelium.bequant.remote.model.Ticker
 import com.mycelium.wallet.R
+import com.mycelium.wapi.api.lib.CurrencyCode
 import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 
 
 class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
-
     val adapter = MarketAdapter()
+    var tickersData = listOf<Ticker>()
+    val receive = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            requestTickers()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receive, IntentFilter(Constants.ACTION_BEQUANT_KEYS))
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         list.adapter = adapter
-        adapter.submitList(listOf(MarketTitleItem(0),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "+99.63%"),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "+99.63%"),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "-0.63%"),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "+99.63%"),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "+99.63%"),
-                MarketItem("BCH / BTC", "Vol 5,636", "0.038077", "$334,52", "+99.63%")))
+        search.doOnTextChanged { text, start, count, after ->
+            updateList(text?.toString()?.trim() ?: "")
+        }
+        requestTickers()
+    }
+
+    private fun requestTickers() {
+        ApiRepository.repository.tickers({
+            tickersData = it
+            updateList()
+        }, { code, error ->
+            ErrorHandler(requireContext()).handle(error)
+        })
+    }
+
+    private fun updateList(filter: String = "") {
+        adapter.submitList(listOf(MarketTitleItem(0)) + tickersData
+                .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
+                .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
+                .map {
+                    val change = if (it.last == null || it.open == null) null
+                    else {
+                        100 - it.last / it.open * 100
+                    }
+                    MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
+                            it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
+                })
+    }
+
+    private fun getUSDForPriceCurrency(currency: String): Double? =
+            tickersData.firstOrNull { it.symbol.equals("${currency}USD", true) }?.last
+
+    override fun onDestroyView() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receive)
+        super.onDestroyView()
     }
 }

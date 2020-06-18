@@ -2,7 +2,6 @@ package com.mycelium.bequant.sign
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
@@ -14,11 +13,13 @@ import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
+import kotlinx.android.synthetic.main.activity_bequant_sign.*
 
 
 class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(toolbar)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)
@@ -67,13 +68,4 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                     .putExtra("token", intent.data?.getQueryParameter("token") ?: ""))
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
-            when (item?.itemId) {
-                android.R.id.home -> {
-                    onBackPressed()
-                    true
-                }
-                else -> super.onOptionsItemSelected(item)
-            }
 }

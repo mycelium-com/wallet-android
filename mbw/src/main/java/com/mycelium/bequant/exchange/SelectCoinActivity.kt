@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
+import com.mycelium.bequant.market.ExchangeFragment
 import com.mycelium.bequant.market.adapter.SelectCoinFragmentAdapter
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_exchange_select_coin.*
@@ -20,6 +21,7 @@ class SelectCoinActivity : AppCompatActivity(R.layout.activity_bequant_exchange_
                 1 -> tab.text = "You get"
             }
         }.attach()
+        pager.setCurrentItem(intent.getIntExtra(ExchangeFragment.PARENT, 0), true)
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)

@@ -26,7 +26,7 @@
         android:layout_marginTop="16dp"
         android:drawablePadding="13dp"
         android:fontFamily="@font/exo2medium"
-        android:text="Please make sure you entered your e-mail address correctly"
+        android:text="Please make sure you entered your email address correctly"
         android:textColor="@color/white"
         app:drawableStartCompat="@drawable/ic_dash" />
 

@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/exo2medium"
+        android:textColor="@color/white"
         android:gravity="center"
         android:text="@string/set_up_2fa_to_secure_your_account"
         android:textSize="20sp" />

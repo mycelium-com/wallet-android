@@ -103,6 +103,7 @@
         tools:text="1 BTC ~ 45 ETH" />
 
     <ImageView
+        android:id="@+id/icExchange"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@null"

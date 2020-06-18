@@ -1,23 +1,35 @@
 package com.mycelium.bequant.kyc.steps
 
 import android.app.DatePickerDialog
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
-import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountriesSource
+import androidx.navigation.fragment.navArgs
+import com.mycelium.bequant.BequantPreference
+import com.mycelium.bequant.Constants
+import com.mycelium.bequant.common.loader
+import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
 import com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel
 import com.mycelium.bequant.kyc.steps.viewmodel.Step1ViewModel
+import com.mycelium.bequant.remote.KYCRepository
+import com.mycelium.bequant.remote.model.KYCApplicant
 import com.mycelium.bequant.remote.model.KYCRequest
+import com.mycelium.bequant.remote.model.toModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantSteps1Binding
 import kotlinx.android.synthetic.main.fragment_bequant_steps_1.*
@@ -30,15 +42,24 @@ import java.util.*
 class Step1Fragment : Fragment() {
     lateinit var viewModel: Step1ViewModel
     lateinit var headerViewModel: HeaderViewModel
-    var kycRequest: KYCRequest = KYCRequest()
+    lateinit var kycRequest: KYCRequest
+
+    val args: Step1FragmentArgs by navArgs()
+
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(p0: Context?, intent: Intent?) {
+            viewModel.nationality.value = intent?.getParcelableExtra<CountryModel>(Constants.COUNTRY_MODEL_KEY)?.nationality
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        kycRequest = (arguments?.getSerializable("kycRequest") as KYCRequest?) ?: KYCRequest()
+        kycRequest = args.kycRequest ?: KYCRequest()
         viewModel = ViewModelProviders.of(this).get(Step1ViewModel::class.java)
         viewModel.fromModel(kycRequest)
         headerViewModel = ViewModelProviders.of(this).get(HeaderViewModel::class.java)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_COUNTRY_SELECTED))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -61,34 +82,28 @@ class Step1Fragment : Fragment() {
                 , ItemStep(2, "Residential Address", StepState.FUTURE)
                 , ItemStep(3, "Documents & Selfie", StepState.FUTURE)))
 
-        val format = SimpleDateFormat("dd/MM/yyy")
+//        val format = SimpleDateFormat("dd/MM/yyy")
         tvDateOfBirth.setOnClickListener {
             val datePickerDialog = DatePickerDialog(requireContext(), { _, year, month, day ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
-                viewModel.birthday.value = format.format(calendar.time);
+                viewModel.birthday.value = calendar.time
             }, 2011, 1, 1)
             datePickerDialog.show()
         }
-
-        val items = CountriesSource.nationalityModels.map {
-            it.Demonym1 ?: it.Demonym2 ?: it.Demonym3 ?: "Unknown"
-        }.toTypedArray()
         tvNationality.setOnClickListener {
-            AlertDialog.Builder(requireActivity())
-                    .setSingleChoiceItems(items, -1) { dialog, which ->
-                        tvNationality.text = items[which]
-                        dialog.dismiss()
-                    }
-                    .show()
+            findNavController().navigate(Step1FragmentDirections.actionSelectCountry())
         }
 
         btNext.setOnClickListener {
             viewModel.fillModel(kycRequest)
-            findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
+            val applicant = KYCApplicant(BequantPreference.getPhone(), BequantPreference.getEmail())
+            loader(true)
+            KYCRepository.repository.create(viewModel.viewModelScope, kycRequest.toModel(applicant)) {
+                loader(false)
+                findNavController().navigate(Step1FragmentDirections.actionNext(kycRequest))
+            }
         }
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -104,4 +119,9 @@ class Step1Fragment : Fragment() {
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
+    override fun onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        super.onDestroy()
+    }
 }

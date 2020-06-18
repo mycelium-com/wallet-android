@@ -14,7 +14,7 @@
         android:background="@drawable/bg_bequant_search"
         android:drawableStart="@drawable/ic_search"
         android:drawablePadding="8dp"
-        android:hint="@string/search_markets"
+        android:hint="Search coins"
         android:lines="1"
         android:maxLines="1"
         android:paddingStart="12dp"
@@ -23,5 +23,15 @@
         android:paddingBottom="8dp"
         android:singleLine="true"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/search"
+        app:layout_constraintRight_toRightOf="@id/search"
+        app:layout_constraintTop_toTopOf="@id/search"
+        app:srcCompat="@drawable/ic_bequant_clear" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

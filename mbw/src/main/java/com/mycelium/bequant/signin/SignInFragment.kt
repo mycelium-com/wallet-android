@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -29,12 +30,10 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in.*
 class SignInFragment : Fragment() {
 
     lateinit var viewModel: SignInViewModel
-    var resetPasswordListener: (() -> Unit)? = null
-
-    var totpSignUpListener: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(SignInViewModel::class.java)
     }
 
@@ -61,8 +60,10 @@ class SignInFragment : Fragment() {
                 loader(true)
                 val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
                 SignRepository.repository.authorize(lifecycleScope, request, success = {
+                    loader.dismissAllowingStateLoss()
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
                 }, error = { code, message ->
+                    loader.dismissAllowingStateLoss()
                     if (code == 420) {
                         findNavController().navigate(SignFragmentDirections.actionSignIn(request))
                     } else {
@@ -80,6 +81,15 @@ class SignInFragment : Fragment() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
 
     private fun validate(): Boolean {
         if (viewModel.email.value?.isEmpty() != false) {

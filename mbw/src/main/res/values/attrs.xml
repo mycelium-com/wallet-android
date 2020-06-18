@@ -29,6 +29,9 @@
     <declare-styleable name="OtpViewTheme">
         <attr format="reference" name="otpViewStyle"/>
     </declare-styleable>
+    <declare-styleable name="QrImageView">
+        <attr name="qrCode" format="string" />
+    </declare-styleable>
 
 
 </resources>

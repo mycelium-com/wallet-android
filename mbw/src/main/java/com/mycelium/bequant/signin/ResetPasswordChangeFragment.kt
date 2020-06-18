@@ -3,6 +3,7 @@ package com.mycelium.bequant.signin
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -32,6 +33,7 @@ class ResetPasswordChangeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(SignUpViewModel::class.java)
     }
 
@@ -77,6 +79,15 @@ class ResetPasswordChangeFragment : Fragment() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+
     private fun calculatePasswordLevel(password: String) {
         val level = password.passwordLevel()
         viewModel.passwordNoteVisibility.value = if (level > 0) GONE else VISIBLE
@@ -94,7 +105,7 @@ class ResetPasswordChangeFragment : Fragment() {
             else -> getString(R.string.bequant_password_very_strong)
         }
         passwordLevelLabel.setTextColor(resources.getColor(when (level) {
-            1 -> R.color.bequant_password_red
+            1 -> R.color.bequant_red
             2 -> R.color.bequant_password_yellow
             else -> R.color.bequant_password_green
         }))
