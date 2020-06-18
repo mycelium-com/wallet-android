@@ -45,7 +45,7 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
                     },
                     error = { code, message ->
                         ErrorHandler(this).handle(message)
-                    }, finallyBlock = {
+                    }, finally = {
                 loader(false)
             })
         } else if (intent.action == Intent.ACTION_VIEW
@@ -58,7 +58,7 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
             },
                     error = { _, message ->
                         ErrorHandler(this).handle(message)
-                    }, finallyBlock = {
+                    }, finally = {
                 loader(false)
             })
         } else if (intent.action == Intent.ACTION_VIEW

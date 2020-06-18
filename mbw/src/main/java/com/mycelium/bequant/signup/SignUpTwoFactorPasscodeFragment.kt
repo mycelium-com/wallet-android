@@ -40,7 +40,7 @@ class SignUpTwoFactorPasscodeFragment : Fragment(R.layout.fragment_bequant_sign_
                     findNavController().navigate(SignUpTwoFactorPasscodeFragmentDirections.actionNext())
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
-                }, finallyBlock = {
+                }, finally = {
                     loader(false)
                 })
                 return true

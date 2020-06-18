@@ -43,7 +43,7 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
-            }, finallyBlock = {
+            }, finally = {
                 loader(false)
             })
         }

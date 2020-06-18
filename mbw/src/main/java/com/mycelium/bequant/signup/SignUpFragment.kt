@@ -94,7 +94,7 @@ class SignUpFragment : Fragment() {
                     findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
-                }, finallyBlock = {
+                }, finally = {
                     loader(false)
                 })
             }

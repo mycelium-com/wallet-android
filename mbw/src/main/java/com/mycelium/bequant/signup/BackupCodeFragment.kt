@@ -43,7 +43,7 @@ class BackupCodeFragment : Fragment(R.layout.fragment_bequant_backup_code) {
             backupCodeView.text = backupPassword.substring(0, backupPassword.length / 2 + 1) + "\n" + backupPassword.substring(backupPassword.length / 2 + 1)
         }, error = { _, message ->
             ErrorHandler(requireContext()).handle(message)
-        }, finallyBlock = {
+        }, finally = {
             loader(false)
         })
     }

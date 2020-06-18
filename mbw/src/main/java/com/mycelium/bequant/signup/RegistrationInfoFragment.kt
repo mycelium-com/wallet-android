@@ -62,7 +62,7 @@ class RegistrationInfoFragment : Fragment() {
             SignRepository.repository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
                     error = { _, message ->
                         ErrorHandler(requireContext()).handle(message)
-                    }, finallyBlock = {
+                    }, finally = {
                 loader(false)
             })
         }

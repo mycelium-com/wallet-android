@@ -44,7 +44,7 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
                     requireActivity().finish()
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
-                }, finallyBlock = {
+                }, finally = {
                     loader(false)
                 })
                 return true

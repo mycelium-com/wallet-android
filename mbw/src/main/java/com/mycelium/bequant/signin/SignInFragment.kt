@@ -67,7 +67,7 @@ class SignInFragment : Fragment() {
                     } else {
                         ErrorHandler(requireContext()).handle(message)
                     }
-                }, finallyBlock = {
+                }, finally = {
                     loader(false)
                 })
             }

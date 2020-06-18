@@ -14,14 +14,14 @@ class SignRepository {
     private val apiKeyApi = ApiKeyApi.create()
 
     fun signUp(scope: CoroutineScope,
-               request: RegisterAccountRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+               request: RegisterAccountRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.postAccountRegister(request)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
 
-    fun authorize(scope: CoroutineScope, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun authorize(scope: CoroutineScope, request: AccountAuthRequest, success: (AccountAuthResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.postAccountAuth(request)
         }, successBlock = { response ->
@@ -29,62 +29,62 @@ class SignRepository {
             BequantPreference.setAccessToken(response?.accessToken ?: "")
             BequantPreference.setSession(response?.session ?: "")
             success.invoke(response)
-        }, errorBlock = error, finallyBlock = finallyBlock)
+        }, errorBlock = error, finallyBlock = finally)
     }
 
-    fun resendRegister(scope: CoroutineScope, request: AccountEmailConfirmResend, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun resendRegister(scope: CoroutineScope, request: AccountEmailConfirmResend, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.postAccountEmailConfirmResend(request)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun totpCreate(scope: CoroutineScope, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun totpCreate(scope: CoroutineScope, success: (TotpCreateResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             AccountApi.create().postAccountTotpCreate()
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun totpActivate(scope: CoroutineScope, request: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun totpActivate(scope: CoroutineScope, request: TotpActivateRequest, success: (SessionResponse?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.postAccountTotpActivate(request)
         }, {
             BequantPreference.setAccessToken(it?.accessToken ?: "")
             BequantPreference.setSession(it?.session ?: "")
             success.invoke(it)
-        }, errorBlock = error, finallyBlock = finallyBlock)
+        }, errorBlock = error, finallyBlock = finally)
     }
 
-    fun accountEmailConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun accountEmailConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.getAccountEmailConfirm(token)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun accountTotpConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun accountTotpConfirm(scope: CoroutineScope, token: String, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             accountApi.getAccountTotpConfirm(token)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun resetPassword(scope: CoroutineScope, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun resetPassword(scope: CoroutineScope, request: AccountPasswordResetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             AccountApi.create().postAccountPasswordReset(request)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun resetPasswordSet(scope: CoroutineScope, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun resetPasswordSet(scope: CoroutineScope, request: AccountPasswordSetRequest, success: (Unit?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             AccountApi.create().postAccountPasswordSet(request)
-        }, successBlock = success, errorBlock = error, finallyBlock = finallyBlock)
+        }, successBlock = success, errorBlock = error, finallyBlock = finally)
     }
 
-    fun getApiKeys(scope: CoroutineScope, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finallyBlock: () -> Unit) {
+    fun getApiKeys(scope: CoroutineScope, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
             apiKeyApi.postApiKey()
         }, {
             BequantPreference.setApiKeys(it?.privateKey, it?.publicKey)
             success.invoke(it)
-        }, errorBlock = error, finallyBlock = finallyBlock)
+        }, errorBlock = error, finallyBlock = finally)
     }
 
     fun logout() {

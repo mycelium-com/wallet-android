@@ -73,7 +73,7 @@ class ResetPasswordChangeFragment : Fragment() {
                 findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
-            }, finallyBlock = {
+            }, finally = {
                 loader(false)
             })
         }

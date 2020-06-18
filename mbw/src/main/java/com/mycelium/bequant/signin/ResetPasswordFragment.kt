@@ -33,7 +33,7 @@ class ResetPasswordFragment : Fragment(R.layout.fragment_bequant_sign_in_reset_p
                     findNavController().navigate(ResetPasswordFragmentDirections.actionSubmit(email))
                 }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
-                }, finallyBlock = {
+                }, finally = {
                     loader(false)
                 })
             }
