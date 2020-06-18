@@ -67,7 +67,7 @@ class RegistrationTotpFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
             when (item.itemId) {
                 android.R.id.home -> {
-                    findNavController().navigate(RegistrationTotpFragmentDirections.actionFinish())
+                    findNavController().navigate(RegistrationTotpFragmentDirections.actionFinish(null))
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

@@ -73,7 +73,7 @@ class ResetPasswordChangeFragment : Fragment() {
             val request = AccountPasswordSetRequest(viewModel.password.value!!, token)
             loader(true)
             SignRepository.repository.resetPasswordSet(lifecycleScope, request, {
-                findNavController().navigate(ResetPasswordChangeFragmentDirections.finish())
+                findNavController().navigate(ResetPasswordChangeFragmentDirections.finish(null))
             }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
             }, finally = {

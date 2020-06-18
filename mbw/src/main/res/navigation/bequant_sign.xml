@@ -166,6 +166,10 @@
             android:name="showPhoneCode"
             android:defaultValue="true"
             app:argType="boolean" />
+        <argument
+            android:name="nationality"
+            android:defaultValue="false"
+            app:argType="boolean" />
         <action
             android:id="@+id/actionFail"
             app:destination="@id/countryFailFragment" />
