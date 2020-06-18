@@ -87,15 +87,14 @@ class NewsAdapter(val preferences: SharedPreferences)
                     banners.firstOrNull { it.index == index }?.let {
                         data.add(Entry(TYPE_BIG_BANNER, null, it))
                     }
-                    if (sortedList.isNotEmpty()) {
-                        data.add(Entry(TYPE_NEWS_CATEGORY, sortedList[0]))
-                        data.add(Entry(TYPE_NEWS_BIG, sortedList[0], null, sortedList[0].isFavorite(preferences)))
+                    sortedList.firstOrNull()?.also { primaryNews ->
+                        data.add(Entry(TYPE_NEWS_CATEGORY, primaryNews))
+                        data.add(Entry(TYPE_NEWS_BIG, primaryNews, null, primaryNews.isFavorite(preferences)))
                     }
-                    if (sortedList.size > 1) {
-                        data.add(Entry(TYPE_NEWS, sortedList[1], null, sortedList[1].isFavorite(preferences)))
-                    }
-                    if (sortedList.size > 2) {
-                        data.add(Entry(TYPE_NEWS, sortedList[2], null, sortedList[2].isFavorite(preferences)))
+                    for (i in 1..3) {
+                        sortedList.getOrNull(i)?.also { secondaryNews ->
+                            data.add(Entry(TYPE_NEWS, secondaryNews, null, secondaryNews.isFavorite(preferences)))
+                        }
                     }
                 }
             }
@@ -108,7 +107,7 @@ class NewsAdapter(val preferences: SharedPreferences)
     }
 
     fun setCategory(category: Category) {
-        this.selectedCategory = category
+        selectedCategory = category
         updateData()
     }
 
@@ -129,7 +128,7 @@ class NewsAdapter(val preferences: SharedPreferences)
         TYPE_NEWS_LOADING -> NewsLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_loading, parent, false))
         TYPE_NEWS_ITEM_LOADING -> NewsItemLoadingHolder(layoutInflater.inflate(R.layout.item_mediaflow_item_loading, parent, false))
         TYPE_NEWS_NO_BOOKMARKS -> NewsNoBookmarksHolder(layoutInflater.inflate(R.layout.item_mediaflow_no_bookmarks, parent, false))
-        TYPE_BIG_BANNER -> CurrencycomBunnerHolder(layoutInflater.inflate(R.layout.item_mediaflow_banner, parent, false))
+        TYPE_BIG_BANNER -> CurrencycomBannerHolder(layoutInflater.inflate(R.layout.item_mediaflow_banner, parent, false))
         else -> SpaceViewHolder(layoutInflater.inflate(R.layout.item_mediaflow_space, parent, false))
     }
 
@@ -203,7 +202,8 @@ class NewsAdapter(val preferences: SharedPreferences)
 
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    data class Entry(val type: Int, val news: News? = null,
+    data class Entry(val type: Int,
+                     val news: News? = null,
                      val banner: MediaFlowBannerInList? = null,
                      val favorite: Boolean = false)
 

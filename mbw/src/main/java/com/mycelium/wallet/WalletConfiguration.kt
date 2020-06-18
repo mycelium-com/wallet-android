@@ -3,7 +3,6 @@ package com.mycelium.wallet
 import android.content.SharedPreferences
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
-import com.google.gson.stream.JsonReader
 import com.mrd.bitlib.model.NetworkParameters
 import com.mycelium.net.HttpEndpoint
 import com.mycelium.net.HttpsEndpoint
@@ -21,7 +20,6 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -80,31 +78,37 @@ class WalletConfiguration(private val prefs: SharedPreferences,
         GlobalScope.launch(Dispatchers.Default, CoroutineStart.DEFAULT) {
             try {
                 val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
-                val servise  = Retrofit.Builder()
+                val service  = Retrofit.Builder()
                         .baseUrl(AMAZON_S3_STORAGE_ADDRESS)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build()
                         .create(MyceliumNodesApi::class.java)
                 val resp =
-                        (if (BuildConfig.FLAVOR == "prodnet") servise.getNodes()
-                        else servise.getNodesTest()).execute()
+                        if (BuildConfig.FLAVOR == "prodnet") {
+                            service.getNodes()
+                        } else {
+                            service.getNodesTest()
+                        }.execute()
                 if (resp.isSuccessful) {
                     val myceliumNodesResponse = resp.body()
 
-                    val electrumXnodes = if (network.isTestnet)
-                        myceliumNodesResponse?.btcTestnet?.electrumx?.primary?.map { it.url }?.toSet()
-                    else
-                        myceliumNodesResponse?.btcMainnet?.electrumx?.primary?.map { it.url }?.toSet()
+                    val electrumXnodes = if (network.isTestnet) {
+                        myceliumNodesResponse?.btcTestnet
+                    } else {
+                        myceliumNodesResponse?.btcMainnet
+                    }?.electrumx?.primary?.map { it.url }?.toSet()
 
-                    val wapiNodes = if (network.isTestnet)
-                        myceliumNodesResponse?.btcTestnet?.wapi?.primary
-                    else
-                        myceliumNodesResponse?.btcMainnet?.wapi?.primary
+                    val wapiNodes = if (network.isTestnet) {
+                        myceliumNodesResponse?.btcTestnet
+                    } else {
+                        myceliumNodesResponse?.btcMainnet
+                    }?.wapi?.primary
 
-                    val ethServersFromResponse = if (network.isTestnet)
-                        myceliumNodesResponse?.ethTestnet?.ethBBServers?.primary?.map { it.url }?.toSet()
-                    else
-                        myceliumNodesResponse?.ethMainnet?.ethBBServers?.primary?.map { it.url }?.toSet()
+                    val ethServersFromResponse = if (network.isTestnet) {
+                        myceliumNodesResponse?.ethTestnet
+                    } else {
+                        myceliumNodesResponse?.ethMainnet
+                    }?.ethBBServers?.primary?.map { it.url }?.toSet()
 
                     val prefEditor = prefs.edit()
                             .putStringSet(PREFS_ELECTRUM_SERVERS, electrumXnodes)
@@ -126,34 +130,21 @@ class WalletConfiguration(private val prefs: SharedPreferences,
                             prefEditor.putString("partner-info-${it.key}", gson.toJson(it.value))
                         }
                     }
-                    myceliumNodesResponse?.partners?.let { map ->
-                        map.keys.forEach {
-                            prefEditor.putString("partners-$it", gson.toJson(map[it]))
+                    fun <E> Map<String, E>.store(key: String) {
+                        keys.forEach {
+                            prefEditor.putString("$key-$it", gson.toJson(get(it)))
                         }
                     }
-                    myceliumNodesResponse?.mediaFlowSettings?.let { map ->
-                        map.keys.forEach {
-                            prefEditor.putString("mediaflow-$it", gson.toJson(map[it]))
-                        }
-                    }
-                    myceliumNodesResponse?.mainMenuSettings?.let { map ->
-                        map.keys.forEach {
-                            prefEditor.putString("mainmenu-$it", gson.toJson(map[it]))
-                        }
-                    }
-                    myceliumNodesResponse?.balanceSettings?.let { map ->
-                        map.keys.forEach {
-                            prefEditor.putString("balance-$it", gson.toJson(map[it]))
-                        }
-                    }
-                    myceliumNodesResponse?.buySellSettings?.let { map ->
-                        map.keys.forEach {
-                            prefEditor.putString("buysell-$it", gson.toJson(map[it]))
-                        }
+                    myceliumNodesResponse?.run {
+                        partners?.store("partners")
+                        mediaFlowSettings.store("mediaflow")
+                        mainMenuSettings.store("mainmenu")
+                        balanceSettings.store("balance")
+                        buySellSettings.store("buysell")
                     }
                     prefEditor.apply()
 
-                    if (oldElectrum != electrumServers){
+                    if (oldElectrum != electrumServers) {
                         serverElectrumListChangedListener?.serverListChanged(getElectrumEndpoints().toTypedArray())
                     }
 

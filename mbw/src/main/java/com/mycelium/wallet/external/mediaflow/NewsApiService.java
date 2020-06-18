@@ -15,13 +15,11 @@ import retrofit2.http.Query;
 
 
 public interface NewsApiService {
-
     @GET("posts?per_page=100&date_query_column=post_modified")
     Call<List<News>> updatedPosts(@Query("after") String updateAfterDate, @Query("page") int page);
 
     @GET("posts?per_page=100")
     Call<List<News>> posts(@Query("page") int page);
-
 
     @GET("categories")
     Call<List<Category>> categories();

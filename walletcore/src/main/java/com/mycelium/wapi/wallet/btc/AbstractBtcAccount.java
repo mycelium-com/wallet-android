@@ -554,7 +554,6 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
             if (hash.equals(tx.hash)) {
                parentTransactions.put(tx.txid, tx);
             } else {
-               _logger.log(Level.SEVERE, String.format("Failed to validate transaction hash from server. Expected: %s Calculated: %s", tx.txid, hash));
                //TODO: Document what's happening here.
                //Question: Crash and burn? Really? How about user feedback? Here, wapi returned a transaction that doesn't hash to the txid it is supposed to txhash to, right?
                throw new RuntimeException("Failed to validate transaction hash from server. Expected: " + tx.txid

@@ -49,8 +49,9 @@ class BuySellSelectActivity : FragmentActivity() {
                     }
                 } ?: listOf())
 
-        if (items.size == 1 && items[0].listener != null) {
-            items[0].listener!!.invoke()
+        // if there is just one option, auto-click through
+        if (items.size == 1) {
+            items.first().listener?.invoke()
         }
         adapter.submitList(items)
     }

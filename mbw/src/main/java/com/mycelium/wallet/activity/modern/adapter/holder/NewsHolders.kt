@@ -18,4 +18,4 @@ class NewsNoBookmarksHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
 class NewsTurnOff(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-class CurrencycomBunnerHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+class CurrencycomBannerHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
