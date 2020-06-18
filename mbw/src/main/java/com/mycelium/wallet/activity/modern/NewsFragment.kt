@@ -18,7 +18,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
-import com.mycelium.wallet.BuildConfig
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.modern.adapter.NewsAdapter
@@ -35,7 +34,6 @@ import com.mycelium.wallet.external.mediaflow.model.News
 import com.squareup.otto.Subscribe
 import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.media_flow_tab_item.view.*
-import kotlin.random.Random
 
 
 class NewsFragment : Fragment() {
@@ -147,24 +145,24 @@ class NewsFragment : Fragment() {
         updateUI()
     }
 
+    private fun <E> List<E>.randomOrNull(): E? = if (size > 0) random() else null
+
     private fun initTopBanner() {
         if (currentNews == null) {
             SettingsPreference.getMediaFlowContent()?.bannersTop
-                    ?.filter { it.isEnabled ?: true && preference.getBoolean(it.parentId, true)
-                            && SettingsPreference.isContentEnabled(it.parentId)}?.let { banners ->
-                        if (banners.isNotEmpty()) {
-                            val banner = banners[Random.nextInt(0, banners.size)]
-                            top_banner.visibility = VISIBLE
-                            Glide.with(banner_image)
-                                    .load(banner.imageUrl)
-                                    .into(banner_image)
-                            top_banner.setOnClickListener {
-                                openLink(banner.link)
-                            }
-                            banner_close.setOnClickListener {
-                                top_banner.visibility = GONE
-                                preference.edit().putBoolean(banner.parentId, false).apply()
-                            }
+                    ?.filter { it.isEnabled && preference.getBoolean(it.parentId, true)
+                            && SettingsPreference.isContentEnabled(it.parentId)
+                    }?.randomOrNull()?.let { banner ->
+                        top_banner.visibility = VISIBLE
+                        Glide.with(banner_image)
+                                .load(banner.imageUrl)
+                                .into(banner_image)
+                        top_banner.setOnClickListener {
+                            openLink(banner.link)
+                        }
+                        banner_close.setOnClickListener {
+                            top_banner.visibility = GONE
+                            preference.edit().putBoolean(banner.parentId, false).apply()
                         }
                     }
         } else {
