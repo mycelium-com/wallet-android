@@ -28,6 +28,11 @@
             android:id="@+id/actionSelectCountry"
             app:destination="@id/countrySelectorFragment">
         </action>
+        <argument
+            android:name="tab"
+            app:argType="string"
+            app:nullable="true"
+            />
     </fragment>
     <fragment
         android:id="@+id/registrationInfoFragment"
@@ -50,11 +55,7 @@
         tools:layout="@layout/fragment_bequant_sign_in_reset_password">
         <action
             android:id="@+id/actionSubmit"
-            app:destination="@id/resetPasswordInfoFragment">
-            <argument
-                android:name="email"
-                app:argType="string" />
-        </action>
+            app:destination="@id/resetPasswordInfoFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInTwoFactorFragment"
@@ -83,9 +84,7 @@
         <action
             android:id="@+id/actionNext"
             app:destination="@id/setupCodeFragment">
-            <argument
-                android:name="otp"
-                app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
+
         </action>
     </fragment>
     <fragment
@@ -96,18 +95,15 @@
         <action
             android:id="@+id/actionNext"
             app:destination="@id/resetPasswordChangeFragment">
-            <argument
-                android:name="email"
-                app:argType="string" />
-            <argument
-                android:name="token"
-                app:argType="string" />
         </action>
         <action
             android:id="@+id/actionFinish"
             app:destination="@id/signFragment"
             app:popUpTo="@id/signFragment"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="email"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/resetPasswordChangeFragment"
@@ -119,6 +115,12 @@
             app:destination="@id/signFragment"
             app:popUpTo="@id/signFragment"
             app:popUpToInclusive="true" />
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="token"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/setupCodeFragment"

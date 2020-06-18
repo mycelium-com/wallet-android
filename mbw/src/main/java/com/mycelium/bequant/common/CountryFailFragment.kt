@@ -25,7 +25,7 @@ class CountryFailFragment : Fragment(R.layout.fragment_country_fail) {
         }
         finishButton.setOnClickListener {
             try {
-                findNavController().navigate(CountryFailFragmentDirections.actionFinish())
+                findNavController().navigate(CountryFailFragmentDirections.actionFinish(null))
             } catch (e: IllegalArgumentException) {
                 activity?.finish()
             }
