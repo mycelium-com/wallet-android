@@ -11,23 +11,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
+import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Email
-import com.mycelium.bequant.remote.model.Register
+import com.mycelium.bequant.remote.client.models.AccountEmailConfirmResend
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
 import com.mycelium.wallet.R
 import com.mycelium.wallet.databinding.FragmentBequantRegistrationInfoBindingImpl
-import kotlinx.android.synthetic.main.fragment_bequant_registration_info.*
 import kotlinx.android.synthetic.main.part_bequant_not_receive_email.*
 
 
 class RegistrationInfoFragment : Fragment() {
 
+    val args by navArgs<RegistrationInfoFragmentArgs>()
     lateinit var viewModel: RegistrationInfoViewModel
 
     val receiver = object : BroadcastReceiver() {
@@ -52,12 +54,17 @@ class RegistrationInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val register = arguments?.getSerializable("register") as Register
-        viewModel.setRegister(register)
+        viewModel.setRegister(args.register)
         (activity as AppCompatActivity?)?.supportActionBar?.title = "Registration"
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
         resendConfirmationEmail.setOnClickListener {
-            SignRepository.repository.resendRegister(Email(register.email), {}, {})
+            loader(true)
+            SignRepository.repository.resendRegister(lifecycleScope, AccountEmailConfirmResend(args.register.email), {},
+                    error = { _, message ->
+                        ErrorHandler(requireContext()).handle(message)
+                    }, finallyBlock = {
+                loader(false)
+            })
         }
         supportTeam.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LINK_SUPPORT_CENTER)))

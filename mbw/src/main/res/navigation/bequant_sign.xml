@@ -13,9 +13,6 @@
         <action
             android:id="@+id/actionRegister"
             app:destination="@id/registrationInfoFragment">
-            <argument
-                android:name="register"
-                app:argType="com.mycelium.bequant.remote.model.Register" />
         </action>
         <action
             android:id="@+id/actionResetPassword"
@@ -23,9 +20,6 @@
         <action
             android:id="@+id/actionSignIn"
             app:destination="@id/signInTwoFactorFragment">
-            <argument
-                android:name="auth"
-                app:argType="com.mycelium.bequant.remote.model.Auth" />
         </action>
         <action
             android:id="@+id/actionSignUp"
@@ -33,10 +27,6 @@
         <action
             android:id="@+id/actionSelectCountry"
             app:destination="@id/countrySelectorFragment">
-            <argument
-                android:name="showPhoneCode"
-                android:defaultValue="false"
-                app:argType="boolean" />
         </action>
     </fragment>
     <fragment
@@ -48,12 +38,10 @@
             android:id="@+id/actionFinish"
             app:destination="@id/signFragment"
             app:popUpTo="@id/signFragment"
-            app:popUpToInclusive="true">
-            <argument
-                android:name="tab"
-                android:defaultValue="signIn"
-                app:argType="string" />
-        </action>
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="register"
+            app:argType="com.mycelium.bequant.remote.client.models.RegisterAccountRequest" />
     </fragment>
     <fragment
         android:id="@+id/resetPasswordFragment"
@@ -72,7 +60,12 @@
         android:id="@+id/signInTwoFactorFragment"
         android:name="com.mycelium.bequant.signin.SignInTwoFactorFragment"
         android:label="SignInTwoFactorFragment"
-        tools:layout="@layout/fragment_bequant_sign_in_two_factor" />
+        tools:layout="@layout/fragment_bequant_sign_in_two_factor">
+        <argument
+            android:name="auth"
+            app:argType="com.mycelium.bequant.remote.client.models.AccountAuthRequest"
+            app:nullable="false" />
+    </fragment>
     <fragment
         android:id="@+id/signUpTwoFactorFragment"
         android:name="com.mycelium.bequant.signup.SignUpTwoFactorFragment"
@@ -91,15 +84,8 @@
             android:id="@+id/actionNext"
             app:destination="@id/setupCodeFragment">
             <argument
-                android:name="otpId"
-                app:argType="integer" />
-
-            <argument
-                android:name="otpLink"
-                app:argType="string" />
-            <argument
-                android:name="backupCode"
-                app:argType="string" />
+                android:name="otp"
+                app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
         </action>
     </fragment>
     <fragment
@@ -132,12 +118,7 @@
             android:id="@+id/finish"
             app:destination="@id/signFragment"
             app:popUpTo="@id/signFragment"
-            app:popUpToInclusive="true">
-            <argument
-                android:name="tab"
-                android:defaultValue="signIn"
-                app:argType="string" />
-        </action>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/setupCodeFragment"
@@ -146,14 +127,10 @@
         tools:layout="@layout/fragment_bequant_setup_code">
         <action
             android:id="@+id/actionNext"
-            app:destination="@id/signUpTwoFactorPasscodeFragment">
-            <argument
-                android:name="otpId"
-                app:argType="integer" />
-            <argument
-                android:name="otpLink"
-                app:argType="string" />
-        </action>
+            app:destination="@id/signUpTwoFactorPasscodeFragment"></action>
+        <argument
+            android:name="otp"
+            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
     </fragment>
     <fragment
         android:id="@+id/signUpTwoFactorPasscodeFragment"
@@ -163,6 +140,9 @@
         <action
             android:id="@+id/actionNext"
             app:destination="@id/registrationTotpFragment" />
+        <argument
+            android:name="otp"
+            app:argType="com.mycelium.bequant.remote.client.models.TotpCreateResponse" />
     </fragment>
     <fragment
         android:id="@+id/registrationTotpFragment"
@@ -173,18 +153,17 @@
             android:id="@+id/actionFinish"
             app:destination="@id/signFragment"
             app:popUpTo="@id/signFragment"
-            app:popUpToInclusive="true">
-            <argument
-                android:name="tab"
-                android:defaultValue="signIn"
-                app:argType="string" />
-        </action>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/countrySelectorFragment"
         android:name="com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountrySelectorFragment"
         android:label="CountrySelectorFragment"
-        tools:layout="@layout/activity_bequant_kyc_country_of_residence">
+        tools:layout="@layout/activity_bequant_kyc_country_of_residence" >
+        <argument
+            android:name="showPhoneCode"
+            android:defaultValue="true"
+            app:argType="boolean" />
         <action
             android:id="@+id/actionFail"
             app:destination="@id/countryFailFragment" />

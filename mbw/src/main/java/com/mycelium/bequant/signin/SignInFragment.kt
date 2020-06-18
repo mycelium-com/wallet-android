@@ -11,14 +11,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Auth
+import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signin.viewmodel.SignInViewModel
 import com.mycelium.wallet.R
@@ -56,19 +57,18 @@ class SignInFragment : Fragment() {
         }
         signIn.setOnClickListener {
             if (validate()) {
-                val auth = Auth(viewModel.email.value!!, viewModel.password.value!!)
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                SignRepository.repository.authorize(auth, {
-                    loader.dismissAllowingStateLoss()
+                loader(true)
+                val request = AccountAuthRequest(viewModel.email.value!!, viewModel.password.value!!)
+                SignRepository.repository.authorize(lifecycleScope, request, success = {
                     findNavController().navigate(SignFragmentDirections.actionSignUp())
-                }, { code, error ->
-                    loader.dismissAllowingStateLoss()
+                }, error = { code, message ->
                     if (code == 420) {
-                        findNavController().navigate(SignFragmentDirections.actionSignIn(auth))
+                        findNavController().navigate(SignFragmentDirections.actionSignIn(request))
                     } else {
-                        ErrorHandler(requireContext()).handle(error)
+                        ErrorHandler(requireContext()).handle(message)
                     }
+                }, finallyBlock = {
+                    loader(false)
                 })
             }
         }

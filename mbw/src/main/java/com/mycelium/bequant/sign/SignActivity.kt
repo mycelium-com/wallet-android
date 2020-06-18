@@ -3,12 +3,14 @@ package com.mycelium.bequant.sign
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_EMAIL_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_RESET_PASSWORD_CONFIRMED
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_TOTP_CONFIRMED
 import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.remote.SignRepository
 import com.mycelium.wallet.R
 import kotlinx.android.synthetic.main.activity_bequant_sign.*
@@ -35,26 +37,29 @@ class SignActivity : AppCompatActivity(R.layout.activity_bequant_sign) {
         if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/email/confirm") {
-            val loader = LoaderFragment()
-            loader.show(supportFragmentManager, "loader")
-            SignRepository.repository.confirmEmail(intent.data?.getQueryParameter("token") ?: "", {
-                loader.dismissAllowingStateLoss()
-                LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
-            }, {
-                loader.dismissAllowingStateLoss()
-                ErrorHandler(this).handle(it)
+            loader(true)
+            SignRepository.repository.accountEmailConfirm(lifecycleScope, intent.data?.getQueryParameter("token")
+                    ?: "",
+                    success = {
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_EMAIL_CONFIRMED))
+                    },
+                    error = { code, message ->
+                        ErrorHandler(this).handle(message)
+                    }, finallyBlock = {
+                loader(false)
             })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
                 && intent.data?.path == "/account/totp/confirm") {
-            val loader = LoaderFragment()
-            loader.show(supportFragmentManager, "loader")
-            SignRepository.repository.confirmTotp(intent.data?.getQueryParameter("token") ?: "", {
-                loader.dismissAllowingStateLoss()
+            loader(true)
+            SignRepository.repository.accountTotpConfirm(lifecycleScope, intent.data?.getQueryParameter("token")
+                    ?: "", {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(ACTION_BEQUANT_TOTP_CONFIRMED))
-            }, {
-                loader.dismissAllowingStateLoss()
-                ErrorHandler(this).handle(it)
+            },
+                    error = { _, message ->
+                        ErrorHandler(this).handle(message)
+                    }, finallyBlock = {
+                loader(false)
             })
         } else if (intent.action == Intent.ACTION_VIEW
                 && intent.data?.host == "reg.bequant.io"
