@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <release version="3.5.1.0" versioncode="3050100">
+        <change>Synchronization speed improvements</change>
+    </release>
     <release version="3.5.0.0" versioncode="3050000">
         <change>ERC-20 tokens list updated</change>
     </release>
