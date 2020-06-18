@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.signup.RegistrationInfoFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.RegistrationInfoViewModel
@@ -28,6 +29,7 @@ class ResetPasswordInfoFragment : Fragment() {
 
     lateinit var viewModel: RegistrationInfoViewModel
 
+    val args by navArgs<ResetPasswordInfoFragmentArgs>()
     val receiver = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             findNavController().navigate(ResetPasswordInfoFragmentDirections.actionNext(viewModel.email.value!!,
@@ -53,7 +55,7 @@ class ResetPasswordInfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_clear))
-        viewModel.email.value = arguments?.getString("email") ?: ""
+        viewModel.email.value = args.email
         supportTeam.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(Constants.LINK_SUPPORT_CENTER)))
         }

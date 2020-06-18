@@ -15,16 +15,10 @@
         <action
             android:id="@+id/actionDeposit"
             app:destination="@id/receiveFragment">
-            <argument
-                android:name="currency"
-                app:argType="string" />
         </action>
         <action
             android:id="@+id/actionSelectCoin"
             app:destination="@id/choseCoinFragment">
-            <argument
-                android:name="action"
-                app:argType="string" />
         </action>
     </fragment>
     <fragment
@@ -35,6 +29,11 @@
         <action
             android:id="@+id/actionSelectAccount"
             app:destination="@id/selectAccountFragment" />
+        <argument
+            android:name="currency"
+            app:argType="string"
+            app:nullable="true"/>
+
     </fragment>
     <fragment
         android:id="@+id/receiveFragment"
@@ -44,6 +43,9 @@
         <action
             android:id="@+id/actionSelectAccount"
             app:destination="@id/selectAccountFragment" />
+        <argument
+            android:name="currency"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/selectAccountFragment"
@@ -59,17 +61,14 @@
             android:id="@+id/actionDeposit"
             app:destination="@id/receiveFragment"
             app:popUpTo="@+id/marketFragment">
-            <argument
-                android:name="currency"
-                app:argType="string" />
         </action>
         <action
             android:id="@+id/actionWithdraw"
             app:destination="@id/withdrawFragment"
             app:popUpTo="@+id/marketFragment">
-            <argument
-                android:name="currency"
-                app:argType="string" />
         </action>
+        <argument
+            android:name="action"
+            app:argType="string" />
     </fragment>
 </navigation>

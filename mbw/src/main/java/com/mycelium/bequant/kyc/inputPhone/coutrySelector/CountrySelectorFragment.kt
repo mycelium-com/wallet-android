@@ -29,15 +29,10 @@ class CountrySelectorFragment : Fragment() {
 
     val args by navArgs<CountrySelectorFragmentArgs>()
     private var showPhoneCode = true
-    //TODO nationality maybe need other fragment
-    private var nationality = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         viewModel = ViewModelProviders.of(this).get(CountrySelectorViewModel::class.java)
-        showPhoneCode = arguments?.getBoolean("showPhoneCode") ?: true
-        nationality = arguments?.getBoolean("nationality") ?: false
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -79,7 +74,7 @@ class CountrySelectorFragment : Fragment() {
         }).apply {
             submitList(countryModels)
         }
-        adapter.nationality = nationality
+        adapter.nationality = args.nationality
         adapter.showPhoneCode = args.showPhoneCode
         rvCountries.adapter = adapter
         viewModel.search.observe(viewLifecycleOwner, Observer { text ->

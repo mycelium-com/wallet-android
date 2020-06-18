@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.passwordLevel
@@ -30,6 +31,8 @@ import kotlinx.android.synthetic.main.layout_password_registration.*
 class ResetPasswordChangeFragment : Fragment() {
 
     lateinit var viewModel: SignUpViewModel
+
+    val args by navArgs<ResetPasswordChangeFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +51,8 @@ class ResetPasswordChangeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_reset_password)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
-        val mail = arguments?.getString("email") ?: ""
-        val token = arguments?.getString("token") ?: ""
+        val mail = args.email
+        val token = args.token
         viewModel.email.value = mail
         viewModel.password.observe(this, Observer { value ->
             passwordLayout.error = null
