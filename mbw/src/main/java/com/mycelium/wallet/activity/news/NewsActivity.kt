@@ -189,7 +189,7 @@ class NewsActivity : AppCompatActivity() {
         }
         tvAuthor.text = news.author?.name
 
-        val categoryText = if (news.categories?.isNotEmpty() == true) news.categories[0].name else ""
+        val categoryText = news.categories?.firstOrNull()?.name ?: ""
         tvCategory.text = categoryText
         news.image?.let {
             Glide.with(ivImage)

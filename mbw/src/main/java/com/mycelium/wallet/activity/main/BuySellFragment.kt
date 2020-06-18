@@ -90,15 +90,12 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
 
     private fun recreateActions() {
         val actions = mutableListOf<ActionButton>()
-        var scrollTo = 0
         if (mbwManager.selectedAccount is EthAccount) {
             actions.add(ActionButton(ACTION.ALT_COIN, getString(R.string.exchange_altcoins_to_btc)))
             actions.add(ActionButton(ACTION.ETH, getString(R.string.buy_ethereum)))
             addAdsContent(actions)
-            scrollTo = 1
         } else {
             val showButton = mbwManager.environmentSettings.buySellServices.any { input -> input!!.isEnabled(mbwManager) }
-            scrollTo = 1
             if (mbwManager.selectedAccount is Bip44BCHAccount ||
                     mbwManager.selectedAccount is SingleAddressBCHAccount) {
                 actions.add(ActionButton(ACTION.BCH, getString(R.string.exchange_bch_to_btc)))
@@ -112,17 +109,14 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
             }
         }
         buttonAdapter.setButtons(actions)
-        if (scrollTo != 0) {
-            button_list.postDelayed(ScrollToRunner(scrollTo), 500)
-        }
+        button_list.postDelayed(ScrollToRunner(1), 500)
     }
 
     private fun addAdsContent(actions: MutableList<ActionButton>) {
-        if (getBalanceContent() == null) {
-            return
-        }
+        val balanceContent = getBalanceContent()
+                ?: return
         val indexs = mutableSetOf<Int>()
-        for (button in getBalanceContent()!!.buttons) {
+        for (button in balanceContent.buttons) {
             if (button.isEnabled && isContentEnabled(button.parentId ?: "")) {
                 val args = Bundle()
                 args.putSerializable("data", button)
@@ -143,7 +137,9 @@ class BuySellFragment : Fragment(R.layout.main_buy_sell_fragment), ButtonClickLi
         var index = 0
         actions.forEach {
             if (!it.args.containsKey("index")) {
-                while (indexs.contains(index)) index++
+                while (indexs.contains(index)) {
+                    index++
+                }
                 it.args.putInt("index", index)
             }
         }

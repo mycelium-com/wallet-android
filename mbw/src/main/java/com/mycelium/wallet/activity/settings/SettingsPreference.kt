@@ -11,17 +11,18 @@ import com.mycelium.wallet.external.partner.model.*
 import java.util.*
 
 object SettingsPreference {
-    private val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
-    private val MEDIA_FLOW_ENABLE = "media_flow_enable"
-    private val FIO_ENABLE = "fio_enable"
-    private val PARTNER_KEY = "partner-info"
-    private val MEDIAFLOW_KEY = "mediaflow"
-    private val MAIN_MENU_KEY = "mainmenu"
-    private val BUY_SELL_KEY = "buysell"
-    private val BALANCE_KEY = "balance"
-    private val PARTNER_ENABLED = "partner-enabled"
+    private const val NEWS_NOTIFICATION_ENABLE = "news_notification_enable"
+    private const val MEDIA_FLOW_ENABLE = "media_flow_enable"
+    private const val FIO_ENABLE = "fio_enable"
+    private const val PARTNER_KEY = "partner-info"
+    private const val MEDIAFLOW_KEY = "mediaflow"
+    private const val MAIN_MENU_KEY = "mainmenu"
+    private const val BUY_SELL_KEY = "buysell"
+    private const val BALANCE_KEY = "balance"
+    private const val PARTNER_ENABLED = "partner-enabled"
     private val sharedPreferences: SharedPreferences = WalletApplication.getInstance().getSharedPreferences(Constants.SETTINGS_NAME, Context.MODE_PRIVATE)
     private val oldDate = date(1950, Calendar.JANUARY, 1, 0, 0, "Europe/Paris")
+    private val gson = Gson()
 
     @JvmStatic
     var fioEnabled
@@ -69,29 +70,24 @@ object SettingsPreference {
 
     fun getPartners(): List<Partner>? = getPartnersLocalized()?.partners
 
-    private fun getPartnersLocalized(): PartnersLocalized? =
-            Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("partners-${getLanguage()}")) "partners-${getLanguage()}" else "partners-en", ""), PartnersLocalized::class.java)
+    private fun SharedPreferences.getLocalizedString(key: String) = getString(
+            if (contains("$key-${getLanguage()}")) "$key-${getLanguage()}" else "$key-en", "")!!
+
+    private fun <E> load(key: String, clazz: Class<E>): E? = gson.fromJson(sharedPreferences.getLocalizedString(key), clazz)
+
+    private fun getPartnersLocalized() = load("partners", PartnersLocalized::class.java)
 
     @JvmStatic
-    fun getMediaFlowContent(): MediaFlowContent? =
-            Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("${MEDIAFLOW_KEY}-${getLanguage()}")) "${MEDIAFLOW_KEY}-${getLanguage()}" else "${MEDIAFLOW_KEY}-en", ""), MediaFlowContent::class.java)
+    fun getMediaFlowContent() = load(MEDIAFLOW_KEY, MediaFlowContent::class.java)
 
     @JvmStatic
-    fun getMainMenuContent(): MainMenuContent? =
-            Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("${MAIN_MENU_KEY}-${getLanguage()}")) "${MAIN_MENU_KEY}-${getLanguage()}" else "${MAIN_MENU_KEY}-en", ""), MainMenuContent::class.java)
+    fun getMainMenuContent() = load(MAIN_MENU_KEY, MainMenuContent::class.java)
 
     @JvmStatic
-    fun getBalanceContent(): BalanceContent? =
-            Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("${BALANCE_KEY}-${getLanguage()}")) "${BALANCE_KEY}-${getLanguage()}" else "${BALANCE_KEY}-en", ""), BalanceContent::class.java)
+    fun getBalanceContent() = load(BALANCE_KEY, BalanceContent::class.java)
 
     @JvmStatic
-    fun getBuySellContent(): BuySellContent? =
-            Gson().fromJson(sharedPreferences.getString(
-                    if (sharedPreferences.contains("${BUY_SELL_KEY}-${getLanguage()}")) "${BUY_SELL_KEY}-${getLanguage()}" else "${BUY_SELL_KEY}-en", ""), BuySellContent::class.java)
+    fun getBuySellContent() = load(BUY_SELL_KEY, BuySellContent::class.java)
 
     @JvmStatic
     fun getLanguage(): String? = sharedPreferences.getString(Constants.LANGUAGE_SETTING, Locale.getDefault().language)
@@ -99,12 +95,12 @@ object SettingsPreference {
     @JvmStatic
     fun getPartnerInfos(): List<PartnerInfo> = mutableListOf<PartnerInfo>().apply {
         sharedPreferences.all.filter { it.key.startsWith("${PARTNER_KEY}-") }.forEach {
-            add(Gson().fromJson(it.value.toString(), PartnerInfo::class.java))
+            add(gson.fromJson(it.value.toString(), PartnerInfo::class.java))
         }
     }
 
     private fun getPartnerInfo(id: String): PartnerInfo? =
-            Gson().fromJson(sharedPreferences.getString("${PARTNER_KEY}-$id", ""), PartnerInfo::class.java)
+            gson.fromJson(sharedPreferences.getString("${PARTNER_KEY}-$id", ""), PartnerInfo::class.java)
 
     @JvmStatic
     fun isEnabled(partnerInfoId: String): Boolean = sharedPreferences.getBoolean("${PARTNER_ENABLED}-${partnerInfoId}", true)

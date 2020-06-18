@@ -85,6 +85,7 @@ import com.mycelium.wallet.event.SyncStopped;
 import com.mycelium.wallet.event.TorStateChanged;
 import com.mycelium.wallet.event.TransactionBroadcasted;
 import com.mycelium.wallet.external.mediaflow.NewsConstants;
+import com.mycelium.wallet.external.partner.model.MainMenuContent;
 import com.mycelium.wallet.external.partner.model.MainMenuPage;
 import com.mycelium.wallet.modularisation.ModularisationVersionHelper;
 import com.mycelium.wapi.api.response.Feature;
@@ -214,18 +215,21 @@ public class ModernMain extends AppCompatActivity {
     }
 
     private void addAdsTabs(TabLayout tabLayout) {
-        if (SettingsPreference.getMainMenuContent() != null) {
-            Collections.sort(SettingsPreference.getMainMenuContent().getPages(), (a1, a2) -> a1.getTabIndex() - a2.getTabIndex());
-            for (MainMenuPage page : SettingsPreference.getMainMenuContent().getPages()) {
+        MainMenuContent content = SettingsPreference.getMainMenuContent();
+        if (content != null) {
+            Collections.sort(content.getPages(), (a1, a2) -> a1.getTabIndex() - a2.getTabIndex());
+            for (MainMenuPage page : content.getPages()) {
                 if (page.isEnabled() && SettingsPreference.isContentEnabled(page.getParentId())) {
                     Bundle adsBundle = new Bundle();
                     adsBundle.putSerializable("page", page);
-                    if (0 <= page.getTabIndex() && page.getTabIndex() < mTabsAdapter.getCount()) {
-                        mTabsAdapter.addTab(page.getTabIndex(), tabLayout.newTab().setText(page.getTabName()),
-                                AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
+                    int tabIndex = page.getTabIndex();
+                    TabLayout.Tab newTab = tabLayout.newTab().setText(page.getTabName());
+                    if (0 <= tabIndex && tabIndex < mTabsAdapter.getCount()) {
+                        mTabsAdapter.addTab(tabIndex, newTab,
+                                AdsFragment.class, adsBundle, TAB_ADS + tabIndex);
                     } else {
-                        mTabsAdapter.addTab(tabLayout.newTab().setText(page.getTabName()),
-                                AdsFragment.class, adsBundle, TAB_ADS + page.getTabIndex());
+                        mTabsAdapter.addTab(newTab,
+                                AdsFragment.class, adsBundle, TAB_ADS + tabIndex);
                     }
                 }
             }
