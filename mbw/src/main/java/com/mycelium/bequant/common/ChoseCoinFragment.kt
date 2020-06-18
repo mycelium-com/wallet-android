@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration.VERTICAL
 import com.mycelium.bequant.Constants.TYPE_ITEM
 import com.mycelium.bequant.Constants.TYPE_SEARCH
@@ -18,6 +19,8 @@ import kotlinx.android.synthetic.main.fragment_bequant_receive_choose_coin.*
 
 class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin) {
     val adapter = CoinAdapter()
+
+    val args by navArgs<ChoseCoinFragmentArgs>()
     var currencies = listOf<Currency>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +33,7 @@ class ChoseCoinFragment : Fragment(R.layout.fragment_bequant_receive_choose_coin
         list.addItemDecoration(DividerItemDecoration(resources.getDrawable(R.drawable.divider_bequant), VERTICAL)
                 .apply { setFromItem(1) })
         adapter.coinClickListener = {
-            when (arguments?.getString("action")) {
+            when (args.action) {
                 "deposit" -> findNavController().navigate(ChoseCoinFragmentDirections.actionDeposit(it.symbol))
                 "withdraw" -> findNavController().navigate(ChoseCoinFragmentDirections.actionWithdraw(it.symbol))
             }

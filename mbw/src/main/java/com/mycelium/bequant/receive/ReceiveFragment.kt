@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.receive.adapter.ReceiveFragmentAdapter
@@ -16,14 +17,14 @@ import kotlinx.android.synthetic.main.fragment_bequant_receive.*
 
 class ReceiveFragment : Fragment(R.layout.fragment_bequant_receive) {
 
+    val args by navArgs<ReceiveFragmentArgs>()
     lateinit var viewModel: ReceiveCommonViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(ReceiveCommonViewModel::class.java)
-        if (arguments?.containsKey("currency") == true) {
-            viewModel.currency.value = arguments?.getString("currency")
-        }
+        viewModel.currency.value = args.currency
+
         requestDepositAddress(viewModel.currency.value!!)
     }
 
