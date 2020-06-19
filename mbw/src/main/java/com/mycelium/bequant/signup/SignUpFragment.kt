@@ -18,6 +18,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.ACTION_COUNTRY_SELECTED
@@ -25,11 +26,11 @@ import com.mycelium.bequant.Constants.COUNTRY_MODEL_KEY
 import com.mycelium.bequant.Constants.LINK_SUPPORT_CENTER
 import com.mycelium.bequant.Constants.LINK_TERMS_OF_USER
 import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.common.passwordLevel
 import com.mycelium.bequant.kyc.inputPhone.coutrySelector.CountryModel
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Register
+import com.mycelium.bequant.remote.client.models.RegisterAccountRequest
 import com.mycelium.bequant.sign.SignFragmentDirections
 import com.mycelium.bequant.signup.viewmodel.SignUpViewModel
 import com.mycelium.wallet.R
@@ -87,15 +88,14 @@ class SignUpFragment : Fragment() {
         }
         register.setOnClickListener {
             if (validate()) {
-                val register = Register(viewModel.email.value!!, viewModel.password.value!!)
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                SignRepository.repository.register(register, {
-                    loader.dismissAllowingStateLoss()
-                    findNavController().navigate(SignFragmentDirections.actionRegister(register))
-                }, { error ->
-                    loader.dismissAllowingStateLoss()
-                    ErrorHandler(requireContext()).handle(error)
+                loader(true)
+                val registerAccountRequest = RegisterAccountRequest(viewModel.email.value!!, viewModel.password.value!!)
+                SignRepository.repository.signUp(lifecycleScope, registerAccountRequest, success = {
+                    findNavController().navigate(SignFragmentDirections.actionRegister(registerAccountRequest))
+                }, error = { _, message ->
+                    ErrorHandler(requireContext()).handle(message)
+                }, finally = {
+                    loader(false)
                 })
             }
         }

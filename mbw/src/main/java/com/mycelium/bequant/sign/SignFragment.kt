@@ -12,6 +12,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.Constants.ACTION_BEQUANT_SHOW_REGISTER
 import com.mycelium.bequant.market.BequantMarketActivity
@@ -23,6 +24,8 @@ import kotlinx.android.synthetic.main.menu_bequant_try_demo.view.*
 class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
 
     var tabMediator: TabLayoutMediator? = null
+
+    val args by navArgs<SignFragmentArgs>()
 
     val register = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
@@ -49,7 +52,7 @@ class SignFragment : Fragment(R.layout.fragment_bequant_sign) {
         }
         tabMediator?.attach()
         pager.postDelayed({
-            when (arguments?.getString("tab")) {
+            when (args.tab?:"") {
                 "signUp" -> pager.setCurrentItem(0, true)
                 "signIn" -> pager.setCurrentItem(1, true)
             }

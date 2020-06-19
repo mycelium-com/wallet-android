@@ -13,8 +13,10 @@ package com.mycelium.bequant.remote.client.models
 
 
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.android.parcel.Parcelize
 
 /**
  * 
@@ -24,14 +26,15 @@ import com.squareup.moshi.JsonClass
  * @param password 
  */
 @JsonClass(generateAdapter = true)
+@Parcelize
 data class AccountAuthRequest (
     @Json(name = "email")
-    val email: kotlin.String,
+    val email: String,
     @Json(name = "password")
-    val password: kotlin.String,
+    val password: String,
     @Json(name = "otp_backup_password")
-    val otpBackupPassword: kotlin.String? = null,
+    val otpBackupPassword: String? = null,
     @Json(name = "otp_code")
-    val otpCode: kotlin.String? = null
-)
+    val otpCode: String? = null
+) : Parcelable
 
