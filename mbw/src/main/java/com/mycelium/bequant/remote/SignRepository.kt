@@ -80,7 +80,7 @@ class SignRepository {
 
     fun getApiKeys(scope: CoroutineScope, success: (ApiKey?) -> Unit, error: (Int, String) -> Unit, finally: () -> Unit) {
         doRequest(scope, {
-            apiKeyApi.postApiKey()
+            apiKeyApi.postApiKey(ApiKeyRequest())
         }, {
             BequantPreference.setApiKeys(it?.privateKey, it?.publicKey)
             success.invoke(it)
