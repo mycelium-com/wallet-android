@@ -90,7 +90,7 @@ class AccountFragment : Fragment() {
                 viewModel.totalBalance.value = HIDE_VALUE
                 viewModel.totalBalanceFiat.value = "~$HIDE_VALUE"
             } else {
-                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toPlainString()
                 viewModel.totalBalanceFiat.value = mbwManager.exchangeRateManager
                         .get(BequantPreference.getMockCastodialBalance(), FiatType("USD"))?.toStringWithUnit(Denomination.UNIT)
             }
