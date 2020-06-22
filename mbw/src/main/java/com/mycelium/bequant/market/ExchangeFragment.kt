@@ -7,6 +7,7 @@ import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.mycelium.bequant.Constants.REQUEST_CODE_EXCHANGE_COINS
 import com.mycelium.bequant.exchange.SelectCoinActivity
 import com.mycelium.bequant.kyc.BequantKycActivity
@@ -38,10 +39,10 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
         send_percent.apply {
             (getChildAt(childCount - 1) as RadioButton).isChecked = true
         }
-
         viewModel = ViewModelProviders.of(this).get(ExchangeViewModel::class.java)
         viewModel.available.observe(viewLifecycleOwner, Observer {
             available.text = it.toStringWithUnit(Denomination.UNIT)
+            deposit.visibility = if (it.equalZero()) View.VISIBLE else View.INVISIBLE
         })
         viewModel.youSend.observe(viewLifecycleOwner, Observer {
             sendView.text = it.toString(Denomination.UNIT)
@@ -72,7 +73,7 @@ class ExchangeFragment : Fragment(R.layout.fragment_bequant_exchange) {
             viewModel.youSend.value = viewModel.youGet.value
             viewModel.youGet.value = tempValue
         }
-
+        deposit.setOnClickListener { findNavController().navigate(MarketFragmentDirections.actionSelectCoin("deposit")) }
         updateYouSend(100)
     }
 
