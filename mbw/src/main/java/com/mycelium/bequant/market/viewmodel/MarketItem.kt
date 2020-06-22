@@ -27,4 +27,6 @@ class MarketItem(val currencies: String,
                  val fiatPrice: Double?,
                  val change: Double?) : AdapterItem(MARKET_ITEM)
 
-class MarketTitleItem(val sortBy: Int) : AdapterItem(MARKET_TITLE_ITEM)
+class MarketTitleItem(var sortBy: Int) : AdapterItem(MARKET_TITLE_ITEM) {
+    val sortDirections: MutableMap<Int, Boolean> = mutableMapOf(Pair(sortBy, true))
+}

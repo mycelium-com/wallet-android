@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.mycelium.bequant.kyc.steps.Step3FragmentDirections
+import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.kyc.steps.adapter.ItemStep
 import com.mycelium.bequant.kyc.steps.adapter.StepAdapter
 import com.mycelium.bequant.kyc.steps.adapter.StepState
@@ -34,10 +34,10 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_kyc_final_presubmit) {
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
 
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, "Phone Number", StepState.COMPLETE)
-                , ItemStep(1, "Personal information", StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, "Residential Address", StepState.COMPLETE_EDITABLE)
-                , ItemStep(3, "Documents & Selfie", StepState.COMPLETE_EDITABLE)))
+        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
+                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE_EDITABLE)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.COMPLETE_EDITABLE)))
         stepAdapter.clickListener = {
             when (it) {
                 1 -> findNavController().navigate(FinalPresubmitFragmentDirections.actionEditStep1(kycRequest))
@@ -46,6 +46,7 @@ class FinalPresubmitFragment : Fragment(R.layout.fragment_kyc_final_presubmit) {
             }
         }
         submitButton.setOnClickListener {
+            BequantPreference.setKYCRequest(kycRequest)
             Toast.makeText(requireActivity(), "Submitted", Toast.LENGTH_LONG).show()
             requireActivity().finish()
         }

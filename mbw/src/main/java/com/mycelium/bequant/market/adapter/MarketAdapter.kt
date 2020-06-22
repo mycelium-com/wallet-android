@@ -4,6 +4,9 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.view.children
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -16,9 +19,10 @@ import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.item_bequant_market.view.*
+import kotlinx.android.synthetic.main.item_bequant_market.view.volume
 
 
-class MarketAdapter : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCallback()) {
+class MarketAdapter(private val callback: (Int, Boolean) -> Unit) : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
             when (viewType) {
@@ -83,8 +87,47 @@ class MarketAdapter : ListAdapter<AdapterItem, RecyclerView.ViewHolder>(DiffCall
                 }
             }
             MARKET_TITLE_ITEM -> {
+                item as MarketTitleItem
+                clearSortingOptions(holder.itemView)
+                highlightSelectedSortingOption(item, holder.itemView)
 
+                (holder.itemView as ViewGroup).children.filter { it is TextView && it.tag != null }
+                        .forEach { children ->
+                            children.setOnClickListener { v ->
+                                val pos = v.tag.toString().toInt()
+                                // define in what direction we want to sort
+                                val calcDirection = if (item.sortDirections[pos] != null) {
+                                    !item.sortDirections[pos]!!
+                                } else {
+                                    true
+                                }
+                                callback(pos, calcDirection)
+                                item.sortBy = pos
+                                item.sortDirections[pos] = calcDirection
+                                clearSortingOptions(holder.itemView)
+                                highlightSelectedSortingOption(item, holder.itemView)
+                            }
+                        }
             }
+        }
+    }
+
+    private fun clearSortingOptions(itemView: View) {
+        // default colors
+        (itemView as ViewGroup).children.filter { it is TextView }.forEach {
+            (it as TextView).setTextColor(itemView.resources.getColor(R.color.bequant_gray_6))
+        }
+        // hide sorting arrows
+        itemView.children.filter { it.tag != null && it.tag.toString().contains("_arrow") }
+                .forEach { it.visibility = View.INVISIBLE }
+    }
+
+    private fun highlightSelectedSortingOption(item: MarketTitleItem, itemView: View) {
+        itemView.findViewWithTag<TextView>("${item.sortBy}")
+                .setTextColor(itemView.resources.getColor(R.color.white))
+        itemView.findViewWithTag<ImageView>("${item.sortBy}_arrow").apply {
+            visibility = View.VISIBLE
+            rotation = if (item.sortDirections[item.sortBy]!!) 0.0f else 180.0f
         }
     }
 

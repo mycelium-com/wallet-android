@@ -60,14 +60,14 @@ class Step3Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        step.text = "Step 3"
+        step.text = getString(R.string.step_n, 3)
         stepProgress.progress = 3
         val stepAdapter = StepAdapter()
         stepper.adapter = stepAdapter
-        stepAdapter.submitList(listOf(ItemStep(0, "Phone Number", StepState.COMPLETE)
-                , ItemStep(1, "Personal information", StepState.COMPLETE_EDITABLE)
-                , ItemStep(2, "Residential Address", StepState.COMPLETE_EDITABLE)
-                , ItemStep(3, "Documents & Selfie", StepState.CURRENT)))
+        stepAdapter.submitList(listOf(ItemStep(0, getString(R.string.phone_number), StepState.COMPLETE)
+                , ItemStep(1, getString(R.string.personal_info), StepState.COMPLETE_EDITABLE)
+                , ItemStep(2, getString(R.string.residential_address), StepState.COMPLETE_EDITABLE)
+                , ItemStep(3, getString(R.string.doc_selfie), StepState.CURRENT)))
 
         stepAdapter.clickListener = {
             when (it) {

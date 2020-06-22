@@ -20,11 +20,13 @@ object Constants {
     const val ACCESS_TOKEN_KEY = "access_token"
     const val EMAIL_KEY = "email"
     const val PHONE_KEY = "phone"
+    const val KYC_UUID_KEY = "kyc_uuid"
     const val PRIVATE_KEY = "private_key"
     const val PUBLIC_KEY = "public_key"
     const val HIDE_ZERO_BALANCE_KEY = "hide_zero_balance"
     const val INTRO_KEY = "intro"
     const val COUNTRY_MODEL_KEY = "phoneModel"
+    const val KYC_REQUEST_KEY ="kyc_request"
 
     const val REQUEST_CODE_EXCHANGE_COINS = 3001
 
