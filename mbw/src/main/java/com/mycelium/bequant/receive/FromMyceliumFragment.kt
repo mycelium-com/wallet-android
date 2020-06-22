@@ -20,10 +20,12 @@ import com.mycelium.bequant.receive.adapter.AccountPagerAdapter
 import com.mycelium.bequant.receive.viewmodel.FromMyceliumViewModel
 import com.mycelium.bequant.receive.viewmodel.ReceiveCommonViewModel
 import com.mycelium.bequant.withdraw.WithdrawFragmentDirections
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.mycelium.wallet.activity.send.BroadcastDialog
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.databinding.FragmentBequantReceiveFromMyceliumBinding
 import com.mycelium.wapi.wallet.*
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
@@ -107,7 +109,7 @@ class FromMyceliumFragment : Fragment() {
         selectAccountMore.setOnClickListener {
             findNavController().navigate(WithdrawFragmentDirections.actionSelectAccount())
         }
-        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
     }
 
     class SendCoinTask(val fragment: Fragment,
