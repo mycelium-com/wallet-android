@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.InvestmentAccount
@@ -31,12 +32,11 @@ class WithdrawFragment : Fragment() {
 
     lateinit var viewModel: WithdrawViewModel
 
+    val args by navArgs<WithdrawFragmentArgs>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(WithdrawViewModel::class.java)
-        if (arguments?.containsKey("currency") == true) {
-            viewModel.currency.value = arguments?.getString("currency")
-        }
+        viewModel.currency.value = args.currency
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =

@@ -11,11 +11,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.tabs.TabLayoutMediator
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.Constants
 import com.mycelium.bequant.common.ErrorHandler
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.kyc.BequantKycActivity
 import com.mycelium.bequant.market.adapter.MarketFragmentAdapter
 import com.mycelium.bequant.remote.SignRepository
@@ -36,10 +38,13 @@ class MarketFragment : Fragment(R.layout.fragment_bequant_main) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         if (!BequantPreference.isDemo() && !BequantPreference.hasKeys()) {
-            SignRepository.repository.getApiKeys({
+            loader(true)
+            SignRepository.repository.getApiKeys(lifecycleScope, {
                 LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(Intent(Constants.ACTION_BEQUANT_KEYS))
-            }, { code, message ->
+            }, error = { _, message ->
                 ErrorHandler(requireContext()).handle(message)
+            }, finally = {
+                loader(false)
             })
         }
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(receiver, IntentFilter(Constants.ACTION_EXCHANGE))

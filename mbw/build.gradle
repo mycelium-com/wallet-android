@@ -157,6 +157,9 @@ android {
         javaMaxHeapSize "4g"
         jumboMode = true
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 
     packagingOptions {
         exclude 'META-INF/LICENSE'

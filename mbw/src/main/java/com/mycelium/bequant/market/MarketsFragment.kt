@@ -22,9 +22,15 @@ import kotlinx.android.synthetic.main.fragment_bequant_markets.*
 
 
 class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
-    val adapter = MarketAdapter()
-    var tickersData = listOf<Ticker>()
-    val receive = object : BroadcastReceiver() {
+    private var sortDirection = true // true means desc, false - asc
+    private var sortField = 1 // 1 - volume
+    private val adapter = MarketAdapter { pos: Int, desc: Boolean ->
+        sortField = pos
+        sortDirection = desc
+        updateList()
+    }
+    private var tickersData = listOf<Ticker>()
+    private val receive = object : BroadcastReceiver() {
         override fun onReceive(p0: Context?, p1: Intent?) {
             requestTickers()
         }
@@ -54,7 +60,7 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
     }
 
     private fun updateList(filter: String = "") {
-        adapter.submitList(listOf(MarketTitleItem(0)) + tickersData
+        var marketItems = tickersData
                 .filter { c -> !CurrencyCode.values().any { code -> c.symbol.contains(code.shortString, true) } }
                 .filter { if (filter.isNotEmpty()) it.symbol.contains(filter, true) else true }
                 .map {
@@ -64,7 +70,31 @@ class MarketsFragment : Fragment(R.layout.fragment_bequant_markets) {
                     }
                     MarketItem("${it.symbol.substring(0, 3)} / ${it.symbol.substring(3)}",
                             it.volume, it.last, getUSDForPriceCurrency(it.symbol.substring(0, 3)), change)
-                })
+                }
+        marketItems = when (sortField) {
+            0 -> if (sortDirection) {
+                marketItems.sortedByDescending { it.currencies }
+            } else {
+                marketItems.sortedBy { it.currencies }
+            }
+            1 -> if (sortDirection) {
+                marketItems.sortedByDescending { it.volume }
+            } else {
+                marketItems.sortedBy { it.volume }
+            }
+            2 -> if (sortDirection) {
+                marketItems.sortedByDescending { it.price }
+            } else {
+                marketItems.sortedBy { it.price }
+            }
+            3 -> if (sortDirection) {
+                marketItems.sortedByDescending { it.change }
+            } else {
+                marketItems.sortedBy { it.change }
+            }
+            else -> marketItems
+        }
+        adapter.submitList(listOf(MarketTitleItem(sortField)) + marketItems)
     }
 
     private fun getUSDForPriceCurrency(currency: String): Double? =

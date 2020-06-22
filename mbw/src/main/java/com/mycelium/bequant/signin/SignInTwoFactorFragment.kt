@@ -6,11 +6,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.mycelium.bequant.common.ErrorHandler
-import com.mycelium.bequant.common.LoaderFragment
+import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.market.BequantMarketActivity
 import com.mycelium.bequant.remote.SignRepository
-import com.mycelium.bequant.remote.model.Auth
+import com.mycelium.bequant.remote.client.models.AccountAuthRequest
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
 import com.poovam.pinedittextfield.PinField
@@ -18,6 +20,9 @@ import kotlinx.android.synthetic.main.fragment_bequant_sign_in_two_factor.*
 
 
 class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_factor) {
+
+    val args by navArgs<SignInTwoFactorFragmentArgs>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -25,7 +30,7 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val auth = arguments?.getSerializable("auth") as Auth
+        val auth = args.auth
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.bequant_page_title_two_factor_auth)
         (activity as AppCompatActivity?)?.supportActionBar?.setHomeAsUpIndicator(resources.getDrawable(R.drawable.ic_bequant_arrow_back))
         pasteFromClipboard.setOnClickListener {
@@ -33,16 +38,14 @@ class SignInTwoFactorFragment : Fragment(R.layout.fragment_bequant_sign_in_two_f
         }
         pinCode.onTextCompleteListener = object : PinField.OnTextCompleteListener {
             override fun onTextComplete(enteredText: String): Boolean {
-                val loader = LoaderFragment()
-                loader.show(parentFragmentManager, "loader")
-                auth.otpCode = enteredText
-                SignRepository.repository.authorize(auth, {
-                    loader.dismissAllowingStateLoss()
+                loader(true)
+                SignRepository.repository.authorize(this@SignInTwoFactorFragment.lifecycleScope, auth.copy(otpCode = enteredText), {
                     startActivity(Intent(requireContext(), BequantMarketActivity::class.java))
                     requireActivity().finish()
-                }, { code, message ->
-                    loader.dismissAllowingStateLoss()
+                }, error = { _, message ->
                     ErrorHandler(requireContext()).handle(message)
+                }, finally = {
+                    loader(false)
                 })
                 return true
             }
