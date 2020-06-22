@@ -30,6 +30,7 @@ import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
+import com.mycelium.wallet.activity.util.toString
 
 
 class WithdrawFragment : Fragment() {
