@@ -16,16 +16,19 @@ import com.mycelium.bequant.InvestmentAccount
 import com.mycelium.bequant.common.loader
 import com.mycelium.bequant.withdraw.adapter.WithdrawFragmentAdapter
 import com.mycelium.bequant.withdraw.viewmodel.WithdrawViewModel
+import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
 import com.mycelium.wallet.Utils
-import com.mycelium.wallet.activity.send.BroadcastDialog
 import com.mycelium.wallet.databinding.FragmentBequantWithdrawBinding
-import com.mycelium.wapi.wallet.*
-import com.mycelium.wapi.wallet.btc.BtcTransaction
+import com.mycelium.wapi.wallet.GenericAddress
+import com.mycelium.wapi.wallet.GenericFee
+import com.mycelium.wapi.wallet.GenericTransaction
+import com.mycelium.wapi.wallet.WalletAccount
 import com.mycelium.wapi.wallet.btc.FeePerKbFee
 import com.mycelium.wapi.wallet.coins.Value
 import kotlinx.android.synthetic.main.fragment_bequant_withdraw.*
+import com.mycelium.wallet.activity.util.toString
 
 
 class WithdrawFragment : Fragment() {
@@ -51,7 +54,7 @@ class WithdrawFragment : Fragment() {
         pager.adapter = WithdrawFragmentAdapter(this, viewModel)
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
-        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
         val mbwManager = MbwManager.getInstance(requireContext())
         send.setOnClickListener {
             if (viewModel.amount.value != null) {
