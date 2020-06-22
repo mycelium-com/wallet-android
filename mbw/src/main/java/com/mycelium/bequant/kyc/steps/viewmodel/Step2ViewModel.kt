@@ -11,6 +11,7 @@ class Step2ViewModel : ViewModel() {
     val city = MutableLiveData<String>()
     val postcode = MutableLiveData<String>()
     val country = MutableLiveData<String>()
+    val nextButton = MutableLiveData<Boolean>()
 
 
     fun fromModel(kyc: KYCRequest) {
@@ -27,5 +28,24 @@ class Step2ViewModel : ViewModel() {
         kyc.city = city.value
         kyc.zip = postcode.value
         kyc.country = country.value
+    }
+
+    fun isValid(): Boolean {
+        if (addressLine1.value?.trim()?.isNotEmpty() != true) {
+            return false
+        }
+        if (addressLine2.value?.trim()?.isNotEmpty() != true) {
+            return false
+        }
+        if (city.value?.trim()?.isNotEmpty() != true) {
+            return false
+        }
+        if (postcode.value?.trim()?.isNotEmpty() != true) {
+            return false
+        }
+        if (country.value?.trim()?.isNotEmpty() != true) {
+            return false
+        }
+        return true
     }
 }

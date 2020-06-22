@@ -44,7 +44,7 @@ interface ApiKeyApi {
     @POST("api-key")
     
     suspend fun postApiKey(
-        @Body apiKeyRequest: ApiKeyRequest? = null
+        @Body apiKeyRequest: ApiKeyRequest = ApiKeyRequest()
     ): Response<ApiKey>
 
     /**

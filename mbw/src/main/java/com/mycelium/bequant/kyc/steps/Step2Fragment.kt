@@ -9,6 +9,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -98,6 +99,22 @@ class Step2Fragment : Fragment() {
                 findNavController().navigate(Step2FragmentDirections.actionNext(kycRequest))
             }
         }
+
+        viewModel.addressLine1.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.addressLine2.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.city.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.postcode.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
+        viewModel.country.observe(viewLifecycleOwner, Observer {
+            viewModel.nextButton.value = viewModel.isValid()
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
