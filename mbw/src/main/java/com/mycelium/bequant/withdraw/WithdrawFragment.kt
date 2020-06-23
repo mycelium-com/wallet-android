@@ -51,7 +51,7 @@ class WithdrawFragment : Fragment() {
         pager.adapter = WithdrawFragmentAdapter(this, viewModel)
         tabs.setupWithViewPager(pager)
         pager.offscreenPageLimit = 2
-        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toString()
+        viewModel.castodialBalance.value = BequantPreference.getMockCastodialBalance().toString()
         val mbwManager = MbwManager.getInstance(requireContext())
         send.setOnClickListener {
             if (viewModel.amount.value != null) {
