@@ -181,8 +181,9 @@ class EthAccount(private val accountContext: EthAccountContext,
             remoteTransactions.forEach { tx ->
                 backing.putTransaction(tx.blockHeight.toInt(), tx.blockTime, tx.txid, "", tx.from, tx.to,
                         valueOf(coinType, tx.value), valueOf(coinType, tx.gasPrice * (tx.gasUsed
-                        ?: typicalEstimatedTransactionSize.toBigInteger())),
-                        tx.confirmations.toInt(), tx.nonce, tx.success, tx.gasLimit, tx.gasUsed)
+                        ?: typicalEstimatedTransactionSize.toBigInteger())), tx.confirmations.toInt(),
+                        tx.nonce,  valueOf(coinType, tx.internalValue ?: BigInteger.ZERO),
+                        tx.success, tx.gasLimit, tx.gasUsed)
             }
             val localTxs = getUnconfirmedTransactions()
             // remove such transactions that are not on server anymore

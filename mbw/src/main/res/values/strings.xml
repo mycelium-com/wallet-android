@@ -105,6 +105,7 @@
     <string name="gas_used">Gas Used</string>
     <string name="gas_price">Gas Price</string>
     <string name="nonce">Nonce</string>
+    <string name="eth_internal_transfer">(%s has been transferred to the caller)</string>
     <string name="replace_transaction">Transaction to be replaced</string>
     <string name="gas_limit_error">Gas Limit must be at least 21000</string>
     <string name="input_data">Input Data</string>
