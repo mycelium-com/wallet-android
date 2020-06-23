@@ -511,7 +511,7 @@
         <item quantity="one">Contains %1$d address.</item>
         <item quantity="other">Contains %1$d addresses.</item>
     </plurals>
-    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$s transactions retrieved</string>
+    <string name="sync_total_retrieved_transactions">Syncing in progress: %1$d transactions retrieved</string>
     <string name="archiving_account_title">Archiving Account</string>
     <string name="new_version_exists">A new Version is available</string>
     <string name="check_update">Check for Update</string>

@@ -387,9 +387,7 @@ open class HDAccount(
             val transactions: Collection<TransactionEx> = getTransactionsBatched(fewIds).result.transactions
             handleNewExternalTransactions(transactions)
         }
-        // HACK: skipping local handling of known transactions breaks the sync process. This should
-        // be fixed somewhere else to make this line obsolete.
-        handleNewExternalTransactions(knownTransactions)
+        handleNewExternalTransactions(knownTransactions, true)
         return derivePaths.filter { derivationType ->
             // only include if the last external or internal index has changed
                     (lastExternalIndexesBefore[derivationType] != context.getLastExternalIndexWithActivity(derivationType)
