@@ -37,7 +37,7 @@ import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
 import com.mycelium.wapi.wallet.fiat.coins.FiatType
 import kotlinx.android.synthetic.main.fragment_bequant_account.*
 import kotlinx.android.synthetic.main.item_bequant_search.*
-
+import com.mycelium.wallet.activity.util.toString
 
 class AccountFragment : Fragment() {
     val adapter = BequantAccountAdapter()
