@@ -30,6 +30,7 @@ import com.mycelium.bequant.remote.model.BequantBalance
 import com.mycelium.view.Denomination
 import com.mycelium.wallet.MbwManager
 import com.mycelium.wallet.R
+import com.mycelium.wallet.activity.util.toString
 import com.mycelium.wallet.activity.util.toStringWithUnit
 import com.mycelium.wallet.activity.view.DividerItemDecoration
 import com.mycelium.wallet.databinding.FragmentBequantAccountBinding
@@ -90,7 +91,7 @@ class AccountFragment : Fragment() {
                 viewModel.totalBalance.value = HIDE_VALUE
                 viewModel.totalBalanceFiat.value = "~$HIDE_VALUE"
             } else {
-                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().valueAsBigDecimal.stripTrailingZeros().toPlainString()
+                viewModel.totalBalance.value = BequantPreference.getMockCastodialBalance().toString(Denomination.UNIT)
                 viewModel.totalBalanceFiat.value = mbwManager.exchangeRateManager
                         .get(BequantPreference.getMockCastodialBalance(), FiatType("USD"))?.toStringWithUnit(Denomination.UNIT)
             }
