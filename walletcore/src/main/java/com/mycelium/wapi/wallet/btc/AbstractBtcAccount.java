@@ -109,6 +109,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nonnull;
+
 import static com.mrd.bitlib.StandardTransactionBuilder.createOutput;
 import static com.mrd.bitlib.TransactionUtils.MINIMUM_OUTPUT_VALUE;
 import static java.util.Collections.singletonList;
@@ -467,17 +469,22 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
    }
 
    protected void handleNewExternalTransactions(Collection<TransactionEx> transactions) throws WapiException {
+      handleNewExternalTransactions(transactions, false);
+   }
+
+   // HACK: skipping local handling of known transactions breaks the sync process. This should
+   // be fixed somewhere else to make allKnown obsolete.
+   protected void handleNewExternalTransactions(Collection<TransactionEx> transactions, boolean allKnown) throws WapiException {
       ArrayList<TransactionEx> all = new ArrayList<>(transactions);
       for (int i = 0; i < all.size(); i += MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY) {
          int endIndex = Math.min(all.size(), i + MAX_TRANSACTIONS_TO_HANDLE_SIMULTANEOUSLY);
          Collection<TransactionEx> sub = all.subList(i, endIndex);
-         handleNewExternalTransactionsInt(sub);
-         syncTotalRetrievedTransactions += (endIndex - i);
+         handleNewExternalTransactionsInt(sub, allKnown);
          updateSyncProgress();
       }
    }
 
-   private void handleNewExternalTransactionsInt(Collection<TransactionEx> transactions) throws WapiException {
+   private void handleNewExternalTransactionsInt(@Nonnull Collection<TransactionEx> transactions, boolean allKnown) throws WapiException {
       // Transform and put into two arrays with matching indexes
       List<Transaction> txArray = new ArrayList<>(transactions.size());
       for (TransactionEx tex : transactions) {
@@ -493,7 +500,10 @@ public abstract class AbstractBtcAccount extends SynchronizeAbleWalletBtcAccount
       fetchStoreAndValidateParentOutputs(txArray, this instanceof SingleAddressAccount);
 
       // Store transaction locally
-      _backing.putTransactions(transactions);
+      if (!allKnown) {
+         _backing.putTransactions(transactions);
+         syncTotalRetrievedTransactions += transactions.size();
+      }
 
       for (Transaction t : txArray) {
          onNewTransaction(t);
