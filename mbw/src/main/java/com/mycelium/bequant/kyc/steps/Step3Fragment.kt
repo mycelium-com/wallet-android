@@ -40,6 +40,7 @@ class Step3Fragment : Fragment() {
     val identityAdapter = DocumentAdapter()
     val proofAddressAdapter = DocumentAdapter()
     val selfieAdapter = DocumentAdapter()
+    var counter: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,8 +77,13 @@ class Step3Fragment : Fragment() {
             }
         }
         identityList.adapter = identityAdapter
+        identityAdapter.listChangeListener = {
+            viewModel.identityCount.value = it.size
+            viewModel.nextButton.value = viewModel.isValid()
+        }
         identityAdapter.submitList(kycRequest.identityList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.PASSPORT, it,
+                    progress = 100, loadStatus = LoadStatus.LOADED)
         })
         identityAdapter.removeListner = {
             kycRequest.identityList.remove(it.name)
@@ -86,9 +92,16 @@ class Step3Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
+        identityAdapter.reloadListener = {
+            upload(it, identityAdapter, kycRequest.identityList)
+        }
         proofAddressList.adapter = proofAddressAdapter
+        proofAddressAdapter.listChangeListener = {
+            viewModel.poaCount.value = it.size
+            viewModel.nextButton.value = viewModel.isValid()
+        }
         proofAddressAdapter.submitList(kycRequest.poaList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.POA, it)
         })
         proofAddressAdapter.removeListner = {
             kycRequest.poaList.remove(it.name)
@@ -97,9 +110,16 @@ class Step3Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
+        proofAddressAdapter.reloadListener = {
+            upload(it, proofAddressAdapter, kycRequest.poaList)
+        }
         selfieList.adapter = selfieAdapter
+        selfieAdapter.listChangeListener = {
+            viewModel.selfieCount.value = it.size
+            viewModel.nextButton.value = viewModel.isValid()
+        }
         selfieAdapter.submitList(kycRequest.selfieList.map {
-            Document(BitmapFactory.decodeFile(it), "Doc" + (++counter).toString(), it)
+            Document(BitmapFactory.decodeFile(it), "Doc ${++counter}", KYCDocument.SELFIE, it)
         })
         selfieAdapter.removeListner = {
             kycRequest.selfieList.remove(it.name)
@@ -108,21 +128,30 @@ class Step3Fragment : Fragment() {
             startActivity(Intent(requireContext(), NewsImageActivity::class.java)
                     .putExtra("url", it.url))
         }
-        addIndentity.setOnClickListener {
+        selfieAdapter.reloadListener = {
+            upload(it, selfieAdapter, kycRequest.selfieList)
+        }
+        val identityClick = { v: View ->
             DocumentAttachDialog().apply {
                 setTargetFragment(this@Step3Fragment, REQUEST_CODE_INDENTITY)
             }.show(parentFragmentManager, "upload_document")
         }
-        addProofAddress.setOnClickListener {
+        uploadIdentity.setOnClickListener(identityClick)
+        addIdentity.setOnClickListener(identityClick)
+        val poaClick = { v: View ->
             DocumentAttachDialog().apply {
                 setTargetFragment(this@Step3Fragment, REQUEST_CODE_PROOF_ADDRESS)
             }.show(parentFragmentManager, "upload_document")
         }
-        addSelfie.setOnClickListener {
+        uploadProofAddress.setOnClickListener(poaClick)
+        addProofAddress.setOnClickListener(poaClick)
+        val selfieClick = { v: View ->
             DocumentAttachDialog().apply {
                 setTargetFragment(this@Step3Fragment, REQUEST_CODE_SELFIE)
             }.show(parentFragmentManager, "upload_document")
         }
+        uploadSelfie.setOnClickListener(selfieClick)
+        addSelfie.setOnClickListener(selfieClick)
 
         btFinish.setOnClickListener {
             findNavController().navigate(Step3FragmentDirections.actionNext(kycRequest))
@@ -143,7 +172,6 @@ class Step3Fragment : Fragment() {
                 else -> super.onOptionsItemSelected(item)
             }
 
-    var counter: Int = 0
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
@@ -162,17 +190,28 @@ class Step3Fragment : Fragment() {
     }
 
     private fun uploadImage(data: Intent?, adapter: DocumentAdapter, docType: KYCDocument, requestList: MutableList<String>) {
-        val outputFile = if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile
+        (if (data?.data != null) getFileFromGallery(data) else DocumentAttachDialog.currentPhotoFile)?.run {
+            val item = Document(BitmapFactory.decodeFile(absolutePath), "Doc ${++counter}", docType, absolutePath)
+            adapter.submitList(adapter.currentList + item)
+            upload(item, adapter, requestList)
+        }
+    }
 
-        val item = Document(BitmapFactory.decodeFile(outputFile?.absolutePath), "Doc" + (++counter).toString(), outputFile?.absolutePath)
-        adapter.submitList(adapter.currentList + item)
-        KYCRepository.repository.uploadDocument(viewModel.viewModelScope, docType,
-                outputFile!!, { uploaded, total ->
+    private fun upload(item: Document, adapter: DocumentAdapter, requestList: MutableList<String>) {
+        val outputFile = File(item.url)
+        KYCRepository.repository.uploadDocument(viewModel.viewModelScope, item.docType,
+                outputFile, { uploaded, total ->
             item.size = total
             item.progress = (uploaded * 100 / total).toInt()
+            item.loadStatus = LoadStatus.LOADING
             adapter.notifyItemChanged(adapter.currentList.indexOf(item))
         }, {
             requestList.add(outputFile.absolutePath)
+            item.loadStatus = LoadStatus.LOADED
+            adapter.notifyItemChanged(adapter.currentList.indexOf(item))
+        }, {
+            item.loadStatus = LoadStatus.FAILED
+            adapter.notifyItemChanged(adapter.currentList.indexOf(item))
         })
     }
 
