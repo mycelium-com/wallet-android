@@ -1,9 +1,11 @@
 package com.mycelium.wallet.activity
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.mycelium.wallet.R
 import com.mycelium.wallet.activity.util.AddressLabel
 import com.mycelium.wallet.activity.util.EthFeeFormatter
@@ -41,6 +43,13 @@ class EthDetailsFragment : GenericDetailsFragment() {
         llTo.addView(toAddress)
 
         llValue.addView(getValue(tx.value, null))
+        if (tx.internalValue?.isZero() == false) {
+            llValue.addView(TextView(requireContext()).apply {
+                layoutParams = TransactionDetailsActivity.WCWC
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                text = getString(R.string.eth_internal_transfer, tx.internalValue)
+            })
+        }
         llFee.addView(getValue(tx.fee!!, null))
 
         tvGasLimit.text = tx.gasLimit.toString()
