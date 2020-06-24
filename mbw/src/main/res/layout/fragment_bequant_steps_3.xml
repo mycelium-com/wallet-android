@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="headerViewModel"
             type="com.mycelium.bequant.kyc.steps.viewmodel.HeaderViewModel" />
@@ -41,7 +43,7 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Identity Document"
+                    android:text="@string/identity_document"
                     android:textSize="20sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -61,13 +63,23 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/addIndentity"
+                    android:id="@+id/uploadIdentity"
                     style="@style/Bequant.Button.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Upload Document"
-                    android:textColor="@color/bequant_yellow" />
+                    android:text="@string/upload_document"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.identityCount > 0 ? View.GONE : View.VISIBLE}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addIdentity"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_document"
+                    android:visibility="@{viewModel.identityCount > 0 ? View.VISIBLE : View.GONE}" />
 
                 <View
                     android:layout_width="match_parent"
@@ -80,7 +92,7 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Proof of Address"
+                    android:text="@string/proof_of_address"
                     android:textSize="20sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -97,24 +109,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/addProofAddress"
+                    android:id="@+id/uploadProofAddress"
                     style="@style/Bequant.Button.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Upload Document"
-                    android:textColor="@color/bequant_yellow" />
+                    android:text="@string/upload_document"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.poaCount > 0 ? View.GONE : View.VISIBLE}" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@color/bequant_gray_4" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addProofAddress"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_document"
+                    android:visibility="@{viewModel.poaCount > 0 ? View.VISIBLE : View.GONE}" />
 
                 <View
                     android:layout_width="match_parent"
@@ -127,7 +141,7 @@
                     style="@style/Bequant.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Selfie"
+                    android:text="@string/selfie"
                     android:textSize="20sp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
@@ -147,21 +161,32 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/addSelfie"
+                    android:id="@+id/uploadSelfie"
                     style="@style/Bequant.Button.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Add Selfie"
-                    android:textColor="@color/bequant_yellow" />
+                    android:text="@string/upload_selfie"
+                    android:textColor="@color/bequant_yellow"
+                    android:visibility="@{viewModel.selfieCount > 0 ? View.GONE : View.VISIBLE}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/addSelfie"
+                    style="@style/Bequant.Button.Gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/add_selfie"
+                    android:visibility="@{viewModel.selfieCount > 0 ? View.VISIBLE : View.GONE}" />
 
                 <Button
                     android:id="@+id/btFinish"
                     style="@style/Bequant.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:enabled="@{viewModel.nextButton}"
                     android:layout_marginTop="32dp"
-                    android:text="Finish" />
+                    android:text="@string/finish" />
 
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>

@@ -1,16 +1,15 @@
 package com.mycelium.bequant.remote
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.mycelium.bequant.BequantPreference
 import com.mycelium.bequant.remote.client.apis.AccountApi
 import com.mycelium.bequant.remote.client.apis.ApiKeyApi
+import com.mycelium.bequant.remote.client.createApi
 import com.mycelium.bequant.remote.client.models.*
 import kotlinx.coroutines.CoroutineScope
 
 class SignRepository {
 
-    private val accountApi = AccountApi.create()
+    private val accountApi = createApi<AccountApi>()
     private val apiKeyApi = ApiKeyApi.create()
 
     fun signUp(scope: CoroutineScope,

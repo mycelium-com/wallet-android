@@ -1426,4 +1426,18 @@ All new bitcoins, mined by the pool, are proportionally distributed among RMC bi
     <string name="residential_address">Residential Address</string>
     <string name="doc_selfie"><![CDATA[Documents & Selfie]]></string>
     <string name="identity_auth">Identity Authentication</string>
+    <string name="upload_document">Upload Document</string>
+    <string name="upload_selfie">Upload Selfie</string>
+    <string name="identity_document">Identity Document</string>
+    <string name="add_document">Add Document</string>
+    <string name="add_selfie">Add Selfie</string>
+    <string name="finish">Finish</string>
+    <string name="proof_of_address">Proof of Address</string>
+    <string name="selfie">Selfie</string>
+    <string name="mm_dd_yyyy">mm/dd/yyyy</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="personal_information">Personal information</string>
+    <string name="nationality">Nationality</string>
 </resources>

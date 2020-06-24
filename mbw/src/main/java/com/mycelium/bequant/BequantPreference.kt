@@ -82,6 +82,7 @@ object BequantPreference {
 
     fun getKYCRequest() =
             Gson().fromJson(preference.getString(Constants.KYC_REQUEST_KEY, null), KYCRequest::class.java)
+                    ?: KYCRequest()
 
     fun setKYCRequest(request: KYCRequest) {
         preference.edit().putString(Constants.KYC_REQUEST_KEY, Gson().toJson(request)).apply()
